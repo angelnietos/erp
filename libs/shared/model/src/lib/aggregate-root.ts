@@ -1,8 +1,8 @@
-﻿export interface DomainEvent {
+export interface DomainEvent {
   readonly aggregateType: string;
   readonly aggregateId: string;
   readonly eventType: string;
-  readonly payload: Record<string, any>;
+  readonly payload: Record<string, unknown>;
   readonly occurredAt: Date;
 }
 

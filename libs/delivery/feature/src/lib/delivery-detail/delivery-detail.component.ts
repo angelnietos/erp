@@ -202,7 +202,7 @@ export class DeliveryDetailComponent implements OnInit {
     }
   }
 
-  getConditionVariant(condition: string): 'success' | 'warning' | 'error' | 'default' {
+  getConditionVariant(condition: string): BadgeVariant {
     switch (condition) {
       case 'new': return 'success';
       case 'good': return 'info';

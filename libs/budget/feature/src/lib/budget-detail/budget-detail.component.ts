@@ -95,9 +95,13 @@ export interface Budget {
         }
 
         <div class="action-buttons">
-          <ui-josanz-button (clicked)="approveBudget()" *ngIf="budget()?.status === 'sent'">Aceptar Presupuesto</ui-josanz-button>
-          <ui-josanz-button (clicked)="createDelivery()" *ngIf="budget()?.status === 'accepted'">Generar Albarán</ui-josanz-button>
-          <ui-josanz-button (clicked)="createInvoice()" *ngIf="budget()?.status === 'accepted'">Generar Factura</ui-josanz-button>
+          @if (budget()?.status === 'sent') {
+            <ui-josanz-button (clicked)="approveBudget()">Aceptar Presupuesto</ui-josanz-button>
+          }
+          @if (budget()?.status === 'accepted') {
+            <ui-josanz-button (clicked)="createDelivery()">Generar Albarán</ui-josanz-button>
+            <ui-josanz-button (clicked)="createInvoice()">Generar Factura</ui-josanz-button>
+          }
         </div>
       }
     </div>
