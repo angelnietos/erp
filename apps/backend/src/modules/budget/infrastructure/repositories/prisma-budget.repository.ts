@@ -3,6 +3,7 @@ import { Budget as PrismaBudgetModel, BudgetItem as PrismaBudgetItemModel } from
 import { PrismaService } from '@josanz-erp/shared-data-access';
 import { BudgetRepositoryPort, Budget, BudgetItem } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
+import { BudgetStatus } from '@josanz-erp/budget-core';
 
 type BudgetWithItems = PrismaBudgetModel & { items: PrismaBudgetItemModel[] };
 type BudgetPersistenceView = {
@@ -80,7 +81,7 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
       startDate: data.startDate,
       endDate: data.endDate,
       total: data.total,
-      status: data.status,
+      status: data.status as BudgetStatus,
       items: (data.items || []).map((i) => ({
         id: new EntityId(i.id),
         productId: new EntityId(i.productId),
