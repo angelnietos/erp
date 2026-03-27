@@ -1,0 +1,26 @@
+{
+  "name": "inventory-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/inventory/api/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/inventory/api",
+        "main": "libs/inventory/api/src/index.ts",
+        "tsConfig": "libs/inventory/api/tsconfig.lib.json",
+        "assets": ["libs/inventory/api/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/inventory/api/jest.config.cts"
+      }
+    }
+  }
+}

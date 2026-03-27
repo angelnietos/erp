@@ -15,20 +15,49 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@josanz-erp/model-shared": ["libs/model-shared/src/index.ts"],
-      "@josanz-erp/model-budget": ["libs/model-budget/src/index.ts"],
-      "@josanz-erp/model-invoice": ["libs/model-invoice/src/index.ts"],
-      "@josanz-erp/data-access-budget": [
-        "libs/data-access-budget/src/index.ts"
+      "@josanz-erp/shared-model": ["libs/shared/model/src/index.ts"],
+      "@josanz-erp/shared-ui-kit": ["libs/shared/ui-kit/src/index.ts"],
+      "@josanz-erp/identity-data-access": [
+        "libs/identity/data-access/src/index.ts"
       ],
-      "@josanz-erp/data-access-invoice": [
-        "libs/data-access-invoice/src/index.ts"
+      "@josanz-erp/identity-feature": ["libs/identity/feature/src/index.ts"],
+      "@josanz-erp/identity-shell": ["libs/identity/shell/src/index.ts"],
+      "@josanz-erp/identity-api": ["libs/identity/api/src/index.ts"],
+      "@josanz-erp/budget-data-access": [
+        "libs/budget/data-access/src/index.ts"
       ],
-      "@josanz-erp/ui-buttons": ["libs/ui-buttons/src/index.ts"],
-      "@josanz-erp/ui-forms": ["libs/ui-forms/src/index.ts"],
-      "@josanz-erp/ui-tables": ["libs/ui-tables/src/index.ts"],
-      "@josanz-erp/feature-budget": ["libs/feature-budget/src/index.ts"],
-      "@josanz-erp/feature-invoice": ["libs/feature-invoice/src/index.ts"]
+      "@josanz-erp/budget-api": ["libs/budget/api/src/index.ts"],
+      "@josanz-erp/clients-api": ["libs/clients/api/src/index.ts"],
+      "@josanz-erp/inventory-api": ["libs/inventory/api/src/index.ts"],
+      "@josanz-erp/rentals-api": ["libs/rentals/api/src/index.ts"],
+      "@josanz-erp/delivery-api": ["libs/delivery/api/src/index.ts"],
+      "@josanz-erp/billing-api": ["libs/billing/api/src/index.ts"],
+      "@josanz-erp/fleet-api": ["libs/fleet/api/src/index.ts"],
+      "@josanz-erp/clients-data-access": [
+        "libs/clients/data-access/src/index.ts"
+      ],
+      "@josanz-erp/clients-feature": ["libs/clients/feature/src/index.ts"],
+      "@josanz-erp/clients-shell": ["libs/clients/shell/src/index.ts"],
+      "@josanz-erp/inventory-data-access": [
+        "libs/inventory/data-access/src/index.ts"
+      ],
+      "@josanz-erp/inventory-feature": ["libs/inventory/feature/src/index.ts"],
+      "@josanz-erp/inventory-shell": ["libs/inventory/shell/src/index.ts"],
+      "@josanz-erp/rentals-data-access": [
+        "libs/rentals/data-access/src/index.ts"
+      ],
+      "@josanz-erp/rentals-feature": ["libs/rentals/feature/src/index.ts"],
+      "@josanz-erp/rentals-shell": ["libs/rentals/shell/src/index.ts"],
+      "@josanz-erp/delivery-data-access": [
+        "libs/delivery/data-access/src/index.ts"
+      ],
+      "@josanz-erp/delivery-feature": ["libs/delivery/feature/src/index.ts"],
+      "@josanz-erp/delivery-shell": ["libs/delivery/shell/src/index.ts"],
+      "@josanz-erp/billing-data-access": [
+        "libs/billing/data-access/src/index.ts"
+      ],
+      "@josanz-erp/billing-feature": ["libs/billing/feature/src/index.ts"],
+      "@josanz-erp/billing-shell": ["libs/billing/shell/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

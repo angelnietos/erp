@@ -1,0 +1,26 @@
+{
+  "name": "clients-api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/clients/api/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/clients/api",
+        "main": "libs/clients/api/src/index.ts",
+        "tsConfig": "libs/clients/api/tsconfig.lib.json",
+        "assets": ["libs/clients/api/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/clients/api/jest.config.cts"
+      }
+    }
+  }
+}
