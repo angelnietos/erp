@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@josanz-erp/shared-model": ["libs/shared/model/src/index.ts"],
+      "@josanz-erp/shared-data-access": ["libs/shared/data-access/src/index.ts"],
       "@josanz-erp/shared-ui-kit": ["libs/shared/ui-kit/src/index.ts"],
       "@josanz-erp/identity-data-access": [
         "libs/identity/data-access/src/index.ts"

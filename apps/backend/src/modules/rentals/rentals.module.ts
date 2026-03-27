@@ -1,5 +1,5 @@
 ﻿import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../shared/infrastructure/prisma/prisma.module';
+import { PrismaModule } from '@josanz-erp/shared-data-access';
 
 @Module({
   imports: [PrismaModule],

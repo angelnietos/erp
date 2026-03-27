@@ -2,8 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BUDGET_REPOSITORY, BudgetRepositoryPort, Budget } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
 import { CreateBudgetDto } from '../dtos/create-budget.dto';
-import { OutboxService } from '../../../../shared/infrastructure/outbox/outbox.service';
-import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
+import { OutboxService, PrismaService } from '@josanz-erp/shared-data-access';
 
 @Injectable()
 export class BudgetService {

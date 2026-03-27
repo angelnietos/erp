@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../shared/infrastructure/prisma/prisma.module';
+import { PrismaModule } from '@josanz-erp/shared-data-access';
 import { ClientsController } from './presentation/controllers/clients.controller';
 import { CLIENTS_REPOSITORY, ClientsService } from '@josanz-erp/clients-core';
 import { PrismaClientsRepository } from './infrastructure/repositories/prisma-clients.repository';

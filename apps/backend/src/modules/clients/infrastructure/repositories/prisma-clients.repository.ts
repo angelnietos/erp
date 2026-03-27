@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
+import { PrismaService } from '@josanz-erp/shared-data-access';
 import { ClientSummary, ClientsRepositoryPort } from '@josanz-erp/clients-core';
 
 @Injectable()
