@@ -32,6 +32,7 @@ model Product {
   
   inventory   Inventory?
   rentalItems RentalItem[]
+  budgetItems BudgetItem[]
   inventoryReservations InventoryReservation[]
   inventoryMovements InventoryMovement[]
 
@@ -130,10 +131,26 @@ model Budget {
   createdAt      DateTime        @default(now()) @map("created_at")
 
   client         Client          @relation(fields: [clientId], references: [id])
+  items          BudgetItem[]
   deliveryNotes  DeliveryNote[]
   invoices       Invoice[]
   
   @@map("budgets")
+}
+
+model BudgetItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  budgetId  String   @db.Uuid @map("budget_id")
+  productId String   @db.Uuid @map("product_id")
+  quantity  Int
+  price     Float
+  discount  Float    @default(0)
+  tax       Float    @default(21)
+
+  budget    Budget   @relation(fields: [budgetId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("budget_items")
 }
 
 model DeliveryNote {

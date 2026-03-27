@@ -1,11 +1,21 @@
-﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
+import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
 
 export type BudgetStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED';
+
+export interface BudgetItem {
+  id: EntityId;
+  productId: EntityId;
+  quantity: number;
+  price: number;
+  discount: number;
+  tax: number;
+}
 
 export interface BudgetProps {
   clientId: EntityId;
   total: number;
   status: BudgetStatus;
+  items: BudgetItem[];
   version: number;
   idempotencyKey?: string;
   createdAt: Date;
@@ -31,6 +41,7 @@ export class Budget extends AggregateRoot {
       clientId,
       total: 0,
       status: 'DRAFT',
+      items: [],
       version: 1,
       idempotencyKey,
       createdAt: now,
@@ -39,6 +50,30 @@ export class Budget extends AggregateRoot {
 
   static reconstitute(id: string, props: BudgetProps): Budget {
     return new Budget(new EntityId(id), props);
+  }
+
+  addItem(productId: EntityId, quantity: number, price: number, tax = 21, discount = 0): void {
+    if (this.props.status !== 'DRAFT') {
+      throw new Error('Can only add items to a DRAFT budget');
+    }
+    
+    this.props.items.push({
+      id: new EntityId(),
+      productId,
+      quantity,
+      price,
+      tax,
+      discount
+    });
+
+    this.recalculateTotal();
+  }
+
+  private recalculateTotal(): void {
+    this.props.total = this.props.items.reduce((acc, item) => {
+      const lineTotal = (item.price * item.quantity) * (1 - item.discount / 100);
+      return acc + (lineTotal * (1 + item.tax / 100));
+    }, 0);
   }
 
   send(): void {
@@ -67,6 +102,7 @@ export class Budget extends AggregateRoot {
 
   get status(): BudgetStatus { return this.props.status; }
   get clientId(): EntityId { return this.props.clientId; }
+  get items(): BudgetItem[] { return [...this.props.items]; }
   get total(): number { return this.props.total; }
   get version(): number { return this.props.version; }
 

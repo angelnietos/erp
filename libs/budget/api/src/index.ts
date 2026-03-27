@@ -1,1 +1,1 @@
-export * from './lib/budget-api';
+export * from './lib/models/budget.model';
