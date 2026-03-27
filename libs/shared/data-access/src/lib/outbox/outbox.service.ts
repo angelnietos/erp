@@ -5,7 +5,7 @@
  * events are never lost even if the process crashes before the worker picks them up.
  */
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@josanz-erp/shared-data-access';
+import { PrismaService } from '../prisma/prisma.service';
 import { DomainEvent } from '@josanz-erp/shared-model';
 
 @Injectable()
