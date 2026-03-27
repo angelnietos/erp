@@ -3,13 +3,7 @@
  * Central event dispatcher for domain events in the ERP system
  */
 
-import {
-  DomainEvent,
-  BaseDomainEvent,
-  EventHandler,
-  EventHandlerMetadata,
-  EventHandlers,
-} from '../interfaces/domain-event.interface';
+import { DomainEvent, EventHandler, EventHandlerMetadata, EventHandlers } from '../interfaces/domain-event.interface';
 
 /**
  * EventBus Configuration

@@ -189,12 +189,17 @@ export function formatRelativeTime(date: Date): string {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  const suffix = diff > 0 ? 'próximo' : 'atrás';
-  
-  if (days > 0) return `hace ${days} días`;
-  if (hours > 0) return `hace ${hours} horas`;
-  if (minutes > 0) return `hace ${minutes} minutos`;
-  if (seconds > 0) return `hace ${seconds} segundos`;
+  if (diff > 0) {
+    if (days > 0) return `en ${days} días`;
+    if (hours > 0) return `en ${hours} horas`;
+    if (minutes > 0) return `en ${minutes} minutos`;
+    if (seconds > 0) return `en ${seconds} segundos`;
+  } else {
+    if (days > 0) return `hace ${days} días`;
+    if (hours > 0) return `hace ${hours} horas`;
+    if (minutes > 0) return `hace ${minutes} minutos`;
+    if (seconds > 0) return `hace ${seconds} segundos`;
+  }
   
   return 'ahora';
 }

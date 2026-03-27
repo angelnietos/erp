@@ -119,7 +119,7 @@ export class Vehicle extends AggregateRoot {
   /**
    * Send vehicle to maintenance
    */
-  startMaintenance(reason: string): void {
+  startMaintenance(_reason: string): void {
     if (this.props.status === 'MAINTENANCE') {
       throw new Error('Vehicle is already in maintenance');
     }
@@ -145,7 +145,7 @@ export class Vehicle extends AggregateRoot {
   /**
    * Take vehicle out of service
    */
-  deactivate(reason: string): void {
+  deactivate(_reason: string): void {
     if (this.props.status === 'OUT_OF_SERVICE') {
       throw new Error('Vehicle is already out of service');
     }

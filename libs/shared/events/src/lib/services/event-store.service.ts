@@ -82,7 +82,16 @@ export class InMemoryEventStore implements IEventStore {
     
     for (const event of events) {
       const storedEvent: StoredEvent = {
-        id: crypto.randomUUID(),
+        id:
+          typeof globalThis !== 'undefined' &&
+          (globalThis as any).crypto &&
+          typeof (globalThis as any).crypto.randomUUID === 'function'
+            ? (globalThis as any).crypto.randomUUID()
+            : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                const r = (Math.random() * 16) | 0;
+                const v = c === 'x' ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+              }),
         type: event.eventType,
         aggregateId: event.aggregateId,
         data: event as unknown as Record<string, unknown>,

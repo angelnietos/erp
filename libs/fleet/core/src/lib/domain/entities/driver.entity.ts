@@ -111,7 +111,7 @@ export class Driver extends AggregateRoot {
   /**
    * Put driver on leave
    */
-  startLeave(startDate: Date, endDate: Date): void {
+  startLeave(_startDate: Date, _endDate: Date): void {
     if (this.props.status === 'ON_LEAVE') {
       throw new Error('Driver is already on leave');
     }
@@ -133,7 +133,7 @@ export class Driver extends AggregateRoot {
   /**
    * Suspend driver
    */
-  suspend(reason: string): void {
+  suspend(_reason: string): void {
     if (this.props.status === 'SUSPENDED') {
       throw new Error('Driver is already suspended');
     }

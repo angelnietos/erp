@@ -3,7 +3,7 @@
  * Base interface for all domain events in the ERP system
  */
 
-import { AggregateRoot } from '@josanz-erp/shared-model';
+// No imports needed here
 
 export interface DomainEvent {
   /**
@@ -42,11 +42,17 @@ export abstract class BaseDomainEvent implements DomainEvent {
   readonly occurredOn: Date;
   readonly eventVersion: number;
 
-  constructor(
-    aggregateId: string,
-    eventVersion = 1,
-  ) {
-    this.eventId = crypto.randomUUID();
+  constructor(aggregateId: string, eventVersion = 1) {
+    const g: any = globalThis as any;
+    const id =
+      g && g.crypto && typeof g.crypto.randomUUID === 'function'
+        ? g.crypto.randomUUID()
+        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+    this.eventId = id;
     this.aggregateId = aggregateId;
     this.eventType = this.constructor.name;
     this.occurredOn = new Date();
