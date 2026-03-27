@@ -150,7 +150,7 @@ export class Vehicle extends AggregateRoot {
       throw new Error('Vehicle is already out of service');
     }
     this.props.status = 'OUT_OF_SERVICE';
-    this.props.notes = `Out of service: ${reason}`;
+    this.props.notes = `Out of service: ${_reason}`;
     this.touch();
   }
 
