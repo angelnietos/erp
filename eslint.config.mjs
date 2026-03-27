@@ -14,11 +14,49 @@ export default [
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'
+],
           depConstraints: [
+            // Domain cores can only depend on other domain cores or shared libs
             {
-              sourceTag: '*',
+              sourceTag: 'type:domain',
+              onlyDependOnLibsWithTags: ['type:domain', 'type:shared', 'type:utils'],
+            },
+            // Data access can depend on domain cores and shared
+            {
+              sourceTag: 'type:data-access',
+              onlyDependOnLibsWithTags: ['type:domain', 'type:data-access', 'type:shared'],
+            },
+            // Feature and shell can depend on data-access and shared
+            {
+              sourceTag: 'type:feature',
+              onlyDependOnLibsWithTags: ['type:feature', 'type:data-access', 'type:shell', 'type:shared'],
+            },
+            {
+              sourceTag: 'type:shell',
+              onlyDependOnLibsWithTags: ['type:shell', 'type:feature', 'type:shared'],
+            },
+            // Shared libs can only depend on other shared libs
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared'],
+            },
+            // Apps can depend on any library
+            {
+              sourceTag: 'type:app',
               onlyDependOnLibsWithTags: ['*'],
+            },
+          ],
+        },
+      ],
+      // Restrict relative imports that go too deep
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*'],
+              message: 'Use @josanz-erp/* alias imports instead of relative paths',
             },
           ],
         },
@@ -36,7 +74,6 @@ export default [
       '**/*.cjs',
       '**/*.mjs',
     ],
-    // Override or add rules here
     rules: {},
   },
 ];

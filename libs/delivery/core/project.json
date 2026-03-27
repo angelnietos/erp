@@ -1,0 +1,33 @@
+{
+  "name": "delivery-core",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/delivery/core/src",
+  "projectType": "library",
+  "tags": ["scope:delivery", "type:core"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/delivery/core",
+        "main": "libs/delivery/core/src/index.ts",
+        "tsConfig": "libs/delivery/core/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/delivery/core/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/delivery/core/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/delivery/core"]
+    }
+  }
+}
