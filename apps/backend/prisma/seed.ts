@@ -82,6 +82,28 @@ async function main() {
     });
   }
 
+  await prisma.verifactuSeries.upsert({
+    where: { tenantId_code: { tenantId: tenant.id, code: 'A' } },
+    update: {},
+    create: {
+      tenantId: tenant.id,
+      code: 'A',
+      description: 'Serie principal',
+    },
+  });
+
+  await prisma.verifactuCustomer.upsert({
+    where: { tenantId_taxId: { tenantId: tenant.id, taxId: 'B12345678' } },
+    update: {},
+    create: {
+      tenantId: tenant.id,
+      taxId: 'B12345678',
+      name: 'Cliente Demo Verifactu',
+      email: 'cliente-demo@josanz.com',
+      countryCode: 'ES',
+    },
+  });
+
   // 3. Clients
   const clients = [
     { name: 'Eventos Global S.L.', sector: 'Entertainment', description: 'VIP Client' },

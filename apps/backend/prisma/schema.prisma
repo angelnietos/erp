@@ -180,6 +180,7 @@ model Invoice {
   budget          Budget   @relation(fields: [budgetId], references: [id])
   tenant          Tenant?  @relation(fields: [tenantId], references: [id])
   verifactuLogs   VerifactuLog[]
+  queueItems      VerifactuQueueItem[]
 
   @@map("invoices")
 }
@@ -212,6 +213,9 @@ model Tenant {
   apiKeys          TenantApiKey[]
   webhookEndpoints VerifactuWebhookEndpoint[]
   webhookDeliveries VerifactuWebhookDelivery[]
+  queueItems        VerifactuQueueItem[]
+  series            VerifactuSeries[]
+  customers         VerifactuCustomer[]
 
   @@map("tenants")
 }
@@ -262,6 +266,58 @@ model VerifactuWebhookDelivery {
 
   @@index([tenantId, eventType], name: "idx_verifactu_webhook_deliveries_lookup")
   @@map("verifactu_webhook_deliveries")
+}
+
+model VerifactuQueueItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @db.Uuid @map("tenant_id")
+  invoiceId     String   @db.Uuid @map("invoice_id")
+  status        String   @default("PENDING")
+  retries       Int      @default(0)
+  maxRetries    Int      @default(5) @map("max_retries")
+  nextRetryAt   DateTime? @map("next_retry_at")
+  lastError     String?  @map("last_error")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id])
+
+  @@index([status, nextRetryAt], name: "idx_verifactu_queue_status_retry")
+  @@map("verifactu_queue_items")
+}
+
+model VerifactuSeries {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @db.Uuid @map("tenant_id")
+  code        String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, code], name: "uq_verifactu_series_tenant_code")
+  @@map("verifactu_series")
+}
+
+model VerifactuCustomer {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @db.Uuid @map("tenant_id")
+  taxId       String   @map("tax_id")
+  name        String
+  email       String?
+  countryCode String?  @map("country_code")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, taxId], name: "uq_verifactu_customer_tenant_taxid")
+  @@index([tenantId, name], name: "idx_verifactu_customer_tenant_name")
+  @@map("verifactu_customers")
 }
 
 // ==== RELIABILITY / ASYNC ==== //
