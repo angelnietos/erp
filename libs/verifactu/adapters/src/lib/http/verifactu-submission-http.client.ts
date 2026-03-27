@@ -6,10 +6,12 @@ export interface SubmitInvoiceToVerifactuRequest {
 }
 
 export interface SubmitInvoiceToVerifactuResponse {
-  accepted: boolean;
-  verifactuRecordId?: string;
-  aeatCsv?: string;
-  status: string;
+  invoiceId: string;
+  tenantId: string;
+  status: 'SENT' | 'ERROR';
+  currentHash: string;
+  previousHash?: string;
+  aeatReference?: string;
 }
 
 @Injectable()

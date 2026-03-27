@@ -14,7 +14,7 @@ export class VerifactuSubmissionAdapter implements VerifactuSubmissionPort {
     return this.verifactuClient.submitInvoice({
       invoiceId: command.invoiceId,
       tenantId: command.tenantId,
-    }) as Promise<SubmitToVerifactuResult>;
+    });
   }
 }
 
