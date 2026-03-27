@@ -18,10 +18,13 @@ const initialState: BudgetState = {
   error: null,
 };
 
+import { Router } from '@angular/router';
+import { CreateBudgetDTO } from '@josanz-erp/budget-api';
+
 export const BudgetStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withMethods((store, budgetService = inject(BudgetService)) => ({
+  withMethods((store, budgetService = inject(BudgetService), router = inject(Router)) => ({
     loadBudgets: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { loading: true })),
@@ -29,6 +32,22 @@ export const BudgetStore = signalStore(
           budgetService.getBudgets().pipe(
             tapResponse({
               next: (budgets: Budget[]) => patchState(store, { budgets, loading: false }),
+              error: (error: Error) => patchState(store, { error: error.message, loading: false }),
+            })
+          )
+        )
+      )
+    ),
+    createBudget: rxMethod<CreateBudgetDTO>(
+      pipe(
+        tap(() => patchState(store, { loading: true })),
+        switchMap((dto) =>
+          budgetService.createBudget(dto).pipe(
+            tapResponse({
+              next: () => {
+                patchState(store, { loading: false });
+                router.navigate(['/budgets']);
+              },
               error: (error: Error) => patchState(store, { error: error.message, loading: false }),
             })
           )

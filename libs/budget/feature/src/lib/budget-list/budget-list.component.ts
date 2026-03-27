@@ -1,17 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { BudgetStore } from '@josanz-erp/budget-data-access';
-import { UiTableComponent, UiCardComponent, UiButtonComponent } from '@josanz-erp/shared-ui-kit';
+import { UiTableComponent, UiCardComponent, UiButtonComponent, SelectMapperPipe } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
 
 @Component({
   selector: 'lib-budget-list',
   standalone: true,
-  imports: [CommonModule, UiTableComponent, UiCardComponent, UiButtonComponent, LucideAngularModule],
+  imports: [CommonModule, RouterModule, UiTableComponent, UiCardComponent, UiButtonComponent, SelectMapperPipe, LucideAngularModule],
   template: `
     <div class="page-header">
       <h1>Presupuestos</h1>
-      <ui-josanz-button [icon]="Plus">Nuevo Presupuesto</ui-josanz-button>
+      <ui-josanz-button [icon]="Plus" routerLink="/budgets/create">Nuevo Presupuesto</ui-josanz-button>
     </div>
 
     <ui-josanz-card title="Historial de Presupuestos">

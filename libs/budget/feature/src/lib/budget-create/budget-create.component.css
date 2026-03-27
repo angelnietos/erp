@@ -1,0 +1,27 @@
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+h1 { font-size: 24px; font-weight: 700; color: white; margin: 0; }
+
+.create-grid { display: grid; gap: 24px; align-items: start; }
+
+.item-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 40px; gap: 16px;
+  align-items: flex-end; padding-bottom: 16px; margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.remove-btn {
+  background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #FCA5A5; padding: 8px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  height: 42px; margin-bottom: 2px;
+}
+.remove-btn:hover { background: rgba(239, 68, 68, 0.2); transform: scale(1.05); }
+
+.budget-summary { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; width: 100%; }
+.summary-line { display: flex; justify-content: space-between; width: 250px; font-size: 14px; color: #94A3B8; }
+.summary-line.total { font-size: 18px; font-weight: 700; color: white; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px; }
+
+.empty-items { padding: 40px; text-align: center; color: #64748B; font-style: italic; background: rgba(255,255,255,0.02); border-radius: 12px; }
+
+.animate-in { animation: slide-down 0.3s ease-out; }
+@keyframes slide-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }

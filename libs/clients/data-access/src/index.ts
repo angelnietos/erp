@@ -1,1 +1,1 @@
-export * from './lib/clients-data-access/clients-data-access';
+export * from './lib/services/client.service';
