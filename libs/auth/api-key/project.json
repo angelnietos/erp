@@ -1,0 +1,29 @@
+{
+  "name": "auth-api-key",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/auth/api-key/src",
+  "projectType": "library",
+  "tags": ["scope:auth", "type:features"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/auth/api-key",
+        "main": "libs/auth/api-key/src/index.ts",
+        "tsConfig": "libs/auth/api-key/tsconfig.lib.json",
+        "assets": ["libs/auth/api-key/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/auth/api-key/jest.config.cts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
