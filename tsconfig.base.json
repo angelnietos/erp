@@ -63,7 +63,11 @@
       "@josanz-erp/budget-feature": ["libs/budget/feature/src/index.ts"],
       "@josanz-erp/budget-shell": ["libs/budget/shell/src/index.ts"],
       "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"],
-      "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"]
+      "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"],
+      "@josanz-erp/verifactu-api": ["libs/verifactu/api/src/index.ts"],
+      "@josanz-erp/verifactu-data-access": ["libs/verifactu/data-access/src/index.ts"],
+      "@josanz-erp/verifactu-feature": ["libs/verifactu/feature/src/index.ts"],
+      "@josanz-erp/verifactu-shell": ["libs/verifactu/shell/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

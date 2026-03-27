@@ -1,0 +1,41 @@
+<div class="grid">
+	<ui-josanz-card title="Enviar factura a Verifactu">
+		<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+			<div class="row">
+				<ui-josanz-input id="customerNif" label="NIF Cliente" formControlName="customerNif"></ui-josanz-input>
+				<ui-josanz-input id="series" label="Serie" formControlName="series"></ui-josanz-input>
+			</div>
+			<div class="row">
+				<ui-josanz-input id="description" label="Descripción" formControlName="description"></ui-josanz-input>
+			</div>
+			<div class="row">
+				<ui-josanz-input id="quantity" type="number" label="Cantidad" formControlName="quantity"></ui-josanz-input>
+				<ui-josanz-input id="unitPrice" type="number" label="Precio Unitario" formControlName="unitPrice"></ui-josanz-input>
+				<ui-josanz-input id="taxRate" type="number" label="% IVA" formControlName="taxRate"></ui-josanz-input>
+			</div>
+			<div class="actions">
+				<button class="btn-primary" type="submit">Enviar a cola</button>
+			</div>
+		</form>
+	</ui-josanz-card>
+
+	<ui-josanz-card title="Últimos registros">
+		<div class="table">
+			<div class="thead">
+				<div>Fecha</div>
+				<div>Serie</div>
+				<div>NIF</div>
+				<div>Total</div>
+				<div>Estado</div>
+			</div>
+			<div class="row" *ngFor="let r of store.records()">
+				<div>{{ r.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+				<div>{{ r.series }}</div>
+				<div>{{ r.customerNif }}</div>
+				<div>{{ r.total | number: '1.2-2' }} €</div>
+				<div><span class="badge" [class]="r.status.toLowerCase()">{{ r.status }}</span></div>
+			</div>
+		</div>
+	</ui-josanz-card>
+</div>
+

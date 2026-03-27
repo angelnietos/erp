@@ -1,0 +1,31 @@
+.grid {
+	display: grid;
+	gap: 16px;
+}
+.form .row {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+	margin-bottom: 12px;
+}
+.form .row:nth-child(3) {
+	grid-template-columns: repeat(3, 1fr);
+}
+.actions {
+	display: flex;
+	justify-content: flex-end;
+}
+.table .thead, .table .row {
+	display: grid;
+	grid-template-columns: 160px 120px 160px 140px 120px;
+	gap: 12px;
+	padding: 8px 0;
+}
+.table .thead {
+	color: var(--text-dim);
+	border-bottom: 1px solid var(--border-color);
+}
+.badge.sent { background: rgba(79, 70, 229, 0.15); color: #A78BFA; padding: 4px 8px; border-radius: 8px; }
+.badge.error, .badge.rejected { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; padding: 4px 8px; border-radius: 8px; }
+.badge.draft { background: rgba(148, 163, 184, 0.15); color: #CBD5E1; padding: 4px 8px; border-radius: 8px; }
+

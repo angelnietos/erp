@@ -19,6 +19,10 @@ export const appRoutes: Route[] = [
     loadChildren: () => import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
   },
   {
+    path: 'verifactu',
+    loadChildren: () => import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
+  },
+  {
     path: '**',
     redirectTo: 'auth/login',
   },
