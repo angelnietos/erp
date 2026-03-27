@@ -1,0 +1,70 @@
+<div class="auth-wrapper">
+  <div class="background-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="auth-card glass">
+    <div class="auth-header">
+      <div class="logo-circle">
+        <i-lucide [name]="icons.User" class="logo-icon"></i-lucide>
+      </div>
+      <h1>Acceso ERP</h1>
+      <p>Bienvenido. Por favor inicia sesión.</p>
+    </div>
+
+    @if (store.error()) {
+      <div class="alert error animate-in">
+        {{ store.error() }}
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <div class="input-wrapper">
+          <i-lucide [name]="icons.User" class="field-icon"></i-lucide>
+          <input 
+            id="email" 
+            type="email" 
+            formControlName="email" 
+            placeholder="Introduce tu e-mail"
+            [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <i-lucide [name]="icons.Lock" class="field-icon"></i-lucide>
+          <input 
+            id="password" 
+            type="password" 
+            formControlName="password" 
+            placeholder="••••••••"
+            [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          >
+        </div>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-primary" 
+        [disabled]="loginForm.invalid || store.loading()"
+      >
+        @if (store.loading()) {
+          <span class="spinner"></span>
+        } @else {
+          Acceder 
+          <i-lucide [name]="icons.ArrowRight" class="btn-icon"></i-lucide>
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <a href="javascript:void(0)">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+</div>

@@ -83,15 +83,19 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.0",
+    "@ngrx/signals": "^21.1.0",
     "@prisma/client": "^7.5.0",
     "@types/passport-jwt": "^4.0.1",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "clsx": "^2.1.1",
     "helmet": "^8.1.0",
+    "lucide-angular": "^1.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "tailwind-merge": "^3.5.0"
   }
 }

@@ -1,1 +1,3 @@
-export * from './lib/data-access/data-access';
+export * from './lib/services/auth.service';
+export * from './lib/store/auth.store';
+export * from './lib/interceptors/auth.interceptor';
