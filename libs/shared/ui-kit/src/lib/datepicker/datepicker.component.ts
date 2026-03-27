@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -15,9 +15,10 @@ import { CommonModule } from '@angular/common';
   ],
   template: `
     <div class="datepicker">
-      <label *ngIf="label">{{ label }}</label>
+      <label [attr.for]="inputId" [style.display]="label ? 'block' : 'none'">{{ label }}</label>
       <div class="input-wrapper">
         <input 
+          [id]="inputId"
           type="date" 
           [value]="value"
           (input)="onInput($event)"
@@ -47,13 +48,19 @@ export class UiDatepickerComponent implements ControlValueAccessor {
   @Input() maxDate = '';
   @Input() disabled = false;
 
+  inputId = 'ui-datepicker-input';
   value = '';
-  onChange = (_value: string) => {};
-  onTouched = () => {};
+  touched = false;
+  onChange: (value: string) => void = (value: string) => {
+    this.value = value;
+  };
+  onTouched: () => void = () => {
+    this.touched = true;
+  };
 
   writeValue(value: string): void { this.value = value; }
-  registerOnChange(fn: any): void { this.onChange = fn; }
-  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  registerOnChange(fn: (value: string) => void): void { this.onChange = fn; }
+  registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
   onInput(event: Event): void {

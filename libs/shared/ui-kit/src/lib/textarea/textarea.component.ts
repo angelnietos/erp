@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -53,12 +53,16 @@ export class UiTextareaComponent implements ControlValueAccessor {
   @Input() rows = 4;
 
   value = '';
-  onChange = (_value: string) => {};
-  onTouched = () => { /* empty */ };
+  onChange: (value: string) => void = (value: string) => {
+    this.value = value;
+  };
+  onTouched: () => void = () => {
+    /* mark as touched */
+  };
 
   writeValue(value: string): void { this.value = value; }
-  registerOnChange(fn: any): void { this.onChange = fn; }
-  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  registerOnChange(fn: (value: string) => void): void { this.onChange = fn; }
+  registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
   onInput(event: Event): void {

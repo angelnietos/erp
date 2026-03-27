@@ -1,3 +1,4 @@
+import type { BadgeVariant } from '@josanz-erp/shared-ui-kit';
 import { Component, OnInit, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
