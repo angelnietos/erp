@@ -24,7 +24,7 @@ export class VerifactuSeriesController {
 
   @Get(':tenantId')
   async list(@Param('tenantId') tenantId: string) {
-    return this.prisma.verifactuSeries.findMany({
+    return (this.prisma as any).verifactuSeries.findMany({
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
@@ -32,7 +32,7 @@ export class VerifactuSeriesController {
 
   @Post()
   async create(@Body() dto: CreateVerifactuSeriesDto) {
-    return this.prisma.verifactuSeries.create({
+    return (this.prisma as any).verifactuSeries.create({
       data: {
         tenantId: dto.tenantId,
         code: dto.code,
