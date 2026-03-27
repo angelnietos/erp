@@ -17,6 +17,17 @@ export class BudgetService {
   async create(dto: CreateBudgetDto): Promise<Budget> {
     const budget = Budget.create(new EntityId(dto.clientId));
     
+    // Add items first so total is calculated correctly
+    for (const item of dto.items) {
+      budget.addItem(
+        new EntityId(item.productId), 
+        item.quantity, 
+        item.price, 
+        item.tax, 
+        item.discount
+      );
+    }
+
     // Transactional save: entity + outbox events (ADR-006)
     await this.prisma.$transaction(async (tx) => {
       await this.budgetRepository.save(budget);
