@@ -7,7 +7,7 @@ import { AuthService } from './application/services/auth.service';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { USER_REPOSITORY } from './domain/repositories/user.repository';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
-import { SharedInfrastructureModule } from '../../shared/infrastructure/shared-infrastructure.module';
+import { SharedInfrastructureModule } from '../../shared/infrastructure';
 
 @Module({
   imports: [
