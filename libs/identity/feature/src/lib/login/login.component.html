@@ -15,52 +15,40 @@
     </div>
 
     @if (store.error()) {
-      <div class="alert error animate-in">
+      <josanz-alert type="error">
         {{ store.error() }}
-      </div>
+      </josanz-alert>
     }
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <div class="form-group">
-        <label for="email">E-mail</label>
-        <div class="input-wrapper">
-          <i-lucide [name]="icons.User" class="field-icon"></i-lucide>
-          <input 
-            id="email" 
-            type="email" 
-            formControlName="email" 
-            placeholder="Introduce tu e-mail"
-            [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-          >
-        </div>
-      </div>
+      <josanz-input
+        id="email"
+        label="E-mail"
+        type="email"
+        placeholder="Introduce tu e-mail"
+        [icon]="icons.User"
+        formControlName="email"
+        [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
+      ></josanz-input>
 
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <div class="input-wrapper">
-          <i-lucide [name]="icons.Lock" class="field-icon"></i-lucide>
-          <input 
-            id="password" 
-            type="password" 
-            formControlName="password" 
-            placeholder="••••••••"
-            [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-          >
-        </div>
-      </div>
+      <josanz-input
+        id="password"
+        label="Contraseña"
+        type="password"
+        placeholder="••••••••"
+        [icon]="icons.Lock"
+        formControlName="password"
+        [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
+      ></josanz-input>
 
-      <button 
+      <josanz-button 
         type="submit" 
-        class="btn-primary" 
-        [disabled]="loginForm.invalid || store.loading()"
+        [loading]="store.loading()"
+        [disabled]="loginForm.invalid"
+        [icon]="icons.ArrowRight"
       >
-        @if (store.loading()) {
-          <span class="spinner"></span>
-        } @else {
-          Acceder 
-          <i-lucide [name]="icons.ArrowRight" class="btn-icon"></i-lucide>
-        }
-      </button>
+        Acceder
+      </josanz-button>
     </form>
 
     <div class="auth-footer">
