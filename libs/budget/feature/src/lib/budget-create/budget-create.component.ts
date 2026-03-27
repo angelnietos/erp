@@ -5,7 +5,7 @@ import { BudgetStore } from '@josanz-erp/budget-data-access';
 import { CreateBudgetDTO } from '@josanz-erp/budget-api';
 import { ClientService, Client } from '@josanz-erp/clients-data-access';
 import { InventoryService, Product } from '@josanz-erp/inventory-data-access';
-import { UiCardComponent, UiInputComponent, UiButtonComponent, UiSelectComponent, UiTableComponent, SelectMapperPipe } from '@josanz-erp/shared-ui-kit';
+import { UiCardComponent, UiInputComponent, UiButtonComponent, UiSelectComponent, SelectMapperPipe } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, Plus, Trash2, Save } from 'lucide-angular';
 
 @Component({
@@ -13,7 +13,7 @@ import { LucideAngularModule, Plus, Trash2, Save } from 'lucide-angular';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, LucideAngularModule,
-    UiCardComponent, UiInputComponent, UiButtonComponent, UiSelectComponent, UiTableComponent, SelectMapperPipe
+    UiCardComponent, UiInputComponent, UiButtonComponent, UiSelectComponent, SelectMapperPipe
   ],
   templateUrl: './budget-create.component.html',
   styleUrl: './budget-create.component.css'

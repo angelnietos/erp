@@ -18,19 +18,21 @@
         [error]="!!(budgetForm.get('clientId')?.invalid && budgetForm.get('clientId')?.touched)"
       ></ui-josanz-select>
 
-      <ui-josanz-input
-        id="startDate"
-        type="date"
-        label="Fecha Inicio Evento"
-        formControlName="startDate"
-      ></ui-josanz-input>
+      <div class="date-row">
+        <ui-josanz-input
+          id="startDate"
+          type="date"
+          label="Fecha Inicio Evento"
+          formControlName="startDate"
+        ></ui-josanz-input>
 
-      <ui-josanz-input
-        id="endDate"
-        type="date"
-        label="Fecha Fin Evento"
-        formControlName="endDate"
-      ></ui-josanz-input>
+        <ui-josanz-input
+          id="endDate"
+          type="date"
+          label="Fecha Fin Evento"
+          formControlName="endDate"
+        ></ui-josanz-input>
+      </div>
     </form>
   </ui-josanz-card>
 

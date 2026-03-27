@@ -3,7 +3,7 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'budgets',
+    redirectTo: 'auth/login',
     pathMatch: 'full',
   },
   {
@@ -20,6 +20,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: 'budgets',
+    redirectTo: 'auth/login',
   },
 ];
