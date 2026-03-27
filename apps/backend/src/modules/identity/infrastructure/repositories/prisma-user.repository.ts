@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@josanz-erp/shared-data-access';
 import { UserRepositoryPort, User } from '@josanz-erp/identity-core';
+
+type PrismaUserWithRoles = Prisma.UserGetPayload<{
+  include: { roles: { include: { role: true } } };
+}>;
 
 @Injectable()
 export class PrismaUserRepository implements UserRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    const data = await (this.prisma as any).user.findUnique({
+    const data = await this.prisma.user.findUnique({
       where: { email },
       include: { roles: { include: { role: true } } },
     });
@@ -15,7 +20,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findById(id: string): Promise<User | null> {
-    const data = await (this.prisma as any).user.findUnique({
+    const data = await this.prisma.user.findUnique({
       where: { id },
       include: { roles: { include: { role: true } } },
     });
@@ -23,35 +28,39 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async save(user: User): Promise<void> {
-    const { id, email, passwordHash, firstName, lastName, isActive, createdAt } = user as any;
-    
-    await (this.prisma as any).user.upsert({
-      where: { id: id.value },
-      update: { email, password: passwordHash, firstName, lastName, isActive },
+    await this.prisma.user.upsert({
+      where: { id: user.id.value },
+      update: {
+        email: user.email,
+        password: user.passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isActive: user.isActive,
+      },
       create: {
-        id: id.value,
-        email,
-        password: passwordHash,
-        firstName,
-        lastName,
-        isActive,
-        createdAt,
+        id: user.id.value,
+        email: user.email,
+        password: user.passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
       },
     });
   }
 
   async delete(id: string): Promise<void> {
-    await (this.prisma as any).user.delete({ where: { id } });
+    await this.prisma.user.delete({ where: { id } });
   }
 
-  private mapToDomain(data: any): User {
+  private mapToDomain(data: PrismaUserWithRoles): User {
     return User.reconstitute(data.id, {
       email: data.email,
       passwordHash: data.password,
       firstName: data.firstName,
       lastName: data.lastName,
       isActive: data.isActive,
-      roles: data.roles.map((r: any) => r.role.name),
+      roles: data.roles.map((r) => r.role.name),
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     });

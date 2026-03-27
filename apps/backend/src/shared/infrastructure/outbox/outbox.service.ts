@@ -1,4 +1,5 @@
 ﻿import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { DomainEvent } from '@josanz-erp/shared-model';
 
@@ -23,7 +24,7 @@ export class OutboxService {
         aggregateType: e.aggregateType,
         aggregateId: e.aggregateId,
         eventType: e.eventType,
-        payload: e.payload as any, // Cast to any to meet Prisma's JsonValue expectations
+        payload: e.payload as Prisma.InputJsonValue,
         status: 'PENDING',
         retries: 0,
       })),

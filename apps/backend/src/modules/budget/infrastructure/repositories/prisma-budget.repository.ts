@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { Budget as PrismaBudgetModel, BudgetItem as PrismaBudgetItemModel } from '@prisma/client';
 import { PrismaService } from '@josanz-erp/shared-data-access';
-import { BudgetRepositoryPort, Budget } from '@josanz-erp/budget-core';
+import { BudgetRepositoryPort, Budget, BudgetItem } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
+
+type BudgetWithItems = PrismaBudgetModel & { items: PrismaBudgetItemModel[] };
+type BudgetPersistenceView = {
+  createdAt: Date;
+  idempotencyKey?: string;
+};
 
 @Injectable()
 export class PrismaBudgetRepository implements BudgetRepositoryPort {
@@ -24,46 +31,35 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
   }
 
   async save(budget: Budget): Promise<void> {
-    const {
-      id,
-      clientId,
-      startDate,
-      endDate,
-      total,
-      status,
-      version,
-      idempotencyKey,
-      createdAt,
-      items,
-    } = budget as any;
-    
+    const persistenceBudget = budget as unknown as BudgetPersistenceView;
+
     await this.prisma.$transaction([
-      (this.prisma as any).budgetItem.deleteMany({ where: { budgetId: id.value } }),
-      (this.prisma as any).budget.upsert({
-        where: { id: id.value },
+      this.prisma.budgetItem.deleteMany({ where: { budgetId: budget.id.value } }),
+      this.prisma.budget.upsert({
+        where: { id: budget.id.value },
         update: { 
-          startDate,
-          endDate,
-          status, 
-          total, 
+          startDate: budget.startDate,
+          endDate: budget.endDate,
+          status: budget.status,
+          total: budget.total,
           version: { increment: 1 } 
         },
         create: {
-          id: id.value,
-          clientId: clientId.value,
-          startDate,
-          endDate,
-          total,
-          status,
-          version,
-          idempotencyKey,
-          createdAt,
+          id: budget.id.value,
+          clientId: budget.clientId.value,
+          startDate: budget.startDate,
+          endDate: budget.endDate,
+          total: budget.total,
+          status: budget.status,
+          version: budget.version,
+          idempotencyKey: persistenceBudget.idempotencyKey,
+          createdAt: persistenceBudget.createdAt,
         },
       }),
-      (this.prisma as any).budgetItem.createMany({
-        data: items.map((item: any) => ({
+      this.prisma.budgetItem.createMany({
+        data: budget.items.map((item: BudgetItem) => ({
           id: item.id.value,
-          budgetId: id.value,
+          budgetId: budget.id.value,
           productId: item.productId.value,
           quantity: item.quantity,
           price: item.price,
@@ -78,14 +74,14 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
     await this.prisma.budget.delete({ where: { id: id.value } });
   }
 
-  private mapToDomain(data: any): Budget {
+  private mapToDomain(data: BudgetWithItems): Budget {
     return Budget.reconstitute(data.id, {
       clientId: new EntityId(data.clientId),
       startDate: data.startDate,
       endDate: data.endDate,
       total: data.total,
       status: data.status,
-      items: (data.items || []).map((i: any) => ({
+      items: (data.items || []).map((i) => ({
         id: new EntityId(i.id),
         productId: new EntityId(i.productId),
         quantity: i.quantity,
@@ -94,7 +90,6 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
         discount: i.discount,
       })),
       version: data.version,
-      idempotencyKey: data.idempotencyKey,
       createdAt: data.createdAt,
     });
   }

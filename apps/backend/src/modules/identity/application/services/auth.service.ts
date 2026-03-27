@@ -4,6 +4,14 @@ import * as bcrypt from 'bcrypt';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
 
+type AuthenticatedUserView = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  roles: string[];
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -11,7 +19,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(dto: LoginDto): Promise<{ accessToken: string; user: any }> {
+  async login(dto: LoginDto): Promise<{ accessToken: string; user: AuthenticatedUserView }> {
     const user = await this.userRepository.findByEmail(dto.email);
 
     if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
@@ -40,10 +48,16 @@ export class AuthService {
     };
   }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, pass: string): Promise<AuthenticatedUserView | null> {
     const user = await this.userRepository.findByEmail(email);
     if (user && (await bcrypt.compare(pass, user.passwordHash))) {
-      return user;
+      return {
+        id: user.id.value,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+      };
     }
     return null;
   }

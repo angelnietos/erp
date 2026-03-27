@@ -50,14 +50,34 @@ export class VerifactuRuntimeFacade {
   }
 
   listCustomers(tenantId: string) {
-    return (this.prisma as any).verifactuCustomer.findMany({
+    return (
+      this.prisma as unknown as {
+        verifactuCustomer: {
+          findMany(args: { where: { tenantId: string }; orderBy: { createdAt: 'desc' } }): Promise<unknown[]>;
+        };
+      }
+    ).verifactuCustomer.findMany({
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   createCustomer(dto: CreateCustomerDto) {
-    return (this.prisma as any).verifactuCustomer.create({
+    return (
+      this.prisma as unknown as {
+        verifactuCustomer: {
+          create(args: {
+            data: {
+              tenantId: string;
+              taxId: string;
+              name: string;
+              email?: string;
+              countryCode?: string;
+            };
+          }): Promise<unknown>;
+        };
+      }
+    ).verifactuCustomer.create({
       data: {
         tenantId: dto.tenantId,
         taxId: dto.taxId,
@@ -69,14 +89,28 @@ export class VerifactuRuntimeFacade {
   }
 
   listSeries(tenantId: string) {
-    return (this.prisma as any).verifactuSeries.findMany({
+    return (
+      this.prisma as unknown as {
+        verifactuSeries: {
+          findMany(args: { where: { tenantId: string }; orderBy: { createdAt: 'desc' } }): Promise<unknown[]>;
+        };
+      }
+    ).verifactuSeries.findMany({
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   createSeries(dto: CreateSeriesDto) {
-    return (this.prisma as any).verifactuSeries.create({
+    return (
+      this.prisma as unknown as {
+        verifactuSeries: {
+          create(args: {
+            data: { tenantId: string; code: string; description?: string };
+          }): Promise<unknown>;
+        };
+      }
+    ).verifactuSeries.create({
       data: {
         tenantId: dto.tenantId,
         code: dto.code,

@@ -1,5 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { InventoryRepositoryPort, INVENTORY_REPOSITORY, InventoryReservation } from '@josanz-erp/inventory-core';
+import {
+  InventoryRepositoryPort,
+  INVENTORY_REPOSITORY,
+  InventoryReservation,
+  ReservationProps,
+} from '@josanz-erp/inventory-core';
 import { EntityId } from '@josanz-erp/shared-model';
 
 @Injectable()
@@ -25,7 +30,14 @@ export class InventoryService {
     return freeStock >= quantity;
   }
 
-  async reserve(productId: string, quantity: number, start: Date, end: Date, refType: any, refId: string): Promise<string> {
+  async reserve(
+    productId: string,
+    quantity: number,
+    start: Date,
+    end: Date,
+    refType: ReservationProps['referenceType'],
+    refId: string,
+  ): Promise<string> {
     const isAvailable = await this.checkAvailability(productId, start, end, quantity);
     
     if (!isAvailable) {
