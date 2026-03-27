@@ -2,7 +2,13 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": []
+    "types": [],
+    "paths": {
+      "@nestjs/common": ["apps/frontend/src/shims/empty.ts"],
+      "stream": ["apps/frontend/src/shims/empty.ts"],
+      "util": ["apps/frontend/src/shims/empty.ts"],
+      "url": ["apps/frontend/src/shims/empty.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": [

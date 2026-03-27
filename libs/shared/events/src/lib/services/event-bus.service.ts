@@ -10,7 +10,6 @@ import {
   EventHandlerMetadata,
   EventHandlers,
 } from '../interfaces/domain-event.interface';
-import { generateUuid } from '@josanz-erp/shared-utils';
 
 /**
  * EventBus Configuration

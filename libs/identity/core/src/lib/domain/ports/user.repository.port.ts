@@ -1,4 +1,4 @@
-import { User } from '../entities/user.entity';
+import { User } from '@josanz-erp/identity-core';
 
 export interface UserRepositoryPort {
   findByEmail(email: string): Promise<User | null>;
@@ -8,4 +8,3 @@ export interface UserRepositoryPort {
 }
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
-

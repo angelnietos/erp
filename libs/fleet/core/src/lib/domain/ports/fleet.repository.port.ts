@@ -1,5 +1,6 @@
-import { Vehicle, VehicleProps } from '../entities/vehicle.entity';
-import { Driver, DriverProps } from '../entities/driver.entity';
+
+import { Driver } from '../entities/driver.entity';
+import { Vehicle } from '../entities/vehicle.entity';
 import { EntityId } from '@josanz-erp/shared-model';
 
 /**

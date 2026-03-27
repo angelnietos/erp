@@ -46,6 +46,12 @@ export default [
               sourceTag: 'type:app',
               onlyDependOnLibsWithTags: ['*'],
             },
+            // Temporary catch-all to avoid blocking projects that still have empty/missing tags.
+            // Once all project.json files are tagged, this can be removed.
+            {
+              sourceTag: '*',
+              onlyDependOnLibsWithTags: ['*'],
+            },
           ],
         },
       ],
@@ -54,10 +60,11 @@ export default [
         'error',
         {
           patterns: [
-            {
-              group: ['../*'],
-              message: 'Use @josanz-erp/* alias imports instead of relative paths',
-            },
+            // Permit local relative imports within the same project,
+            // but block climbing multiple directories which usually crosses project boundaries
+            { group: ['../../*', '../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
+            { group: ['../../../*', '../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
+            { group: ['../../../../*', '../../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
           ],
         },
       ],

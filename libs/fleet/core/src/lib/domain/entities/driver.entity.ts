@@ -36,7 +36,7 @@ export interface DriverProps {
  */
 export class Driver extends AggregateRoot {
   readonly id: EntityId;
-  private props: DriverProps;
+  private readonly props: DriverProps;
 
   private constructor(id: EntityId, props: DriverProps) {
     super();
@@ -47,32 +47,32 @@ export class Driver extends AggregateRoot {
   /**
    * Create a new driver
    */
-  static create(
-    employeeId: string,
-    firstName: string,
-    lastName: string,
-    nif: string,
-    phone: string,
-    email: string,
-    licenseType: LicenseType,
-    licenseNumber: string,
-    licenseExpiry: Date,
-    hireDate: Date,
-  ): Driver {
+  static create(params: {
+    employeeId: string;
+    firstName: string;
+    lastName: string;
+    nif: string;
+    phone: string;
+    email: string;
+    licenseType: LicenseType;
+    licenseNumber: string;
+    licenseExpiry: Date;
+    hireDate: Date;
+  }): Driver {
     const id = new EntityId();
     const now = new Date();
     return new Driver(id, {
-      employeeId,
-      firstName,
-      lastName,
-      nif,
-      phone,
-      email,
-      licenseType,
-      licenseNumber,
-      licenseExpiry,
+      employeeId: params.employeeId,
+      firstName: params.firstName,
+      lastName: params.lastName,
+      nif: params.nif,
+      phone: params.phone,
+      email: params.email,
+      licenseType: params.licenseType,
+      licenseNumber: params.licenseNumber,
+      licenseExpiry: params.licenseExpiry,
       status: 'ACTIVE',
-      hireDate,
+      hireDate: params.hireDate,
       version: 1,
       createdAt: now,
       updatedAt: now,

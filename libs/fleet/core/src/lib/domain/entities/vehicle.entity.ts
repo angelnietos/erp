@@ -82,8 +82,8 @@ export class Vehicle extends AggregateRoot {
    */
   private static isValidPlate(plate: string): boolean {
     // Spanish plates: 4 digits + 3 letters or old format (1-2 letters + 4 digits)
-    const newFormat = /^[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/i;
-    const oldFormat = /^[A-Z]{1,2}[0-9]{4}$/i;
+    const newFormat = /^\d{4}[BCDFGHJKLMNPRSTVWXYZ]{3}$/i;
+    const oldFormat = /^[A-Z]{1,2}\d{4}$/i;
     return newFormat.test(plate) || oldFormat.test(plate);
   }
 

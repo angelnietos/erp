@@ -38,7 +38,7 @@ export interface DeliveryNoteProps {
  */
 export class DeliveryNote extends AggregateRoot {
   readonly id: EntityId;
-  private props: DeliveryNoteProps;
+  private readonly props: DeliveryNoteProps;
 
   private constructor(id: EntityId, props: DeliveryNoteProps) {
     super();

@@ -1,4 +1,4 @@
-import { DeliveryNote, DeliveryNoteProps } from '../entities/delivery-note.entity';
+import { DeliveryNote } from '../entities/delivery-note.entity';
 import { EntityId } from '@josanz-erp/shared-model';
 
 /**
