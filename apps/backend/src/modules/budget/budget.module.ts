@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BudgetService } from './application/services/budget.service';
 import { BudgetController } from './presentation/controllers/budget.controller';
-import { BUDGET_REPOSITORY } from './domain/repositories/budget.repository';
+import { BUDGET_REPOSITORY } from '@josanz-erp/budget-core';
 import { PrismaBudgetRepository } from './infrastructure/repositories/prisma-budget.repository';
 import { SharedInfrastructureModule } from '../../shared/infrastructure';
 

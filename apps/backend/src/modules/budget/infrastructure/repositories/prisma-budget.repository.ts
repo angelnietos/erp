@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
-import { IBudgetRepository } from '../../domain/repositories/budget.repository';
-import { Budget } from '../../domain/entities/budget.entity';
+import { BudgetRepositoryPort, Budget } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
 
 @Injectable()
-export class PrismaBudgetRepository implements IBudgetRepository {
+export class PrismaBudgetRepository implements BudgetRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: EntityId): Promise<Budget | null> {

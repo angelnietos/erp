@@ -1,9 +1,6 @@
-export interface VerifactuInvoicePayload {
-	idempotencyKey?: string;
-	series?: string;
-	customerNif: string;
-	total: number;
-	lines: Array<{ description: string; quantity: number; unitPrice: number; taxRate: number }>;
+export interface VerifactuEnqueueRequest {
+	invoiceId: string;
+	tenantId: string;
 }
 
 export interface EnqueueInvoiceResponse {
@@ -13,11 +10,11 @@ export interface EnqueueInvoiceResponse {
 
 export interface VerifactuRecord {
 	id: string;
-	series: string;
-	number: number;
-	customerNif: string;
-	total: number;
-	status: 'DRAFT' | 'SENT' | 'ERROR';
+	series?: string;
+	number?: number;
+	customerNif?: string;
+	total?: number;
+	status: 'DRAFT' | 'SENT' | 'ERROR' | string;
 	createdAt: string;
 }
 

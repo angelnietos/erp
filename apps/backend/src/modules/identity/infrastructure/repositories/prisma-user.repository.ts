@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
-import { IUserRepository } from '../../domain/repositories/user.repository';
-import { User } from '../../domain/entities/user.entity';
+import { UserRepositoryPort, User } from '@josanz-erp/identity-core';
 
 @Injectable()
-export class PrismaUserRepository implements IUserRepository {
+export class PrismaUserRepository implements UserRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string): Promise<User | null> {

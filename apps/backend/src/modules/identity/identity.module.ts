@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { AuthService } from './application/services/auth.service';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
-import { USER_REPOSITORY } from './domain/repositories/user.repository';
+import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { SharedInfrastructureModule } from '../../shared/infrastructure';
 

@@ -16,34 +16,19 @@ export class VerifactuDashboardComponent {
 	protected store = inject(VerifactuStore);
 
 	form = this.fb.group({
-		customerNif: ['', Validators.required],
-		series: ['DEFAULT'],
-		description: ['', Validators.required],
-		quantity: [1, Validators.required],
-		unitPrice: [0, Validators.required],
-		taxRate: [21, Validators.required],
+		tenantId: ['', Validators.required],
+		invoiceId: ['', Validators.required],
 	});
 
 	ngOnInit(): void {
-		this.store.loadRecords();
+		// records load requires tenantId; load after user types it and submits
 	}
 
 	onSubmit(): void {
 		if (this.form.invalid) return;
 		const v = this.form.value;
-		this.store.submitInvoice({
-			customerNif: v.customerNif!,
-			series: v.series ?? 'DEFAULT',
-			total: (v.quantity ?? 1) * (v.unitPrice ?? 0) * (1 + (v.taxRate ?? 21) / 100),
-			lines: [
-				{
-					description: v.description!,
-					quantity: v.quantity ?? 1,
-					unitPrice: v.unitPrice ?? 0,
-					taxRate: v.taxRate ?? 21,
-				},
-			],
-		});
+		this.store.submitInvoice({ tenantId: v.tenantId!, invoiceId: v.invoiceId! });
+		this.store.loadRecords(v.tenantId!);
 	}
 }
 

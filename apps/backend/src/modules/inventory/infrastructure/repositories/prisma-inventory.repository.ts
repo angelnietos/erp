@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
-import { IInventoryRepository } from '../../domain/repositories/inventory.repository';
-import { Inventory } from '../../domain/entities/inventory.entity';
-import { InventoryReservation } from '../../domain/entities/reservation.entity';
+import { InventoryRepositoryPort, Inventory, InventoryReservation } from '@josanz-erp/inventory-core';
 import { EntityId } from '@josanz-erp/shared-model';
 
 @Injectable()
-export class PrismaInventoryRepository implements IInventoryRepository {
+export class PrismaInventoryRepository implements InventoryRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByProductId(productId: EntityId): Promise<Inventory | null> {

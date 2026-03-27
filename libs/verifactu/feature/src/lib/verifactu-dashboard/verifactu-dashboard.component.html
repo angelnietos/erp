@@ -2,16 +2,8 @@
 	<ui-josanz-card title="Enviar factura a Verifactu">
 		<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
 			<div class="row">
-				<ui-josanz-input id="customerNif" label="NIF Cliente" formControlName="customerNif"></ui-josanz-input>
-				<ui-josanz-input id="series" label="Serie" formControlName="series"></ui-josanz-input>
-			</div>
-			<div class="row">
-				<ui-josanz-input id="description" label="Descripción" formControlName="description"></ui-josanz-input>
-			</div>
-			<div class="row">
-				<ui-josanz-input id="quantity" type="number" label="Cantidad" formControlName="quantity"></ui-josanz-input>
-				<ui-josanz-input id="unitPrice" type="number" label="Precio Unitario" formControlName="unitPrice"></ui-josanz-input>
-				<ui-josanz-input id="taxRate" type="number" label="% IVA" formControlName="taxRate"></ui-josanz-input>
+				<ui-josanz-input id="tenantId" label="Tenant ID" formControlName="tenantId"></ui-josanz-input>
+				<ui-josanz-input id="invoiceId" label="Invoice ID" formControlName="invoiceId"></ui-josanz-input>
 			</div>
 			<div class="actions">
 				<button class="btn-primary" type="submit">Enviar a cola</button>

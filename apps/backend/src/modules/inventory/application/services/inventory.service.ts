@@ -1,12 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { IInventoryRepository, INVENTORY_REPOSITORY } from '../../domain/repositories/inventory.repository';
+import { InventoryRepositoryPort, INVENTORY_REPOSITORY, InventoryReservation } from '@josanz-erp/inventory-core';
 import { EntityId } from '@josanz-erp/shared-model';
-import { InventoryReservation } from '../../domain/entities/reservation.entity';
 
 @Injectable()
 export class InventoryService {
   constructor(
-    @Inject(INVENTORY_REPOSITORY) private readonly repository: IInventoryRepository,
+    @Inject(INVENTORY_REPOSITORY) private readonly repository: InventoryRepositoryPort,
   ) {}
 
   async checkAvailability(productId: string, startDate: Date, endDate: Date, quantity: number): Promise<boolean> {
