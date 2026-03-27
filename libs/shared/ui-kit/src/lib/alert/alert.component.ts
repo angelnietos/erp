@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'josanz-alert',
+  selector: 'ui-josanz-alert',
   standalone: true,
   imports: [CommonModule],
   template: `

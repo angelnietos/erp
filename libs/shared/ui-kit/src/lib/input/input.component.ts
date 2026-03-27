@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
-  selector: 'josanz-input',
+  selector: 'ui-josanz-input',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   providers: [

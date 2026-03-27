@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
-  selector: 'josanz-button',
+  selector: 'ui-josanz-button',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
@@ -11,7 +11,7 @@ import { LucideAngularModule } from 'lucide-angular';
       [type]="type" 
       class="btn-primary" 
       [disabled]="disabled || loading"
-      (click)="onClick.emit($event)"
+      (click)="clicked.emit($event)"
     >
       @if (loading) {
         <span class="spinner"></span>
@@ -43,5 +43,5 @@ export class UiButtonComponent {
   @Input() disabled = false;
   @Input() loading = false;
   @Input() icon?: any;
-  @Output() onClick = new EventEmitter<Event>();
+  @Output() clicked = new EventEmitter<Event>();
 }
