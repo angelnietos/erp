@@ -2,10 +2,10 @@
 
 ## Variables de entorno
 
-En `apps/backend/.env`:
+En `apps/verifactu-api/.env` (puedes copiar de `apps/verifactu-api/env.example`):
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5435/josanz_erp?schema=public"
+VERIFACTU_DATABASE_URL="postgresql://postgres:postgres@localhost:5437/verifactu_db?schema=public"
 VERIFACTU_PORT=3100
 VERIFACTU_MODE=mock
 VERIFACTU_REQUIRE_API_KEY=true
@@ -15,12 +15,17 @@ VERIFACTU_AEAT_ENDPOINT=https://prewww2.aeat.es/wlpl/TIKE-CONT/ws/SistemaFactura
 VERIFACTU_AEAT_WSDL_URL=https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/SistemaFacturacion.wsdl
 ```
 
-## Arranque
+## Arranque DB Verifactu (Docker dedicado)
 
 ```sh
-npm run db:up
-npx prisma db push --schema apps/backend/prisma/schema.prisma
-npx ts-node --project apps/backend/tsconfig.app.json apps/backend/prisma/seed.ts
+npm run verifactu:db:up
+npm run verifactu:db:push
+npm run verifactu:db:seed
+```
+
+## Arranque apps
+
+```sh
 npx nx run verifactu-api:serve
 npx nx run backend:serve
 ```

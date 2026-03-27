@@ -11,6 +11,13 @@
     "db:generate": "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
     "db:studio": "npx prisma studio --schema=apps/backend/prisma/schema.prisma",
     "db:reset": "dotenv -o -e apps/backend/.env -- npx prisma migrate reset --schema=apps/backend/prisma/schema.prisma",
+    "verifactu:db:up": "docker compose -f docker-compose.verifactu.yml up -d",
+    "verifactu:db:down": "docker compose -f docker-compose.verifactu.yml down",
+    "verifactu:db:migrate": "dotenv -o -e apps/verifactu-api/.env -- npx prisma migrate dev --schema=apps/backend/prisma/schema.prisma",
+    "verifactu:db:push": "dotenv -o -e apps/verifactu-api/.env -- npx prisma db push --schema=apps/backend/prisma/schema.prisma",
+    "verifactu:db:generate": "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
+    "verifactu:db:reset": "dotenv -o -e apps/verifactu-api/.env -- npx prisma migrate reset --schema=apps/backend/prisma/schema.prisma",
+    "verifactu:db:seed": "dotenv -o -e apps/verifactu-api/.env -- npx ts-node --project apps/backend/tsconfig.app.json apps/backend/prisma/seed.ts",
     "test": "nx run-many --target=test --all",
     "lint": "nx run-many --target=lint --all",
     "build": "nx run-many --target=build --all"
