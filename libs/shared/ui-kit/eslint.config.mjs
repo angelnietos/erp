@@ -12,7 +12,7 @@ export default [
         'error',
         {
           type: 'attribute',
-          prefix: 'ui-josanz',
+          prefix: ['ui-josanz'],
           style: 'camelCase',
         },
       ],
@@ -20,7 +20,7 @@ export default [
         'error',
         {
           type: 'element',
-          prefix: 'ui-josanz',
+          prefix: ['ui-josanz'],
           style: 'kebab-case',
         },
       ],
