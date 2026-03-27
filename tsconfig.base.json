@@ -78,7 +78,12 @@
       "@josanz-erp/verifactu-api": ["libs/verifactu/api/src/index.ts"],
       "@josanz-erp/verifactu-data-access": ["libs/verifactu/data-access/src/index.ts"],
       "@josanz-erp/verifactu-feature": ["libs/verifactu/feature/src/index.ts"],
-      "@josanz-erp/verifactu-shell": ["libs/verifactu/shell/src/index.ts"]
+      "@josanz-erp/verifactu-shell": ["libs/verifactu/shell/src/index.ts"],
+      "@josanz-erp/auth-jwt": ["libs/auth/jwt/src/index.ts"],
+      "@josanz-erp/auth-api-key": ["libs/auth/api-key/src/index.ts"],
+      "@josanz-erp/shared-integrations-email": ["libs/shared/integrations/email/src/index.ts"],
+      "@josanz-erp/shared-integrations-storage": ["libs/shared/integrations/storage/src/index.ts"],
+      "@josanz-erp/shared-cqrs": ["libs/shared/cqrs/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

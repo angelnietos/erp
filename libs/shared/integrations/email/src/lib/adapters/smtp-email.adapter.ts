@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EmailPort, SendEmailParams, EMAIL_PORT } from './email.port';
+import { EmailPort, SendEmailParams } from '../email.port';
 
 /**
  * SMTP Email Adapter implementation.

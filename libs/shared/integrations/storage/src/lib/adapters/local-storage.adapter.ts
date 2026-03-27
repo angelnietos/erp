@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { StoragePort, UploadParams, UploadResult, DownloadParams, DownloadResult, DeleteParams, GetUrlParams } from './storage.port';
-import * as fs from 'fs';
-import * as path from 'path';
-import { randomUUID } from 'crypto';
+import { StoragePort, UploadParams, UploadResult, DownloadParams, DownloadResult, DeleteParams, GetUrlParams } from '../storage.port';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 /**
  * Local filesystem storage adapter.
@@ -14,7 +14,7 @@ export class LocalStorageAdapter implements StoragePort {
   private readonly basePath: string;
 
   constructor() {
-    this.basePath = process.env.STORAGE_LOCAL_PATH || './storage';
+    this.basePath = process.env['STORAGE_LOCAL_PATH'] || './storage';
     this.ensureDirectory(this.basePath);
   }
 

@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 /**
  * Port interface for API Key validation.
@@ -69,7 +69,7 @@ export class ApiKeyGuard implements CanActivate {
 
     // If custom validator is provided, use it
     if (this.validator) {
-      const tenantId = req.body?.tenantId as string | undefined;
+      const tenantId = req.body?.['tenantId'] as string | undefined;
       const isValid = await this.validator.validateKey(apiKey, tenantId);
       if (!isValid) {
         throw new UnauthorizedException('Invalid API key');

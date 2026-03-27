@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { JwtPayload, JwtUser } from '@josanz-erp/auth-jwt';
+
+export interface JwtPayload {
+  sub: string;
+  email: string;
+  roles: string[];
+  iat?: number;
+  exp?: number;
+}
 
 /**
  * JWT Service for token operations
