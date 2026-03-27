@@ -1,0 +1,13 @@
+{
+  "name": "@josanz-erp/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "@nx/js": "22.6.2",
+    "@nx/workspace": "22.6.2",
+    "nx": "22.6.2"
+  }
+}
