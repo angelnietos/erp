@@ -6,3 +6,4 @@
 export * from './lib/domain/entities/vehicle.entity';
 export * from './lib/domain/entities/driver.entity';
 export * from './lib/domain/ports/fleet.repository.port';
+export * from './lib/infrastructure/repositories/prisma-fleet.repository';

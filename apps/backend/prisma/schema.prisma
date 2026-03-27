@@ -346,11 +346,45 @@ model IdempotencyKey {
 
 // ==== FLEET & AUDIT ==== //
 model Vehicle {
-  id     String @id @default(uuid()) @db.Uuid
-  plate  String @unique
-  status String
+  id               String    @id @default(uuid()) @db.Uuid
+  plate            String    @unique
+  brand            String
+  model            String
+  type             String
+  capacity         Int
+  year             Int
+  status           String    @default("AVAILABLE")
+  mileage          Int       @default(0)
+  lastMaintenance  DateTime? @map("last_maintenance")
+  nextMaintenance  DateTime? @map("next_maintenance")
+  insuranceExpiry  DateTime  @map("insurance_expiry")
+  notes            String?
+  version          Int       @default(1)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   @@map("vehicles")
+}
+
+model Driver {
+  id            String    @id @default(uuid()) @db.Uuid
+  employeeId    String    @unique @map("employee_id")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  nif           String    @unique
+  phone         String
+  email         String
+  licenseType   String    @map("license_type")
+  licenseNumber String    @map("license_number")
+  licenseExpiry DateTime  @map("license_expiry")
+  status        String    @default("ACTIVE")
+  hireDate      DateTime  @map("hire_date")
+  notes         String?
+  version       Int       @default(1)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("drivers")
 }
 
 model AuditLog {
