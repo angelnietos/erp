@@ -1,0 +1,223 @@
+// apps/backend/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==== CLIENTS ==== //
+model Client {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  sector      String?
+  companyId   String?   @map("company_id") // Placeholder for Multi-tenant
+  createdAt   DateTime  @default(now()) @map("created_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  budgets     Budget[]
+  rentals     Rental[]
+
+  @@map("clients")
+}
+
+// ==== CATALOG & PRODUCTS ==== //
+model Product {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  price       Float?
+  
+  inventory   Inventory?
+  rentalItems RentalItem[]
+  inventoryReservations InventoryReservation[]
+  inventoryMovements InventoryMovement[]
+
+  @@map("products")
+}
+
+// ==== INVENTORY & RENTALS ==== //
+model Inventory {
+  id          String   @id @default(uuid()) @db.Uuid
+  productId   String   @unique @db.Uuid @map("product_id")
+  totalStock  Int      @map("total_stock")
+  status      String
+  version     Int      @default(1) // For optimistic concurrency
+
+  product     Product  @relation(fields: [productId], references: [id])
+  
+  @@map("inventory")
+}
+
+enum ReferenceType {
+  BUDGET
+  RENTAL
+  DELIVERY
+}
+
+model InventoryReservation {
+  id            String         @id @default(uuid()) @db.Uuid
+  productId     String         @db.Uuid @map("product_id")
+  quantity      Int
+  startDate     DateTime       @map("start_date")
+  endDate       DateTime       @map("end_date")
+  referenceType ReferenceType @map("reference_type")
+  referenceId   String?        @db.Uuid @map("reference_id")
+  status        String
+
+  product       Product        @relation(fields: [productId], references: [id])
+
+  @@index([productId, startDate, endDate], name: "idx_inventory_reservations_lookup")
+  @@map("inventory_reservations")
+}
+
+enum MovementType {
+  IN
+  OUT
+  RESERVE
+  RELEASE
+}
+
+model InventoryMovement {
+  id          String        @id @default(uuid()) @db.Uuid
+  productId   String        @db.Uuid @map("product_id")
+  type        MovementType
+  quantity    Int
+  referenceId String?       @db.Uuid @map("reference_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  product     Product       @relation(fields: [productId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+model Rental {
+  id          String       @id @default(uuid()) @db.Uuid
+  clientId    String       @db.Uuid @map("client_id")
+  status      String
+  createdAt   DateTime     @default(now()) @map("created_at")
+  deletedAt   DateTime?    @map("deleted_at")
+
+  client      Client       @relation(fields: [clientId], references: [id])
+  rentalItems RentalItem[]
+
+  @@map("rentals")
+}
+
+model RentalItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  rentalId    String    @db.Uuid @map("rental_id")
+  productId   String    @db.Uuid @map("product_id")
+  quantity    Int
+  unitId      String?   @db.Uuid @map("unit_id") // Optional tracking of physical unit
+
+  rental      Rental    @relation(fields: [rentalId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@map("rental_items")
+}
+
+// ==== DOCUMENTS MODULE ==== //
+model Budget {
+  id             String          @id @default(uuid()) @db.Uuid
+  clientId       String          @db.Uuid @map("client_id")
+  total          Float           @default(0)
+  status         String          @default("DRAFT")
+  version        Int             @default(1)
+  idempotencyKey String?         @map("idempotency_key")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  client         Client          @relation(fields: [clientId], references: [id])
+  deliveryNotes  DeliveryNote[]
+  invoices       Invoice[]
+  
+  @@map("budgets")
+}
+
+model DeliveryNote {
+  id               String   @id @default(uuid()) @db.Uuid
+  budgetId         String   @db.Uuid @map("budget_id")
+  signatureBlobUrl String?  @map("signature_blob_url")
+  status           String
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  budget           Budget   @relation(fields: [budgetId], references: [id])
+
+  @@map("delivery_notes")
+}
+
+model Invoice {
+  id              String   @id @default(uuid()) @db.Uuid
+  budgetId        String   @db.Uuid @map("budget_id")
+  total           Float
+  verifactuStatus String   @default("PENDING") @map("verifactu_status")
+  currentHash     String?  @map("current_hash")
+  previousHash    String?  @map("previous_hash")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  budget          Budget   @relation(fields: [budgetId], references: [id])
+  verifactuLogs   VerifactuLog[]
+
+  @@map("invoices")
+}
+
+model VerifactuLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  invoiceId       String   @db.Uuid @map("invoice_id")
+  requestPayload  Json     @map("request_payload")
+  responsePayload Json     @map("response_payload")
+  status          String
+  errorMessage    String?  @map("error_message")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id])
+
+  @@map("verifactu_logs")
+}
+
+// ==== RELIABILITY / ASYNC ==== //
+model OutboxEvent {
+  id            String    @id @default(uuid()) @db.Uuid
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @db.Uuid @map("aggregate_id")
+  eventType     String    @map("event_type")
+  payload       Json
+  status        String    @default("PENDING") // pending, processed, failed
+  retries       Int       @default(0)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  processedAt   DateTime? @map("processed_at")
+
+  @@map("outbox_events")
+}
+
+model IdempotencyKey {
+  key          String   @id
+  scope        String
+  responseJson Json     @map("response_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("idempotency_keys")
+}
+
+// ==== FLEET & AUDIT ==== //
+model Vehicle {
+  id     String @id @default(uuid()) @db.Uuid
+  plate  String @unique
+  status String
+
+  @@map("vehicles")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @db.Uuid @map("user_id")
+  action         String
+  targetEntity   String   @map("target_entity")
+  correlationId  String   @map("correlation_id")
+  changesJson    Json     @map("changes_json")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}

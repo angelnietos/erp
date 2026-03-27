@@ -1,0 +1,35 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@josanz-erp/model-shared": ["libs/model-shared/src/index.ts"],
+      "@josanz-erp/model-budget": ["libs/model-budget/src/index.ts"],
+      "@josanz-erp/model-invoice": ["libs/model-invoice/src/index.ts"],
+      "@josanz-erp/data-access-budget": [
+        "libs/data-access-budget/src/index.ts"
+      ],
+      "@josanz-erp/data-access-invoice": [
+        "libs/data-access-invoice/src/index.ts"
+      ],
+      "@josanz-erp/ui-buttons": ["libs/ui-buttons/src/index.ts"],
+      "@josanz-erp/ui-forms": ["libs/ui-forms/src/index.ts"],
+      "@josanz-erp/ui-tables": ["libs/ui-tables/src/index.ts"],
+      "@josanz-erp/feature-budget": ["libs/feature-budget/src/index.ts"],
+      "@josanz-erp/feature-invoice": ["libs/feature-invoice/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
