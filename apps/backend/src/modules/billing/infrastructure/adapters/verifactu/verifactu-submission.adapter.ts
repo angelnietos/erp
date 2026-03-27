@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { VerifactuSubmissionHttpClient } from '@josanz-erp/verifactu-adapters';
 import {
   SubmitToVerifactuCommand,
   SubmitToVerifactuResult,
@@ -7,26 +8,13 @@ import {
 
 @Injectable()
 export class VerifactuSubmissionAdapter implements VerifactuSubmissionPort {
+  constructor(private readonly verifactuClient: VerifactuSubmissionHttpClient) {}
+
   async submitInvoice(command: SubmitToVerifactuCommand): Promise<SubmitToVerifactuResult> {
-    const baseUrl = process.env.VERIFACTU_API_URL ?? 'http://localhost:3100/api';
-    const response = await fetch(`${baseUrl}/verifactu/submit`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(process.env.VERIFACTU_API_KEY ? { 'x-api-key': process.env.VERIFACTU_API_KEY } : {}),
-      },
-      body: JSON.stringify({
-        invoiceId: command.invoiceId,
-        tenantId: command.tenantId,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Verifactu API error (${response.status}): ${errorText}`);
-    }
-
-    return response.json() as Promise<SubmitToVerifactuResult>;
+    return this.verifactuClient.submitInvoice({
+      invoiceId: command.invoiceId,
+      tenantId: command.tenantId,
+    }) as Promise<SubmitToVerifactuResult>;
   }
 }
 
