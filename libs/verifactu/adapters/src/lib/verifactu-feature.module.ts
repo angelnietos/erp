@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import {
   AEAT_CLIENT,
   VERIFACTU_INVOICE_REPOSITORY,
+  VerifactuHashService,
+  VerifactuQrService,
   VerifactuService,
+  VerifactuXmlBuilderService,
   WEBHOOK_NOTIFIER,
 } from '../../../core/src';
 import { MockAeatClient } from './aeat/mock-aeat.client';
@@ -17,7 +20,11 @@ import { PrismaWebhookNotifierService } from './webhooks/prisma-webhook-notifier
   controllers: [VerifactuController],
   providers: [
     VerifactuService,
+    VerifactuHashService,
+    VerifactuXmlBuilderService,
+    VerifactuQrService,
     VerifactuPrismaService,
+    RealAeatClient,
     VerifactuApiKeyGuard,
     {
       provide: VERIFACTU_INVOICE_REPOSITORY,
@@ -29,10 +36,11 @@ import { PrismaWebhookNotifierService } from './webhooks/prisma-webhook-notifier
     },
     {
       provide: AEAT_CLIENT,
-      useFactory: () => {
+      useFactory: (realAeatClient: RealAeatClient) => {
         const mode = process.env.VERIFACTU_MODE ?? 'mock';
-        return mode === 'real' ? new RealAeatClient() : new MockAeatClient();
+        return mode === 'real' ? realAeatClient : new MockAeatClient();
       },
+      inject: [RealAeatClient],
     },
   ],
   exports: [VerifactuService],
