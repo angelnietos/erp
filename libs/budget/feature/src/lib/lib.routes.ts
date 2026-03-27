@@ -1,6 +1,11 @@
 import { Route } from '@angular/router';
-import { BudgetFeature } from './budget-feature/budget-feature';
+import { BudgetListComponent } from './budget-list/budget-list.component';
 
 export const budgetFeatureRoutes: Route[] = [
-  { path: '', component: BudgetFeature },
+  { path: '', component: BudgetListComponent },
+  { path: 'create', loadComponent: () => import('./budget-create/budget-create.component').then(m => m.BudgetCreateComponent) },
+  { path: ':id', loadComponent: () => import('./budget-detail/budget-detail.component').then(m => m.BudgetDetailComponent) },
 ];
+
+export * from './budget-list/budget-list.component';
+export * from './budget-create/budget-create.component';

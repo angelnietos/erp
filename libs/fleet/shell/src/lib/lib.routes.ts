@@ -1,4 +1,8 @@
 import { Route } from '@angular/router';
-import { FleetShell } from './fleet-shell/fleet-shell';
 
-export const fleetShellRoutes: Route[] = [{ path: '', component: FleetShell }];
+export const fleetShellRoutes: Route[] = [
+  {
+    path: '',
+    loadChildren: () => import('@josanz-erp/fleet-feature').then(m => m.fleetFeatureRoutes),
+  },
+];

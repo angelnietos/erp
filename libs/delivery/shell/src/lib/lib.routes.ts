@@ -1,6 +1,10 @@
 import { Route } from '@angular/router';
-import { DeliveryShell } from './delivery-shell/delivery-shell';
 
 export const deliveryShellRoutes: Route[] = [
-  { path: '', component: DeliveryShell },
+  {
+    path: '',
+    loadChildren: () => import('@josanz-erp/delivery-feature').then(m => m.deliveryFeatureRoutes),
+  },
 ];
+
+export * from './delivery-shell/delivery-shell';

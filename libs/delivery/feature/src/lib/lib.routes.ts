@@ -1,6 +1,9 @@
 import { Route } from '@angular/router';
-import { DeliveryFeature } from './delivery-feature/delivery-feature';
+import { DeliveryListComponent } from './delivery-list/delivery-list.component';
 
 export const deliveryFeatureRoutes: Route[] = [
-  { path: '', component: DeliveryFeature },
+  { path: '', component: DeliveryListComponent },
+  { path: ':id', loadComponent: () => import('./delivery-detail/delivery-detail.component').then(m => m.DeliveryDetailComponent) },
 ];
+
+export * from './delivery-list/delivery-list.component';

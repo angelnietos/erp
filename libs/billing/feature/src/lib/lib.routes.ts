@@ -1,6 +1,9 @@
 import { Route } from '@angular/router';
-import { BillingFeature } from './billing-feature/billing-feature';
+import { BillingListComponent } from './billing-list/billing-list.component';
 
 export const billingFeatureRoutes: Route[] = [
-  { path: '', component: BillingFeature },
+  { path: '', component: BillingListComponent },
+  { path: ':id', loadComponent: () => import('./billing-detail/billing-detail.component').then(m => m.BillingDetailComponent) },
 ];
+
+export * from './billing-list/billing-list.component';
