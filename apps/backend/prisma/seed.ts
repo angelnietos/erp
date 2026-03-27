@@ -1,7 +1,19 @@
-import { PrismaClient, ReferenceType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
+import { config as loadEnv } from 'dotenv';
 
-const prisma = new PrismaClient();
+loadEnv({ path: 'apps/backend/.env' });
+loadEnv();
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('Missing DATABASE_URL environment variable');
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString }),
+});
 
 async function main() {
   console.log('🌱 Seeding database...');
@@ -13,7 +25,7 @@ async function main() {
     create: { name: 'ADMIN' },
   });
 
-  const staffRole = await prisma.role.upsert({
+  await prisma.role.upsert({
     where: { name: 'STAFF' },
     update: {},
     create: { name: 'STAFF' },
@@ -27,7 +39,8 @@ async function main() {
     create: {
       email: 'admin@josanz.com',
       password: hashedPassword,
-      name: 'Josanz Admin',
+      firstName: 'Josanz',
+      lastName: 'Admin',
     },
   });
 

@@ -1,7 +1,10 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
+
+loadEnv({ path: 'apps/backend/.env' });
+loadEnv();
 
 /**
  * PrismaService — wraps PrismaClient as a NestJS injectable singleton.

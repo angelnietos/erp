@@ -34,7 +34,7 @@ export const AuthStore = signalStore(
             tap((response) => {
               authService.setToken(response.accessToken);
               patchState(store, { user: response.user, loading: false });
-              router.navigate(['/']);
+              router.navigate(['/budgets']);
             }),
             catchError((err) => {
               patchState(store, { 

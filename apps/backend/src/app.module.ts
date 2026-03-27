@@ -9,6 +9,7 @@ import { RentalsModule } from './modules/rentals/rentals.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { FleetModule } from './modules/fleet/fleet.module';
+import { VerifactuModule } from './modules/verifactu/verifactu.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { FleetModule } from './modules/fleet/fleet.module';
     RentalsModule,
     DeliveryModule,
     BillingModule,
+    VerifactuModule,
     FleetModule,
   ],
 })
