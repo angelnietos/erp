@@ -40,7 +40,9 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'users',
-    loadChildren: () => import('@josanz-erp/identity-shell').then((m) => m.identityRoutes),
+    loadComponent: () =>
+      import('../../../../libs/identity/feature/src/lib/users/users-list.component')
+        .then((m) => m.UsersListComponent),
   },
   {
     path: 'verifactu',
