@@ -2,6 +2,7 @@ import { Component, OnInit, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiLoaderComponent, UiTabsComponent, TabItem } from '@josanz-erp/shared-ui-kit';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 export interface Client {
   id: string;
@@ -20,6 +21,7 @@ export interface Client {
   selector: 'lib-clients-detail',
   standalone: true,
   imports: [CommonModule, RouterModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiLoaderComponent, UiTabsComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       @if (isLoading()) {

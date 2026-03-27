@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 export interface TabItem {
   id: string;
@@ -12,6 +13,7 @@ export interface TabItem {
   selector: 'ui-josanz-tabs',
   standalone: true,
   imports: [CommonModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="tabs">
       @for (tab of tabs; track tab.id) {

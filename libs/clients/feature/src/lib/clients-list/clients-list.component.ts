@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ClientService } from '@josanz-erp/clients-data-access';
 
 export interface Client {
@@ -28,6 +29,7 @@ export interface Client {
     UiBadgeComponent,
     UiLoaderComponent
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       <div class="page-header">

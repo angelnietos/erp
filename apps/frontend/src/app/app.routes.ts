@@ -24,11 +24,11 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'inventory',
-    loadChildren: () => import('@josanz-erp/inventory-shell').then((m) => m.inventoryRoutes),
+    loadChildren: () => import('@josanz-erp/inventory-shell').then((m) => m.inventoryShellRoutes),
   },
   {
     path: 'delivery',
-    loadChildren: () => import('@josanz-erp/delivery-shell').then((m) => m.deliveryRoutes),
+    loadChildren: () => import('@josanz-erp/delivery-shell').then((m) => m.deliveryShellRoutes),
   },
   {
     path: 'fleet',

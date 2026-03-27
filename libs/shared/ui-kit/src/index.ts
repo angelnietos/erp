@@ -13,3 +13,4 @@ export * from './lib/datepicker/datepicker.component';
 export * from './lib/search/search.component';
 export * from './lib/loader/loader.component';
 export * from './lib/textarea/textarea.component';
+export * from './lib/icons/i-lucide.component';

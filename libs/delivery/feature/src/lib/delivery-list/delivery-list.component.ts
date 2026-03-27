@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 export interface DeliveryNote {
   id: string;
@@ -18,6 +19,7 @@ export interface DeliveryNote {
   selector: 'lib-delivery-list',
   standalone: true,
   imports: [CommonModule, RouterModule, UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       <div class="page-header">
