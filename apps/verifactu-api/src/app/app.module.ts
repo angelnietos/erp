@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { VerifactuFeatureModule } from '@josanz-erp/verifactu-adapters';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [VerifactuFeatureModule],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

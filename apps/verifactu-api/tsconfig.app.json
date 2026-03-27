@@ -7,7 +7,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": "../../",
+    "paths": {
+      "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"],
+      "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": [

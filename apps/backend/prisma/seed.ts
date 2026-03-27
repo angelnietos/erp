@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 import { config as loadEnv } from 'dotenv';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -49,6 +50,37 @@ async function main() {
     update: {},
     create: { userId: admin.id, roleId: adminRole.id },
   });
+
+  // 2.1 Tenant + API key for Verifactu API
+  const tenant = await prisma.tenant.upsert({
+    where: { slug: 'josanz' },
+    update: {},
+    create: {
+      name: 'Josanz Audiovisuales',
+      slug: 'josanz',
+    },
+  });
+  const rawApiKey = 'vf_dev_josanz_key';
+  const keyHash = createHash('sha256').update(rawApiKey).digest('hex');
+  const existingTenantKey = await prisma.tenantApiKey.findFirst({
+    where: { tenantId: tenant.id },
+    select: { id: true },
+  });
+  if (existingTenantKey) {
+    await prisma.tenantApiKey.update({
+      where: { id: existingTenantKey.id },
+      data: { keyHash, scopes: ['invoice.submit'], isActive: true },
+    });
+  } else {
+    await prisma.tenantApiKey.create({
+      data: {
+        tenantId: tenant.id,
+        keyHash,
+        scopes: ['invoice.submit'],
+        isActive: true,
+      },
+    });
+  }
 
   // 3. Clients
   const clients = [

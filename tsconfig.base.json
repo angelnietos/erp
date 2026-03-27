@@ -61,7 +61,9 @@
       "@josanz-erp/fleet-feature": ["libs/fleet/feature/src/index.ts"],
       "@josanz-erp/fleet-shell": ["libs/fleet/shell/src/index.ts"],
       "@josanz-erp/budget-feature": ["libs/budget/feature/src/index.ts"],
-      "@josanz-erp/budget-shell": ["libs/budget/shell/src/index.ts"]
+      "@josanz-erp/budget-shell": ["libs/budget/shell/src/index.ts"],
+      "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"],
+      "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
