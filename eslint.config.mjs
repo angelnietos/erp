@@ -17,26 +17,72 @@ export default [
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'
 ],
           depConstraints: [
-            // Domain cores can only depend on other domain cores or shared libs
+            // Core domain libraries
             {
-              sourceTag: 'type:domain',
-              onlyDependOnLibsWithTags: ['type:domain', 'type:shared', 'type:utils'],
+              sourceTag: 'type:core',
+              onlyDependOnLibsWithTags: [
+                'type:core',
+                'type:model',
+                'type:utils',
+                'type:events',
+                'type:config',
+                'type:cqrs',
+                'scope:shared',
+              ],
             },
-            // Data access can depend on domain cores and shared
+            // Data access and integrations
             {
               sourceTag: 'type:data-access',
-              onlyDependOnLibsWithTags: ['type:domain', 'type:data-access', 'type:shared'],
+              onlyDependOnLibsWithTags: [
+                'type:data-access',
+                'type:core',
+                'type:api',
+                'type:model',
+                'type:utils',
+                'type:events',
+                'type:config',
+                'type:cqrs',
+                'type:integrations',
+                'scope:shared',
+              ],
             },
-            // Feature and shell can depend on data-access and shared
+            {
+              sourceTag: 'type:integrations',
+              onlyDependOnLibsWithTags: ['type:integrations', 'type:utils', 'type:config', 'type:model', 'scope:shared'],
+            },
+            // Feature and shell layers
             {
               sourceTag: 'type:feature',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:data-access', 'type:shell', 'type:shared'],
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:data-access',
+                'type:api',
+                'type:core',
+                'type:model',
+                'type:ui',
+                'type:utils',
+                'scope:shared',
+              ],
             },
             {
               sourceTag: 'type:shell',
-              onlyDependOnLibsWithTags: ['type:shell', 'type:feature', 'type:shared'],
+              onlyDependOnLibsWithTags: [
+                'type:shell',
+                'type:feature',
+                'type:data-access',
+                'type:api',
+                'type:core',
+                'type:model',
+                'type:ui',
+                'type:utils',
+                'scope:shared',
+              ],
             },
-            // Shared libs can only depend on other shared libs
+            {
+              sourceTag: 'type:api',
+              onlyDependOnLibsWithTags: ['type:api', 'type:model', 'type:utils', 'scope:shared'],
+            },
+            // Shared scope remains isolated
             {
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared'],
@@ -46,22 +92,19 @@ export default [
               sourceTag: 'type:app',
               onlyDependOnLibsWithTags: ['*'],
             },
-            // Temporary catch-all to avoid blocking projects that still have empty/missing tags.
-            // Once all project.json files are tagged, this can be removed.
-            {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
-            },
           ],
         },
       ],
-      // Restrict relative imports that go too deep
+    },
+  },
+  {
+    files: ['libs/**/*.ts', 'libs/**/*.tsx', 'libs/**/*.js', 'libs/**/*.jsx'],
+    rules: {
+      // Restrict deep relative imports in libs to encourage aliases between projects.
       'no-restricted-imports': [
         'error',
         {
           patterns: [
-            // Permit local relative imports within the same project,
-            // but block climbing multiple directories which usually crosses project boundaries
             { group: ['../../*', '../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
             { group: ['../../../*', '../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
             { group: ['../../../../*', '../../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },

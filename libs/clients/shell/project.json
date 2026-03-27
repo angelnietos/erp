@@ -4,11 +4,16 @@
   "sourceRoot": "libs/clients/shell/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": [
+    "scope:clients",
+    "type:shell"
+  ],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "libs/clients/shell/jest.config.cts",
         "tsConfig": "libs/clients/shell/tsconfig.spec.json"

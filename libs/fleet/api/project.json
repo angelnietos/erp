@@ -3,21 +3,30 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/fleet/api/src",
   "projectType": "library",
-  "tags": [],
+  "tags": [
+    "scope:fleet",
+    "type:api"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/fleet/api",
         "main": "libs/fleet/api/src/index.ts",
         "tsConfig": "libs/fleet/api/tsconfig.lib.json",
-        "assets": ["libs/fleet/api/*.md"]
+        "assets": [
+          "libs/fleet/api/*.md"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "libs/fleet/api/jest.config.cts"
       }

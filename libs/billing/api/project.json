@@ -3,21 +3,30 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/billing/api/src",
   "projectType": "library",
-  "tags": [],
+  "tags": [
+    "scope:billing",
+    "type:api"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/billing/api",
         "main": "libs/billing/api/src/index.ts",
         "tsConfig": "libs/billing/api/tsconfig.lib.json",
-        "assets": ["libs/billing/api/*.md"]
+        "assets": [
+          "libs/billing/api/*.md"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "libs/billing/api/jest.config.cts"
       }

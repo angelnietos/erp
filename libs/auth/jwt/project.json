@@ -3,21 +3,30 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/auth/jwt/src",
   "projectType": "library",
-  "tags": ["scope:auth", "type:features"],
+  "tags": [
+    "scope:auth",
+    "type:lib"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/auth/jwt",
         "main": "libs/auth/jwt/src/index.ts",
         "tsConfig": "libs/auth/jwt/tsconfig.lib.json",
-        "assets": ["libs/auth/jwt/*.md"]
+        "assets": [
+          "libs/auth/jwt/*.md"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "libs/auth/jwt/jest.config.cts"
       }
