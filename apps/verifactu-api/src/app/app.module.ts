@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { VerifactuFeatureModule } from '@josanz-erp/verifactu-adapters';
+import { VerifactuModule } from '../modules/verifactu/verifactu.module';
 
 @Module({
-  imports: [VerifactuFeatureModule],
+  imports: [VerifactuModule],
   controllers: [],
   providers: [],
 })
