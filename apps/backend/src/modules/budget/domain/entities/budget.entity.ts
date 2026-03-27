@@ -13,6 +13,8 @@ export interface BudgetItem {
 
 export interface BudgetProps {
   clientId: EntityId;
+  startDate: Date;
+  endDate: Date;
   total: number;
   status: BudgetStatus;
   items: BudgetItem[];
@@ -34,11 +36,17 @@ export class Budget extends AggregateRoot {
     this.props = props;
   }
 
-  static create(clientId: EntityId, idempotencyKey?: string): Budget {
+  static create(clientId: EntityId, startDate: Date, endDate: Date, idempotencyKey?: string): Budget {
+    if (endDate < startDate) {
+      throw new Error('Budget endDate must be greater than or equal to startDate');
+    }
+
     const id = new EntityId();
     const now = new Date();
     return new Budget(id, {
       clientId,
+      startDate,
+      endDate,
       total: 0,
       status: 'DRAFT',
       items: [],
@@ -102,6 +110,8 @@ export class Budget extends AggregateRoot {
 
   get status(): BudgetStatus { return this.props.status; }
   get clientId(): EntityId { return this.props.clientId; }
+  get startDate(): Date { return this.props.startDate; }
+  get endDate(): Date { return this.props.endDate; }
   get items(): BudgetItem[] { return [...this.props.items]; }
   get total(): number { return this.props.total; }
   get version(): number { return this.props.version; }

@@ -1,4 +1,4 @@
-import { IsUUID, IsNotEmpty, IsArray, ValidateNested, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsUUID, IsNotEmpty, IsArray, ValidateNested, IsNumber, IsOptional, Min, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateBudgetItemDto {
@@ -32,4 +32,12 @@ export class CreateBudgetDto {
   @ValidateNested({ each: true })
   @Type(() => CreateBudgetItemDto)
   items: CreateBudgetItemDto[] = [];
+
+  @IsDateString()
+  @IsNotEmpty()
+  startDate!: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  endDate!: string;
 }

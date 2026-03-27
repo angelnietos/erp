@@ -88,6 +88,7 @@
     "@nestjs/platform-express": "^11.0.0",
     "@ngrx/operators": "^21.1.0",
     "@ngrx/signals": "^21.1.0",
+    "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@types/passport-jwt": "^4.0.1",
     "bcrypt": "^6.0.0",
@@ -98,9 +99,11 @@
     "lucide-angular": "^1.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~7.8.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "zone.js": "^0.16.1"
   },
   "prisma": {
     "seed": "npx ts-node --project apps/backend/tsconfig.app.json apps/backend/prisma/seed.ts"

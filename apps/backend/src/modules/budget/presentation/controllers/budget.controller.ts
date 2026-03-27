@@ -11,7 +11,12 @@ export class BudgetController {
   @Post()
   async create(@Body() dto: CreateBudgetDto) {
     const budget = await this.budgetService.create(dto);
-    return { id: budget.id.value, status: budget.status };
+    return {
+      id: budget.id.value,
+      status: budget.status,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+    };
   }
 
   @Get(':id')
@@ -20,6 +25,8 @@ export class BudgetController {
     return budget ? {
       id: budget.id.value,
       clientId: budget.clientId.value,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
       total: budget.total,
       status: budget.status,
       version: budget.version,

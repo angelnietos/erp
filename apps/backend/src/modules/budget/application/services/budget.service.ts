@@ -15,7 +15,11 @@ export class BudgetService {
   ) {}
 
   async create(dto: CreateBudgetDto): Promise<Budget> {
-    const budget = Budget.create(new EntityId(dto.clientId));
+    const budget = Budget.create(
+      new EntityId(dto.clientId),
+      new Date(dto.startDate),
+      new Date(dto.endDate),
+    );
     
     // Add items first so total is calculated correctly
     for (const item of dto.items) {

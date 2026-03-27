@@ -31,6 +31,8 @@ export class BudgetCreateComponent implements OnInit {
 
   budgetForm = this.fb.group({
     clientId: ['', Validators.required],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
     items: this.fb.array([])
   });
 
@@ -79,6 +81,10 @@ export class BudgetCreateComponent implements OnInit {
 
   onSubmit() {
     if (this.budgetForm.valid) {
+      const { startDate, endDate } = this.budgetForm.value;
+      if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+        return;
+      }
       this.store.createBudget(this.budgetForm.value as CreateBudgetDTO);
     }
   }

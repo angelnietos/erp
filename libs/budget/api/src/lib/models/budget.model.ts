@@ -12,6 +12,8 @@ export interface BudgetItem {
 export interface Budget {
   id: string;
   clientId: string;
+  startDate: string;
+  endDate: string;
   total: number;
   status: BudgetStatus;
   items: BudgetItem[];
@@ -20,6 +22,9 @@ export interface Budget {
 
 export interface CreateBudgetDTO {
   clientId: string;
+  startDate: string;
+  endDate: string;
+  items: AddBudgetItemDTO[];
 }
 
 export interface AddBudgetItemDTO {

@@ -3,7 +3,7 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'auth',
+    redirectTo: 'budgets',
     pathMatch: 'full',
   },
   {
@@ -17,5 +17,9 @@ export const appRoutes: Route[] = [
   {
     path: 'budgets',
     loadChildren: () => import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
+  },
+  {
+    path: '**',
+    redirectTo: 'budgets',
   },
 ];

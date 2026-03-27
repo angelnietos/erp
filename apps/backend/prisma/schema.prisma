@@ -124,6 +124,8 @@ model RentalItem {
 model Budget {
   id             String          @id @default(uuid()) @db.Uuid
   clientId       String          @db.Uuid @map("client_id")
+  startDate      DateTime        @map("start_date")
+  endDate        DateTime        @map("end_date")
   total          Float           @default(0)
   status         String          @default("DRAFT")
   version        Int             @default(1)

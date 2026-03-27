@@ -25,13 +25,26 @@ export class PrismaBudgetRepository implements IBudgetRepository {
   }
 
   async save(budget: Budget): Promise<void> {
-    const { id, clientId, total, status, version, idempotencyKey, createdAt, items } = budget as any;
+    const {
+      id,
+      clientId,
+      startDate,
+      endDate,
+      total,
+      status,
+      version,
+      idempotencyKey,
+      createdAt,
+      items,
+    } = budget as any;
     
     await this.prisma.$transaction([
       (this.prisma as any).budgetItem.deleteMany({ where: { budgetId: id.value } }),
       (this.prisma as any).budget.upsert({
         where: { id: id.value },
         update: { 
+          startDate,
+          endDate,
           status, 
           total, 
           version: { increment: 1 } 
@@ -39,6 +52,8 @@ export class PrismaBudgetRepository implements IBudgetRepository {
         create: {
           id: id.value,
           clientId: clientId.value,
+          startDate,
+          endDate,
           total,
           status,
           version,
@@ -67,6 +82,8 @@ export class PrismaBudgetRepository implements IBudgetRepository {
   private mapToDomain(data: any): Budget {
     return Budget.reconstitute(data.id, {
       clientId: new EntityId(data.clientId),
+      startDate: data.startDate,
+      endDate: data.endDate,
       total: data.total,
       status: data.status,
       items: (data.items || []).map((i: any) => ({
