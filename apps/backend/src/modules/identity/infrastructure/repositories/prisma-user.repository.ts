@@ -8,7 +8,7 @@ export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    const data = await this.prisma.user.findUnique({
+    const data = await (this.prisma as any).user.findUnique({
       where: { email },
       include: { roles: { include: { role: true } } },
     });
@@ -16,7 +16,7 @@ export class PrismaUserRepository implements IUserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const data = await this.prisma.user.findUnique({
+    const data = await (this.prisma as any).user.findUnique({
       where: { id },
       include: { roles: { include: { role: true } } },
     });
@@ -26,7 +26,7 @@ export class PrismaUserRepository implements IUserRepository {
   async save(user: User): Promise<void> {
     const { id, email, passwordHash, firstName, lastName, isActive, createdAt } = user as any;
     
-    await this.prisma.user.upsert({
+    await (this.prisma as any).user.upsert({
       where: { id: id.value },
       update: { email, password: passwordHash, firstName, lastName, isActive },
       create: {
@@ -42,7 +42,7 @@ export class PrismaUserRepository implements IUserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.user.delete({ where: { id } });
+    await (this.prisma as any).user.delete({ where: { id } });
   }
 
   private mapToDomain(data: any): User {

@@ -17,7 +17,9 @@ import { SharedInfrastructureModule } from '../../shared/infrastructure/shared-i
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET') ?? 'default_secret',
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES') ?? '24h' },
+        signOptions: { 
+          expiresIn: (config.get<string>('JWT_EXPIRES') ?? '24h') as any 
+        },
       }),
     }),
   ],
