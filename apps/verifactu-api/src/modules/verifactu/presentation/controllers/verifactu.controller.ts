@@ -1,0 +1,80 @@
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { SubmitVerifactuInvoiceDto } from '@josanz-erp/verifactu-core';
+import { VerifactuApiKeyGuard } from '@josanz-erp/verifactu-adapters';
+import { EnqueueInvoiceDto } from '../../application/dtos/enqueue-invoice.dto';
+import { CreateWebhookEndpointDto } from '../../application/dtos/create-webhook-endpoint.dto';
+import { CreateCustomerDto } from '../../application/dtos/create-customer.dto';
+import { CreateSeriesDto } from '../../application/dtos/create-series.dto';
+import { VerifactuAppService } from '../../application/services/verifactu-app.service';
+
+@Controller('verifactu')
+@UseGuards(VerifactuApiKeyGuard)
+export class VerifactuController {
+  constructor(private readonly appService: VerifactuAppService) {}
+
+  @Post('submit')
+  submit(@Body() dto: SubmitVerifactuInvoiceDto) {
+    return this.appService.submitInvoice(dto);
+  }
+
+  @Post('queue/enqueue')
+  enqueue(@Body() dto: EnqueueInvoiceDto) {
+    return this.appService.enqueueInvoice(dto.invoiceId, dto.tenantId);
+  }
+
+  @Post('queue/process')
+  processQueue(@Query('limit') limit?: string) {
+    return this.appService.processQueue(limit ? Number(limit) : 20);
+  }
+
+  @Get('webhooks/:tenantId')
+  listWebhooks(@Param('tenantId') tenantId: string) {
+    return this.appService.listWebhookEndpoints(tenantId);
+  }
+
+  @Post('webhooks')
+  createWebhook(@Body() dto: CreateWebhookEndpointDto) {
+    return this.appService.createWebhookEndpoint(dto);
+  }
+
+  @Delete('webhooks/:endpointId')
+  deleteWebhook(@Param('endpointId') endpointId: string) {
+    return this.appService.deleteWebhookEndpoint(endpointId);
+  }
+
+  @Get('customers/:tenantId')
+  listCustomers(@Param('tenantId') tenantId: string) {
+    return this.appService.listCustomers(tenantId);
+  }
+
+  @Post('customers')
+  createCustomer(@Body() dto: CreateCustomerDto) {
+    return this.appService.createCustomer(dto);
+  }
+
+  @Get('series/:tenantId')
+  listSeries(@Param('tenantId') tenantId: string) {
+    return this.appService.listSeries(tenantId);
+  }
+
+  @Post('series')
+  createSeries(@Body() dto: CreateSeriesDto) {
+    return this.appService.createSeries(dto);
+  }
+
+  @Get('records/:tenantId')
+  queryRecords(
+    @Param('tenantId') tenantId: string,
+    @Query('status') status?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.appService.queryRecords(tenantId, status, from, to);
+  }
+
+  @Get('compliance/summary/:tenantId')
+  summary(@Param('tenantId') tenantId: string) {
+    return this.appService.complianceSummary(tenantId);
+  }
+}
+

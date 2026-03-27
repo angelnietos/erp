@@ -4,4 +4,5 @@ export * from './lib/aeat/real-aeat.client';
 export * from './lib/persistence/prisma-verifactu.repository';
 export * from './lib/security/verifactu-api-key.guard';
 export * from './lib/services/verifactu-prisma.service';
+export * from './lib/services/verifactu-queue.service';
 
