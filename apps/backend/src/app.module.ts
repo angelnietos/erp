@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
+import { SharedInfrastructureModule } from './shared/infrastructure/shared-infrastructure.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { ClientsModule } from './modules/clients/clients.module';
 import { BudgetModule } from './modules/budget/budget.module';
@@ -15,7 +15,7 @@ import { FleetModule } from './modules/fleet/fleet.module';
     // Load .env globally
     ConfigModule.forRoot({ isGlobal: true }),
     // Shared infra
-    PrismaModule,
+    SharedInfrastructureModule,
     // Business domains
     IdentityModule,
     ClientsModule,
