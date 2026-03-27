@@ -1,4 +1,4 @@
-﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/model-shared';
+﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
 
 export type BudgetStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED';
 
@@ -80,4 +80,5 @@ export class Budget extends AggregateRoot {
     };
   }
 }
+
 

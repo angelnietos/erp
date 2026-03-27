@@ -1,4 +1,4 @@
-﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/model-shared';
+﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
 
 export type InvoiceStatus = 'DRAFT' | 'PENDING' | 'EMITTED' | 'PAID' | 'CANCELLED';
 export type VerifactuStatus = 'PENDING' | 'SENT' | 'ERROR';
@@ -80,4 +80,5 @@ export class Invoice extends AggregateRoot {
     };
   }
 }
+
 

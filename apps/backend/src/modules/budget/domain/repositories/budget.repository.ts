@@ -1,5 +1,5 @@
 ﻿import { Budget } from '../entities/budget.entity';
-import { EntityId } from '@josanz-erp/model-shared';
+import { EntityId } from '@josanz-erp/shared-model';
 
 /**
  * Port (interface) for the Budget repository.
@@ -13,4 +13,5 @@ export interface IBudgetRepository {
 }
 
 export const BUDGET_REPOSITORY = Symbol('BUDGET_REPOSITORY');
+
 

@@ -1,4 +1,4 @@
-﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/model-shared';
+﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
 
 export type InventoryStatus = 'AVAILABLE' | 'MAINTENANCE' | 'RETIRED';
 
@@ -90,4 +90,5 @@ export class Inventory extends AggregateRoot {
     };
   }
 }
+
 
