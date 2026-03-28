@@ -326,6 +326,7 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     }
   `],
 })
+export class DeliveryListComponent implements OnInit {
   private readonly facade = inject(DeliveryFacade);
   public readonly config = inject(DELIVERY_FEATURE_CONFIG);
 
