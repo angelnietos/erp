@@ -39,5 +39,11 @@ import { FleetModule } from '@josanz-erp/fleet-backend';
     BillingModule.forRoot(),
     FleetModule.forRoot(),
   ],
+  providers: [
+    {
+      provide: require('@nestjs/core').APP_GUARD,
+      useClass: require('@josanz-erp/shared-infrastructure').TenantGuard,
+    },
+  ],
 })
 export class AppModule {}

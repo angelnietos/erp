@@ -11,8 +11,9 @@ La base de datos y la recolección HTTP deben impedir cruzamiento de datos de fo
 - [x] **1.2 Generación Múltiple Exclusiva:** Actualizar directivas de unicidad para proteger emails (`@@unique([tenantId, email])`). Reflejar cambios compilando `$ npx prisma generate`.
 - [x] **1.3 ClsHooked Context Backend:** Instalar y aplicar `nestjs-cls`. Construir el `TenantMiddleware` global en `AppModule` que lee `x-tenant-id` en cada petición e incrusta el tenant en el Thread de memoria.
 - [x] **1.4 Interceptor Prisma Middleware:** Expandir la conexión Prisma con un `$use` para que `findMany`, `update`, `delete`, e iteraciones de CRUD añadan silenciosamente `where: { tenantId: ctx.tenantId }`.
+- [x] **1.5 Restricción de Contexto HTTP (Controllers):** Validar y forzar error 401 Unauthorized usando un Guard global `TenantGuard` para todas las rutas Multi-Tenant que no contengan cabecera y no sean marcadas como `@PublicTenant()`.
 
-> **ESTADO DE FASE 1:** Ejecutada ✅ (Pendiente la sincronización física de BBDD local por parte del Humano `npm run db:reset`).
+> **ESTADO DE FASE 1:** Ejecutada 100% y Blindada HTTP/BBDD ✅ (Pendiente la sincronización física de BBDD local por parte del Humano `npm run db:reset`).
 
 ---
 
