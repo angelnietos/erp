@@ -82,6 +82,23 @@ export default [
               sourceTag: 'type:api',
               onlyDependOnLibsWithTags: ['type:api', 'type:model', 'type:utils', 'scope:shared'],
             },
+            {
+              sourceTag: 'type:backend',
+              onlyDependOnLibsWithTags: [
+                'type:backend',
+                'type:core',
+                'type:model',
+                'type:data-access',
+                'type:cqrs',
+                'type:api',
+                'type:utils',
+                'type:events',
+                'type:config',
+                'type:integrations',
+                'type:adapters',
+                'scope:shared',
+              ],
+            },
             // Shared scope remains isolated
             {
               sourceTag: 'scope:shared',
@@ -100,14 +117,13 @@ export default [
   {
     files: ['libs/**/*.ts', 'libs/**/*.tsx', 'libs/**/*.js', 'libs/**/*.jsx'],
     rules: {
-      // Restrict deep relative imports in libs to encourage aliases between projects.
+      // Allow internal relative imports within libs but prevent deep cross-project imports.
       'no-restricted-imports': [
         'error',
         {
           patterns: [
-            { group: ['../../*', '../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
-            { group: ['../../../*', '../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
             { group: ['../../../../*', '../../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
+            { group: ['../../../../../*', '../../../../../**/*'], message: 'Use @josanz-erp/* alias for cross-project imports' },
           ],
         },
       ],
