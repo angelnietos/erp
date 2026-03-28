@@ -6,7 +6,7 @@
   "tags": ["scope:inventory", "type:backend"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/inventory/backend",
@@ -16,13 +16,13 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
+      "executor": "@nrwl/linter:eslint",
       "options": {
         "lintFilePatterns": ["libs/inventory/backend/**/*.ts"]
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
+      "executor": "@nrwl/jest:jest",
       "options": {
         "jestConfig": "libs/inventory/backend/jest.config.cts",
         "passWithNoTests": true
