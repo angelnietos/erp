@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { Product, InventoryService } from '@josanz-erp/inventory-data-access';
+import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
+import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
 
 @Component({
   selector: 'lib-inventory-list',
@@ -31,12 +32,14 @@ import { Product, InventoryService } from '@josanz-erp/inventory-data-access';
           <h1>Inventario</h1>
           <p class="subtitle">Gestiona el stock de equipos y materiales</p>
         </div>
-        <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
-          Nuevo Producto
-        </ui-josanz-button>
+        @if (config.enableCreate) {
+          <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+            Nuevo Producto
+          </ui-josanz-button>
+        }
       </div>
 
-      <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
+      <ui-josanz-tabs [tabs]="tabs()" [activeTab]="activeTab()" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
 
       <div class="filters-bar">
         <ui-josanz-search 
@@ -77,12 +80,16 @@ import { Product, InventoryService } from '@josanz-erp/inventory-data-access';
                   <button class="action-btn" [routerLink]="['/inventory', product.id]" title="Ver">
                     <i-lucide name="eye"></i-lucide>
                   </button>
-                  <button class="action-btn" (click)="editProduct(product)" title="Editar">
-                    <i-lucide name="pencil"></i-lucide>
-                  </button>
-                  <button class="action-btn danger" (click)="confirmDelete(product)" title="Eliminar">
-                    <i-lucide name="trash-2"></i-lucide>
-                  </button>
+                  @if (config.enableEdit) {
+                    <button class="action-btn" (click)="editProduct(product)" title="Editar">
+                      <i-lucide name="pencil"></i-lucide>
+                    </button>
+                  }
+                  @if (config.enableDelete) {
+                    <button class="action-btn danger" (click)="confirmDelete(product)" title="Eliminar">
+                      <i-lucide name="trash-2"></i-lucide>
+                    </button>
+                  }
                 </div>
               }
               @default {
@@ -282,30 +289,17 @@ import { Product, InventoryService } from '@josanz-erp/inventory-data-access';
   `],
 })
 export class InventoryListComponent implements OnInit {
-  private inventoryService = inject(InventoryService);
+  public readonly config = inject(INVENTORY_FEATURE_CONFIG);
+  private readonly facade = inject(InventoryFacade);
 
-  tabs = [
-    { id: 'all', label: 'Todos', badge: 0 },
-    { id: 'available', label: 'Disponibles', badge: 0 },
-    { id: 'reserved', label: 'Reservados', badge: 0 },
-    { id: 'maintenance', label: 'Mantenimiento', badge: 0 },
-  ];
+  tabs = this.facade.tabs;
+  columns = this.config.defaultColumns;
 
-  columns = [
-    { key: 'name', header: 'Producto' },
-    { key: 'sku', header: 'SKU', width: '120px' },
-    { key: 'category', header: 'Categoría', width: '120px' },
-    { key: 'totalStock', header: 'Stock', width: '100px' },
-    { key: 'dailyRate', header: 'Tarifa/Día', width: '120px' },
-    { key: 'status', header: 'Estado', width: '130px' },
-    { key: 'actions', header: '', width: '100px' },
-  ];
-
-  products = signal<Product[]>([]);
-  isLoading = signal(true);
+  products = this.facade.products;
+  isLoading = this.facade.isLoading;
+  activeTab = this.facade.activeTab;
   currentPage = signal(1);
   totalPages = signal(1);
-  activeTab = signal('all');
   searchTerm = '';
   
   // Modal state
@@ -331,63 +325,19 @@ export class InventoryListComponent implements OnInit {
   }
 
   loadProducts() {
-    this.isLoading.set(true);
-    this.inventoryService.getProducts().subscribe({
-      next: (products) => {
-        this.products.set(products);
-        this.updateTabs(products);
-        this.isLoading.set(false);
-        this.totalPages.set(1);
-      },
-      error: (err) => {
-        console.error('Error loading products:', err);
-        this.isLoading.set(false);
-      }
-    });
-  }
-
-  updateTabs(products: Product[]) {
-    const all = products.length;
-    const available = products.filter(p => p.status === 'available').length;
-    const reserved = products.filter(p => p.reservedStock > 0).length;
-    const maintenance = products.filter(p => p.status === 'maintenance').length;
-
-    this.tabs = [
-      { id: 'all', label: 'Todos', badge: all },
-      { id: 'available', label: 'Disponibles', badge: available },
-      { id: 'reserved', label: 'Reservados', badge: reserved },
-      { id: 'maintenance', label: 'Mantenimiento', badge: maintenance },
-    ];
+    this.facade.loadProducts();
   }
 
   onTabChange(tabId: string) {
-    this.activeTab.set(tabId);
-    this.isLoading.set(true);
-    
-    if (tabId === 'all') {
-      this.loadProducts();
-    } else {
-      this.inventoryService.getProductsByStatus(tabId).subscribe({
-        next: (products) => {
-          this.products.set(products);
-          this.isLoading.set(false);
-        }
-      });
-    }
+    this.facade.setTab(tabId);
   }
 
   onSearch(term: string) {
     this.searchTerm = term;
     if (term.trim()) {
-      this.isLoading.set(true);
-      this.inventoryService.searchProducts(term).subscribe({
-        next: (products) => {
-          this.products.set(products);
-          this.isLoading.set(false);
-        }
-      });
+      this.facade.searchProducts(term);
     } else {
-      this.loadProducts();
+      this.facade.loadProducts();
     }
   }
 
@@ -425,24 +375,13 @@ export class InventoryListComponent implements OnInit {
   saveProduct() {
     if (!this.formData.name) return;
 
-    if (this.editingProduct()) {
-      this.inventoryService.updateProduct(this.editingProduct()!.id, this.formData).subscribe({
-        next: (updated) => {
-          this.products.update(products => 
-            products.map(p => p.id === updated.id ? updated : p)
-          );
-          this.closeModal();
-        },
-        error: (err) => console.error('Error updating product:', err)
-      });
+    const productToEdit = this.editingProduct();
+    if (productToEdit) {
+      this.facade.updateProduct(productToEdit.id, this.formData);
+      this.closeModal();
     } else {
-      this.inventoryService.createProduct(this.formData as Omit<Product, 'id'>).subscribe({
-        next: (newProduct) => {
-          this.products.update(products => [...products, newProduct]);
-          this.closeModal();
-        },
-        error: (err) => console.error('Error creating product:', err)
-      });
+      this.facade.createProduct(this.formData as Omit<Product, 'id'>);
+      this.closeModal();
     }
   }
 
@@ -460,15 +399,8 @@ export class InventoryListComponent implements OnInit {
     const product = this.productToDelete();
     if (!product) return;
 
-    this.inventoryService.deleteProduct(product.id).subscribe({
-      next: (success) => {
-        if (success) {
-          this.products.update(products => products.filter(p => p.id !== product.id));
-        }
-        this.closeDeleteModal();
-      },
-      error: (err) => console.error('Error deleting product:', err)
-    });
+    this.facade.deleteProduct(product.id);
+    this.closeDeleteModal();
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
