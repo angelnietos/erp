@@ -1,65 +1,51 @@
-# ERP Marca Blanca / Plataforma Multi-Tenant
-## Definición Funcional V2 (Basada en Arquitectura de Plugins)
+# 🌐 Definición Funcional y Producto V2 (ERP Marca Blanca)
+
+El producto migra de ser un "Software a la medida cerrado" a una **Plataforma Modular B2B**, donde cada empresa contratante asume un `tenant` aislado, operando en subdominios únicos, consumiendo un set de plugins personalizables bajo suscripción.
 
 ---
 
-## 1. Visión y Descripción Funcional V2
-La plataforma evoluciona de ser un "ERP Monolítico cerrado para Josanz Audiovisuales" a convertirse en una **Plataforma Modular y Multi-Tenant (Marca Blanca)**. Esto significa que el sistema está diseñado para albergar a múltiples clientes o empresas, donde cada funcionalidad actúa como un "Plugin" activable.
+## 1. El Nucleo de la Plataforma (Multi-Tenant Core)
 
-Se podrán compilar versiones a medida del CRM para distintos clientes, inyectando estilos visuales (colores corporativos, logos) y reglas de negocio específicas, sin alterar el código base o "Core".
-
-### 1.1 Plataforma Base (App Shells)
-El sistema se despliega mediantes "Chasis" o "Shells" vacíos por cliente, a los cuales se les inyectan dinámicamente:
-- **Core Compartido:** Autenticación (Identity), Gestión de roles, y UI Kit genérico.
-- **Plugins Contratados:** (Ej. Cliente A: Presupuestos + Facturación. Cliente B: Inventario + Flota).
-
-### 1.2 Módulos Funcionales (Plugins)
-
-#### 1.2.1 Identity (Acceso y Gestión de Usuarios Multi-Tenant)
-- Acceso a través de login (usuario/contraseña y recuperación por email).
-- **Multi-Tenant:** Un usuario puede pertenecer a un "Tenant" (Empresa/Cliente) específico. Su visibilidad de datos quedará estrictamente aislada a su Tenant.
-- Rol "SuperAdmin Platform" (Gestiona todos los tenants) vs "Administrador de Tenant".
-- Roles dinámicos y granulares por Plugin.
-
-#### 1.2.2 Clients (CRM y Seguimiento)
-- Plugin encargado del listado y perfilado de clientes finales de cada Tenant.
-- Registro histórico de interacciones y seguimiento de cuenta.
-
-#### 1.2.3 Budget (Gestión de Presupuestos)
-- Ciclo de vida del presupuesto comercial.
-- Plantillas PDF inyectables (cada Tenant puede tener una plantilla distinta de exportación, definida por configuración).
-- Envíos por enlace mágico o adjunto.
-
-#### 1.2.4 Inventory & Rentals (Almacén y Reservas)
-- Control dinámico de disponibilidad basado en matriz de tiempo.
-- Separación entre "Bienes genéricos" (cables) y "Material Crítico Unitario" (cámaras con N.º de Serie).
-- Reservas de alquiler parametrizables.
-
-#### 1.2.5 Delivery (Gestión Logística y Entregas)
-- Firma biométrica en dispositivo móvil (Tablet) para validación física.
-- Separado del presupuesto para permitir entregas de material parciales.
-
-#### 1.2.6 Fleet (Gestión de Flota)
-- Asignación de vehículos a proyectos.
-- Registro de salidas/entradas y mantenimientos.
-
-#### 1.2.7 Billing (Facturación y Verifactu)
-- Módulo encargado del cumplimiento legal.
-- Emisión de facturas y facturas rectificativas.
-- Integración opcional del "Adapter de Verifactu", que garantiza la inmutabilidad y reporte automático a la AEAT.
+- **Total Data Privacy:** Las bases de datos operan bajo el dogma Zero-Leak. Los datos entre empresas (`tenants`) no comparten el perímetro contextual de memoria. La misma plataforma (compilación binaria) es capaz de servir al "Tenant Josanz Audiovisuales" y al "Tenant Cliente Z", filtrando inteligentemente vía un `x-tenant-id`.
+- **Identidad Agnóstica:** Un empleado (User) puede existir en el sistema pero está atado a su `Tenant`. El correo pertenece a un único marco empresarial en la tabla `Users`, permitiendo que el empleado "Pedro" opere independientemente en Josanz y en la empresa de al lado sin cruces de datos (usando Primary Keys Multi-Tenant `[tenantId, email]`).
 
 ---
 
-## 2. Tecnologías Propuestas V2
-Se elimina React.js en favor del ecosistema **Angular (Frontend) + NestJS (Backend) bajo un Monorepo Nx.**
-- **Frontend (Angular):** Estructura en base a librerías y componentes Standalone (Lazy Load). Inyección de Dependencias para sobreescribir lógicas UI por Tenant.
-- **Backend (NestJS + Prisma):** Arquitectura Hexagonal y de Módulos. Capacidad de reemplazar servicios concretos (ej. `CalculadoraDeImpuestosService`) inyectando variantes específicas de cada cliente.
-- **Base de Datos (PostgreSQL):** Esquema unificado usando `tenant_id` (o bases de datos particionadas físicamente, dependiendo del nivel de aislamiento contratado).
+## 2. Abanico de Funcionalidades (Plugins Activables)
+
+### 👥 CRM & Relaciones (Clients Plugin)
+- Registro integral de clientes y entidades corporativas (Empresas/Autónomos).
+- Relacionamiento primario de los documentos comerciales (Proyectos y Presupuestos).
+- Permisos configurables para que agentes de ventas solo vean su cartera de clientes (Row Level ACL, Fase Futura).
+
+### 📄 Proyectos y Cotizaciones (Budget Plugin)
+- Máxima rentabilidad y previsión. Modelado rápido de propuestas económicas agregando productos, con cálculo dinámico de impuestos (IVA, etc.).
+- Fechas de vigencia de proyecto para nutrir el cruce de dependencias en el "Calendario de Disponibilidad del Almacén".
+- Control de Estados (Borrador -> Pendiente -> Firmado -> Rechazado).
+- Posibilidad de adjuntar reglas de validación en cadena (Módulo opcional futuro de Aprobación por Managers).
+
+### 📦 Gestión Inteligente de Stock (Inventory & Rentals Plugin)
+- **Modo Material Seriado (Unitario):** Seguimiento por N.º de Serie, permitiendo trazabilidad de desgaste físico, revisiones y reparación (Cámaras concretas, Ópticas identificables).
+- **Modo Material Genérico:** Seguimiento Cuantitativo (Ej: 100 Metros de Cable XLR, 50 Cinta Gaffer).
+- Integración en tiempo real de "Overbooking" alertando si el material a reservar en un presupuesto cruzará límites durante su período.
+
+### 📝 Albaranes Técnicos y Entregas (Delivery Plugin)
+- Extracción parcial o total de los equipos dictaminados en el Presupuesto hacia el furgón.
+- Funcionalidad Mobile-First en el Frontend para captura in-situ de Firma Biométrica digitalizada al soltar la carga.
+- Estado dual: Expedición y Retorno (para material de alquiler / rentals).
+
+### 🚚 Logística de Motores (Fleet Plugin)
+- Inventario independiente de vehículos corporativos con control de cubicaje, MMA, y revisiones de ITV.
+- Asignación temporal de furgones a proyectos/operarios específicos.
+
+### 🏛 Cumplimiento y Finanzas (Billing Plugin con Verifactu)
+- Emisión definitiva de la Factura, inyectando bloqueos matemáticos (No se puede modificar una factura emitida bajo las normativas AEAT/Europa antifraude).
+- Emisión de facturas rectificativas y cálculo de contabilidad automatizado.
+- Integración transparente con APIs fiscales locales garantizando la inmutabilidad transaccional.
 
 ---
 
-## 3. Fases de Implantación V2 (Roadmap Multi-Tenant)
-1. **Fase 1 (Plataforma Core & Plugins Base):** Desarrollo del ecosistema inicial. Transformación de las ideas funcionales en "Plugins Vanilla" cerrados y probados.
-2. **Fase 2 (Inyección de Configuraciones):** Refactor de hardcodes. Todo lo susceptible a cambio (colores, columnas de tablas, lógicas de impuestos) se extrae a Tokens de Inyección.
-3. **Fase 3 (Despliegue Tenant 0 - Josanz):** Se ensambla el primer "App Shell" importando todos los plugins para Josanz, inyectando sus estilos operacionales.
-4. **Fase 4 (Comercialización SaaS):** Capacidad de desplegar de forma automatizada nuevas `apps/<clienteY>` compilando un subconjunto de librerías para entregar sistemas CRM dedicados a escala.
+## 3. Dinámica Comercial Esperada (El App Shell)
+Cuando Josanz Technologies venda un SaaS ERP a un nuevo cliente, se compilará un App Shell.
+Si el `Cliente Autónomo X` no utiliza vehículos ni equipos grandes, se le despachará un ERP con los Plugins: `Identity, Clients, Budget, Billing`. Las pantallas de Entregas e Inventarios simplemente desaparecerán, optimizando drásticamente el Payload de Javascript y desactivando rutas HTTP innecesarias. 
+*(El máximo exponente de la hiper-eficiencia corporativa).*

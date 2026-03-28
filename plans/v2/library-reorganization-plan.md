@@ -1,129 +1,95 @@
-# 📐 Plan Arquitectónico: CRM Multi-Tenant, Modular y Extensible (Cimientos Nx)
+# 🧩 Plan de Reorganización de Librerías y Bounded Contexts
 
-## 🎯 Objetivo
-Transformar el ecosistema ERP en una verdadera "Plataforma Marca Blanca". La arquitectura debe permitir compilar e implementar CRMs a medida para múltiples clientes reutilizando un núcleo común. 
-
-El modelo a seguir es el de **Ecosistema de Plugins**: Las funcionalidades (backend y frontend) deben ser paquetes (librerías) independientes, extensibles y configurables, permitiendo ensamblar diferentes versiones de la aplicación (distintos tenants/clientes) inyectando comportamientos y estéticas específicos sin tocar el código "Core".
+Este documento rige la distribución matemática de las carpetas dentro del Monorepo Nx. El cumplimiento de esta estructura es obligatorio para evitar el acoplamiento y asegurar que cualquier Junior pueda crear nuevos módulos de forma intuitiva.
 
 ---
 
-## 🧱 Arquitectura de Plugins: Composición Total
+## 1. Topología del Monorepo Nx (Estructura de Carpetas)
 
-El Monorepo de Nx abandonará la idea de una única app gigante para pasar a albergar múltiples "App Shells" ensambladas a partir de librerías.
+El paradigma principal es dividir "Aplicaciones" (Shells) de "Librerías" (Plugins).
 
-### 1. Topología de Apps y Librerías
+### 🖥️ `apps/` (Ensambladores / App Shells)
+Solo contienen configuración de despliegue, inyección de tokens globales y enrutadores proxy.
+```text
+apps/
+ ├── backend/               # AppShell Global API (Monolito aglutinador)
+ │    ├── src/main.ts
+ │    └── src/app.module.ts # Vacío de lógica: Solo importa Plugins (ClsModule, BudgetBackendModule...)
+ │
+ ├── frontend/              # AppShell Global Angular
+ │    ├── src/main.ts
+ │    └── src/app.routes.ts # Carga Lazy-Loads de librerías shell
+ │
+ └── clienteX-frontend/     # (Futuro) AppShell generada para Cliente Específico
+```
 
-`apps/` **(Ensambladores / Shells por cliente)**
-- `crm-core-api/` *(La API Base o Standalone)*
-- `clienteA-api/` *(API específica ensamblada para el Cliente A)*
-- `clienteA-frontend/` *(App Angular ensamblada para el Cliente A)*
+### 📚 `libs/` (Ecosistema de Módulos Reutilizables)
 
-`libs/` **(El ecosistema reutilizable)**
-- `shared/` *(Core tecnológico: Auth genérica, UI-Kit, Prisma Schema, CQRS)*
-- `<feature>/` *(Las features convertidas en Plugins, ej. fleet, budget, inventory)*
-  - `domain/` *(Modelos, interfaces, abstracciones puras)*
-  - `backend/` *(Módulo NestJS autocontenido)*
-  - `frontend/`
-    - `api/` *(Adapter HTTP del frontend)*
-    - `data-access/` *(Estado con Signals/NgRx)*
-    - `feature/` *(Componentes UI Smart)*
-    - `shell/` *(Rutas lazy-loaded)*
+Cada dominio de negocio o Bounded Context es una carpeta raíz que se subdivide en responsabilidades físicas estrictas.
 
 ---
 
-## 🔌 El Backend como Plataforma Extensible (NestJS)
+## 2. Anatomía de un Dominio de Negocio (Ejemplo: `inventory`)
 
-Cada dominio expone un **Módulo Independiente** que no conoce a los demás a menos que inyecte sus puertos explícitamente.
+Un dominio correcto tiene exactamente estas 5 sublibrerías:
 
-**1. Composición por Cliente:**
-El `AppModule` de cada cliente solo importa lo que pagó o necesita.
-```typescript
-// apps/clienteA-api/src/app/app.module.ts
-@Module({
-  imports: [
-    CoreInfrastructureModule, 
-    BudgetBackendModule,
-    // FleetModule NO se importa porque no lo contrataron
-  ]
-})
-export class ClienteAAppModule {}
-```
-
-**2. Extensibilidad vía Dependency Injection:**
-Si el "Cliente A" tiene una regla especial para calcular impuestos, no se añaden `if (cliente === 'A')` en el código base. Se sobrescribe el proveedor.
-```typescript
-@Module({
-  imports: [BudgetBackendModule],
-  providers: [
-    {
-      provide: BudgetCalculatorService, // El servicio base del Plugin
-      useClass: ClienteATaxCalculatorService // La versión extendida
-    }
-  ]
-})
-```
-
----
-
-## 🎨 El Frontend como Plataforma Extensible (Angular)
-
-El frontend sigue exactamente el mismo patrón. Una aplicación cliente es solo un chasis (Shell) vacío con un archivo `app.routes.ts` y una inyección de configuraciones.
-
-**1. Composición por Enrutamiento Estricto:**
-La app compone el menú y las rutas dinámicamente según los plugins instalados.
-```typescript
-// apps/clienteA-frontend/src/app/app.routes.ts
-export const appRoutes: Route[] = [
-  {
-    path: 'presupuestos',
-    loadChildren: () => import('@josanz-erp/budget-shell').then(m => m.budgetRoutes),
-  }
-];
-```
-
-**2. Sobrescribir Componentes, Estilos y Lógica (DI y Tokens):**
-Los plugins base exponen de antemano todo aquello susceptible a cambio a través de `InjectionTokens`.
-- **Configuraciones de Pantalla:** Activar o desactivar columnas en una tabla de un plugin.
-- **Lógica Específica:** Remplazar el `Facade` del plugin por uno propio en el `app.config.ts` del Front.
-- **Componentes Dinámicos:** Si la UI varía demasiado, usar `<ng-container *ngComponentOutlet="...">` configurable por InjectionToken.
-
-Ejemplo:
-```typescript
-// Configuración para el Cliente A en frontend
-providers: [
-  { provide: THEME_CONFIG, useValue: { primaryColor: '#ff0000', rounded: true } },
-  { provide: BudgetFacade, useClass: CustomClienteABudgetFacade }
-]
+```text
+libs/inventory/
+ ├── domain/                 # 🟩 (Typescript Puro)
+ │    └── src/
+ │         ├── interfaces/ (IProduct, IInventoryItem)
+ │         ├── dtos/       (CreateProduct.dto)
+ │         └── index.ts    # Todos los módulos consumen esto para conocer los tipos
+ │
+ ├── backend/                # 🟦 (NestJS)
+ │    └── src/
+ │         ├── controllers/
+ │         ├── services/
+ │         ├── inventory-backend.module.ts
+ │         └── index.ts
+ │
+ ├── data-access/            # 🟧 (Angular Estado y Servicios)
+ │    └── src/
+ │         ├── services/   (InventoryApiService via HttpClient)
+ │         ├── facades/    (InventoryFacade con Signals)
+ │         └── index.ts    # Expone TODO a la capa feature
+ │
+ ├── feature/                # 🟥 (Angular Smart Components)
+ │    └── src/
+ │         ├── product-list/ (Smart Component con INVENTORY_FEATURE_CONFIG)
+ │         ├── product-detail/
+ │         └── index.ts    # Expone las Rutas Internas de Feature
+ │
+ └── shell/                  # 🟨 (Angular Lazy Loading Router)
+      └── src/
+           └── inventory.routes.ts # Provee los componentes de Feature
 ```
 
 ---
 
-## 🧠 Principios Arquitectónicos CRÍTICOS
+## 3. Capa Transversal: `shared` e `infrastructure`
 
-1. **Clean Architecture + CQRS:** 
-   El backend y el data-access del frontend DEBEN comunicarse a través de contratos estrictos (DTOs) localizados en la capa `domain`. Ningún módulo interactúa con la base de datos de otro módulo directamente (Bounded Contexts).
-2. **Open-Closed Principle (OCP):**
-   Los plugins de features están **Cerrados a modificación directa** para casos de uso específicos de un solo cliente, pero **Abiertos a extensión** vía herencia e Inyección de Dependencias.
-3. **Ignorancia del Contexto Global:**
-   El módulo `delivery` no sabe si está ejecutándose en `clienteA` o `clienteB`. Todo contexto particular debe ser inyectado (Variables de entorno, JWT tenant_id, Injection Tokens).
+El código que no pertenece a ningún dominio y se consume transversalmente vive en la carpeta Shared.
+
+```text
+libs/
+ ├── shared/
+ │    ├── data-access/         # 🟧 PrismaService central, AuthGenérico JWT
+ │    └── ui-kit/              # 🟥 Componentes Tontos (Botones, Tablas, Modales, Navbars)
+ │
+ └── shared-infrastructure/    # 🟦 Filtros Globales de Excepciones NestJS, Middlewares (TenantMiddleware), Outbox Publishers genéricos.
+```
 
 ---
 
-## 🚀 Pasos para la Transición (Roadmap)
+## 4. Leyes Inquebrantables de Dependencia (Module Boundaries)
 
-### Fase 1: Reestructuración de Módulos (Plugins Base)
-1. Finalizar la migración de las carpetas de `libs/<feature>` actuales a la arquitectura de plugin estándar: separando de forma estricta los `backend`, `core` y subdividiendo el frontend en `api`, `data-access`, `feature`, y `shell`.
-2. Exponer todos los Módulos de NestJS y rutas Lazy-Load de Angular "Vanilla" en los `index.ts` públicos.
+Configuradas mediante `@nx/enforce-module-boundaries` en el linter `eslint.config.js`:
 
-### Fase 2: Configuración Inyectable (DI & Tokens)
-1. Identificar reglas de negocio o de UI que tienen potencial de variar entre clientes.
-2. Extraer parámetros y lógicas hardcodeadas a módulos `forRoot({ config })` en NestJS y a `InjectionTokens` en Angular.
+1. ✅ **`backend` puede importar de `domain` y `shared/data-access` (Prisma).**
+2. ❌ **`backend` NUNCA puede importar `frontend` o `ui-kit`.**
+3. ❌ **`feature` NUNCA puede inyectar directamente a la Base de Datos ni Prisma.** Importa **ÚNICAMENTE** de `data-access` (y por supuesto `domain` y `ui-kit`).
+4. ✅ **`shell` (Librería de Routings) DEBE cargar dinámicamente (`loadChildren`) las features.**
+5. ❌ **Un Dominio NUNCA importa otro Dominio.** Un controlador de `delivery/backend` jamás debe inyectar `BudgetService` importándolo de `budget/backend`. Debe comunicarse a través de contratos expuestos en la BD compartida (Prisma Schema Unificado) o comunicarse de forma asíncrona mediante mensajes de Eventos (Domain Events).
 
-### Fase 3: Creación del Primer Tenant (Client-App)
-1. Crear `apps/clienteA-api` y `apps/clienteA-frontend`.
-2. Ensamblar e importar únicamente un subconjunto de plugins requeridos (ej. Identity + Clients + Budget).
-3. Escribir un Provider/Facade "Custom" exclusivo en la app del Tenant para probar la sobrescritura de lógica sin alterar la librería base.
-
-### Fase 4: Escalado y Despliegue Configurable
-1. Crear librerías específicas que agrupen extensiones de un cliente (ej. `libs/clients-overrides/clienteA/budget-plugin`).
-2. Preparar los pipelines (CI/CD) para compilar y desplegar de forma independiente los artefactos compilados (`dist/apps/clienteA-frontend`) por cada tenant.
+Esta organización convierte el código *Spaghetti* en un puzzle Lego perfecto.

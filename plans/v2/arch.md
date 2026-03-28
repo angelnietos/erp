@@ -1,93 +1,71 @@
-# Technical Architecture Blueprint V2
-## Plataforma ERP: Ecosistema Modular Multi-Tenant y Composabilidad
+# 🏛️ Technical Architecture Blueprint V2 (Josanz ERP SaaS)
+
+## 0. Visión General: Ecosistema Modular Multi-Tenant (Marca Blanca)
+La arquitectura deja de estar acoplada a "Josanz Audiovisuales" como consumidor monolítico (Single-Tenant) y evoluciona hacia un **Ecosistema de Plataforma-como-Servicio (PaaS)**. El objetivo es estructurar el código base en Nx para compilar aplicaciones ERP personalizadas para infinitos clientes, extendiendo librerías funcionales (Plugins) y aislando los datos y flujos operativos de cada uno.
+
+### 🔑 Pilares de la V2
+- **Modularidad Radical (App Shells):** Aplicaciones vacías que se rellenan importando librearías funcionales.
+- **Inversión de Dependencias (DI):** Angular y NestJS permiten sustituir componentes visuales, cálculos matemáticos o conectores externos sin modificar la librería core.
+- **Aislamiento Multi-Tenant Estricto:** `tenant_id` obligatorio incrustado dinámicamente en el contexto de memoria (AsyncLocalStorage) para evitar filtración de registros entre empresas.
 
 ---
 
-## 0. Alcance del Sistema (Visión "Marca Blanca")
-La arquitectura deja de estar acoplada a "Josanz Audiovisuales" como único consumidor (Single-Tenant) y se transforma en un **Ecosistema de Plugins (SaaS/SaaS Privado)**. El objetivo es estructurar el código base para poder crear y compilar CRMs para múltiples clientes o verticales extendiendo librerías funcionales (core) y sobreescribiéndolas paramétricamente, aislando datos y lógicas operativas entre ellos.
+## 1. Diseño de Arquitectura (Backend) - "Plug and Play API"
 
-### Resumen Ejecutivo V2
-- **Estructura Base:** Monorepo (Nx) orientado a un paradigma de Plataforma-como-Servicio, basado en "App Shells" y "Librerías de Plugins" (para Backend y Frontend).
-- **Extensibilidad Radical:** Dependencia por Inyección (Angular & NestJS) permitiendo sustituir fachadas, validadores o controladores completos según la aplicación-cliente.
-- **Tenencia y Datos:** Modelo de BBDD Multi-Tenant estricto (uso de `tenant_id` obligatorio mediante RLS - Row Level Security, o middleware de Prisma en todas las capas del ORM).
+El backend transicional se basa en el patrón de **Módulos Dinámicos de NestJS** y Arquitectura Hexagonal.
 
----
+### 1.1 Inyección de Contexto (Tenancy Middleware)
+Para asegurar que un cliente no vea facturas de otro, implementamos **`nestjs-cls` (Continuation Local Storage)**. 
+Un interceptor captura el `x-tenant-id` (desde la cabecera HTTP o el payload del JWT) y lo inyecta en el contexto asíncrono.
+El `PrismaService` es sobrescrito con el middleware interno `$use` (o Prisma Extensions) de forma que cualquier operación `findMany`, `update`, o `create` incrusta matemáticamente el `{ tenantId }` sin que el programador tenga que teclearlo en los Controladores.
 
-## 1. Validación y Riesgos Críticos V2
+### 1.2 Módulos Funcionales Aislados
+Se elimina la carpeta `apps/backend/src/app` como contenedor de lógica. Las aplicaciones backend (`apps/clienteA-api`) solo contienen un `AppModule` que ensambla Plugins.
 
-- **🟢 1.1 Multi-tenant 100% Definido:**
-  El sistema será capaz de hospedar múltiples empresas aisladas en un mismo entorno de Base de Datos. Todas las tablas centrales (`users`, `clients`, `budgets`, etc.) requieren aislar sus lecturas/escrituras estrictamente por `tenant_id` en el JWT del contexto HTTP y RLS en BBDD para cero filtraciones de seguridad.
-- **🟢 1.2 Módulos Inyectables:**
-  Se define que ninguna funcionalidad es de propósito universal ("Todo el mundo usa Vehículos"). Todos son Plugins importables/no importables desde el `AppShell`.
-- **🟢 1.3 Personalización por Cliente (Hooks de Lógica):**
-  Descartar las sentencias del tipo `if (tenant === 'josanz') { }`. Todo flujo debe tener "Interfaces Abiertas" (`VerificadorGastosBase`) del cual hereda el `JosanzVerificadorGastos` que es inyectado en el `providers: []` de la App.
-
----
-
-## 2. Estrategia Modular y Tecnológica (Nx App Shells)
-
-La topología principal usa Nx para garantizar separación matemática:
-- **`apps/<tenant>-frontend`** (Angular Host): Carece de lógica de negocio o componentes. Contiene rutas (`loadChildren`), Proveedores inyectados (`InjectionTokens`) para sobreescribir dependencias (Tokens visuales o fachadas).
-- **`apps/<tenant>-api`** (NestJS Host): Carece de Controllers o Services pesados. Solo ensambla módulos inyectando los `providers` extendidos u opciones vía método forRoot (`MyPluginModule.forRoot({ options })`).
-
-### ADR-002 V2 — Frontend Modular (Angular + Injection Tokens)
-Se usará NgRx Signal Store como núcleo de estado de las *Libraries* distribuidas (Data Access).
-Los clientes podrán tener UI modificada no editando el HTML base, sino pasando configuraciones o Plantillas (`*ngComponentOutlet`) que remplazan el diseño.
-
-### ADR-003 V2 — Backend Extensible (NestJS Pluggable API)
-El backend delega a los módulos (`libs/plugin-inventory/backend`) todo el peso. Si el Tenant C tiene un ERP simplificado y no quiere control de Flotas, el `AppModule` simplemente evitará incluir `FleetModule` en `imports: []`. Si por el contrario lo requiere, pero con lógicas especiales, inyectará un proveedor sobreescrito.
-
----
-
-## 3. Modelo de Datos V2: Estructura Multi-Empresa
-
-Se adapta el esquema `Prisma` con las siguientes estrategias vitales:
-- **Aislamiento Multi-Tenant (Middleware):** Todo dominio (menos catálogos globales si aplica) añade relación con el `Tenant`. Cada consulta de Prisma DEBE inyectar como base restrictiva automática `where: { tenant_id }` desde el contexto del Request (ClsHooked/AsyncLocalStorage) para no fiar la seguridad al desarrollador en cada línea.
-
-```prisma
-// Esquema de núcleo V2
-model Tenant {
-  id      String    @id @default(uuid())
-  code    String    @unique // ej. 'josanz', 'cliente_b'
-  users   User[]
-  budgets Budget[]
-  // Settings y Themes configurables por Empresa en runtime
-  theme   Json?
-}
-
-model User {
-  id        String  @id @default(uuid())
-  tenant_id String
-  tenant    Tenant  @relation(fields: [tenant_id], references: [id])
-}
-
-model Budget {
-  id        String  @id @default(uuid())
-  tenant_id String
-  // ...
-}
+```typescript
+@Module({
+  imports: [
+    CoreModule.forRoot(), // Prisma, Config, Identity
+    BudgetBackendModule.forRoot({
+      taxStrategy: SpainTaxStrategy // Inversión de dependencia: lógica fiscal española
+    }),
+    InventoryBackendModule, // Plugin de inventario estándar
+  ]
+})
 ```
 
 ---
 
-## 4. Evolución del Continuous Integration & Deployment (SaaS)
+## 2. Diseño de Arquitectura (Frontend) - "UI Composability"
 
-El paradigma "Nx Affected" y los Pipelines se ajustan a V2:
-1. Al modificar un **Plugin Base** (`libs/budget`), Nx detecta y compila TODAS las `apps/<tenant>` afectadas corriendo sus test E2E de forma aislada.
-2. Posibilidad de hacer "Feature Toggling" (activación por banderas) directamente dentro del plugin por `tenant_id` si el cambio no justifica sobreescribir la inyección.
-3. El CD (Continuous Deployment) se orquestará para empaquetar Docker Images únicas por `Tenant API` (o un API compartida si la escala prefiere un despliegue masivo en el mismo POD), y carpetas de estáticos únicas `dist/apps/clienteX-frontend` para servir mediante CDN individualizada.
+El frontend migra a un paradigma "Micro-Frontend Semántico" basado en Monorepo y **Angular Standalone Components**.
+
+### 2.1 Patrón Facade (Manejo de Estado)
+Los "Smart Components" (`budget-list.component.ts`) no inyectan el `HttpClient`, ni gestionan suscripciones de RxJS complejas. Se usa el patrón **Facade con Angular Signals**.
+La lógica reside en librerías `data-access` (ej. `BudgetFacade`), dejando los componentes limpios y focalizados exclusivamente en el renderizado y en reaccionar al estado (`this.facade.budgets()`).
+
+### 2.2 Tokens de Configuración (InjectionTokens)
+¿Qué ocurre si el *Cliente B* no maneja equipos seriados en su Inventario? En lugar de hacer `*ngIf="cliente === 'B'"`, la librería `inventory/feature` define un `INVENTORY_FEATURE_CONFIG` genérico. El *AppShell* del Cliente B inyecta su propia configuración, omitiendo las columnas que no requiere.
+Esto cumple el Principio Abierto-Cerrado (OCP): La librería base está cerrada a modificaciones `if/else`, pero está abierta a extensión por inyección.
 
 ---
 
-## 5. Principio de OCP (Open-Closed Principle) Radical
+## 3. Topología Nx y Límites Arquitectónicos (Boundary Rules)
 
-Para que el modelo "Plantilla CRM Multi-cliente" sobreviva:
-- **Cierre del Dominio Base:** El dominio de `Alquiler` no soporta modificaciones ad-hoc por "Cliente".
-- **Apertura Estructural (DI):** Proveer inyectables (`@Injectable`) de Fábricas y Estrategias (`PriceStrategy`). La librería base proporciona un `StandardPriceStrategy`. El Tenant puede declarar su `CustomPriceStrategy` y sobreescribir la clase Standard en la fase de resolución de dependencias de Angular o NestJS.
-- **Outbox Extensible:** Los eventos se persisten como "Domain Events". Si `Cliente Josanz` necesita conectar su ERP con Salesforce en la creación de Presupuestos, `BudgetModule` dispara el evento `BudgetCreated`. El tenant aloja su propio `SalesforceSyncerWorker` que escucha y responde de manera desacoplada.
+Para evitar la deuda técnica ("Spaghetti Code"), implementamos reglas estrictas de importación usando **ESLint (`@nx/enforce-module-boundaries`)**:
 
-## Resumen del Viaje (Hoja de Ruta de Transición)
-1. **Paso 0:** Refactor Inmediato a Multi-Tenant (RLS Prisma, InjectionTokens estandarizados, Lazy Load limpio).
-2. **Paso 1:** Reubicar features en carpetas `libs/plugins/` indicando un paradigma funcional exportable.
-3. **Paso 2:** Píldora MVP construyendo `apps/josanz-api` demostrando que el núcleo corre sin lógica *hardcoded*.
-4. **Paso 3:** Escalado para la construcción en masa de CRMs de nicho.
+1. **`domain`** (Solo Interfaces/DTOs/Tipos puros): Ninguna lógica acoplada a frameworks. Importable por todos.
+2. **`backend`** (Módulos NestJS): Depende de `domain` y bases de datos. Jamás importa de otro `backend` directamente. Si necesita hablar con `Inventory`, lo hace a través de Eventos de Dominio (Outbox/Kafka/Redis) o una librería `shared-api`.
+3. **`frontend/data-access`** (Estado Angular): Se comunica con la URL de la API mediante servicios.
+4. **`frontend/feature`** (Componentes List/Detail): Componentes puros. Importan de `data-access`.
+5. **`shell`** (Rutas y Ensamblaje): Punto de entrada Lazy-Loaded importado por las apps finales.
+
+---
+
+## 4. Estrategia de Eventos Transaccionales (Patrón Outbox)
+Para el cumplimiento normativo (ej. Verifactu AEAT) y la salud técnica del monolito modular, las integraciones con sistemas externos o entre módulos distintos no suceden sincrónicamente.
+- Cuando `BillingController` firma una factura, no hace un `HTTP POST` a Verifactu que podría hacer fallar la emisión.
+- Cambia la Factura a `EMITIDA` dentro de una **Transacción SQL**, y en la misma transacción inserta un evento en una tabla `OutboxEvents`.
+- Un *Background Worker* lee el evento de forma independiente, contacta con la AEAT y maneja los reintentos automáticos sin penalizar la respuesta HTTP del usuario.
+
+Este diseño permite que `Cliente A` tenga activado el `Worker Verifactu` mientras que `Cliente B` (que está en otro país) simplemente descarte el módulo de integración o conecte su propio worker.

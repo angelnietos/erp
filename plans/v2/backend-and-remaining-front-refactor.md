@@ -1,89 +1,85 @@
-# 📜 Plan de Refactorización V2: Módulos Frontend Restantes y Desacoplamiento de Backend
+# 📜 Plan Específico: Configuración Diabólica del Resto de Frontend y Extracción del Backend
 
-Este documento detalla los pasos exactos para completar la transformación de los módulos restantes del Frontend (`Inventory` y `Billing`) y, más importante, cómo vaciar el Backend monolítico (`apps/backend`) trasladando su lógica a "Plugins de NestJS" independientes.
-
----
-
-## 🏗️ 1. Módulos Frontend Restantes (Inventory y Billing)
-Basado en lo que ya hemos hecho en `Clients`, `Budget` y `Delivery`, debemos aplicar exactamente el mismo patrón "Plugin V2" a estos dos módulos:
-
-### 1.1. Inventario / Flota (`libs/inventory/feature` y `libs/inventory/data-access`)
-- **Paso A (Token):** Crear `inventory-feature.config.ts`. Definir interface para inyectar columnas (ej. ocultar columnas de "Nº Serie" si el cliente no alquila equipo seriado) y activar/desactivar botones de "Nueva Reserva".
-- **Paso B (Facade):** Crear `inventory.facade.ts` basado en Signals (o NgRx SignalStore si se requiere estado complejo) para aislar las llamadas HTTP del servicio `InventoryService`.
-- **Paso C (Smart Component):** Refactorizar `inventory-list.component.ts`. Quitar llamadas RxJS complejas. Usar `this.facade.inventoryItems` e inyectar el token de configuración (`INVENTORY_FEATURE_CONFIG`).
-- **Paso D (Exportación):** Exponer el Facade y el Token en los `index.ts` públicos de cada librería.
-
-### 1.2. Facturación e Impuestos (`libs/billing/feature`)
-- **Paso A (Token):** Identificar la lógica inyectable. Por ejemplo: tipos de impuestos (`IVA`, `IGIC`), conexión con la API de Verifactu, etc.
-- **Paso B (Facade):** Crear `billing.facade.ts` para manejar estados complejos de facturación (ej. facturas pendientes, facturas emitidas).
-- **Paso C (UI):** Adaptar la interfaz basada en `ui-kit` y consumir el Token para botones de "Descargar PDF" o "Emitir a Verifactu".
+Este documento técnico rige la refactorización quirúrgica (Fase 2 del Roadmap) que extrae las "tripas" del `backend` hacia `libs` y estandariza las features frontend que faltan.
 
 ---
 
-## 🚀 2. "Vaciado" del Monolito Backend (NestJS Plugins)
-Actualmente, el backend de la app central (`apps/backend/src/app`) contiene controladores, servicios transversales y reglas de negocio pesadas. **Debemos vaciarlo.** La App debe ser solo una carcasa o "Shell".
+## 🔨 ETAPA 1: Estandarización Total de Módulos Frontend (Inventory & Billing)
 
-### 2.1. Creación de Librerías Backend
-Para cada dominio, crear una librería backend puramente inyectable de NestJS (Si no existen, generarlas con Nx: `nx g @nx/nest:library backend-budget`).
+El objetivo es tener un frontend en Angular que no contiene ninguna lógica rígida en sus componentes, usando `Facades` que ocultan asincronía y centralizan el Estado Recreativo.
 
-- `libs/budget/backend`
-- `libs/clients/backend`
-- `libs/delivery/backend`
-- `libs/inventory/backend`
+### Tarea A: Módulo `Inventory`
+1. **Crear Inyectables:** Añadir `INVENTORY_FEATURE_CONFIG` en `libs/inventory/feature/src/lib/inventory-feature.config.ts`.
+2. **Centralizar Estado:** Diseñar `InventoryFacade` en `data-access` utilizando Signals para manejar arrays de `Product[]` o `InventoryRecord[]` liberando al servicio HTTP.
+3. **Limpiar Smart Component:** Refactorizar `inventory-list.component.ts`. Quitar las llamadas RxJS encadenadas e inyectar configuraciones: `class InventoryList { config = inject(INVENTORY_FEATURE_CONFIG); facade = inject(InventoryFacade); ... }`.
 
-### 2.2. Aislamiento de Controladores y Servicios
-Mover los archivos físicamente:
-1. Mover `budget.controller.ts` y `budget.service.ts` desde `apps/backend/src/app/budgets/` hacia `libs/budget/backend/src/lib/`.
-2. Encapsularlos en un `BudgetModule` limpio y exportable.
-3. Repetir el proceso para todos los dominios. **IMPORTANTE:** Ningún servicio de dominio A debe importar directamente a un servicio de dominio B si no es a través de módulos acoplados o eventos.
+### Tarea B: Módulo `Billing` (Facturación)
+1. **Configuraciones Críticas:** Crear `BILLING_FEATURE_CONFIG` definiendo opciones como `enableVerifactu: boolean`, `defaultTaxes: string[]`. 
+2. **Facade Complejo:** `BillingFacade` debe gobernar la maquinaria asíncrona (descargas de PDFs de facturas, cambio de estados fiscales con banderas de "saving" puras sin ensuciar la UI).
+3. **Clean UI:** Renombrar e importar el UI-Kit genérico de Josanz para tablas, sin lógica matemática insertada en el template HTML.
 
-### 2.3. Control de Inyección (Módulos Dinámicos)
-- Refactorizar el módulo para aceptar configuración, usando el patrón `forRoot`.
-  
+---
+
+## 🪓 ETAPA 2: El Vaciado del Backend Monolítico (Extirpación)
+
+Actualmente la carpeta `apps/backend/src/app` asume todo el rol de servidor y lógica de negocio, lo cual impide compilar el núcleo del servidor para clientes que "no pagaron" o "no usan" módulos concretos (como Flota). Debemos hacer de `apps/backend` un caparazón vacío.
+
+### Acción 1: Construcción de Módulos Dinámicos (Plugins Backend)
+Para cada dominio:
+1. Generar la librería de servidor si no existe: `nx g @nx/nest:library backend-budget --directory=libs/budget/backend`.
+2. Mover todos los DTOs, Servicios (`service.ts`), y Controladores (`controller.ts`) físicamente hacia la nueva librería.
+3. Extender el `@Module` usando el estándar `DynamicModule`:
+
 ```typescript
+// libs/budget/backend/src/lib/budget-backend.module.ts
+import { DynamicModule, Module } from '@nestjs/common';
+import { BudgetController } from './controllers/budget.controller';
+import { BudgetService } from './services/budget.service';
+
+export interface BudgetConfig { enableApprovalFlow: boolean; }
+
 @Module({})
 export class BudgetBackendModule {
-  static forRoot(options: BudgetModuleOptions): DynamicModule {
+  static forRoot(options?: BudgetConfig): DynamicModule {
     return {
       module: BudgetBackendModule,
+      controllers: [BudgetController],
       providers: [
         BudgetService,
-        {
-          provide: 'BUDGET_CALCULATOR',
-          useClass: options.customCalculator || StandardBudgetCalculator,
-        }
+        { provide: 'BUDGET_CONFIG', useValue: options || { enableApprovalFlow: false } }
       ],
-      controllers: [BudgetController]
+      exports: [BudgetService] // SOLO exportar si la directriz de Boundaries lo aprueba
     };
   }
 }
 ```
 
-### 2.4. Limpieza Final del Chasis (`apps/backend`)
-El archivo `app.module.ts` en `apps/backend` perderá todos sus `controllers` y `providers` customizados. Deberá verse exclusivamente como un "Ensamblador de Plugins":
+### Acción 2: Purga e Inyección en el `AppModule` Shell
+La antigua guarida donde vivían todos los endpoints (`apps/backend/src/app/app.module.ts`) ahora se convertirá en un simple ensamblador de Plugins.
 
 ```typescript
+// apps/backend/src/app/app.module.ts
+import { Module } from '@nestjs/common';
+import { ClsModule } from 'nestjs-cls'; // <- Aisla el Multi-Tenant (Ya aplicado)
+import { BudgetBackendModule } from '@josanz-erp/budget-backend';
+import { InventoryBackendModule } from '@josanz-erp/inventory-backend';
+
 @Module({
   imports: [
-    ClsModule.forRoot({ /* Configurado en el paso anterior */ }),
+    // Tecnologías Core
+    ClsModule.forRoot({ global: true, middleware: { mount: true, setup: (cls, req) => cls.set('tenantId', req.headers['x-tenant-id']) } }),
     PrismaModule, 
-    AuthModule,
     
-    // Plugins Funcionales "Marca Blanca" activados para este Tenant de Backend
-    ClientsBackendModule,
-    BudgetBackendModule.forRoot({ /* Config. del Tenant Base */ }),
-    DeliveryBackendModule,
-    InventoryBackendModule,
+    // Plugins Funcionales "Marca Blanca" activados
+    IdentityBackendModule,
+    ClientsBackendModule.forRoot(),
+    BudgetBackendModule.forRoot({ enableApprovalFlow: true }),
+    InventoryBackendModule.forRoot(),
+    DeliveryBackendModule.forRoot(),
   ],
 })
 export class AppModule {}
 ```
 
----
-
-## 🎯 Resultado EsperadoTras Esta Fase
-Si ejecutas este plan, tendrás la garantía de que:
-1. **Frontend 100% Desacoplado:** Todos los módulos cargan mediante Tokens. Construir la UI para el *Cliente X* es solo cuestión de cambiar el valor del Array del Token en su Shell app.
-2. **Backend Orientado a Plugins:** Las reglas de negocio pesadas (facturación, cálculos de albaranes) viven en capas compartidas puras. El núcleo transaccional queda ultra-optimizado y el *AppShell* te permite habilitar o deshabilitar Módulos con solo comentar una línea de importación.
-
-*(Este archivo debe quedar guardado en `plans/v2/` como tu brújula para los siguientes commits de reestructuración masiva).*
+### Resultado Definitivo
+Cualquier cambio a la lógica de Presupuestos solo afectará a `libs/budget`. Si Nx necesita redesplegar un Tenant C que usa otra API paralela, no compilará `DeliveryBackendModule` aumentando la velocidad CI/CD drásticamente, cerrando el anillo del OCP (Open-Closed Principle).
