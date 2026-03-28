@@ -1,65 +1,85 @@
-# Plan: Reorganizar libs - Estructura con Responsabilidades
+📐 Plan: Reorganización de Librerías Nx (Frontend + Backend)
+🎯 Objetivo
 
-## Objetivo
-Reorganizar la estructura de las libs para separar claramente frontend y backend, con responsabilidades claramente definidas para cada parte.
+Definir una arquitectura modular, escalable y mantenible en Nx, separando claramente:
 
-## Estructura Propuesta
+Frontend vs Backend
+Infraestructura vs dominio
+UI vs lógica de datos
 
-### Frontend (mantener estructura actual con responsabilidades claras):
+Con reglas claras de dependencia que eviten acoplamientos incorrectos.
 
-```
-frontend/
-├── api/           # Comunicación externa - acceso HTTP
-├── data-access/   # Estado y lógica de datos - stores, facades
-├── feature/       # Casos de uso UI - componentes inteligentes
-└── shell/         # Composición y layout - routing, lazy loading
-```
+🧱 Estructura Global
+libs/
+└── <scope>/<feature>/
+    ├── domain/        # Modelo de negocio puro (agnóstico)
+    ├── backend/       # Implementación backend (NestJS, etc.)
+    └── frontend/
+        ├── api/           # Infraestructura HTTP
+        ├── data-access/   # Estado + lógica de datos
+        ├── feature/       # Casos de uso UI
+        └── shell/         # Composición + routing
+🧠 Principios Arquitectónicos
+Separación de responsabilidades (SoC)
+Dependency Rule (Clean Architecture)
+→ Nada depende de capas más externas
+Frontend desacoplado del backend
+Dominio reutilizable y agnóstico
+🎨 Frontend
+📁 api (Infraestructura / IO)
+🔌 Responsabilidad
 
-### Responsibilities por carpeta:
+Acceso a datos externos (backend, APIs).
 
-#### 🔌 api (Comunicación Externa)
-- **Responsabilidad**: Comunicación con el backend o servicios externos
-- **Incluye**:
-  - Servicios HTTP (HttpClient)
-  - Métodos CRUD (get, post, put, delete)
-  - Adaptadores de API
-  - DTOs para responses
-- **NO debe tener**: Lógica de negocio compleja, solo acceso a datos remotos
-- **Ejemplo**:
-```typescript
+✅ Incluye
+Servicios HTTP (HttpClient)
+Métodos CRUD
+Adaptadores de API
+DTOs (request/response)
+Mappers básicos (opcional, si son triviales)
+❌ NO incluye
+Estado
+Lógica de negocio
+Conocimiento de UI
+💡 Ejemplo
 getUsers(): Observable<UserDto[]> {
   return this.http.get<UserDto[]>('/api/users');
 }
-```
+📁 data-access (Orquestación de datos)
+🗃️ Responsabilidad
 
-#### 🗃️ data-access (Manejo de Estado y Datos)
-- **Responsabilidad**: Puente entre la API y la UI
-- **Incluye**:
-  - Stores (NgRx, SignalStore, Akita, etc.)
-  - Facades
-  - Lógica de negocio relacionada con datos
-  - Transformación de DTO → modelos de dominio
-  - Selectors
-- **SI tiene**: Lógica de datos, pero enfocada a datos no a UI
-- **Ejemplo**:
-```typescript
+Gestionar estado y coordinar datos entre API y UI.
+
+✅ Incluye
+Stores (NgRx, Signals, Akita…)
+Facades
+Selectors
+Transformación DTO → modelo de dominio
+Lógica de negocio relacionada con datos
+❌ NO incluye
+Componentes Angular
+Templates
+Routing
+💡 Ejemplo
 loadUsers() {
   this.api.getUsers().subscribe(users => {
     this.usersSignal.set(users);
   });
 }
-```
+📁 feature (Casos de uso UI)
+🧠 Responsabilidad
 
-#### 🧠 feature (Casos de Uso / UI)
-- **Responsabilidad**: Funcionalidad concreta que ve el usuario
-- **Incluye**:
-  - Componentes "inteligentes" (smart components)
-  - Páginas
-  - Orquestación de flujos
-  - Conexión con data-access
-- **Usa**: data-access, pero NO llama directamente a api
-- **Ejemplo**:
-```typescript
+Implementar lo que el usuario puede hacer/ver.
+
+✅ Incluye
+Smart components (containers)
+Páginas
+Orquestación de flujos
+Integración con data-access
+❌ NO incluye
+Llamadas HTTP directas
+Estado global
+💡 Ejemplo
 @Component({...})
 export class UsersPage {
   users$ = this.usersFacade.users$;
@@ -68,18 +88,20 @@ export class UsersPage {
     this.usersFacade.loadUsers();
   }
 }
-```
+📁 shell (Composición)
+🧱 Responsabilidad
 
-#### 🧱 shell (Composición y Layout)
-- **Responsabilidad**: Contenedor de alto nivel de la feature
-- **Incluye**:
-  - Layouts
-  - Routing de la feature
-  - Componentes contenedores principales
-  - Lazy loading
-- **NO contiene**: Lógica de negocio, solo estructura
-- **Ejemplo**:
-```typescript
+Estructura y composición de alto nivel.
+
+✅ Incluye
+Routing
+Lazy loading
+Layouts
+Componentes contenedores principales
+❌ NO incluye
+Lógica de negocio
+Acceso a datos
+💡 Ejemplo
 const routes: Routes = [
   {
     path: '',
@@ -87,127 +109,129 @@ const routes: Routes = [
     children: [...]
   }
 ];
-```
+🔄 Flujo de Datos
+UI (feature)
+   ↓
+data-access
+   ↓
+api
+   ↓
+backend
 
-#### 🔄 Flujo Typical
-```
-UI (feature) → data-access → api → backend
+Y de vuelta:
+
 backend → api → data-access → feature → UI
-```
+🚫 Reglas de Dependencia (CRÍTICO)
 
-#### 🚫 Reglas Importantes
-- feature ❌ NO llama directamente a api
-- api ❌ NO conoce feature
-- data-access ✅ puede usar api
-- shell solo organiza, no implementa lógica
+✔ feature → puede usar → data-access
+✔ data-access → puede usar → api
+✔ api → NO depende de nadie
 
----
+❌ feature NO llama a api
+❌ api NO conoce feature
+❌ shell NO contiene lógica
 
-### Backend (reorganizar):
-```
-backend/
-├── domain/       # Entidades, interfaces, DTOs
-└── src/          # Controllers, Services, Modules
-```
+👉 Recomendado: enforce con nx.json (tags + constraints)
 
----
+🧩 Backend
+📁 domain (Core de negocio)
+🎯 Responsabilidad
 
-## Módulos a Reorganizar
+Modelo de dominio puro, independiente de frameworks.
 
-### 1. Fleet (Flota de Vehículos)
+✅ Incluye
+Entidades
+Value Objects
+Interfaces (ports)
+Reglas de negocio
+DTOs de dominio (no HTTP)
+❌ NO incluye
+NestJS
+Decoradores
+Infraestructura
+📁 backend (Infraestructura backend)
+⚙️ Responsabilidad
 
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | Vehicle, Driver entities, ports |
-| `backend/` | FleetController, FleetService, FleetModule |
-| `frontend/api/` | FleetApiClient - llamadas HTTP |
-| `frontend/data-access/` | VehicleStore, VehicleFacade |
-| `frontend/feature/` | FleetListComponent, FleetDetailComponent |
-| `frontend/shell/` | FleetShellComponent, rutas |
+Implementación técnica del dominio.
 
-### 2. Clients (Clientes)
-
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | Client entity, ports |
-| `backend/` | ClientsController, ClientsService |
-| `frontend/api/` | ClientsApiClient |
-| `frontend/data-access/` | ClientStore, ClientFacade |
-| `frontend/feature/` | ClientsListComponent, ClientsDetailComponent |
-| `frontend/shell/` | ClientsShellComponent, rutas |
-
-### 3. Billing (Facturación)
-
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | Invoice, InvoiceLine entities |
-| `backend/` | BillingController, BillingService |
-| `frontend/api/` | BillingApiClient |
-| `frontend/data-access/` | InvoiceStore, InvoiceFacade |
-| `frontend/feature/` | BillingListComponent, BillingDetailComponent |
-| `frontend/shell/` | BillingShellComponent, rutas |
-
-### 4. Inventory (Inventario)
-
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | Product, Reservation entities |
-| `backend/` | InventoryController, InventoryService |
-| `frontend/api/` | InventoryApiClient |
-| `frontend/data-access/` | ProductStore, ProductFacade |
-| `frontend/feature/` | InventoryListComponent, ProductDetailComponent |
-| `frontend/shell/` | InventoryShellComponent, rutas |
-
-### 5. Delivery (Entregas)
-
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | DeliveryNote entities |
-| `backend/` | DeliveryController, DeliveryService |
-| `frontend/api/` | DeliveryApiClient |
-| `frontend/data-access/` | DeliveryNoteStore, DeliveryFacade |
-| `frontend/feature/` | DeliveryListComponent, DeliveryDetailComponent |
-| `frontend/shell/` | DeliveryShellComponent, rutas |
-
-### 6. Budget (Presupuestos)
-
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | Budget, BudgetLine entities |
-| `backend/` | BudgetController, BudgetService |
-| `frontend/api/` | BudgetApiClient |
-| `frontend/data-access/` | BudgetStore, BudgetFacade |
-| `frontend/feature/` | BudgetListComponent, BudgetCreateComponent |
-| `frontend/shell/` | BudgetShellComponent, rutas |
-
-### 7. Rentals (Alquileres)
-
-| Carpeta | Contenido |
-|---------|-----------|
-| `domain/` | Rental entities |
-| `backend/` | RentalsController, RentalsService |
-| `frontend/api/` | RentalsApiClient |
-| `frontend/data-access/` | RentalStore, RentalFacade |
-| `frontend/feature/` | RentalsListComponent, RentalsDetailComponent |
-| `frontend/shell/` | RentalsShellComponent, rutas |
-
----
-
-## Pasos de Implementación
-
-### Para cada módulo:
-
-1. **Crear carpeta `domain/`** y mover entidades de `core/`
-2. **Crear carpeta `backend/`** y mover controllers de `api/`
-3. **Crear carpeta `frontend/`** y mover las 4 carpetas existentes
-4. **Crear `frontend/api/`** (si no existe) con clientes HTTP
-5. **Actualizar project.json** de cada carpeta
-6. **Actualizar exports** en index.ts
-7. **Actualizar imports** en todos los archivos
-8. **Actualizar tsconfig.base.json** y tsconfig.app.json con los nuevos paths
-
----
-
-## Pendiente de Confirmación
-
-¿Confirmas esta estructura con las responsabilidades claras? ¿Empezamos con la implementación?
+✅ Incluye
+Controllers
+Services
+Modules
+Repositorios
+Integraciones externas
+❌ NO incluye
+Lógica de negocio compleja (debe vivir en domain)
+📦 Módulos
+🟦 Fleet
+domain/: Vehicle, Driver, reglas
+backend/: FleetController, Service
+frontend/api/: FleetApiClient
+frontend/data-access/: VehicleStore, Facade
+frontend/feature/: páginas y containers
+frontend/shell/: routing
+🟩 Clients
+Domain: Client
+Backend: ClientsController
+Frontend: API + Store + UI
+🟨 Billing
+Domain: Invoice, InvoiceLine
+Backend: BillingService
+Frontend: gestión de facturación
+🟧 Inventory
+Domain: Product, Reservation
+Backend: InventoryService
+Frontend: stock UI
+🟥 Delivery
+Domain: DeliveryNote
+Backend: DeliveryController
+Frontend: gestión de entregas
+🟪 Budget
+Domain: Budget, BudgetLine
+Backend: BudgetService
+Frontend: creación de presupuestos
+⚫ Rentals
+Domain: Rental
+Backend: RentalsService
+Frontend: alquileres
+🚀 Pasos de Implementación
+🔁 Por cada módulo
+Crear domain/
+Mover entidades desde core
+Limpiar dependencias Angular/Nest
+Crear backend/
+Mover controllers/services desde api actual
+Crear frontend/
+Reorganizar en:
+api
+data-access
+feature
+shell
+Crear clientes HTTP en frontend/api
+Implementar stores/facades en data-access
+Separar smart vs dumb components (si aplica)
+Actualizar:
+project.json
+index.ts (exports públicos)
+imports internos
+Configurar paths:
+tsconfig.base.json
+(Recomendado) Añadir reglas Nx:
+"constraints": [
+  {
+    "sourceTag": "type:feature",
+    "onlyDependOnLibsWithTags": ["type:data-access"]
+  }
+]
+⚠️ Errores Comunes a Evitar
+Meter lógica en api
+Saltarse data-access
+Mezclar DTOs con modelos de dominio
+Hacer el domain dependiente de Angular/Nest
+Components llamando HTTP directamente
+✅ Resultado Esperado
+Código desacoplado
+Fácil testeo
+Escalable por equipos
+Reutilización real del dominio
+Menos deuda técnica
