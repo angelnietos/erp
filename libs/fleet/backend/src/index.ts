@@ -1,1 +1,1 @@
-export * from './lib/fleet-backend.module';
+export * from './lib/fleet.module';

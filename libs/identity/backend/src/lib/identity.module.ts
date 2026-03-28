@@ -8,7 +8,7 @@ import { AuthService } from './application/services/auth.service';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
-import { SharedInfrastructureModule } from '../../shared/infrastructure';
+import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 
 @Module({
   imports: [
@@ -37,3 +37,4 @@ import { SharedInfrastructureModule } from '../../shared/infrastructure';
   exports: [AuthService, JwtStrategy],
 })
 export class IdentityModule {}
+

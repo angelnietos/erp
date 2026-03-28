@@ -1,1 +1,1 @@
-export * from './lib/delivery-backend.module';
+export * from './lib/delivery.module';

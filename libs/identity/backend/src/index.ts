@@ -1,1 +1,1 @@
-export * from './lib/identity-backend.module';
+export * from './lib/identity.module';

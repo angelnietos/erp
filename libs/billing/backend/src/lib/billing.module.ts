@@ -1,4 +1,4 @@
-﻿import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-data-access';
 import { BillingController } from './infrastructure/http/billing.controller';
 import { SubmitInvoiceToVerifactuUseCase } from './application/use-cases/submit-invoice-to-verifactu.use-case';
@@ -19,3 +19,4 @@ import { VerifactuErpAdapterModule } from '@josanz-erp/verifactu-adapters';
   exports: [],
 })
 export class BillingModule {}
+

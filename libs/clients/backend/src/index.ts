@@ -1,1 +1,1 @@
-export * from './lib/clients-backend.module';
+export * from './lib/clients.module';

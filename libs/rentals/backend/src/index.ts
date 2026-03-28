@@ -1,1 +1,2 @@
-export * from './lib/rentals-backend.module';
+export * from './lib/rentals.module';
+

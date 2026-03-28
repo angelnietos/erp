@@ -1,1 +1,2 @@
-export * from './lib/inventory-backend.module';
+export * from './lib/inventory.module';
+

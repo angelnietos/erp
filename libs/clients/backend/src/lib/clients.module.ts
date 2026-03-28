@@ -4,11 +4,6 @@ import { ClientsController } from './presentation/controllers/clients.controller
 import { CLIENTS_REPOSITORY, ClientsService } from '@josanz-erp/clients-core';
 import { PrismaClientsRepository } from './infrastructure/repositories/prisma-clients.repository';
 
-/**
- * Clients Backend Module
- * NestJS module that provides backend infrastructure for the clients feature
- * This module re-exports the ClientsService and sets up the repository pattern
- */
 @Module({
   imports: [PrismaModule],
   controllers: [ClientsController],
@@ -19,6 +14,7 @@ import { PrismaClientsRepository } from './infrastructure/repositories/prisma-cl
       useClass: PrismaClientsRepository,
     },
   ],
-  exports: [ClientsService],
+  exports: [],
 })
-export class ClientsBackendModule {}
+export class ClientsModule {}
+

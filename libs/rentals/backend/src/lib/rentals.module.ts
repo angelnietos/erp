@@ -1,4 +1,4 @@
-﻿import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-data-access';
 
 @Module({
@@ -7,4 +7,5 @@ import { PrismaModule } from '@josanz-erp/shared-data-access';
   providers: [],
   exports: [],
 })
-export class DeliveryModule {}
+export class RentalsModule {}
+
