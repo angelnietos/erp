@@ -1,6 +1,8 @@
 import { Route } from '@angular/router';
-import { RentalsFeature } from './rentals-feature/rentals-feature';
+import { RentalsListComponent } from './rentals-list/rentals-list.component';
 
 export const rentalsFeatureRoutes: Route[] = [
-  { path: '', component: RentalsFeature },
+  { path: '', component: RentalsListComponent },
 ];
+
+export * from './rentals-list/rentals-list.component';

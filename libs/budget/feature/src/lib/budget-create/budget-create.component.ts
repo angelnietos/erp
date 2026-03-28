@@ -60,7 +60,7 @@ export class BudgetCreateComponent implements OnInit {
     const productId = this.items.at(index).get('productId')?.value;
     const product = this.products().find(p => p.id === productId);
     if (product) {
-      this.items.at(index).patchValue({ price: product.price });
+      this.items.at(index).patchValue({ price: product.dailyRate });
     }
   }
 

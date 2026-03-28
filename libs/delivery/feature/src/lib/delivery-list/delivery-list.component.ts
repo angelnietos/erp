@@ -1,24 +1,28 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
+import { FormsModule } from '@angular/forms';
+import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
-export interface DeliveryNote {
-  id: string;
-  budgetId: string;
-  clientName: string;
-  status: 'draft' | 'pending' | 'signed' | 'completed';
-  deliveryDate: string;
-  returnDate: string;
-  itemsCount: number;
-  signature?: string;
-}
+import { DeliveryNote, DeliveryNoteService } from '@josanz-erp/delivery-data-access';
 
 @Component({
   selector: 'lib-delivery-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule,
+    UiTableComponent, 
+    UiButtonComponent, 
+    UiSearchComponent, 
+    UiPaginationComponent, 
+    UiBadgeComponent,
+    UiLoaderComponent,
+    UiModalComponent,
+    UiInputComponent,
+    UiSelectComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
@@ -67,10 +71,21 @@ export interface DeliveryNote {
                     <i-lucide name="eye"></i-lucide>
                   </button>
                   @if (delivery.status === 'pending') {
-                    <button class="action-btn" title="Firmar">
+                    <button class="action-btn success" title="Firmar" (click)="signDelivery(delivery)">
                       <i-lucide name="pen-tool"></i-lucide>
                     </button>
                   }
+                  @if (delivery.status === 'signed') {
+                    <button class="action-btn" title="Completar" (click)="completeDelivery(delivery)">
+                      <i-lucide name="check-circle"></i-lucide>
+                    </button>
+                  }
+                  <button class="action-btn" (click)="editDelivery(delivery)" title="Editar">
+                    <i-lucide name="pencil"></i-lucide>
+                  </button>
+                  <button class="action-btn danger" (click)="confirmDelete(delivery)" title="Eliminar">
+                    <i-lucide name="trash-2"></i-lucide>
+                  </button>
                 </div>
               }
               @default {
@@ -87,6 +102,149 @@ export interface DeliveryNote {
         ></ui-josanz-pagination>
       }
     </div>
+
+    <!-- Create/Edit Modal -->
+    <ui-josanz-modal 
+      [isOpen]="isModalOpen()" 
+      [title]="editingDelivery() ? 'Editar Albarán' : 'Nuevo Albarán'"
+      (closed)="closeModal()"
+    >
+      <form>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="budgetId">Presupuesto *</label>
+            <input 
+              type="text" 
+              id="budgetId"
+              [(ngModel)]="formData.budgetId" 
+              name="budgetId" 
+              required
+              placeholder="ID del presupuesto"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="clientName">Cliente *</label>
+            <input 
+              type="text" 
+              id="clientName"
+              [(ngModel)]="formData.clientName" 
+              name="clientName" 
+              required
+              placeholder="Nombre del cliente"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="status">Estado</label>
+            <select id="status" [(ngModel)]="formData.status" name="status">
+              <option value="draft">Borrador</option>
+              <option value="pending">Pendiente</option>
+              <option value="signed">Firmado</option>
+              <option value="completed">Completado</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="itemsCount">Número de Items</label>
+            <input 
+              type="number" 
+              id="itemsCount"
+              [(ngModel)]="formData.itemsCount" 
+              name="itemsCount" 
+              placeholder="0"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="deliveryDate">Fecha de Entrega</label>
+            <input 
+              type="date" 
+              id="deliveryDate"
+              [(ngModel)]="formData.deliveryDate" 
+              name="deliveryDate" 
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="returnDate">Fecha de Devolución</label>
+            <input 
+              type="date" 
+              id="returnDate"
+              [(ngModel)]="formData.returnDate" 
+              name="returnDate" 
+            >
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="notes">Notas</label>
+            <textarea 
+              id="notes"
+              [(ngModel)]="formData.notes" 
+              name="notes" 
+              rows="3"
+              placeholder="Notas adicionales..."
+            ></textarea>
+          </div>
+        </div>
+      </form>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button 
+          (clicked)="saveDelivery()"
+          [disabled]="!formData.budgetId || !formData.clientName"
+        >
+          {{ editingDelivery() ? 'Actualizar' : 'Crear' }}
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
+
+    <!-- Signature Modal -->
+    <ui-josanz-modal
+      [isOpen]="isSignModalOpen()"
+      title="Firmar Albarán"
+      (closed)="closeSignModal()"
+    >
+      <div class="signature-area">
+        <p>Firma el albarán para confirmar la entrega:</p>
+        <textarea 
+          [(ngModel)]="signatureText" 
+          placeholder="Firma del cliente..."
+          rows="4"
+        ></textarea>
+      </div>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeSignModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button (clicked)="confirmSign()">
+          Firmar
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
+
+    <!-- Delete Confirmation Modal -->
+    <ui-josanz-modal
+      [isOpen]="isDeleteModalOpen()"
+      title="Confirmar Eliminación"
+      (closed)="closeDeleteModal()"
+    >
+      <p>¿Estás seguro de que deseas eliminar el albarán <strong>#{{ deliveryToDelete()?.id?.slice(0, 8) }}</strong>?</p>
+      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteDelivery()">
+          Eliminar
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
   `,
   styles: [`
     .page-container { padding: 24px; }
@@ -105,9 +263,67 @@ export interface DeliveryNote {
       color: #94A3B8; border-radius: 6px; transition: all 0.2s;
     }
     .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+    .action-btn.success:hover { background: rgba(34,197,94,0.15); color: #22C55E; }
+    .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .form-group label {
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: white;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #4F46E5;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #64748B;
+    }
+    .warning-text {
+      color: #EF4444;
+      font-size: 14px;
+    }
+    .signature-area textarea {
+      width: 100%;
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      font-size: 14px;
+      margin-top: 12px;
+    }
   `],
 })
 export class DeliveryListComponent implements OnInit {
+  private deliveryNoteService = inject(DeliveryNoteService);
+
   columns = [
     { key: 'id', header: 'Referencia', width: '120px' },
     { key: 'budgetId', header: 'Presupuesto', width: '120px' },
@@ -116,7 +332,7 @@ export class DeliveryListComponent implements OnInit {
     { key: 'returnDate', header: 'Fecha Devolución', width: '120px' },
     { key: 'itemsCount', header: 'Items', width: '80px' },
     { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'actions', header: '', width: '100px' },
+    { key: 'actions', header: '', width: '140px' },
   ];
 
   deliveryNotes = signal<DeliveryNote[]>([]);
@@ -124,6 +340,26 @@ export class DeliveryListComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
+  
+  // Modal state
+  isModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  isSignModalOpen = signal(false);
+  editingDelivery = signal<DeliveryNote | null>(null);
+  deliveryToDelete = signal<DeliveryNote | null>(null);
+  deliveryToSign = signal<DeliveryNote | null>(null);
+  signatureText = '';
+  
+  // Form data
+  formData: Partial<DeliveryNote> = {
+    budgetId: '',
+    clientName: '',
+    status: 'draft',
+    deliveryDate: '',
+    returnDate: '',
+    itemsCount: 0,
+    notes: ''
+  };
 
   ngOnInit() {
     this.loadDeliveryNotes();
@@ -131,40 +367,149 @@ export class DeliveryListComponent implements OnInit {
 
   loadDeliveryNotes() {
     this.isLoading.set(true);
-    // Mock data
-    setTimeout(() => {
-      this.deliveryNotes.set([
-        {
-          id: 'dlv-001',
-          budgetId: 'bgt-001',
-          clientName: 'Producciones Audiovisuales Madrid',
-          status: 'signed',
-          deliveryDate: '2026-03-20',
-          returnDate: '2026-03-25',
-          itemsCount: 8,
+    this.deliveryNoteService.getDeliveryNotes().subscribe({
+      next: (deliveryNotes) => {
+        this.deliveryNotes.set(deliveryNotes);
+        this.isLoading.set(false);
+        this.totalPages.set(1);
+      },
+      error: (err) => {
+        console.error('Error loading delivery notes:', err);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  onSearch(term: string) {
+    this.searchTerm = term;
+    if (term.trim()) {
+      this.isLoading.set(true);
+      this.deliveryNoteService.searchDeliveryNotes(term).subscribe({
+        next: (deliveryNotes) => {
+          this.deliveryNotes.set(deliveryNotes);
+          this.isLoading.set(false);
+        }
+      });
+    } else {
+      this.loadDeliveryNotes();
+    }
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadDeliveryNotes();
+  }
+
+  openCreateModal() {
+    this.editingDelivery.set(null);
+    this.formData = {
+      budgetId: '',
+      clientName: '',
+      status: 'draft',
+      deliveryDate: new Date().toISOString().split('T')[0],
+      returnDate: '',
+      itemsCount: 0,
+      notes: ''
+    };
+    this.isModalOpen.set(true);
+  }
+
+  editDelivery(delivery: DeliveryNote) {
+    this.editingDelivery.set(delivery);
+    this.formData = { ...delivery };
+    this.isModalOpen.set(true);
+  }
+
+  closeModal() {
+    this.isModalOpen.set(false);
+    this.editingDelivery.set(null);
+  }
+
+  saveDelivery() {
+    if (!this.formData.budgetId || !this.formData.clientName) return;
+
+    if (this.editingDelivery()) {
+      this.deliveryNoteService.updateDeliveryNote(this.editingDelivery()!.id, this.formData).subscribe({
+        next: (updated) => {
+          this.deliveryNotes.update(deliveryNotes => 
+            deliveryNotes.map(d => d.id === updated.id ? updated : d)
+          );
+          this.closeModal();
         },
-        {
-          id: 'dlv-002',
-          budgetId: 'bgt-002',
-          clientName: 'Cadena TV España',
-          status: 'pending',
-          deliveryDate: '2026-03-22',
-          returnDate: '2026-03-28',
-          itemsCount: 12,
+        error: (err) => console.error('Error updating delivery note:', err)
+      });
+    } else {
+      this.deliveryNoteService.createDeliveryNote(this.formData as Omit<DeliveryNote, 'id'>).subscribe({
+        next: (newDelivery) => {
+          this.deliveryNotes.update(deliveryNotes => [...deliveryNotes, newDelivery]);
+          this.closeModal();
         },
-        {
-          id: 'dlv-003',
-          budgetId: 'bgt-003',
-          clientName: 'Film Studios Barcelona',
-          status: 'completed',
-          deliveryDate: '2026-03-15',
-          returnDate: '2026-03-18',
-          itemsCount: 5,
-        },
-      ]);
-      this.isLoading.set(false);
-      this.totalPages.set(1);
-    }, 500);
+        error: (err) => console.error('Error creating delivery note:', err)
+      });
+    }
+  }
+
+  confirmDelete(delivery: DeliveryNote) {
+    this.deliveryToDelete.set(delivery);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen.set(false);
+    this.deliveryToDelete.set(null);
+  }
+
+  deleteDelivery() {
+    const delivery = this.deliveryToDelete();
+    if (!delivery) return;
+
+    this.deliveryNoteService.deleteDeliveryNote(delivery.id).subscribe({
+      next: (success) => {
+        if (success) {
+          this.deliveryNotes.update(deliveryNotes => deliveryNotes.filter(d => d.id !== delivery.id));
+        }
+        this.closeDeleteModal();
+      },
+      error: (err) => console.error('Error deleting delivery note:', err)
+    });
+  }
+
+  signDelivery(delivery: DeliveryNote) {
+    this.deliveryToSign.set(delivery);
+    this.signatureText = '';
+    this.isSignModalOpen.set(true);
+  }
+
+  closeSignModal() {
+    this.isSignModalOpen.set(false);
+    this.deliveryToSign.set(null);
+    this.signatureText = '';
+  }
+
+  confirmSign() {
+    const delivery = this.deliveryToSign();
+    if (!delivery) return;
+
+    this.deliveryNoteService.signDeliveryNote(delivery.id, this.signatureText).subscribe({
+      next: (updated) => {
+        this.deliveryNotes.update(deliveryNotes => 
+          deliveryNotes.map(d => d.id === updated.id ? updated : d)
+        );
+        this.closeSignModal();
+      },
+      error: (err) => console.error('Error signing delivery note:', err)
+    });
+  }
+
+  completeDelivery(delivery: DeliveryNote) {
+    this.deliveryNoteService.completeDeliveryNote(delivery.id).subscribe({
+      next: (updated) => {
+        this.deliveryNotes.update(deliveryNotes => 
+          deliveryNotes.map(d => d.id === updated.id ? updated : d)
+        );
+      },
+      error: (err) => console.error('Error completing delivery note:', err)
+    });
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
@@ -186,20 +531,8 @@ export class DeliveryListComponent implements OnInit {
     }
   }
 
-  onSearch(term: string) {
-    this.searchTerm = term;
-  }
-
-  onPageChange(page: number) {
-    this.currentPage.set(page);
-    this.loadDeliveryNotes();
-  }
-
-  openCreateModal() {
-    // TODO: Open create modal
-  }
-
   formatDate(date: string): string {
+    if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
 }

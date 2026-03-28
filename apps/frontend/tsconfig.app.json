@@ -37,6 +37,7 @@
       "@josanz-erp/billing-data-access": ["libs/billing/data-access/src/index.ts"],
       "@josanz-erp/billing-feature": ["libs/billing/feature/src/index.ts"],
       "@josanz-erp/billing-shell": ["libs/billing/shell/src/index.ts"],
+      "@josanz-erp/fleet-data-access": ["libs/fleet/data-access/src/index.ts"],
       "@josanz-erp/fleet-feature": ["libs/fleet/feature/src/index.ts"],
       "@josanz-erp/fleet-shell": ["libs/fleet/shell/src/index.ts"],
       "@josanz-erp/budget-feature": ["libs/budget/feature/src/index.ts"],

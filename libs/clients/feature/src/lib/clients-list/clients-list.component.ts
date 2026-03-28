@@ -1,20 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
+import { FormsModule } from '@angular/forms';
+import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiTextareaComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ClientService } from '@josanz-erp/clients-data-access';
-
-export interface Client {
-  id: string;
-  name: string;
-  description: string;
-  sector: string;
-  contact: string;
-  email: string;
-  phone: string;
-  createdAt: string;
-}
+import { Client, ClientService } from '@josanz-erp/clients-data-access';
 
 @Component({
   selector: 'app-clients-list',
@@ -22,12 +12,16 @@ export interface Client {
   imports: [
     CommonModule, 
     RouterModule, 
+    FormsModule,
     UiTableComponent, 
     UiButtonComponent, 
     UiSearchComponent, 
     UiPaginationComponent, 
     UiBadgeComponent,
-    UiLoaderComponent
+    UiLoaderComponent,
+    UiModalComponent,
+    UiInputComponent,
+    UiTextareaComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
@@ -71,10 +65,10 @@ export interface Client {
                   <button class="action-btn" [routerLink]="['/clients', client.id]" title="Ver">
                     <i-lucide name="eye"></i-lucide>
                   </button>
-                  <button class="action-btn" title="Editar">
+                  <button class="action-btn" (click)="editClient(client)" title="Editar">
                     <i-lucide name="pencil"></i-lucide>
                   </button>
-                  <button class="action-btn danger" title="Eliminar">
+                  <button class="action-btn danger" (click)="confirmDelete(client)" title="Eliminar">
                     <i-lucide name="trash-2"></i-lucide>
                   </button>
                 </div>
@@ -93,6 +87,126 @@ export interface Client {
         ></ui-josanz-pagination>
       }
     </div>
+
+    <!-- Create/Edit Modal -->
+    <ui-josanz-modal 
+      [isOpen]="isModalOpen()" 
+      [title]="editingClient() ? 'Editar Cliente' : 'Nuevo Cliente'"
+      (closed)="closeModal()"
+    >
+      <form (ngSubmit)="saveClient()" #clientForm="ngForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Nombre *</label>
+            <input 
+              type="text" 
+              id="name"
+              [(ngModel)]="formData.name" 
+              name="name" 
+              required
+              placeholder="Nombre del cliente"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="sector">Sector</label>
+            <input 
+              type="text" 
+              id="sector"
+              [(ngModel)]="formData.sector" 
+              name="sector" 
+              placeholder="Sector del cliente"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="contact">Persona de Contacto</label>
+            <input 
+              type="text" 
+              id="contact"
+              [(ngModel)]="formData.contact" 
+              name="contact" 
+              placeholder="Nombre del contacto"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email"
+              [(ngModel)]="formData.email" 
+              name="email" 
+              placeholder="email@ejemplo.com"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Teléfono</label>
+            <input 
+              type="tel" 
+              id="phone"
+              [(ngModel)]="formData.phone" 
+              name="phone" 
+              placeholder="+34 600 000 000"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="address">Dirección</label>
+            <input 
+              type="text" 
+              id="address"
+              [(ngModel)]="formData.address" 
+              name="address" 
+              placeholder="Dirección"
+            >
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="description">Descripción</label>
+            <textarea 
+              id="description"
+              [(ngModel)]="formData.description" 
+              name="description" 
+              rows="3"
+              placeholder="Descripción del cliente"
+            ></textarea>
+          </div>
+        </div>
+      </form>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button 
+          (clicked)="saveClient()"
+          [disabled]="!formData.name"
+        >
+          {{ editingClient() ? 'Actualizar' : 'Crear' }}
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
+
+    <!-- Delete Confirmation Modal -->
+    <ui-josanz-modal
+      [isOpen]="isDeleteModalOpen()"
+      title="Confirmar Eliminación"
+      (closed)="closeDeleteModal()"
+    >
+      <p>¿Estás seguro de que deseas eliminar el cliente <strong>{{ clientToDelete()?.name }}</strong>?</p>
+      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteClient()">
+          Eliminar
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
   `,
   styles: [`
     .page-container { padding: 24px; }
@@ -112,6 +226,48 @@ export interface Client {
     }
     .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
     .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .form-group label {
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group textarea {
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: white;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #4F46E5;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #64748B;
+    }
+    .warning-text {
+      color: #EF4444;
+      font-size: 14px;
+    }
   `],
 })
 export class ClientsListComponent implements OnInit {
@@ -130,6 +286,23 @@ export class ClientsListComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
+  
+  // Modal state
+  isModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  editingClient = signal<Client | null>(null);
+  clientToDelete = signal<Client | null>(null);
+  
+  // Form data
+  formData: Partial<Client> = {
+    name: '',
+    description: '',
+    sector: '',
+    contact: '',
+    email: '',
+    phone: '',
+    address: ''
+  };
 
   constructor(private clientService: ClientService) {}
 
@@ -139,48 +312,32 @@ export class ClientsListComponent implements OnInit {
 
   loadClients() {
     this.isLoading.set(true);
-    // Mock data for now - will integrate with API
-    setTimeout(() => {
-      this.clients.set([
-        {
-          id: '1',
-          name: 'Producciones Audiovisuales Madrid',
-          description: 'Empresa de producción audiovisual',
-          sector: 'Producción',
-          contact: 'Juan García',
-          email: 'juan@produccionesmadrid.es',
-          phone: '+34 612 345 678',
-          createdAt: '2026-01-15',
-        },
-        {
-          id: '2',
-          name: 'Cadena TV España',
-          description: 'Televisión nacional',
-          sector: 'Medios',
-          contact: 'María López',
-          email: 'maria@tvspain.es',
-          phone: '+34 611 234 567',
-          createdAt: '2026-02-01',
-        },
-        {
-          id: '3',
-          name: 'Film Studios Barcelona',
-          description: 'Estudios cinematográficos',
-          sector: 'Cine',
-          contact: 'Carlos Rodríguez',
-          email: 'carlos@filmstudios.es',
-          phone: '+34 610 987 654',
-          createdAt: '2026-02-10',
-        },
-      ]);
-      this.isLoading.set(false);
-      this.totalPages.set(1);
-    }, 500);
+    this.clientService.getClients().subscribe({
+      next: (clients) => {
+        this.clients.set(clients);
+        this.isLoading.set(false);
+        this.totalPages.set(1);
+      },
+      error: (err) => {
+        console.error('Error loading clients:', err);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   onSearch(term: string) {
     this.searchTerm = term;
-    // Implement search logic
+    if (term.trim()) {
+      this.isLoading.set(true);
+      this.clientService.searchClients(term).subscribe({
+        next: (clients) => {
+          this.clients.set(clients);
+          this.isLoading.set(false);
+        }
+      });
+    } else {
+      this.loadClients();
+    }
   }
 
   onPageChange(page: number) {
@@ -189,7 +346,79 @@ export class ClientsListComponent implements OnInit {
   }
 
   openCreateModal() {
-    // TODO: Open create client modal
+    this.editingClient.set(null);
+    this.formData = {
+      name: '',
+      description: '',
+      sector: '',
+      contact: '',
+      email: '',
+      phone: '',
+      address: ''
+    };
+    this.isModalOpen.set(true);
+  }
+
+  editClient(client: Client) {
+    this.editingClient.set(client);
+    this.formData = { ...client };
+    this.isModalOpen.set(true);
+  }
+
+  closeModal() {
+    this.isModalOpen.set(false);
+    this.editingClient.set(null);
+  }
+
+  saveClient() {
+    if (!this.formData.name) return;
+
+    if (this.editingClient()) {
+      // Update existing client
+      this.clientService.updateClient(this.editingClient()!.id, this.formData).subscribe({
+        next: (updated) => {
+          this.clients.update(clients => 
+            clients.map(c => c.id === updated.id ? updated : c)
+          );
+          this.closeModal();
+        },
+        error: (err) => console.error('Error updating client:', err)
+      });
+    } else {
+      // Create new client
+      this.clientService.createClient(this.formData as Omit<Client, 'id' | 'createdAt'>).subscribe({
+        next: (newClient) => {
+          this.clients.update(clients => [...clients, newClient]);
+          this.closeModal();
+        },
+        error: (err) => console.error('Error creating client:', err)
+      });
+    }
+  }
+
+  confirmDelete(client: Client) {
+    this.clientToDelete.set(client);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen.set(false);
+    this.clientToDelete.set(null);
+  }
+
+  deleteClient() {
+    const client = this.clientToDelete();
+    if (!client) return;
+
+    this.clientService.deleteClient(client.id).subscribe({
+      next: (success) => {
+        if (success) {
+          this.clients.update(clients => clients.filter(c => c.id !== client.id));
+        }
+        this.closeDeleteModal();
+      },
+      error: (err) => console.error('Error deleting client:', err)
+    });
   }
 
   formatDate(date: string): string {

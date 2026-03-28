@@ -1,26 +1,28 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiTabsComponent, TabItem } from '@josanz-erp/shared-ui-kit';
+import { FormsModule } from '@angular/forms';
+import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-
-export interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  budgetId: string;
-  clientName: string;
-  status: 'draft' | 'pending' | 'sent' | 'paid' | 'cancelled';
-  type: 'normal' | 'rectificative';
-  total: number;
-  issueDate: string;
-  dueDate: string;
-  verifactuStatus?: 'pending' | 'sent' | 'error';
-}
+import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
 
 @Component({
   selector: 'lib-billing-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiTabsComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule,
+    UiTableComponent, 
+    UiButtonComponent, 
+    UiSearchComponent, 
+    UiPaginationComponent, 
+    UiBadgeComponent,
+    UiLoaderComponent,
+    UiModalComponent,
+    UiInputComponent,
+    UiSelectComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
@@ -34,7 +36,7 @@ export interface Invoice {
         </ui-josanz-button>
       </div>
 
-      <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" (tabChange)="onTabChange($event)"></ui-josanz-tabs>
+      <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
 
       <div class="filters-bar">
         <ui-josanz-search 
@@ -83,14 +85,25 @@ export interface Invoice {
                   <button class="action-btn" [routerLink]="['/billing', invoice.id]" title="Ver">
                     <i-lucide name="eye"></i-lucide>
                   </button>
-                  <button class="action-btn" title="Descargar PDF">
+                  <button class="action-btn" title="Descargar PDF" (click)="downloadPDF(invoice)">
                     <i-lucide name="download"></i-lucide>
                   </button>
                   @if (invoice.status === 'pending') {
-                    <button class="action-btn" title="Enviar">
+                    <button class="action-btn" title="Enviar" (click)="sendInvoice(invoice)">
                       <i-lucide name="send"></i-lucide>
                     </button>
                   }
+                  @if (invoice.status !== 'paid' && invoice.status !== 'cancelled') {
+                    <button class="action-btn success" title="Marcar como Pagada" (click)="markAsPaid(invoice)">
+                      <i-lucide name="check-circle"></i-lucide>
+                    </button>
+                  }
+                  <button class="action-btn" (click)="editInvoice(invoice)" title="Editar">
+                    <i-lucide name="pencil"></i-lucide>
+                  </button>
+                  <button class="action-btn danger" (click)="confirmDelete(invoice)" title="Eliminar">
+                    <i-lucide name="trash-2"></i-lucide>
+                  </button>
                 </div>
               }
               @default {
@@ -107,6 +120,133 @@ export interface Invoice {
         ></ui-josanz-pagination>
       }
     </div>
+
+    <!-- Create/Edit Modal -->
+    <ui-josanz-modal 
+      [isOpen]="isModalOpen()" 
+      [title]="editingInvoice() ? 'Editar Factura' : 'Nueva Factura'"
+      (closed)="closeModal()"
+    >
+      <form>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="invoiceNumber">Número de Factura</label>
+            <input 
+              type="text" 
+              id="invoiceNumber"
+              [(ngModel)]="formData.invoiceNumber" 
+              name="invoiceNumber" 
+              placeholder="F/2026/0001"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="clientName">Cliente *</label>
+            <input 
+              type="text" 
+              id="clientName"
+              [(ngModel)]="formData.clientName" 
+              name="clientName" 
+              required
+              placeholder="Nombre del cliente"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="budgetId">Presupuesto</label>
+            <input 
+              type="text" 
+              id="budgetId"
+              [(ngModel)]="formData.budgetId" 
+              name="budgetId" 
+              placeholder="ID del presupuesto"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="type">Tipo</label>
+            <select id="type" [(ngModel)]="formData.type" name="type">
+              <option value="normal">Normal</option>
+              <option value="rectificative">Rectificativa</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="total">Importe Total (€)</label>
+            <input 
+              type="number" 
+              id="total"
+              [(ngModel)]="formData.total" 
+              name="total" 
+              placeholder="0.00"
+              step="0.01"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="status">Estado</label>
+            <select id="status" [(ngModel)]="formData.status" name="status">
+              <option value="draft">Borrador</option>
+              <option value="pending">Pendiente</option>
+              <option value="sent">Enviada</option>
+              <option value="paid">Pagada</option>
+              <option value="cancelled">Cancelada</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="issueDate">Fecha de Emisión</label>
+            <input 
+              type="date" 
+              id="issueDate"
+              [(ngModel)]="formData.issueDate" 
+              name="issueDate" 
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="dueDate">Fecha de Vencimiento</label>
+            <input 
+              type="date" 
+              id="dueDate"
+              [(ngModel)]="formData.dueDate" 
+              name="dueDate" 
+            >
+          </div>
+        </div>
+      </form>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button 
+          (clicked)="saveInvoice()"
+          [disabled]="!formData.clientName"
+        >
+          {{ editingInvoice() ? 'Actualizar' : 'Crear' }}
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
+
+    <!-- Delete Confirmation Modal -->
+    <ui-josanz-modal
+      [isOpen]="isDeleteModalOpen()"
+      title="Confirmar Eliminación"
+      (closed)="closeDeleteModal()"
+    >
+      <p>¿Estás seguro de que deseas eliminar la factura <strong>{{ invoiceToDelete()?.invoiceNumber }}</strong>?</p>
+      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      
+      <div modal-footer>
+        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
+          Cancelar
+        </ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteInvoice()">
+          Eliminar
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
   `,
   styles: [`
     .page-container { padding: 24px; }
@@ -126,10 +266,52 @@ export interface Invoice {
       color: #94A3B8; border-radius: 6px; transition: all 0.2s;
     }
     .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+    .action-btn.success:hover { background: rgba(34,197,94,0.15); color: #22C55E; }
+    .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group select {
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: white;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #4F46E5;
+    }
+    .form-group input::placeholder {
+      color: #64748B;
+    }
+    .warning-text {
+      color: #EF4444;
+      font-size: 14px;
+    }
   `],
 })
 export class BillingListComponent implements OnInit {
-  tabs: TabItem[] = [
+  private invoiceService = inject(InvoiceService);
+
+  tabs = [
     { id: 'all', label: 'Todas', badge: 0 },
     { id: 'pending', label: 'Pendientes', badge: 0 },
     { id: 'paid', label: 'Pagadas', badge: 0 },
@@ -145,7 +327,7 @@ export class BillingListComponent implements OnInit {
     { key: 'dueDate', header: 'Vencimiento', width: '120px' },
     { key: 'status', header: 'Estado', width: '120px' },
     { key: 'verifactuStatus', header: 'Verifactu', width: '120px' },
-    { key: 'actions', header: '', width: '120px' },
+    { key: 'actions', header: '', width: '160px' },
   ];
 
   invoices = signal<Invoice[]>([]);
@@ -154,6 +336,25 @@ export class BillingListComponent implements OnInit {
   totalPages = signal(1);
   activeTab = signal('all');
   searchTerm = '';
+  
+  // Modal state
+  isModalOpen = signal(false);
+  isDeleteModalOpen = signal(false);
+  editingInvoice = signal<Invoice | null>(null);
+  invoiceToDelete = signal<Invoice | null>(null);
+  
+  // Form data
+  formData: Partial<Invoice> = {
+    invoiceNumber: '',
+    clientName: '',
+    budgetId: '',
+    type: 'normal',
+    status: 'draft',
+    total: 0,
+    issueDate: new Date().toISOString().split('T')[0],
+    dueDate: '',
+    verifactuStatus: 'pending'
+  };
 
   ngOnInit() {
     this.loadInvoices();
@@ -161,48 +362,168 @@ export class BillingListComponent implements OnInit {
 
   loadInvoices() {
     this.isLoading.set(true);
-    setTimeout(() => {
-      this.invoices.set([
-        {
-          id: 'inv-001',
-          invoiceNumber: 'F/2026/0001',
-          budgetId: 'bgt-001',
-          clientName: 'Producciones Audiovisuales Madrid',
-          status: 'paid',
-          type: 'normal',
-          total: 4500,
-          issueDate: '2026-03-20',
-          dueDate: '2026-04-20',
-          verifactuStatus: 'sent',
+    this.invoiceService.getInvoices().subscribe({
+      next: (invoices) => {
+        this.invoices.set(invoices);
+        this.updateTabBadges(invoices);
+        this.isLoading.set(false);
+        this.totalPages.set(1);
+      },
+      error: (err) => {
+        console.error('Error loading invoices:', err);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  updateTabBadges(invoices: Invoice[]) {
+    const counts = {
+      all: invoices.length,
+      pending: invoices.filter(i => i.status === 'pending').length,
+      paid: invoices.filter(i => i.status === 'paid').length,
+      cancelled: invoices.filter(i => i.status === 'cancelled').length,
+    };
+    this.tabs = this.tabs.map(tab => ({ ...tab, badge: counts[tab.id as keyof typeof counts] }));
+  }
+
+  onTabChange(tabId: string) {
+    this.activeTab.set(tabId);
+    this.isLoading.set(true);
+    
+    if (tabId === 'all') {
+      this.loadInvoices();
+    } else {
+      this.invoiceService.getInvoicesByStatus(tabId).subscribe({
+        next: (invoices) => {
+          this.invoices.set(invoices);
+          this.isLoading.set(false);
+        }
+      });
+    }
+  }
+
+  onSearch(term: string) {
+    this.searchTerm = term;
+    if (term.trim()) {
+      this.isLoading.set(true);
+      this.invoiceService.searchInvoices(term).subscribe({
+        next: (invoices) => {
+          this.invoices.set(invoices);
+          this.isLoading.set(false);
+        }
+      });
+    } else {
+      this.loadInvoices();
+    }
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadInvoices();
+  }
+
+  openCreateModal() {
+    this.editingInvoice.set(null);
+    const nextNumber = `F/${new Date().getFullYear()}/${String(this.invoices().length + 1).padStart(4, '0')}`;
+    this.formData = {
+      invoiceNumber: nextNumber,
+      clientName: '',
+      budgetId: '',
+      type: 'normal',
+      status: 'draft',
+      total: 0,
+      issueDate: new Date().toISOString().split('T')[0],
+      dueDate: '',
+      verifactuStatus: 'pending'
+    };
+    this.isModalOpen.set(true);
+  }
+
+  editInvoice(invoice: Invoice) {
+    this.editingInvoice.set(invoice);
+    this.formData = { ...invoice };
+    this.isModalOpen.set(true);
+  }
+
+  closeModal() {
+    this.isModalOpen.set(false);
+    this.editingInvoice.set(null);
+  }
+
+  saveInvoice() {
+    if (!this.formData.clientName) return;
+
+    if (this.editingInvoice()) {
+      this.invoiceService.updateInvoice(this.editingInvoice()!.id, this.formData).subscribe({
+        next: (updated) => {
+          this.invoices.update(invoices => 
+            invoices.map(i => i.id === updated.id ? updated : i)
+          );
+          this.closeModal();
         },
-        {
-          id: 'inv-002',
-          invoiceNumber: 'F/2026/0002',
-          budgetId: 'bgt-002',
-          clientName: 'Cadena TV España',
-          status: 'pending',
-          type: 'normal',
-          total: 8750,
-          issueDate: '2026-03-22',
-          dueDate: '2026-04-22',
-          verifactuStatus: 'sent',
+        error: (err) => console.error('Error updating invoice:', err)
+      });
+    } else {
+      this.invoiceService.createInvoice(this.formData as Omit<Invoice, 'id'>).subscribe({
+        next: (newInvoice) => {
+          this.invoices.update(invoices => [...invoices, newInvoice]);
+          this.closeModal();
         },
-        {
-          id: 'inv-003',
-          invoiceNumber: 'F/2026/0003',
-          budgetId: 'bgt-003',
-          clientName: 'Film Studios Barcelona',
-          status: 'sent',
-          type: 'normal',
-          total: 3200,
-          issueDate: '2026-03-18',
-          dueDate: '2026-04-18',
-          verifactuStatus: 'pending',
-        },
-      ]);
-      this.isLoading.set(false);
-      this.totalPages.set(1);
-    }, 500);
+        error: (err) => console.error('Error creating invoice:', err)
+      });
+    }
+  }
+
+  confirmDelete(invoice: Invoice) {
+    this.invoiceToDelete.set(invoice);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen.set(false);
+    this.invoiceToDelete.set(null);
+  }
+
+  deleteInvoice() {
+    const invoice = this.invoiceToDelete();
+    if (!invoice) return;
+
+    this.invoiceService.deleteInvoice(invoice.id).subscribe({
+      next: (success) => {
+        if (success) {
+          this.invoices.update(invoices => invoices.filter(i => i.id !== invoice.id));
+        }
+        this.closeDeleteModal();
+      },
+      error: (err) => console.error('Error deleting invoice:', err)
+    });
+  }
+
+  downloadPDF(invoice: Invoice) {
+    // TODO: Implement PDF generation
+    console.log('Download PDF for invoice:', invoice.invoiceNumber);
+  }
+
+  sendInvoice(invoice: Invoice) {
+    this.invoiceService.sendInvoice(invoice.id).subscribe({
+      next: (updated) => {
+        this.invoices.update(invoices => 
+          invoices.map(i => i.id === updated.id ? updated : i)
+        );
+      },
+      error: (err) => console.error('Error sending invoice:', err)
+    });
+  }
+
+  markAsPaid(invoice: Invoice) {
+    this.invoiceService.markAsPaid(invoice.id).subscribe({
+      next: (updated) => {
+        this.invoices.update(invoices => 
+          invoices.map(i => i.id === updated.id ? updated : i)
+        );
+      },
+      error: (err) => console.error('Error marking invoice as paid:', err)
+    });
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'error' | 'default' {
@@ -245,27 +566,11 @@ export class BillingListComponent implements OnInit {
   }
 
   isOverdue(invoice: Invoice): boolean {
-    return invoice.status !== 'paid' && new Date(invoice.dueDate) < new Date();
-  }
-
-  onTabChange(tabId: string) {
-    this.activeTab.set(tabId);
-  }
-
-  onSearch(term: string) {
-    this.searchTerm = term;
-  }
-
-  onPageChange(page: number) {
-    this.currentPage.set(page);
-    this.loadInvoices();
-  }
-
-  openCreateModal() {
-    // TODO
+    return invoice.status !== 'paid' && invoice.status !== 'cancelled' && new Date(invoice.dueDate) < new Date();
   }
 
   formatDate(date: string): string {
+    if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
