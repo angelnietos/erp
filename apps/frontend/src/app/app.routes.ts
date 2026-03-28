@@ -38,12 +38,12 @@ export const appRoutes: Route[] = [
     path: 'billing',
     loadChildren: () => import('@josanz-erp/billing-shell').then((m) => m.billingShellRoutes),
   },
-  {
-    path: 'users',
-    loadComponent: () =>
-      import('../../../../libs/identity/feature/src/lib/users/users-list.component')
-        .then((m) => m.UsersListComponent),
-  },
+  // {
+  //   path: 'users',
+  //   loadComponent: () =>
+  //     import('../../../../libs/identity/feature/src/lib/users/users-list.component')
+  //       .then((m) => m.UsersListComponent),
+  // },
   {
     path: 'verifactu',
     loadChildren: () => import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
