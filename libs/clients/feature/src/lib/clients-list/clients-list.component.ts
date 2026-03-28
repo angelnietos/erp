@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiTextareaComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { Client, ClientService } from '@josanz-erp/clients-data-access';
+import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
+import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
 @Component({
   selector: 'app-clients-list',
@@ -271,18 +272,14 @@ import { Client, ClientService } from '@josanz-erp/clients-data-access';
   `],
 })
 export class ClientsListComponent implements OnInit {
-  columns = [
-    { key: 'name', header: 'Nombre' },
-    { key: 'sector', header: 'Sector' },
-    { key: 'contact', header: 'Contacto' },
-    { key: 'email', header: 'Email' },
-    { key: 'phone', header: 'Teléfono' },
-    { key: 'createdAt', header: 'Fecha Alta' },
-    { key: 'actions', header: '', width: '120px' },
-  ];
+  private readonly facade = inject(ClientsFacade);
+  public readonly config = inject(CLIENTS_FEATURE_CONFIG);
 
-  clients = signal<Client[]>([]);
-  isLoading = signal(true);
+  columns = this.config.defaultColumns;
+
+  // Sync facade signals to the template
+  clients = this.facade.clients;
+  isLoading = this.facade.isLoading;
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
@@ -304,39 +301,22 @@ export class ClientsListComponent implements OnInit {
     address: ''
   };
 
-  constructor(private clientService: ClientService) {}
+  // Forms no longer need the ClientService in the constructor
 
   ngOnInit() {
     this.loadClients();
   }
 
   loadClients() {
-    this.isLoading.set(true);
-    this.clientService.getClients().subscribe({
-      next: (clients) => {
-        this.clients.set(clients);
-        this.isLoading.set(false);
-        this.totalPages.set(1);
-      },
-      error: (err) => {
-        console.error('Error loading clients:', err);
-        this.isLoading.set(false);
-      }
-    });
+    this.facade.loadClients();
   }
 
   onSearch(term: string) {
     this.searchTerm = term;
     if (term.trim()) {
-      this.isLoading.set(true);
-      this.clientService.searchClients(term).subscribe({
-        next: (clients) => {
-          this.clients.set(clients);
-          this.isLoading.set(false);
-        }
-      });
+      this.facade.searchClients(term);
     } else {
-      this.loadClients();
+      this.facade.loadClients();
     }
   }
 
@@ -374,25 +354,11 @@ export class ClientsListComponent implements OnInit {
     if (!this.formData.name) return;
 
     if (this.editingClient()) {
-      // Update existing client
-      this.clientService.updateClient(this.editingClient()!.id, this.formData).subscribe({
-        next: (updated) => {
-          this.clients.update(clients => 
-            clients.map(c => c.id === updated.id ? updated : c)
-          );
-          this.closeModal();
-        },
-        error: (err) => console.error('Error updating client:', err)
-      });
+      this.facade.updateClient(this.editingClient()!.id, this.formData);
+      this.closeModal();
     } else {
-      // Create new client
-      this.clientService.createClient(this.formData as Omit<Client, 'id' | 'createdAt'>).subscribe({
-        next: (newClient) => {
-          this.clients.update(clients => [...clients, newClient]);
-          this.closeModal();
-        },
-        error: (err) => console.error('Error creating client:', err)
-      });
+      this.facade.createClient(this.formData as Omit<Client, 'id' | 'createdAt'>);
+      this.closeModal();
     }
   }
 
@@ -410,15 +376,8 @@ export class ClientsListComponent implements OnInit {
     const client = this.clientToDelete();
     if (!client) return;
 
-    this.clientService.deleteClient(client.id).subscribe({
-      next: (success) => {
-        if (success) {
-          this.clients.update(clients => clients.filter(c => c.id !== client.id));
-        }
-        this.closeDeleteModal();
-      },
-      error: (err) => console.error('Error deleting client:', err)
-    });
+    this.facade.deleteClient(client.id);
+    this.closeDeleteModal();
   }
 
   formatDate(date: string): string {
