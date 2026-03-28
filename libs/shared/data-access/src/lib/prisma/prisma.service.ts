@@ -5,6 +5,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { ClsService } from 'nestjs-cls';
 import { config as loadEnv } from 'dotenv';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -15,7 +16,7 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  constructor() {
+  constructor(private readonly cls: ClsService) {
     const connectionString = process.env['DATABASE_URL'];
     if (!connectionString) {
       throw new Error('Missing DATABASE_URL environment variable for Prisma');
@@ -23,6 +24,35 @@ export class PrismaService
 
     super({
       adapter: new PrismaPg({ connectionString }),
+    });
+
+    this.applyTenantMiddleware();
+  }
+
+  private applyTenantMiddleware() {
+    this.$use(async (params, next) => {
+      const tenantModels = ['Client', 'Product', 'Budget', 'DeliveryNote', 'User', 'Role', 'Invoice'];
+      const tenantActions = ['findUnique', 'findFirst', 'findMany', 'update', 'updateMany', 'delete', 'deleteMany', 'count', 'aggregate', 'groupBy'];
+      
+      if (params.model && tenantModels.includes(params.model) && tenantActions.includes(params.action)) {
+        const tenantId = this.cls.get('tenantId');
+        if (tenantId) {
+          params.args = params.args || {};
+          // Merge tenantId logically:
+          params.args.where = { ...params.args.where, tenantId };
+        }
+      }
+
+      // For creates, automatically append tenantId if missing
+      if (params.model && tenantModels.includes(params.model) && ['create', 'createMany'].includes(params.action)) {
+        const tenantId = this.cls.get('tenantId');
+        if (tenantId) {
+          params.args = params.args || {};
+          params.args.data = { ...params.args.data, tenantId };
+        }
+      }
+
+      return next(params);
     });
   }
 
