@@ -36,12 +36,14 @@
       "@josanz-erp/rentals-api": ["libs/rentals/api/src/index.ts"],
       "@josanz-erp/delivery-api": ["libs/delivery/api/src/index.ts"],
       "@josanz-erp/billing-api": ["libs/billing/api/src/index.ts"],
+      "@josanz-erp/billing-backend": ["libs/billing/backend/src/index.ts"],
       "@josanz-erp/fleet-api": ["libs/fleet/api/src/index.ts"],
       "@josanz-erp/clients-data-access": [
         "libs/clients/data-access/src/index.ts"
       ],
       "@josanz-erp/clients-feature": ["libs/clients/feature/src/index.ts"],
       "@josanz-erp/clients-shell": ["libs/clients/shell/src/index.ts"],
+      "@josanz-erp/clients-backend": ["libs/clients/backend/src/index.ts"],
       "@josanz-erp/inventory-data-access": [
         "libs/inventory/data-access/src/index.ts"
       ],
@@ -67,13 +69,19 @@
       "@josanz-erp/fleet-shell": ["libs/fleet/shell/src/index.ts"],
       "@josanz-erp/budget-feature": ["libs/budget/feature/src/index.ts"],
       "@josanz-erp/budget-shell": ["libs/budget/shell/src/index.ts"],
+      "@josanz-erp/budget-backend": ["libs/budget/backend/src/index.ts"],
       "@josanz-erp/budget-core": ["libs/budget/core/src/index.ts"],
       "@josanz-erp/clients-core": ["libs/clients/core/src/index.ts"],
       "@josanz-erp/delivery-core": ["libs/delivery/core/src/index.ts"],
+      "@josanz-erp/delivery-backend": ["libs/delivery/backend/src/index.ts"],
       "@josanz-erp/fleet-core": ["libs/fleet/core/src/index.ts"],
+      "@josanz-erp/fleet-backend": ["libs/fleet/backend/src/index.ts"],
       "@josanz-erp/inventory-core": ["libs/inventory/core/src/index.ts"],
+      "@josanz-erp/inventory-backend": ["libs/inventory/backend/src/index.ts"],
       "@josanz-erp/identity-core": ["libs/identity/core/src/index.ts"],
+      "@josanz-erp/identity-backend": ["libs/identity/backend/src/index.ts"],
       "@josanz-erp/rentals-core": ["libs/rentals/core/src/index.ts"],
+      "@josanz-erp/rentals-backend": ["libs/rentals/backend/src/index.ts"],
       "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"],
       "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"],
       "@josanz-erp/verifactu-api": ["libs/verifactu/api/src/index.ts"],
@@ -84,7 +92,8 @@
       "@josanz-erp/auth-api-key": ["libs/auth/api-key/src/index.ts"],
       "@josanz-erp/shared-integrations-email": ["libs/shared/integrations/email/src/index.ts"],
       "@josanz-erp/shared-integrations-storage": ["libs/shared/integrations/storage/src/index.ts"],
-      "@josanz-erp/shared-cqrs": ["libs/shared/cqrs/src/index.ts"]
+      "@josanz-erp/shared-cqrs": ["libs/shared/cqrs/src/index.ts"],
+      "@josanz-erp/shared-infrastructure": ["libs/shared-infrastructure/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

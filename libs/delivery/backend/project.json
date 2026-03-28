@@ -1,0 +1,33 @@
+{
+  "name": "delivery-backend",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/delivery/backend/src",
+  "projectType": "library",
+  "tags": ["scope:delivery", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/delivery/backend",
+        "main": "libs/delivery/backend/src/index.ts",
+        "tsConfig": "libs/delivery/backend/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/delivery/backend/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/delivery/backend/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/delivery/backend"]
+    }
+  }
+}

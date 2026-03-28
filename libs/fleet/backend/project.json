@@ -1,0 +1,33 @@
+{
+  "name": "fleet-backend",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/fleet/backend/src",
+  "projectType": "library",
+  "tags": ["scope:fleet", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/fleet/backend",
+        "main": "libs/fleet/backend/src/index.ts",
+        "tsConfig": "libs/fleet/backend/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/fleet/backend/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/fleet/backend/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/fleet/backend"]
+    }
+  }
+}

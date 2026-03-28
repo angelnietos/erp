@@ -1,0 +1,33 @@
+{
+  "name": "rentals-backend",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/rentals/backend/src",
+  "projectType": "library",
+  "tags": ["scope:rentals", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/rentals/backend",
+        "main": "libs/rentals/backend/src/index.ts",
+        "tsConfig": "libs/rentals/backend/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/rentals/backend/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/rentals/backend/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/rentals/backend"]
+    }
+  }
+}

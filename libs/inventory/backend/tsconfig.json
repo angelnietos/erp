@@ -1,0 +1,10 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2021",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "test-setup.ts"]
+}
