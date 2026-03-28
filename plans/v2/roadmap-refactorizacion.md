@@ -22,26 +22,28 @@ Cada ventana deja de ser rígidamente programada para convertirse en interfaces 
 - [x] **2.1 Tokenización Módulo Clients:** Refactoring Component, Extracción Auth a InjectionTokens y Creación de Facade usando Signals.
 - [x] **2.2 Tokenización Módulo Budget:** Extracción Lógica y Facades.
 - [x] **2.3 Tokenización Módulo Delivery:** Reconfiguración Total y Fixer de la firma Typescript `DeliveryListClass`.
-- [ ] **2.4 Estandarizar Módulo Inventory:** Extracción idéntica del componente `inventory-list`, generación de `INVENTORY_FEATURE_CONFIG` genérico y su SignalStore en la librería de acceso de datos (`data-access`).
-- [ ] **2.5 Estandarizar Módulo Billing:** Aislar configuraciones fiscales, crear de la Fachada y blindar la asincronía sin RXJS en el smart component front.
+- [x] **2.4 Estandarizar Módulo Inventory:** Extracción idéntica del componente `inventory-list`, generación de `INVENTORY_FEATURE_CONFIG` genérico y su SignalStore en la librería de acceso de datos (`data-access`).
+- [x] **2.5 Estandarizar Módulo Billing:** Aislar configuraciones fiscales, crear de la Fachada y blindar la asincronía sin RXJS en el smart component front.
 
-> **ESTADO DE FASE 2:** 60% Completada ⏳.
+> **ESTADO DE FASE 2:** 100% Completada 🟢.
 
 ---
 
 ## 🪚 FASE 3: Anatomía de Librerías (Extirpación del Backend NestJS)
 El peor anti-patrón actual es el `apps/backend/src/app` masivo. Debemos desguazar el monolito transladándolo hacia dominios puros NestJS en `libs/`.
 
-- [ ] **3.1 Generación Múltiple Nest Libs:** 
-  Ejecutar el CLI `nx g @nx/nest:library backend-budget`, repetirlo para `inventory`, `clients`, `delivery`, `billing`.
+- [x] **3.1 Generación Múltiple Nest Libs:** 
+  Las librerías backend de plugin ya estaban generadas por Nx.
 - [ ] **3.2 Migración Topológica (Controladores y Servicios):**
-  Desplazar físicamente los controladores `.controller.ts` y servicios desde `apps/backend/src/app/*` hasta el `src/lib/` de sus respectivas nuevas librerías backend de plugin.
+  *(Avanzado: 1/8 completado. El módulo `Budget` ha sido reubicado con éxito)*
+  Desplazar físicamente los controladores `.controller.ts` y servicios desde `apps/backend/src/modules/*` hasta el `src/lib/` de sus respectivas nuevas librerías backend de plugin.
 - [ ] **3.3 Acoplamiento Dinámico en Plugins:**
+  *(Avanzado: `BudgetBackendModule.forRoot()` completado).*
   Dentro de cada librería backend, escribir la inyección formal de OCP usando `static forRoot(): DynamicModule`. Permitir `providers` vacíos para que cada App Cliente extienda el servicio base o inyecte dependencias parametrizadas.
 - [ ] **3.4 Limpieza del Kernel:** 
-  Borrar todos los restos en `apps/backend/src/app`. Dejar un `AppModule` vacío inyectando puramente Módulos-Plugin listos para arrancar con un array limpio (`imports: [BudgetBackendModule.forRoot(), ...]`)
+  Borrar todos los restos en `apps/backend/src/modules`. Dejar un `AppModule` vacío inyectando puramente Módulos-Plugin listos para arrancar con un array limpio (`imports: [BudgetBackendModule.forRoot(), ...]`)
 
-> **ESTADO DE FASE 3:** Pendiente ⬛.
+> **ESTADO DE FASE 3:** 20% Completada ⏳.
 
 ---
 

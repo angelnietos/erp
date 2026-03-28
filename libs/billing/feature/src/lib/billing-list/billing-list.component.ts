@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
+import { Invoice, BillingFacade } from '@josanz-erp/billing-data-access';
+import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 
 @Component({
   selector: 'lib-billing-list',
@@ -31,12 +32,14 @@ import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
           <h1>Facturación</h1>
           <p class="subtitle">Gestiona las facturas del sistema</p>
         </div>
-        <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
-          Nueva Factura
-        </ui-josanz-button>
+        @if (config.enableCreate) {
+          <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+            Nueva Factura
+          </ui-josanz-button>
+        }
       </div>
 
-      <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
+      <ui-josanz-tabs [tabs]="tabs()" [activeTab]="activeTab()" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
 
       <div class="filters-bar">
         <ui-josanz-search 
@@ -74,7 +77,7 @@ import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
                 <span [class.overdue]="isOverdue(invoice)">{{ formatDate(invoice.dueDate) }}</span>
               }
               @case ('verifactuStatus') {
-                @if (invoice.verifactuStatus) {
+                @if (config.enableVerifactu && invoice.verifactuStatus) {
                   <ui-josanz-badge [variant]="getVerifactuVariant(invoice.verifactuStatus)">
                     {{ getVerifactuLabel(invoice.verifactuStatus) }}
                   </ui-josanz-badge>
@@ -98,12 +101,16 @@ import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
                       <i-lucide name="check-circle"></i-lucide>
                     </button>
                   }
-                  <button class="action-btn" (click)="editInvoice(invoice)" title="Editar">
-                    <i-lucide name="pencil"></i-lucide>
-                  </button>
-                  <button class="action-btn danger" (click)="confirmDelete(invoice)" title="Eliminar">
-                    <i-lucide name="trash-2"></i-lucide>
-                  </button>
+                  @if (config.enableEdit) {
+                    <button class="action-btn" (click)="editInvoice(invoice)" title="Editar">
+                      <i-lucide name="pencil"></i-lucide>
+                    </button>
+                  }
+                  @if (config.enableDelete) {
+                    <button class="action-btn danger" (click)="confirmDelete(invoice)" title="Eliminar">
+                      <i-lucide name="trash-2"></i-lucide>
+                    </button>
+                  }
                 </div>
               }
               @default {
@@ -309,32 +316,17 @@ import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
   `],
 })
 export class BillingListComponent implements OnInit {
-  private invoiceService = inject(InvoiceService);
+  public readonly config = inject(BILLING_FEATURE_CONFIG);
+  private readonly facade = inject(BillingFacade);
 
-  tabs = [
-    { id: 'all', label: 'Todas', badge: 0 },
-    { id: 'pending', label: 'Pendientes', badge: 0 },
-    { id: 'paid', label: 'Pagadas', badge: 0 },
-    { id: 'cancelled', label: 'Canceladas', badge: 0 },
-  ];
+  tabs = this.facade.tabs;
+  columns = this.config.defaultColumns;
 
-  columns = [
-    { key: 'invoiceNumber', header: 'Factura', width: '120px' },
-    { key: 'clientName', header: 'Cliente' },
-    { key: 'type', header: 'Tipo', width: '120px' },
-    { key: 'total', header: 'Importe', width: '120px' },
-    { key: 'issueDate', header: 'Fecha Emisión', width: '120px' },
-    { key: 'dueDate', header: 'Vencimiento', width: '120px' },
-    { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'verifactuStatus', header: 'Verifactu', width: '120px' },
-    { key: 'actions', header: '', width: '160px' },
-  ];
-
-  invoices = signal<Invoice[]>([]);
-  isLoading = signal(true);
+  invoices = this.facade.invoices;
+  isLoading = this.facade.isLoading;
+  activeTab = this.facade.activeTab;
   currentPage = signal(1);
   totalPages = signal(1);
-  activeTab = signal('all');
   searchTerm = '';
   
   // Modal state
@@ -361,59 +353,19 @@ export class BillingListComponent implements OnInit {
   }
 
   loadInvoices() {
-    this.isLoading.set(true);
-    this.invoiceService.getInvoices().subscribe({
-      next: (invoices) => {
-        this.invoices.set(invoices);
-        this.updateTabBadges(invoices);
-        this.isLoading.set(false);
-        this.totalPages.set(1);
-      },
-      error: (err) => {
-        console.error('Error loading invoices:', err);
-        this.isLoading.set(false);
-      }
-    });
-  }
-
-  updateTabBadges(invoices: Invoice[]) {
-    const counts = {
-      all: invoices.length,
-      pending: invoices.filter(i => i.status === 'pending').length,
-      paid: invoices.filter(i => i.status === 'paid').length,
-      cancelled: invoices.filter(i => i.status === 'cancelled').length,
-    };
-    this.tabs = this.tabs.map(tab => ({ ...tab, badge: counts[tab.id as keyof typeof counts] }));
+    this.facade.loadInvoices();
   }
 
   onTabChange(tabId: string) {
-    this.activeTab.set(tabId);
-    this.isLoading.set(true);
-    
-    if (tabId === 'all') {
-      this.loadInvoices();
-    } else {
-      this.invoiceService.getInvoicesByStatus(tabId).subscribe({
-        next: (invoices) => {
-          this.invoices.set(invoices);
-          this.isLoading.set(false);
-        }
-      });
-    }
+    this.facade.setTab(tabId);
   }
 
   onSearch(term: string) {
     this.searchTerm = term;
     if (term.trim()) {
-      this.isLoading.set(true);
-      this.invoiceService.searchInvoices(term).subscribe({
-        next: (invoices) => {
-          this.invoices.set(invoices);
-          this.isLoading.set(false);
-        }
-      });
+      this.facade.searchInvoices(term);
     } else {
-      this.loadInvoices();
+      this.facade.loadInvoices();
     }
   }
 
@@ -453,24 +405,13 @@ export class BillingListComponent implements OnInit {
   saveInvoice() {
     if (!this.formData.clientName) return;
 
-    if (this.editingInvoice()) {
-      this.invoiceService.updateInvoice(this.editingInvoice()!.id, this.formData).subscribe({
-        next: (updated) => {
-          this.invoices.update(invoices => 
-            invoices.map(i => i.id === updated.id ? updated : i)
-          );
-          this.closeModal();
-        },
-        error: (err) => console.error('Error updating invoice:', err)
-      });
+    const invoiceToEdit = this.editingInvoice();
+    if (invoiceToEdit) {
+      this.facade.updateInvoice(invoiceToEdit.id, this.formData);
+      this.closeModal();
     } else {
-      this.invoiceService.createInvoice(this.formData as Omit<Invoice, 'id'>).subscribe({
-        next: (newInvoice) => {
-          this.invoices.update(invoices => [...invoices, newInvoice]);
-          this.closeModal();
-        },
-        error: (err) => console.error('Error creating invoice:', err)
-      });
+      this.facade.createInvoice(this.formData as Omit<Invoice, 'id'>);
+      this.closeModal();
     }
   }
 
@@ -488,15 +429,8 @@ export class BillingListComponent implements OnInit {
     const invoice = this.invoiceToDelete();
     if (!invoice) return;
 
-    this.invoiceService.deleteInvoice(invoice.id).subscribe({
-      next: (success) => {
-        if (success) {
-          this.invoices.update(invoices => invoices.filter(i => i.id !== invoice.id));
-        }
-        this.closeDeleteModal();
-      },
-      error: (err) => console.error('Error deleting invoice:', err)
-    });
+    this.facade.deleteInvoice(invoice.id);
+    this.closeDeleteModal();
   }
 
   downloadPDF(invoice: Invoice) {
@@ -505,25 +439,11 @@ export class BillingListComponent implements OnInit {
   }
 
   sendInvoice(invoice: Invoice) {
-    this.invoiceService.sendInvoice(invoice.id).subscribe({
-      next: (updated) => {
-        this.invoices.update(invoices => 
-          invoices.map(i => i.id === updated.id ? updated : i)
-        );
-      },
-      error: (err) => console.error('Error sending invoice:', err)
-    });
+    this.facade.sendInvoice(invoice.id);
   }
 
   markAsPaid(invoice: Invoice) {
-    this.invoiceService.markAsPaid(invoice.id).subscribe({
-      next: (updated) => {
-        this.invoices.update(invoices => 
-          invoices.map(i => i.id === updated.id ? updated : i)
-        );
-      },
-      error: (err) => console.error('Error marking invoice as paid:', err)
-    });
+    this.facade.markAsPaid(invoice.id);
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'error' | 'default' {
