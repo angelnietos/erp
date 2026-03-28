@@ -34,16 +34,15 @@ El peor anti-patrón actual es el `apps/backend/src/app` masivo. Debemos desguaz
 
 - [x] **3.1 Generación Múltiple Nest Libs:** 
   Las librerías backend de plugin ya estaban generadas por Nx.
-- [ ] **3.2 Migración Topológica (Controladores y Servicios):**
-  *(Avanzado: 1/8 completado. El módulo `Budget` ha sido reubicado con éxito)*
-  Desplazar físicamente los controladores `.controller.ts` y servicios desde `apps/backend/src/modules/*` hasta el `src/lib/` de sus respectivas nuevas librerías backend de plugin.
+- [x] **3.2 Migración Topológica (Controladores y Servicios):**
+  Desplazamiento exitoso. Los controladores `.controller.ts` y servicios fueron purgados de `apps/backend` hacia el `src/lib/` de cada una de sus nuevas librerías backend de plugin.
 - [ ] **3.3 Acoplamiento Dinámico en Plugins:**
   *(Avanzado: `BudgetBackendModule.forRoot()` completado).*
   Dentro de cada librería backend, escribir la inyección formal de OCP usando `static forRoot(): DynamicModule`. Permitir `providers` vacíos para que cada App Cliente extienda el servicio base o inyecte dependencias parametrizadas.
-- [ ] **3.4 Limpieza del Kernel:** 
-  Borrar todos los restos en `apps/backend/src/modules`. Dejar un `AppModule` vacío inyectando puramente Módulos-Plugin listos para arrancar con un array limpio (`imports: [BudgetBackendModule.forRoot(), ...]`)
+- [x] **3.4 Limpieza del Kernel:** 
+  El `AppModule` ahora inyecta puramente Módulos-Plugin listos para arrancar con un array limpio (usando las namespaces de `@josanz-erp/*`).
 
-> **ESTADO DE FASE 3:** 20% Completada ⏳.
+> **ESTADO DE FASE 3:** 80% Completada 🟢.
 
 ---
 
