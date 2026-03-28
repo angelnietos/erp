@@ -1,0 +1,5512 @@
+{
+  "graph": {
+    "nodes": {
+      "shared-integrations-storage": {
+        "name": "shared-integrations-storage",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/integrations/storage",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/integrations/storage",
+                "main": "libs/shared/integrations/storage/src/index.ts",
+                "tsConfig": "libs/shared/integrations/storage/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/integrations/storage/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/integrations/storage/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-integrations-storage",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/integrations/storage/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:integrations"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shared-integrations-email": {
+        "name": "shared-integrations-email",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/integrations/email",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/integrations/email",
+                "main": "libs/shared/integrations/email/src/index.ts",
+                "tsConfig": "libs/shared/integrations/email/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/integrations/email/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/integrations/email/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-integrations-email",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/integrations/email/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:integrations"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "inventory-data-access": {
+        "name": "inventory-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/inventory/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/inventory/data-access/jest.config.cts",
+                "tsConfig": "libs/inventory/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "inventory-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/inventory/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:inventory",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shared-infrastructure": {
+        "name": "shared-infrastructure",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared-infrastructure",
+          "targets": {
+            "lint": {
+              "executor": "@nrwl/linter:eslint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "libs/shared-infrastructure/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nrwl/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared-infrastructure",
+                "tsConfig": "libs/shared-infrastructure/tsconfig.lib.json",
+                "main": "libs/shared-infrastructure/src/index.ts"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nrwl/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared-infrastructure/jest.config.ts",
+                "passWithNoTests": true
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "shared-infrastructure",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared-infrastructure/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:infrastructure"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "data-access": {
+        "name": "data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/identity/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/identity/data-access/jest.config.cts",
+                "tsConfig": "libs/identity/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/identity/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:identity",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "delivery-data-access": {
+        "name": "delivery-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/delivery/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/delivery/data-access/jest.config.cts",
+                "tsConfig": "libs/delivery/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "delivery-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:delivery",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "billing-data-access": {
+        "name": "billing-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/billing/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/billing/data-access/jest.config.cts",
+                "tsConfig": "libs/billing/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "billing-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/billing/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:billing",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "clients-data-access": {
+        "name": "clients-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/clients/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/clients/data-access/jest.config.cts",
+                "tsConfig": "libs/clients/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "clients-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/clients/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:clients",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "rentals-data-access": {
+        "name": "rentals-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/rentals/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/rentals/data-access/jest.config.cts",
+                "tsConfig": "libs/rentals/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "rentals-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/rentals/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:rentals",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shared-data-access": {
+        "name": "shared-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/data-access",
+                "main": "libs/shared/data-access/src/index.ts",
+                "tsConfig": "libs/shared/data-access/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/data-access/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/data-access/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/data-access/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "fleet-data-access": {
+        "name": "fleet-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/fleet/data-access",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/fleet/data-access/jest.config.cts",
+                "tsConfig": "libs/fleet/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "fleet-data-access",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/fleet/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:fleet",
+            "type:data-access"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "inventory-backend": {
+        "name": "inventory-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/inventory/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/inventory/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/inventory/backend",
+                "main": "libs/inventory/backend/src/index.ts",
+                "tsConfig": "libs/inventory/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/inventory/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/inventory/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "inventory-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/inventory/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:inventory",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "inventory-feature": {
+        "name": "inventory-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/inventory/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/inventory/feature/jest.config.cts",
+                "tsConfig": "libs/inventory/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "inventory-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/inventory/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:inventory",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "delivery-backend": {
+        "name": "delivery-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/delivery/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/delivery/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/delivery/backend",
+                "main": "libs/delivery/backend/src/index.ts",
+                "tsConfig": "libs/delivery/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/delivery/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/delivery/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "delivery-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:delivery",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "delivery-feature": {
+        "name": "delivery-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/delivery/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/delivery/feature/jest.config.cts",
+                "tsConfig": "libs/delivery/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "delivery-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:delivery",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "identity-backend": {
+        "name": "identity-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/identity/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/identity/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/identity/backend",
+                "main": "libs/identity/backend/src/index.ts",
+                "tsConfig": "libs/identity/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/identity/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/identity/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "identity-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/identity/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:identity",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "identity-feature": {
+        "name": "identity-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/identity/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/identity/feature/jest.config.cts",
+                "tsConfig": "libs/identity/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "identity-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/identity/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:identity",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "billing-backend": {
+        "name": "billing-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/billing/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/billing/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/billing/backend",
+                "main": "libs/billing/backend/src/index.ts",
+                "tsConfig": "libs/billing/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/billing/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/billing/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "billing-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/billing/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:billing",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "billing-feature": {
+        "name": "billing-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/billing/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/billing/feature/jest.config.cts",
+                "tsConfig": "libs/billing/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "billing-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/billing/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:billing",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "clients-backend": {
+        "name": "clients-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/clients/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/clients/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/clients/backend",
+                "main": "libs/clients/backend/src/index.ts",
+                "tsConfig": "libs/clients/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/clients/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/clients/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "clients-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/clients/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:clients",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "clients-feature": {
+        "name": "clients-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/clients/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/clients/feature/jest.config.cts",
+                "tsConfig": "libs/clients/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "clients-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/clients/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:clients",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "inventory-shell": {
+        "name": "inventory-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/inventory/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/inventory/shell/jest.config.cts",
+                "tsConfig": "libs/inventory/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "inventory-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/inventory/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:inventory",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "rentals-backend": {
+        "name": "rentals-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/rentals/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/rentals/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/rentals/backend",
+                "main": "libs/rentals/backend/src/index.ts",
+                "tsConfig": "libs/rentals/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/rentals/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/rentals/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "rentals-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/rentals/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:rentals",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "rentals-feature": {
+        "name": "rentals-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/rentals/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/rentals/feature/jest.config.cts",
+                "tsConfig": "libs/rentals/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "rentals-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/rentals/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:rentals",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "budget-backend": {
+        "name": "budget-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/budget/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/budget/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/budget/backend",
+                "main": "libs/budget/backend/src/index.ts",
+                "tsConfig": "libs/budget/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/budget/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/budget/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "budget-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/budget/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:budget",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "budget-feature": {
+        "name": "budget-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/budget/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/budget/feature/jest.config.cts",
+                "tsConfig": "libs/budget/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "budget-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/budget/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:budget",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "delivery-shell": {
+        "name": "delivery-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/delivery/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/delivery/shell/jest.config.cts",
+                "tsConfig": "libs/delivery/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "delivery-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:delivery",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "inventory-core": {
+        "name": "inventory-core",
+        "type": "lib",
+        "data": {
+          "root": "libs/inventory/core",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/inventory/core/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/inventory/core",
+                "main": "libs/inventory/core/src/index.ts",
+                "tsConfig": "libs/inventory/core/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/inventory/core/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/inventory/core"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "inventory-core",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/inventory/core/src",
+          "projectType": "library",
+          "tags": [
+            "scope:inventory",
+            "type:core"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shell": {
+        "name": "shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/identity/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/identity/shell/jest.config.cts",
+                "tsConfig": "libs/identity/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/identity/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:identity",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "billing-shell": {
+        "name": "billing-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/billing/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/billing/shell/jest.config.cts",
+                "tsConfig": "libs/billing/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "billing-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/billing/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:billing",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "clients-shell": {
+        "name": "clients-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/clients/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/clients/shell/jest.config.cts",
+                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "clients-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/clients/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:clients",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "delivery-core": {
+        "name": "delivery-core",
+        "type": "lib",
+        "data": {
+          "root": "libs/delivery/core",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/delivery/core/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/delivery/core",
+                "main": "libs/delivery/core/src/index.ts",
+                "tsConfig": "libs/delivery/core/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/delivery/core/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/delivery/core"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "delivery-core",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/core/src",
+          "projectType": "library",
+          "tags": [
+            "scope:delivery",
+            "type:core"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "fleet-backend": {
+        "name": "fleet-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/fleet/backend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/fleet/backend/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/fleet/backend",
+                "main": "libs/fleet/backend/src/index.ts",
+                "tsConfig": "libs/fleet/backend/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/fleet/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/fleet/backend"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "fleet-backend",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/fleet/backend/src",
+          "projectType": "library",
+          "tags": [
+            "scope:fleet",
+            "type:backend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "fleet-feature": {
+        "name": "fleet-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/fleet/feature",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/fleet/feature/jest.config.cts",
+                "tsConfig": "libs/fleet/feature/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "fleet-feature",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/fleet/feature/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:fleet",
+            "type:feature"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "inventory-api": {
+        "name": "inventory-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/inventory/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/inventory/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/inventory/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/inventory/api",
+                "main": "libs/inventory/api/src/index.ts",
+                "tsConfig": "libs/inventory/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/inventory/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/inventory/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "inventory-api",
+          "tags": [
+            "npm:private",
+            "scope:inventory",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/inventory-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/inventory/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "rentals-shell": {
+        "name": "rentals-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/rentals/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/rentals/shell/jest.config.cts",
+                "tsConfig": "libs/rentals/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "rentals-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/rentals/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:rentals",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shared-config": {
+        "name": "shared-config",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/config",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/config",
+                "main": "libs/shared/config/src/index.ts",
+                "tsConfig": "libs/shared/config/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/config/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/config/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-config",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/config/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:config"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shared-events": {
+        "name": "shared-events",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/events",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/events",
+                "main": "libs/shared/events/src/index.ts",
+                "tsConfig": "libs/shared/events/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/events/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/events/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-events",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/events/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:events"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "ui-kit": {
+        "name": "ui-kit",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/ui-kit",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/ui-kit/jest.config.cts",
+                "tsConfig": "libs/shared/ui-kit/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "storybook": {
+              "executor": "@storybook/angular:start-storybook",
+              "options": {
+                "port": 4400,
+                "configDir": "libs/shared/ui-kit/.storybook",
+                "browserTarget": "ui-kit:build-storybook",
+                "compodoc": false
+              },
+              "configurations": {
+                "ci": {
+                  "quiet": true
+                }
+              },
+              "parallelism": true
+            },
+            "build-storybook": {
+              "executor": "@storybook/angular:build-storybook",
+              "outputs": [
+                "{options.outputDir}"
+              ],
+              "options": {
+                "outputDir": "dist/storybook/ui-kit",
+                "configDir": "libs/shared/ui-kit/.storybook",
+                "browserTarget": "ui-kit:build-storybook",
+                "compodoc": false
+              },
+              "configurations": {
+                "ci": {
+                  "quiet": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{projectRoot}/.storybook/**/*",
+                "{projectRoot}/tsconfig.storybook.json"
+              ]
+            },
+            "test-storybook": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "test-storybook -c libs/shared/ui-kit/.storybook --url=http://localhost:4400"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "static-storybook": {
+              "executor": "@nx/web:file-server",
+              "dependsOn": [
+                "build-storybook"
+              ],
+              "options": {
+                "buildTarget": "ui-kit:build-storybook",
+                "staticFilePath": "dist/storybook/ui-kit",
+                "spa": true
+              },
+              "configurations": {
+                "ci": {
+                  "buildTarget": "ui-kit:build-storybook:ci"
+                }
+              },
+              "parallelism": true,
+              "continuous": true
+            }
+          },
+          "name": "ui-kit",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/ui-kit/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:ui"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "verifactu-api": {
+        "name": "verifactu-api",
+        "type": "app",
+        "data": {
+          "root": "apps/verifactu-api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "apps/verifactu-api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/apps/verifactu-api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist\\apps\\verifactu-api"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/verifactu-api",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "configurations": {
+                "development": {
+                  "args": [
+                    "--node-env=development"
+                  ]
+                }
+              },
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "verifactu-api:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "verifactu-api:build:development"
+                },
+                "production": {
+                  "buildTarget": "verifactu-api:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/verifactu-api",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects verifactu-api --includeDependentProjects -- npx nx build-deps verifactu-api"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/dist/apps/verifactu-api/package.json",
+                "{workspaceRoot}/dist/apps/verifactu-api/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/dist/apps/verifactu-api/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "apps/verifactu-api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "projectType": "application",
+          "metadata": {},
+          "name": "verifactu-api",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "apps/verifactu-api/src",
+          "tags": [
+            "scope:verifactu-api",
+            "type:app"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "auth-api-key": {
+        "name": "auth-api-key",
+        "type": "lib",
+        "data": {
+          "root": "libs/auth/api-key",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/auth/api-key",
+                "main": "libs/auth/api-key/src/index.ts",
+                "tsConfig": "libs/auth/api-key/tsconfig.lib.json",
+                "assets": [
+                  "libs/auth/api-key/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/auth/api-key/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "auth-api-key",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/auth/api-key/src",
+          "projectType": "library",
+          "tags": [
+            "scope:auth",
+            "type:lib"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "billing-core": {
+        "name": "billing-core",
+        "type": "lib",
+        "data": {
+          "root": "libs/billing/core",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/billing/core/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/billing/core",
+                "main": "libs/billing/core/src/index.ts",
+                "tsConfig": "libs/billing/core/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/billing/core/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/billing/core"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "billing-core",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/billing/core/src",
+          "projectType": "library",
+          "tags": [
+            "scope:billing",
+            "type:core"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "budget-shell": {
+        "name": "budget-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/budget/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/budget/shell/jest.config.cts",
+                "tsConfig": "libs/budget/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "budget-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/budget/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:budget",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "delivery-api": {
+        "name": "delivery-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/delivery/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/delivery/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/delivery/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/delivery/api",
+                "main": "libs/delivery/api/src/index.ts",
+                "tsConfig": "libs/delivery/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/delivery/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/delivery/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "delivery-api",
+          "tags": [
+            "npm:private",
+            "scope:delivery",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/delivery-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "frontend-e2e": {
+        "name": "frontend-e2e",
+        "type": "e2e",
+        "data": {
+          "root": "apps/frontend-e2e",
+          "metadata": {
+            "targetGroups": {
+              "E2E (CI)": [
+                "e2e-ci--src/example.spec.ts",
+                "e2e-ci",
+                "e2e-ci--merge-reports"
+              ]
+            }
+          },
+          "targets": {
+            "e2e": {
+              "options": {
+                "cwd": "apps/frontend-e2e",
+                "command": "playwright test"
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                {
+                  "projects": [
+                    "frontend"
+                  ],
+                  "target": "serve"
+                }
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^{projectRoot}/tsconfig*.json",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/test-output",
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/playwright-report"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e-ci--src/example.spec.ts": {
+              "options": {
+                "cwd": "apps/frontend-e2e",
+                "env": {
+                  "PLAYWRIGHT_HTML_OUTPUT_DIR": "..\\..\\dist\\.playwright\\apps\\frontend-e2e\\playwright-report\\src-example-spec-ts",
+                  "PLAYWRIGHT_HTML_REPORT": "..\\..\\dist\\.playwright\\apps\\frontend-e2e\\playwright-report\\src-example-spec-ts"
+                },
+                "command": "playwright test src/example.spec.ts --output=..\\..\\dist\\.playwright\\apps\\frontend-e2e\\test-output\\src-example-spec-ts"
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests in src/example.spec.ts in CI",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                {
+                  "projects": [
+                    "frontend"
+                  ],
+                  "target": "serve"
+                }
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^{projectRoot}/tsconfig*.json",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/test-output/src-example-spec-ts",
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/playwright-report/src-example-spec-ts"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e-ci": {
+              "executor": "nx:noop",
+              "cache": true,
+              "inputs": [
+                "default",
+                "^{projectRoot}/tsconfig*.json",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/test-output",
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/playwright-report"
+              ],
+              "dependsOn": [
+                {
+                  "target": "e2e-ci--src/example.spec.ts",
+                  "projects": "self",
+                  "params": "forward",
+                  "options": "forward"
+                }
+              ],
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests in CI",
+                "nonAtomizedTarget": "e2e",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "e2e-ci--merge-reports": {
+              "executor": "@nx/playwright:merge-reports",
+              "cache": true,
+              "inputs": [
+                "default",
+                "^{projectRoot}/tsconfig*.json",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/frontend-e2e/playwright-report"
+              ],
+              "options": {
+                "config": "playwright.config.ts",
+                "expectedSuites": 1
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Merges Playwright blob reports from atomized tasks to produce unified reports for the configured reporters."
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "apps/frontend-e2e",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/apps/frontend-e2e/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "frontend-e2e",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "sourceRoot": "apps/frontend-e2e/src",
+          "tags": [
+            "scope:frontend-e2e",
+            "type:app"
+          ],
+          "implicitDependencies": [
+            "frontend"
+          ]
+        }
+      },
+      "identity-api": {
+        "name": "identity-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/identity/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/identity/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/identity/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/identity/api",
+                "main": "libs/identity/api/src/index.ts",
+                "tsConfig": "libs/identity/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/identity/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/identity/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "identity-api",
+          "tags": [
+            "npm:private",
+            "scope:identity",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/identity-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/identity/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "rentals-core": {
+        "name": "rentals-core",
+        "type": "lib",
+        "data": {
+          "root": "libs/rentals/core",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/rentals/core/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/rentals/core",
+                "main": "libs/rentals/core/src/index.ts",
+                "tsConfig": "libs/rentals/core/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/rentals/core/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/rentals/core"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "rentals-core",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/rentals/core/src",
+          "projectType": "library",
+          "tags": [
+            "scope:rentals",
+            "type:core"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "shared-model": {
+        "name": "shared-model",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/model",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/shared/model",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/shared/model/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/model",
+                "main": "libs/shared/model/src/index.ts",
+                "tsConfig": "libs/shared/model/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/model/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/model/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-model",
+          "tags": [
+            "npm:private",
+            "scope:shared",
+            "type:model"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/shared-model",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/model/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "shared-utils": {
+        "name": "shared-utils",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/utils",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/utils",
+                "main": "libs/shared/utils/src/index.ts",
+                "tsConfig": "libs/shared/utils/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/utils/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/utils/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-utils",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/utils/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:utils"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "billing-api": {
+        "name": "billing-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/billing/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/billing/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/billing/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/billing/api",
+                "main": "libs/billing/api/src/index.ts",
+                "tsConfig": "libs/billing/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/billing/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/billing/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "billing-api",
+          "tags": [
+            "npm:private",
+            "scope:billing",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/billing-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/billing/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "clients-api": {
+        "name": "clients-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/clients/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/clients/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/clients/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/clients/api",
+                "main": "libs/clients/api/src/index.ts",
+                "tsConfig": "libs/clients/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/clients/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/clients/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "clients-api",
+          "tags": [
+            "npm:private",
+            "scope:clients",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/clients-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/clients/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "fleet-shell": {
+        "name": "fleet-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/fleet/shell",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/fleet/shell/jest.config.cts",
+                "tsConfig": "libs/fleet/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "fleet-shell",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/fleet/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:fleet",
+            "type:shell"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "rentals-api": {
+        "name": "rentals-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/rentals/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/rentals/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/rentals/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/rentals/api",
+                "main": "libs/rentals/api/src/index.ts",
+                "tsConfig": "libs/rentals/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/rentals/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/rentals/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "rentals-api",
+          "tags": [
+            "npm:private",
+            "scope:rentals",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/rentals-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/rentals/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "shared-cqrs": {
+        "name": "shared-cqrs",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/cqrs",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/shared/cqrs",
+                "main": "libs/shared/cqrs/src/index.ts",
+                "tsConfig": "libs/shared/cqrs/tsconfig.lib.json",
+                "assets": [
+                  "libs/shared/cqrs/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/cqrs/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "shared-cqrs",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/cqrs/src",
+          "projectType": "library",
+          "tags": [
+            "scope:shared",
+            "type:cqrs"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "budget-api": {
+        "name": "budget-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/budget/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/budget/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/budget/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/budget/api",
+                "main": "libs/budget/api/src/index.ts",
+                "tsConfig": "libs/budget/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/budget/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/budget/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "budget-api",
+          "tags": [
+            "npm:private",
+            "scope:budget",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/budget-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/budget/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "fleet-core": {
+        "name": "fleet-core",
+        "type": "lib",
+        "data": {
+          "root": "libs/fleet/core",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/fleet/core/**/*.ts"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/fleet/core",
+                "main": "libs/fleet/core/src/index.ts",
+                "tsConfig": "libs/fleet/core/tsconfig.lib.json",
+                "assets": []
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "libs/fleet/core/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/libs/fleet/core"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "fleet-core",
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/fleet/core/src",
+          "projectType": "library",
+          "tags": [
+            "scope:fleet",
+            "type:core"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "fleet-api": {
+        "name": "fleet-api",
+        "type": "lib",
+        "data": {
+          "root": "libs/fleet/api",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "libs/fleet/api",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/libs/fleet/api/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/fleet/api",
+                "main": "libs/fleet/api/src/index.ts",
+                "tsConfig": "libs/fleet/api/tsconfig.lib.json",
+                "assets": [
+                  "libs/fleet/api/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/fleet/api/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "fleet-api",
+          "tags": [
+            "npm:private",
+            "scope:fleet",
+            "type:api"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/fleet-api",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/fleet/api/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "auth-jwt": {
+        "name": "auth-jwt",
+        "type": "lib",
+        "data": {
+          "root": "libs/auth/jwt",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/auth/jwt",
+                "main": "libs/auth/jwt/src/index.ts",
+                "tsConfig": "libs/auth/jwt/tsconfig.lib.json",
+                "assets": [
+                  "libs/auth/jwt/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/auth/jwt/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "name": "auth-jwt",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/auth/jwt/src",
+          "projectType": "library",
+          "tags": [
+            "scope:auth",
+            "type:lib"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "frontend": {
+        "name": "frontend",
+        "type": "app",
+        "data": {
+          "root": "apps/frontend",
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {},
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "build": {
+              "executor": "@angular/build:application",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/apps/frontend",
+                "browser": "apps/frontend/src/main.ts",
+                "polyfills": [
+                  "zone.js"
+                ],
+                "tsConfig": "apps/frontend/tsconfig.app.json",
+                "assets": [
+                  {
+                    "glob": "**/*",
+                    "input": "apps/frontend/public"
+                  }
+                ],
+                "styles": [
+                  "apps/frontend/src/styles.css"
+                ]
+              },
+              "configurations": {
+                "production": {
+                  "budgets": [
+                    {
+                      "type": "initial",
+                      "maximumWarning": "500kb",
+                      "maximumError": "1mb"
+                    },
+                    {
+                      "type": "anyComponentStyle",
+                      "maximumWarning": "4kb",
+                      "maximumError": "8kb"
+                    }
+                  ],
+                  "outputHashing": "all"
+                },
+                "development": {
+                  "optimization": false,
+                  "extractLicenses": false,
+                  "sourceMap": true
+                }
+              },
+              "defaultConfiguration": "production",
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@angular/build:dev-server",
+              "configurations": {
+                "production": {
+                  "buildTarget": "frontend:build:production"
+                },
+                "development": {
+                  "buildTarget": "frontend:build:development"
+                }
+              },
+              "defaultConfiguration": "development",
+              "options": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "apps/frontend/jest.config.cts",
+                "tsConfig": "apps/frontend/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "frontend:build",
+                "port": 4200,
+                "staticFilePath": "dist/apps/frontend/browser",
+                "spa": true
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "frontend",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "prefix": "app",
+          "sourceRoot": "apps/frontend/src",
+          "tags": [
+            "scope:frontend",
+            "type:app"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "backend": {
+        "name": "backend",
+        "type": "app",
+        "data": {
+          "root": "apps/backend",
+          "targets": {
+            "lint": {
+              "cache": true,
+              "options": {
+                "cwd": "apps/backend",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/apps/backend/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "npx eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/dist\\apps\\backend"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/backend",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "configurations": {
+                "development": {
+                  "args": [
+                    "--node-env=development"
+                  ]
+                }
+              },
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "backend:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "backend:build:development"
+                },
+                "production": {
+                  "buildTarget": "backend:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/backend",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects backend --includeDependentProjects -- npx nx build-deps backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/dist/apps/backend/package.json",
+                "{workspaceRoot}/dist/apps/backend/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/dist/apps/backend/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "apps/backend/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            }
+          },
+          "projectType": "application",
+          "metadata": {},
+          "name": "backend",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "apps/backend/src",
+          "tags": [
+            "scope:backend",
+            "type:app"
+          ],
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "shared-integrations-storage": [],
+      "shared-integrations-email": [],
+      "inventory-data-access": [],
+      "shared-infrastructure": [
+        {
+          "source": "shared-infrastructure",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "data-access": [
+        {
+          "source": "data-access",
+          "target": "identity-api",
+          "type": "static"
+        }
+      ],
+      "delivery-data-access": [],
+      "billing-data-access": [],
+      "clients-data-access": [],
+      "rentals-data-access": [],
+      "shared-data-access": [
+        {
+          "source": "shared-data-access",
+          "target": "shared-model",
+          "type": "static"
+        }
+      ],
+      "fleet-data-access": [],
+      "inventory-backend": [
+        {
+          "source": "inventory-backend",
+          "target": "inventory-core",
+          "type": "static"
+        },
+        {
+          "source": "inventory-backend",
+          "target": "shared-infrastructure",
+          "type": "static"
+        }
+      ],
+      "inventory-feature": [
+        {
+          "source": "inventory-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "inventory-feature",
+          "target": "inventory-data-access",
+          "type": "static"
+        }
+      ],
+      "delivery-backend": [
+        {
+          "source": "delivery-backend",
+          "target": "shared-data-access",
+          "type": "static"
+        },
+        {
+          "source": "delivery-backend",
+          "target": "delivery-core",
+          "type": "static"
+        }
+      ],
+      "delivery-feature": [
+        {
+          "source": "delivery-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "delivery-feature",
+          "target": "delivery-data-access",
+          "type": "static"
+        }
+      ],
+      "identity-backend": [
+        {
+          "source": "identity-backend",
+          "target": "shared-infrastructure",
+          "type": "static"
+        }
+      ],
+      "identity-feature": [
+        {
+          "source": "identity-feature",
+          "target": "data-access",
+          "type": "static"
+        },
+        {
+          "source": "identity-feature",
+          "target": "ui-kit",
+          "type": "static"
+        }
+      ],
+      "billing-backend": [
+        {
+          "source": "billing-backend",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "billing-feature": [
+        {
+          "source": "billing-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "billing-feature",
+          "target": "billing-data-access",
+          "type": "static"
+        }
+      ],
+      "clients-backend": [
+        {
+          "source": "clients-backend",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "clients-feature": [
+        {
+          "source": "clients-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "clients-feature",
+          "target": "clients-data-access",
+          "type": "static"
+        }
+      ],
+      "inventory-shell": [
+        {
+          "source": "inventory-shell",
+          "target": "inventory-feature",
+          "type": "dynamic"
+        }
+      ],
+      "rentals-backend": [
+        {
+          "source": "rentals-backend",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "rentals-feature": [
+        {
+          "source": "rentals-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "rentals-feature",
+          "target": "rentals-data-access",
+          "type": "static"
+        }
+      ],
+      "budget-backend": [
+        {
+          "source": "budget-backend",
+          "target": "shared-infrastructure",
+          "type": "static"
+        }
+      ],
+      "budget-feature": [
+        {
+          "source": "budget-feature",
+          "target": "budget-api",
+          "type": "static"
+        },
+        {
+          "source": "budget-feature",
+          "target": "clients-data-access",
+          "type": "static"
+        },
+        {
+          "source": "budget-feature",
+          "target": "inventory-data-access",
+          "type": "static"
+        },
+        {
+          "source": "budget-feature",
+          "target": "ui-kit",
+          "type": "static"
+        }
+      ],
+      "delivery-shell": [
+        {
+          "source": "delivery-shell",
+          "target": "delivery-feature",
+          "type": "dynamic"
+        }
+      ],
+      "inventory-core": [
+        {
+          "source": "inventory-core",
+          "target": "shared-model",
+          "type": "static"
+        }
+      ],
+      "shell": [
+        {
+          "source": "shell",
+          "target": "identity-feature",
+          "type": "dynamic"
+        }
+      ],
+      "billing-shell": [
+        {
+          "source": "billing-shell",
+          "target": "billing-feature",
+          "type": "dynamic"
+        }
+      ],
+      "clients-shell": [
+        {
+          "source": "clients-shell",
+          "target": "clients-feature",
+          "type": "dynamic"
+        }
+      ],
+      "delivery-core": [
+        {
+          "source": "delivery-core",
+          "target": "shared-model",
+          "type": "static"
+        }
+      ],
+      "fleet-backend": [
+        {
+          "source": "fleet-backend",
+          "target": "shared-data-access",
+          "type": "static"
+        },
+        {
+          "source": "fleet-backend",
+          "target": "fleet-core",
+          "type": "static"
+        }
+      ],
+      "fleet-feature": [
+        {
+          "source": "fleet-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "fleet-feature",
+          "target": "fleet-data-access",
+          "type": "static"
+        }
+      ],
+      "inventory-api": [],
+      "rentals-shell": [],
+      "shared-config": [],
+      "shared-events": [],
+      "ui-kit": [],
+      "verifactu-api": [],
+      "auth-api-key": [],
+      "billing-core": [
+        {
+          "source": "billing-core",
+          "target": "shared-model",
+          "type": "static"
+        }
+      ],
+      "budget-shell": [
+        {
+          "source": "budget-shell",
+          "target": "budget-feature",
+          "type": "dynamic"
+        }
+      ],
+      "delivery-api": [],
+      "frontend-e2e": [
+        {
+          "source": "frontend-e2e",
+          "target": "frontend",
+          "type": "implicit"
+        }
+      ],
+      "identity-api": [],
+      "rentals-core": [
+        {
+          "source": "rentals-core",
+          "target": "shared-model",
+          "type": "static"
+        }
+      ],
+      "shared-model": [],
+      "shared-utils": [],
+      "billing-api": [],
+      "clients-api": [],
+      "fleet-shell": [
+        {
+          "source": "fleet-shell",
+          "target": "fleet-feature",
+          "type": "dynamic"
+        }
+      ],
+      "rentals-api": [],
+      "shared-cqrs": [],
+      "budget-api": [],
+      "fleet-core": [
+        {
+          "source": "fleet-core",
+          "target": "shared-model",
+          "type": "static"
+        }
+      ],
+      "fleet-api": [],
+      "auth-jwt": [],
+      "frontend": [
+        {
+          "source": "frontend",
+          "target": "data-access",
+          "type": "static"
+        },
+        {
+          "source": "frontend",
+          "target": "shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "identity-feature",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "clients-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "budget-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "inventory-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "delivery-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "fleet-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "billing-shell",
+          "type": "dynamic"
+        }
+      ],
+      "backend": [
+        {
+          "source": "backend",
+          "target": "shared-data-access",
+          "type": "static"
+        },
+        {
+          "source": "backend",
+          "target": "shared-model",
+          "type": "static"
+        },
+        {
+          "source": "backend",
+          "target": "inventory-core",
+          "type": "static"
+        }
+      ]
+    }
+  }
+}

@@ -83,7 +83,7 @@ async function main() {
   }
 
   await prisma.verifactuSeries.upsert({
-    where: { tenantId_code: { tenantId: tenant.id, code: 'A' } },
+    where: { uq_verifactu_series_tenant_code: { tenantId: tenant.id, code: 'A' } },
     update: {},
     create: {
       tenantId: tenant.id,
@@ -93,7 +93,7 @@ async function main() {
   });
 
   await prisma.verifactuCustomer.upsert({
-    where: { tenantId_taxId: { tenantId: tenant.id, taxId: 'B12345678' } },
+    where: { uq_verifactu_customer_tenant_taxid: { tenantId: tenant.id, taxId: 'B12345678' } },
     update: {},
     create: {
       tenantId: tenant.id,
