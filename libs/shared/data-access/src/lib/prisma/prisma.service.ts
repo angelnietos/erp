@@ -3,7 +3,7 @@
  * Handles connect/disconnect lifecycle automatically.
  */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { ClsService } from 'nestjs-cls';
 import { config as loadEnv } from 'dotenv';
@@ -30,7 +30,7 @@ export class PrismaService
   }
 
   private applyTenantMiddleware() {
-    this.$use(async (params, next) => {
+    this.$use(async (params: Prisma.MiddlewareParams, next: (params: Prisma.MiddlewareParams) => Promise<any>) => {
       const tenantModels = ['Client', 'Product', 'Budget', 'DeliveryNote', 'User', 'Role', 'Invoice'];
       const tenantActions = ['findUnique', 'findFirst', 'findMany', 'update', 'updateMany', 'delete', 'deleteMany', 'count', 'aggregate', 'groupBy'];
       

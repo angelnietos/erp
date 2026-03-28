@@ -1,8 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ClsService } from 'nestjs-cls';
+import { ClsService, ClsStore } from 'nestjs-cls';
 
-export interface TenantContext {
+export interface TenantContext extends ClsStore {
   tenantId: string;
 }
 
