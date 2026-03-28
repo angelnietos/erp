@@ -7,7 +7,7 @@ import { VerifactuSubmissionAdapter } from './infrastructure/adapters/verifactu/
 import { VerifactuErpAdapterModule } from '@josanz-erp/verifactu-adapters';
 
 export interface BillingConfig {}
-
+ 
 @Module({})
 export class BillingModule {
   static forRoot(options?: BillingConfig): DynamicModule {
