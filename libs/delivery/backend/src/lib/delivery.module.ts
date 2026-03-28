@@ -1,11 +1,23 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-data-access';
 
-@Module({
-  imports: [PrismaModule],
-  controllers: [],
-  providers: [],
-  exports: [],
-})
-export class DeliveryModule {}
+export interface DeliveryConfig {}
+
+@Module({})
+export class DeliveryModule {
+  static forRoot(options?: DeliveryConfig): DynamicModule {
+    return {
+      module: DeliveryModule,
+      imports: [PrismaModule],
+      controllers: [],
+      providers: [
+        {
+          provide: 'DELIVERY_CONFIG',
+          useValue: options || {},
+        },
+      ],
+      exports: [],
+    };
+  }
+}
 

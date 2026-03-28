@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -10,31 +10,43 @@ import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 
-@Module({
-  imports: [
-    PassportModule,
-    SharedInfrastructureModule,
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const expiresIn = (config.get<string>('JWT_EXPIRES') ?? '24h') as StringValue;
-        return {
-          secret: config.get<string>('JWT_SECRET') ?? 'default_secret',
-          signOptions: { expiresIn },
-        };
-      },
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    {
-      provide: USER_REPOSITORY,
-      useClass: PrismaUserRepository,
-    },
-  ],
-  exports: [AuthService, JwtStrategy],
-})
-export class IdentityModule {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IdentityConfig {}
+
+@Module({})
+export class IdentityModule {
+  static forRoot(options?: IdentityConfig): DynamicModule {
+    return {
+      module: IdentityModule,
+      imports: [
+        PassportModule,
+        SharedInfrastructureModule,
+        JwtModule.registerAsync({
+          inject: [ConfigService],
+          useFactory: (config: ConfigService) => {
+            const expiresIn = (config.get<string>('JWT_EXPIRES') ?? '24h') as StringValue;
+            return {
+              secret: config.get<string>('JWT_SECRET') ?? 'default_secret',
+              signOptions: { expiresIn },
+            };
+          },
+        }),
+      ],
+      controllers: [AuthController],
+      providers: [
+        AuthService,
+        JwtStrategy,
+        {
+          provide: USER_REPOSITORY,
+          useClass: PrismaUserRepository,
+        },
+        {
+          provide: 'IDENTITY_CONFIG',
+          useValue: options || {},
+        },
+      ],
+      exports: [AuthService, JwtStrategy],
+    };
+  }
+}
 

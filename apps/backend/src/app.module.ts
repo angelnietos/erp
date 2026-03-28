@@ -30,14 +30,14 @@ import { FleetModule } from '@josanz-erp/fleet-backend';
     // Shared infra
     SharedInfrastructureModule,
     // Business domains
-    IdentityModule,
-    ClientsModule,
+    IdentityModule.forRoot(),
+    ClientsModule.forRoot(),
     BudgetBackendModule.forRoot({ enableApprovalFlow: true }),
-    InventoryModule,
-    RentalsModule,
-    DeliveryModule,
-    BillingModule,
-    FleetModule,
+    InventoryModule.forRoot(),
+    RentalsModule.forRoot(),
+    DeliveryModule.forRoot(),
+    BillingModule.forRoot(),
+    FleetModule.forRoot(),
   ],
 })
 export class AppModule {}

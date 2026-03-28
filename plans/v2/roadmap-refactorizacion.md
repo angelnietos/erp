@@ -36,13 +36,13 @@ El peor anti-patrón actual es el `apps/backend/src/app` masivo. Debemos desguaz
   Las librerías backend de plugin ya estaban generadas por Nx.
 - [x] **3.2 Migración Topológica (Controladores y Servicios):**
   Desplazamiento exitoso. Los controladores `.controller.ts` y servicios fueron purgados de `apps/backend` hacia el `src/lib/` de cada una de sus nuevas librerías backend de plugin.
-- [ ] **3.3 Acoplamiento Dinámico en Plugins:**
-  *(Avanzado: `BudgetBackendModule.forRoot()` completado).*
-  Dentro de cada librería backend, escribir la inyección formal de OCP usando `static forRoot(): DynamicModule`. Permitir `providers` vacíos para que cada App Cliente extienda el servicio base o inyecte dependencias parametrizadas.
+- [x] **3.3 Acoplamiento Dinámico en Plugins:**
+  *(Avanzado: Completado en todos los 8 módulos trasladados).*
+  Dentro de cada librería backend, se escribió la inyección formal de OCP usando `static forRoot(): DynamicModule` con `providers` y configuraciones dinámicas.
 - [x] **3.4 Limpieza del Kernel:** 
   El `AppModule` ahora inyecta puramente Módulos-Plugin listos para arrancar con un array limpio (usando las namespaces de `@josanz-erp/*`).
 
-> **ESTADO DE FASE 3:** 80% Completada 🟢.
+> **ESTADO DE FASE 3:** 100% Completada 🟢.
 
 ---
 
