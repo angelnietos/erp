@@ -10,13 +10,14 @@ datasource db {
 // ==== CLIENTS ==== //
 model Client {
   id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @db.Uuid @map("tenant_id")
   name        String
   description String?
   sector      String?
-  companyId   String?   @map("company_id") // Placeholder for Multi-tenant
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
 
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   budgets     Budget[]
   rentals     Rental[]
 
@@ -26,10 +27,12 @@ model Client {
 // ==== CATALOG & PRODUCTS ==== //
 model Product {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @db.Uuid @map("tenant_id")
   name        String
   description String?
   price       Float?
   
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   inventory   Inventory?
   rentalItems RentalItem[]
   budgetItems BudgetItem[]
@@ -123,6 +126,7 @@ model RentalItem {
 // ==== DOCUMENTS MODULE ==== //
 model Budget {
   id             String          @id @default(uuid()) @db.Uuid
+  tenantId       String          @db.Uuid @map("tenant_id")
   clientId       String          @db.Uuid @map("client_id")
   startDate      DateTime        @map("start_date")
   endDate        DateTime        @map("end_date")
@@ -132,6 +136,7 @@ model Budget {
   idempotencyKey String?         @map("idempotency_key")
   createdAt      DateTime        @default(now()) @map("created_at")
 
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
   client         Client          @relation(fields: [clientId], references: [id])
   items          BudgetItem[]
   deliveryNotes  DeliveryNote[]
@@ -157,11 +162,13 @@ model BudgetItem {
 
 model DeliveryNote {
   id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @db.Uuid @map("tenant_id")
   budgetId         String   @db.Uuid @map("budget_id")
   signatureBlobUrl String?  @map("signature_blob_url")
   status           String
   createdAt        DateTime @default(now()) @map("created_at")
 
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
   budget           Budget   @relation(fields: [budgetId], references: [id])
 
   @@map("delivery_notes")
@@ -208,6 +215,11 @@ model Tenant {
   isActive         Boolean                  @default(true) @map("is_active")
   createdAt        DateTime                 @default(now()) @map("created_at")
 
+  users            User[]
+  clients          Client[]
+  products         Product[]
+  budgets          Budget[]
+  deliveryNotes    DeliveryNote[]
   invoices         Invoice[]
   verifactuLogs    VerifactuLog[]
   apiKeys          TenantApiKey[]
@@ -367,7 +379,8 @@ model AuditLog {
 
 model User {
   id        String    @id @default(uuid()) @db.Uuid
-  email     String    @unique
+  tenantId  String    @db.Uuid @map("tenant_id")
+  email     String
   password  String
   firstName String?   @map("first_name")
   lastName  String?   @map("last_name")
@@ -375,7 +388,9 @@ model User {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
   roles     UserRole[]
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
 
+  @@unique([tenantId, email])
   @@map("users")
 }
 
