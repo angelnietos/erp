@@ -101,5 +101,113 @@
     "@nx/angular:component": {
       "style": "css"
     }
+  },
+  "targetDependencies": {
+    "build": [
+      {
+        "target": "build",
+        "projects": "dependencies"
+      }
+    ],
+    "lint": [
+      {
+        "target": "lint",
+        "projects": "self"
+      }
+    ]
+  },
+  "nxCloudId": "josanz-erp",
+  "release": {
+    "projects": {
+      "releaseType": "all",
+      "trackInfos": []
+    }
+  },
+  "pluginsConfig": {
+    "@nx/angular": {
+      "targetBuildTargetDependencies": {
+        "build": [
+          {
+            "target": "build",
+            "projects": "dependencies"
+          }
+        ]
+      }
+    }
+  },
+  "constraints": {
+    "allowed": {
+      "tags": []
+    },
+    "sourceTags": {
+      "type:core": {
+        "description": "Pure domain models (entities, value objects, ports)",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      },
+      "type:backend": {
+        "description": "Backend implementation (controllers, services, modules)",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      },
+      "type:api": {
+        "description": "Frontend API client (HTTP infrastructure)",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      },
+      "type:data-access": {
+        "description": "Frontend data access (state management, services)",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      },
+      "type:feature": {
+        "description": "Frontend feature components (pages, containers)",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      },
+      "type:shell": {
+        "description": "Frontend shell (routing, composition)",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      },
+      "scope:shared": {
+        "description": "Shared utilities and infrastructure",
+        "onAllow": {
+          "actions": ["*"]
+        }
+      }
+    },
+    "dependencies": [
+      {
+        "sourceTag": "type:feature",
+        "onlyDependOnLibsWithTags": ["type:data-access", "type:shell", "scope:shared"]
+      },
+      {
+        "sourceTag": "type:data-access",
+        "onlyDependOnLibsWithTags": ["type:api", "type:core", "scope:shared"]
+      },
+      {
+        "sourceTag": "type:api",
+        "onlyDependOnLibsWithTags": ["type:core", "scope:shared"]
+      },
+      {
+        "sourceTag": "type:shell",
+        "onlyDependOnLibsWithTags": ["type:feature", "scope:shared"]
+      },
+      {
+        "sourceTag": "type:backend",
+        "onlyDependOnLibsWithTags": ["type:core", "scope:shared"]
+      },
+      {
+        "sourceTag": "type:core",
+        "onlyDependOnLibsWithTags": ["scope:shared"]
+      }
+    ]
   }
 }
