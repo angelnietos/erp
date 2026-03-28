@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +8,7 @@ import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
 @Component({
-  selector: 'app-clients-list',
+  selector: 'lib-clients-list',
   standalone: true,
   imports: [
     CommonModule, 
@@ -353,8 +353,9 @@ export class ClientsListComponent implements OnInit {
   saveClient() {
     if (!this.formData.name) return;
 
-    if (this.editingClient()) {
-      this.facade.updateClient(this.editingClient()!.id, this.formData);
+    const clientToEdit = this.editingClient();
+    if (clientToEdit) {
+      this.facade.updateClient(clientToEdit.id, this.formData);
       this.closeModal();
     } else {
       this.facade.createClient(this.formData as Omit<Client, 'id' | 'createdAt'>);

@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { DeliveryNote, DeliveryNoteService } from '@josanz-erp/delivery-data-access';
+import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
+import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 
 @Component({
   selector: 'lib-delivery-list',
@@ -31,9 +32,11 @@ import { DeliveryNote, DeliveryNoteService } from '@josanz-erp/delivery-data-acc
           <h1>Albaranes</h1>
           <p class="subtitle">Gestiona las entregas de material</p>
         </div>
-        <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
-          Nuevo Albarán
-        </ui-josanz-button>
+        @if (config.enableCreate) {
+          <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+            Nuevo Albarán
+          </ui-josanz-button>
+        }
       </div>
 
       <div class="filters-bar">
@@ -70,7 +73,7 @@ import { DeliveryNote, DeliveryNoteService } from '@josanz-erp/delivery-data-acc
                   <button class="action-btn" [routerLink]="['/delivery', delivery.id]" title="Ver">
                     <i-lucide name="eye"></i-lucide>
                   </button>
-                  @if (delivery.status === 'pending') {
+                  @if (delivery.status === 'pending' && config.enableSign) {
                     <button class="action-btn success" title="Firmar" (click)="signDelivery(delivery)">
                       <i-lucide name="pen-tool"></i-lucide>
                     </button>
@@ -83,9 +86,11 @@ import { DeliveryNote, DeliveryNoteService } from '@josanz-erp/delivery-data-acc
                   <button class="action-btn" (click)="editDelivery(delivery)" title="Editar">
                     <i-lucide name="pencil"></i-lucide>
                   </button>
-                  <button class="action-btn danger" (click)="confirmDelete(delivery)" title="Eliminar">
-                    <i-lucide name="trash-2"></i-lucide>
-                  </button>
+                  @if (config.enableDelete) {
+                    <button class="action-btn danger" (click)="confirmDelete(delivery)" title="Eliminar">
+                      <i-lucide name="trash-2"></i-lucide>
+                    </button>
+                  }
                 </div>
               }
               @default {
@@ -321,22 +326,13 @@ import { DeliveryNote, DeliveryNoteService } from '@josanz-erp/delivery-data-acc
     }
   `],
 })
-export class DeliveryListComponent implements OnInit {
-  private deliveryNoteService = inject(DeliveryNoteService);
+  private readonly facade = inject(DeliveryFacade);
+  public readonly config = inject(DELIVERY_FEATURE_CONFIG);
 
-  columns = [
-    { key: 'id', header: 'Referencia', width: '120px' },
-    { key: 'budgetId', header: 'Presupuesto', width: '120px' },
-    { key: 'clientName', header: 'Cliente' },
-    { key: 'deliveryDate', header: 'Fecha Entrega', width: '120px' },
-    { key: 'returnDate', header: 'Fecha Devolución', width: '120px' },
-    { key: 'itemsCount', header: 'Items', width: '80px' },
-    { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'actions', header: '', width: '140px' },
-  ];
+  columns = this.config.defaultColumns;
 
-  deliveryNotes = signal<DeliveryNote[]>([]);
-  isLoading = signal(true);
+  deliveryNotes = this.facade.deliveryNotes;
+  isLoading = this.facade.isLoading;
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
@@ -366,32 +362,15 @@ export class DeliveryListComponent implements OnInit {
   }
 
   loadDeliveryNotes() {
-    this.isLoading.set(true);
-    this.deliveryNoteService.getDeliveryNotes().subscribe({
-      next: (deliveryNotes) => {
-        this.deliveryNotes.set(deliveryNotes);
-        this.isLoading.set(false);
-        this.totalPages.set(1);
-      },
-      error: (err) => {
-        console.error('Error loading delivery notes:', err);
-        this.isLoading.set(false);
-      }
-    });
+    this.facade.loadDeliveryNotes();
   }
 
   onSearch(term: string) {
     this.searchTerm = term;
     if (term.trim()) {
-      this.isLoading.set(true);
-      this.deliveryNoteService.searchDeliveryNotes(term).subscribe({
-        next: (deliveryNotes) => {
-          this.deliveryNotes.set(deliveryNotes);
-          this.isLoading.set(false);
-        }
-      });
+      this.facade.searchDeliveryNotes(term);
     } else {
-      this.loadDeliveryNotes();
+      this.facade.loadDeliveryNotes();
     }
   }
 
@@ -428,24 +407,13 @@ export class DeliveryListComponent implements OnInit {
   saveDelivery() {
     if (!this.formData.budgetId || !this.formData.clientName) return;
 
-    if (this.editingDelivery()) {
-      this.deliveryNoteService.updateDeliveryNote(this.editingDelivery()!.id, this.formData).subscribe({
-        next: (updated) => {
-          this.deliveryNotes.update(deliveryNotes => 
-            deliveryNotes.map(d => d.id === updated.id ? updated : d)
-          );
-          this.closeModal();
-        },
-        error: (err) => console.error('Error updating delivery note:', err)
-      });
+    const deliveryToEdit = this.editingDelivery();
+    if (deliveryToEdit) {
+      this.facade.updateDeliveryNote(deliveryToEdit.id, this.formData);
+      this.closeModal();
     } else {
-      this.deliveryNoteService.createDeliveryNote(this.formData as Omit<DeliveryNote, 'id'>).subscribe({
-        next: (newDelivery) => {
-          this.deliveryNotes.update(deliveryNotes => [...deliveryNotes, newDelivery]);
-          this.closeModal();
-        },
-        error: (err) => console.error('Error creating delivery note:', err)
-      });
+      this.facade.createDeliveryNote(this.formData as Omit<DeliveryNote, 'id'>);
+      this.closeModal();
     }
   }
 
@@ -463,15 +431,8 @@ export class DeliveryListComponent implements OnInit {
     const delivery = this.deliveryToDelete();
     if (!delivery) return;
 
-    this.deliveryNoteService.deleteDeliveryNote(delivery.id).subscribe({
-      next: (success) => {
-        if (success) {
-          this.deliveryNotes.update(deliveryNotes => deliveryNotes.filter(d => d.id !== delivery.id));
-        }
-        this.closeDeleteModal();
-      },
-      error: (err) => console.error('Error deleting delivery note:', err)
-    });
+    this.facade.deleteDeliveryNote(delivery.id);
+    this.closeDeleteModal();
   }
 
   signDelivery(delivery: DeliveryNote) {
@@ -490,26 +451,12 @@ export class DeliveryListComponent implements OnInit {
     const delivery = this.deliveryToSign();
     if (!delivery) return;
 
-    this.deliveryNoteService.signDeliveryNote(delivery.id, this.signatureText).subscribe({
-      next: (updated) => {
-        this.deliveryNotes.update(deliveryNotes => 
-          deliveryNotes.map(d => d.id === updated.id ? updated : d)
-        );
-        this.closeSignModal();
-      },
-      error: (err) => console.error('Error signing delivery note:', err)
-    });
+    this.facade.signDeliveryNote(delivery.id, this.signatureText);
+    this.closeSignModal();
   }
 
   completeDelivery(delivery: DeliveryNote) {
-    this.deliveryNoteService.completeDeliveryNote(delivery.id).subscribe({
-      next: (updated) => {
-        this.deliveryNotes.update(deliveryNotes => 
-          deliveryNotes.map(d => d.id === updated.id ? updated : d)
-        );
-      },
-      error: (err) => console.error('Error completing delivery note:', err)
-    });
+    this.facade.completeDeliveryNote(delivery.id);
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {

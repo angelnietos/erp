@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { BudgetStore } from '@josanz-erp/budget-data-access';
 import { UiTableComponent, UiCardComponent, UiButtonComponent } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
+import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
 @Component({
   selector: 'lib-budget-list',
@@ -15,7 +16,9 @@ import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
         <h1>Presupuestos</h1>
         <p>Gestiona cotizaciones y rango de reserva para eventos</p>
       </div>
-      <ui-josanz-button [icon]="Plus" routerLink="/budgets/create">Nuevo Presupuesto</ui-josanz-button>
+      @if (config.enableCreate) {
+        <ui-josanz-button [icon]="Plus" routerLink="/budgets/create">Nuevo Presupuesto</ui-josanz-button>
+      }
     </div>
 
     <ui-josanz-card title="Historial de Presupuestos">
@@ -31,7 +34,9 @@ import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
             @case ('actions') {
               <div class="actions">
                 <button class="icon-btn"><i-lucide [name]="FileText"></i-lucide></button>
-                <button class="icon-btn"><i-lucide [name]="Download"></i-lucide></button>
+                @if (config.enableDownload) {
+                  <button class="icon-btn"><i-lucide [name]="Download"></i-lucide></button>
+                }
               </div>
             }
             @default { {{ item[key] }} }
@@ -64,20 +69,13 @@ import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
 })
 export class BudgetListComponent implements OnInit {
   store = inject(BudgetStore);
+  config = inject(BUDGET_FEATURE_CONFIG);
+  
   Plus = Plus;
   FileText = FileText;
   Download = Download;
 
-  columns = [
-    { key: 'id', header: 'Referencia', width: '120px' },
-    { key: 'createdAt', header: 'Fecha', width: '150px' },
-    { key: 'startDate', header: 'Inicio', width: '120px' },
-    { key: 'endDate', header: 'Fin', width: '120px' },
-    { key: 'clientId', header: 'Cliente' },
-    { key: 'total', header: 'Total', width: '150px' },
-    { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'actions', header: '', width: '100px' },
-  ];
+  columns = this.config.defaultColumns;
 
   ngOnInit() {
     this.store.loadBudgets();
