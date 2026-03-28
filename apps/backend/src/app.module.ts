@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SharedInfrastructureModule } from './shared/infrastructure/shared-infrastructure.module';
-import { IdentityModule } from './modules/identity/identity.module';
-import { ClientsModule } from './modules/clients/clients.module';
+import { IdentityModule } from '@josanz-erp/identity-backend';
+import { ClientsModule } from '@josanz-erp/clients-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
 import { ClsModule } from 'nestjs-cls';
-import { InventoryModule } from './modules/inventory/inventory.module';
-import { RentalsModule } from './modules/rentals/rentals.module';
-import { DeliveryModule } from './modules/delivery/delivery.module';
-import { BillingModule } from './modules/billing/billing.module';
-import { FleetModule } from './modules/fleet/fleet.module';
+import { InventoryModule } from '@josanz-erp/inventory-backend';
+import { RentalsModule } from '@josanz-erp/rentals-backend';
+import { DeliveryModule } from '@josanz-erp/delivery-backend';
+import { BillingModule } from '@josanz-erp/billing-backend';
+import { FleetModule } from '@josanz-erp/fleet-backend';
 
 @Module({
   imports: [
