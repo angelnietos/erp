@@ -8,8 +8,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/shared-infrastructure",
-        "tsConfig": "libs/shared-infrastructure/tsconfig.lib.json"
+        "outputPath": "libs/shared-infrastructure/dist",
+        "tsConfig": "libs/shared-infrastructure/tsconfig.lib.json",
+        "main": "libs/shared-infrastructure/src/index.ts"
       }
     },
     "lint": {
