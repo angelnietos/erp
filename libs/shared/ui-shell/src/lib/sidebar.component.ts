@@ -274,7 +274,7 @@ export interface NavItem {
   `]
 })
 export class SidebarComponent {
-  /** Wired by the app (e.g. to AuthStore.logout) — ui-shell stays free of identity-data-access. */
+  /** Emit when the user chooses Cerrar sesión; the app should run logout (e.g. auth store). */
   readonly logoutClick = output<void>();
 
   @Input() navItems: NavItem[] = [
