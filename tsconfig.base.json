@@ -105,7 +105,9 @@
       "@josanz-erp/shared-infrastructure": [
         "libs/shared-infrastructure/src/index.ts"
       ],
-      "@josanz-erp/shared-ui-shell": ["libs/shared/ui-shell/src/index.ts"]
+      "@josanz-erp/shared-ui-shell": ["libs/shared/ui-shell/src/index.ts"],
+      "@josanz-erp/settings-feature": ["libs/settings/feature/src/index.ts"],
+      "@josanz-erp/settings-shell": ["libs/settings/shell/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

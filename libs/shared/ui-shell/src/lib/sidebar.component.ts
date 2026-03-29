@@ -1,7 +1,8 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 
 export interface NavItem {
   id: string;
@@ -70,7 +71,7 @@ export interface NavItem {
             </a>
           </li>
           <li class="nav-item">
-            <button class="nav-link logout">
+            <button class="nav-link logout" (click)="logout()">
               <div class="icon-wrapper">
                 <lucide-icon name="log-out" size="20"></lucide-icon>
               </div>
@@ -274,6 +275,8 @@ export interface NavItem {
   `]
 })
 export class SidebarComponent {
+  private readonly authStore = inject(AuthStore);
+
   @Input() navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
     { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
@@ -289,5 +292,9 @@ export class SidebarComponent {
 
   toggle() {
     this.isCollapsed.set(!this.isCollapsed());
+  }
+
+  logout() {
+    this.authStore.logout();
   }
 }

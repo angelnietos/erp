@@ -43,6 +43,10 @@ export const appRoutes: Route[] = [
         path: 'verifactu',
         loadChildren: () => import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
       },
+      {
+        path: 'settings',
+        loadChildren: () => import('@josanz-erp/settings-shell').then((m) => m.settingsRoutes),
+      },
     ]
   },
   {
