@@ -1,6 +1,7 @@
 import { Component, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 export interface NavMenuItem {
   id: string;
@@ -14,7 +15,7 @@ export interface NavMenuItem {
 @Component({
   selector: 'ui-josanz-nav-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `
     <nav class="nav-menu">
       <ul class="nav-list">
@@ -28,7 +29,9 @@ export interface NavMenuItem {
               [attr.title]="item.label"
               (click)="itemClick.emit(item)"
             >
-              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-icon">
+                <lucide-icon [name]="item.icon" size="20"></lucide-icon>
+              </span>
               <span class="nav-label">{{ item.label }}</span>
               @if (item.badge) {
                 <span class="nav-badge">{{ item.badge }}</span>
@@ -45,7 +48,9 @@ export interface NavMenuItem {
                       [attr.title]="child.label"
                       (click)="itemClick.emit(child)"
                     >
-                      <span class="nav-icon">{{ child.icon }}</span>
+                      <span class="nav-icon">
+                        <lucide-icon [name]="child.icon" size="20"></lucide-icon>
+                      </span>
                       <span class="nav-label">{{ child.label }}</span>
                     </a>
                   </li>
@@ -115,6 +120,11 @@ export interface NavMenuItem {
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+    }
+
+    .nav-icon lucide-icon {
+      width: 20px;
+      height: 20px;
     }
 
     .nav-label {
