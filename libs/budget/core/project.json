@@ -1,0 +1,33 @@
+{
+  "name": "budget-core",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/budget/core/src",
+  "projectType": "library",
+  "tags": ["scope:budget", "type:core"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/budget/core",
+        "main": "libs/budget/core/src/index.ts",
+        "tsConfig": "libs/budget/core/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/budget/core/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/budget/core/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/budget/core"]
+    }
+  }
+}

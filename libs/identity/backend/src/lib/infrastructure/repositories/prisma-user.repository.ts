@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { ClsService } from 'nestjs-cls';
 import { PrismaService } from '@josanz-erp/shared-data-access';
 import { UserRepositoryPort, User } from '@josanz-erp/identity-core';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';
@@ -12,11 +13,21 @@ type PrismaUserWithRoles = Prisma.UserGetPayload<{
 export class PrismaUserRepository implements UserRepositoryPort {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly tenantContext: TenantContext,
+    private readonly cls: ClsService<TenantContext>,
   ) {}
 
+  private requireTenantId(): string {
+    const tenantId = this.cls.get('tenantId');
+    if (!tenantId) {
+      throw new UnauthorizedException(
+        'Missing tenant context: x-tenant-id header is required for this operation.',
+      );
+    }
+    return tenantId;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.requireTenantId();
     const data = await this.prisma.user.findUnique({
       where: { tenantId_email: { tenantId, email } },
       include: { roles: { include: { role: true } } },
@@ -31,13 +42,13 @@ export class PrismaUserRepository implements UserRepositoryPort {
     });
     if (!data) return null;
     // Verify the user belongs to the current tenant
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.requireTenantId();
     if (data.tenantId !== tenantId) return null;
     return this.mapToDomain(data);
   }
 
   async save(user: User): Promise<void> {
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.requireTenantId();
     await this.prisma.user.upsert({
       where: { id: user.id.value },
       update: {
