@@ -1,9 +1,10 @@
-import { Component, Input, output } from '@angular/core';
+import { Component, Input, output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
+import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'josanz-app-layout',
@@ -39,6 +40,27 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
               <lucide-icon name="bell" size="20"></lucide-icon>
               <div class="notification-dot"></div>
             </button>
+
+            <!-- Theme Selector -->
+            <div class="theme-selector">
+              <button class="theme-btn" (click)="toggleThemeMenu()">
+                <lucide-icon [name]="currentTheme() === 'dark' ? 'moon' : 'sun'" size="20"></lucide-icon>
+              </button>
+              @if (showThemeMenu()) {
+                <div class="theme-menu">
+                  @for (themeKey of themeKeys; track themeKey) {
+                    <button 
+                      class="theme-option" 
+                      [class.active]="currentTheme() === themeKey"
+                      (click)="setTheme(themeKey)"
+                    >
+                      <span class="theme-color" [style.background]="themeService.themes[themeKey].primary"></span>
+                      {{ themeService.themes[themeKey].name }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
 
             <div class="user-profile">
               <div class="user-info">
@@ -192,6 +214,75 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       border-radius: 50%;
     }
 
+    .theme-selector {
+      position: relative;
+    }
+
+    .theme-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .theme-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px;
+      min-width: 160px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+
+    .theme-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 12px;
+      background: none;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: #1e293b;
+      transition: all 0.2s;
+    }
+
+    .theme-option:hover {
+      background: #f1f5f9;
+    }
+
+    .theme-option.active {
+      background: #f0f9ff;
+      color: #0ea5e9;
+    }
+
+    .theme-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px #e2e8f0;
+    }
+
     .user-profile {
       display: flex;
       align-items: center;
@@ -255,7 +346,20 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 })
 export class AppLayoutComponent {
   readonly logoutClick = output<void>();
+  readonly themeService = inject(ThemeService);
+  readonly currentTheme = this.themeService.currentTheme;
+  readonly themeKeys = Object.keys(this.themeService.themes) as Theme[];
+  showThemeMenu = signal(false);
 
   @Input() navItems: NavMenuItem[] = [];
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
+
+  toggleThemeMenu() {
+    this.showThemeMenu.update(v => !v);
+  }
+
+  setTheme(theme: Theme) {
+    this.themeService.setTheme(theme);
+    this.showThemeMenu.set(false);
+  }
 }
