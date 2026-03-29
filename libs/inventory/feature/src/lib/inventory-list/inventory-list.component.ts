@@ -12,7 +12,8 @@ import {
   UiLoaderComponent, 
   UiModalComponent, 
   UiInputComponent, 
-  UiSelectComponent 
+  UiSelectComponent, 
+  UiTabsComponent 
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -33,6 +34,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiModalComponent,
     UiInputComponent,
     UiSelectComponent,
+    UiTabsComponent,
     LucideAngularModule
   ],
   template: `

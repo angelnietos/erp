@@ -12,7 +12,8 @@ import {
   UiLoaderComponent, 
   UiModalComponent, 
   UiInputComponent, 
-  UiSelectComponent 
+  UiSelectComponent, 
+  UiTabsComponent 
 } from '@josanz-erp/shared-ui-kit';
 import { Invoice, BillingFacade } from '@josanz-erp/billing-data-access';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
@@ -33,6 +34,7 @@ import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
     UiModalComponent,
     UiInputComponent,
     UiSelectComponent,
+    UiTabsComponent,
     LucideAngularModule
   ],
   template: `

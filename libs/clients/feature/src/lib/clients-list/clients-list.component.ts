@@ -12,7 +12,8 @@ import {
   UiLoaderComponent, 
   UiModalComponent, 
   UiInputComponent, 
-  UiTextareaComponent 
+  UiTextareaComponent, 
+  UiTabsComponent 
 } from '@josanz-erp/shared-ui-kit';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -33,6 +34,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiModalComponent,
     UiInputComponent,
     UiTextareaComponent,
+    UiTabsComponent,
     LucideAngularModule
   ],
   template: `
