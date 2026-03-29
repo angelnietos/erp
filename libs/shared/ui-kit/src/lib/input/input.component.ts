@@ -185,8 +185,8 @@ export class UiInputComponent implements ControlValueAccessor {
 
   value = '';
   disabled = false;
-  onChange = (_value: string) => {};
-  onTouched = () => {};
+  onChange = (_value: string) => { /* empty */ };
+  onTouched = () => { /* empty */ };
 
   writeValue(value: string): void { this.value = value; }
   registerOnChange(fn: any): void { this.onChange = fn; }
