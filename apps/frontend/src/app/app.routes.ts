@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { MainShellComponent } from '@josanz-erp/shared-ui-shell';
+import { MainAppShellComponent } from './main-app-shell.component';
 
 export const appRoutes: Route[] = [
   {
@@ -13,7 +13,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: '',
-    component: MainShellComponent,
+    component: MainAppShellComponent,
     children: [
       {
         path: 'clients',

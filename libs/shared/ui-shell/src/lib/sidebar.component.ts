@@ -1,8 +1,7 @@
-import { Component, Input, signal, inject } from '@angular/core';
+import { Component, Input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { AuthStore } from '@josanz-erp/identity-data-access';
 
 export interface NavItem {
   id: string;
@@ -275,7 +274,8 @@ export interface NavItem {
   `]
 })
 export class SidebarComponent {
-  private readonly authStore = inject(AuthStore);
+  /** Wired by the app (e.g. to AuthStore.logout) — ui-shell stays free of identity-data-access. */
+  readonly logoutClick = output<void>();
 
   @Input() navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
@@ -295,6 +295,6 @@ export class SidebarComponent {
   }
 
   logout() {
-    this.authStore.logout();
+    this.logoutClick.emit();
   }
 }

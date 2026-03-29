@@ -9,6 +9,15 @@
     "type:data-access"
   ],
   "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "tsConfig": "libs/identity/data-access/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "inlineStyleLanguage": "css"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": [

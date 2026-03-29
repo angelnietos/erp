@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -11,7 +11,7 @@ import { SidebarComponent, NavItem } from './sidebar.component';
   template: `
     <div class="app-layout">
       <!-- Sidebar -->
-      <josanz-sidebar [navItems]="navItems"></josanz-sidebar>
+      <josanz-sidebar [navItems]="navItems" (logoutClick)="logoutClick.emit()"></josanz-sidebar>
 
       <!-- Main Container -->
       <div class="main-container">
@@ -253,6 +253,8 @@ import { SidebarComponent, NavItem } from './sidebar.component';
   `]
 })
 export class AppLayoutComponent {
+  readonly logoutClick = output<void>();
+
   @Input() navItems: NavItem[] = [];
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
 }
