@@ -4,7 +4,9 @@ import { ClientsController } from './presentation/controllers/clients.controller
 import { CLIENTS_REPOSITORY, ClientsService } from '@josanz-erp/clients-core';
 import { PrismaClientsRepository } from './infrastructure/repositories/prisma-clients.repository';
 
-export interface ClientsConfig {}
+export interface ClientsConfig {
+  _isClientsConfig?: boolean;
+}
 
 @Module({})
 export class ClientsModule {

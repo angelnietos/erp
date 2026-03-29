@@ -6,7 +6,13 @@ import { VERIFACTU_SUBMISSION_PORT } from './application/ports/verifactu-submiss
 import { VerifactuSubmissionAdapter } from './infrastructure/adapters/verifactu/verifactu-submission.adapter';
 import { VerifactuErpAdapterModule } from '@josanz-erp/verifactu-adapters';
 
-export interface BillingConfig {}
+export interface BillingConfig {
+  _isBillingConfig?: boolean;
+}
+
+export interface InventoryConfig {
+  _isInventoryConfig?: boolean;
+}
  
 @Module({})
 export class BillingModule {

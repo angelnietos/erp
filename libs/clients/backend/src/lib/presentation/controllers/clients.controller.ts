@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ClientsService } from '@josanz-erp/clients-core';
-import { JwtAuthGuard } from '../../../../shared/infrastructure/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 
 @Controller('clients')
 @UseGuards(JwtAuthGuard)

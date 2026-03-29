@@ -1,22 +1,11 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2021",
-    "lib": ["es2021"],
-    "declaration": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "@josanz-erp/clients-core": ["../../core/src"],
-      "@josanz-erp/clients-api": ["../../api/src"],
-      "@josanz-erp/shared-data-access": ["../../shared/data-access/src"],
-      "@josanz-erp/shared-model": ["../../shared/model/src"]
-    }
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

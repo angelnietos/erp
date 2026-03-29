@@ -1,5 +1,5 @@
 import { Body, Controller, Param, Patch, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../../../shared/infrastructure/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 import { SubmitInvoiceVerifactuDto } from '../../application/dtos/submit-invoice-verifactu.dto';
 import { SubmitInvoiceToVerifactuUseCase } from '../../application/use-cases/submit-invoice-to-verifactu.use-case';
 

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
-import { AuthService } from '../application/services/auth.service';
-import { LoginDto } from '../application/dtos/login.dto';
+import { AuthService } from '../../application/services/auth.service';
+import { LoginDto } from '../../application/dtos/login.dto';
 import { PublicTenant } from '@josanz-erp/shared-infrastructure';
 
 @PublicTenant()

@@ -2,8 +2,9 @@
  * PrismaService — wraps PrismaClient as a NestJS injectable singleton.
  * Handles connect/disconnect lifecycle automatically.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { ClsService } from 'nestjs-cls';
 import { config as loadEnv } from 'dotenv';
@@ -16,6 +17,8 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
+  private _extendedClient: any;
+
   constructor(private readonly cls: ClsService) {
     const connectionString = process.env['DATABASE_URL'];
     if (!connectionString) {
@@ -26,33 +29,56 @@ export class PrismaService
       adapter: new PrismaPg({ connectionString }),
     });
 
-    this.applyTenantMiddleware();
-  }
+    this._extendedClient = this.$extends({
+      query: {
+        $allModels: {
+          async $allOperations({ model, operation, args, query }) {
+            const tenantId = (cls as any).get('tenantId');
+            const tenantModels = [
+              'Client',
+              'Product',
+              'Budget',
+              'DeliveryNote',
+              'User',
+              'Role',
+              'Invoice',
+            ];
 
-  private applyTenantMiddleware() {
-    this.$use(async (params: Prisma.MiddlewareParams, next: (params: Prisma.MiddlewareParams) => Promise<any>) => {
-      const tenantModels = ['Client', 'Product', 'Budget', 'DeliveryNote', 'User', 'Role', 'Invoice'];
-      const tenantActions = ['findUnique', 'findFirst', 'findMany', 'update', 'updateMany', 'delete', 'deleteMany', 'count', 'aggregate', 'groupBy'];
-      
-      if (params.model && tenantModels.includes(params.model) && tenantActions.includes(params.action)) {
-        const tenantId = this.cls.get('tenantId');
-        if (tenantId) {
-          params.args = params.args || {};
-          // Merge tenantId logically:
-          params.args.where = { ...params.args.where, tenantId };
+            if (tenantId && model && tenantModels.includes(model)) {
+              const anyArgs = args as any;
+              
+              // Handle where clause for reads/updates/deletes
+              if (!['create', 'createMany'].includes(operation)) {
+                anyArgs.where = anyArgs.where || {};
+                anyArgs.where.tenantId = tenantId;
+              }
+
+              // Handle data for creates
+              if (['create', 'createMany'].includes(operation)) {
+                if (Array.isArray(anyArgs.data)) {
+                  anyArgs.data.forEach((item: any) => {
+                    item.tenantId = tenantId;
+                  });
+                } else {
+                  anyArgs.data = anyArgs.data || {};
+                  anyArgs.data.tenantId = tenantId;
+                }
+              }
+            }
+            return query(args);
+          },
+        },
+      },
+    });
+
+    // Proxy calls to the extended client to maintain singleton behavior
+    return new Proxy(this, {
+      get: (target, prop) => {
+        if (prop in target._extendedClient) {
+          return target._extendedClient[prop as any];
         }
-      }
-
-      // For creates, automatically append tenantId if missing
-      if (params.model && tenantModels.includes(params.model) && ['create', 'createMany'].includes(params.action)) {
-        const tenantId = this.cls.get('tenantId');
-        if (tenantId) {
-          params.args = params.args || {};
-          params.args.data = { ...params.args.data, tenantId };
-        }
-      }
-
-      return next(params);
+        return (target as any)[prop];
+      },
     });
   }
 

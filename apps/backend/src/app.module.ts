@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SharedInfrastructureModule } from './shared/infrastructure/shared-infrastructure.module';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
@@ -10,6 +11,9 @@ import { RentalsModule } from '@josanz-erp/rentals-backend';
 import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
+import { APP_GUARD } from '@nestjs/core';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { TenantGuard } from '@josanz-erp/shared-infrastructure';
 
 @Module({
   imports: [
@@ -20,7 +24,8 @@ import { FleetModule } from '@josanz-erp/fleet-backend';
       middleware: {
         mount: true,
         setup: (cls, req) => {
-          const tenantId = req.headers['x-tenant-id'] as string;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const tenantId = (req as any).headers['x-tenant-id'] as string;
           if (tenantId) {
             cls.set('tenantId', tenantId);
           }
@@ -41,8 +46,8 @@ import { FleetModule } from '@josanz-erp/fleet-backend';
   ],
   providers: [
     {
-      provide: require('@nestjs/core').APP_GUARD,
-      useClass: require('@josanz-erp/shared-infrastructure').TenantGuard,
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
   ],
 })

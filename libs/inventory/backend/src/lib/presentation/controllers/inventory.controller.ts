@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-data-access';
-import { JwtAuthGuard } from '../../../../shared/infrastructure/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)

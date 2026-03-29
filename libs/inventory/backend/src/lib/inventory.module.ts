@@ -5,7 +5,9 @@ import { PrismaInventoryRepository } from './infrastructure/repositories/prisma-
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 import { ProductsController } from './presentation/controllers/inventory.controller';
 
-export interface InventoryConfig {}
+export interface InventoryConfig {
+  _isInventoryConfig?: boolean;
+}
 
 @Module({})
 export class InventoryModule {

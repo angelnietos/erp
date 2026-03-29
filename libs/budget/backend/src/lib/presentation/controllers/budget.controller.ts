@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Patch, UseGuards } from '@nestjs/common';
 import { BudgetService } from '../../application/services/budget.service';
 import { CreateBudgetDto } from '../../application/dtos/create-budget.dto';
-import { JwtAuthGuard } from '../../../../shared/infrastructure/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 
 @Controller('budgets')
 @UseGuards(JwtAuthGuard)
