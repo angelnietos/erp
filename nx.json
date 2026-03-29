@@ -118,10 +118,7 @@
   },
   "nxCloudId": "josanz-erp",
   "release": {
-    "projects": {
-      "releaseType": "all",
-      "trackInfos": []
-    }
+    "projects": ["*"]
   },
   "pluginsConfig": {
     "@nx/angular": {
@@ -181,6 +178,12 @@
         "onAllow": {
           "actions": ["*"]
         }
+      },
+      "type:app": {
+        "description": "Applications (can depend on all libs)",
+        "onAllow": {
+          "actions": ["*"]
+        }
       }
     },
     "dependencies": [
@@ -206,7 +209,11 @@
       },
       {
         "sourceTag": "type:backend",
-        "onlyDependOnLibsWithTags": ["type:core", "scope:shared"]
+        "onlyDependOnLibsWithTags": ["type:core", "scope:shared", "type:data-access", "type:adapters"]
+      },
+      {
+        "sourceTag": "type:app",
+        "onlyDependOnLibsWithTags": ["*"]
       },
       {
         "sourceTag": "type:core",

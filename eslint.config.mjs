@@ -104,9 +104,13 @@ export default [
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared'],
             },
-            // Apps can depend on any library
+            // Apps and Backend-scoped projects can depend on any library
             {
               sourceTag: 'type:app',
+              onlyDependOnLibsWithTags: ['*'],
+            },
+            {
+              sourceTag: 'scope:backend',
               onlyDependOnLibsWithTags: ['*'],
             },
           ],

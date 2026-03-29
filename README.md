@@ -1,96 +1,111 @@
-# JosanzErp
+# 🚀 Josanz Audiovisuales ERP - Modular SaaS Engine
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+![Nx Monorepo](https://img.shields.io/badge/Nx-Monorepo-143055?logo=nx&logoColor=white)
+![NestJS](https://img.shields.io/badge/NestJS-11.x-E0234E?logo=nestjs&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-17/21-DD0031?logo=angular&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7.x-2D3748?logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Architecture](https://img.shields.io/badge/Architecture-Modular_Monolith-blueviolet)
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+Professional Enterprise Resource Planning (ERP) designed for the Audiovisual sector. Re-architected from a rigid monolith into a **High-Performance Modular SaaS** using an Nx Monorepo, featuring strict multi-tenant isolation and a plugin-based frontend shell.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Run tasks
+## 🏗️ Core Architecture (The V2 Vision)
 
-To run tasks with Nx use:
+The system is built on three fundamental pillars of modern software engineering:
 
-```sh
-npx nx <target> <project-name>
+### 1. Multi-Tenant Isolation (Data Safety)
+We use a **Row Level Security (RLS)** approach implemented via **Prisma 7 Extensions**. 
+- **Automatic Filtering:** A Proxy-based Prisma service intercepts every CRUD operation. If a `tenantId` is present in the execution context (`ClsService`), it's automatically injected into the `where` clause and `data` payloads.
+- **Zero-Leaking Guarantee:** Developers don't need to manually filter by `tenantId`. The infrastructure handles it, preventing accidental cross-tenant data access.
+
+### 2. Angular "Plugin" Shell (UI Modularity)
+The frontend is a **Modular Shell** (`@josanz-erp/shared-ui-shell`) that dynamically injects domain features.
+- **Glassmorphism Design:** A premium, state-of-the-art UI with blurred surfaces and vibrant gradients.
+- **Lazy-Loaded Domains:** Business modules (`budgets`, `inventory`, `billing`) are loaded only when needed, keeping the initial bundle slim.
+- **Dynamic Nav:** Navigation items are injected based on the user's tenant configuration.
+
+### 3. Asynchronous Resilience (Outbox Pattern)
+Critical and fragile integrations (like **Verifactu AEAT**) follow the **Transactional Outbox Pattern**.
+- **The Worker:** Instead of calling external APIs during an HTTP request, we save the event to the DB. A dedicated Node.js **Worker** (`apps/verifactu-worker`) processes the queue with exponential backoff retries.
+
+---
+
+## 📂 Project Structure
+
+```text
+josanz-erp/
+├── apps/
+│   ├── backend/            # The "Kernel" (NestJS) - Orchestrates domain plugins
+│   ├── frontend/           # The "Shell" (Angular) - Premium responsive UI
+│   ├── verifactu-worker/   # Background Worker for reliable integrations
+│   └── verifactu-api/      # Specialized API for AEAT communications
+├── libs/
+│   ├── shared/
+│   │   ├── data-access/    # Prisma 7 Multi-tenant Service
+│   │   ├── ui-shell/       # The Glassmorphism Sidebar & Layout
+│   │   └── infrastructure/ # Global Guards, Middlewares & Config
+│   ├── budget/             # Domain: Full Budgeting Lifecycle
+│   ├── inventory/          # Domain: Stock & Reservations
+│   ├── clients/            # Domain: CRM & Customer Management
+│   └── ...                 # Other Modular Domains (Billing, Fleet, etc.)
+└── .github/workflows/      # Nx Affected CI/CD Pipelines
 ```
 
-For example:
+---
 
-```sh
-npx nx build myproject
+## 🛠️ Quick Start (Developer Setup)
+
+### 1. Initial Setup
+```bash
+npm install
+# Ensure you have Docker running
+npm run services:up   # Starts Postgres & Redis
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
+### 2. Database Sync
+```bash
+npm run db:reset      # Warning: Clears DB and applies latest SaaS schema
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+### 3. Running Locally
+Use the specialized dev scripts:
+- **Backend:** `npm run dev:backend`
+- **Frontend:** `npm run dev:frontend`
+- **Worker:** `npx nx serve verifactu-worker`
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+---
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
+## 🚢 Deployment & CI/CD
+
+### Master Dockerfile
+We use a **Polymorphic Dockerfile** located at the root. You can build ANY application in the monorepo with a single file:
+```bash
+docker build --build-arg APP_NAME=backend -t josanz-backend .
+docker build --build-arg APP_NAME=verifactu-worker -t josanz-worker .
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+### Github Actions (Nx Affected)
+Our CI/CD pipeline is **AST-Aware**. It only runs lint, tests, and builds for the projects **impacted** by your changes.
+- Push to `main` -> Nx detects which libs changed -> Builds only the affected apps -> Zero wasted time.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-## Set up CI!
+## 🛡️ Security
+- **JWT Authentication:** Stateful or Stateless depending on configuration.
+- **TenantGuard:** Global protection that rejects any request without a valid `x-tenant-id` (unless marked as `@PublicTenant`).
+- **Audit Logs:** Every destructive action is captured in the `AuditLog` table with a correlation ID.
 
-### Step 1
+---
 
-To connect to Nx Cloud, run the following command:
+## 📜 Development Roadmap
+- [x] Phase 1: Multi-tenant Data Persistence
+- [x] Phase 2: Frontend Tokenization
+- [x] Phase 3: Backend Decomposition (Modular Monolith)
+- [x] Phase 4: Shell Integration, Outbox Worker & CI/CD
+- [ ] Phase 5: Federated GraphQL Gateway (Planned)
 
-```sh
-npx nx connect
-```
+---
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Developed for Josanz Audiovisuales S.L.** - *Elevating ERP engineering to the next level.*
