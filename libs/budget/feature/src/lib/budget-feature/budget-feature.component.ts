@@ -6,4 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './budget-feature.html',
   styleUrl: './budget-feature.css',
 })
-export class BudgetFeature {}
+export class BudgetFeatureComponent {}
