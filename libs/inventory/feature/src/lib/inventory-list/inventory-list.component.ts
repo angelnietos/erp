@@ -56,7 +56,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       <div class="filters-bar">
         <ui-josanz-search 
           placeholder="Buscar productos..." 
-          (searchChange)="onSearch($event)"
+          (searchChange)="onSearch($any($event))"
         ></ui-josanz-search>
       </div>
 

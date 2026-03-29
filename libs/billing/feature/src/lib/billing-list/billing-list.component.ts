@@ -56,7 +56,7 @@ import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
       <div class="filters-bar">
         <ui-josanz-search 
           placeholder="Buscar facturas..." 
-          (searchChange)="onSearch($event)"
+          (searchChange)="onSearch($any($event))"
         ></ui-josanz-search>
       </div>
 

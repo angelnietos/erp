@@ -52,7 +52,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       <div class="filters-bar">
         <ui-josanz-search 
           placeholder="Buscar clientes..." 
-          (searchChange)="onSearch($event)"
+          (searchChange)="onSearch($any($event))"
         ></ui-josanz-search>
       </div>
 
