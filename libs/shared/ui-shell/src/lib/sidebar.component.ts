@@ -1,10 +1,11 @@
-import { Component, Input, output, signal } from '@angular/core';
+import { Component, Input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { AuthStore } from '@josanz-erp/shared-data-access';
 
 export interface NavItem {
-  id: string;
+  id: string; 
   label: string;
   icon: string;
   route: string;
@@ -274,8 +275,7 @@ export interface NavItem {
   `]
 })
 export class SidebarComponent {
-  /** Emit when the user chooses Cerrar sesión; the app should run logout (e.g. auth store). */
-  readonly logoutClick = output<void>();
+  private readonly authStore = inject(AuthStore);
 
   @Input() navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
@@ -295,6 +295,6 @@ export class SidebarComponent {
   }
 
   logout() {
-    this.logoutClick.emit();
+    this.authStore.logout();
   }
 }
