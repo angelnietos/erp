@@ -10,8 +10,8 @@ La base de datos y la recolección HTTP deben impedir cruzamiento de datos de fo
 - [x] **1.1 Mutación Estructural Prisma Core:** Modificar `schema.prisma` agregando la relación `@relation()` hacia el gran modelo `Tenant` en todos los modelos puros (`User`, `Client`, `Product`, `Budget`, `DeliveryNote`).
 - [x] **1.2 Generación Múltiple Exclusiva:** Actualizar directivas de unicidad para proteger emails (`@@unique([tenantId, email])`). Reflejar cambios compilando `$ npx prisma generate`.
 - [x] **1.3 ClsHooked Context Backend:** Instalar y aplicar `nestjs-cls`. Construir el `TenantMiddleware` global en `AppModule` que lee `x-tenant-id` en cada petición e incrusta el tenant en el Thread de memoria.
-- [x] **1.4 Interceptor Prisma Middleware:** Expandir la conexión Prisma con un `$use` para que `findMany`, `update`, `delete`, e iteraciones de CRUD añadan silenciosamente `where: { tenantId: ctx.tenantId }`.
-- [x] **1.5 Restricción de Contexto HTTP (Controllers):** Validar y forzar error 401 Unauthorized usando un Guard global `TenantGuard` para todas las rutas Multi-Tenant que no contengan cabecera y no sean marcadas como `@PublicTenant()`.
+- [x] **1.4 Evolución Prisma Extensions:** Migración de `$use` (Middleware obsoleto) a la API moderna de Prisma 7 (`$extends`). Implementado aislamiento automático de Tenant mediante un **Extension Proxy** que inyecta `tenantId` en todos los modelos puros de forma transparente.
+- [x] **1.5 Restricción de Contexto HTTP (Controllers):** Validar y forzar error 401 Unauthorized usando un Guard global `TenantGuard` portador de metadatos `@PublicTenant()` para exclusiones (ej. Login).
 
 > **ESTADO DE FASE 1:** Ejecutada 100% y Blindada HTTP/BBDD ✅ (Pendiente la sincronización física de BBDD local por parte del Humano `npm run db:reset`).
 
@@ -42,8 +42,10 @@ El peor anti-patrón actual es el `apps/backend/src/app` masivo. Debemos desguaz
   Dentro de cada librería backend, se escribió la inyección formal de OCP usando `static forRoot(): DynamicModule` con `providers` y configuraciones dinámicas.
 - [x] **3.4 Limpieza del Kernel:** 
   El `AppModule` ahora inyecta puramente Módulos-Plugin listos para arrancar con un array limpio (usando las namespaces de `@josanz-erp/*`).
+- [x] **3.5 Purgación Global TSC/Lint:** 
+  Resolución total de errores de compilación y linting post-refactor (tsconfig inheritance, empty interfaces fix, decorator signatures). El backend es ahora 100% compilable y modular.
 
-> **ESTADO DE FASE 3:** 100% Completada 🟢.
+> **ESTADO DE FASE 3:** 100% Completada y Compilable 🟢.
 
 ---
 
