@@ -10,7 +10,9 @@
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "tsConfig": "libs/shared/ui-shell/tsconfig.lib.json"
+        "tsConfig": "libs/shared/ui-shell/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "inlineStyleLanguage": "css"
       }
     },
     "test": {
