@@ -42,6 +42,8 @@ export class PrismaService
               'User',
               'Role',
               'Invoice',
+              'VerifactuQueueItem',
+              'VerifactuLog',
             ];
 
             if (tenantId && model && tenantModels.includes(model)) {

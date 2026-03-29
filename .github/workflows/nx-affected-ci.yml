@@ -1,0 +1,43 @@
+name: Continuous Integration (Nx Affected)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Derive appropriate base and head commits for nx-affected
+        uses: nrwl/nx-set-shas@v4
+
+      - name: Lint Affected
+        run: npx nx affected -t lint --parallel=3
+
+      - name: Test Affected
+        run: npx nx affected -t test --parallel=3 --ci --code-coverage
+
+      - name: Build Affected
+        run: npx nx affected -t build --parallel=3
+
+      # Optional: Auto-Build Docker Images for affected Backend apps
+      # - name: Build Docker
+      #   if: success() && github.ref == 'refs/heads/main'
+      #   run: |
+      #     npx nx affected -t build-docker --parallel=1

@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { AppNavComponent } from './app-nav.component';
 
 @Component({
-  imports: [RouterModule, AppNavComponent],
+  imports: [RouterModule],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',

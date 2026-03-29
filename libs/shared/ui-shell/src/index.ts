@@ -1,1 +1,3 @@
-export * from './lib/shared-ui-shell/shared-ui-shell';
+export * from './lib/sidebar.component';
+export * from './lib/app-layout.component';
+export * from './lib/main-shell.component';

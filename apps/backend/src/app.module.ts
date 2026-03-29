@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-// eslint-disable-next-line @nx/enforce-module-boundaries
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
@@ -12,7 +11,6 @@ import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
 import { APP_GUARD } from '@nestjs/core';
-// eslint-disable-next-line @nx/enforce-module-boundaries
 import { TenantGuard } from '@josanz-erp/shared-infrastructure';
 
 @Module({
