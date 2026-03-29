@@ -77,13 +77,13 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
               @case ('actions') {
                 <div class="actions">
                   <button class="action-btn" [routerLink]="['/fleet', vehicle.id]" title="Ver">
-                    <i-lucide name="eye"></i-lucide>
+                    <lucide-icon name="eye"></lucide-icon>
                   </button>
                   <button class="action-btn" (click)="editVehicle(vehicle)" title="Editar">
-                    <i-lucide name="pencil"></i-lucide>
+                    <lucide-icon name="pencil"></lucide-icon>
                   </button>
                   <button class="action-btn danger" (click)="confirmDelete(vehicle)" title="Eliminar">
-                    <i-lucide name="trash-2"></i-lucide>
+                    <lucide-icon name="trash-2"></lucide-icon>
                   </button>
                 </div>
               }
@@ -526,3 +526,4 @@ export class FleetListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
+

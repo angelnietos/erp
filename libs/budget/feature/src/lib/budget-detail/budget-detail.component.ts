@@ -36,7 +36,7 @@ export interface Budget {
       } @else {
         <div class="page-header">
           <button class="back-btn" routerLink="/budgets">
-            <i-lucide name="arrow-left"></i-lucide>
+            <lucide-icon name="arrow-left"></lucide-icon>
             Volver
           </button>
         </div>

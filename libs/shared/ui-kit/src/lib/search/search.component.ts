@@ -8,7 +8,7 @@ import { LucideAngularModule } from 'lucide-angular';
   imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="search-wrapper" [class.focused]="isFocused">
-      <i-lucide name="search" class="search-icon"></i-lucide>
+      <lucide-icon name="search" class="search-icon"></lucide-icon>
       <input 
         type="text" 
         [placeholder]="placeholder"
@@ -19,7 +19,7 @@ import { LucideAngularModule } from 'lucide-angular';
       />
       @if (value) {
         <button class="clear-btn" (click)="onClear()">
-          <i-lucide name="x"></i-lucide>
+          <lucide-icon name="x"></lucide-icon>
         </button>
       }
     </div>

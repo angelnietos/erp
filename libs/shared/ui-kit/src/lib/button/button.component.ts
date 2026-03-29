@@ -17,7 +17,7 @@ import { LucideAngularModule } from 'lucide-angular';
         <span class="spinner"></span>
       } @else {
         <ng-content></ng-content>
-        @if (icon) { <i-lucide [name]="icon" class="btn-icon"></i-lucide> }
+        @if (icon) { <lucide-icon [name]="icon" class="btn-icon"></lucide-icon> }
       }
     </button>
   `,
@@ -45,3 +45,4 @@ export class UiButtonComponent {
   @Input() icon?: any;
   @Output() clicked = new EventEmitter<Event>();
 }
+

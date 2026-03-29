@@ -74,26 +74,26 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
               @case ('actions') {
                 <div class="actions">
                   <button class="action-btn" [routerLink]="['/rentals', rental.id]" title="Ver">
-                    <i-lucide name="eye"></i-lucide>
+                    <lucide-icon name="eye"></lucide-icon>
                   </button>
                   @if (rental.status === 'DRAFT') {
                     <button class="action-btn success" title="Activar" (click)="activateRental(rental)">
-                      <i-lucide name="play"></i-lucide>
+                      <lucide-icon name="play"></lucide-icon>
                     </button>
                   }
                   @if (rental.status === 'ACTIVE') {
                     <button class="action-btn" title="Completar" (click)="completeRental(rental)">
-                      <i-lucide name="check-circle"></i-lucide>
+                      <lucide-icon name="check-circle"></lucide-icon>
                     </button>
                     <button class="action-btn danger" title="Cancelar" (click)="cancelRental(rental)">
-                      <i-lucide name="x-circle"></i-lucide>
+                      <lucide-icon name="x-circle"></lucide-icon>
                     </button>
                   }
                   <button class="action-btn" (click)="editRental(rental)" title="Editar">
-                    <i-lucide name="pencil"></i-lucide>
+                    <lucide-icon name="pencil"></lucide-icon>
                   </button>
                   <button class="action-btn danger" (click)="confirmDelete(rental)" title="Eliminar">
-                    <i-lucide name="trash-2"></i-lucide>
+                    <lucide-icon name="trash-2"></lucide-icon>
                   </button>
                 </div>
               }
@@ -528,3 +528,4 @@ export class RentalsListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
+

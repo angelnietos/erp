@@ -64,13 +64,13 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
               @case ('actions') {
                 <div class="actions">
                   <button class="action-btn" [routerLink]="['/clients', client.id]" title="Ver">
-                    <i-lucide name="eye"></i-lucide>
+                    <lucide-icon name="eye"></lucide-icon>
                   </button>
                   <button class="action-btn" (click)="editClient(client)" title="Editar">
-                    <i-lucide name="pencil"></i-lucide>
+                    <lucide-icon name="pencil"></lucide-icon>
                   </button>
                   <button class="action-btn danger" (click)="confirmDelete(client)" title="Eliminar">
-                    <i-lucide name="trash-2"></i-lucide>
+                    <lucide-icon name="trash-2"></lucide-icon>
                   </button>
                 </div>
               }
@@ -385,3 +385,4 @@ export class ClientsListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
+

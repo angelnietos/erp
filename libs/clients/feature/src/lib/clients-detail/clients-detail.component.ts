@@ -29,7 +29,7 @@ export interface Client {
       } @else {
         <div class="page-header">
           <button class="back-btn" routerLink="/clients">
-            <i-lucide name="arrow-left"></i-lucide>
+            <lucide-icon name="arrow-left"></lucide-icon>
             Volver
           </button>
         </div>

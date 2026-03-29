@@ -18,7 +18,7 @@ import { LucideAngularModule } from 'lucide-angular';
     <div class="form-group">
       @if (label) { <label [for]="id">{{ label }}</label> }
       <div class="input-wrapper" [class.has-icon]="icon">
-        @if (icon) { <i-lucide [name]="icon" class="field-icon"></i-lucide> }
+        @if (icon) { <lucide-icon [name]="icon" class="field-icon"></lucide-icon> }
         <input 
           [id]="id" 
           [type]="type" 
@@ -76,3 +76,4 @@ export class UiInputComponent implements ControlValueAccessor {
   }
   onBlur(): void { this.onTouched(); }
 }
+

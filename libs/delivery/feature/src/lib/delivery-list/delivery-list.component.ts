@@ -71,24 +71,24 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
               @case ('actions') {
                 <div class="actions">
                   <button class="action-btn" [routerLink]="['/delivery', delivery.id]" title="Ver">
-                    <i-lucide name="eye"></i-lucide>
+                    <lucide-icon name="eye"></lucide-icon>
                   </button>
                   @if (delivery.status === 'pending' && config.enableSign) {
                     <button class="action-btn success" title="Firmar" (click)="signDelivery(delivery)">
-                      <i-lucide name="pen-tool"></i-lucide>
+                      <lucide-icon name="pen-tool"></lucide-icon>
                     </button>
                   }
                   @if (delivery.status === 'signed') {
                     <button class="action-btn" title="Completar" (click)="completeDelivery(delivery)">
-                      <i-lucide name="check-circle"></i-lucide>
+                      <lucide-icon name="check-circle"></lucide-icon>
                     </button>
                   }
                   <button class="action-btn" (click)="editDelivery(delivery)" title="Editar">
-                    <i-lucide name="pencil"></i-lucide>
+                    <lucide-icon name="pencil"></lucide-icon>
                   </button>
                   @if (config.enableDelete) {
                     <button class="action-btn danger" (click)="confirmDelete(delivery)" title="Eliminar">
-                      <i-lucide name="trash-2"></i-lucide>
+                      <lucide-icon name="trash-2"></lucide-icon>
                     </button>
                   }
                 </div>
@@ -484,3 +484,4 @@ export class DeliveryListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
+

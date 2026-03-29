@@ -86,29 +86,29 @@ import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
               @case ('actions') {
                 <div class="actions">
                   <button class="action-btn" [routerLink]="['/billing', invoice.id]" title="Ver">
-                    <i-lucide name="eye"></i-lucide>
+                    <lucide-icon name="eye"></lucide-icon>
                   </button>
                   <button class="action-btn" title="Descargar PDF" (click)="downloadPDF(invoice)">
-                    <i-lucide name="download"></i-lucide>
+                    <lucide-icon name="download"></lucide-icon>
                   </button>
                   @if (invoice.status === 'pending') {
                     <button class="action-btn" title="Enviar" (click)="sendInvoice(invoice)">
-                      <i-lucide name="send"></i-lucide>
+                      <lucide-icon name="send"></lucide-icon>
                     </button>
                   }
                   @if (invoice.status !== 'paid' && invoice.status !== 'cancelled') {
                     <button class="action-btn success" title="Marcar como Pagada" (click)="markAsPaid(invoice)">
-                      <i-lucide name="check-circle"></i-lucide>
+                      <lucide-icon name="check-circle"></lucide-icon>
                     </button>
                   }
                   @if (config.enableEdit) {
                     <button class="action-btn" (click)="editInvoice(invoice)" title="Editar">
-                      <i-lucide name="pencil"></i-lucide>
+                      <lucide-icon name="pencil"></lucide-icon>
                     </button>
                   }
                   @if (config.enableDelete) {
                     <button class="action-btn danger" (click)="confirmDelete(invoice)" title="Eliminar">
-                      <i-lucide name="trash-2"></i-lucide>
+                      <lucide-icon name="trash-2"></lucide-icon>
                     </button>
                   }
                 </div>
@@ -494,3 +494,4 @@ export class BillingListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
+

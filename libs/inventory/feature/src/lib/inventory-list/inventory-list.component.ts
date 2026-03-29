@@ -78,16 +78,16 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
               @case ('actions') {
                 <div class="actions">
                   <button class="action-btn" [routerLink]="['/inventory', product.id]" title="Ver">
-                    <i-lucide name="eye"></i-lucide>
+                    <lucide-icon name="eye"></lucide-icon>
                   </button>
                   @if (config.enableEdit) {
                     <button class="action-btn" (click)="editProduct(product)" title="Editar">
-                      <i-lucide name="pencil"></i-lucide>
+                      <lucide-icon name="pencil"></lucide-icon>
                     </button>
                   }
                   @if (config.enableDelete) {
                     <button class="action-btn danger" (click)="confirmDelete(product)" title="Eliminar">
-                      <i-lucide name="trash-2"></i-lucide>
+                      <lucide-icon name="trash-2"></lucide-icon>
                     </button>
                   }
                 </div>
@@ -423,3 +423,4 @@ export class InventoryListComponent implements OnInit {
     }
   }
 }
+

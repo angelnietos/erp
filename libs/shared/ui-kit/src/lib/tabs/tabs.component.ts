@@ -22,7 +22,7 @@ export interface TabItem {
           [class.active]="activeTab === tab.id"
           (click)="onTabSelect(tab.id)"
         >
-          @if (tab.icon) { <i-lucide [name]="tab.icon" class="tab-icon"></i-lucide> }
+          @if (tab.icon) { <lucide-icon [name]="tab.icon" class="tab-icon"></lucide-icon> }
           {{ tab.label }}
           @if (tab.badge) { <span class="tab-badge">{{ tab.badge }}</span> }
         </button>

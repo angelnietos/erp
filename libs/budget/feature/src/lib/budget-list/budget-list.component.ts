@@ -33,9 +33,13 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             @case ('endDate') { {{ item.endDate | date:'dd/MM/yyyy' }} }
             @case ('actions') {
               <div class="actions">
-                <button class="icon-btn"><i-lucide [name]="FileText"></i-lucide></button>
+                <button class="icon-btn">
+                  <lucide-icon [name]="FileText"></lucide-icon>
+                </button>
                 @if (config.enableDownload) {
-                  <button class="icon-btn"><i-lucide [name]="Download"></i-lucide></button>
+                  <button class="icon-btn">
+                    <lucide-icon [name]="Download"></lucide-icon>
+                  </button>
                 }
               </div>
             }
@@ -81,3 +85,4 @@ export class BudgetListComponent implements OnInit {
     this.store.loadBudgets();
   }
 }
+
