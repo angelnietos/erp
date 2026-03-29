@@ -1,22 +1,9 @@
 import nx from '@nx/eslint-plugin';
 
-export default [
-  ...nx.configs['flat/base'],
-  ...nx.configs['flat/typescript'],
-  ...nx.configs['flat/javascript'],
-  {
-    ignores: ['**/dist', '**/out-tsc'],
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {
-      '@nx/enforce-module-boundaries': [
-        'error',
-        {
-          enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'
-],
-          depConstraints: [
+/** Shared options for @nx/enforce-module-boundaries (allow + depConstraints only). */
+export const nxModuleBoundariesSharedOptions = {
+  allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
+  depConstraints: [
             // Core domain libraries
             {
               sourceTag: 'type:core',
@@ -118,8 +105,37 @@ export default [
               onlyDependOnLibsWithTags: ['*'],
             },
           ],
-        },
-      ],
+};
+
+const nxModuleBoundariesRule = (enforceBuildableLibDependency) => [
+  'error',
+  {
+    enforceBuildableLibDependency,
+    ...nxModuleBoundariesSharedOptions,
+  },
+];
+
+export default [
+  ...nx.configs['flat/base'],
+  ...nx.configs['flat/typescript'],
+  ...nx.configs['flat/javascript'],
+  {
+    ignores: ['**/dist', '**/out-tsc'],
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    rules: {
+      '@nx/enforce-module-boundaries': nxModuleBoundariesRule(true),
+    },
+  },
+  {
+    files: ['libs/shared/ui-shell/**/*.ts', 'libs/shared/ui-shell/**/*.tsx'],
+    rules: {
+      /**
+       * UI shell is buildable but only depends on Angular + lucide (npm). Some editors resolve
+       * ESLint from the workspace root and still surface a stale/false buildable→non-buildable hit on this lib.
+       */
+      '@nx/enforce-module-boundaries': nxModuleBoundariesRule(false),
     },
   },
   {
