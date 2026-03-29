@@ -1,4 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
+import { OutboxModule } from '@josanz-erp/shared-data-access';
 import { BudgetService } from './application/services/budget.service';
 import { BudgetController } from './presentation/controllers/budget.controller';
 import { BUDGET_REPOSITORY } from '@josanz-erp/budget-core';
@@ -14,7 +15,7 @@ export class BudgetBackendModule {
   static forRoot(options?: BudgetConfig): DynamicModule {
     return {
       module: BudgetBackendModule,
-      imports: [SharedInfrastructureModule],
+      imports: [SharedInfrastructureModule, OutboxModule],
       controllers: [BudgetController],
       providers: [
         BudgetService,

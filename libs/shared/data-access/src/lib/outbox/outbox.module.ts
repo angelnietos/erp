@@ -5,6 +5,6 @@ import { PrismaModule } from '../prisma/prisma.module';
 @Module({
   imports: [PrismaModule],
   providers: [OutboxService],
-  exports: [OutboxService],
+  exports: [PrismaModule, OutboxService],
 })
 export class OutboxModule {}
