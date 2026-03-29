@@ -10,8 +10,9 @@ import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface IdentityConfig {}
+export interface IdentityConfig {
+  _isIdentityConfig?: boolean;
+}
 
 @Module({})
 export class IdentityModule {
