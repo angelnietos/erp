@@ -1,6 +1,8 @@
 import { Route } from '@angular/router';
-import { RentalsShell } from './rentals-shell/rentals-shell';
+import { RentalsListComponent } from '@josanz-erp/rentals-feature';
 
 export const rentalsShellRoutes: Route[] = [
-  { path: '', component: RentalsShell },
+  { path: '', component: RentalsListComponent },
 ];
+
+export { RentalsListComponent } from '@josanz-erp/rentals-feature';
