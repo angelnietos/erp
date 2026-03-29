@@ -9,6 +9,15 @@
     "type:ui"
   ],
   "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "tsConfig": "libs/shared/ui-kit/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "inlineStyleLanguage": "css"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": [

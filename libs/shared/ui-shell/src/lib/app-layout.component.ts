@@ -2,7 +2,8 @@ import { Component, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { SidebarComponent, NavItem } from './sidebar.component';
+import { SidebarComponent } from './sidebar.component';
+import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
 @Component({
   selector: 'josanz-app-layout',
@@ -255,6 +256,6 @@ import { SidebarComponent, NavItem } from './sidebar.component';
 export class AppLayoutComponent {
   readonly logoutClick = output<void>();
 
-  @Input() navItems: NavItem[] = [];
+  @Input() navItems: NavMenuItem[] = [];
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
 }

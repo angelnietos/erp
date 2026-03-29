@@ -3,18 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthStore } from '@josanz-erp/shared-data-access';
+import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
-export interface NavItem {
-  id: string; 
-  label: string;
-  icon: string;
-  route: string;
-}
+
 
 @Component({
   selector: 'josanz-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, NavMenuComponent],
   template: `
     <aside 
       class="sidebar-container" 
@@ -35,26 +31,7 @@ export interface NavItem {
 
       <!-- Main Navigation -->
       <nav class="nav-area">
-        <ul class="nav-list">
-          @for (item of navItems; track item.id) {
-            <li class="nav-item">
-              <a 
-                [routerLink]="item.route" 
-                routerLinkActive="active" 
-                class="nav-link"
-                [attr.title]="item.label"
-              >
-                <div class="icon-wrapper">
-                  <lucide-icon [name]="item.icon" size="20"></lucide-icon>
-                </div>
-                @if (!isCollapsed()) {
-                  <span class="label-text">{{ item.label }}</span>
-                  <div class="active-indicator"></div>
-                }
-              </a>
-            </li>
-          }
-        </ul>
+        <ui-josanz-nav-menu [items]="navItems"></ui-josanz-nav-menu>
       </nav>
 
       <!-- Footer Actions -->
@@ -277,7 +254,7 @@ export interface NavItem {
 export class SidebarComponent {
   private readonly authStore = inject(AuthStore);
 
-  @Input() navItems: NavItem[] = [
+  @Input() navItems: NavMenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
     { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
     { id: 'inventory', label: 'Inventario', icon: 'package', route: '/inventory' },
