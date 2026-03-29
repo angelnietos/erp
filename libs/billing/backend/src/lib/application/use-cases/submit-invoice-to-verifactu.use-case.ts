@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@josanz-erp/shared-data-access';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
 
 @Injectable()
 export class SubmitInvoiceToVerifactuUseCase {

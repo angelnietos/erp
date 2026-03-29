@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 import { JwtService } from '@nestjs/jwt';
 import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@josanz-erp/shared-data-access';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';

@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { PrismaModule } from '@josanz-erp/shared-data-access';
+import { PrismaModule } from '@josanz-erp/shared-infrastructure';
 import { BillingController } from './infrastructure/http/billing.controller';
 import { SubmitInvoiceToVerifactuUseCase } from './application/use-cases/submit-invoice-to-verifactu.use-case';
 import { VERIFACTU_SUBMISSION_PORT } from './application/ports/verifactu-submission.port';

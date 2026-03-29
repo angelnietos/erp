@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ClsService } from 'nestjs-cls';
-import { PrismaService } from '@josanz-erp/shared-data-access';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, User } from '@josanz-erp/identity-core';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';
 

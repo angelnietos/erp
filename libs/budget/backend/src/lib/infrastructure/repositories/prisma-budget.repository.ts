@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Budget as PrismaBudgetModel, BudgetItem as PrismaBudgetItemModel } from '@prisma/client';
 import { ClsService } from 'nestjs-cls';
-import { PrismaService } from '@josanz-erp/shared-data-access';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import { BudgetRepositoryPort, Budget, BudgetItem, BudgetStatus } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';

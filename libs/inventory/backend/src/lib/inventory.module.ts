@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { PrismaModule } from '@josanz-erp/shared-data-access';
+import { PrismaModule } from '@josanz-erp/shared-infrastructure';
 import { InventoryService } from './application/services/inventory.service';
 import { INVENTORY_REPOSITORY } from '@josanz-erp/inventory-core';
 import { PrismaInventoryRepository } from './infrastructure/repositories/prisma-inventory.repository';

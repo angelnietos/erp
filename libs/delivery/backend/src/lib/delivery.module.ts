@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { PrismaModule } from '@josanz-erp/shared-data-access';
+import { PrismaModule } from '@josanz-erp/shared-infrastructure';
 
 export interface DeliveryConfig {
   _isDeliveryConfig?: boolean;

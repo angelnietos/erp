@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { PrismaModule } from '@josanz-erp/shared-data-access';
+import { PrismaModule } from '@josanz-erp/shared-infrastructure';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
