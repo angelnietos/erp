@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "prisma": "npx prisma studio --port 5555",
     "dev:backend": "nx serve backend",
     "dev:frontend": "nx serve frontend",
     "services:up": "docker compose up -d postgres redis",
@@ -28,7 +29,8 @@
     "verifactu:db:seed": "dotenv -o -e apps/verifactu-api/.env -- npx ts-node --project apps/backend/tsconfig.app.json apps/backend/prisma/seed.ts",
     "test": "nx run-many --target=test --all",
     "lint": "nx run-many --target=lint --all",
-    "build": "nx run-many --target=build --all"
+    "build": "nx run-many --target=build --all",
+    "prima:seed":"npx prisma db seed"
   },
   "private": true,
   "devDependencies": {

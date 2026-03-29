@@ -1,4 +1,3 @@
-// apps/backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,185 +6,157 @@ datasource db {
   provider = "postgresql"
 }
 
-// ==== CLIENTS ==== //
 model Client {
   id          String    @id @default(uuid()) @db.Uuid
-  tenantId    String    @db.Uuid @map("tenant_id")
+  tenantId    String    @map("tenant_id") @db.Uuid
   name        String
   description String?
   sector      String?
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
-
-  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   budgets     Budget[]
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
   rentals     Rental[]
 
   @@map("clients")
 }
 
-// ==== CATALOG & PRODUCTS ==== //
 model Product {
-  id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @db.Uuid @map("tenant_id")
-  name        String
-  description String?
-  price       Float?
-  
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  inventory   Inventory?
-  rentalItems RentalItem[]
-  budgetItems BudgetItem[]
+  id                    String                 @id @default(uuid()) @db.Uuid
+  tenantId              String                 @map("tenant_id") @db.Uuid
+  name                  String
+  description           String?
+  price                 Float?
+  budgetItems           BudgetItem[]
+  inventory             Inventory?
+  inventoryMovements    InventoryMovement[]
   inventoryReservations InventoryReservation[]
-  inventoryMovements InventoryMovement[]
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id])
+  rentalItems           RentalItem[]
 
   @@map("products")
 }
 
-// ==== INVENTORY & RENTALS ==== //
 model Inventory {
-  id          String   @id @default(uuid()) @db.Uuid
-  productId   String   @unique @db.Uuid @map("product_id")
-  totalStock  Int      @map("total_stock")
-  status      String
-  version     Int      @default(1) // For optimistic concurrency
+  id         String  @id @default(uuid()) @db.Uuid
+  productId  String  @unique @map("product_id") @db.Uuid
+  totalStock Int     @map("total_stock")
+  status     String
+  version    Int     @default(1)
+  product    Product @relation(fields: [productId], references: [id])
 
-  product     Product  @relation(fields: [productId], references: [id])
-  
   @@map("inventory")
 }
 
-enum ReferenceType {
-  BUDGET
-  RENTAL
-  DELIVERY
-}
-
 model InventoryReservation {
-  id            String         @id @default(uuid()) @db.Uuid
-  productId     String         @db.Uuid @map("product_id")
+  id            String        @id @default(uuid()) @db.Uuid
+  productId     String        @map("product_id") @db.Uuid
   quantity      Int
-  startDate     DateTime       @map("start_date")
-  endDate       DateTime       @map("end_date")
+  startDate     DateTime      @map("start_date")
+  endDate       DateTime      @map("end_date")
   referenceType ReferenceType @map("reference_type")
-  referenceId   String?        @db.Uuid @map("reference_id")
+  referenceId   String?       @map("reference_id") @db.Uuid
   status        String
+  product       Product       @relation(fields: [productId], references: [id])
 
-  product       Product        @relation(fields: [productId], references: [id])
-
-  @@index([productId, startDate, endDate], name: "idx_inventory_reservations_lookup")
+  @@index([productId, startDate, endDate], map: "idx_inventory_reservations_lookup")
   @@map("inventory_reservations")
 }
 
-enum MovementType {
-  IN
-  OUT
-  RESERVE
-  RELEASE
-}
-
 model InventoryMovement {
-  id          String        @id @default(uuid()) @db.Uuid
-  productId   String        @db.Uuid @map("product_id")
+  id          String       @id @default(uuid()) @db.Uuid
+  productId   String       @map("product_id") @db.Uuid
   type        MovementType
   quantity    Int
-  referenceId String?       @db.Uuid @map("reference_id")
-  createdAt   DateTime      @default(now()) @map("created_at")
-
-  product     Product       @relation(fields: [productId], references: [id])
+  referenceId String?      @map("reference_id") @db.Uuid
+  createdAt   DateTime     @default(now()) @map("created_at")
+  product     Product      @relation(fields: [productId], references: [id])
 
   @@map("inventory_movements")
 }
 
 model Rental {
   id          String       @id @default(uuid()) @db.Uuid
-  clientId    String       @db.Uuid @map("client_id")
+  clientId    String       @map("client_id") @db.Uuid
   status      String
   createdAt   DateTime     @default(now()) @map("created_at")
   deletedAt   DateTime?    @map("deleted_at")
-
-  client      Client       @relation(fields: [clientId], references: [id])
   rentalItems RentalItem[]
+  client      Client       @relation(fields: [clientId], references: [id])
 
   @@map("rentals")
 }
 
 model RentalItem {
-  id          String    @id @default(uuid()) @db.Uuid
-  rentalId    String    @db.Uuid @map("rental_id")
-  productId   String    @db.Uuid @map("product_id")
-  quantity    Int
-  unitId      String?   @db.Uuid @map("unit_id") // Optional tracking of physical unit
-
-  rental      Rental    @relation(fields: [rentalId], references: [id])
-  product     Product   @relation(fields: [productId], references: [id])
+  id        String  @id @default(uuid()) @db.Uuid
+  rentalId  String  @map("rental_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  quantity  Int
+  unitId    String? @map("unit_id") @db.Uuid
+  product   Product @relation(fields: [productId], references: [id])
+  rental    Rental  @relation(fields: [rentalId], references: [id])
 
   @@map("rental_items")
 }
 
-// ==== DOCUMENTS MODULE ==== //
 model Budget {
-  id             String          @id @default(uuid()) @db.Uuid
-  tenantId       String          @db.Uuid @map("tenant_id")
-  clientId       String          @db.Uuid @map("client_id")
-  startDate      DateTime        @map("start_date")
-  endDate        DateTime        @map("end_date")
-  total          Float           @default(0)
-  status         String          @default("DRAFT")
-  version        Int             @default(1)
-  idempotencyKey String?         @map("idempotency_key")
-  createdAt      DateTime        @default(now()) @map("created_at")
-
-  tenant         Tenant          @relation(fields: [tenantId], references: [id])
-  client         Client          @relation(fields: [clientId], references: [id])
+  id             String         @id @default(uuid()) @db.Uuid
+  tenantId       String         @map("tenant_id") @db.Uuid
+  clientId       String         @map("client_id") @db.Uuid
+  startDate      DateTime       @map("start_date")
+  endDate        DateTime       @map("end_date")
+  total          Float          @default(0)
+  status         String         @default("DRAFT")
+  version        Int            @default(1)
+  idempotencyKey String?        @map("idempotency_key")
+  createdAt      DateTime       @default(now()) @map("created_at")
   items          BudgetItem[]
+  client         Client         @relation(fields: [clientId], references: [id])
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
   deliveryNotes  DeliveryNote[]
   invoices       Invoice[]
-  
+
   @@map("budgets")
 }
 
 model BudgetItem {
-  id        String   @id @default(uuid()) @db.Uuid
-  budgetId  String   @db.Uuid @map("budget_id")
-  productId String   @db.Uuid @map("product_id")
+  id        String  @id @default(uuid()) @db.Uuid
+  budgetId  String  @map("budget_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
   quantity  Int
   price     Float
-  discount  Float    @default(0)
-  tax       Float    @default(21)
-
-  budget    Budget   @relation(fields: [budgetId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  discount  Float   @default(0)
+  tax       Float   @default(21)
+  budget    Budget  @relation(fields: [budgetId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 
   @@map("budget_items")
 }
 
 model DeliveryNote {
   id               String   @id @default(uuid()) @db.Uuid
-  tenantId         String   @db.Uuid @map("tenant_id")
-  budgetId         String   @db.Uuid @map("budget_id")
+  tenantId         String   @map("tenant_id") @db.Uuid
+  budgetId         String   @map("budget_id") @db.Uuid
   signatureBlobUrl String?  @map("signature_blob_url")
   status           String
   createdAt        DateTime @default(now()) @map("created_at")
-
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
   budget           Budget   @relation(fields: [budgetId], references: [id])
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
 
   @@map("delivery_notes")
 }
 
 model Invoice {
-  id              String   @id @default(uuid()) @db.Uuid
-  budgetId        String   @db.Uuid @map("budget_id")
-  tenantId        String?  @db.Uuid @map("tenant_id")
+  id              String               @id @default(uuid()) @db.Uuid
+  budgetId        String               @map("budget_id") @db.Uuid
+  tenantId        String?              @map("tenant_id") @db.Uuid
   total           Float
-  verifactuStatus String   @default("PENDING") @map("verifactu_status")
-  currentHash     String?  @map("current_hash")
-  previousHash    String?  @map("previous_hash")
-  createdAt       DateTime @default(now()) @map("created_at")
-
-  budget          Budget   @relation(fields: [budgetId], references: [id])
-  tenant          Tenant?  @relation(fields: [tenantId], references: [id])
+  verifactuStatus String               @default("PENDING") @map("verifactu_status")
+  currentHash     String?              @map("current_hash")
+  previousHash    String?              @map("previous_hash")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  budget          Budget               @relation(fields: [budgetId], references: [id])
+  tenant          Tenant?              @relation(fields: [tenantId], references: [id])
   verifactuLogs   VerifactuLog[]
   queueItems      VerifactuQueueItem[]
 
@@ -194,14 +165,13 @@ model Invoice {
 
 model VerifactuLog {
   id              String   @id @default(uuid()) @db.Uuid
-  invoiceId       String   @db.Uuid @map("invoice_id")
-  tenantId        String   @db.Uuid @map("tenant_id")
+  invoiceId       String   @map("invoice_id") @db.Uuid
+  tenantId        String   @map("tenant_id") @db.Uuid
   requestPayload  Json     @map("request_payload")
   responsePayload Json     @map("response_payload")
   status          String
   errorMessage    String?  @map("error_message")
   createdAt       DateTime @default(now()) @map("created_at")
-
   invoice         Invoice  @relation(fields: [invoiceId], references: [id])
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
 
@@ -209,105 +179,99 @@ model VerifactuLog {
 }
 
 model Tenant {
-  id               String                   @id @default(uuid()) @db.Uuid
-  name             String
-  slug             String                   @unique
-  isActive         Boolean                  @default(true) @map("is_active")
-  createdAt        DateTime                 @default(now()) @map("created_at")
-
-  users            User[]
-  clients          Client[]
-  products         Product[]
-  budgets          Budget[]
-  deliveryNotes    DeliveryNote[]
-  invoices         Invoice[]
-  verifactuLogs    VerifactuLog[]
-  apiKeys          TenantApiKey[]
-  webhookEndpoints VerifactuWebhookEndpoint[]
-  webhookDeliveries VerifactuWebhookDelivery[]
+  id                String                     @id @default(uuid()) @db.Uuid
+  name              String
+  slug              String                     @unique
+  isActive          Boolean                    @default(true) @map("is_active")
+  createdAt         DateTime                   @default(now()) @map("created_at")
+  budgets           Budget[]
+  clients           Client[]
+  deliveryNotes     DeliveryNote[]
+  invoices          Invoice[]
+  products          Product[]
+  apiKeys           TenantApiKey[]
+  users             User[]
+  customers         VerifactuCustomer[]
+  verifactuLogs     VerifactuLog[]
   queueItems        VerifactuQueueItem[]
   series            VerifactuSeries[]
-  customers         VerifactuCustomer[]
+  webhookDeliveries VerifactuWebhookDelivery[]
+  webhookEndpoints  VerifactuWebhookEndpoint[]
 
   @@map("tenants")
 }
 
 model TenantApiKey {
-  id         String   @id @default(uuid()) @db.Uuid
-  tenantId   String   @db.Uuid @map("tenant_id")
-  keyHash    String   @map("key_hash")
-  scopes     String[]
-  isActive   Boolean  @default(true) @map("is_active")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  keyHash   String   @map("key_hash")
+  scopes    String[]
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId, keyHash], name: "idx_tenant_api_key_lookup")
+  @@index([tenantId, keyHash], map: "idx_tenant_api_key_lookup")
   @@map("tenant_api_keys")
 }
 
 model VerifactuWebhookEndpoint {
-  id         String   @id @default(uuid()) @db.Uuid
-  tenantId   String   @db.Uuid @map("tenant_id")
-  eventType  String   @map("event_type")
+  id         String                     @id @default(uuid()) @db.Uuid
+  tenantId   String                     @map("tenant_id") @db.Uuid
+  eventType  String                     @map("event_type")
   url        String
   secret     String
-  isActive   Boolean  @default(true) @map("is_active")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  isActive   Boolean                    @default(true) @map("is_active")
+  createdAt  DateTime                   @default(now()) @map("created_at")
   deliveries VerifactuWebhookDelivery[]
+  tenant     Tenant                     @relation(fields: [tenantId], references: [id])
 
-  @@index([tenantId, eventType], name: "idx_verifactu_webhook_endpoints_lookup")
+  @@index([tenantId, eventType], map: "idx_verifactu_webhook_endpoints_lookup")
   @@map("verifactu_webhook_endpoints")
 }
 
 model VerifactuWebhookDelivery {
-  id             String   @id @default(uuid()) @db.Uuid
-  endpointId     String   @db.Uuid @map("endpoint_id")
-  tenantId       String   @db.Uuid @map("tenant_id")
-  eventType      String   @map("event_type")
-  payload        Json
-  status         String
-  statusCode     Int      @default(0) @map("status_code")
-  responsePayload Json?   @map("response_payload")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id              String                   @id @default(uuid()) @db.Uuid
+  endpointId      String                   @map("endpoint_id") @db.Uuid
+  tenantId        String                   @map("tenant_id") @db.Uuid
+  eventType       String                   @map("event_type")
+  payload         Json
+  status          String
+  statusCode      Int                      @default(0) @map("status_code")
+  responsePayload Json?                    @map("response_payload")
+  createdAt       DateTime                 @default(now()) @map("created_at")
+  endpoint        VerifactuWebhookEndpoint @relation(fields: [endpointId], references: [id])
+  tenant          Tenant                   @relation(fields: [tenantId], references: [id])
 
-  endpoint       VerifactuWebhookEndpoint @relation(fields: [endpointId], references: [id])
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId, eventType], name: "idx_verifactu_webhook_deliveries_lookup")
+  @@index([tenantId, eventType], map: "idx_verifactu_webhook_deliveries_lookup")
   @@map("verifactu_webhook_deliveries")
 }
 
 model VerifactuQueueItem {
-  id            String   @id @default(uuid()) @db.Uuid
-  tenantId      String   @db.Uuid @map("tenant_id")
-  invoiceId     String   @db.Uuid @map("invoice_id")
-  status        String   @default("PENDING")
-  retries       Int      @default(0)
-  maxRetries    Int      @default(5) @map("max_retries")
-  nextRetryAt   DateTime? @map("next_retry_at")
-  lastError     String?  @map("last_error")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  invoiceId   String    @map("invoice_id") @db.Uuid
+  status      String    @default("PENDING")
+  retries     Int       @default(0)
+  maxRetries  Int       @default(5) @map("max_retries")
+  nextRetryAt DateTime? @map("next_retry_at")
+  lastError   String?   @map("last_error")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id])
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
 
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
-  invoice       Invoice  @relation(fields: [invoiceId], references: [id])
-
-  @@index([status, nextRetryAt], name: "idx_verifactu_queue_status_retry")
+  @@index([status, nextRetryAt], map: "idx_verifactu_queue_status_retry")
   @@map("verifactu_queue_items")
 }
 
 model VerifactuSeries {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @db.Uuid @map("tenant_id")
+  tenantId    String   @map("tenant_id") @db.Uuid
   code        String
   description String?
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, code], name: "uq_verifactu_series_tenant_code")
@@ -316,7 +280,7 @@ model VerifactuSeries {
 
 model VerifactuCustomer {
   id          String   @id @default(uuid()) @db.Uuid
-  tenantId    String   @db.Uuid @map("tenant_id")
+  tenantId    String   @map("tenant_id") @db.Uuid
   taxId       String   @map("tax_id")
   name        String
   email       String?
@@ -324,22 +288,20 @@ model VerifactuCustomer {
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, taxId], name: "uq_verifactu_customer_tenant_taxid")
-  @@index([tenantId, name], name: "idx_verifactu_customer_tenant_name")
+  @@index([tenantId, name], map: "idx_verifactu_customer_tenant_name")
   @@map("verifactu_customers")
 }
 
-// ==== RELIABILITY / ASYNC ==== //
 model OutboxEvent {
   id            String    @id @default(uuid()) @db.Uuid
   aggregateType String    @map("aggregate_type")
-  aggregateId   String    @db.Uuid @map("aggregate_id")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
   eventType     String    @map("event_type")
   payload       Json
-  status        String    @default("PENDING") // pending, processed, failed
+  status        String    @default("PENDING")
   retries       Int       @default(0)
   createdAt     DateTime  @default(now()) @map("created_at")
   processedAt   DateTime? @map("processed_at")
@@ -356,7 +318,6 @@ model IdempotencyKey {
   @@map("idempotency_keys")
 }
 
-// ==== FLEET & AUDIT ==== //
 model Vehicle {
   id     String @id @default(uuid()) @db.Uuid
   plate  String @unique
@@ -366,37 +327,37 @@ model Vehicle {
 }
 
 model AuditLog {
-  id             String   @id @default(uuid()) @db.Uuid
-  userId         String   @db.Uuid @map("user_id")
-  action         String
-  targetEntity   String   @map("target_entity")
-  correlationId  String   @map("correlation_id")
-  changesJson    Json     @map("changes_json")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  action        String
+  targetEntity  String   @map("target_entity")
+  correlationId String   @map("correlation_id")
+  changesJson   Json     @map("changes_json")
+  createdAt     DateTime @default(now()) @map("created_at")
 
   @@map("audit_logs")
 }
 
 model User {
-  id        String    @id @default(uuid()) @db.Uuid
-  tenantId  String    @db.Uuid @map("tenant_id")
+  id        String     @id @default(uuid()) @db.Uuid
+  tenantId  String     @map("tenant_id") @db.Uuid
   email     String
   password  String
-  firstName String?   @map("first_name")
-  lastName  String?   @map("last_name")
-  isActive  Boolean   @default(true) @map("is_active")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  firstName String?    @map("first_name")
+  lastName  String?    @map("last_name")
+  isActive  Boolean    @default(true) @map("is_active")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime?  @map("updated_at")
   roles     UserRole[]
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, email])
   @@map("users")
 }
 
 model Role {
-  id          String    @id @default(uuid()) @db.Uuid
-  name        String    @unique
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @unique
   description String?
   permissions String[]
   users       UserRole[]
@@ -405,11 +366,24 @@ model Role {
 }
 
 model UserRole {
-  userId String @db.Uuid @map("user_id")
-  roleId String @db.Uuid @map("role_id")
-  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id") @db.Uuid
+  roleId String @map("role_id") @db.Uuid
   role   Role   @relation(fields: [roleId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 
   @@id([userId, roleId])
   @@map("user_roles")
+}
+
+enum ReferenceType {
+  BUDGET
+  RENTAL
+  DELIVERY
+}
+
+enum MovementType {
+  IN
+  OUT
+  RESERVE
+  RELEASE
 }
