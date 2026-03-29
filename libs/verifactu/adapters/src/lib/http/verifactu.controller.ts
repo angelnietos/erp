@@ -1,5 +1,5 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { SubmitVerifactuInvoiceDto, VerifactuService } from '../../../../core/src';
+import { SubmitVerifactuInvoiceDto, VerifactuService } from '@josanz-erp/verifactu-core';
 import { VerifactuApiKeyGuard } from '../security/verifactu-api-key.guard';
 
 @Controller('verifactu')

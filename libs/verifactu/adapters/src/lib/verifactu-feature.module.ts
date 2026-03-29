@@ -7,7 +7,7 @@ import {
   VerifactuService,
   VerifactuXmlBuilderService,
   WEBHOOK_NOTIFIER,
-} from '../../../core/src';
+} from '@josanz-erp/verifactu-core';
 import { MockAeatClient } from './aeat/mock-aeat.client';
 import { RealAeatClient } from './aeat/real-aeat.client';
 import { PrismaVerifactuRepository } from './persistence/prisma-verifactu.repository';

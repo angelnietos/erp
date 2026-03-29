@@ -1,0 +1,33 @@
+{
+  "name": "verifactu-adapters",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/verifactu/adapters/src",
+  "projectType": "library",
+  "tags": ["scope:verifactu", "type:adapters"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/verifactu/adapters",
+        "main": "libs/verifactu/adapters/src/index.ts",
+        "tsConfig": "libs/verifactu/adapters/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/verifactu/adapters/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/verifactu/adapters/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/verifactu/adapters"]
+    }
+  }
+}

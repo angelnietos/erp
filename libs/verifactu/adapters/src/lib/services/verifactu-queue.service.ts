@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { VerifactuService } from '../../../../core/src';
+import { VerifactuService } from '@josanz-erp/verifactu-core';
 import { VerifactuPrismaService } from './verifactu-prisma.service';
 
 @Injectable()

@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { AeatClientPort, AeatSubmissionRequest, AeatSubmissionResponse, VerifactuHashService, VerifactuXmlBuilderService } from '../../../../core/src';
+import {
+  AeatClientPort,
+  AeatSubmissionRequest,
+  AeatSubmissionResponse,
+  VerifactuHashService,
+  VerifactuXmlBuilderService,
+} from '@josanz-erp/verifactu-core';
 import * as soap from 'soap';
 
 interface AeatSoapClient extends soap.Client {

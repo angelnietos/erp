@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AeatClientPort, AeatSubmissionRequest, AeatSubmissionResponse } from '../../../../core/src';
+import { AeatClientPort, AeatSubmissionRequest, AeatSubmissionResponse } from '@josanz-erp/verifactu-core';
 
 @Injectable()
 export class MockAeatClient implements AeatClientPort {

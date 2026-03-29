@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WebhookNotifierPort, VerifactuWebhookEvent } from '../../../../core/src';
+import { WebhookNotifierPort, VerifactuWebhookEvent } from '@josanz-erp/verifactu-core';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
 import { createHmac } from 'crypto';
 
