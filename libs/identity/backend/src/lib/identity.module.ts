@@ -1,4 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
+import { PrismaModule } from '@josanz-erp/shared-data-access';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -21,6 +22,7 @@ export class IdentityModule {
       module: IdentityModule,
       imports: [
         PassportModule,
+        PrismaModule,
         SharedInfrastructureModule,
         JwtModule.registerAsync({
           inject: [ConfigService],
