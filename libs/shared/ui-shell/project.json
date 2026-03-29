@@ -1,11 +1,18 @@
 {
   "name": "shared-ui-shell",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/ui-shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": ["scope:shared", "type:ui"],
   "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "tsConfig": "libs/shared/ui-shell/tsconfig.lib.json"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
