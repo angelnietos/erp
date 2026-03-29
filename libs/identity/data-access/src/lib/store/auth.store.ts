@@ -1,11 +1,11 @@
-import { inject } from '@angular/core';
+import { inject, computed } from '@angular/core';
 import { signalStore, withState, withMethods, patchState, withComputed } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { UserPayload } from '@josanz-erp/identity-api';
 import { Router } from '@angular/router';
-import { computed } from '@angular/core';
+import { AuthStore as GlobalAuthStore } from '@josanz-erp/shared-data-access';
 
 export interface AuthState {
   user: UserPayload | null;
@@ -25,7 +25,7 @@ export const AuthStore = signalStore(
   withComputed(({ user }) => ({
     isAuthenticated: computed(() => !!user()),
   })),
-  withMethods((store, authService = inject(AuthService), router = inject(Router)) => ({
+  withMethods((store, authService = inject(AuthService), router = inject(Router), globalAuthStore = inject(GlobalAuthStore)) => ({
     login: rxMethod<{ email: string; password: string }>(
       pipe(
         tap(() => patchState(store, { loading: true, error: null })),
@@ -35,6 +35,13 @@ export const AuthStore = signalStore(
               authService.setToken(response.accessToken);
               authService.setTenantId(response.tenantId);
               patchState(store, { user: response.user, loading: false });
+              // Sync with global auth store
+              globalAuthStore.setUser({
+                id: response.user.id,
+                email: response.user.email,
+                name: response.user.email,
+                tenantId: response.tenantId,
+              });
               router.navigate(['/budgets']);
             }),
             catchError((err) => {
@@ -54,6 +61,8 @@ export const AuthStore = signalStore(
     logout() {
       authService.removeToken();
       patchState(store, { user: null });
+      // Clear global auth store
+      globalAuthStore.logout();
       router.navigate(['/auth/login']);
     },
     // Rehydrate state on app load
