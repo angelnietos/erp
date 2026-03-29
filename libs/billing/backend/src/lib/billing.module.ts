@@ -9,10 +9,6 @@ import { VerifactuErpAdapterModule } from '@josanz-erp/verifactu-adapters';
 export interface BillingConfig {
   _isBillingConfig?: boolean;
 }
-
-export interface InventoryConfig {
-  _isInventoryConfig?: boolean;
-}
  
 @Module({})
 export class BillingModule {
