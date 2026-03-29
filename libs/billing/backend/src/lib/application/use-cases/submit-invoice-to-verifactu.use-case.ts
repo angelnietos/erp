@@ -11,10 +11,10 @@ export class SubmitInvoiceToVerifactuUseCase {
     return this.prisma.verifactuQueueItem.create({
       data: {
         invoiceId: input.invoiceId,
+        tenantId: input.tenantId,
         status: 'PENDING',
         retries: 0,
         maxRetries: 5,
-        // tenantId is handled automatically by PrismaService proxy if in context
       },
     });
   }
