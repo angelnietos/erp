@@ -5,7 +5,8 @@
     "declaration": true,
     "declarationMap": true,
     "types": ["node"],
-    "module": "commonjs"
+    "module": "commonjs",
+    "noPropertyAccessFromIndexSignature": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "jest.config.cts"]
