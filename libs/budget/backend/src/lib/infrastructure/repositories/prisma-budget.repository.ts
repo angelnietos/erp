@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Budget as PrismaBudgetModel, BudgetItem as PrismaBudgetItemModel } from '@prisma/client';
 import { PrismaService } from '@josanz-erp/shared-data-access';
-import { BudgetRepositoryPort, Budget, BudgetItem } from '@josanz-erp/budget-core';
+import { BudgetRepositoryPort, Budget, BudgetItem, BudgetStatus } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
-import { BudgetStatus } from '@josanz-erp/budget-core';
+import { TenantContext } from '@josanz-erp/shared-infrastructure';
 
 type BudgetWithItems = PrismaBudgetModel & { items: PrismaBudgetItemModel[] };
 type BudgetPersistenceView = {
@@ -13,25 +13,34 @@ type BudgetPersistenceView = {
 
 @Injectable()
 export class PrismaBudgetRepository implements BudgetRepositoryPort {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tenantContext: TenantContext,
+  ) {}
 
   async findById(id: EntityId): Promise<Budget | null> {
-    const data = await this.prisma.budget.findUnique({
-      where: { id: id.value },
+    const tenantId = this.tenantContext.getRequiredTenantId();
+    const data = await this.prisma.budget.findFirst({
+      where: { id: id.value, tenantId },
       include: { items: true },
     });
     return data ? this.mapToDomain(data) : null;
   }
 
   async findAll(clientId?: EntityId): Promise<Budget[]> {
+    const tenantId = this.tenantContext.getRequiredTenantId();
     const data = await this.prisma.budget.findMany({
-      where: clientId ? { clientId: clientId.value } : {},
+      where: {
+        tenantId,
+        ...(clientId ? { clientId: clientId.value } : {}),
+      },
       include: { items: true },
     });
     return data.map((d) => this.mapToDomain(d));
   }
 
   async save(budget: Budget): Promise<void> {
+    const tenantId = this.tenantContext.getRequiredTenantId();
     const persistenceBudget = budget as unknown as BudgetPersistenceView;
 
     await this.prisma.$transaction([
@@ -47,6 +56,7 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
         },
         create: {
           id: budget.id.value,
+          tenantId,
           clientId: budget.clientId.value,
           startDate: budget.startDate,
           endDate: budget.endDate,
@@ -72,7 +82,8 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
   }
 
   async delete(id: EntityId): Promise<void> {
-    await this.prisma.budget.delete({ where: { id: id.value } });
+    const tenantId = this.tenantContext.getRequiredTenantId();
+    await this.prisma.budget.delete({ where: { id: id.value, tenantId } });
   }
 
   private mapToDomain(data: BudgetWithItems): Budget {
