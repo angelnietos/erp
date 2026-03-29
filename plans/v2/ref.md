@@ -60,3 +60,20 @@ libs/{domain}/
 - Apply critical fixes (BudgetCreateComponent inline mode)
 - Verify the application compiles
 - Execute the migration plan domain by domain
+
+---
+
+## 📝 Execution Log
+
+### 2026-03-29 - Phase 1: Budget Domain ✅
+
+**Changes Applied:**
+- Modified `libs/budget/backend/src/lib/application/dtos/create-budget.dto.ts`
+  - Added re-export from `@josanz-erp/budget-api`
+  - Backend now consumes shared DTOs as the source of truth
+
+**Verification:**
+- ✅ `budget-api` compiles successfully
+- ⚠️ Pre-existing error in `prisma-budget.repository.ts` (unrelated to this refactor)
+
+**Next Domain:** Identity, Billing, Inventory (pending)

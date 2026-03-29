@@ -1,6 +1,10 @@
 import { IsUUID, IsNotEmpty, IsArray, ValidateNested, IsNumber, IsOptional, Min, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
+// Re-export from shared API - the source of truth for DTOs
+export { CreateBudgetDTO, AddBudgetItemDTO } from '@josanz-erp/budget-api';
+
+// Backend-specific validators (decorated DTOs for NestJS validation)
 export class CreateBudgetItemDto {
   @IsUUID()
   @IsNotEmpty()
