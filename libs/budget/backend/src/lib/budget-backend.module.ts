@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { OutboxModule } from '@josanz-erp/shared-infrastructure';
+import { OutboxModule, PrismaModule } from '@josanz-erp/shared-infrastructure';
 import { BudgetService } from './application/services/budget.service';
 import { BudgetController } from './presentation/controllers/budget.controller';
 import { BUDGET_REPOSITORY } from '@josanz-erp/budget-core';
