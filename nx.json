@@ -186,7 +186,11 @@
     "dependencies": [
       {
         "sourceTag": "type:feature",
-        "onlyDependOnLibsWithTags": ["type:data-access", "type:shell", "scope:shared"]
+        "onlyDependOnLibsWithTags": [
+          "type:data-access",
+          "type:shell",
+          "scope:shared"
+        ]
       },
       {
         "sourceTag": "type:data-access",

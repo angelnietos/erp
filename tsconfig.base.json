@@ -19,7 +19,9 @@
       "@josanz-erp/shared-config": ["libs/shared/config/src/index.ts"],
       "@josanz-erp/shared-events": ["libs/shared/events/src/index.ts"],
       "@josanz-erp/shared-model": ["libs/shared/model/src/index.ts"],
-      "@josanz-erp/shared-data-access": ["libs/shared/data-access/src/index.ts"],
+      "@josanz-erp/shared-data-access": [
+        "libs/shared/data-access/src/index.ts"
+      ],
       "@josanz-erp/shared-ui-kit": ["libs/shared/ui-kit/src/index.ts"],
       "@josanz-erp/identity-data-access": [
         "libs/identity/data-access/src/index.ts"
@@ -83,17 +85,28 @@
       "@josanz-erp/rentals-core": ["libs/rentals/core/src/index.ts"],
       "@josanz-erp/rentals-backend": ["libs/rentals/backend/src/index.ts"],
       "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"],
-      "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"],
+      "@josanz-erp/verifactu-adapters": [
+        "libs/verifactu/adapters/src/index.ts"
+      ],
       "@josanz-erp/verifactu-api": ["libs/verifactu/api/src/index.ts"],
-      "@josanz-erp/verifactu-data-access": ["libs/verifactu/data-access/src/index.ts"],
+      "@josanz-erp/verifactu-data-access": [
+        "libs/verifactu/data-access/src/index.ts"
+      ],
       "@josanz-erp/verifactu-feature": ["libs/verifactu/feature/src/index.ts"],
       "@josanz-erp/verifactu-shell": ["libs/verifactu/shell/src/index.ts"],
       "@josanz-erp/auth-jwt": ["libs/auth/jwt/src/index.ts"],
       "@josanz-erp/auth-api-key": ["libs/auth/api-key/src/index.ts"],
-      "@josanz-erp/shared-integrations-email": ["libs/shared/integrations/email/src/index.ts"],
-      "@josanz-erp/shared-integrations-storage": ["libs/shared/integrations/storage/src/index.ts"],
+      "@josanz-erp/shared-integrations-email": [
+        "libs/shared/integrations/email/src/index.ts"
+      ],
+      "@josanz-erp/shared-integrations-storage": [
+        "libs/shared/integrations/storage/src/index.ts"
+      ],
       "@josanz-erp/shared-cqrs": ["libs/shared/cqrs/src/index.ts"],
-      "@josanz-erp/shared-infrastructure": ["libs/shared-infrastructure/src/index.ts"]
+      "@josanz-erp/shared-infrastructure": [
+        "libs/shared-infrastructure/src/index.ts"
+      ],
+      "@josanz-erp/shared-ui-shell": ["libs/shared/ui-shell/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
