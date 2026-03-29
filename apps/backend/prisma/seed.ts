@@ -32,12 +32,25 @@ async function main() {
     create: { name: 'STAFF' },
   });
 
-  // 2. Users
+  // 2. Default tenant (required for users, clients, catalog, Verifactu)
+  const tenant = await prisma.tenant.upsert({
+    where: { slug: 'josanz' },
+    update: {},
+    create: {
+      name: 'Josanz Audiovisuales',
+      slug: 'josanz',
+    },
+  });
+
+  // 3. Admin user (login uses tenantSlug "josanz" → this tenant id)
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@josanz.com' },
+    where: {
+      tenantId_email: { tenantId: tenant.id, email: 'admin@josanz.com' },
+    },
     update: { password: hashedPassword },
     create: {
+      tenantId: tenant.id,
       email: 'admin@josanz.com',
       password: hashedPassword,
       firstName: 'Josanz',
@@ -51,15 +64,7 @@ async function main() {
     create: { userId: admin.id, roleId: adminRole.id },
   });
 
-  // 2.1 Tenant + API key for Verifactu API
-  const tenant = await prisma.tenant.upsert({
-    where: { slug: 'josanz' },
-    update: {},
-    create: {
-      name: 'Josanz Audiovisuales',
-      slug: 'josanz',
-    },
-  });
+  // 4. Tenant API key for Verifactu API
   const rawApiKey = 'vf_dev_josanz_key';
   const keyHash = createHash('sha256').update(rawApiKey).digest('hex');
   const existingTenantKey = await prisma.tenantApiKey.findFirst({
@@ -104,7 +109,7 @@ async function main() {
     },
   });
 
-  // 3. Clients
+  // 5. Clients
   const clients = [
     { name: 'Eventos Global S.L.', sector: 'Entertainment', description: 'VIP Client' },
     { name: 'Audiovisuales Madrid', sector: 'Production', description: 'Frequent partner' },
@@ -113,11 +118,11 @@ async function main() {
 
   for (const client of clients) {
     await prisma.client.create({
-      data: client,
+      data: { ...client, tenantId: tenant.id },
     });
   }
 
-  // 4. Products & Inventory
+  // 6. Products & Inventory
   const products = [
     { name: 'Proyector Láser 4K', price: 1500, stock: 10 },
     { name: 'Pantalla LED 100"', price: 800, stock: 5 },
@@ -128,6 +133,7 @@ async function main() {
   for (const p of products) {
     const product = await prisma.product.create({
       data: {
+        tenantId: tenant.id,
         name: p.name,
         description: `Premium ${p.name} for high-end events`,
         price: p.price,

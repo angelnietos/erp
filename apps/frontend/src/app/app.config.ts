@@ -2,7 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } fr
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { appRoutes } from './app.routes';
-import { authInterceptor } from '@josanz-erp/identity-data-access';
+import { authInterceptor, tenantInterceptor } from '@josanz-erp/identity-data-access';
 import { 
   User, Lock, ArrowRight, LucideAngularModule, 
   Search, Building2, Bell, LayoutDashboard, 
@@ -17,7 +17,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([tenantInterceptor, authInterceptor])),
     importProvidersFrom(LucideAngularModule.pick({ 
       User, Lock, ArrowRight, Search, Building2, 
       Bell, LayoutDashboard, Users, Package, 

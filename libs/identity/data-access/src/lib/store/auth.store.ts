@@ -33,13 +33,17 @@ export const AuthStore = signalStore(
           authService.login(email, password).pipe(
             tap((response) => {
               authService.setToken(response.accessToken);
+              authService.setTenantId(response.tenantId);
               patchState(store, { user: response.user, loading: false });
               router.navigate(['/budgets']);
             }),
             catchError((err) => {
-              patchState(store, { 
-                loading: false, 
-                error: err.error?.message || 'Login failed. Please check your credentials.' 
+              const msg = err.error?.message;
+              const messageText = Array.isArray(msg) ? msg.join('. ') : msg;
+              patchState(store, {
+                loading: false,
+                error:
+                  messageText || 'Login failed. Please check your credentials.',
               });
               return of(null);
             })

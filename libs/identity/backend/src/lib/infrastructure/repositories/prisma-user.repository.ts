@@ -26,8 +26,15 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return tenantId;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const tenantId = this.requireTenantId();
+  private resolveTenantId(explicit?: string): string {
+    if (explicit) {
+      return explicit;
+    }
+    return this.requireTenantId();
+  }
+
+  async findByEmail(email: string, tenantIdParam?: string): Promise<User | null> {
+    const tenantId = this.resolveTenantId(tenantIdParam);
     const data = await this.prisma.user.findUnique({
       where: { tenantId_email: { tenantId, email } },
       include: { roles: { include: { role: true } } },
@@ -48,7 +55,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async save(user: User): Promise<void> {
-    const tenantId = this.requireTenantId();
+    const tenantId = this.resolveTenantId();
     await this.prisma.user.upsert({
       where: { id: user.id.value },
       update: {

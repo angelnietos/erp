@@ -1,6 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from '@josanz-erp/shared-data-access';
+import { TenantContext } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
 
@@ -17,10 +20,36 @@ export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: UserRepositoryPort,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly cls: ClsService<TenantContext>,
   ) {}
 
-  async login(dto: LoginDto): Promise<{ accessToken: string; user: AuthenticatedUserView }> {
-    const user = await this.userRepository.findByEmail(dto.email);
+  private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
+    const fromHeader = this.cls.get('tenantId');
+    if (fromHeader) {
+      return fromHeader;
+    }
+    if (dto.tenantSlug) {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: { slug: dto.tenantSlug },
+      });
+      if (!tenant) {
+        throw new BadRequestException(`Unknown tenant slug: ${dto.tenantSlug}`);
+      }
+      return tenant.id;
+    }
+    throw new BadRequestException(
+      'Tenant is required: send the x-tenant-id header or tenantSlug in the login body (e.g. "josanz" for the default seed tenant).',
+    );
+  }
+
+  async login(dto: LoginDto): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const tenantId = await this.resolveLoginTenantId(dto);
+    const user = await this.userRepository.findByEmail(dto.email, tenantId);
 
     if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Invalid credentials');
@@ -45,6 +74,7 @@ export class AuthService {
         lastName: user.lastName,
         roles: user.roles,
       },
+      tenantId,
     };
   }
 
