@@ -6,3 +6,4 @@ export * from './lib/guards/jwt-auth.guard';
 export * from './lib/prisma/prisma.module';
 export * from './lib/prisma/prisma.service';
 export * from './lib/outbox/outbox.service';
+export * from './lib/outbox/outbox.module';
