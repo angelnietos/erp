@@ -40,6 +40,10 @@ export const appRoutes: Route[] = [
         loadChildren: () => import('@josanz-erp/billing-shell').then((m) => m.billingShellRoutes),
       },
       {
+        path: 'rentals',
+        loadChildren: () => import('@josanz-erp/rentals-shell').then((m) => m.rentalsShellRoutes),
+      },
+      {
         path: 'verifactu',
         loadChildren: () => import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
       },
