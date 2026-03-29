@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/fleet/backend/src",
   "projectType": "library",
+  "implicitDependencies": ["shared-data-access"],
   "tags": ["scope:fleet", "type:backend"],
   "targets": {
     "build": {

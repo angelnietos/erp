@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/delivery/backend/src",
   "projectType": "library",
+  "implicitDependencies": ["shared-data-access"],
   "tags": ["scope:delivery", "type:backend"],
   "targets": {
     "build": {
