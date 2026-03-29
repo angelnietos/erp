@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Budget as PrismaBudgetModel, BudgetItem as PrismaBudgetItemModel } from '@prisma/client';
+import { ClsService } from 'nestjs-cls';
 import { PrismaService } from '@josanz-erp/shared-data-access';
 import { BudgetRepositoryPort, Budget, BudgetItem, BudgetStatus } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
@@ -15,11 +16,19 @@ type BudgetPersistenceView = {
 export class PrismaBudgetRepository implements BudgetRepositoryPort {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly tenantContext: TenantContext,
+    private readonly cls: ClsService<TenantContext>,
   ) {}
 
+  private getTenantId(): string {
+    const tenantId = this.cls.get('tenantId');
+    if (!tenantId) {
+      throw new Error('Tenant ID is not set in the request context');
+    }
+    return tenantId;
+  }
+
   async findById(id: EntityId): Promise<Budget | null> {
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.getTenantId();
     const data = await this.prisma.budget.findFirst({
       where: { id: id.value, tenantId },
       include: { items: true },
@@ -28,7 +37,7 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
   }
 
   async findAll(clientId?: EntityId): Promise<Budget[]> {
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.getTenantId();
     const data = await this.prisma.budget.findMany({
       where: {
         tenantId,
@@ -40,7 +49,7 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
   }
 
   async save(budget: Budget): Promise<void> {
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.getTenantId();
     const persistenceBudget = budget as unknown as BudgetPersistenceView;
 
     await this.prisma.$transaction([
@@ -82,7 +91,7 @@ export class PrismaBudgetRepository implements BudgetRepositoryPort {
   }
 
   async delete(id: EntityId): Promise<void> {
-    const tenantId = this.tenantContext.getRequiredTenantId();
+    const tenantId = this.getTenantId();
     await this.prisma.budget.delete({ where: { id: id.value, tenantId } });
   }
 
