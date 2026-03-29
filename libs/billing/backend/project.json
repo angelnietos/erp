@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/billing/backend/src",
   "projectType": "library",
+  "implicitDependencies": ["verifactu-adapters"],
   "tags": ["scope:billing", "type:backend"],
   "targets": {
     "build": {
