@@ -2,8 +2,18 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiTextareaComponent } from '@josanz-erp/shared-ui-kit';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
+import { 
+  UiTableComponent, 
+  UiButtonComponent, 
+  UiSearchComponent, 
+  UiPaginationComponent, 
+  UiBadgeComponent, 
+  UiLoaderComponent, 
+  UiModalComponent, 
+  UiInputComponent, 
+  UiTextareaComponent 
+} from '@josanz-erp/shared-ui-kit';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
@@ -22,9 +32,9 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiLoaderComponent,
     UiModalComponent,
     UiInputComponent,
-    UiTextareaComponent
+    UiTextareaComponent,
+    LucideAngularModule
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       <div class="page-header">

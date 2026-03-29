@@ -1,7 +1,15 @@
-import { Component, OnInit, signal, Input } from '@angular/core';
+import { Component, OnInit, signal, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiLoaderComponent, UiTabsComponent, TabItem, UiTableComponent } from '@josanz-erp/shared-ui-kit';
+import { LucideAngularModule } from 'lucide-angular';
+import { 
+  UiCardComponent, 
+  UiButtonComponent, 
+  UiBadgeComponent, 
+  UiLoaderComponent, 
+  UiTabsComponent,
+  UiTableComponent 
+} from '@josanz-erp/shared-ui-kit';
 
 export interface BudgetItem {
   id: string;
@@ -28,7 +36,17 @@ export interface Budget {
 @Component({
   selector: 'lib-budget-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiLoaderComponent, UiTabsComponent, UiTableComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    LucideAngularModule, 
+    UiCardComponent, 
+    UiButtonComponent, 
+    UiBadgeComponent, 
+    UiLoaderComponent, 
+    UiTabsComponent, 
+    UiTableComponent
+  ],
   template: `
     <div class="page-container">
       @if (isLoading()) {
@@ -153,7 +171,8 @@ export class BudgetDetailComponent implements OnInit {
     { key: 'total', header: 'Total', width: '120px' },
   ];
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   ngOnInit() {
     const id = this.id || this.route.snapshot.paramMap.get('id');

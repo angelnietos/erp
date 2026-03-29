@@ -1,19 +1,18 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 
 export interface TabItem {
   id: string;
   label: string;
-  icon?: any;
+  icon?: string;
   badge?: number;
 }
 
 @Component({
   selector: 'ui-josanz-tabs',
   standalone: true,
-  imports: [CommonModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="tabs">
       @for (tab of tabs; track tab.id) {
