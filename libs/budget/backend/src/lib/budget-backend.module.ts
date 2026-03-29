@@ -15,7 +15,7 @@ export class BudgetBackendModule {
   static forRoot(options?: BudgetConfig): DynamicModule {
     return {
       module: BudgetBackendModule,
-      imports: [SharedInfrastructureModule, OutboxModule],
+      imports: [SharedInfrastructureModule, OutboxModule, PrismaModule],
       controllers: [BudgetController],
       providers: [
         BudgetService,
