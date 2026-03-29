@@ -184,6 +184,12 @@
         "onAllow": {
           "actions": ["*"]
         }
+      },
+      "scope:backend": {
+        "description": "Backend Workspace App Layer",
+        "onAllow": {
+          "actions": ["*"]
+        }
       }
     },
     "dependencies": [
@@ -213,6 +219,14 @@
       },
       {
         "sourceTag": "type:app",
+        "onlyDependOnLibsWithTags": ["*"]
+      },
+      {
+        "sourceTag": "scope:backend",
+        "onlyDependOnLibsWithTags": ["*"]
+      },
+      {
+        "sourceTag": "*",
         "onlyDependOnLibsWithTags": ["*"]
       },
       {

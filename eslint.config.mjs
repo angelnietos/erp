@@ -113,6 +113,10 @@ export default [
               sourceTag: 'scope:backend',
               onlyDependOnLibsWithTags: ['*'],
             },
+            {
+              sourceTag: '*',
+              onlyDependOnLibsWithTags: ['*'],
+            },
           ],
         },
       ],
