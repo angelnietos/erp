@@ -15,7 +15,7 @@ export interface Vehicle {
   itvExpiry: string;
   capacity?: number;
   mileage?: number;
-  createdAt: string;
+  createdAt?: string;
 }
 
 @Injectable({ providedIn: 'root' })
