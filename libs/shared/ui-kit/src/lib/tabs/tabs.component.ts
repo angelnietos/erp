@@ -69,8 +69,10 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
 
     .tab-item.active {
       color: #fff;
-      background: var(--brand);
-      box-shadow: 0 4px 15px -5px var(--brand-glow);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 90%, #fff) 0%, var(--brand) 100%);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.2) inset,
+        0 8px 28px -8px var(--brand-glow);
     }
 
     .tab-label { position: relative; z-index: 10; }

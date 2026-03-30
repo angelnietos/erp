@@ -38,9 +38,10 @@ export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'default' 
 
     /* Variants */
     .badge-primary {
-      background: rgba(230, 0, 18, 0.1);
+      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
       color: var(--brand);
-      border-color: rgba(230, 0, 18, 0.2);
+      border-color: var(--brand-border-soft, color-mix(in srgb, var(--brand) 32%, transparent));
+      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.06));
     }
 
     .badge-success {

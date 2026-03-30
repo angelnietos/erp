@@ -48,9 +48,10 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     .table-container { 
       width: 100%; 
       overflow-x: auto; 
-      border-radius: var(--radius-md); 
+      border-radius: var(--radius-lg); 
       background: var(--bg-secondary);
       border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.22)), var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
     }
 
     table { 
@@ -60,7 +61,9 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       text-align: left; 
     }
 
-    thead { background: rgba(0, 0, 0, 0.15); }
+    thead {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 40%, transparent) 0%, color-mix(in srgb, var(--bg-tertiary) 50%, transparent) 100%);
+    }
 
     th { 
       padding: 1.25rem 1.5rem;
@@ -87,8 +90,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     .table-row { transition: var(--transition-base); position: relative; }
 
     .table-row:hover td {
-      background: rgba(255, 255, 255, 0.02);
-      color: #fff;
+      background: color-mix(in srgb, var(--brand) 4%, var(--bg-tertiary));
+      color: var(--text-primary);
     }
 
     .table-row:hover td:first-child {

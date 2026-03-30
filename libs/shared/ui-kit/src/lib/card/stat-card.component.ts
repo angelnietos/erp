@@ -28,7 +28,7 @@ import { LucideAngularModule } from 'lucide-angular';
   styles: [`
     .stat-card {
       padding: 1.75rem;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       gap: 1.5rem;
@@ -40,13 +40,14 @@ import { LucideAngularModule } from 'lucide-angular';
     .stat-icon-wrapper {
       width: 3.5rem;
       height: 3.5rem;
-      background: rgba(230, 0, 18, 0.1);
-      border: 1px solid rgba(230, 0, 18, 0.2);
-      border-radius: var(--radius-sm);
+      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
+      border: 1px solid var(--brand-border-soft, color-mix(in srgb, var(--brand) 32%, transparent));
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--brand);
+      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.08));
     }
 
     .stat-content { display: flex; flex-direction: column; gap: 0.25rem; }

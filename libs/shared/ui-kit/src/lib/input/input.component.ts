@@ -62,6 +62,7 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined'
       border-radius: var(--radius-md); color: var(--text-primary);
       font-size: 0.85rem; font-weight: 500; transition: var(--transition-base);
       outline: none; font-family: var(--font-main);
+      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
     }
 
     input::placeholder { color: var(--text-muted); opacity: 0.4; }
@@ -70,7 +71,12 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined'
 
     input:focus {
       background: var(--bg-secondary); border-color: var(--brand);
-      box-shadow: 0 0 20px var(--brand-glow);
+      box-shadow: 0 0 0 1px var(--brand-border-soft, transparent), 0 0 28px var(--brand-glow);
+    }
+
+    input:focus-visible {
+      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
+      outline-offset: 2px;
     }
     
     input:focus ~ .field-icon { color: var(--brand); }

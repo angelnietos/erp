@@ -58,20 +58,26 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       padding: 12px 40px 12px 16px; 
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       color: var(--text-primary);
       font-size: 0.9rem; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      transition: var(--transition-base, 280ms ease); 
       outline: none; 
       font-family: var(--font-main);
       appearance: none; 
       cursor: pointer;
+      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
     }
 
     select:focus {
       border-color: var(--brand);
       background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow: 0 0 0 1px var(--brand-border-soft, transparent), 0 0 28px var(--brand-glow);
+    }
+
+    select:focus-visible {
+      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
+      outline-offset: 2px;
     }
 
     /* Variants */
@@ -119,7 +125,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
 
     /* Additional variants */
     .select-primary {
-      background: rgba(79, 70, 229, 0.1);
+      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
       border-color: var(--brand);
     }
 

@@ -1,5 +1,4 @@
 import { Injectable, signal, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 /** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
 export type Theme =
@@ -32,6 +31,11 @@ function hexToRgbTriplet(hex: string): string {
   return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
 }
 
+function hexToRgba(hex: string, alpha: number): string {
+  const t = hexToRgbTriplet(hex);
+  return `rgba(${t}, ${alpha})`;
+}
+
 export interface ThemeConfig {
   name: string;
   primary: string;
@@ -49,50 +53,50 @@ export interface ThemeConfig {
 
 export const THEMES: Record<Theme, ThemeConfig> = {
   light: {
-    name: 'Light',
-    primary: '#4F46E5',
+    name: 'Deck Light',
+    primary: '#4338ca',
     secondary: '#64748B',
-    background: '#F8FAFC',
-    surface: '#FFFFFF',
-    text: '#1E293B',
-    textMuted: '#64748B',
-    border: '#E2E8F0',
-    brand: '#4F46E5',
-    brandGlow: 'rgba(79, 70, 229, 0.4)',
-    bgSecondary: '#F1F5F9',
-    bgTertiary: '#E2E8F0',
+    background: '#f1f4f9',
+    surface: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#64748b',
+    border: 'rgba(15, 23, 42, 0.08)',
+    brand: '#4338ca',
+    brandGlow: 'rgba(67, 56, 202, 0.35)',
+    bgSecondary: '#ffffff',
+    bgTertiary: '#e8edf5',
   },
   dark: {
-    name: 'Cyber-Dark',
-    primary: '#F03E3E',
-    secondary: '#94A3B8',
-    background: '#0a0a0a',
-    surface: '#121212',
-    text: '#F1F5F9',
-    textMuted: '#64748B',
-    border: '#222222',
-    brand: '#F03E3E',
-    brandGlow: 'rgba(240, 62, 62, 0.5)',
-    bgSecondary: '#161616',
-    bgTertiary: '#1f1f1f',
+    name: 'Noir Circuit',
+    primary: '#ff3b3b',
+    secondary: '#94a3b8',
+    background: '#050506',
+    surface: '#101014',
+    text: '#f4f4f5',
+    textMuted: '#8b919d',
+    border: 'rgba(255, 255, 255, 0.07)',
+    brand: '#ff3b3b',
+    brandGlow: 'rgba(255, 59, 59, 0.42)',
+    bgSecondary: '#0c0c0f',
+    bgTertiary: '#15151a',
   },
   blue: {
-    name: 'Cyber-Blue',
-    primary: '#0ea5e9',
+    name: 'Helix Blue',
+    primary: '#38bdf8',
     secondary: '#64748B',
-    background: '#020617',
-    surface: '#0f172a',
+    background: '#030712',
+    surface: '#0c1525',
     text: '#f8fafc',
     textMuted: '#94a3b8',
-    border: '#1e293b',
-    brand: '#0ea5e9',
-    brandGlow: 'rgba(14, 165, 233, 0.5)',
-    bgSecondary: '#0f172a',
-    bgTertiary: '#1e293b',
+    border: 'rgba(56, 189, 248, 0.14)',
+    brand: '#38bdf8',
+    brandGlow: 'rgba(56, 189, 248, 0.45)',
+    bgSecondary: '#0a1220',
+    bgTertiary: '#111e33',
   },
   // Keep others with balanced defaults but focused on premium dark if possible
   green: {
-    name: 'Matrix',
+    name: 'Signal Matrix',
     primary: '#10b981',
     secondary: '#64748B',
     background: '#050505',
@@ -106,7 +110,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     bgTertiary: '#1a241b',
   },
   purple: {
-    name: 'Neon-Vapor',
+    name: 'Void Spiral',
     primary: '#8b5cf6',
     secondary: '#64748B',
     background: '#0a0014',
@@ -120,7 +124,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     bgTertiary: '#1e003c',
   },
   orange: {
-    name: 'Horizon',
+    name: 'Solar Forge',
     primary: '#f97316',
     secondary: '#64748B',
     background: '#0a0500',
@@ -316,18 +320,18 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     bgTertiary: '#2d1018',
   },
   gold: {
-    name: 'Gilded-Data',
-    primary: '#eab308',
+    name: 'Vinewood Gold',
+    primary: '#f5c518',
     secondary: '#64748B',
-    background: '#0a0800',
-    surface: '#181505',
-    text: '#fefce8',
-    textMuted: '#fde047',
-    border: '#eab30833',
-    brand: '#eab308',
-    brandGlow: 'rgba(234, 179, 8, 0.45)',
-    bgSecondary: '#181505',
-    bgTertiary: '#262008',
+    background: '#060503',
+    surface: '#141105',
+    text: '#fffbeb',
+    textMuted: '#f5e08a',
+    border: 'rgba(245, 197, 24, 0.22)',
+    brand: '#f5c518',
+    brandGlow: 'rgba(245, 197, 24, 0.48)',
+    bgSecondary: '#121008',
+    bgTertiary: '#1f1a0c',
   },
 };
 
@@ -375,6 +379,11 @@ export class ThemeService {
     root.style.setProperty('--text-primary', config.text);
     root.style.setProperty('--text-secondary', config.textMuted);
     root.style.setProperty('--border-soft', config.border);
+
+    root.style.setProperty('--surface', hexToRgba(config.surface, 0.78));
+    const brandRgb = hexToRgbTriplet(config.brand);
+    root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.12)`);
+    root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
     
     root.setAttribute('data-theme', theme);
   }

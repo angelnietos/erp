@@ -3,48 +3,56 @@
 @tailwind utilities;
 
 :root {
-  /* Nintendo-Premium Console Palette */
-  --bg-primary: #0f1115;
-  --bg-secondary: #171a21;
-  --bg-tertiary: #1e232b;
-  
-  --surface: rgba(23, 26, 33, 0.7);
-  --surface-hover: rgba(30, 36, 45, 0.9);
-  
-  --brand: #e60012; /* Iconic Nintendo Red */
-  --brand-muted: #9b000c;
-  --brand-glow: rgba(230, 0, 18, 0.25);
-  
+  /* Premium “launcher” tokens — Switch clarity + cinematic depth + crisp accents */
+  --bg-primary: #07080b;
+  --bg-secondary: #0e1016;
+  --bg-tertiary: #151922;
+
+  --surface: rgba(20, 24, 32, 0.72);
+  --surface-hover: rgba(28, 34, 44, 0.88);
+
+  --brand: #e60012;
+  --brand-muted: color-mix(in srgb, var(--brand) 58%, #000);
+  --brand-glow: rgba(230, 0, 18, 0.32);
+  --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
+  --brand-border-soft: color-mix(in srgb, var(--brand) 32%, transparent);
+  --brand-ambient: rgba(230, 0, 18, 0.11);
+  --brand-ambient-strong: rgba(230, 0, 18, 0.18);
+
   --accent: #ffffff;
   --accent-muted: #94a3b8;
-  
-  --success: #00d28a;
-  --warning: #ffb800;
-  --danger: #ff4b4b;
-  --info: #0088ff;
-  
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  
-  --border-soft: rgba(255, 255, 255, 0.06);
-  --border-vibrant: rgba(255, 255, 255, 0.12);
-  
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 40px rgba(230, 0, 18, 0.15);
-  
-  --font-main: 'Outfit', 'Inter', -apple-system, sans-serif;
-  --font-display: 'Outfit', 'Inter', sans-serif;
-  
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  --success: #00e6a8;
+  --warning: #ffc229;
+  --danger: #ff4d5e;
+  --info: #2bb0ff;
+
+  --text-primary: #f4f6fb;
+  --text-secondary: #9aa3b5;
+  --text-muted: #5c6577;
+
+  --border-soft: rgba(255, 255, 255, 0.055);
+  --border-vibrant: rgba(255, 255, 255, 0.11);
+  --ring-focus: color-mix(in srgb, var(--brand) 55%, transparent);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.38);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 48px var(--brand-glow);
+  --shadow-inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  --font-main: 'Outfit', 'Inter', -apple-system, system-ui, sans-serif;
+  --font-display: 'Syne', 'Outfit', sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 160ms var(--ease-out-expo);
+  --transition-base: 280ms var(--ease-out-expo);
+  --transition-spring: 420ms cubic-bezier(0.175, 0.885, 0.32, 1.18);
 }
 
 *,
@@ -60,9 +68,10 @@ body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--bg-primary);
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(230, 0, 18, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(30, 36, 45, 0.2) 0%, transparent 40%);
+  background-image:
+    radial-gradient(ellipse 130% 90% at 0% -15%, var(--brand-ambient-strong), transparent 58%),
+    radial-gradient(ellipse 90% 70% at 100% 0%, rgba(120, 160, 255, 0.06), transparent 50%),
+    radial-gradient(ellipse 80% 55% at 50% 110%, var(--brand-ambient), transparent 55%);
   color: var(--text-primary);
   font-family: var(--font-main);
   scroll-behavior: smooth;
@@ -71,6 +80,12 @@ body {
 
 body {
   line-height: normal;
+}
+
+html[data-theme='light'] body {
+  background-image:
+    radial-gradient(ellipse 100% 80% at 10% 0%, rgba(99, 102, 241, 0.07), transparent 55%),
+    radial-gradient(ellipse 90% 60% at 100% 100%, rgba(14, 165, 233, 0.06), transparent 50%);
 }
 
 /* Custom Scrollbar */
@@ -83,96 +98,138 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
+  background: color-mix(in srgb, var(--bg-tertiary) 85%, var(--brand));
   border: 3px solid var(--bg-primary);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
+  background: color-mix(in srgb, var(--brand) 45%, var(--bg-tertiary));
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #fff;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
   margin: 0;
 }
 
 /* Modern Typography */
 .text-uppercase {
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
   font-weight: 800;
+  font-family: var(--font-display);
 }
 
 /* Selection */
 ::selection {
-  background: var(--brand);
-  color: white;
+  background: color-mix(in srgb, var(--brand) 85%, #000);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring-focus);
+  outline-offset: 2px;
 }
 
 /* Global UI Variant Mixins */
-.glass-effect, .ui-glass {
-  background: rgba(23, 26, 33, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: var(--shadow-md);
+.glass-effect,
+.ui-glass {
+  background: var(--surface);
+  backdrop-filter: blur(28px) saturate(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(1.15);
+  border: 1px solid var(--border-vibrant);
+  box-shadow: var(--shadow-md), var(--shadow-inset-shine);
 }
 
-.filled-effect, .ui-filled {
+.filled-effect,
+.ui-filled {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-inset-shine);
 }
 
-.accent-effect, .ui-accent {
+.accent-effect,
+.ui-accent {
   border-top: 3px solid var(--brand) !important;
-  background: linear-gradient(180deg, rgba(230, 0, 18, 0.05) 0%, transparent 100%);
+  background: linear-gradient(180deg, var(--brand-surface) 0%, transparent 42%);
+  box-shadow: var(--shadow-inset-shine);
 }
 
-.neon-effect, .ui-neon {
+.neon-effect,
+.ui-neon {
   transition: var(--transition-base);
 }
 
-.neon-effect:hover, .ui-neon:hover {
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 30px var(--brand-glow) !important;
-  transform: translateY(-2px);
+.neon-effect:hover,
+.ui-neon:hover {
+  border-color: var(--brand-border-soft) !important;
+  box-shadow: 0 0 0 1px var(--brand-border-soft), 0 16px 48px -12px var(--brand-glow) !important;
+  transform: translateY(-3px);
 }
 
-.ghost-effect, .ui-ghost {
+.ghost-effect,
+.ui-ghost {
   background: transparent;
   border-color: transparent;
   color: var(--text-secondary);
 }
 
-.ghost-effect:hover, .ui-ghost:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: white;
+.ghost-effect:hover,
+.ui-ghost:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
 }
 
 /* Animations */
 @keyframes slideInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulseBrand {
-  0% { box-shadow: 0 0 0 0 rgba(230, 0, 18, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(230, 0, 18, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(230, 0, 18, 0); }
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
-.animate-slide-up { animation: slideInUp var(--transition-base) forwards; }
-.animate-slide-right { animation: slideInRight var(--transition-base) forwards; }
+.animate-slide-up {
+  animation: slideInUp var(--transition-base) forwards;
+}
+.animate-slide-right {
+  animation: slideInRight var(--transition-base) forwards;
+}
 
 /* Global UI Utils */
 .page-container {
@@ -180,7 +237,7 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 1600px;
   margin: 0 auto;
   opacity: 0;
-  animation: slideInUp 0.5s var(--transition-spring) forwards;
+  animation: slideInUp 0.55s var(--ease-out-expo) forwards;
 }
 
 .section-header {
@@ -189,12 +246,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .section-title {
   font-size: 2.5rem;
-  font-weight: 900;
+  font-weight: 800;
   margin-bottom: 0.5rem;
+  font-family: var(--font-display);
 }
 
 .section-subtitle {
   color: var(--text-secondary);
   font-weight: 500;
 }
-

@@ -39,7 +39,7 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
   `,
   styles: [`
     .card {
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       background: var(--bg-secondary);
       border: 1px solid var(--border-soft);
       transition: var(--transition-base);
@@ -47,6 +47,7 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
       display: flex;
       flex-direction: column;
       position: relative;
+      box-shadow: var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.25)), var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.05));
     }
 
     .card-header {
@@ -55,7 +56,7 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 0, 0, 0.1);
+      background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
     }
 
     .header-main { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -74,7 +75,7 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
 
     .card-footer {
       padding: 1.25rem 1.75rem;
-      background: rgba(0, 0, 0, 0.15);
+      background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
       border-top: 1px solid var(--border-soft);
     }
 
@@ -118,8 +119,8 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
     }
 
     .ui-highlight {
-      border-color: var(--brand);
-      box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+      border-color: var(--brand-border-soft, var(--brand));
+      box-shadow: 0 0 32px color-mix(in srgb, var(--brand-glow) 55%, transparent);
     }
 
     .ui-shadow {

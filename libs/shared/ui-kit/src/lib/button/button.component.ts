@@ -47,7 +47,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn {
       position: relative;
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
@@ -57,11 +57,16 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       transition: var(--transition-base);
       font-family: var(--font-display);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
       border: 1px solid transparent;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
+      outline-offset: 3px;
     }
 
     .btn:disabled {
@@ -77,13 +82,17 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-lg { padding: 1.2rem 3rem; font-size: 0.95rem; }
 
     .btn-primary {
-      background: var(--brand);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 88%, #fff) 0%, var(--brand) 100%);
       color: white;
-      box-shadow: 0 4px 15px -5px var(--brand-glow);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.18) inset,
+        0 10px 36px -10px var(--brand-glow);
     }
     .btn-primary:not(:disabled):hover {
       background: var(--brand-muted);
-      box-shadow: 0 8px 25px -5px var(--brand-glow);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 16px 44px -12px var(--brand-glow);
       transform: translateY(-2px);
     }
 
@@ -178,13 +187,19 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     /* Gradient variant */
     .btn-gradient {
-      background: linear-gradient(135deg, var(--brand), #8b5cf6);
+      background: linear-gradient(
+        125deg,
+        var(--brand) 0%,
+        color-mix(in srgb, var(--brand) 35%, #6366f1) 48%,
+        color-mix(in srgb, var(--brand) 20%, #a855f7) 100%
+      );
       color: white;
       border: none;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 12px 40px -14px var(--brand-glow);
     }
     .btn-gradient:not(:disabled):hover {
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.5);
+      filter: brightness(1.06);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 18px 48px -12px var(--brand-glow);
       transform: translateY(-2px);
     }
 
