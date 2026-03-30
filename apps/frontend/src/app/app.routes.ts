@@ -1,10 +1,11 @@
 import { Route } from '@angular/router';
 import { MainAppShellComponent } from './main-app-shell.component';
+import { DashboardComponent } from '@josanz-erp/shared-ui-shell';
 
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'budgets',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
   },
   {
@@ -15,6 +16,10 @@ export const appRoutes: Route[] = [
     path: '',
     component: MainAppShellComponent,
     children: [
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+      },
       {
         path: 'clients',
         loadChildren: () => import('@josanz-erp/clients-shell').then((m) => m.clientsShellRoutes),

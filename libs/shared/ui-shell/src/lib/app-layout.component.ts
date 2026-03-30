@@ -5,11 +5,12 @@ import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
+import { NotificationDrawerComponent } from './notification-drawer.component';
 
 @Component({
   selector: 'josanz-app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent],
   template: `
     <div class="app-layout">
       <!-- Sidebar -->
@@ -36,7 +37,7 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
               </div>
             }
 
-            <button class="icon-btn">
+            <button class="icon-btn" (click)="toggleNotifications()">
               <lucide-icon name="bell" size="20"></lucide-icon>
               <div class="notification-dot"></div>
             </button>
@@ -73,6 +74,11 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
             </div>
           </div>
         </header>
+
+        <!-- Notification Drawer -->
+        @if (showNotifications()) {
+          <josanz-notification-drawer (closeDrawer)="toggleNotifications()"></josanz-notification-drawer>
+        }
 
         <!-- Dynamic Content -->
         <main class="content-scroll">
@@ -389,9 +395,14 @@ export class AppLayoutComponent {
 
   @Input() navItems: NavMenuItem[] = [];
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
+  showNotifications = signal(false);
 
   toggleThemeMenu() {
     this.showThemeMenu.update(v => !v);
+  }
+
+  toggleNotifications() {
+    this.showNotifications.update(v => !v);
   }
 
   setTheme(theme: Theme) {

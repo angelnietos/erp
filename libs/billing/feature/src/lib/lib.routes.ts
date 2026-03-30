@@ -3,7 +3,7 @@ import { BillingListComponent } from './billing-list/billing-list.component';
 
 export const billingFeatureRoutes: Route[] = [
   { path: '', component: BillingListComponent },
-  { path: ':id', loadComponent: () => import('./billing-detail/billing-detail.component').then(m => m.BillingDetailComponent) },
+  { path: ':id', loadComponent: () => import('@josanz-erp/shared-ui-kit').then(m => m.DetailPlaceholderComponent) },
 ];
 
 export * from './billing-list/billing-list.component';

@@ -15,3 +15,4 @@ export * from './lib/loader/loader.component';
 export * from './lib/textarea/textarea.component';
 export * from './lib/icons/i-lucide.component';
 export * from './lib/nav-menu/nav-menu.component';
+export * from './lib/detail-placeholder/detail-placeholder.component';

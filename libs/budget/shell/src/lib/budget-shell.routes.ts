@@ -9,4 +9,8 @@ export const budgetRoutes: Routes = [
     path: 'create',
     loadComponent: () => import('@josanz-erp/budget-feature').then(m => m.BudgetCreateComponent),
   },
+  {
+    path: ':id',
+    loadComponent: () => import('@josanz-erp/shared-ui-kit').then(m => m.DetailPlaceholderComponent),
+  },
 ];
