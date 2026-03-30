@@ -66,4 +66,41 @@ export class BudgetService {
   async findById(id: string): Promise<Budget | null> {
     return await this.budgetRepository.findById(new EntityId(id));
   }
+
+  async findAll(tenantId?: string): Promise<any[]> {
+    const budgets = await this.prisma.budget.findMany({
+      where: tenantId && tenantId !== 'undefined' ? { tenantId } : {},
+      include: {
+        client: true,
+        items: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return budgets.map((b: any) => ({
+      id: b.id,
+      clientId: b.clientId,
+      clientName: b.client?.name || 'Cliente Desconocido',
+      startDate: b.startDate.toISOString().split('T')[0],
+      endDate: b.endDate.toISOString().split('T')[0],
+      total: b.total,
+      status: b.status,
+      items: b.items.map((i: any) => ({
+        id: i.id,
+        productId: i.productId,
+        quantity: i.quantity,
+        price: i.price,
+        tax: i.tax,
+        discount: i.discount
+      })),
+      createdAt: b.createdAt.toISOString().split('T')[0]
+    }));
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.budgetItem.deleteMany({ where: { budgetId: id } });
+      await tx.budget.delete({ where: { id } });
+    });
+  }
 }

@@ -1,5 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-infrastructure';
+import { FleetController } from './infrastructure/http/fleet.controller';
+import { FleetService } from './application/fleet.service';
 
 export interface FleetConfig {
   _isFleetConfig?: boolean;
@@ -11,8 +13,9 @@ export class FleetModule {
     return {
       module: FleetModule,
       imports: [PrismaModule],
-      controllers: [],
+      controllers: [FleetController],
       providers: [
+        FleetService,
         {
           provide: 'FLEET_CONFIG',
           useValue: options || {},
@@ -22,4 +25,5 @@ export class FleetModule {
     };
   }
 }
+
 

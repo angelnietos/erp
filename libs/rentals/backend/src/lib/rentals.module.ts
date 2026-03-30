@@ -1,5 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-infrastructure';
+import { RentalsController } from './infrastructure/http/rentals.controller';
+import { RentalsService } from './application/rentals.service';
 
 export interface RentalsConfig {
   _isRentalsConfig?: boolean;
@@ -11,8 +13,9 @@ export class RentalsModule {
     return {
       module: RentalsModule,
       imports: [PrismaModule],
-      controllers: [],
+      controllers: [RentalsController],
       providers: [
+        RentalsService,
         {
           provide: 'RENTALS_CONFIG',
           useValue: options || {},
@@ -22,4 +25,5 @@ export class RentalsModule {
     };
   }
 }
+
 

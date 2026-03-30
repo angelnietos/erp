@@ -1,8 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-infrastructure';
-import { ClientsController } from './presentation/controllers/clients.controller';
-import { CLIENTS_REPOSITORY, ClientsService } from '@josanz-erp/clients-core';
-import { PrismaClientsRepository } from './infrastructure/repositories/prisma-clients.repository';
+import { ClientsController } from './infrastructure/http/clients.controller';
+import { ClientsService } from './application/clients.service';
 
 export interface ClientsConfig {
   _isClientsConfig?: boolean;
@@ -18,10 +17,6 @@ export class ClientsModule {
       providers: [
         ClientsService,
         {
-          provide: CLIENTS_REPOSITORY,
-          useClass: PrismaClientsRepository,
-        },
-        {
           provide: 'CLIENTS_CONFIG',
           useValue: options || {},
         },
@@ -30,4 +25,3 @@ export class ClientsModule {
     };
   }
 }
-

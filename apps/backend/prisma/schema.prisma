@@ -25,8 +25,14 @@ model Product {
   id                    String                 @id @default(uuid()) @db.Uuid
   tenantId              String                 @map("tenant_id") @db.Uuid
   name                  String
+  sku                   String?                @unique
+  category              String?
+  type                  String?                @default("generic")
   description           String?
   price                 Float?
+  dailyRate             Float?                 @map("daily_rate")
+  imageUrl              String?                @map("image_url")
+  serialNumber          String?                @map("serial_number")
   budgetItems           BudgetItem[]
   inventory             Inventory?
   inventoryMovements    InventoryMovement[]
@@ -76,13 +82,22 @@ model InventoryMovement {
 }
 
 model Rental {
-  id          String       @id @default(uuid()) @db.Uuid
-  clientId    String       @map("client_id") @db.Uuid
-  status      String
-  createdAt   DateTime     @default(now()) @map("created_at")
-  deletedAt   DateTime?    @map("deleted_at")
-  rentalItems RentalItem[]
-  client      Client       @relation(fields: [clientId], references: [id])
+  id              String       @id @default(uuid()) @db.Uuid
+  tenantId        String       @map("tenant_id") @db.Uuid
+  reference       String?      @unique
+  clientId        String       @map("client_id") @db.Uuid
+  startDate       DateTime?    @map("start_date")
+  endDate         DateTime?    @map("end_date")
+  pickupLocation  String?      @map("pickup_location")
+  dropoffLocation String?      @map("dropoff_location")
+  totalPrice      Float?       @map("total_price")
+  notes           String?
+  status          String       @default("pending")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  deletedAt       DateTime?    @map("deleted_at")
+  rentalItems     RentalItem[]
+  client          Client       @relation(fields: [clientId], references: [id])
+  tenant          Tenant       @relation(fields: [tenantId], references: [id])
 
   @@map("rentals")
 }
@@ -194,6 +209,8 @@ model Tenant {
   deliveryNotes     DeliveryNote[]
   invoices          Invoice[]
   products          Product[]
+  rentals           Rental[]
+  vehicles          Vehicle[]
   apiKeys           TenantApiKey[]
   users             User[]
   customers         VerifactuCustomer[]
@@ -324,9 +341,18 @@ model IdempotencyKey {
 }
 
 model Vehicle {
-  id     String @id @default(uuid()) @db.Uuid
-  plate  String @unique
-  status String
+  id              String    @id @default(uuid()) @db.Uuid
+  tenantId        String    @map("tenant_id") @db.Uuid
+  name            String
+  plate           String    @unique
+  type            String
+  capacity        Float
+  status          String    @default("available")
+  location        String?
+  nextMaintenance DateTime? @map("next_maintenance")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @map("updated_at")
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("vehicles")
 }
