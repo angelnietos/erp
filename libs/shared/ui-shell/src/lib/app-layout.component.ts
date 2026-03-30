@@ -473,7 +473,8 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     .content-scroll {
       flex: 1;
       overflow-y: auto;
-      background: var(--bg-primary);
+      /* Opaque bg would hide the fixed CRM canvas (josanz-crm-background) behind the layout */
+      background: transparent;
     }
 
     .content {

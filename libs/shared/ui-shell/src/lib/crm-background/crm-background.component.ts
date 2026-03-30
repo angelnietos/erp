@@ -71,32 +71,32 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
   private initElements() {
     const w = window.innerWidth;
     const h = window.innerHeight;
-
-    // Subtle floating particles
-    const count = Math.min(40, Math.floor((w * h) / 40000));
+    
+    // More visible floating particles
+    const count = Math.min(60, Math.floor((w * h) / 20000));
     for (let i = 0; i < count; i++) {
       this.particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        size: Math.random() * 1.5 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.15,
-        speedY: -Math.random() * 0.1 - 0.05,
-        opacity: Math.random() * 0.4 + 0.15,
+        size: Math.random() * 2 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.2,
+        speedY: -Math.random() * 0.15 - 0.05,
+        opacity: Math.random() * 0.6 + 0.2,
         hue: Math.random() > 0.5 ? 220 + Math.random() * 30 : 180 + Math.random() * 20,
       });
     }
-
-    // Subtle rising bubbles
-    const bubbleCount = 15;
+    
+    // More visible rising bubbles
+    const bubbleCount = 25;
     for (let i = 0; i < bubbleCount; i++) {
       this.bubbles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        radius: Math.random() * 20 + 8,
-        speed: Math.random() * 0.3 + 0.1,
+        radius: Math.random() * 25 + 10,
+        speed: Math.random() * 0.4 + 0.1,
         wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: Math.random() * 0.015 + 0.005,
-        opacity: Math.random() * 0.2 + 0.08,
+        wobbleSpeed: Math.random() * 0.02 + 0.01,
+        opacity: Math.random() * 0.4 + 0.15,
       });
     }
   }
@@ -116,21 +116,21 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
   };
 
   private drawGradientBackground(w: number, h: number) {
-    // Dark gradient but slightly lighter to be visible
+    // More visible gradient for testing
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, 'rgba(20, 25, 45, 0.95)');
-    g.addColorStop(0.5, 'rgba(18, 22, 38, 0.96)');
-    g.addColorStop(1, 'rgba(12, 15, 25, 0.97)');
+    g.addColorStop(0, 'rgba(25, 30, 50, 0.95)');
+    g.addColorStop(0.5, 'rgba(20, 25, 40, 0.96)');
+    g.addColorStop(1, 'rgba(15, 20, 35, 0.97)');
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Subtle top light - more visible
+    // More visible top light
     const topLight = this.ctx.createRadialGradient(
       w * 0.5, -h * 0.1, 0,
       w * 0.5, h * 0.3, h * 0.8
     );
-    topLight.addColorStop(0, 'rgba(99, 102, 241, 0.08)');
-    topLight.addColorStop(0.4, 'rgba(79, 70, 229, 0.04)');
+    topLight.addColorStop(0, 'rgba(100, 150, 255, 0.3)');
+    topLight.addColorStop(0.4, 'rgba(80, 120, 200, 0.15)');
     topLight.addColorStop(1, 'transparent');
     this.ctx.fillStyle = topLight;
     this.ctx.fillRect(0, 0, w, h);
