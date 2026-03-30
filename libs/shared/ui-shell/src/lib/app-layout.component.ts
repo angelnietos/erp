@@ -99,7 +99,7 @@ import { CommandPaletteComponent } from './command-palette.component';
 
         <!-- Command Palette -->
         @if (showCommandPalette()) {
-          <josanz-command-palette (close)="toggleCommandPalette()"></josanz-command-palette>
+          <josanz-command-palette (closePalette)="closeCommandPalette()"></josanz-command-palette>
         }
 
         <!-- Dynamic Content -->
@@ -520,6 +520,10 @@ export class AppLayoutComponent {
 
   toggleCommandPalette() {
     this.showCommandPalette.update(v => !v);
+  }
+
+  closeCommandPalette() {
+    this.showCommandPalette.set(false);
   }
 
   toggleUserMenu() {

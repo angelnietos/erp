@@ -23,9 +23,10 @@ export interface CommandItem {
     <div 
       class="overlay animate-fade-in" 
       (click)="closePalette.emit()" 
-      (keydown.escape)="closePalette.emit()"
       tabindex="-1"
-      role="button"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Paleta de comandos"
     >
       <div class="palette-container animate-scale-in" (click)="$event.stopPropagation()" role="none">
         <ui-josanz-search 
@@ -208,8 +209,18 @@ export class CommandPaletteComponent {
     }
   }
 
+  @HostListener('document:keydown.escape', ['$event'])
+  onDocumentEscape(event: KeyboardEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.closePalette.emit();
+  }
+
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      return;
+    }
     if (event.key === 'ArrowDown') {
       this.moveSelection(1);
       event.preventDefault();
