@@ -57,16 +57,23 @@ export class ClientsService {
   }
 
   private mapToDto(client: Record<string, unknown>) {
+    const createdAt = client['createdAt'] as Date | undefined;
+    const desc = String(client['description'] ?? '');
     return {
       id: client['id'],
       name: client['name'],
-      email: client['description'] || 'info@cliente.com',
+      description: desc,
+      sector: String(client['sector'] ?? 'corporate'),
+      contact: 'Comercial',
+      email: 'info@cliente.com',
       phone: '+34 600 000 000',
       company: client['name'],
-      address: client['description'] || 'Dirección no especificada',
+      address: desc || 'Dirección no especificada',
       status: 'active',
       type: client['sector'] || 'corporate',
-      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(String(client['name'] || ''))}&background=random`
+      createdAt: createdAt?.toISOString(),
+      updatedAt: undefined,
+      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(String(client['name'] || ''))}&background=random`,
     };
   }
 }

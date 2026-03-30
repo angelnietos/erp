@@ -19,7 +19,7 @@ import {
   PlayCircle, CalendarCheck, Box, Briefcase, 
   PieChart, CheckSquare, PenTool, RotateCcw, 
   DollarSign, Archive, Shield, AlertOctagon, 
-  BarChart3, Layers, Wrench, Activity
+  BarChart3, Layers, Wrench, Activity, Camera
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -44,7 +44,7 @@ export const appConfig: ApplicationConfig = {
       PlayCircle, CalendarCheck, Box, Briefcase, 
       PieChart, CheckSquare, PenTool, RotateCcw, 
       DollarSign, Archive, Shield, AlertOctagon, 
-      BarChart3, Layers, Wrench, Activity
+      BarChart3, Layers, Wrench, Activity, Camera
     })),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3100/api' },
   ],

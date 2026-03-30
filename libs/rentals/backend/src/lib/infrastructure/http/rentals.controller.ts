@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 import { RentalsService } from '../../application/rentals.service';
@@ -11,9 +22,16 @@ export class RentalsController {
   constructor(private readonly rentalsService: RentalsService) {}
 
   @Get()
-  async findAll(@Req() req: Request) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.rentalsService.findAll(r.tenantId || r.headers['x-tenant-id'] || 'default');
+  async findAll(
+    @Req() req: Request,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+  ) {
+    const r = req as unknown as { tenantId: string; headers: { [key: string]: string } };
+    return this.rentalsService.findAll(
+      r.tenantId || r.headers['x-tenant-id'] || 'default',
+      { status, search },
+    );
   }
 
   @Get(':id')
