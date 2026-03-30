@@ -100,41 +100,44 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.animationId = requestAnimationFrame(this.animate);
   };
 
-  /** Plató más luminoso: tonos violeta/azul medios (menos “pozo negro”). */
+  /** Fondo más luminoso - estilo Reino Mágico de Rayman */
   private drawStudioBackdrop(w: number, h: number) {
-    const g = this.ctx.createLinearGradient(0, 0, w, h * 1.05);
-    g.addColorStop(0, '#1e1840');
-    g.addColorStop(0.22, '#252050');
-    g.addColorStop(0.45, '#2a2460');
-    g.addColorStop(0.62, '#1c1838');
-    g.addColorStop(0.82, '#151028');
-    g.addColorStop(1, '#0e0c1c');
+    // Gradiente más claro y azuloso - como el cielo del Reino Mágico
+    const g = this.ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#3d5a80');
+    g.addColorStop(0.15, '#293241');
+    g.addColorStop(0.35, '#293241');
+    g.addColorStop(0.5, '#1d3557');
+    g.addColorStop(0.65, '#1d3557');
+    g.addColorStop(0.85, '#16243a');
+    g.addColorStop(1, '#0f1c2b');
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Luz general desde arriba (luz de sala)
+    // Luz general más brillante desde arriba
     const wash = this.ctx.createRadialGradient(
       w * 0.5,
-      -h * 0.05,
+      -h * 0.1,
       0,
       w * 0.5,
-      h * 0.35,
-      Math.max(w, h) * 0.55,
+      h * 0.4,
+      Math.max(w, h) * 0.7,
     );
-    wash.addColorStop(0, 'hsla(265, 55%, 58%, 0.18)');
-    wash.addColorStop(0.45, 'hsla(220, 45%, 45%, 0.08)');
+    wash.addColorStop(0, 'hsla(210, 60%, 65%, 0.25)');
+    wash.addColorStop(0.4, 'hsla(230, 50%, 50%, 0.12)');
     wash.addColorStop(1, 'transparent');
     this.ctx.fillStyle = wash;
     this.ctx.fillRect(0, 0, w, h);
 
+    // Luz en el suelo
     const floor = this.ctx.createLinearGradient(0, h * 0.52, 0, h);
     floor.addColorStop(0, 'transparent');
-    floor.addColorStop(1, 'rgba(120, 80, 180, 0.14)');
+    floor.addColorStop(1, 'rgba(80, 120, 200, 0.12)');
     this.ctx.fillStyle = floor;
     this.ctx.fillRect(0, 0, w, h);
   }
 
-  /** Haces más brillantes: más alpha, núcleo casi blanco al origen. */
+  /** Haces de luz más brillantes y dorados */
   private drawSweepingBeams(w: number, h: number) {
     this.lightBeams.forEach((beam, i) => {
       const sway = Math.sin(this.time * beam.speed + i * 1.7) * 0.11;
@@ -148,12 +151,12 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.rotate(angle);
 
       const flicker = 0.92 + Math.sin(this.time * 2.3 + i) * 0.08;
-      const a = (0.36 + Math.sin(this.time * 2 + i) * 0.06) * flicker;
+      const a = (0.4 + Math.sin(this.time * 2 + i) * 0.08) * flicker;
       const grad = this.ctx.createLinearGradient(0, 0, 0, len);
-      grad.addColorStop(0, `hsla(${beam.hue}, 75%, 88%, ${a * 0.95})`);
-      grad.addColorStop(0.12, `hsla(${beam.hue}, 85%, 72%, ${a * 0.85})`);
-      grad.addColorStop(0.38, `hsla(${beam.hue}, 80%, 58%, ${a * 0.45})`);
-      grad.addColorStop(0.7, `hsla(${beam.hue}, 70%, 45%, ${a * 0.12})`);
+      grad.addColorStop(0, `hsla(${beam.hue}, 90%, 90%, ${a * 0.95})`);
+      grad.addColorStop(0.12, `hsla(${beam.hue}, 95%, 75%, ${a * 0.85})`);
+      grad.addColorStop(0.38, `hsla(${beam.hue}, 85%, 60%, ${a * 0.45})`);
+      grad.addColorStop(0.7, `hsla(${beam.hue}, 75%, 48%, ${a * 0.12})`);
       grad.addColorStop(1, 'transparent');
 
       const halfW = w * beam.spread * 0.52;
@@ -181,21 +184,22 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawAmbientGlows(w: number, h: number) {
+    // Colores más brillantes - dorados y azules
     const orbs = [
-      { x: 0.14, y: 0.22, r: 0.24, hue: 330 },
-      { x: 0.86, y: 0.18, r: 0.22, hue: 200 },
-      { x: 0.52, y: 0.42, r: 0.17, hue: 45 },
-      { x: 0.68, y: 0.58, r: 0.14, hue: 280 },
-      { x: 0.35, y: 0.55, r: 0.1, hue: 25 },
+      { x: 0.14, y: 0.22, r: 0.28, hue: 45 },
+      { x: 0.86, y: 0.18, r: 0.26, hue: 200 },
+      { x: 0.52, y: 0.42, r: 0.22, hue: 55 },
+      { x: 0.68, y: 0.58, r: 0.18, hue: 280 },
+      { x: 0.35, y: 0.55, r: 0.14, hue: 35 },
     ];
     orbs.forEach((o, i) => {
       const cx = o.x * w + Math.sin(this.time * 0.55 + i) * 28;
       const cy = o.y * h + Math.cos(this.time * 0.42 + i * 0.8) * 20;
       const rad = Math.min(w, h) * o.r;
       const g = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
-      g.addColorStop(0, `hsla(${o.hue}, 92%, 68%, 0.38)`);
-      g.addColorStop(0.35, `hsla(${o.hue}, 80%, 52%, 0.16)`);
-      g.addColorStop(0.65, `hsla(${o.hue}, 70%, 42%, 0.06)`);
+      g.addColorStop(0, `hsla(${o.hue}, 95%, 72%, 0.48)`);
+      g.addColorStop(0.35, `hsla(${o.hue}, 85%, 56%, 0.24)`);
+      g.addColorStop(0.65, `hsla(${o.hue}, 75%, 46%, 0.1)`);
       g.addColorStop(1, 'transparent');
       this.ctx.fillStyle = g;
       this.ctx.beginPath();
@@ -234,9 +238,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private drawFloorReflection(w: number, h: number) {
     const y0 = h * 0.76;
     const grad = this.ctx.createLinearGradient(0, y0, 0, h);
-    grad.addColorStop(0, 'rgba(255, 200, 140, 0.09)');
-    grad.addColorStop(0.25, 'rgba(240, 100, 120, 0.1)');
-    grad.addColorStop(0.55, 'rgba(140, 100, 220, 0.08)');
+    grad.addColorStop(0, 'rgba(100, 150, 220, 0.12)');
+    grad.addColorStop(0.25, 'rgba(80, 120, 200, 0.1)');
+    grad.addColorStop(0.55, 'rgba(100, 80, 180, 0.08)');
     grad.addColorStop(1, 'transparent');
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, y0, w, h - y0);
@@ -455,7 +459,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.fill();
   }
 
-  /** Viñeta suave: menos oscuridad en bordes. */
+  /** Viñeta suave para dar profundidad */
   private drawVignette(w: number, h: number) {
     const g = this.ctx.createRadialGradient(
       w * 0.5,
@@ -466,9 +470,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       Math.max(w, h) * 0.72,
     );
     g.addColorStop(0, 'transparent');
-    g.addColorStop(0.55, 'rgba(0,0,0,0.08)');
-    g.addColorStop(0.82, 'rgba(0,0,0,0.28)');
-    g.addColorStop(1, 'rgba(0,0,0,0.42)');
+    g.addColorStop(0.55, 'rgba(0,0,0,0.06)');
+    g.addColorStop(0.82, 'rgba(0,0,0,0.2)');
+    g.addColorStop(1, 'rgba(0,0,0,0.35)');
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
   }
