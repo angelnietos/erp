@@ -13,6 +13,7 @@ import {
   UiModalComponent,
   UiTabsComponent,
   UiCardComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -33,79 +34,87 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiModalComponent,
     UiTabsComponent,
     UiCardComponent,
+    UiInputComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-content">
-          <h1 class="glow-text">Inventario</h1>
-          <p class="subtitle">Monitoreo y gestión de activos tecnológicos y recursos</p>
+    <div class="page-container animate-fade-in">
+      <header class="page-header">
+        <div class="header-main">
+          <h1 class="page-title text-uppercase">Inventario de Activos</h1>
+          <div class="breadcrumb">
+            <span class="active">CENTRO DE RECURSOS</span>
+            <span class="separator">/</span>
+            <span>MONITOREO GLOBAL</span>
+          </div>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
-            <lucide-icon name="plus" class="mr-2"></lucide-icon>
-            Nuevo Producto
+          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+            NUEVO PRODUCTO
           </ui-josanz-button>
         }
-      </div>
+      </header>
 
-      <div class="navigation-row">
-        <ui-josanz-tabs [tabs]="tabs()" [activeTab]="activeTab()" variant="underline" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
-      </div>
-
-      <div class="filters-bar">
+      <div class="navigation-bar">
+        <ui-josanz-tabs 
+          [tabs]="tabs()" 
+          [activeTab]="activeTab()" 
+          variant="underline" 
+          (tabChange)="onTabChange($any($event))"
+        ></ui-josanz-tabs>
+        
         <ui-josanz-search 
           variant="filled"
-          placeholder="BUSCAR EQUIPAMIENTO..." 
+          placeholder="BUSCAR EQUIPAMIENTO O SKU..." 
           (searchChange)="onSearch($any($event))"
-          class="flex-1"
+          class="search-bar"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando inventario global..."></ui-josanz-loader>
+        <div class="loader-container">
+          <ui-josanz-loader message="SINCRONIZANDO INVENTARIO GLOBAL..."></ui-josanz-loader>
+        </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card">
-          <ui-josanz-table [columns]="columns" [data]="products()" variant="hover">
+          <ui-josanz-table [columns]="columns" [data]="products()" variant="default">
             <ng-template #cellTemplate let-product let-key="key">
               @switch (key) {
                 @case ('name') {
                   <a [routerLink]="['/inventory', product.id]" class="product-link">
-                    {{ product.name }}
+                    {{ product.name | uppercase }}
                   </a>
                 }
                 @case ('status') {
-                   <div class="status-cell">
-                    <ui-josanz-badge [variant]="getStatusVariant(product.status)">
-                      {{ getStatusLabel(product.status) }}
-                    </ui-josanz-badge>
-                  </div>
+                  <ui-josanz-badge [variant]="getStatusVariant(product.status)">
+                    {{ getStatusLabel(product.status) | uppercase }}
+                  </ui-josanz-badge>
                 }
                 @case ('totalStock') {
                   <div class="stock-info">
-                    <span class="total">{{ product.totalStock }}</span>
+                    <span class="val font-mono">{{ product.totalStock }}</span>
                     @if (product.reservedStock > 0) {
-                      <span class="reserved">({{ product.reservedStock }} RES.)</span>
+                      <span class="res text-warning font-mono">({{ product.reservedStock }} RES.)</span>
                     }
                   </div>
                 }
                 @case ('dailyRate') {
-                  <span class="price-text">{{ product.dailyRate | currency:'EUR' }}</span><small class="unit">/DÍA</small>
+                  <span class="price-val font-mono">{{ product.dailyRate | currency:'EUR' }}</span>
+                  <small class="unit">/ DÍA</small>
                 }
                 @case ('actions') {
-                  <div class="actions">
-                    <button class="action-trigger" [routerLink]="['/inventory', product.id]" title="Ver">
-                      <lucide-icon name="eye" size="18"></lucide-icon>
+                  <div class="row-actions">
+                    <button class="action-btn" [routerLink]="['/inventory', product.id]" title="Detalles">
+                      <lucide-icon name="eye" size="16"></lucide-icon>
                     </button>
                     @if (config.enableEdit) {
-                      <button class="action-trigger" (click)="editProduct(product)" title="Editar">
-                        <lucide-icon name="pencil" size="18"></lucide-icon>
+                      <button class="action-btn" (click)="editProduct(product)" title="Editar">
+                        <lucide-icon name="pencil" size="16"></lucide-icon>
                       </button>
                     }
                     @if (config.enableDelete) {
-                      <button class="action-trigger danger" (click)="confirmDelete(product)" title="Eliminar">
-                        <lucide-icon name="trash-2" size="18"></lucide-icon>
+                      <button class="action-btn danger" (click)="confirmDelete(product)" title="Eliminar">
+                        <lucide-icon name="trash-2" size="16"></lucide-icon>
                       </button>
                     }
                   </div>
@@ -117,14 +126,17 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
             </ng-template>
           </ui-josanz-table>
 
-          <div class="pagination-wrapper">
+          <footer class="table-footer">
+            <div class="table-info text-uppercase">
+              {{ products().length }} ACTIVOS EN VISTA ACTUAL
+            </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
-              variant="minimal"
+              variant="default"
               (pageChange)="onPageChange($event)"
             ></ui-josanz-pagination>
-          </div>
+          </footer>
         </ui-josanz-card>
       }
     </div>
@@ -132,107 +144,82 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingProduct() ? 'IDENTIFICACIÓN ACTIVO: EDITAR' : 'IDENTIFICACIÓN ACTIVO: NUEVO'"
+      [title]="editingProduct() ? 'MODIFICACIÓN DE ACTIVO' : 'REGISTRO DE NUEVO RECURSO'"
       (closed)="closeModal()"
       variant="dark"
     >
-      <div class="form-container">
-        <div class="form-grid">
-          <div class="form-col full-width">
-            <label class="field-label" for="prod-name">Nombre del Producto *</label>
-            <input 
-              type="text" 
-              id="prod-name"
-              class="technical-input"
-              [(ngModel)]="formData.name" 
-              name="name" 
-              required
-              placeholder="DENOMINACIÓN TÉCNICA"
-            >
-          </div>
+      <div class="form-grid">
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Identificación Técnica</h3>
+          <ui-josanz-input 
+            label="Nombre del Producto" 
+            [(ngModel)]="formData.name" 
+            placeholder="DENOMINACIÓN COMERCIAL O TÉCNICA..."
+            icon="box"
+            id="prod-name"
+          ></ui-josanz-input>
           
-          <div class="form-col">
-            <label class="field-label" for="prod-sku">Identificador SKU</label>
-            <input 
-              type="text" 
-              id="prod-sku"
-              class="technical-input"
+          <div class="input-row">
+            <ui-josanz-input 
+              label="Referencia SKU" 
               [(ngModel)]="formData.sku" 
-              name="sku" 
               placeholder="CAM-FX6-001"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="prod-category">Categoría</label>
-            <input 
-              type="text" 
-              id="prod-category"
-              class="technical-input"
+              icon="hash"
+              id="prod-sku"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Categoría" 
               [(ngModel)]="formData.category" 
-              name="category" 
-              placeholder="CÁMARAS / ILUMINACIÓN"
-            >
+              placeholder="CÁMARAS / LUZ..."
+              icon="tag"
+              id="prod-category"
+            ></ui-josanz-input>
           </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="prod-status">Estado del Activo</label>
-            <select id="prod-status" class="technical-select" [(ngModel)]="formData.status" name="status">
-              <option value="available">DISPONIBLE</option>
-              <option value="reserved">RESERVADO</option>
-              <option value="maintenance">MANTENIMIENTO</option>
-              <option value="retired">RETIRADO</option>
-            </select>
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="prod-total-stock">Stock Total</label>
-            <input 
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Control de Existencias</h3>
+          <div class="input-row">
+            <ui-josanz-input 
+              label="Stock Total" 
               type="number" 
-              id="prod-total-stock"
-              class="technical-input"
               [(ngModel)]="formData.totalStock" 
-              name="totalStock" 
-              placeholder="0"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="prod-avail-stock">Stock Disponible</label>
-            <input 
+              icon="layers"
+              id="prod-total-stock"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Disponible" 
               type="number" 
-              id="prod-avail-stock"
-              class="technical-input"
               [(ngModel)]="formData.availableStock" 
-              name="availableStock" 
-              placeholder="0"
-            >
+              icon="check-square"
+              id="prod-avail-stock"
+            ></ui-josanz-input>
           </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="prod-rate">Tarifa Diaria (€)</label>
-            <input 
-              type="number" 
-              id="prod-rate"
-              class="technical-input"
-              [(ngModel)]="formData.dailyRate" 
-              name="dailyRate" 
-              placeholder="0.00"
-              step="0.01"
-            >
-          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Valoración Económica</h3>
+          <ui-josanz-input 
+            label="Tarifa Diaria de Arrendamiento (€)" 
+            type="number" 
+            [(ngModel)]="formData.dailyRate" 
+            placeholder="0.00"
+            icon="euro"
+            id="prod-rate"
+          ></ui-josanz-input>
         </div>
       </div>
       
-      <div modal-footer class="modal-footer">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
-          ABORTAR
-        </ui-josanz-button>
+      <div modal-footer class="modal-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
         <ui-josanz-button 
-          variant="primary"
+          variant="glass"
           (clicked)="saveProduct()"
           [disabled]="!formData.name"
         >
+          <lucide-icon name="save" size="18" class="mr-2"></lucide-icon>
           {{ editingProduct() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
         </ui-josanz-button>
       </div>
@@ -241,173 +228,150 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="ADVERTENCIA: ELIMINACIÓN DE ACTIVO"
+      title="SISTEMA: ADVERTENCIA DE ELIMINACIÓN"
       (closed)="closeDeleteModal()"
       variant="dark"
     >
       <div class="delete-warning">
-        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <lucide-icon name="alert-triangle" size="40" class="warning-icon"></lucide-icon>
         <div class="warning-content">
-          <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ productToDelete()?.name }}</strong>?</p>
-          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ EL REGISTRO DEL INVENTARIO.</p>
+          <p class="text-uppercase">¿ESTÁ SEGURO DE QUE DESEA ELIMINAR EL PRODUCTO <strong>{{ productToDelete()?.name | uppercase }}</strong>?</p>
+          <p class="critical-text text-uppercase">ESTA ACCIÓN ES IRREVERSIBLE. SE ELIMINARÁ EL ACTIVO Y SU HISTORIAL DE OPERACIONES.</p>
         </div>
       </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
-          CANCELAR
-        </ui-josanz-button>
-        <ui-josanz-button variant="danger" (clicked)="deleteProduct()">
-          ELIMINAR DEFINITIVAMENTE
-        </ui-josanz-button>
+      <div modal-footer class="modal-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">ABORTAR</ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteProduct()">CONFIRMAR BAJA</ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 2rem; }
+    .page-container { padding: 2.5rem; max-width: 1600px; margin: 0 auto; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
-      align-items: center;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border-soft);
+      align-items: flex-end;
+      margin-bottom: 3rem;
       padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-soft);
     }
     
-    .glow-text { 
-      font-size: 2.5rem; 
+    .page-title { 
+      font-size: 2.25rem; 
       font-weight: 900; 
       color: #fff; 
-      margin: 0; 
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      margin: 0 0 0.5rem 0; 
+      letter-spacing: -0.02em;
       font-family: var(--font-display);
-      text-shadow: 0 0 20px var(--brand-glow);
     }
     
-    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+    .breadcrumb .active { color: var(--brand); }
+    .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-row { margin-bottom: 2rem; }
-    
-    .filters-bar { margin-bottom: 2rem; display: flex; }
-    .flex-1 { flex: 1; }
+    .navigation-bar { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 2rem; 
+      gap: 2rem;
+    }
+    .search-bar { max-width: 400px; flex: 1; }
     
     .product-link { 
       color: var(--brand); 
       text-decoration: none; 
       font-weight: 800; 
-      text-transform: uppercase;
+      font-size: 0.85rem;
       letter-spacing: 0.05em;
-      transition: all 0.2s;
+      transition: var(--transition-fast);
     }
-    .product-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    .product-link:hover { color: #fff; text-decoration: underline; }
     
-    .status-cell { display: flex; align-items: center; }
+    .stock-info { display: flex; align-items: center; gap: 8px; }
+    .stock-info .val { color: #fff; font-weight: 800; }
+    .stock-info .res { font-size: 0.65rem; font-weight: 900; }
     
-    .stock-info { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); }
-    .stock-info .total { color: #fff; font-weight: 800; font-size: 1rem; }
-    .stock-info .reserved { color: #eab308; font-size: 0.7rem; font-weight: 900; letter-spacing: 0.05em; }
-    
-    .price-text { color: #fff; font-weight: 800; font-family: var(--font-display); }
-    .unit { color: var(--text-muted); font-size: 0.65rem; margin-left: 4px; font-weight: 700; }
+    .price-val { color: #fff; font-weight: 700; }
+    .unit { color: var(--text-muted); font-size: 0.65rem; margin-left: 2px; font-weight: 800; }
 
-    .actions { display: flex; gap: 10px; }
+    .row-actions { display: flex; gap: 6px; }
     
-    .action-trigger { 
+    .action-btn { 
       background: var(--bg-tertiary); 
       border: 1px solid var(--border-soft); 
-      color: var(--text-muted); 
+      color: var(--text-secondary); 
       cursor: pointer; 
-      width: 34px;
-      height: 34px;
-      border-radius: 4px;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: var(--transition-base);
     }
     
-    .action-trigger:hover { 
+    .action-btn:hover { 
       color: #fff; 
       border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 10px var(--brand-glow);
+      background: var(--brand-muted);
+      transform: translateY(-2px);
     }
     
-    .action-trigger.danger:hover {
-      border-color: var(--danger);
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--border-soft);
     }
 
-    .pagination-wrapper {
-      padding-top: 1rem;
-      border-top: 1px solid var(--border-soft);
-      margin-top: 1rem;
-    }
+    .table-info { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
 
     /* Form Styles */
-    .form-container { padding: 1rem 0; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+    .form-grid { display: flex; flex-direction: column; gap: 2.5rem; padding: 1rem 0; }
+    .form-section { display: flex; flex-direction: column; gap: 1.5rem; }
+    .section-title { 
+      font-size: 0.75rem; 
+      color: var(--brand); 
+      letter-spacing: 0.2em; 
+      font-weight: 900; 
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
     }
-    .form-col { display: flex; flex-direction: column; gap: 8px; }
-    .form-col.full-width { grid-column: 1 / -1; }
+    .input-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
     
-    .field-label {
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    
-    .technical-input, .technical-select, .technical-textarea {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      border-radius: 4px;
-      padding: 12px 14px;
-      color: #fff;
-      font-size: 0.9rem;
-      font-family: var(--font-main);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      outline: none;
-    }
-    
-    .technical-input:focus, .technical-select:focus, .technical-textarea:focus {
-      border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
-    }
-
-    .technical-select option { background: var(--bg-secondary); color: #fff; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
 
     .delete-warning {
       display: flex;
       gap: 20px;
       align-items: center;
-      padding: 1rem;
+      padding: 1.5rem;
       background: rgba(239, 68, 68, 0.05);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      border-radius: 6px;
+      border-radius: var(--radius-md);
     }
-    
-    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
-    
-    .critical-text {
-      color: var(--danger);
-      font-weight: 800;
-      font-size: 0.75rem;
-      margin-top: 8px;
-    }
+    .warning-icon { color: var(--danger); }
+    .critical-text { color: var(--danger); font-weight: 800; font-size: 0.7rem; margin-top: 8px; opacity: 0.8; }
 
     .mr-2 { margin-right: 8px; }
 
-    @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .glow-text { font-size: 1.8rem; }
+    @media (max-width: 1024px) {
+      .navigation-bar { flex-direction: column; align-items: stretch; }
+      .search-bar { max-width: none; }
+      .input-row { grid-template-columns: 1fr; }
     }
   `],
 })
@@ -425,13 +389,11 @@ export class InventoryListComponent implements OnInit {
   totalPages = signal(1);
   searchTerm = '';
   
-  // Modal state
   isModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
   editingProduct = signal<Product | null>(null);
   productToDelete = signal<Product | null>(null);
   
-  // Form data
   formData: Partial<Product> = {
     name: '',
     sku: '',
@@ -546,4 +508,3 @@ export class InventoryListComponent implements OnInit {
     }
   }
 }
-

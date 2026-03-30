@@ -13,6 +13,7 @@ import {
   UiModalComponent,
   UiTabsComponent,
   UiCardComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 
@@ -32,83 +33,84 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiModalComponent,
     UiTabsComponent,
     UiCardComponent,
+    UiInputComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-content">
-          <h1 class="glow-text">Alquileres</h1>
-          <p class="subtitle">Control de expedientes de arrendamiento y disponibilidad de equipos</p>
+    <div class="page-container animate-fade-in">
+      <header class="page-header">
+        <div class="header-main">
+          <h1 class="page-title text-uppercase">Arrendamientos y Alquileres</h1>
+          <div class="breadcrumb">
+            <span class="active">GESTIÓN OPERATIVA</span>
+            <span class="separator">/</span>
+            <span>FLUJO DE EXPEDIENTES</span>
+          </div>
         </div>
-        <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
-          <lucide-icon name="plus" class="mr-2"></lucide-icon>
-          Nuevo Alquiler
+        <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+          NUEVO EXPEDIENTE
         </ui-josanz-button>
-      </div>
+      </header>
 
-      <div class="navigation-row">
-        <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" variant="underline" (tabChange)="onTabChange($event)"></ui-josanz-tabs>
-      </div>
-
-      <div class="filters-bar">
+      <div class="navigation-bar">
+        <ui-josanz-tabs 
+          [tabs]="tabs" 
+          [activeTab]="activeTab()" 
+          variant="underline" 
+          (tabChange)="onTabChange($event)"
+        ></ui-josanz-tabs>
+        
         <ui-josanz-search 
           variant="filled"
           placeholder="BUSCAR EXPEDIENTE O CLIENTE..." 
           (searchChange)="onSearch($event)"
-          class="flex-1"
+          class="search-bar"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Consultando registros de alquiler..."></ui-josanz-loader>
+        <div class="loader-container">
+          <ui-josanz-loader message="SINCRONIZANDO REGISTROS DE ALQUILER..."></ui-josanz-loader>
+        </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card">
-          <ui-josanz-table [columns]="columns" [data]="rentals()" variant="hover">
+          <ui-josanz-table [columns]="columns" [data]="rentals()" variant="default">
             <ng-template #cellTemplate let-rental let-key="key">
               @switch (key) {
                 @case ('id') {
                   <a [routerLink]="['/rentals', rental.id]" class="rental-link">
-                    #{{ rental.id.slice(0, 8) }}
+                    #{{ rental.id.slice(0, 8) | uppercase }}
                   </a>
                 }
                 @case ('status') {
                   <ui-josanz-badge [variant]="getStatusVariant(rental.status)">
-                    {{ getStatusLabel(rental.status) }}
+                    {{ getStatusLabel(rental.status) | uppercase }}
                   </ui-josanz-badge>
                 }
                 @case ('startDate') {
-                  <span class="date-text">{{ formatDate(rental.startDate) }}</span>
+                  <span class="text-secondary font-mono">{{ formatDate(rental.startDate) }}</span>
                 }
                 @case ('endDate') {
-                  <span class="date-text">{{ formatDate(rental.endDate) }}</span>
+                  <span class="text-secondary font-mono">{{ formatDate(rental.endDate) }}</span>
                 }
                 @case ('totalAmount') {
-                  <span class="amount-text">{{ rental.totalAmount | currency:'EUR' }}</span>
+                  <span class="currency-value">{{ rental.totalAmount | currency:'EUR' }}</span>
                 }
                 @case ('actions') {
-                  <div class="actions">
-                    <button class="action-trigger" [routerLink]="['/rentals', rental.id]" title="Ver">
-                      <lucide-icon name="eye" size="18"></lucide-icon>
+                  <div class="row-actions">
+                    <button class="action-btn" [routerLink]="['/rentals', rental.id]" title="Detalles">
+                      <lucide-icon name="eye" size="16"></lucide-icon>
                     </button>
                     @if (rental.status === 'DRAFT') {
-                      <button class="action-trigger success" title="Activar" (click)="activateRental(rental)">
-                        <lucide-icon name="play" size="18"></lucide-icon>
+                      <button class="action-btn success" title="Activar" (click)="activateRental(rental)">
+                        <lucide-icon name="play" size="15"></lucide-icon>
                       </button>
                     }
-                    @if (rental.status === 'ACTIVE') {
-                      <button class="action-trigger info" title="Completar" (click)="completeRental(rental)">
-                        <lucide-icon name="check-circle" size="18"></lucide-icon>
-                      </button>
-                      <button class="action-trigger danger" title="Cancelar" (click)="cancelRental(rental)">
-                        <lucide-icon name="x-circle" size="18"></lucide-icon>
-                      </button>
-                    }
-                    <button class="action-trigger" (click)="editRental(rental)" title="Editar">
-                      <lucide-icon name="pencil" size="18"></lucide-icon>
+                    <button class="action-btn" (click)="editRental(rental)" title="Editar">
+                      <lucide-icon name="pencil" size="16"></lucide-icon>
                     </button>
-                    <button class="action-trigger danger" (click)="confirmDelete(rental)" title="Eliminar">
-                      <lucide-icon name="trash-2" size="18"></lucide-icon>
+                    <button class="action-btn danger" (click)="confirmDelete(rental)" title="Eliminar">
+                      <lucide-icon name="trash-2" size="16"></lucide-icon>
                     </button>
                   </div>
                 }
@@ -119,14 +121,17 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
             </ng-template>
           </ui-josanz-table>
 
-          <div class="pagination-wrapper">
+          <footer class="table-footer">
+            <div class="table-info text-uppercase">
+              {{ rentals().length }} EXPEDIENTES EN LISTADO ACTUAL
+            </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
-              variant="minimal"
+              variant="default"
               (pageChange)="onPageChange($event)"
             ></ui-josanz-pagination>
-          </div>
+          </footer>
         </ui-josanz-card>
       }
     </div>
@@ -134,94 +139,75 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingRental() ? 'EXPEDIENTE ALQUILER: EDITAR' : 'EXPEDIENTE ALQUILER: NUEVO'"
+      [title]="editingRental() ? 'MODIFICACIÓN DE EXPEDIENTE' : 'APERTURA DE NUEVO ARRENDAMIENTO'"
       (closed)="closeModal()"
       variant="dark"
     >
-      <div class="form-container">
-        <div class="form-grid">
-          <div class="form-col full-width">
-            <label class="field-label" for="rental-client">Cliente Operatvo *</label>
-            <input 
-              type="text" 
-              id="rental-client"
-              class="technical-input"
-              [(ngModel)]="formData.clientName" 
-              name="clientName" 
-              required
-              placeholder="DENOMINACIÓN DEL CLIENTE"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="rental-status">Estado del Expediente</label>
-            <select id="rental-status" class="technical-select" [(ngModel)]="formData.status" name="status">
-              <option value="DRAFT">BORRADOR</option>
-              <option value="ACTIVE">ACTIVO</option>
-              <option value="COMPLETED">COMPLETADO</option>
-              <option value="CANCELLED">CANCELADO</option>
-            </select>
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="rental-start">Fecha de Activación</label>
-            <input 
+      <div class="form-grid">
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Información del Cliente</h3>
+          <ui-josanz-input 
+            label="Denominación del Cliente" 
+            [(ngModel)]="formData.clientName" 
+            placeholder="NOMBRE FISCAL O COMERCIAL..."
+            icon="user"
+            id="rental-client"
+          ></ui-josanz-input>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Tiempos y Logística</h3>
+          <div class="input-row">
+            <ui-josanz-input 
+              label="Fecha Inicio" 
               type="date" 
-              id="rental-start"
-              class="technical-input"
               [(ngModel)]="formData.startDate" 
-              name="startDate" 
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="rental-end">Fecha de Finalización</label>
-            <input 
+              icon="calendar"
+              id="rental-start"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Fecha Finalización" 
               type="date" 
-              id="rental-end"
-              class="technical-input"
               [(ngModel)]="formData.endDate" 
-              name="endDate" 
-            >
+              icon="calendar-check"
+              id="rental-end"
+            ></ui-josanz-input>
           </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="rental-items">Unidades Alquiladas</label>
-            <input 
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Valores Consolidados</h3>
+          <div class="input-row">
+            <ui-josanz-input 
+              label="Unidades Arrendadas" 
               type="number" 
-              id="rental-items"
-              class="technical-input"
               [(ngModel)]="formData.itemsCount" 
-              name="itemsCount" 
-              placeholder="0"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="rental-amount">Importe Consolidado (€)</label>
-            <input 
+              icon="box"
+              id="rental-items"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Importe Total Bruto" 
               type="number" 
-              id="rental-amount"
-              class="technical-input"
               [(ngModel)]="formData.totalAmount" 
-              name="totalAmount" 
               placeholder="0.00"
-              step="0.01"
-            >
+              icon="euro"
+              id="rental-amount"
+            ></ui-josanz-input>
           </div>
         </div>
       </div>
       
-      <div modal-footer class="modal-footer">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
-          ABORTAR
-        </ui-josanz-button>
+      <div modal-footer class="modal-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
         <ui-josanz-button 
-          variant="primary"
+          variant="glass"
           (clicked)="saveRental()"
           [disabled]="!formData.clientName"
         >
-          {{ editingRental() ? 'ACTUALIZAR EXPEDIENTE' : 'CREAR EXPEDIENTE' }}
+          <lucide-icon name="save" size="18" class="mr-2"></lucide-icon>
+          {{ editingRental() ? 'ACTUALIZAR EXPEDIENTE' : 'EMITIR CONTRATO' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -229,173 +215,149 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="ADVERTENCIA: ELIMINACIÓN DE EXPEDIENTE"
+      title="SISTEMA: ADVERTENCIA DE ELIMINACIÓN"
       (closed)="closeDeleteModal()"
       variant="dark"
     >
       <div class="delete-warning">
-        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <lucide-icon name="alert-triangle" size="40" class="warning-icon"></lucide-icon>
         <div class="warning-content">
-          <p>¿Estás seguro de que deseas eliminar el alquiler <strong>#{{ rentalToDelete()?.id?.slice(0, 8) }}</strong>?</p>
-          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ EL EXPEDIENTE DE LA BASE DE DATOS.</p>
+          <p class="text-uppercase">¿ESTÁ SEGURO DE QUE DESEA ELIMINAR EL EXPEDIENTE <strong>#{{ rentalToDelete()?.id?.slice(0, 8) | uppercase }}</strong>?</p>
+          <p class="critical-text text-uppercase">ESTA ACCIÓN ES IRREVERSIBLE. SE ELIMINARÁ TODA LA TRAZABILIDAD DEL ALQUILER.</p>
         </div>
       </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
-          CANCELAR
-        </ui-josanz-button>
-        <ui-josanz-button variant="danger" (clicked)="deleteRental()">
-          ELIMINAR DEFINITIVAMENTE
-        </ui-josanz-button>
+      <div modal-footer class="modal-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">ABORTAR</ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteRental()">CONFIRMAR BAJA</ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 2rem; }
+    .page-container { padding: 2.5rem; max-width: 1600px; margin: 0 auto; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
-      align-items: center;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border-soft);
+      align-items: flex-end;
+      margin-bottom: 3rem;
       padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-soft);
     }
     
-    .glow-text { 
-      font-size: 2.5rem; 
+    .page-title { 
+      font-size: 2.25rem; 
       font-weight: 900; 
       color: #fff; 
-      margin: 0; 
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      margin: 0 0 0.5rem 0; 
+      letter-spacing: -0.02em;
       font-family: var(--font-display);
-      text-shadow: 0 0 20px var(--brand-glow);
     }
     
-    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+    .breadcrumb .active { color: var(--brand); }
+    .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-row { margin-bottom: 2rem; }
-    
-    .filters-bar { margin-bottom: 2rem; display: flex; }
-    .flex-1 { flex: 1; }
+    .navigation-bar { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 2rem; 
+      gap: 2rem;
+    }
+    .search-bar { max-width: 400px; }
     
     .rental-link { 
       color: var(--brand); 
       text-decoration: none; 
-      font-weight: 900; 
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: var(--font-display);
-      transition: all 0.2s;
+      font-weight: 800; 
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      transition: var(--transition-fast);
     }
-    .rental-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    .rental-link:hover { color: #fff; text-decoration: underline; }
     
-    .date-text { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
-    .amount-text { color: #fff; font-weight: 800; font-family: var(--font-display); }
+    .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
 
-    .actions { display: flex; gap: 10px; }
+    .row-actions { display: flex; gap: 6px; }
     
-    .action-trigger { 
+    .action-btn { 
       background: var(--bg-tertiary); 
       border: 1px solid var(--border-soft); 
-      color: var(--text-muted); 
+      color: var(--text-secondary); 
       cursor: pointer; 
       width: 34px;
       height: 34px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: var(--transition-base);
     }
     
-    .action-trigger:hover { 
+    .action-btn:hover { 
       color: #fff; 
       border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 10px var(--brand-glow);
+      background: var(--brand-muted);
+      transform: translateY(-2px);
     }
     
-    .action-trigger.success:hover { border-color: var(--success); color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
-    .action-trigger.info:hover { border-color: var(--info); color: var(--info); box-shadow: 0 0 10px rgba(96, 165, 250, 0.4); }
-    .action-trigger.danger:hover {
-      border-color: var(--danger);
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    .action-btn.success:hover { background: var(--success); border-color: var(--success); }
+    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--border-soft);
     }
 
-    .pagination-wrapper {
-      padding-top: 1rem;
-      border-top: 1px solid var(--border-soft);
-      margin-top: 1rem;
-    }
+    .table-info { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
 
     /* Form Styles */
-    .form-container { padding: 1rem 0; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+    .form-grid { display: flex; flex-direction: column; gap: 2.5rem; padding: 1rem 0; }
+    .form-section { display: flex; flex-direction: column; gap: 1.5rem; }
+    .section-title { 
+      font-size: 0.75rem; 
+      color: var(--brand); 
+      letter-spacing: 0.2em; 
+      font-weight: 900; 
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
     }
-    .form-col { display: flex; flex-direction: column; gap: 8px; }
-    .form-col.full-width { grid-column: 1 / -1; }
+    .input-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
     
-    .field-label {
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    
-    .technical-input, .technical-select {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      border-radius: 4px;
-      padding: 12px 14px;
-      color: #fff;
-      font-size: 0.9rem;
-      font-family: var(--font-main);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      outline: none;
-    }
-    
-    .technical-input:focus, .technical-select:focus {
-      border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
-    }
-
-    .technical-select option { background: var(--bg-secondary); color: #fff; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
 
     .delete-warning {
       display: flex;
       gap: 20px;
       align-items: center;
-      padding: 1rem;
+      padding: 1.5rem;
       background: rgba(239, 68, 68, 0.05);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      border-radius: 6px;
+      border-radius: var(--radius-md);
     }
-    
-    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
-    
-    .critical-text {
-      color: var(--danger);
-      font-weight: 800;
-      font-size: 0.75rem;
-      margin-top: 8px;
-    }
+    .warning-icon { color: var(--danger); }
+    .critical-text { color: var(--danger); font-weight: 800; font-size: 0.7rem; margin-top: 8px; opacity: 0.8; }
 
     .mr-2 { margin-right: 8px; }
 
-    @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .glow-text { font-size: 1.8rem; }
+    @media (max-width: 1024px) {
+      .navigation-bar { flex-direction: column; align-items: stretch; }
+      .search-bar { max-width: none; }
+      .input-row { grid-template-columns: 1fr; }
     }
   `],
-
 })
 export class RentalsListComponent implements OnInit {
   private rentalService = inject(RentalService);
@@ -409,14 +371,14 @@ export class RentalsListComponent implements OnInit {
   ];
 
   columns = [
-    { key: 'id', header: 'Referencia', width: '120px' },
-    { key: 'clientName', header: 'Cliente' },
-    { key: 'startDate', header: 'Inicio', width: '120px' },
-    { key: 'endDate', header: 'Fin', width: '120px' },
-    { key: 'itemsCount', header: 'Items', width: '80px' },
-    { key: 'totalAmount', header: 'Importe', width: '120px' },
-    { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'actions', header: '', width: '140px' },
+    { key: 'id', header: 'REFERENCIA', width: '120px' },
+    { key: 'clientName', header: 'CLIENTE' },
+    { key: 'startDate', header: 'INICIO', width: '120px' },
+    { key: 'endDate', header: 'FIN', width: '120px' },
+    { key: 'itemsCount', header: 'UNIDADES', width: '80px' },
+    { key: 'totalAmount', header: 'IMPORTE', width: '120px' },
+    { key: 'status', header: 'ESTADO', width: '150px' },
+    { key: 'actions', header: '', width: '160px' },
   ];
 
   rentals = signal<Rental[]>([]);
@@ -426,13 +388,11 @@ export class RentalsListComponent implements OnInit {
   activeTab = signal('all');
   searchTerm = '';
   
-  // Modal state
   isModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
   editingRental = signal<Rental | null>(null);
   rentalToDelete = signal<Rental | null>(null);
   
-  // Form data
   formData: Partial<Rental> = {
     clientId: '',
     clientName: '',
@@ -648,4 +608,3 @@ export class RentalsListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
-

@@ -299,8 +299,8 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 <span class="lbl text-uppercase">Referencia Legal del Documento</span>
                 <span class="val text-uppercase">{{ inv.series }}{{ inv.number }}</span>
               </div>
-              <div class="vf-status-tag" [class.sent]="inv.verifactuStatus?.toLowerCase() === 'sent'">
-                <lucide-icon [name]="inv.verifactuStatus?.toLowerCase() === 'sent' ? 'check-circle' : 'clock'" size="16"></lucide-icon>
+              <div class="vf-status-tag" [class.sent]="inv.verifactuStatus.toLowerCase() === 'sent'">
+                <lucide-icon [name]="inv.verifactuStatus.toLowerCase() === 'sent' ? 'check-circle' : 'clock'" size="16"></lucide-icon>
                 <span class="text-uppercase">SISTEMA: {{ inv.verifactuStatus }}</span>
               </div>
             </header>
