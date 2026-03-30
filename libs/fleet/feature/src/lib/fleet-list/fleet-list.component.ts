@@ -423,7 +423,7 @@ export class FleetListComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
   activeTab = signal('all');
-  searchTerm = '';
+  searchFilter = signal('');
   
   isModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
