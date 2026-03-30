@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -355,6 +355,8 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 })
 export class RentalsListComponent implements OnInit {
   private rentalService = inject(RentalService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   tabs = [
     { id: 'all', label: 'Todos', badge: 0 },
@@ -399,6 +401,16 @@ export class RentalsListComponent implements OnInit {
 
   ngOnInit() {
     this.loadRentals();
+    const openCreate = this.route.snapshot.queryParamMap.get('openCreate');
+    if (openCreate === '1' || openCreate === 'true') {
+      queueMicrotask(() => this.openCreateModal());
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { openCreate: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   loadRentals() {

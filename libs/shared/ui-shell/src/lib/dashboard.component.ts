@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
+import { finalize } from 'rxjs';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
   UiStatCardComponent, UiResourceMonitorComponent, ResourceItem 
@@ -27,8 +29,16 @@ import {
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" icon="refresh-cw">SINCRONIZAR</ui-josanz-button>
-          <ui-josanz-button variant="primary" size="md" icon="plus">NUEVO EXPEDIENTE</ui-josanz-button>
+          <ui-josanz-button
+            variant="glass"
+            size="md"
+            icon="refresh-cw"
+            [loading]="isSyncing()"
+            (clicked)="syncDashboard()"
+          >SINCRONIZAR</ui-josanz-button>
+          <ui-josanz-button variant="primary" size="md" icon="plus" (clicked)="goNewRental()">
+            NUEVO EXPEDIENTE
+          </ui-josanz-button>
         </div>
       </header>
 
@@ -147,6 +157,27 @@ import {
   `],
 })
 export class DashboardComponent {
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+
+  readonly isSyncing = signal(false);
+
+  /** Comprueba conectividad con la API (misma ruta que usa el resto del ERP). */
+  syncDashboard(): void {
+    if (this.isSyncing()) return;
+    this.isSyncing.set(true);
+    this.http
+      .get<unknown[]>('/api/vehicles')
+      .pipe(finalize(() => this.isSyncing.set(false)))
+      .subscribe({
+        error: (err) => console.error('Sincronización: error al contactar la API', err),
+      });
+  }
+
+  goNewRental(): void {
+    void this.router.navigate(['/rentals'], { queryParams: { openCreate: '1' } });
+  }
+
   activities = [
     { id: '1', time: '14:20', user: 'Antonio Munias', msg: 'Ha validado la factura #FAC-2026-004', type: 'billing' },
     { id: '2', time: '13:15', user: 'Sistema', msg: 'Nuevo presupuesto recibido: Producciones Madrid S.L.', type: 'budget' },
