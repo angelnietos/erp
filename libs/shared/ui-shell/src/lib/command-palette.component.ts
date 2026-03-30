@@ -1,4 +1,4 @@
-import { Component, HostListener, output, signal, inject } from '@angular/core';
+import { Component, HostListener, output, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
@@ -20,8 +20,14 @@ export interface CommandItem {
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UiSearchComponent],
   template: `
-    <div class="overlay animate-fade-in" (click)="close.emit()" (keydown.escape)="close.emit()">
-      <div class="palette-container animate-scale-in" (click)="$event.stopPropagation()">
+    <div 
+      class="overlay animate-fade-in" 
+      (click)="closePalette.emit()" 
+      (keydown.escape)="closePalette.emit()"
+      tabindex="-1"
+      role="button"
+    >
+      <div class="palette-container animate-scale-in" (click)="$event.stopPropagation()" role="none">
         <ui-josanz-search 
           variant="glass" 
           placeholder="¿QUÉ DESEAS ENCONTRAR O HACER?" 
@@ -36,25 +42,30 @@ export interface CommandItem {
               <p class="text-uppercase text-muted">No se han encontrado resultados técnicos</p>
             </div>
           } @else {
-            <div class="category-group" *ngFor="let cat of categories()">
-              <div class="category-label text-uppercase">{{ cat }}</div>
-              @for (item of getItemsByCategory(cat); track item.id) {
-                <div 
-                  class="command-item" 
-                  (click)="executeCommand(item)"
-                  [class.active]="selectedId() === item.id"
-                >
-                  <div class="item-icon">
-                    <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+            @for (cat of categories(); track cat) {
+              <div class="category-group">
+                <div class="category-label text-uppercase">{{ cat }}</div>
+                @for (item of getItemsByCategory(cat); track item.id) {
+                  <div 
+                    class="command-item" 
+                    (click)="executeCommand(item)"
+                    (keydown.enter)="executeCommand(item)"
+                    [class.active]="selectedId() === item.id"
+                    tabindex="0"
+                    role="button"
+                  >
+                    <div class="item-icon">
+                      <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                    </div>
+                    <div class="item-info">
+                      <span class="label text-uppercase">{{ item.label }}</span>
+                      <span class="desc">{{ item.description }}</span>
+                    </div>
+                    <div class="item-shortcut">↵ ENTER</div>
                   </div>
-                  <div class="item-info">
-                    <span class="label text-uppercase">{{ item.label }}</span>
-                    <span class="desc">{{ item.description }}</span>
-                  </div>
-                  <div class="item-shortcut">↵ ENTER</div>
-                </div>
-              }
-            </div>
+                }
+              </div>
+            }
           }
         </div>
 
@@ -77,6 +88,7 @@ export interface CommandItem {
       z-index: 2000;
       display: flex; align-items: flex-start; justify-content: center;
       padding-top: 15vh;
+      outline: none;
     }
 
     .palette-container {
@@ -100,18 +112,20 @@ export interface CommandItem {
 
     .command-item {
       display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; border-radius: 6px; cursor: pointer; transition: 0.2s;
+      outline: none;
     }
     .command-item:hover, .command-item.active { background: rgba(240, 62, 62, 0.08); border-left: 3px solid var(--brand); }
+    .command-item:focus { background: rgba(240, 62, 62, 0.05); }
     
     .item-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); border-radius: 4px; color: var(--text-secondary); }
-    .command-item:hover .item-icon { color: var(--brand); }
+    .command-item:hover .item-icon, .command-item.active .item-icon { color: var(--brand); }
 
     .item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
     .item-info .label { font-size: 0.8rem; font-weight: 800; color: #fff; letter-spacing: 0.05em; }
     .item-info .desc { font-size: 0.65rem; color: var(--text-muted); }
 
     .item-shortcut { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; opacity: 0; transition: 0.2s; }
-    .command-item:hover .item-shortcut { opacity: 0.5; }
+    .command-item:hover .item-shortcut, .command-item.active .item-shortcut { opacity: 0.5; }
 
     .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 4rem 0; }
     .empty-state p { font-size: 0.7rem; font-weight: 800; }
@@ -129,7 +143,7 @@ export interface CommandItem {
   `]
 })
 export class CommandPaletteComponent {
-  close = output<void>();
+  closePalette = output<void>();
   private router = inject(Router);
 
   allItems: CommandItem[] = [
@@ -150,6 +164,11 @@ export class CommandPaletteComponent {
   private themeService = inject(ThemeService);
   private authStore = inject(AuthStore);
 
+  categories = computed(() => {
+    const cats = new Set(this.filteredItems().map(i => i.category));
+    return Array.from(cats);
+  });
+
   toggleTheme() {
     const current = this.themeService.currentTheme();
     this.themeService.setTheme(current === 'dark' ? 'light' : 'dark');
@@ -158,11 +177,6 @@ export class CommandPaletteComponent {
   logout() {
     this.authStore.logout();
   }
-
-  categories = () => {
-    const cats = new Set(this.filteredItems().map(i => i.category));
-    return Array.from(cats);
-  };
 
   getItemsByCategory(cat: string) {
     return this.filteredItems().filter(i => i.category === cat);
@@ -187,10 +201,10 @@ export class CommandPaletteComponent {
   executeCommand(item: CommandItem) {
     if (item.route) {
       this.router.navigateByUrl(item.route);
-      this.close.emit();
+      this.closePalette.emit();
     } else if (item.action) {
       item.action();
-      this.close.emit();
+      this.closePalette.emit();
     }
   }
 
