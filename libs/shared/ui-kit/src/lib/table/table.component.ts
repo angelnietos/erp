@@ -1,7 +1,7 @@
 import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type TableVariant = 'default' | 'dark' | 'light' | 'striped' | 'bordered' | 'hover' | 'compact' | 'glass';
+export type TableVariant = 'default' | 'striped' | 'glass';
 
 @Component({
   selector: 'ui-josanz-table',
@@ -19,20 +19,24 @@ export type TableVariant = 'default' | 'dark' | 'light' | 'striped' | 'bordered'
         </thead>
         <tbody>
           @for (item of data; track trackBy(item)) {
-            <tr>
+            <tr class="table-row">
               @for (col of columns; track col.key) {
                 <td>
-                  <ng-container 
-                    [ngTemplateOutlet]="cellTemplate" 
-                    [ngTemplateOutletContext]="{ $implicit: item, key: col.key }">
-                  </ng-container>
+                  <div class="cell-content">
+                    <ng-container 
+                      [ngTemplateOutlet]="cellTemplate" 
+                      [ngTemplateOutletContext]="{ $implicit: item, key: col.key }">
+                    </ng-container>
+                  </div>
                 </td>
               }
             </tr>
           } @empty {
             <tr>
-              <td [attr.colspan]="columns.length" class="empty-state">
-                No hay datos disponibles
+              <td [attr.colspan]="columns.length" class="empty-cell">
+                <div class="empty-state">
+                  <span class="text-uppercase">No hay registros</span>
+                </div>
               </td>
             </tr>
           }
@@ -44,119 +48,77 @@ export type TableVariant = 'default' | 'dark' | 'light' | 'striped' | 'bordered'
     .table-container { 
       width: 100%; 
       overflow-x: auto; 
-      border-radius: 8px; 
+      border-radius: var(--radius-md); 
       background: var(--bg-secondary);
       border: 1px solid var(--border-soft);
-      box-shadow: var(--shadow-lg);
     }
 
     table { 
       width: 100%; 
-      border-collapse: collapse; 
+      border-collapse: separate; 
+      border-spacing: 0;
       text-align: left; 
     }
 
-    thead {
-      background: rgba(0, 0, 0, 0.3);
-    }
+    thead { background: rgba(0, 0, 0, 0.15); }
 
     th { 
-      padding: 1.25rem 1rem;
-      font-size: 0.75rem; 
+      padding: 1.25rem 1.5rem;
+      font-size: 0.7rem; 
       font-weight: 800; 
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       color: var(--text-secondary);
-      border-bottom: 2px solid var(--border-soft);
+      border-bottom: 1px solid var(--border-soft);
       font-family: var(--font-display);
+      white-space: nowrap;
     }
 
     td { 
-      padding: 1rem; 
-      font-size: 0.9rem; 
+      padding: 1.25rem 1.5rem; 
+      font-size: 0.85rem; 
       color: var(--text-primary);
       border-bottom: 1px solid var(--border-soft);
-      transition: all 0.2s ease;
+      transition: var(--transition-fast);
+      vertical-align: middle;
+      font-weight: 500;
     }
 
-    tbody tr {
-      transition: background 0.3s ease;
-    }
+    .table-row { transition: var(--transition-base); position: relative; }
 
-    tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* Default Variant */
-    .table-default tr:hover td {
-      background: rgba(255, 255, 255, 0.03);
+    .table-row:hover td {
+      background: rgba(255, 255, 255, 0.02);
       color: #fff;
     }
 
-    /* Dark Variant */
-    .table-dark {
-      background: #000;
-      border-color: #222;
-    }
-    .table-dark th {
-      background: #0a0a0a;
-      border-bottom-color: #333;
+    .table-row:hover td:first-child {
+      box-shadow: inset 4px 0 0 var(--brand);
     }
 
-    /* Light Variant */
-    .table-light {
-      background: rgba(255, 255, 255, 0.95);
-    }
-    .table-light th {
-      color: #111;
-      border-bottom-color: #ddd;
-    }
-    .table-light td {
-      color: #333;
-      border-bottom-color: #eee;
-    }
-    .table-light tr:hover td {
-      background: rgba(0, 0, 0, 0.03);
-    }
+    .table-row:last-child td { border-bottom: none; }
 
-    /* Striped Variant */
+    /* Variants */
     .table-striped tbody tr:nth-child(even) td {
-      background: rgba(255, 255, 255, 0.015);
+      background: rgba(255, 255, 255, 0.01);
     }
 
-    /* Bordered Variant */
-    .table-bordered td, .table-bordered th {
-      border: 1px solid var(--border-soft);
-    }
-
-    /* Hover Variant */
-    .table-hover tr:hover td {
-      background: rgba(240, 62, 62, 0.05);
-      border-bottom-color: var(--brand-glow);
-    }
-
-    /* Compact Variant */
-    .table-compact th, .table-compact td {
-      padding: 0.5rem 0.75rem;
-    }
-
-    /* Glass Variant */
     .table-glass {
-      background: rgba(15, 23, 42, 0.4);
-      backdrop-filter: blur(12px);
-    }
-    .table-glass th {
-      background: rgba(0, 0, 0, 0.2);
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
+    .empty-cell { padding: 0; }
     .empty-state { 
-      text-align: center; 
-      padding: 4rem; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 5rem 2rem;
       color: var(--text-muted); 
-      font-style: italic; 
-      font-weight: 500;
-      letter-spacing: 0.05em;
     }
+    
+    .empty-state span { font-size: 0.8rem; letter-spacing: 0.2em; opacity: 0.6; }
   `],
 })
 export class UiTableComponent {

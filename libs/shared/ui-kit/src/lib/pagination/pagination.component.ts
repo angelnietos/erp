@@ -1,103 +1,105 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule } from 'lucide-angular';
 
-export type PaginationVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' | 'minimal';
+export type PaginationVariant = 'default' | 'minimal' | 'glass';
 
 @Component({
   selector: 'ui-josanz-pagination',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="pagination" [class]="'pagination-' + variant">
       <button 
-        class="page-btn prev-btn" 
+        class="page-btn nav-btn" 
         [disabled]="currentPage === 1"
         (click)="onPageChange(currentPage - 1)"
       >
-        Anterior
+        <lucide-icon name="chevron-left"></lucide-icon>
+        @if (variant !== 'minimal') { <span>ANTERIOR</span> }
       </button>
       
-      @for (page of visiblePages; track page) {
-        <button 
-          class="page-btn" 
-          [class.active]="page === currentPage"
-          (click)="onPageChange(page)"
-        >
-          {{ page }}
-        </button>
-      }
+      <div class="pages-group">
+        @for (page of visiblePages; track page) {
+          <button 
+            class="page-btn" 
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        }
+      </div>
       
       <button 
-        class="page-btn next-btn"
+        class="page-btn nav-btn"
         [disabled]="currentPage === totalPages"
         (click)="onPageChange(currentPage + 1)"
       >
-        Siguiente
+        @if (variant !== 'minimal') { <span>SIGUIENTE</span> }
+        <lucide-icon name="chevron-right"></lucide-icon>
       </button>
     </div>
   `,
   styles: [`
     .pagination { 
       display: flex; 
-      gap: 6px; 
+      gap: 12px; 
       justify-content: center; 
-      padding: 1.5rem; 
-      flex-wrap: wrap;
+      align-items: center;
+      padding: 1rem; 
+      width: 100%;
     }
 
+    .pages-group { display: flex; gap: 6px; }
+
     .page-btn {
-      padding: 8px 16px;
+      height: 2.25rem;
+      min-width: 2.25rem;
+      padding: 0 0.75rem;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       color: var(--text-secondary);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition-base);
       font-family: var(--font-display);
-      min-width: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
     }
 
-    .page-btn:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.05);
+    .page-btn:not(:disabled):hover {
+      background: var(--surface-hover);
       color: #fff;
       border-color: var(--brand);
-      box-shadow: 0 0 10px var(--brand-glow);
+      transform: translateY(-2px);
     }
 
     .page-btn.active {
       background: var(--brand);
       border-color: var(--brand);
       color: #fff;
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow: 0 4px 15px -5px var(--brand-glow);
     }
 
-    .page-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      filter: grayscale(1);
-    }
+    .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    .prev-btn, .next-btn {
-      font-size: 0.7rem;
-      padding-left: 20px;
-      padding-right: 20px;
-      border-color: var(--border-vibrant);
-    }
+    .nav-btn { font-size: 0.65rem; letter-spacing: 0.1em; }
+    .nav-btn lucide-icon { width: 1.1rem; height: 1.1rem; }
 
     /* Variants */
-    .pagination-dark .page-btn { background: #000; border-color: #222; }
-    .pagination-primary .page-btn.active { background: var(--brand); color: #fff; }
-    .pagination-ghost .page-btn { background: transparent; border-color: transparent; }
-    .pagination-minimal .page-btn { 
-      padding: 6px 12px; 
-      min-width: auto; 
+    .pagination-minimal .pages-group { display: none; }
+    
+    .pagination-glass .page-btn {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
   `],
 })

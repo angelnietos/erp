@@ -9,7 +9,7 @@ export interface TabItem {
   badge?: number;
 }
 
-export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark' | 'light' | 'primary' | 'ghost';
+export type TabsVariant = 'default' | 'underline';
 
 @Component({
   selector: 'ui-josanz-tabs',
@@ -24,8 +24,9 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
           (click)="onTabSelect(tab.id)"
         >
           @if (tab.icon) { <lucide-icon [name]="tab.icon" class="tab-icon"></lucide-icon> }
-          {{ tab.label }}
-          @if (tab.badge) { <span class="tab-badge">{{ tab.badge }}</span> }
+          <span class="tab-label">{{ tab.label }}</span>
+          @if (tab.badge !== undefined) { <span class="tab-badge">{{ tab.badge }}</span> }
+          <div class="active-indicator"></div>
         </button>
       }
     </div>
@@ -33,9 +34,9 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
   styles: [`
     .tabs { 
       display: flex; 
-      gap: 4px; 
-      padding: 4px; 
-      border-radius: 4px; 
+      gap: 8px; 
+      padding: 6px; 
+      border-radius: var(--radius-lg); 
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       width: fit-content;
@@ -45,19 +46,20 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
       display: flex; 
       align-items: center; 
       gap: 10px; 
-      padding: 8px 18px;
+      padding: 0.75rem 1.25rem;
       background: transparent; 
-      border: 1px solid transparent; 
-      border-radius: 2px;
+      border: none;
+      border-radius: var(--radius-md);
       font-size: 0.75rem; 
       font-weight: 800; 
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       cursor: pointer; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition-base);
       color: var(--text-secondary);
       font-family: var(--font-display);
       position: relative;
+      overflow: hidden;
     }
 
     .tab-item:hover {
@@ -66,60 +68,65 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
     }
 
     .tab-item.active {
-      background: var(--bg-secondary);
       color: #fff;
-      border-color: var(--brand);
-      box-shadow: 0 0 15px var(--brand-glow);
-    }
-
-    .tab-item.active::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40%;
-      height: 2px;
       background: var(--brand);
-      box-shadow: 0 0 10px var(--brand-glow);
+      box-shadow: 0 4px 15px -5px var(--brand-glow);
     }
 
-    .tab-icon { width: 16px; height: 16px; transition: transform 0.3s ease; color: var(--text-muted); }
-    .tab-item.active .tab-icon { color: var(--brand); }
-    .tab-item:hover .tab-icon { transform: scale(1.1); color: #fff; }
+    .tab-label { position: relative; z-index: 10; }
+
+    .tab-icon { width: 1.1rem; height: 1.1rem; color: currentColor; position: relative; z-index: 10; }
 
     .tab-badge {
-      background: var(--brand); 
-      padding: 1px 6px;
-      border-radius: 2px; 
-      font-size: 0.65rem; 
-      font-weight: 950;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 0.6rem;
+      font-weight: 900;
       color: #fff;
-      box-shadow: 0 0 10px var(--brand-glow);
+      margin-left: 4px;
+      position: relative;
+      z-index: 10;
     }
     
-    /* Variant Modifiers */
+    /* Underline Variant */
     .tabs-underline {
       background: transparent;
       border: none;
+      padding: 0;
+      gap: 24px;
       border-bottom: 1px solid var(--border-soft);
       border-radius: 0;
-      padding: 0;
       width: 100%;
-      gap: 20px;
     }
-    
-    .tabs-underline .tab-item { border-radius: 0; padding: 12px 10px; }
-    .tabs-underline .tab-item.active { background: transparent; color: var(--brand); box-shadow: none; border: none; }
-    .tabs-underline .tab-item.active::after { bottom: 0; width: 100%; height: 3px; }
 
-    .tabs-pills { background: transparent; border: none; gap: 10px; }
-    .tabs-pills .tab-item { border-radius: 4px; background: var(--bg-tertiary); border: 1px solid var(--border-soft); }
-    .tabs-pills .tab-item.active { background: var(--brand); border-color: var(--brand); box-shadow: 0 0 20px var(--brand-glow); }
-    .tabs-pills .tab-item.active::after { display: none; }
+    .tabs-underline .tab-item { 
+      border-radius: 0; 
+      padding: 1rem 0.5rem; 
+      background: transparent !important;
+      color: var(--text-secondary);
+      box-shadow: none !important;
+    }
 
-    .tabs-ghost { background: transparent; border: none; }
-    .tabs-ghost .tab-item.active { background: rgba(255, 255, 255, 0.05); border-color: var(--border-soft); box-shadow: none; }
+    .tabs-underline .tab-item:hover { color: #fff; }
+
+    .tabs-underline .tab-item.active { color: var(--brand); }
+
+    .tabs-underline .active-indicator {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--brand);
+      transform: scaleX(0);
+      transition: var(--transition-spring);
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+
+    .tabs-underline .tab-item.active .active-indicator {
+      transform: scaleX(1);
+    }
   `],
 })
 export class UiTabsComponent {

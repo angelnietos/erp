@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type SearchVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'primary' | 'success' | 'warning' | 'error';
+export type SearchVariant = 'default' | 'filled' | 'glass';
 
 @Component({
   selector: 'ui-josanz-search',
@@ -20,10 +20,11 @@ export type SearchVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
         (blur)="isFocused = false"
       />
       @if (value) {
-        <button class="clear-btn" (click)="onClear()">
+        <button class="clear-btn" (click)="onClear($event)">
           <lucide-icon name="x"></lucide-icon>
         </button>
       }
+      <div class="focus-indicator"></div>
     </div>
   `,
   styles: [`
@@ -31,38 +32,42 @@ export type SearchVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       position: relative; 
       display: flex; 
       align-items: center;
-      border-radius: 6px; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: var(--radius-md); 
+      transition: var(--transition-base);
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       overflow: hidden;
+      width: 100%;
     }
 
     .search-wrapper.focused {
       border-color: var(--brand);
       background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow: 0 0 20px var(--brand-glow);
     }
 
     .search-icon { 
       position: absolute; 
-      left: 14px; 
-      width: 18px; 
-      height: 18px; 
+      left: 1.1rem; 
+      width: 1.1rem; 
+      height: 1.1rem; 
       color: var(--text-muted);
-      transition: color 0.3s ease;
+      transition: var(--transition-base);
+      pointer-events: none;
     }
 
     .search-wrapper.focused .search-icon {
       color: var(--brand);
+      transform: scale(1.1);
     }
 
     input {
       width: 100%; 
-      padding: 12px 42px 12px 44px; 
+      padding: 0.9rem 3.5rem 0.9rem 3rem; 
       background: transparent;
       border: none; 
-      font-size: 0.9rem; 
+      font-size: 0.85rem; 
+      font-weight: 500;
       outline: none; 
       font-family: var(--font-main);
       color: var(--text-primary);
@@ -71,49 +76,65 @@ export type SearchVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     input::placeholder {
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 0.75rem;
-      font-weight: 700;
+      letter-spacing: 0.1em;
+      font-size: 0.65rem;
+      font-weight: 800;
+      font-family: var(--font-display);
+      opacity: 0.5;
     }
 
     .clear-btn {
       position: absolute; 
-      right: 12px; 
-      background: rgba(255, 255, 255, 0.03); 
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
-      padding: 4px; 
+      right: 0.75rem; 
+      background: rgba(255, 255, 255, 0.05); 
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      width: 1.5rem;
+      height: 1.5rem;
       cursor: pointer;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      transition: var(--transition-fast);
+      padding: 0;
     }
 
     .clear-btn:hover {
       background: var(--danger);
       color: white;
       border-color: var(--danger);
+      transform: scale(1.1);
     }
 
-    .clear-btn lucide-icon {
-      width: 14px;
-      height: 14px;
-    }
+    .clear-btn lucide-icon { width: 0.8rem; height: 0.8rem; }
 
-    /* Variant Modifiers */
-    .search-dark { background: #000; border-color: #222; }
-    .search-filled { background: rgba(255, 255, 255, 0.03); border-color: transparent; }
-    .search-outlined { background: transparent; border-width: 2px; }
+    /* Variants */
+    .search-filled { background: var(--bg-secondary); border-color: transparent; }
     
-    .search-primary.focused { border-color: var(--brand); box-shadow: 0 0 15px var(--brand-glow); }
-    .search-success.focused { border-color: var(--success); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-    .search-error.focused { border-color: var(--danger); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+    .search-glass {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .focus-indicator {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--brand);
+      transform: scaleX(0);
+      transition: var(--transition-spring);
+      transform-origin: center;
+    }
+
+    .search-wrapper.focused .focus-indicator { transform: scaleX(1); }
   `],
 })
 export class UiSearchComponent {
-  @Input() placeholder = 'Buscar...';
+  @Input() placeholder = 'BUSCAR...';
   @Input() value = '';
   @Input() variant: SearchVariant = 'default';
   @Output() searchChange = new EventEmitter<string>();
@@ -126,7 +147,8 @@ export class UiSearchComponent {
     this.searchChange.emit(val);
   }
 
-  onClear() {
+  onClear(event: Event) {
+    event.stopPropagation();
     this.value = '';
     this.searchChange.emit('');
   }

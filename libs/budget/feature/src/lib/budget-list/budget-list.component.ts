@@ -5,48 +5,63 @@ import { BudgetStore } from '@josanz-erp/budget-data-access';
 import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
 import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
+import { Budget } from '@josanz-erp/budget-api';
 
 @Component({
   selector: 'lib-budget-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, LucideAngularModule],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    UiTableComponent, 
+    UiCardComponent, 
+    UiButtonComponent, 
+    UiBadgeComponent, 
+    LucideAngularModule
+  ],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-content">
-          <h1 class="glow-text">Terminal de Presupuestos</h1>
-          <p class="subtitle">Ingeniería de cotizaciones, reservas técnicas y planificación fiscal</p>
+    <div class="page-container animate-fade-in">
+      <header class="page-header">
+        <div class="header-main">
+          <h1 class="page-title text-uppercase">Cotizaciones y Presupuestos</h1>
+          <div class="breadcrumb">
+            <span class="active">GESTIÓN COMERCIAL</span>
+            <span class="separator">/</span>
+            <span>PIPELINE DE VENTAS</span>
+          </div>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button variant="primary" routerLink="/budgets/create">
-            <lucide-icon name="plus" class="mr-2"></lucide-icon>
-            Diseñar Nuevo Presupuesto
+          <ui-josanz-button variant="primary" size="md" routerLink="/budgets/create" icon="plus">
+            NUEVO PRESUPUESTO
           </ui-josanz-button>
         }
-      </div>
+      </header>
 
       <ui-josanz-card variant="glass" class="table-card">
-        <ui-josanz-table [columns]="columns" [data]="store.budgets()" variant="hover">
+        <ui-josanz-table [columns]="columns" [data]="store.budgets()" variant="default">
           <ng-template #cellTemplate let-item let-key="key">
             @switch (key) {
-              @case ('id') { <span class="mono-id">#{{ item.id.slice(0, 8) }}</span> }
+              @case ('id') { <span class="mono-id text-uppercase">#{{ item.id.slice(0, 8) }}</span> }
               @case ('status') { 
                 <ui-josanz-badge [variant]="getStatusVariant(item.status)">
                   {{ item.status | uppercase }}
                 </ui-josanz-badge>
               }
-              @case ('total') { <span class="amount-text">{{ item.total | currency:'EUR' }}</span> }
-              @case ('createdAt') { <span class="date-text">{{ item.createdAt | date:'dd/MM/yyyy' }}</span> }
-              @case ('startDate') { <span class="date-text">{{ item.startDate | date:'dd/MM/yyyy' }}</span> }
-              @case ('endDate') { <span class="date-text">{{ item.endDate | date:'dd/MM/yyyy' }}</span> }
+              @case ('total') { <span class="currency-value">{{ item.total | currency:'EUR' }}</span> }
+              @case ('createdAt') { <span class="text-secondary font-mono">{{ item.createdAt | date:'dd/MM/yyyy' }}</span> }
+              @case ('startDate') { <span class="text-secondary font-mono">{{ item.startDate | date:'dd/MM/yyyy' }}</span> }
+              @case ('endDate') { <span class="text-secondary font-mono" [class.overdue]="isExpired(item)">{{ item.endDate | date:'dd/MM/yyyy' }}</span> }
               @case ('actions') {
-                <div class="actions">
-                  <button class="action-trigger" title="Ver detalle">
-                    <lucide-icon name="file-text" size="18"></lucide-icon>
+                <div class="row-actions">
+                  <button class="action-btn" [routerLink]="['/budgets', item.id]" title="Consultar">
+                    <lucide-icon name="eye" size="16"></lucide-icon>
+                  </button>
+                  <button class="action-btn" title="Editar" [routerLink]="['/budgets', item.id, 'edit']">
+                    <lucide-icon name="pencil" size="16"></lucide-icon>
                   </button>
                   @if (config.enableDownload) {
-                    <button class="action-trigger" title="Descargar PDF">
-                      <lucide-icon name="download" size="18"></lucide-icon>
+                    <button class="action-btn success" title="Generar PDF">
+                      <lucide-icon name="download" size="16"></lucide-icon>
                     </button>
                   }
                 </div>
@@ -55,33 +70,46 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             }
           </ng-template>
         </ui-josanz-table>
+        
+        <footer class="table-footer">
+          <div class="table-info">
+            MOSTRANDO {{ store.budgets().length }} PRESUPUESTOS ACTIVOS
+          </div>
+        </footer>
       </ui-josanz-card>
     </div>
   `,
   styles: [`
-    .page-container { padding: 2rem; }
+    .page-container { padding: 2.5rem; max-width: 1600px; margin: 0 auto; }
     
-    .page-header { 
+    .page-header {
       display: flex; 
       justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 2.5rem; 
+      align-items: flex-end;
+      margin-bottom: 3rem;
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--border-soft);
     }
     
-    .glow-text { 
-      font-size: 2.5rem; 
+    .page-title { 
+      font-size: 2.25rem; 
       font-weight: 900; 
       color: #fff; 
-      margin: 0; 
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      margin: 0 0 0.5rem 0; 
+      letter-spacing: -0.02em;
       font-family: var(--font-display);
-      text-shadow: 0 0 20px var(--brand-glow);
     }
     
-    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+    .breadcrumb .active { color: var(--brand); }
+    .breadcrumb .separator { opacity: 0.3; }
 
     .mono-id { 
       font-family: var(--font-mono, monospace); 
@@ -91,37 +119,50 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       letter-spacing: 0.05em;
     }
 
-    .amount-text { color: #fff; font-weight: 800; font-family: var(--font-display); font-size: 1rem; }
-    .date-text { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+    .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
+    .overdue { color: var(--danger); font-weight: 800; }
 
-    .actions { display: flex; gap: 8px; }
+    .row-actions { display: flex; gap: 6px; }
     
-    .action-trigger { 
+    .action-btn { 
       background: var(--bg-tertiary); 
       border: 1px solid var(--border-soft); 
-      color: var(--text-muted); 
+      color: var(--text-secondary); 
       cursor: pointer; 
-      width: 32px;
-      height: 32px;
-      border-radius: 4px;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: var(--transition-base);
     }
     
-    .action-trigger:hover { 
+    .action-btn:hover { 
       color: #fff; 
       border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 10px var(--brand-glow);
+      background: var(--brand-muted);
+      transform: translateY(-2px);
     }
+
+    .action-btn.success:hover { background: var(--success); border-color: var(--success); }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .table-info { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
 
     .mr-2 { margin-right: 8px; }
 
     @media (max-width: 900px) {
       .page-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-      .glow-text { font-size: 1.8rem; }
+      .page-title { font-size: 1.8rem; }
     }
   `],
 })
@@ -146,6 +187,11 @@ export class BudgetListComponent implements OnInit {
     if (s === 'rejected') return 'error';
     if (s === 'draft') return 'default';
     return 'warning';
+  }
+
+  isExpired(budget: Budget): boolean {
+    if (!budget.endDate) return false;
+    return new Date(budget.endDate) < new Date() && budget.status !== 'ACCEPTED';
   }
 }
 

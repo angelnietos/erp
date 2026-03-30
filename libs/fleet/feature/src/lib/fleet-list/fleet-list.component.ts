@@ -13,6 +13,7 @@ import {
   UiModalComponent,
   UiCardComponent,
   UiTabsComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
@@ -32,74 +33,83 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     UiModalComponent,
     UiCardComponent,
     UiTabsComponent,
+    UiInputComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-content">
-          <h1 class="glow-text">Flota Logística</h1>
-          <p class="subtitle">Monitoreo de unidades de transporte y asignación de conductores</p>
+    <div class="page-container animate-fade-in">
+      <header class="page-header">
+        <div class="header-main">
+          <h1 class="page-title text-uppercase">Gestión de Flota Logística</h1>
+          <div class="breadcrumb">
+            <span class="active">UNIDADES LOGÍSTICAS</span>
+            <span class="separator">/</span>
+            <span>MONITOREO DE MOVILIDAD</span>
+          </div>
         </div>
-        <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
-          <lucide-icon name="plus" class="mr-2"></lucide-icon>
-          Nuevo Vehículo
+        <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+          NUEVA UNIDAD
         </ui-josanz-button>
-      </div>
+      </header>
 
-      <div class="navigation-row">
-        <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" variant="underline" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
-      </div>
-
-      <div class="filters-bar">
+      <div class="navigation-bar">
+        <ui-josanz-tabs 
+          [tabs]="tabs" 
+          [activeTab]="activeTab()" 
+          variant="underline" 
+          (tabChange)="onTabChange($event)"
+        ></ui-josanz-tabs>
+        
         <ui-josanz-search 
           variant="filled"
           placeholder="BUSCAR MATRÍCULA O CONDUCTOR..." 
           (searchChange)="onSearch($event)"
-          class="flex-1"
+          class="search-bar"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando telemetría de flota..."></ui-josanz-loader>
+        <div class="loader-container">
+          <ui-josanz-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-josanz-loader>
+        </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card">
-          <ui-josanz-table [columns]="columns" [data]="vehicles()" variant="hover">
+          <ui-josanz-table [columns]="columns" [data]="vehicles()" variant="default">
             <ng-template #cellTemplate let-vehicle let-key="key">
               @switch (key) {
                 @case ('plate') {
-                  <a [routerLink]="['/fleet', vehicle.id]" class="vehicle-link">
+                  <a [routerLink]="['/fleet', vehicle.id]" class="vehicle-link text-uppercase">
                     {{ vehicle.plate }}
                   </a>
                 }
                 @case ('type') {
-                  <ui-josanz-badge variant="info">{{ getTypeLabel(vehicle.type) }}</ui-josanz-badge>
+                  <ui-josanz-badge variant="info">{{ getTypeLabel(vehicle.type) | uppercase }}</ui-josanz-badge>
                 }
                 @case ('status') {
                   <ui-josanz-badge [variant]="getStatusVariant(vehicle.status)">
-                    {{ getStatusLabel(vehicle.status) }}
+                    {{ getStatusLabel(vehicle.status) | uppercase }}
                   </ui-josanz-badge>
                 }
                 @case ('insuranceExpiry') {
-                  <span class="expiry-text" [class.expired]="isExpired(vehicle.insuranceExpiry)">
+                  <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.insuranceExpiry)">
                     {{ formatDate(vehicle.insuranceExpiry) }}
                   </span>
                 }
                 @case ('itvExpiry') {
-                  <span class="expiry-text" [class.expired]="isExpired(vehicle.itvExpiry)">
+                  <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.itvExpiry)">
                     {{ formatDate(vehicle.itvExpiry) }}
                   </span>
                 }
                 @case ('actions') {
-                  <div class="actions">
-                    <button class="action-trigger" [routerLink]="['/fleet', vehicle.id]" title="Ver">
-                      <lucide-icon name="eye" size="18"></lucide-icon>
+                  <div class="row-actions">
+                    <button class="action-btn" [routerLink]="['/fleet', vehicle.id]" title="Detalles">
+                      <lucide-icon name="eye" size="16"></lucide-icon>
                     </button>
-                    <button class="action-trigger" (click)="editVehicle(vehicle)" title="Editar">
-                      <lucide-icon name="pencil" size="18"></lucide-icon>
+                    <button class="action-btn" (click)="editVehicle(vehicle)" title="Editar">
+                      <lucide-icon name="pencil" size="16"></lucide-icon>
                     </button>
-                    <button class="action-trigger danger" (click)="confirmDelete(vehicle)" title="Eliminar">
-                      <lucide-icon name="trash-2" size="18"></lucide-icon>
+                    <button class="action-btn danger" (click)="confirmDelete(vehicle)" title="Eliminar">
+                      <lucide-icon name="trash-2" size="16"></lucide-icon>
                     </button>
                   </div>
                 }
@@ -110,14 +120,17 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
             </ng-template>
           </ui-josanz-table>
 
-          <div class="pagination-wrapper">
+          <footer class="table-footer">
+            <div class="table-info uppercase">
+              {{ vehicles().length }} UNIDADES EN RANGO OPERATIVO
+            </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
-              variant="minimal"
+              variant="default"
               (pageChange)="onPageChange($event)"
             ></ui-josanz-pagination>
-          </div>
+          </footer>
         </ui-josanz-card>
       }
     </div>
@@ -125,127 +138,105 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingVehicle() ? 'REGISTRO DE UNIDAD: EDITAR' : 'REGISTRO DE UNIDAD: NUEVO'"
+      [title]="editingVehicle() ? 'MODIFICACIÓN DE FICHA TÉCNICA' : 'REGISTRO DE NUEVA UNIDAD'"
       (closed)="closeModal()"
       variant="dark"
     >
-      <div class="form-container">
-        <div class="form-grid">
-          <div class="form-col">
-            <label class="field-label" for="fleet-plate">Matrícula *</label>
-            <input 
-              type="text" 
-              id="fleet-plate"
-              class="technical-input"
+      <div class="form-grid">
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Especificaciones Técnicas</h3>
+          <div class="input-grid">
+            <ui-josanz-input 
+              label="Matrícula" 
               [(ngModel)]="formData.plate" 
-              name="plate" 
-              required
               placeholder="1234-ABC"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-brand">Marca *</label>
-            <input 
-              type="text" 
-              id="fleet-brand"
-              class="technical-input"
+              icon="hash"
+              id="fleet-plate"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Marca" 
               [(ngModel)]="formData.brand" 
-              name="brand" 
-              required
-              placeholder="MERCEDES / IVECO"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-model">Modelo *</label>
-            <input 
-              type="text" 
-              id="fleet-model"
-              class="technical-input"
+              placeholder="PEUGEOT / IVECO"
+              icon="car"
+              id="fleet-brand"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Modelo" 
               [(ngModel)]="formData.model" 
-              name="model" 
-              required
-              placeholder="SPRINTER 316 / DAILY"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-year">Año de Fabricación</label>
-            <input 
+              placeholder="BOXER / DAILY"
+              icon="box"
+              id="fleet-model"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Año" 
               type="number" 
-              id="fleet-year"
-              class="technical-input"
               [(ngModel)]="formData.year" 
-              name="year" 
-              placeholder="2024"
-            >
+              icon="calendar"
+              id="fleet-year"
+            ></ui-josanz-input>
+
+            <div class="form-group">
+              <label for="fleet-type" class="field-label text-uppercase">Categoría</label>
+              <select id="fleet-type" class="tech-select" [(ngModel)]="formData.type" name="type">
+                <option value="van">FURGÓN (V-01)</option>
+                <option value="truck">CAMIÓN (T-02)</option>
+                <option value="car">TURISMO (C-03)</option>
+              </select>
+            </div>
           </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-type">Tipo de Unidad</label>
-            <select id="fleet-type" class="technical-select" [(ngModel)]="formData.type" name="type">
-              <option value="van">FURGÓN</option>
-              <option value="truck">CAMIÓN</option>
-              <option value="car">COCHE</option>
-            </select>
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-status">Estado Operativo</label>
-            <select id="fleet-status" class="technical-select" [(ngModel)]="formData.status" name="status">
-              <option value="available">DISPONIBLE</option>
-              <option value="in_use">EN USO</option>
-              <option value="maintenance">MANTENIMIENTO</option>
-            </select>
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-driver">Conductor Asignado</label>
-            <input 
-              type="text" 
-              id="fleet-driver"
-              class="technical-input"
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title text-uppercase">Estado y Operatividad</h3>
+          <div class="input-grid">
+            <div class="form-group">
+              <label for="fleet-status" class="field-label text-uppercase">Disponibilidad</label>
+              <select id="fleet-status" class="tech-select" [(ngModel)]="formData.status" name="status">
+                <option value="available">DISPONIBLE PARA RUTA</option>
+                <option value="in_use">ASIGNADO A OPERACIÓN</option>
+                <option value="maintenance">MANTENIMIENTO PREVENTIVO</option>
+              </select>
+            </div>
+            
+            <ui-josanz-input 
+              label="Conductor Asignado" 
               [(ngModel)]="formData.currentDriver" 
-              name="currentDriver" 
-              placeholder="NOMBRE DEL CONDUCTOR"
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-ins-exp">Vencimiento Seguro</label>
-            <input 
+              placeholder="NOMBRE DEL PERSONAL..."
+              icon="user"
+              id="fleet-driver"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Vencimiento Seguro" 
               type="date" 
-              id="fleet-ins-exp"
-              class="technical-input"
-              [(ngModel)]="formData.insuranceExpiry" 
-              name="insuranceExpiry" 
-            >
-          </div>
-          
-          <div class="form-col">
-            <label class="field-label" for="fleet-itv-exp">Vencimiento ITV</label>
-            <input 
+              [(ngModel)]="formData.insuranceExpiry"
+              icon="shield-check"
+              id="fleet-ins"
+            ></ui-josanz-input>
+            
+            <ui-josanz-input 
+              label="Vencimiento ITV" 
               type="date" 
-              id="fleet-itv-exp"
-              class="technical-input"
-              [(ngModel)]="formData.itvExpiry" 
-              name="itvExpiry" 
-            >
+              [(ngModel)]="formData.itvExpiry"
+              icon="activity"
+              id="fleet-itv"
+            ></ui-josanz-input>
           </div>
         </div>
       </div>
       
-      <div modal-footer class="modal-footer">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
-          ABORTAR
-        </ui-josanz-button>
+      <div modal-footer class="modal-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
         <ui-josanz-button 
-          variant="primary"
+          variant="glass"
           (clicked)="saveVehicle()"
           [disabled]="!formData.plate || !formData.brand || !formData.model"
         >
-          {{ editingVehicle() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
+          <lucide-icon name="save" size="18" class="mr-2"></lucide-icon>
+          {{ editingVehicle() ? 'ACTUALIZAR FICHA' : 'REGISTRAR UNIDAD' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -253,170 +244,162 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="ADVERTENCIA: ELIMINACIÓN DE UNIDAD"
+      title="SISTEMA: ADVERTENCIA DE ELIMINACIÓN"
       (closed)="closeDeleteModal()"
       variant="dark"
     >
       <div class="delete-warning">
-        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <lucide-icon name="alert-triangle" size="40" class="warning-icon"></lucide-icon>
         <div class="warning-content">
-          <p>¿Estás seguro de que deseas eliminar el vehículo <strong>{{ vehicleToDelete()?.plate }}</strong>?</p>
-          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ EL VEHÍCULO DE LA FLOTA ACTIVA.</p>
+          <p class="text-uppercase">¿ESTÁ SEGURO DE QUE DESEA ELIMINAR EL VEHÍCULO <strong>{{ vehicleToDelete()?.plate }}</strong>?</p>
+          <p class="critical-text text-uppercase">CUALQUIER HISTORIAL DE TELEMETRÍA SERÁ ARCHIVADO PERO NO PODRÁ SER ASIGNADO A RUTAS ACTIVAS.</p>
         </div>
       </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
-          CANCELAR
-        </ui-josanz-button>
-        <ui-josanz-button variant="danger" (clicked)="deleteVehicle()">
-          ELIMINAR DEFINITIVAMENTE
-        </ui-josanz-button>
+      <div modal-footer class="modal-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">ABORTAR</ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteVehicle()">CONFIRMAR BAJA</ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 2rem; }
+    .page-container { padding: 2.5rem; max-width: 1600px; margin: 0 auto; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
-      align-items: center;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border-soft);
+      align-items: flex-end;
+      margin-bottom: 3rem;
       padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-soft);
     }
     
-    .glow-text { 
-      font-size: 2.5rem; 
+    .page-title { 
+      font-size: 2.25rem; 
       font-weight: 900; 
       color: #fff; 
-      margin: 0; 
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      margin: 0 0 0.5rem 0; 
+      letter-spacing: -0.02em;
       font-family: var(--font-display);
-      text-shadow: 0 0 20px var(--brand-glow);
     }
     
-    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+    .breadcrumb .active { color: var(--brand); }
+    .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-row { margin-bottom: 2rem; }
-    
-    .filters-bar { margin-bottom: 2rem; display: flex; }
-    .flex-1 { flex: 1; }
+    .navigation-bar { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 2rem; 
+      gap: 2rem;
+    }
+    .search-bar { max-width: 400px; }
     
     .vehicle-link { 
       color: var(--brand); 
       text-decoration: none; 
-      font-weight: 900; 
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: var(--font-display);
-      transition: all 0.2s;
+      font-weight: 800; 
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      transition: var(--transition-fast);
     }
-    .vehicle-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    .vehicle-link:hover { color: #fff; text-decoration: underline; }
     
-    .expiry-text { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-    .expired { color: var(--danger); text-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
+    .overdue { color: var(--danger); font-weight: 800; }
     
-    .actions { display: flex; gap: 10px; }
+    .row-actions { display: flex; gap: 6px; }
     
-    .action-trigger { 
+    .action-btn { 
       background: var(--bg-tertiary); 
       border: 1px solid var(--border-soft); 
-      color: var(--text-muted); 
+      color: var(--text-secondary); 
       cursor: pointer; 
       width: 34px;
       height: 34px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: var(--transition-base);
     }
     
-    .action-trigger:hover { 
+    .action-btn:hover { 
       color: #fff; 
       border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 10px var(--brand-glow);
+      background: var(--brand-muted);
+      transform: translateY(-2px);
     }
     
-    .action-trigger.danger:hover {
-      border-color: var(--danger);
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--border-soft);
     }
 
-    .pagination-wrapper {
-      padding-top: 1rem;
-      border-top: 1px solid var(--border-soft);
-      margin-top: 1rem;
-    }
+    .table-info { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
 
     /* Form Styles */
-    .form-container { padding: 1rem 0; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+    .form-grid { display: flex; flex-direction: column; gap: 2.5rem; padding: 1rem 0; }
+    .form-section { display: flex; flex-direction: column; gap: 1.5rem; }
+    .section-title { 
+      font-size: 0.75rem; 
+      color: var(--brand); 
+      letter-spacing: 0.2em; 
+      font-weight: 900; 
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
     }
-    .form-col { display: flex; flex-direction: column; gap: 8px; }
+    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
     
-    .field-label {
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
+    .field-label { font-size: 0.65rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px; }
     
-    .technical-input, .technical-select {
+    .tech-select {
+      width: 100%;
+      padding: 0.9rem 1.1rem;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
-      border-radius: 4px;
-      padding: 12px 14px;
+      border-radius: var(--radius-md);
       color: #fff;
-      font-size: 0.9rem;
-      font-family: var(--font-main);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.85rem;
       outline: none;
+      transition: var(--transition-base);
     }
-    
-    .technical-input:focus, .technical-select:focus {
-      border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
-    }
+    .tech-select:focus { border-color: var(--brand); background: var(--bg-secondary); }
 
-    .technical-select option { background: var(--bg-secondary); color: #fff; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
 
     .delete-warning {
       display: flex;
       gap: 20px;
       align-items: center;
-      padding: 1rem;
+      padding: 1.5rem;
       background: rgba(239, 68, 68, 0.05);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      border-radius: 6px;
+      border-radius: var(--radius-md);
     }
-    
-    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
-    
-    .critical-text {
-      color: var(--danger);
-      font-weight: 800;
-      font-size: 0.75rem;
-      margin-top: 8px;
-    }
+    .warning-icon { color: var(--danger); }
+    .critical-text { color: var(--danger); font-weight: 800; font-size: 0.7rem; margin-top: 8px; opacity: 0.8; }
 
     .mr-2 { margin-right: 8px; }
 
-    @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .glow-text { font-size: 1.8rem; }
+    @media (max-width: 1024px) {
+      .navigation-bar { flex-direction: column; align-items: stretch; }
+      .search-bar { max-width: none; }
+      .input-grid { grid-template-columns: 1fr; }
     }
   `],
-
 })
 export class FleetListComponent implements OnInit {
   private vehicleService = inject(VehicleService);
@@ -429,16 +412,16 @@ export class FleetListComponent implements OnInit {
   ];
 
   columns = [
-    { key: 'plate', header: 'Matrícula' },
-    { key: 'brand', header: 'Marca' },
-    { key: 'model', header: 'Modelo' },
-    { key: 'year', header: 'Año', width: '80px' },
-    { key: 'type', header: 'Tipo', width: '100px' },
-    { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'currentDriver', header: 'Conductor' },
-    { key: 'insuranceExpiry', header: 'Seguro' },
+    { key: 'plate', header: 'MATRÍCULA' },
+    { key: 'brand', header: 'MARCA' },
+    { key: 'model', header: 'MODELO' },
+    { key: 'year', header: 'AÑO', width: '80px' },
+    { key: 'type', header: 'TIPO', width: '100px' },
+    { key: 'status', header: 'ESTADO', width: '150px' },
+    { key: 'currentDriver', header: 'CONDUCTOR' },
+    { key: 'insuranceExpiry', header: 'SEGURO' },
     { key: 'itvExpiry', header: 'ITV' },
-    { key: 'actions', header: '', width: '100px' },
+    { key: 'actions', header: '', width: '120px' },
   ];
 
   vehicles = signal<Vehicle[]>([]);
@@ -448,13 +431,11 @@ export class FleetListComponent implements OnInit {
   activeTab = signal('all');
   searchTerm = '';
   
-  // Modal state
   isModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
   editingVehicle = signal<Vehicle | null>(null);
   vehicleToDelete = signal<Vehicle | null>(null);
   
-  // Form data
   formData: Partial<Vehicle> = {
     plate: '',
     brand: '',
@@ -499,18 +480,7 @@ export class FleetListComponent implements OnInit {
 
   onTabChange(tabId: string) {
     this.activeTab.set(tabId);
-    this.isLoading.set(true);
-    
-    if (tabId === 'all') {
-      this.loadVehicles();
-    } else {
-      this.vehicleService.getVehiclesByStatus(tabId).subscribe({
-        next: (vehicles: Vehicle[]) => {
-          this.vehicles.set(vehicles);
-          this.isLoading.set(false);
-        }
-      });
-    }
+    this.loadVehicles();
   }
 
   onSearch(term: string) {
@@ -638,6 +608,7 @@ export class FleetListComponent implements OnInit {
   }
 
   isExpired(date: string): boolean {
+    if (!date) return false;
     return new Date(date) < new Date();
   }
 
@@ -646,4 +617,3 @@ export class FleetListComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
-
