@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Budget, CreateBudgetDTO, BudgetStatus } from '@josanz-erp/budget-api';
+import { Budget, CreateBudgetDTO } from '@josanz-erp/budget-api';
 
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
