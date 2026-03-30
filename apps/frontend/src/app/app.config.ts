@@ -9,7 +9,7 @@ import {
   Users, Package, Receipt, Truck, Car, Key, 
   History, Menu, ChevronLeft, Settings, LogOut,
   Pencil, Trash2, Eye, Play, CheckCircle, XCircle,
-  Plus, FileText, Download, Sun, Moon,
+  Plus, FileText, FileCheck, Download, Sun, Moon,
   Send, ShieldCheck, QrCode,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
@@ -25,7 +25,7 @@ export const appConfig: ApplicationConfig = {
       Receipt, Truck, Car, Key, History, 
       Menu, ChevronLeft, Settings, LogOut,
       Pencil, Trash2, Eye, Play, CheckCircle, XCircle,
-      Plus, FileText, Download, Sun, Moon,
+      Plus, FileText, FileCheck, Download, Sun, Moon,
       Send, ShieldCheck, QrCode,
     })),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3100/api' },
