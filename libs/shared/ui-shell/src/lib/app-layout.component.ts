@@ -7,13 +7,15 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, Theme, AuthStore } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
+import { CrmBackgroundComponent } from './crm-background/crm-background.component';
 
 @Component({
   selector: 'josanz-app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent, CommandPaletteComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent, CommandPaletteComponent, CrmBackgroundComponent],
   template: `
-    <div class="app-layout">
+    <josanz-crm-background></josanz-crm-background>
+    <div class="app-layout" style="position: relative; z-index: 1;">
       <!-- Sidebar -->
       <josanz-sidebar [navItems]="navItems" (logoutClick)="logoutClick.emit()"></josanz-sidebar>
 
@@ -122,7 +124,7 @@ import { CommandPaletteComponent } from './command-palette.component';
     .app-layout {
       display: flex;
       height: 100%;
-      background: var(--bg-primary);
+      background: transparent;
       color: var(--text-primary);
     }
 
