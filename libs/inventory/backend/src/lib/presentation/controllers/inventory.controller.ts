@@ -5,7 +5,7 @@ import { InventoryService } from '../../application/services/inventory.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
-@Controller('api/inventory')
+@Controller('inventory')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
   constructor(private readonly inventoryService: InventoryService) {}

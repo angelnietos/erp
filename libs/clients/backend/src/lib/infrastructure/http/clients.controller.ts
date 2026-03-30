@@ -5,7 +5,7 @@ import { ClientsService } from '../../application/clients.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
-@Controller('api/clients')
+@Controller('clients')
 @UseGuards(JwtAuthGuard)
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}

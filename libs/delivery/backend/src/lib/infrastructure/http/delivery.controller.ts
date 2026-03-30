@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 
 type DeliveryRequestPayload = { [key: string]: string | number | boolean | unknown };
 
-@Controller('api/delivery')
+@Controller('delivery')
 @UseGuards(JwtAuthGuard)
 export class DeliveryController {
   constructor(private readonly deliveryService: DeliveryService) {}

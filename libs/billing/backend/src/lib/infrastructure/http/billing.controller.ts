@@ -7,7 +7,7 @@ import { InvoiceService } from '../../application/services/invoice.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
-@Controller('api/invoices')
+@Controller('invoices')
 @UseGuards(JwtAuthGuard)
 export class BillingController {
   constructor(

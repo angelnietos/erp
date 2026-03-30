@@ -16,7 +16,7 @@ import { RentalsService } from '../../application/rentals.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
-@Controller('api/rentals')
+@Controller('rentals')
 @UseGuards(JwtAuthGuard)
 export class RentalsController {
   constructor(private readonly rentalsService: RentalsService) {}

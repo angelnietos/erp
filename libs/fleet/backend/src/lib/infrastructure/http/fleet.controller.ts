@@ -5,7 +5,7 @@ import { FleetService } from '../../application/fleet.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
-@Controller('api/vehicles')
+@Controller('vehicles')
 @UseGuards(JwtAuthGuard)
 export class FleetController {
   constructor(private readonly fleetService: FleetService) {}
