@@ -11,6 +11,7 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
+  UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
@@ -32,6 +33,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
+    UiCardComponent,
     LucideAngularModule,
   ],
   template: `

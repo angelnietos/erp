@@ -12,6 +12,7 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
+  UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 
@@ -30,6 +31,7 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
+    UiCardComponent,
     LucideAngularModule
   ],
   template: `

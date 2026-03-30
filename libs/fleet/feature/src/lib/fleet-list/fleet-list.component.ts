@@ -11,6 +11,8 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
+  UiCardComponent,
+  UiTabsComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
@@ -28,6 +30,8 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
+    UiCardComponent,
+    UiTabsComponent,
     LucideAngularModule
   ],
   template: `

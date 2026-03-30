@@ -11,6 +11,7 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
+  UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -29,6 +30,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
+    UiCardComponent,
     LucideAngularModule,
   ],
   template: `

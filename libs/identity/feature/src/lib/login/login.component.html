@@ -8,7 +8,7 @@
   <div class="auth-card glass">
     <div class="auth-header">
       <div class="logo-circle">
-        <lucide-icon [name]="icons.User" class="logo-icon"></lucide-icon>
+        <lucide-icon name="user" class="logo-icon"></lucide-icon>
       </div>
       <h1>Acceso ERP</h1>
       <p>Bienvenido. Por favor inicia sesión.</p>
@@ -26,7 +26,7 @@
         label="E-mail"
         type="email"
         placeholder="Introduce tu e-mail"
-        [icon]="icons.User"
+        icon="user"
         formControlName="email"
         [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
       ></ui-josanz-input>
@@ -36,7 +36,7 @@
         label="Contraseña"
         type="password"
         placeholder="••••••••"
-        [icon]="icons.Lock"
+        icon="lock"
         formControlName="password"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
       ></ui-josanz-input>
@@ -45,7 +45,7 @@
         type="submit" 
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
-        [icon]="icons.ArrowRight"
+        icon="arrow-right"
       >
         Acceder
       </ui-josanz-button>

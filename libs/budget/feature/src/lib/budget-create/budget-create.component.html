@@ -1,6 +1,6 @@
 <div class="page-header">
   <h1>Nuevo Presupuesto</h1>
-  <ui-josanz-button (clicked)="onSubmit()" [icon]="Save" [disabled]="budgetForm.invalid || store.loading()" [loading]="store.loading()">
+  <ui-josanz-button (clicked)="onSubmit()" icon="save" [disabled]="budgetForm.invalid || store.loading()" [loading]="store.loading()">
     Guardar Presupuesto
   </ui-josanz-button>
 </div>
@@ -39,7 +39,7 @@
   <!-- Líneas de Detalle -->
   <ui-josanz-card title="Líneas de Presupuesto">
     <div slot="header-actions">
-      <ui-josanz-button (clicked)="addItem()" [icon]="Plus" variant="ghost">Agregar Línea</ui-josanz-button>
+      <ui-josanz-button (clicked)="addItem()" icon="plus" variant="ghost">Agregar Línea</ui-josanz-button>
     </div>
 
     <div class="items-list" [formGroup]="budgetForm">
@@ -69,7 +69,7 @@
             </div>
             <div class="col-remove">
               <button class="remove-btn" (click)="removeItem(i)">
-                <lucide-icon [name]="Trash2"></lucide-icon>
+                <lucide-icon name="trash-2"></lucide-icon>
               </button>
             </div>
           </div>

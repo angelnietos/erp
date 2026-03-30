@@ -11,6 +11,7 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
+  UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
@@ -29,6 +30,7 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
+    UiCardComponent,
     LucideAngularModule
   ],
   template: `
