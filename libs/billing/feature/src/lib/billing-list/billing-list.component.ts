@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -34,498 +34,563 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiTabsComponent,
     LucideAngularModule,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       <div class="page-header">
         <div class="header-content">
-          <h1>Facturación</h1>
-          <p class="subtitle">Gestiona facturas y envíos a VeriFactu</p>
+          <h1 class="glow-text">Terminal de Facturación</h1>
+          <p class="subtitle">Control de ciclos fiscales, emisión de facturas y cumplimiento VeriFactu</p>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
-            Nueva factura
+          <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
+            <lucide-icon name="plus" class="mr-2"></lucide-icon>
+            Emitir Nueva Factura
           </ui-josanz-button>
         }
       </div>
 
-      <ui-josanz-tabs
-        [tabs]="tabs()"
-        [activeTab]="activeTab()"
-        (tabChange)="onTabChange($event)"
-      ></ui-josanz-tabs>
+      <div class="navigation-row">
+        <ui-josanz-tabs
+          [tabs]="tabs()"
+          [activeTab]="activeTab()"
+          variant="underline"
+          (tabChange)="onTabChange($event)"
+        ></ui-josanz-tabs>
+      </div>
 
       <div class="filters-bar">
         <ui-josanz-search
-          placeholder="Buscar facturas..."
+          variant="filled"
+          placeholder="BUSCAR NIF, CLIENTE O Nº FACTURA..."
           (searchChange)="onSearch($event)"
+          class="flex-1"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando facturas..."></ui-josanz-loader>
+        <ui-josanz-loader message="Sincronizando registros fiscales..."></ui-josanz-loader>
       } @else {
-        <ui-josanz-table [columns]="columns" [data]="invoices()">
-          <ng-template #cellTemplate let-inv let-key="key">
-            @switch (key) {
-              @case ('invoiceNumber') {
-                <a [routerLink]="['/billing', inv.id]" class="invoice-link">{{ inv.invoiceNumber }}</a>
-              }
-              @case ('type') {
-                {{ inv.type === 'rectificative' ? 'Rectificativa' : 'Normal' }}
-              }
-              @case ('total') {
-                {{ inv.total | currency: 'EUR' }}
-              }
-              @case ('issueDate') {
-                {{ formatDate(inv.issueDate) }}
-              }
-              @case ('dueDate') {
-                <span [class.overdue]="isOverdue(inv)">{{ formatDate(inv.dueDate) }}</span>
-              }
-              @case ('status') {
-                <ui-josanz-badge [variant]="getStatusVariant(inv.status)">
-                  {{ getStatusLabel(inv.status) }}
-                </ui-josanz-badge>
-              }
-              @case ('verifactuStatus') {
-                @if (inv.verifactuStatus) {
-                  <ui-josanz-badge [variant]="getVerifactuVariant(inv.verifactuStatus)">
-                    {{ getVerifactuLabel(inv.verifactuStatus) }}
+        <ui-josanz-card variant="glass" class="table-card">
+          <ui-josanz-table [columns]="columns" [data]="invoices()" variant="hover">
+            <ng-template #cellTemplate let-inv let-key="key">
+              @switch (key) {
+                @case ('invoiceNumber') {
+                  <a [routerLink]="['/billing', inv.id]" class="invoice-link">{{ inv.invoiceNumber }}</a>
+                }
+                @case ('type') {
+                  <ui-josanz-badge variant="info">
+                    {{ inv.type === 'rectificative' ? 'RECTIFICATIVA' : 'ORDINARIA' }}
                   </ui-josanz-badge>
-                } @else {
-                  —
+                }
+                @case ('total') {
+                  <span class="amount-text">{{ inv.total | currency: 'EUR' }}</span>
+                }
+                @case ('issueDate') {
+                  <span class="date-text">{{ formatDate(inv.issueDate) }}</span>
+                }
+                @case ('dueDate') {
+                  <span class="date-text" [class.overdue]="isOverdue(inv)">{{ formatDate(inv.dueDate) }}</span>
+                }
+                @case ('status') {
+                  <ui-josanz-badge [variant]="getStatusVariant(inv.status)">
+                    {{ getStatusLabel(inv.status) }}
+                  </ui-josanz-badge>
+                }
+                @case ('verifactuStatus') {
+                  @if (inv.verifactuStatus) {
+                    <ui-josanz-badge [variant]="getVerifactuVariant(inv.verifactuStatus)">
+                      {{ getVerifactuLabel(inv.verifactuStatus) }}
+                    </ui-josanz-badge>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                }
+                @case ('actions') {
+                  <div class="actions">
+                    <button type="button" class="action-trigger" [routerLink]="['/billing', inv.id]" title="Ver">
+                      <lucide-icon name="eye" size="18"></lucide-icon>
+                    </button>
+                    @if (config.enableEdit) {
+                      <button type="button" class="action-trigger" title="Editar" (click)="editInvoice(inv)">
+                        <lucide-icon name="pencil" size="18"></lucide-icon>
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="action-trigger success"
+                      title="Marcar enviada"
+                      (click)="sendInvoice(inv)"
+                    >
+                      <lucide-icon name="send" size="18"></lucide-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="action-trigger success"
+                      title="Marcar pagada"
+                      (click)="markAsPaid(inv)"
+                    >
+                      <lucide-icon name="check-circle" size="18"></lucide-icon>
+                    </button>
+                    @if (config.enableVerifactu) {
+                      <button
+                        type="button"
+                        class="action-trigger verifactu"
+                        title="Enviar a VeriFactu"
+                        (click)="sendToVerifactu(inv)"
+                      >
+                        <lucide-icon name="shield-check" size="18"></lucide-icon>
+                      </button>
+                      <button
+                        type="button"
+                        class="action-trigger verifactu-qr"
+                        title="Ver QR VeriFactu"
+                        (click)="viewVerifactuQr(inv)"
+                      >
+                        <lucide-icon name="qr-code" size="18"></lucide-icon>
+                      </button>
+                    }
+                    @if (config.enableDelete) {
+                      <button type="button" class="action-trigger danger" title="Eliminar" (click)="confirmDelete(inv)">
+                        <lucide-icon name="trash-2" size="18"></lucide-icon>
+                      </button>
+                    }
+                  </div>
+                }
+                @default {
+                  {{ inv[key] }}
                 }
               }
-              @case ('actions') {
-                <div class="actions">
-                  <button type="button" class="action-btn" [routerLink]="['/billing', inv.id]" title="Ver">
-                    <lucide-icon name="eye"></lucide-icon>
-                  </button>
-                  @if (config.enableEdit) {
-                    <button type="button" class="action-btn" title="Editar" (click)="editInvoice(inv)">
-                      <lucide-icon name="pencil"></lucide-icon>
-                    </button>
-                  }
-                  <button
-                    type="button"
-                    class="action-btn success"
-                    title="Marcar enviada"
-                    (click)="sendInvoice(inv)"
-                  >
-                    <lucide-icon name="send"></lucide-icon>
-                  </button>
-                  <button
-                    type="button"
-                    class="action-btn success"
-                    title="Marcar pagada"
-                    (click)="markAsPaid(inv)"
-                  >
-                    <lucide-icon name="check-circle"></lucide-icon>
-                  </button>
-                  @if (config.enableVerifactu) {
-                    <button
-                      type="button"
-                      class="action-btn verifactu"
-                      title="Enviar a VeriFactu"
-                      (click)="sendToVerifactu(inv)"
-                    >
-                      <lucide-icon name="shield-check"></lucide-icon>
-                    </button>
-                    <button
-                      type="button"
-                      class="action-btn verifactu-qr"
-                      title="Ver QR VeriFactu"
-                      (click)="viewVerifactuQr(inv)"
-                    >
-                      <lucide-icon name="qr-code"></lucide-icon>
-                    </button>
-                  }
-                  @if (config.enableDelete) {
-                    <button type="button" class="action-btn danger" title="Eliminar" (click)="confirmDelete(inv)">
-                      <lucide-icon name="trash-2"></lucide-icon>
-                    </button>
-                  }
-                </div>
-              }
-              @default {
-                {{ inv[key] }}
-              }
-            }
-          </ng-template>
-        </ui-josanz-table>
+            </ng-template>
+          </ui-josanz-table>
 
-        <ui-josanz-pagination
-          [currentPage]="currentPage()"
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)"
-        ></ui-josanz-pagination>
+          <div class="pagination-wrapper">
+            <ui-josanz-pagination
+              [currentPage]="currentPage()"
+              [totalPages]="totalPages()"
+              variant="minimal"
+              (pageChange)="onPageChange($event)"
+            ></ui-josanz-pagination>
+          </div>
+        </ui-josanz-card>
       }
     </div>
 
+    <!-- Create/Edit Modal -->
     <ui-josanz-modal
       [isOpen]="isModalOpen()"
-      [title]="editingInvoice() ? 'Editar factura' : 'Nueva factura'"
+      [title]="editingInvoice() ? 'DATOS FISCALES: EDITAR' : 'DATOS FISCALES: NUEVO'"
       (closed)="closeModal()"
+      variant="dark"
     >
-      <form>
+      <div class="form-container">
         <div class="form-grid">
-          <div class="form-group">
-            <label for="invoiceNumber">Nº factura</label>
+          <div class="form-col">
+            <label class="field-label" for="invoice-num">Nº Factura</label>
             <input
-              id="invoiceNumber"
+              id="invoice-num"
               type="text"
+              class="technical-input"
               name="invoiceNumber"
               [(ngModel)]="formData.invoiceNumber"
               placeholder="F/2026/0001"
             />
           </div>
-          <div class="form-group">
-            <label for="clientName">Cliente *</label>
+          <div class="form-col">
+            <label class="field-label" for="billing-client">Cliente Receptor *</label>
             <input
-              id="clientName"
+              id="billing-client"
               type="text"
+              class="technical-input"
               name="clientName"
               [(ngModel)]="formData.clientName"
               required
-              placeholder="Nombre del cliente"
+              placeholder="RAZÓN SOCIAL"
             />
           </div>
-          <div class="form-group">
-            <label for="budgetId">Presupuesto</label>
-            <input id="budgetId" type="text" name="budgetId" [(ngModel)]="formData.budgetId" />
+          <div class="form-col">
+            <label class="field-label" for="billing-budget">Referencia Presupuesto</label>
+            <input id="billing-budget" type="text" class="technical-input" name="budgetId" [(ngModel)]="formData.budgetId" placeholder="#PR-0000" />
           </div>
-          <div class="form-group">
-            <label for="type">Tipo</label>
-            <select id="type" name="type" [(ngModel)]="formData.type">
-              <option value="normal">Normal</option>
-              <option value="rectificative">Rectificativa</option>
+          <div class="form-col">
+            <label class="field-label" for="billing-type">Tipo Contable</label>
+            <select id="billing-type" name="type" class="technical-select" [(ngModel)]="formData.type">
+              <option value="normal">ORDINARIA</option>
+              <option value="rectificative">RECTIFICATIVA</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="status">Estado</label>
-            <select id="status" name="status" [(ngModel)]="formData.status">
-              <option value="draft">Borrador</option>
-              <option value="pending">Pendiente</option>
-              <option value="sent">Enviada</option>
-              <option value="paid">Pagada</option>
-              <option value="cancelled">Cancelada</option>
+          <div class="form-col">
+            <label class="field-label" for="billing-status">Estado de Cobro</label>
+            <select id="billing-status" name="status" class="technical-select" [(ngModel)]="formData.status" (change)="onStatusChange()">
+              <option value="draft">BORRADOR</option>
+              <option value="pending">PENDIENTE</option>
+              <option value="sent">ENVIADA</option>
+              <option value="paid">PAGADA</option>
+              <option value="cancelled">CANCELADA</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="total">Importe</label>
-            <input id="total" type="number" name="total" [(ngModel)]="formData.total" step="0.01" />
+          <div class="form-col">
+            <label class="field-label" for="billing-total">Importe Bruto (€)</label>
+            <input id="billing-total" type="number" class="technical-input" name="total" [(ngModel)]="formData.total" step="0.01" />
           </div>
-          <div class="form-group">
-            <label for="issueDate">Fecha emisión</label>
-            <input id="issueDate" type="date" name="issueDate" [(ngModel)]="formData.issueDate" />
+          <div class="form-col">
+            <label class="field-label" for="billing-issue">Fecha Emisión</label>
+            <input id="billing-issue" type="date" class="technical-input" name="issueDate" [(ngModel)]="formData.issueDate" />
           </div>
-          <div class="form-group">
-            <label for="dueDate">Vencimiento</label>
-            <input id="dueDate" type="date" name="dueDate" [(ngModel)]="formData.dueDate" />
+          <div class="form-col">
+            <label class="field-label" for="billing-due">Fecha Vencimiento</label>
+            <input id="billing-due" type="date" class="technical-input" name="dueDate" [(ngModel)]="formData.dueDate" />
           </div>
         </div>
-      </form>
-      <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeModal()">Cancelar</ui-josanz-button>
-        <ui-josanz-button (clicked)="saveInvoice()" [disabled]="!formData.clientName">
-          {{ editingInvoice() ? 'Actualizar' : 'Crear' }}
+      </div>
+      <div modal-footer class="modal-footer">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">ABORTAR</ui-josanz-button>
+        <ui-josanz-button variant="primary" (clicked)="saveInvoice()" [disabled]="!formData.clientName">
+          {{ editingInvoice() ? 'ACTUALIZAR REGISTROS' : 'CONFIRMAR EMISIÓN' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
 
+    <!-- Delete Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="Confirmar eliminación"
+      title="SISTEMA: CONFIRMAR ELIMINACIÓN"
       (closed)="closeDeleteModal()"
+      variant="dark"
     >
-      <p>
-        ¿Eliminar la factura
-        <strong>{{ invoiceToDelete()?.invoiceNumber }}</strong>
-        ?
-      </p>
+      <div class="delete-warning">
+        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <div class="warning-content">
+          <p>
+            ¿Estás seguro de que deseas eliminar la factura
+            <strong>{{ invoiceToDelete()?.invoiceNumber }}</strong>?
+          </p>
+          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y PUEDE AFECTAR A LA TRAZABILIDAD FISCAL.</p>
+        </div>
+      </div>
+      
       <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">Cancelar</ui-josanz-button>
-        <ui-josanz-button variant="danger" (clicked)="deleteInvoice()">Eliminar</ui-josanz-button>
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">CANCELAR</ui-josanz-button>
+        <ui-josanz-button variant="danger" (clicked)="deleteInvoice()">ELIMINAR DEFINITIVAMENTE</ui-josanz-button>
       </div>
     </ui-josanz-modal>
 
+    <!-- Verifactu QR Modal -->
     <ui-josanz-modal
       [isOpen]="isVerifactuQrModalOpen()"
-      title="Verificación VeriFactu"
+      title="SISTEMA CENTRAL: VERIFICACIÓN VERIFACTU"
       variant="dark"
       [showFooter]="false"
       (closed)="closeVerifactuQrModal()"
     >
-      @if (verifactuStore.loading()) {
-        <ui-josanz-loader message="Cargando datos VeriFactu..."></ui-josanz-loader>
-      } @else if (verifactuStore.error()) {
-        <p class="vf-error">{{ verifactuStore.error() }}</p>
-        <div class="vf-modal-actions">
-          <ui-josanz-button variant="secondary" (clicked)="closeVerifactuQrModal()">Cerrar</ui-josanz-button>
-        </div>
-      } @else if (verifactuStore.selectedInvoice(); as inv) {
-        <div class="vf-detail">
-          <div class="vf-section">
-            <h4>Factura</h4>
-            <div class="vf-grid">
-              <div class="vf-item">
-                <span class="vf-label">Serie</span>
-                <span>{{ inv.series }}</span>
+      <div class="verifactu-container">
+        @if (verifactuStore.loading()) {
+          <ui-josanz-loader message="Consultando AEAT..."></ui-josanz-loader>
+        } @else if (verifactuStore.error()) {
+          <div class="vf-error-box">
+             <lucide-icon name="alert-circle" size="32"></lucide-icon>
+             <p>{{ verifactuStore.error() }}</p>
+             <ui-josanz-button variant="ghost" (clicked)="closeVerifactuQrModal()">CERRAR VENTANA</ui-josanz-button>
+          </div>
+        } @else if (verifactuStore.selectedInvoice(); as inv) {
+          <div class="vf-detail-cyber">
+            <div class="vf-main-info">
+              <div class="vf-id-badge">
+                <span class="label">Nº FACTURA</span>
+                <span class="val">{{ inv.series }}{{ inv.number }}</span>
               </div>
-              <div class="vf-item">
-                <span class="vf-label">Número</span>
-                <span>{{ inv.number }}</span>
-              </div>
-              <div class="vf-item">
-                <span class="vf-label">Fecha emisión</span>
-                <span>{{ formatDate(inv.issueDate) }}</span>
-              </div>
-              <div class="vf-item">
-                <span class="vf-label">Estado VeriFactu</span>
-                <span class="vf-status">{{ inv.verifactuStatus }}</span>
+              <div class="vf-status-display" [class.valid]="inv.verifactuStatus === 'sent'">
+                <lucide-icon [name]="inv.verifactuStatus === 'sent' ? 'check-circle' : 'clock'"></lucide-icon>
+                <span>ESTADO: {{ inv.verifactuStatus | uppercase }}</span>
               </div>
             </div>
-          </div>
-          <div class="vf-section">
-            <h4>Cliente</h4>
-            <div class="vf-grid">
-              <div class="vf-item vf-span-2">
-                <span class="vf-label">Nombre</span>
-                <span>{{ inv.customerName }}</span>
+
+            <div class="vf-data-grid">
+              <div class="vf-data-card">
+                <h5 class="section-title">TRAZABILIDAD</h5>
+                <div class="row"><span class="lbl">FECHA</span><span class="val">{{ formatDate(inv.issueDate) }}</span></div>
+                <div class="row"><span class="lbl">AEAT REF</span><span class="val">{{ inv.aeatReference || 'PENDIENTE' }}</span></div>
+                <div class="row full"><span class="lbl">HASH CADENA</span><span class="val hash">{{ inv.hashChain?.currentHash || 'N/A' }}</span></div>
               </div>
-              <div class="vf-item">
-                <span class="vf-label">NIF</span>
-                <span>{{ inv.customerNif }}</span>
+              
+              <div class="vf-data-card">
+                <h5 class="section-title">ENTIDAD RECEPTORA</h5>
+                <div class="row"><span class="lbl">NIF</span><span class="val">{{ inv.customerNif }}</span></div>
+                <div class="row full"><span class="lbl">NOMBRE</span><span class="val">{{ inv.customerName }}</span></div>
               </div>
-            </div>
-          </div>
-          <div class="vf-section">
-            <h4>Totales</h4>
-            <div class="vf-grid">
-              <div class="vf-item">
-                <span class="vf-label">Subtotal</span>
-                <span>{{ formatCurrencyEu(inv.subtotal) }}</span>
-              </div>
-              <div class="vf-item">
-                <span class="vf-label">IVA</span>
-                <span>{{ formatCurrencyEu(inv.taxAmount) }}</span>
-              </div>
-              <div class="vf-item vf-highlight">
-                <span class="vf-label">Total</span>
-                <span>{{ formatCurrencyEu(inv.total) }}</span>
+
+              <div class="vf-data-card total-card">
+                <h5 class="section-title">LIQUIDACIÓN</h5>
+                <div class="row"><span class="lbl">BASE</span><span class="val">{{ formatCurrencyEu(inv.subtotal) }}</span></div>
+                <div class="row"><span class="lbl">IVA</span><span class="val">{{ formatCurrencyEu(inv.taxAmount) }}</span></div>
+                <div class="row total"><span class="lbl">TOTAL</span><span class="val">{{ formatCurrencyEu(inv.total) }}</span></div>
               </div>
             </div>
-          </div>
-          <div class="vf-section">
-            <h4>AEAT</h4>
-            <div class="vf-grid">
-              <div class="vf-item vf-span-2">
-                <span class="vf-label">Referencia</span>
-                <span>{{ inv.aeatReference || 'Pendiente' }}</span>
-              </div>
-              @if (inv.hashChain?.currentHash) {
-                <div class="vf-item vf-span-2">
-                  <span class="vf-label">Hash</span>
-                  <span class="vf-hash">{{ inv.hashChain.currentHash }}</span>
+
+            @if (inv.qrCode) {
+              <div class="vf-qr-technical">
+                <h5 class="section-title">CÓDIGO DE VERIFICACIÓN AEAT</h5>
+                <div class="qr-frame">
+                  <img [src]="inv.qrCode" alt="QR VeriFactu" />
                 </div>
-              }
+                <p class="qr-intel">Escanee este código para verificar la validez legal del documento en la sede electrónica de la AEAT.</p>
+              </div>
+            }
+            
+            <div class="vf-actions-footer">
+               <ui-josanz-button variant="ghost" (clicked)="closeVerifactuQrModal()">CERRAR TERMINAL</ui-josanz-button>
             </div>
           </div>
-          @if (inv.qrCode) {
-            <div class="vf-section vf-qr">
-              <h4>QR de verificación</h4>
-              <div class="vf-qr-wrap">
-                <img [src]="inv.qrCode" alt="Código QR VeriFactu" class="vf-qr-img" />
-              </div>
-            </div>
-          } @else {
-            <p class="vf-qr-missing">QR no disponible.</p>
-          }
-        </div>
-      }
+        }
+      </div>
     </ui-josanz-modal>
   `,
   styles: [
     `
-      .page-container {
-        padding: 24px;
-      }
+      .page-container { padding: 2rem; }
+      
       .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 24px;
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--border-soft);
+        padding-bottom: 1.5rem;
       }
-      .header-content h1 {
-        margin: 0 0 4px 0;
-        color: white;
-        font-size: 28px;
-        font-weight: 700;
+      
+      .glow-text { 
+        font-size: 2.5rem; 
+        font-weight: 900; 
+        color: #fff; 
+        margin: 0; 
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-family: var(--font-display);
+        text-shadow: 0 0 20px var(--brand-glow);
       }
-      .subtitle {
-        margin: 0;
-        color: #94a3b8;
-        font-size: 14px;
-      }
-      .filters-bar {
-        display: flex;
-        gap: 16px;
-        margin: 20px 0;
-      }
-      .invoice-link {
-        color: #4f46e5;
-        text-decoration: none;
-        font-weight: 600;
-        font-family: monospace;
-      }
-      .invoice-link:hover {
-        text-decoration: underline;
-      }
-      .overdue {
-        color: #ef4444;
-      }
-      .actions {
-        display: flex;
-        gap: 8px;
-      }
-      .action-btn {
-        background: none;
-        border: none;
-        padding: 6px;
-        cursor: pointer;
-        color: #94a3b8;
-        border-radius: 6px;
+      
+      .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+      
+      .navigation-row { margin-bottom: 2rem; }
+      
+      .filters-bar { margin-bottom: 2rem; display: flex; }
+      .flex-1 { flex: 1; }
+      
+      .invoice-link { 
+        color: var(--brand); 
+        text-decoration: none; 
+        font-weight: 900; 
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-family: var(--font-display);
         transition: all 0.2s;
       }
-      .action-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+      .invoice-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+      
+      .amount-text { color: #fff; font-weight: 800; font-family: var(--font-display); }
+      .date-text { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+      .overdue { color: var(--danger); text-shadow: 0 0 5px rgba(239, 68, 68, 0.4); }
+      
+      .actions { display: flex; gap: 8px; }
+      
+      .action-trigger { 
+        background: var(--bg-tertiary); 
+        border: 1px solid var(--border-soft); 
+        color: var(--text-muted); 
+        cursor: pointer; 
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
       }
-      .action-btn.success:hover {
-        background: rgba(34, 197, 94, 0.15);
-        color: #22c55e;
+      
+      .action-trigger:hover { 
+        color: #fff; 
+        border-color: var(--brand);
+        background: var(--bg-secondary);
+        box-shadow: 0 0 10px var(--brand-glow);
       }
-      .action-btn.danger:hover {
-        background: rgba(239, 68, 68, 0.15);
-        color: #ef4444;
+      
+      .action-trigger.success:hover { border-color: var(--success); color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+      .action-trigger.verifactu:hover { border-color: var(--info); color: var(--info); box-shadow: 0 0 10px rgba(96, 165, 250, 0.4); }
+      .action-trigger.verifactu-qr:hover { border-color: var(--success); color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+      .action-trigger.danger:hover {
+        border-color: var(--danger);
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
       }
+
+      .pagination-wrapper {
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-soft);
+        margin-top: 1rem;
+      }
+
+      /* Form Styles */
+      .form-container { padding: 1rem 0; }
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 1.5rem;
       }
-      .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .form-group label {
-        color: #94a3b8;
-        font-size: 13px;
-        font-weight: 500;
-      }
-      .form-group input,
-      .form-group select {
-        background: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 10px 12px;
-        color: white;
-        font-size: 14px;
-        transition: border-color 0.2s;
-      }
-      .form-group input:focus,
-      .form-group select:focus {
-        outline: none;
-        border-color: #4f46e5;
-      }
-      .form-group input::placeholder {
-        color: #64748b;
-      }
-      .verifactu {
-        color: #0ea5e9;
-      }
-      .verifactu:hover {
-        background: rgba(14, 165, 233, 0.15);
-      }
-      .verifactu-qr {
-        color: #22c55e;
-      }
-      .verifactu-qr:hover {
-        background: rgba(34, 197, 94, 0.15);
-      }
-      .vf-detail {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        min-width: min(520px, 85vw);
-      }
-      .vf-section h4 {
-        margin: 0 0 12px 0;
-        font-size: 13px;
-        font-weight: 600;
-        color: #94a3b8;
+      .form-col { display: flex; flex-direction: column; gap: 8px; }
+      
+      .field-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--text-secondary);
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.1em;
       }
-      .vf-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px 20px;
+      
+      .technical-input, .technical-select {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-soft);
+        border-radius: 4px;
+        padding: 12px 14px;
+        color: #fff;
+        font-size: 0.9rem;
+        font-family: var(--font-main);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
       }
-      .vf-item {
+      
+      .technical-input:focus, .technical-select:focus {
+        border-color: var(--brand);
+        background: var(--bg-secondary);
+        box-shadow: 0 0 15px var(--brand-glow);
+      }
+
+      .technical-select option { background: var(--bg-secondary); color: #fff; }
+
+      .delete-warning {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 6px;
+      }
+      
+      .warning-icon { color: var(--danger); width: 40px; height: 40px; }
+      
+      .critical-text {
+        color: var(--danger);
+        font-weight: 800;
+        font-size: 0.75rem;
+        margin-top: 8px;
+        text-transform: uppercase;
+      }
+
+      /* Verifactu Detail Premium Styling */
+      .vf-detail-cyber {
+        min-width: 500px;
+        padding: 10px;
+      }
+
+      .vf-main-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-soft);
+      }
+
+      .vf-id-badge { display: flex; flex-direction: column; }
+      .vf-id-badge .label { font-size: 0.65rem; color: var(--text-muted); font-weight: 800; }
+      .vf-id-badge .val { font-size: 1.5rem; color: #fff; font-weight: 900; font-family: var(--font-display); }
+
+      .vf-status-display {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-soft);
+        border-radius: 4px;
+        color: var(--warning);
+        font-weight: 800;
+        font-size: 0.85rem;
+      }
+      .vf-status-display.valid { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
+
+      .vf-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+
+      .vf-data-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        padding: 1rem;
+      }
+      .vf-data-card.total-card { grid-column: 1 / -1; background: var(--bg-tertiary); }
+
+      .section-title {
+        font-size: 0.65rem;
+        color: var(--brand);
+        font-weight: 900;
+        margin: 0 0 12px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
+      .row.full { flex-direction: column; gap: 4px; margin-top: 8px; }
+      .row.total { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
+      .row .lbl { color: var(--text-muted); font-weight: 500; }
+      .row .val { color: #fff; font-weight: 700; }
+      .row.total .val { color: var(--success); font-size: 1.1rem; }
+      
+      .row .hash { 
+        font-family: monospace; 
+        font-size: 0.7rem; 
+        word-break: break-all; 
+        background: #000; 
+        padding: 6px; 
+        border-radius: 4px;
+        color: var(--text-secondary);
+      }
+
+      .vf-qr-technical {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-      }
-      .vf-item.vf-span-2 {
-        grid-column: 1 / -1;
-      }
-      .vf-item.vf-highlight span:last-child {
-        font-weight: 700;
-        color: #4ade80;
-      }
-      .vf-label {
-        font-size: 12px;
-        color: #64748b;
-      }
-      .vf-status {
-        font-weight: 600;
-        color: #38bdf8;
-      }
-      .vf-hash {
-        font-family: ui-monospace, monospace;
-        font-size: 12px;
-        word-break: break-all;
-        color: #cbd5e1;
-      }
-      .vf-error {
-        color: #f87171;
-        margin: 0 0 16px 0;
-      }
-      .vf-modal-actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-      .vf-qr-wrap {
-        display: flex;
-        justify-content: center;
-        padding: 12px;
-        background: #0f172a;
+        align-items: center;
+        background: #000;
+        padding: 2rem;
         border-radius: 12px;
-        border: 1px solid #334155;
+        border: 1px solid var(--border-soft);
       }
-      .vf-qr-img {
-        max-width: 280px;
-        width: 100%;
-        height: auto;
+
+      .qr-frame {
+        padding: 1rem;
+        background: #fff;
         border-radius: 8px;
+        margin-bottom: 1rem;
       }
-      .vf-qr-missing {
-        margin: 0;
-        font-size: 14px;
-        color: #94a3b8;
+      .qr-frame img { width: 180px; height: 180px; }
+
+      .qr-intel { font-size: 0.75rem; color: var(--text-muted); text-align: center; max-width: 300px; line-height: 1.4; }
+
+      .vf-actions-footer { margin-top: 2rem; display: flex; justify-content: flex-end; }
+
+      .vf-error-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 3rem;
+        text-align: center;
+        color: var(--danger);
+      }
+
+      .mr-2 { margin-right: 8px; }
+
+      @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .vf-data-grid { grid-template-columns: 1fr; }
+        .vf-detail-cyber { min-width: auto; }
       }
     `,
   ],
@@ -573,6 +638,10 @@ export class BillingListComponent implements OnInit {
 
   onTabChange(tabId: string) {
     this.facade.setTab(tabId);
+  }
+
+  onStatusChange() {
+    // Optional logic when status switches
   }
 
   onSearch(term: string) {

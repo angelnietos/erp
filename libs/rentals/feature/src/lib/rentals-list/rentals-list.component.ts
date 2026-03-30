@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiTableComponent,
   UiButtonComponent,
@@ -11,9 +12,7 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
-  TabItem,
 } from '@josanz-erp/shared-ui-kit';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 
 @Component({
@@ -31,161 +30,177 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
+    LucideAngularModule
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       <div class="page-header">
         <div class="header-content">
-          <h1>Alquileres</h1>
-          <p class="subtitle">Gestiona los alquileres de equipos</p>
+          <h1 class="glow-text">Alquileres</h1>
+          <p class="subtitle">Control de expedientes de arrendamiento y disponibilidad de equipos</p>
         </div>
-        <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+        <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
+          <lucide-icon name="plus" class="mr-2"></lucide-icon>
           Nuevo Alquiler
         </ui-josanz-button>
       </div>
 
-      <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" (tabChange)="onTabChange($event)"></ui-josanz-tabs>
+      <div class="navigation-row">
+        <ui-josanz-tabs [tabs]="tabs" [activeTab]="activeTab()" variant="underline" (tabChange)="onTabChange($event)"></ui-josanz-tabs>
+      </div>
 
       <div class="filters-bar">
         <ui-josanz-search 
-          placeholder="Buscar alquileres..." 
+          variant="filled"
+          placeholder="BUSCAR EXPEDIENTE O CLIENTE..." 
           (searchChange)="onSearch($event)"
+          class="flex-1"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando alquileres..."></ui-josanz-loader>
+        <ui-josanz-loader message="Consultando registros de alquiler..."></ui-josanz-loader>
       } @else {
-        <ui-josanz-table [columns]="columns" [data]="rentals()">
-          <ng-template #cellTemplate let-rental let-key="key">
-            @switch (key) {
-              @case ('id') {
-                <a [routerLink]="['/rentals', rental.id]" class="rental-link">
-                  #{{ rental.id.slice(0, 8) }}
-                </a>
-              }
-              @case ('status') {
-                <ui-josanz-badge [variant]="getStatusVariant(rental.status)">
-                  {{ getStatusLabel(rental.status) }}
-                </ui-josanz-badge>
-              }
-              @case ('startDate') {
-                {{ formatDate(rental.startDate) }}
-              }
-              @case ('endDate') {
-                {{ formatDate(rental.endDate) }}
-              }
-              @case ('totalAmount') {
-                {{ rental.totalAmount | currency:'EUR' }}
-              }
-              @case ('actions') {
-                <div class="actions">
-                  <button class="action-btn" [routerLink]="['/rentals', rental.id]" title="Ver">
-                    <lucide-icon name="eye"></lucide-icon>
-                  </button>
-                  @if (rental.status === 'DRAFT') {
-                    <button class="action-btn success" title="Activar" (click)="activateRental(rental)">
-                      <lucide-icon name="play"></lucide-icon>
+        <ui-josanz-card variant="glass" class="table-card">
+          <ui-josanz-table [columns]="columns" [data]="rentals()" variant="hover">
+            <ng-template #cellTemplate let-rental let-key="key">
+              @switch (key) {
+                @case ('id') {
+                  <a [routerLink]="['/rentals', rental.id]" class="rental-link">
+                    #{{ rental.id.slice(0, 8) }}
+                  </a>
+                }
+                @case ('status') {
+                  <ui-josanz-badge [variant]="getStatusVariant(rental.status)">
+                    {{ getStatusLabel(rental.status) }}
+                  </ui-josanz-badge>
+                }
+                @case ('startDate') {
+                  <span class="date-text">{{ formatDate(rental.startDate) }}</span>
+                }
+                @case ('endDate') {
+                  <span class="date-text">{{ formatDate(rental.endDate) }}</span>
+                }
+                @case ('totalAmount') {
+                  <span class="amount-text">{{ rental.totalAmount | currency:'EUR' }}</span>
+                }
+                @case ('actions') {
+                  <div class="actions">
+                    <button class="action-trigger" [routerLink]="['/rentals', rental.id]" title="Ver">
+                      <lucide-icon name="eye" size="18"></lucide-icon>
                     </button>
-                  }
-                  @if (rental.status === 'ACTIVE') {
-                    <button class="action-btn" title="Completar" (click)="completeRental(rental)">
-                      <lucide-icon name="check-circle"></lucide-icon>
+                    @if (rental.status === 'DRAFT') {
+                      <button class="action-trigger success" title="Activar" (click)="activateRental(rental)">
+                        <lucide-icon name="play" size="18"></lucide-icon>
+                      </button>
+                    }
+                    @if (rental.status === 'ACTIVE') {
+                      <button class="action-trigger info" title="Completar" (click)="completeRental(rental)">
+                        <lucide-icon name="check-circle" size="18"></lucide-icon>
+                      </button>
+                      <button class="action-trigger danger" title="Cancelar" (click)="cancelRental(rental)">
+                        <lucide-icon name="x-circle" size="18"></lucide-icon>
+                      </button>
+                    }
+                    <button class="action-trigger" (click)="editRental(rental)" title="Editar">
+                      <lucide-icon name="pencil" size="18"></lucide-icon>
                     </button>
-                    <button class="action-btn danger" title="Cancelar" (click)="cancelRental(rental)">
-                      <lucide-icon name="x-circle"></lucide-icon>
+                    <button class="action-trigger danger" (click)="confirmDelete(rental)" title="Eliminar">
+                      <lucide-icon name="trash-2" size="18"></lucide-icon>
                     </button>
-                  }
-                  <button class="action-btn" (click)="editRental(rental)" title="Editar">
-                    <lucide-icon name="pencil"></lucide-icon>
-                  </button>
-                  <button class="action-btn danger" (click)="confirmDelete(rental)" title="Eliminar">
-                    <lucide-icon name="trash-2"></lucide-icon>
-                  </button>
-                </div>
+                  </div>
+                }
+                @default {
+                  {{ rental[key] }}
+                }
               }
-              @default {
-                {{ rental[key] }}
-              }
-            }
-          </ng-template>
-        </ui-josanz-table>
+            </ng-template>
+          </ui-josanz-table>
 
-        <ui-josanz-pagination 
-          [currentPage]="currentPage()" 
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)"
-        ></ui-josanz-pagination>
+          <div class="pagination-wrapper">
+            <ui-josanz-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              variant="minimal"
+              (pageChange)="onPageChange($event)"
+            ></ui-josanz-pagination>
+          </div>
+        </ui-josanz-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingRental() ? 'Editar Alquiler' : 'Nuevo Alquiler'"
+      [title]="editingRental() ? 'EXPEDIENTE ALQUILER: EDITAR' : 'EXPEDIENTE ALQUILER: NUEVO'"
       (closed)="closeModal()"
+      variant="dark"
     >
-      <form>
+      <div class="form-container">
         <div class="form-grid">
-          <div class="form-group">
-            <label for="clientName">Cliente *</label>
+          <div class="form-col full-width">
+            <label class="field-label" for="rental-client">Cliente Operatvo *</label>
             <input 
               type="text" 
-              id="clientName"
+              id="rental-client"
+              class="technical-input"
               [(ngModel)]="formData.clientName" 
               name="clientName" 
               required
-              placeholder="Nombre del cliente"
+              placeholder="DENOMINACIÓN DEL CLIENTE"
             >
           </div>
           
-          <div class="form-group">
-            <label for="status">Estado</label>
-            <select id="status" [(ngModel)]="formData.status" name="status">
-              <option value="DRAFT">Borrador</option>
-              <option value="ACTIVE">Activo</option>
-              <option value="COMPLETED">Completado</option>
-              <option value="CANCELLED">Cancelado</option>
+          <div class="form-col">
+            <label class="field-label" for="rental-status">Estado del Expediente</label>
+            <select id="rental-status" class="technical-select" [(ngModel)]="formData.status" name="status">
+              <option value="DRAFT">BORRADOR</option>
+              <option value="ACTIVE">ACTIVO</option>
+              <option value="COMPLETED">COMPLETADO</option>
+              <option value="CANCELLED">CANCELADO</option>
             </select>
           </div>
           
-          <div class="form-group">
-            <label for="startDate">Fecha de Inicio</label>
+          <div class="form-col">
+            <label class="field-label" for="rental-start">Fecha de Activación</label>
             <input 
               type="date" 
-              id="startDate"
+              id="rental-start"
+              class="technical-input"
               [(ngModel)]="formData.startDate" 
               name="startDate" 
             >
           </div>
           
-          <div class="form-group">
-            <label for="endDate">Fecha de Fin</label>
+          <div class="form-col">
+            <label class="field-label" for="rental-end">Fecha de Finalización</label>
             <input 
               type="date" 
-              id="endDate"
+              id="rental-end"
+              class="technical-input"
               [(ngModel)]="formData.endDate" 
               name="endDate" 
             >
           </div>
           
-          <div class="form-group">
-            <label for="itemsCount">Número de Items</label>
+          <div class="form-col">
+            <label class="field-label" for="rental-items">Unidades Alquiladas</label>
             <input 
               type="number" 
-              id="itemsCount"
+              id="rental-items"
+              class="technical-input"
               [(ngModel)]="formData.itemsCount" 
               name="itemsCount" 
               placeholder="0"
             >
           </div>
           
-          <div class="form-group">
-            <label for="totalAmount">Importe Total (€)</label>
+          <div class="form-col">
+            <label class="field-label" for="rental-amount">Importe Consolidado (€)</label>
             <input 
               type="number" 
-              id="totalAmount"
+              id="rental-amount"
+              class="technical-input"
               [(ngModel)]="formData.totalAmount" 
               name="totalAmount" 
               placeholder="0.00"
@@ -193,17 +208,18 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
             >
           </div>
         </div>
-      </form>
+      </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
-          Cancelar
+      <div modal-footer class="modal-footer">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
+          ABORTAR
         </ui-josanz-button>
         <ui-josanz-button 
+          variant="primary"
           (clicked)="saveRental()"
           [disabled]="!formData.clientName"
         >
-          {{ editingRental() ? 'Actualizar' : 'Crear' }}
+          {{ editingRental() ? 'ACTUALIZAR EXPEDIENTE' : 'CREAR EXPEDIENTE' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -211,80 +227,173 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="Confirmar Eliminación"
+      title="ADVERTENCIA: ELIMINACIÓN DE EXPEDIENTE"
       (closed)="closeDeleteModal()"
+      variant="dark"
     >
-      <p>¿Estás seguro de que deseas eliminar el alquiler <strong>#{{ rentalToDelete()?.id?.slice(0, 8) }}</strong>?</p>
-      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      <div class="delete-warning">
+        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <div class="warning-content">
+          <p>¿Estás seguro de que deseas eliminar el alquiler <strong>#{{ rentalToDelete()?.id?.slice(0, 8) }}</strong>?</p>
+          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ EL EXPEDIENTE DE LA BASE DE DATOS.</p>
+        </div>
+      </div>
       
       <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
-          Cancelar
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
+          CANCELAR
         </ui-josanz-button>
         <ui-josanz-button variant="danger" (clicked)="deleteRental()">
-          Eliminar
+          ELIMINAR DEFINITIVAMENTE
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 24px; }
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .header-content h1 { margin: 0 0 4px 0; color: white; font-size: 28px; font-weight: 700; }
-    .subtitle { margin: 0; color: #94A3B8; font-size: 14px; }
-    .filters-bar { display: flex; gap: 16px; margin: 20px 0; }
-    .rental-link { color: #4F46E5; text-decoration: none; font-weight: 500; font-family: monospace; }
-    .rental-link:hover { text-decoration: underline; }
-    .actions { display: flex; gap: 8px; }
-    .action-btn {
-      background: none; border: none; padding: 6px; cursor: pointer;
-      color: #94A3B8; border-radius: 6px; transition: all 0.2s;
-    }
-    .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-    .action-btn.success:hover { background: rgba(34,197,94,0.15); color: #22C55E; }
-    .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    .page-container { padding: 2rem; }
     
+    .page-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 1.5rem;
+    }
+    
+    .glow-text { 
+      font-size: 2.5rem; 
+      font-weight: 900; 
+      color: #fff; 
+      margin: 0; 
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      text-shadow: 0 0 20px var(--brand-glow);
+    }
+    
+    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    
+    .navigation-row { margin-bottom: 2rem; }
+    
+    .filters-bar { margin-bottom: 2rem; display: flex; }
+    .flex-1 { flex: 1; }
+    
+    .rental-link { 
+      color: var(--brand); 
+      text-decoration: none; 
+      font-weight: 900; 
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      transition: all 0.2s;
+    }
+    .rental-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    
+    .date-text { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+    .amount-text { color: #fff; font-weight: 800; font-family: var(--font-display); }
+
+    .actions { display: flex; gap: 10px; }
+    
+    .action-trigger { 
+      background: var(--bg-tertiary); 
+      border: 1px solid var(--border-soft); 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      width: 34px;
+      height: 34px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .action-trigger:hover { 
+      color: #fff; 
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+    
+    .action-trigger.success:hover { border-color: var(--success); color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+    .action-trigger.info:hover { border-color: var(--info); color: var(--info); box-shadow: 0 0 10px rgba(96, 165, 250, 0.4); }
+    .action-trigger.danger:hover {
+      border-color: var(--danger);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .pagination-wrapper {
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      margin-top: 1rem;
+    }
+
+    /* Form Styles */
+    .form-container { padding: 1rem 0; }
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 1.5rem;
     }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .form-col { display: flex; flex-direction: column; gap: 8px; }
+    .form-col.full-width { grid-column: 1 / -1; }
+    
+    .field-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .form-group label {
-      color: #94A3B8;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .form-group input,
-    .form-group select {
-      background: #0F172A;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: white;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
+    
+    .technical-input, .technical-select {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: var(--font-main);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
-      border-color: #4F46E5;
     }
-    .form-group input::placeholder {
-      color: #64748B;
+    
+    .technical-input:focus, .technical-select:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
-    .warning-text {
-      color: #EF4444;
-      font-size: 14px;
+
+    .technical-select option { background: var(--bg-secondary); color: #fff; }
+
+    .delete-warning {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 6px;
+    }
+    
+    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
+    
+    .critical-text {
+      color: var(--danger);
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
+
+    .mr-2 { margin-right: 8px; }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .glow-text { font-size: 1.8rem; }
     }
   `],
+
 })
 export class RentalsListComponent implements OnInit {
   private rentalService = inject(RentalService);
@@ -432,8 +541,9 @@ export class RentalsListComponent implements OnInit {
   saveRental() {
     if (!this.formData.clientName) return;
 
-    if (this.editingRental()) {
-      this.rentalService.updateRental(this.editingRental()!.id, this.formData).subscribe({
+    const rentalToEdit = this.editingRental();
+    if (rentalToEdit) {
+      this.rentalService.updateRental(rentalToEdit.id, this.formData).subscribe({
         next: (updated) => {
           this.rentals.update(rentals => 
             rentals.map(r => r.id === updated.id ? updated : r)

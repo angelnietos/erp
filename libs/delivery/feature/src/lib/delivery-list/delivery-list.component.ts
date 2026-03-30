@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiTableComponent,
   UiButtonComponent,
@@ -11,7 +12,6 @@ import {
   UiLoaderComponent,
   UiModalComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 
@@ -29,17 +29,18 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
+    LucideAngularModule
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="page-container">
       <div class="page-header">
         <div class="header-content">
-          <h1>Albaranes</h1>
-          <p class="subtitle">Gestiona las entregas de material</p>
+          <h1 class="glow-text">Gestión de Albaranes</h1>
+          <p class="subtitle">Logística de entregas, confirmaciones de mercancia y control de retornos</p>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+          <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
+            <lucide-icon name="plus" class="mr-2"></lucide-icon>
             Nuevo Albarán
           </ui-josanz-button>
         }
@@ -47,168 +48,183 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 
       <div class="filters-bar">
         <ui-josanz-search 
-          placeholder="Buscar albaranes..." 
+          variant="filled"
+          placeholder="BUSCAR Nº ALBARÁN, CLIENTE O PRESUPUESTO..." 
           (searchChange)="onSearch($event)"
+          class="flex-1"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando albaranes..."></ui-josanz-loader>
+        <ui-josanz-loader message="Sincronizando manifiestos de entrega..."></ui-josanz-loader>
       } @else {
-        <ui-josanz-table [columns]="columns" [data]="deliveryNotes()">
-          <ng-template #cellTemplate let-delivery let-key="key">
-            @switch (key) {
-              @case ('id') {
-                <a [routerLink]="['/delivery', delivery.id]" class="delivery-link">
-                  #{{ delivery.id.slice(0, 8) }}
-                </a>
-              }
-              @case ('status') {
-                <ui-josanz-badge [variant]="getStatusVariant(delivery.status)">
-                  {{ getStatusLabel(delivery.status) }}
-                </ui-josanz-badge>
-              }
-              @case ('deliveryDate') {
-                {{ formatDate(delivery.deliveryDate) }}
-              }
-              @case ('returnDate') {
-                {{ formatDate(delivery.returnDate) }}
-              }
-              @case ('actions') {
-                <div class="actions">
-                  <button class="action-btn" [routerLink]="['/delivery', delivery.id]" title="Ver">
-                    <lucide-icon name="eye"></lucide-icon>
-                  </button>
-                  @if (delivery.status === 'pending' && config.enableSign) {
-                    <button class="action-btn success" title="Firmar" (click)="signDelivery(delivery)">
-                      <lucide-icon name="pen-tool"></lucide-icon>
+        <ui-josanz-card variant="glass" class="table-card">
+          <ui-josanz-table [columns]="columns" [data]="deliveryNotes()" variant="hover">
+            <ng-template #cellTemplate let-delivery let-key="key">
+              @switch (key) {
+                @case ('id') {
+                  <a [routerLink]="['/delivery', delivery.id]" class="delivery-link">
+                    #{{ delivery.id.slice(0, 8) }}
+                  </a>
+                }
+                @case ('status') {
+                  <ui-josanz-badge [variant]="getStatusVariant(delivery.status)">
+                    {{ getStatusLabel(delivery.status) | uppercase }}
+                  </ui-josanz-badge>
+                }
+                @case ('deliveryDate') {
+                  <span class="date-text">{{ formatDate(delivery.deliveryDate) }}</span>
+                }
+                @case ('returnDate') {
+                  <span class="date-text">{{ formatDate(delivery.returnDate) }}</span>
+                }
+                @case ('actions') {
+                  <div class="actions">
+                    <button class="action-trigger" [routerLink]="['/delivery', delivery.id]" title="Ver">
+                      <lucide-icon name="eye" size="18"></lucide-icon>
                     </button>
-                  }
-                  @if (delivery.status === 'signed') {
-                    <button class="action-btn" title="Completar" (click)="completeDelivery(delivery)">
-                      <lucide-icon name="check-circle"></lucide-icon>
+                    @if (delivery.status === 'pending' && config.enableSign) {
+                      <button class="action-trigger success" title="Firmar" (click)="signDelivery(delivery)">
+                        <lucide-icon name="pen-tool" size="18"></lucide-icon>
+                      </button>
+                    }
+                    @if (delivery.status === 'signed') {
+                      <button class="action-trigger info" title="Completar" (click)="completeDelivery(delivery)">
+                        <lucide-icon name="check-circle" size="18"></lucide-icon>
+                      </button>
+                    }
+                    <button class="action-trigger" (click)="editDelivery(delivery)" title="Editar">
+                      <lucide-icon name="pencil" size="18"></lucide-icon>
                     </button>
-                  }
-                  <button class="action-btn" (click)="editDelivery(delivery)" title="Editar">
-                    <lucide-icon name="pencil"></lucide-icon>
-                  </button>
-                  @if (config.enableDelete) {
-                    <button class="action-btn danger" (click)="confirmDelete(delivery)" title="Eliminar">
-                      <lucide-icon name="trash-2"></lucide-icon>
-                    </button>
-                  }
-                </div>
+                    @if (config.enableDelete) {
+                      <button class="action-trigger danger" (click)="confirmDelete(delivery)" title="Eliminar">
+                        <lucide-icon name="trash-2" size="18"></lucide-icon>
+                      </button>
+                    }
+                  </div>
+                }
+                @default {
+                  {{ delivery[key] }}
+                }
               }
-              @default {
-                {{ delivery[key] }}
-              }
-            }
-          </ng-template>
-        </ui-josanz-table>
+            </ng-template>
+          </ui-josanz-table>
 
-        <ui-josanz-pagination 
-          [currentPage]="currentPage()" 
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)"
-        ></ui-josanz-pagination>
+          <div class="pagination-wrapper">
+            <ui-josanz-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              variant="minimal"
+              (pageChange)="onPageChange($event)"
+            ></ui-josanz-pagination>
+          </div>
+        </ui-josanz-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingDelivery() ? 'Editar Albarán' : 'Nuevo Albarán'"
+      [title]="editingDelivery() ? 'MANIFIESTO DE ENTREGA: EDITAR' : 'MANIFIESTO DE ENTREGA: NUEVO'"
       (closed)="closeModal()"
+      variant="dark"
     >
-      <form>
+      <div class="form-container">
         <div class="form-grid">
-          <div class="form-group">
-            <label for="budgetId">Presupuesto *</label>
+          <div class="form-col">
+            <label class="field-label" for="delivery-budget">Ref. Presupuesto *</label>
             <input 
               type="text" 
-              id="budgetId"
+              id="delivery-budget"
+              class="technical-input"
               [(ngModel)]="formData.budgetId" 
               name="budgetId" 
               required
-              placeholder="ID del presupuesto"
+              placeholder="#PR-0000"
             >
           </div>
           
-          <div class="form-group">
-            <label for="clientName">Cliente *</label>
+          <div class="form-col">
+            <label class="field-label" for="delivery-client">Cliente Receptor *</label>
             <input 
               type="text" 
-              id="clientName"
+              id="delivery-client"
+              class="technical-input"
               [(ngModel)]="formData.clientName" 
               name="clientName" 
               required
-              placeholder="Nombre del cliente"
+              placeholder="RAZÓN SOCIAL"
             >
           </div>
           
-          <div class="form-group">
-            <label for="status">Estado</label>
-            <select id="status" [(ngModel)]="formData.status" name="status">
-              <option value="draft">Borrador</option>
-              <option value="pending">Pendiente</option>
-              <option value="signed">Firmado</option>
-              <option value="completed">Completado</option>
+          <div class="form-col">
+            <label class="field-label" for="delivery-status">Estado Logístico</label>
+            <select id="delivery-status" class="technical-select" [(ngModel)]="formData.status" name="status">
+              <option value="draft">BORRADOR</option>
+              <option value="pending">PENDIENTE</option>
+              <option value="signed">FIRMADO</option>
+              <option value="completed">COMPLETADO</option>
             </select>
           </div>
           
-          <div class="form-group">
-            <label for="itemsCount">Número de Items</label>
+          <div class="form-col">
+            <label class="field-label" for="delivery-items">Items Consignados</label>
             <input 
               type="number" 
-              id="itemsCount"
+              id="delivery-items"
+              class="technical-input"
               [(ngModel)]="formData.itemsCount" 
               name="itemsCount" 
               placeholder="0"
             >
           </div>
           
-          <div class="form-group">
-            <label for="deliveryDate">Fecha de Entrega</label>
+          <div class="form-col">
+            <label class="field-label" for="delivery-date-out">Fecha Salida</label>
             <input 
               type="date" 
-              id="deliveryDate"
+              id="delivery-date-out"
+              class="technical-input"
               [(ngModel)]="formData.deliveryDate" 
               name="deliveryDate" 
             >
           </div>
           
-          <div class="form-group">
-            <label for="returnDate">Fecha de Devolución</label>
+          <div class="form-col">
+            <label class="field-label" for="delivery-date-in">Fecha Retorno Prevista</label>
             <input 
               type="date" 
-              id="returnDate"
+              id="delivery-date-in"
+              class="technical-input"
               [(ngModel)]="formData.returnDate" 
               name="returnDate" 
             >
           </div>
           
-          <div class="form-group full-width">
-            <label for="notes">Notas</label>
+          <div class="form-col full-width">
+            <label class="field-label" for="delivery-notes">Observaciones de Entrega</label>
             <textarea 
-              id="notes"
+              id="delivery-notes"
+              class="technical-textarea"
               [(ngModel)]="formData.notes" 
               name="notes" 
               rows="3"
-              placeholder="Notas adicionales..."
+              placeholder="ESPECIFICACIONES ADICIONALES..."
             ></textarea>
           </div>
         </div>
-      </form>
+      </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
-          Cancelar
+      <div modal-footer class="modal-footer">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
+          ABORTAR
         </ui-josanz-button>
         <ui-josanz-button 
+          variant="primary"
           (clicked)="saveDelivery()"
           [disabled]="!formData.budgetId || !formData.clientName"
         >
-          {{ editingDelivery() ? 'Actualizar' : 'Crear' }}
+          {{ editingDelivery() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR MANIFIESTO' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -216,24 +232,30 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     <!-- Signature Modal -->
     <ui-josanz-modal
       [isOpen]="isSignModalOpen()"
-      title="Firmar Albarán"
+      title="SISTEMA CENTRAL: CERTIFICACIÓN DE ENTREGA"
       (closed)="closeSignModal()"
+      variant="dark"
     >
-      <div class="signature-area">
-        <p>Firma el albarán para confirmar la entrega:</p>
+      <div class="signature-terminal">
+        <p class="intel-text">REGISTRE LA FIRMA DIGITAL PARA VALIDAR LA CONFORMIDAD DEL RECEPTOR:</p>
         <textarea 
+          class="technical-textarea"
           [(ngModel)]="signatureText" 
-          placeholder="Firma del cliente..."
+          placeholder="INTRODUZCA FIRMA O CÓDIGO DE VERIFICACIÓN..."
           rows="4"
         ></textarea>
+        <div class="legal-disclaimer">
+          <lucide-icon name="shield-check" size="14"></lucide-icon>
+          <span>Esta operación quedará registrada con marca de tiempo y coordenadas GPS en el histórico del expediente.</span>
+        </div>
       </div>
       
       <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeSignModal()">
-          Cancelar
+        <ui-josanz-button variant="ghost" (clicked)="closeSignModal()">
+          CANCELAR
         </ui-josanz-button>
-        <ui-josanz-button (clicked)="confirmSign()">
-          Firmar
+        <ui-josanz-button variant="primary" (clicked)="confirmSign()">
+          AUTORIZAR Y FIRMAR
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -241,96 +263,185 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="Confirmar Eliminación"
+      title="ADVERTENCIA: ELIMINACIÓN DE MANIFIESTO"
       (closed)="closeDeleteModal()"
+      variant="dark"
     >
-      <p>¿Estás seguro de que deseas eliminar el albarán <strong>#{{ deliveryToDelete()?.id?.slice(0, 8) }}</strong>?</p>
-      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      <div class="delete-warning">
+        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <div class="warning-content">
+          <p>¿Estás seguro de que deseas eliminar el albarán <strong>#{{ deliveryToDelete()?.id?.slice(0, 8) }}</strong>?</p>
+          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ EL REGISTRO LOGÍSTICO COMPLETO.</p>
+        </div>
+      </div>
       
       <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
-          Cancelar
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
+          CANCELAR
         </ui-josanz-button>
         <ui-josanz-button variant="danger" (clicked)="deleteDelivery()">
-          Eliminar
+          ELIMINAR DEFINITIVAMENTE
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 24px; }
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .header-content h1 { margin: 0 0 4px 0; color: white; font-size: 28px; font-weight: 700; }
-    .subtitle { margin: 0; color: #94A3B8; font-size: 14px; }
-    .filters-bar { display: flex; gap: 16px; margin-bottom: 20px; }
-    .delivery-link { color: #4F46E5; text-decoration: none; font-weight: 500; font-family: monospace; }
-    .delivery-link:hover { text-decoration: underline; }
-    .actions { display: flex; gap: 8px; }
-    .action-btn {
-      background: none; border: none; padding: 6px; cursor: pointer;
-      color: #94A3B8; border-radius: 6px; transition: all 0.2s;
-    }
-    .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-    .action-btn.success:hover { background: rgba(34,197,94,0.15); color: #22C55E; }
-    .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    .page-container { padding: 2rem; }
     
+    .page-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 1.5rem;
+    }
+    
+    .glow-text { 
+      font-size: 2.5rem; 
+      font-weight: 900; 
+      color: #fff; 
+      margin: 0; 
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      text-shadow: 0 0 20px var(--brand-glow);
+    }
+    
+    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    
+    .filters-bar { margin-bottom: 2rem; display: flex; }
+    .flex-1 { flex: 1; }
+    
+    .delivery-link { 
+      color: var(--brand); 
+      text-decoration: none; 
+      font-weight: 900; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      transition: all 0.2s;
+    }
+    .delivery-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    
+    .date-text { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+    .actions { display: flex; gap: 8px; }
+    
+    .action-trigger { 
+      background: var(--bg-tertiary); 
+      border: 1px solid var(--border-soft); 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .action-trigger:hover { 
+      color: #fff; 
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+    
+    .action-trigger.success:hover { border-color: var(--success); color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+    .action-trigger.info:hover { border-color: var(--info); color: var(--info); box-shadow: 0 0 10px rgba(96, 165, 250, 0.4); }
+    .action-trigger.danger:hover {
+      border-color: var(--danger);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .pagination-wrapper {
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      margin-top: 1rem;
+    }
+
+    /* Form Styles */
+    .form-container { padding: 1rem 0; }
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 1.5rem;
     }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .form-col { display: flex; flex-direction: column; gap: 8px; }
+    .form-col.full-width { grid-column: 1 / -1; }
+    
+    .field-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-    .form-group label {
-      color: #94A3B8;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      background: #0F172A;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: white;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
+    
+    .technical-input, .technical-select, .technical-textarea {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: var(--font-main);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
-      border-color: #4F46E5;
+      resize: vertical;
     }
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: #64748B;
+    
+    .technical-input:focus, .technical-select:focus, .technical-textarea:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
-    .warning-text {
-      color: #EF4444;
-      font-size: 14px;
+
+    .technical-select option { background: var(--bg-secondary); color: #fff; }
+
+    .signature-terminal { padding: 1rem 0; }
+    .intel-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 1rem; }
+    
+    .legal-disclaimer {
+      margin-top: 1rem;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      line-height: 1.4;
     }
-    .signature-area textarea {
-      width: 100%;
-      background: #0F172A;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 12px;
-      color: white;
-      font-size: 14px;
-      margin-top: 12px;
+    .legal-disclaimer lucide-icon { color: var(--success); flex-shrink: 0; }
+
+    .delete-warning {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 6px;
+    }
+    
+    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
+    
+    .critical-text {
+      color: var(--danger);
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+
+    .mr-2 { margin-right: 8px; }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .glow-text { font-size: 1.8rem; }
     }
   `],
+
 })
 export class DeliveryListComponent implements OnInit {
   private readonly facade = inject(DeliveryFacade);
@@ -435,10 +546,10 @@ export class DeliveryListComponent implements OnInit {
   }
 
   deleteDelivery() {
-    const delivery = this.deliveryToDelete();
-    if (!delivery) return;
+    const deliveryToDelete = this.deliveryToDelete();
+    if (!deliveryToDelete) return;
 
-    this.facade.deleteDeliveryNote(delivery.id);
+    this.facade.deleteDeliveryNote(deliveryToDelete.id);
     this.closeDeleteModal();
   }
 
@@ -455,10 +566,10 @@ export class DeliveryListComponent implements OnInit {
   }
 
   confirmSign() {
-    const delivery = this.deliveryToSign();
-    if (!delivery) return;
+    const deliveryToSign = this.deliveryToSign();
+    if (!deliveryToSign) return;
 
-    this.facade.signDeliveryNote(delivery.id, this.signatureText);
+    this.facade.signDeliveryNote(deliveryToSign.id, this.signatureText);
     this.closeSignModal();
   }
 

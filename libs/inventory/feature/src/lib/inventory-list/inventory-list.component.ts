@@ -37,163 +37,182 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     <div class="page-container">
       <div class="page-header">
         <div class="header-content">
-          <h1>Inventario</h1>
-          <p class="subtitle">Gestiona el stock de equipos y materiales</p>
+          <h1 class="glow-text">Inventario</h1>
+          <p class="subtitle">Monitoreo y gestión de activos tecnológicos y recursos</p>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+          <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
+            <lucide-icon name="plus" class="mr-2"></lucide-icon>
             Nuevo Producto
           </ui-josanz-button>
         }
       </div>
 
-      <ui-josanz-tabs [tabs]="tabs()" [activeTab]="activeTab()" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
+      <div class="navigation-row">
+        <ui-josanz-tabs [tabs]="tabs()" [activeTab]="activeTab()" variant="underline" (tabChange)="onTabChange($any($event))"></ui-josanz-tabs>
+      </div>
 
       <div class="filters-bar">
         <ui-josanz-search 
-          placeholder="Buscar productos..." 
+          variant="filled"
+          placeholder="BUSCAR EQUIPAMIENTO..." 
           (searchChange)="onSearch($any($event))"
+          class="flex-1"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando inventario..."></ui-josanz-loader>
+        <ui-josanz-loader message="Sincronizando inventario global..."></ui-josanz-loader>
       } @else {
-        <ui-josanz-table [columns]="columns" [data]="products()">
-          <ng-template #cellTemplate let-product let-key="key">
-            @switch (key) {
-              @case ('name') {
-                <a [routerLink]="['/inventory', product.id]" class="product-link">
-                  {{ product.name }}
-                </a>
-              }
-              @case ('status') {
-                <ui-josanz-badge [variant]="getStatusVariant(product.status)">
-                  {{ getStatusLabel(product.status) }}
-                </ui-josanz-badge>
-              }
-              @case ('totalStock') {
-                <div class="stock-info">
-                  <span class="total">{{ product.totalStock }}</span>
-                  @if (product.reservedStock > 0) {
-                    <span class="reserved">({{ product.reservedStock }} reserv.)</span>
-                  }
-                </div>
-              }
-              @case ('dailyRate') {
-                {{ product.dailyRate | currency:'EUR' }}/día
-              }
-              @case ('actions') {
-                <div class="actions">
-                  <button class="action-btn" [routerLink]="['/inventory', product.id]" title="Ver">
-                    <lucide-icon name="eye"></lucide-icon>
-                  </button>
-                  @if (config.enableEdit) {
-                    <button class="action-btn" (click)="editProduct(product)" title="Editar">
-                      <lucide-icon name="pencil"></lucide-icon>
+        <ui-josanz-card variant="glass" class="table-card">
+          <ui-josanz-table [columns]="columns" [data]="products()" variant="hover">
+            <ng-template #cellTemplate let-product let-key="key">
+              @switch (key) {
+                @case ('name') {
+                  <a [routerLink]="['/inventory', product.id]" class="product-link">
+                    {{ product.name }}
+                  </a>
+                }
+                @case ('status') {
+                   <div class="status-cell">
+                    <ui-josanz-badge [variant]="getStatusVariant(product.status)">
+                      {{ getStatusLabel(product.status) }}
+                    </ui-josanz-badge>
+                  </div>
+                }
+                @case ('totalStock') {
+                  <div class="stock-info">
+                    <span class="total">{{ product.totalStock }}</span>
+                    @if (product.reservedStock > 0) {
+                      <span class="reserved">({{ product.reservedStock }} RES.)</span>
+                    }
+                  </div>
+                }
+                @case ('dailyRate') {
+                  <span class="price-text">{{ product.dailyRate | currency:'EUR' }}</span><small class="unit">/DÍA</small>
+                }
+                @case ('actions') {
+                  <div class="actions">
+                    <button class="action-trigger" [routerLink]="['/inventory', product.id]" title="Ver">
+                      <lucide-icon name="eye" size="18"></lucide-icon>
                     </button>
-                  }
-                  @if (config.enableDelete) {
-                    <button class="action-btn danger" (click)="confirmDelete(product)" title="Eliminar">
-                      <lucide-icon name="trash-2"></lucide-icon>
-                    </button>
-                  }
-                </div>
+                    @if (config.enableEdit) {
+                      <button class="action-trigger" (click)="editProduct(product)" title="Editar">
+                        <lucide-icon name="pencil" size="18"></lucide-icon>
+                      </button>
+                    }
+                    @if (config.enableDelete) {
+                      <button class="action-trigger danger" (click)="confirmDelete(product)" title="Eliminar">
+                        <lucide-icon name="trash-2" size="18"></lucide-icon>
+                      </button>
+                    }
+                  </div>
+                }
+                @default {
+                  {{ product[key] }}
+                }
               }
-              @default {
-                {{ product[key] }}
-              }
-            }
-          </ng-template>
-        </ui-josanz-table>
+            </ng-template>
+          </ui-josanz-table>
 
-        <ui-josanz-pagination 
-          [currentPage]="currentPage()" 
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)"
-        ></ui-josanz-pagination>
+          <div class="pagination-wrapper">
+            <ui-josanz-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              variant="minimal"
+              (pageChange)="onPageChange($event)"
+            ></ui-josanz-pagination>
+          </div>
+        </ui-josanz-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingProduct() ? 'Editar Producto' : 'Nuevo Producto'"
+      [title]="editingProduct() ? 'IDENTIFICACIÓN ACTIVO: EDITAR' : 'IDENTIFICACIÓN ACTIVO: NUEVO'"
       (closed)="closeModal()"
+      variant="dark"
     >
-      <form>
+      <div class="form-container">
         <div class="form-grid">
-          <div class="form-group">
-            <label for="name">Nombre *</label>
+          <div class="form-col full-width">
+            <label class="field-label" for="prod-name">Nombre del Producto *</label>
             <input 
               type="text" 
-              id="name"
+              id="prod-name"
+              class="technical-input"
               [(ngModel)]="formData.name" 
               name="name" 
               required
-              placeholder="Nombre del producto"
+              placeholder="DENOMINACIÓN TÉCNICA"
             >
           </div>
           
-          <div class="form-group">
-            <label for="sku">SKU</label>
+          <div class="form-col">
+            <label class="field-label" for="prod-sku">Identificador SKU</label>
             <input 
               type="text" 
-              id="sku"
+              id="prod-sku"
+              class="technical-input"
               [(ngModel)]="formData.sku" 
               name="sku" 
               placeholder="CAM-FX6-001"
             >
           </div>
           
-          <div class="form-group">
-            <label for="category">Categoría</label>
+          <div class="form-col">
+            <label class="field-label" for="prod-category">Categoría</label>
             <input 
               type="text" 
-              id="category"
+              id="prod-category"
+              class="technical-input"
               [(ngModel)]="formData.category" 
               name="category" 
-              placeholder="Cámaras"
+              placeholder="CÁMARAS / ILUMINACIÓN"
             >
           </div>
           
-          <div class="form-group">
-            <label for="status">Estado</label>
-            <select id="status" [(ngModel)]="formData.status" name="status">
-              <option value="available">Disponible</option>
-              <option value="reserved">Reservado</option>
-              <option value="maintenance">Mantenimiento</option>
-              <option value="retired">Retirado</option>
+          <div class="form-col">
+            <label class="field-label" for="prod-status">Estado del Activo</label>
+            <select id="prod-status" class="technical-select" [(ngModel)]="formData.status" name="status">
+              <option value="available">DISPONIBLE</option>
+              <option value="reserved">RESERVADO</option>
+              <option value="maintenance">MANTENIMIENTO</option>
+              <option value="retired">RETIRADO</option>
             </select>
           </div>
           
-          <div class="form-group">
-            <label for="totalStock">Stock Total</label>
+          <div class="form-col">
+            <label class="field-label" for="prod-total-stock">Stock Total</label>
             <input 
               type="number" 
-              id="totalStock"
+              id="prod-total-stock"
+              class="technical-input"
               [(ngModel)]="formData.totalStock" 
               name="totalStock" 
               placeholder="0"
             >
           </div>
           
-          <div class="form-group">
-            <label for="availableStock">Stock Disponible</label>
+          <div class="form-col">
+            <label class="field-label" for="prod-avail-stock">Stock Disponible</label>
             <input 
               type="number" 
-              id="availableStock"
+              id="prod-avail-stock"
+              class="technical-input"
               [(ngModel)]="formData.availableStock" 
               name="availableStock" 
               placeholder="0"
             >
           </div>
           
-          <div class="form-group">
-            <label for="dailyRate">Tarifa por Día (€)</label>
+          <div class="form-col">
+            <label class="field-label" for="prod-rate">Tarifa Diaria (€)</label>
             <input 
               type="number" 
-              id="dailyRate"
+              id="prod-rate"
+              class="technical-input"
               [(ngModel)]="formData.dailyRate" 
               name="dailyRate" 
               placeholder="0.00"
@@ -201,17 +220,18 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
             >
           </div>
         </div>
-      </form>
+      </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
-          Cancelar
+      <div modal-footer class="modal-footer">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
+          ABORTAR
         </ui-josanz-button>
         <ui-josanz-button 
+          variant="primary"
           (clicked)="saveProduct()"
           [disabled]="!formData.name"
         >
-          {{ editingProduct() ? 'Actualizar' : 'Crear' }}
+          {{ editingProduct() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -219,80 +239,173 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="Confirmar Eliminación"
+      title="ADVERTENCIA: ELIMINACIÓN DE ACTIVO"
       (closed)="closeDeleteModal()"
+      variant="dark"
     >
-      <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ productToDelete()?.name }}</strong>?</p>
-      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      <div class="delete-warning">
+        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <div class="warning-content">
+          <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ productToDelete()?.name }}</strong>?</p>
+          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ EL REGISTRO DEL INVENTARIO.</p>
+        </div>
+      </div>
       
       <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
-          Cancelar
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
+          CANCELAR
         </ui-josanz-button>
         <ui-josanz-button variant="danger" (clicked)="deleteProduct()">
-          Eliminar
+          ELIMINAR DEFINITIVAMENTE
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 24px; }
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .header-content h1 { margin: 0 0 4px 0; color: white; font-size: 28px; font-weight: 700; }
-    .subtitle { margin: 0; color: #94A3B8; font-size: 14px; }
-    .filters-bar { display: flex; gap: 16px; margin: 20px 0; }
-    .product-link { color: #4F46E5; text-decoration: none; font-weight: 500; }
-    .product-link:hover { text-decoration: underline; }
-    .stock-info { display: flex; align-items: center; gap: 8px; }
-    .stock-info .total { color: white; font-weight: 600; }
-    .stock-info .reserved { color: #EAB308; font-size: 12px; }
-    .actions { display: flex; gap: 8px; }
-    .action-btn {
-      background: none; border: none; padding: 6px; cursor: pointer;
-      color: #94A3B8; border-radius: 6px; transition: all 0.2s;
-    }
-    .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-    .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    .page-container { padding: 2rem; }
     
+    .page-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 1.5rem;
+    }
+    
+    .glow-text { 
+      font-size: 2.5rem; 
+      font-weight: 900; 
+      color: #fff; 
+      margin: 0; 
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      text-shadow: 0 0 20px var(--brand-glow);
+    }
+    
+    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    
+    .navigation-row { margin-bottom: 2rem; }
+    
+    .filters-bar { margin-bottom: 2rem; display: flex; }
+    .flex-1 { flex: 1; }
+    
+    .product-link { 
+      color: var(--brand); 
+      text-decoration: none; 
+      font-weight: 800; 
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .product-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    
+    .status-cell { display: flex; align-items: center; }
+    
+    .stock-info { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); }
+    .stock-info .total { color: #fff; font-weight: 800; font-size: 1rem; }
+    .stock-info .reserved { color: #eab308; font-size: 0.7rem; font-weight: 900; letter-spacing: 0.05em; }
+    
+    .price-text { color: #fff; font-weight: 800; font-family: var(--font-display); }
+    .unit { color: var(--text-muted); font-size: 0.65rem; margin-left: 4px; font-weight: 700; }
+
+    .actions { display: flex; gap: 10px; }
+    
+    .action-trigger { 
+      background: var(--bg-tertiary); 
+      border: 1px solid var(--border-soft); 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      width: 34px;
+      height: 34px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .action-trigger:hover { 
+      color: #fff; 
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+    
+    .action-trigger.danger:hover {
+      border-color: var(--danger);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .pagination-wrapper {
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      margin-top: 1rem;
+    }
+
+    /* Form Styles */
+    .form-container { padding: 1rem 0; }
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 1.5rem;
     }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .form-col { display: flex; flex-direction: column; gap: 8px; }
+    .form-col.full-width { grid-column: 1 / -1; }
+    
+    .field-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .form-group label {
-      color: #94A3B8;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .form-group input,
-    .form-group select {
-      background: #0F172A;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: white;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
+    
+    .technical-input, .technical-select, .technical-textarea {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: var(--font-main);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
-      border-color: #4F46E5;
     }
-    .form-group input::placeholder {
-      color: #64748B;
+    
+    .technical-input:focus, .technical-select:focus, .technical-textarea:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
-    .warning-text {
-      color: #EF4444;
-      font-size: 14px;
+
+    .technical-select option { background: var(--bg-secondary); color: #fff; }
+
+    .delete-warning {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 6px;
+    }
+    
+    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
+    
+    .critical-text {
+      color: var(--danger);
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
+
+    .mr-2 { margin-right: 8px; }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .glow-text { font-size: 1.8rem; }
     }
   `],
 })
