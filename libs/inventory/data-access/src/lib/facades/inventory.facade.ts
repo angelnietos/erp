@@ -11,23 +11,43 @@ export interface BaseTabs {
 export class InventoryFacade {
   private readonly service = inject(InventoryService);
 
-  private readonly _products = signal<Product[]>([]);
+  private readonly _allProducts = signal<Product[]>([]);
   private readonly _isLoading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
   private readonly _activeTab = signal<string>('all');
+  private readonly _searchTerm = signal<string>('');
 
-  readonly products = this._products.asReadonly();
+  readonly products = computed<Product[]>(() => {
+    let list = this._allProducts();
+    const tab = this._activeTab();
+    if (tab === 'reserved') {
+      list = list.filter((p) => p.reservedStock > 0);
+    } else if (tab !== 'all') {
+      list = list.filter((p) => p.status === tab);
+    }
+    const s = this._searchTerm().trim().toLowerCase();
+    if (s) {
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(s) ||
+          (p.sku || '').toLowerCase().includes(s) ||
+          (p.category || '').toLowerCase().includes(s)
+      );
+    }
+    return list;
+  });
+
+  readonly allProducts = this._allProducts.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly activeTab = this._activeTab.asReadonly();
 
-  // Derived state
   readonly tabs = computed<BaseTabs[]>(() => {
-    const products = this._products();
+    const products = this._allProducts();
     const all = products.length;
-    const available = products.filter(p => p.status === 'available').length;
-    const reserved = products.filter(p => p.reservedStock > 0).length;
-    const maintenance = products.filter(p => p.status === 'maintenance').length;
+    const available = products.filter((p) => p.status === 'available').length;
+    const reserved = products.filter((p) => p.reservedStock > 0).length;
+    const maintenance = products.filter((p) => p.status === 'maintenance').length;
 
     return [
       { id: 'all', label: 'Todos', badge: all },
@@ -41,65 +61,36 @@ export class InventoryFacade {
     this._isLoading.set(true);
     this.service.getProducts().subscribe({
       next: (data) => {
-        this._products.set(data);
+        this._allProducts.set(data);
         this._isLoading.set(false);
       },
       error: (err) => {
         this._error.set(err.message || 'Error loading products');
         this._isLoading.set(false);
-      }
+      },
     });
   }
 
   setTab(tabId: string): void {
     this._activeTab.set(tabId);
-    this._isLoading.set(true);
-    
-    if (tabId === 'all') {
-      this.service.getProducts().subscribe({
-        next: (data) => {
-          this._products.set(data);
-          this._isLoading.set(false);
-        },
-        error: () => this._isLoading.set(false)
-      });
-    } else {
-      this.service.getProductsByStatus(tabId).subscribe({
-        next: (data) => {
-          this._products.set(data);
-          this._isLoading.set(false);
-        },
-        error: () => this._isLoading.set(false)
-      });
-    }
   }
 
   searchProducts(term: string): void {
-    this._isLoading.set(true);
-    this.service.searchProducts(term).subscribe({
-      next: (data) => {
-        this._products.set(data);
-        this._isLoading.set(false);
-      },
-      error: () => this._isLoading.set(false)
-    });
+    this._searchTerm.set(term);
   }
 
   createProduct(product: Omit<Product, 'id'>): void {
     this.service.createProduct(product).subscribe({
       next: (newItem) => {
-        this._products.update(items => [...items, newItem]);
-        // Note: For real world apps and active tab filtering, we might need to reload 
-        // depending on if the new item matches the active tab. For simplicity we append.
-      }
+        this._allProducts.update((items) => [...items, newItem]);
+      },
     });
   }
 
   updateProduct(id: string, updates: Partial<Product>): void {
     this.service.updateProduct(id, updates).subscribe({
-      next: (updatedItem) => this._products.update(items => 
-        items.map(i => i.id === id ? updatedItem : i)
-      )
+      next: (updatedItem) =>
+        this._allProducts.update((items) => items.map((i) => (i.id === id ? updatedItem : i))),
     });
   }
 
@@ -107,9 +98,9 @@ export class InventoryFacade {
     this.service.deleteProduct(id).subscribe({
       next: (success) => {
         if (success) {
-          this._products.update(items => items.filter(i => i.id !== id));
+          this._allProducts.update((items) => items.filter((i) => i.id !== id));
         }
-      }
+      },
     });
   }
 }

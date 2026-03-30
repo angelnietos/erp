@@ -60,7 +60,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       </header>
 
       <div class="stats-row animate-slide-up">
-        <ui-josanz-stat-card label="Total Equipos" [value]="products().length.toString()" icon="package" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Total Equipos" [value]="allProducts().length.toString()" icon="package" [accent]="true"></ui-josanz-stat-card>
         <ui-josanz-stat-card label="Stock Crítico" [value]="criticalCount().toString()" icon="alert-octagon" [trend]="-1"></ui-josanz-stat-card>
         <ui-josanz-stat-card label="Valoración Flota" [value]="formatCurrencyEu(totalValue())" icon="bar-chart-3"></ui-josanz-stat-card>
       </div>
@@ -377,6 +377,7 @@ export class InventoryListComponent implements OnInit {
   columns = this.config.defaultColumns;
 
   products = this.facade.products;
+  allProducts = this.facade.allProducts;
   isLoading = this.facade.isLoading;
   activeTab = this.facade.activeTab;
   currentPage = signal(1);
@@ -413,11 +414,7 @@ export class InventoryListComponent implements OnInit {
 
   onSearch(term: string) {
     this.searchTerm = term;
-    if (term.trim()) {
-      this.facade.searchProducts(term);
-    } else {
-      this.facade.loadProducts();
-    }
+    this.facade.searchProducts(term);
   }
 
   onPageChange(page: number) {
@@ -507,10 +504,10 @@ export class InventoryListComponent implements OnInit {
   }
 
   totalValue = computed(() => {
-    return this.products().reduce((acc, p) => acc + (p.dailyRate * p.totalStock), 0);
+    return this.allProducts().reduce((acc, p) => acc + (p.dailyRate * p.totalStock), 0);
   });
 
   criticalCount = computed(() => {
-    return this.products().filter(p => p.availableStock < (p.totalStock * 0.2)).length;
+    return this.allProducts().filter(p => p.availableStock < (p.totalStock * 0.2)).length;
   });
 }

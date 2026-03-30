@@ -84,7 +84,7 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
         </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card ui-neon">
-          <ui-josanz-table [columns]="columns" [data]="rentals()" variant="default">
+          <ui-josanz-table [columns]="columns" [data]="displayedRentals()" variant="default">
             <ng-template #cellTemplate let-rental let-key="key">
               @switch (key) {
                 @case ('id') {
@@ -125,7 +125,7 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 
           <footer class="table-footer">
             <div class="table-info text-uppercase">
-              {{ rentals().length }} EXPEDIENTES EN LISTADO ACTUAL
+              {{ displayedRentals().length }} EXPEDIENTES EN LISTADO ACTUAL
             </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
@@ -380,7 +380,7 @@ export class RentalsListComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
   activeTab = signal('all');
-  searchTerm = '';
+  searchFilter = signal('');
   
   isModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
@@ -435,33 +435,10 @@ export class RentalsListComponent implements OnInit {
 
   onTabChange(tabId: string) {
     this.activeTab.set(tabId);
-    this.isLoading.set(true);
-    
-    if (tabId === 'all') {
-      this.loadRentals();
-    } else {
-      this.rentalService.getRentalsByStatus(tabId).subscribe({
-        next: (rentals) => {
-          this.rentals.set(rentals);
-          this.isLoading.set(false);
-        }
-      });
-    }
   }
 
   onSearch(term: string) {
-    this.searchTerm = term;
-    if (term.trim()) {
-      this.isLoading.set(true);
-      this.rentalService.searchRentals(term).subscribe({
-        next: (rentals) => {
-          this.rentals.set(rentals);
-          this.isLoading.set(false);
-        }
-      });
-    } else {
-      this.loadRentals();
-    }
+    this.searchFilter.set(term);
   }
 
   onPageChange(page: number) {
@@ -612,5 +589,22 @@ export class RentalsListComponent implements OnInit {
     return this.rentals()
       .filter(r => r.status === 'ACTIVE' || r.status === 'COMPLETED')
       .reduce((acc, r) => acc + r.totalAmount, 0);
+  });
+
+  displayedRentals = computed(() => {
+    let list = this.rentals();
+    const tab = this.activeTab();
+    if (tab !== 'all') {
+      list = list.filter((r) => r.status === tab);
+    }
+    const s = this.searchFilter().trim().toLowerCase();
+    if (s) {
+      list = list.filter(
+        (r) =>
+          (r.clientName || '').toLowerCase().includes(s) ||
+          r.id.toLowerCase().includes(s)
+      );
+    }
+    return list;
   });
 }

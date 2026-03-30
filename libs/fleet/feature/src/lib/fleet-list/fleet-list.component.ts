@@ -84,7 +84,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
         </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card ui-neon">
-          <ui-josanz-table [columns]="columns" [data]="vehicles()" variant="default">
+          <ui-josanz-table [columns]="columns" [data]="displayedVehicles()" variant="default">
             <ng-template #cellTemplate let-vehicle let-key="key">
               @switch (key) {
                 @case ('plate') {
@@ -126,7 +126,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
           <footer class="table-footer">
             <div class="table-info uppercase">
-              {{ vehicles().length }} UNIDADES EN RANGO OPERATIVO
+              {{ displayedVehicles().length }} UNIDADES EN RANGO OPERATIVO
             </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
@@ -474,22 +474,10 @@ export class FleetListComponent implements OnInit {
 
   onTabChange(tabId: string) {
     this.activeTab.set(tabId);
-    this.loadVehicles();
   }
 
   onSearch(term: string) {
-    this.searchTerm = term;
-    if (term.trim()) {
-      this.isLoading.set(true);
-      this.vehicleService.searchVehicles(term).subscribe({
-        next: (vehicles: Vehicle[]) => {
-          this.vehicles.set(vehicles);
-          this.isLoading.set(false);
-        }
-      });
-    } else {
-      this.loadVehicles();
-    }
+    this.searchFilter.set(term);
   }
 
   onPageChange(page: number) {
@@ -613,4 +601,21 @@ export class FleetListComponent implements OnInit {
 
   maintenanceCount = computed(() => this.vehicles().filter(v => v.status === 'maintenance').length);
   alertCount = computed(() => this.vehicles().filter(v => this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry)).length);
+
+  displayedVehicles = computed(() => {
+    let list = this.vehicles();
+    const tab = this.activeTab();
+    if (tab !== 'all') {
+      list = list.filter((v) => v.status === tab);
+    }
+    const t = this.searchFilter().trim().toLowerCase();
+    if (t) {
+      list = list.filter(
+        (v) =>
+          v.plate.toLowerCase().includes(t) ||
+          (v.currentDriver || '').toLowerCase().includes(t)
+      );
+    }
+    return list;
+  });
 }

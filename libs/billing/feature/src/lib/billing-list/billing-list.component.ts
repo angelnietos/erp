@@ -63,7 +63,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       <div class="stats-row animate-slide-up">
         <ui-josanz-stat-card label="Total Emitido" [value]="formatCurrencyEu(totalInvoiced())" icon="trending-up" [accent]="true"></ui-josanz-stat-card>
         <ui-josanz-stat-card label="Pendiente Cobro" [value]="formatCurrencyEu(totalPending())" icon="clock" [trend]="5"></ui-josanz-stat-card>
-        <ui-josanz-stat-card label="Documentos AEAT" [value]="invoices().length.toString()" icon="shield-check"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Documentos AEAT" [value]="allInvoices().length.toString()" icon="shield-check"></ui-josanz-stat-card>
       </div>
 
       <div class="navigation-bar">
@@ -540,6 +540,7 @@ export class BillingListComponent implements OnInit {
   columns = this.config.defaultColumns;
 
   invoices = this.facade.invoices;
+  allInvoices = this.facade.allInvoices;
   isLoading = this.facade.isLoading;
   activeTab = this.facade.activeTab;
   currentPage = signal(1);
@@ -582,11 +583,7 @@ export class BillingListComponent implements OnInit {
 
   onSearch(term: string) {
     this.searchTerm = term;
-    if (term.trim()) {
-      this.facade.searchInvoices(term);
-    } else {
-      this.facade.loadInvoices();
-    }
+    this.facade.searchInvoices(term);
   }
 
   onPageChange(page: number) {
@@ -597,7 +594,7 @@ export class BillingListComponent implements OnInit {
   openCreateModal() {
     this.editingInvoice.set(null);
     const year = new Date().getFullYear();
-    const count = this.invoices().length + 1;
+    const count = this.allInvoices().length + 1;
     const nextNumber = 'F/' + year + '/' + count.toString().padStart(4, '0');
     this.formData = {
       invoiceNumber: nextNumber,
@@ -761,6 +758,6 @@ export class BillingListComponent implements OnInit {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 
-  totalInvoiced = computed(() => this.invoices().reduce((acc, inv) => acc + (inv.total || 0), 0));
-  totalPending = computed(() => this.invoices().filter(i => i.status === 'pending').reduce((acc, inv) => acc + (inv.total || 0), 0));
+  totalInvoiced = computed(() => this.allInvoices().reduce((acc, inv) => acc + (inv.total || 0), 0));
+  totalPending = computed(() => this.allInvoices().filter(i => i.status === 'pending').reduce((acc, inv) => acc + (inv.total || 0), 0));
 }
