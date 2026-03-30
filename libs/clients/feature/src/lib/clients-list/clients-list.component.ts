@@ -426,7 +426,9 @@ export class ClientsListComponent implements OnInit {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    return this.clients().filter(c => new Date(c.createdAt) >= startOfMonth).length;
+    return this.clients().filter(
+      c => c.createdAt != null && new Date(c.createdAt) >= startOfMonth
+    ).length;
   });
 
   activeSectorsCount = computed(() => {
@@ -511,7 +513,8 @@ export class ClientsListComponent implements OnInit {
     this.closeDeleteModal();
   }
 
-  formatDate(date: string): string {
+  formatDate(date: string | undefined): string {
+    if (date == null || date === '') return '—';
     return new Date(date).toLocaleDateString('es-ES');
   }
 }
