@@ -263,6 +263,7 @@ export class SidebarComponent {
     { id: 'fleet', label: 'Flota', icon: 'car', route: '/fleet' },
     { id: 'rentals', label: 'Alquileres', icon: 'key', route: '/rentals' },
     { id: 'billing', label: 'Facturación', icon: 'history', route: '/billing' },
+    { id: 'verifactu', label: 'VeriFactu', icon: 'file-check', route: '/verifactu' },
   ];
 
   isCollapsed = signal(false);

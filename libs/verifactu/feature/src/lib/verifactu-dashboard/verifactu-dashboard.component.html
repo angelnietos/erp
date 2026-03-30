@@ -1,33 +1,228 @@
-<div class="grid">
-	<ui-josanz-card title="Enviar factura a Verifactu">
-		<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-			<div class="row">
-				<ui-josanz-input id="tenantId" label="Tenant ID" formControlName="tenantId"></ui-josanz-input>
-				<ui-josanz-input id="invoiceId" label="Invoice ID" formControlName="invoiceId"></ui-josanz-input>
-			</div>
-			<div class="actions">
-				<button class="btn-primary" type="submit">Enviar a cola</button>
-			</div>
-		</form>
-	</ui-josanz-card>
+<div class="verifactu-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>VeriFactu</h1>
+    <p class="subtitle">Gestión de facturas electrónicas</p>
+  </div>
 
-	<ui-josanz-card title="Últimos registros">
-		<div class="table">
-			<div class="thead">
-				<div>Fecha</div>
-				<div>Serie</div>
-				<div>NIF</div>
-				<div>Total</div>
-				<div>Estado</div>
-			</div>
-			<div class="row" *ngFor="let r of store.records()">
-				<div>{{ r.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
-				<div>{{ r.series }}</div>
-				<div>{{ r.customerNif }}</div>
-				<div>{{ r.total | number: '1.2-2' }} €</div>
-				<div><span class="badge" [class]="r.status.toLowerCase()">{{ r.status }}</span></div>
-			</div>
-		</div>
-	</ui-josanz-card>
+  <!-- Tenant ID Input -->
+  <div class="tenant-section">
+    <ui-josanz-card title="Configuración">
+      <div class="tenant-input">
+        <label for="tenantId">Tenant ID</label>
+        <div class="input-row">
+          <input
+            type="text"
+            id="tenantId"
+            [ngModel]="tenantId()"
+            (ngModelChange)="tenantId.set($event)"
+            placeholder="Ingresa tu Tenant ID"
+            class="form-input"
+          />
+          <button class="btn-primary" (click)="loadRecords()" [disabled]="!tenantId()">
+            Cargar Registros
+          </button>
+        </div>
+      </div>
+    </ui-josanz-card>
+  </div>
+
+  <!-- Submit Invoice Section -->
+  <div class="submit-section">
+    <ui-josanz-card title="Enviar Factura a VeriFactu">
+      <div class="submit-form">
+        <div class="input-group">
+          <label for="invoiceId">Invoice ID</label>
+          <input
+            type="text"
+            id="invoiceId"
+            [ngModel]="invoiceIdToSubmit()"
+            (ngModelChange)="invoiceIdToSubmit.set($event)"
+            placeholder="ID de la factura a enviar"
+            class="form-input"
+          />
+        </div>
+        <button
+          class="btn-submit"
+          (click)="submitInvoice()"
+          [disabled]="!tenantId() || !invoiceIdToSubmit() || store.loading()"
+        >
+          @if (store.loading()) {
+            <span class="loading">Enviando...</span>
+          } @else {
+            Enviar a VeriFactu
+          }
+        </button>
+      </div>
+
+      @if (store.lastEnqueue()) {
+        <div class="success-message">
+          <span class="checkmark">✓</span>
+          Factura encolada correctamente. ID: {{ store.lastEnqueue()?.queueItemId }}
+        </div>
+      }
+
+      @if (store.error()) {
+        <div class="error-message">
+          {{ store.error() }}
+        </div>
+      }
+    </ui-josanz-card>
+  </div>
+
+  <!-- Records Table -->
+  <div class="records-section">
+    <ui-josanz-card title="Registros de Facturas">
+      @if (store.loading() && store.records().length === 0) {
+        <div class="loading-state">Cargando registros...</div>
+      } @else if (store.records().length === 0) {
+        <div class="empty-state">
+          <p>No hay registros aún. Ingresa un Tenant ID y carga los registros.</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Serie</th>
+                <th>Número</th>
+                <th>Cliente (NIF)</th>
+                <th>Total</th>
+                <th>Estado VeriFactu</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (record of store.records(); track record.id) {
+                <tr>
+                  <td>{{ formatDate(record.createdAt) }}</td>
+                  <td>{{ record.series || '-' }}</td>
+                  <td>{{ record.number || '-' }}</td>
+                  <td>{{ record.customerNif || '-' }}</td>
+                  <td>{{ formatCurrency(record.total) }}</td>
+                  <td>
+                    <span class="status-badge" [class]="getStatusBadgeClass(record.verifactuStatus || record.status)">
+                      {{ record.verifactuStatus || record.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-view" (click)="viewInvoiceDetail(record)" title="Ver detalle">
+                      Ver Detalle
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </ui-josanz-card>
+  </div>
+
+  <!-- Detail Modal -->
+  @if (isDetailModalOpen()) {
+    <div class="modal-overlay" (click)="closeDetailModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Detalle de Factura</h2>
+          <button class="btn-close" (click)="closeDetailModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          @if (store.loading()) {
+            <div class="loading">Cargando detalle...</div>
+          } @else if (store.selectedInvoice()) {
+            <div class="invoice-detail">
+              <!-- Invoice Info -->
+              <div class="detail-section">
+                <h3>Información de Factura</h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <label>Serie:</label>
+                    <span>{{ store.selectedInvoice()?.series }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Número:</label>
+                    <span>{{ store.selectedInvoice()?.number }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Fecha emisión:</label>
+                    <span>{{ formatDate(store.selectedInvoice()?.issueDate || '') }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Estado:</label>
+                    <span class="status-badge" [class]="getStatusBadgeClass(store.selectedInvoice()?.verifactuStatus || '')">
+                      {{ store.selectedInvoice()?.verifactuStatus }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Customer Info -->
+              <div class="detail-section">
+                <h3>Cliente</h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <label>Nombre:</label>
+                    <span>{{ store.selectedInvoice()?.customerName }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>NIF:</label>
+                    <span>{{ store.selectedInvoice()?.customerNif }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Financial Info -->
+              <div class="detail-section">
+                <h3>Totales</h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <label>Subtotal:</label>
+                    <span>{{ formatCurrency(store.selectedInvoice()?.subtotal) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>IVA:</label>
+                    <span>{{ formatCurrency(store.selectedInvoice()?.taxAmount) }}</span>
+                  </div>
+                  <div class="detail-item highlight">
+                    <label>Total:</label>
+                    <span>{{ formatCurrency(store.selectedInvoice()?.total) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VeriFactu Info -->
+              <div class="detail-section">
+                <h3>VeriFactu</h3>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <label>Referencia AEAT:</label>
+                    <span>{{ store.selectedInvoice()?.aeatReference || 'Pendiente' }}</span>
+                  </div>
+                  @if (store.selectedInvoice()?.hashChain) {
+                    <div class="detail-item">
+                      <label>Hash Actual:</label>
+                      <span class="hash-text">{{ store.selectedInvoice()?.hashChain?.currentHash }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- QR Code -->
+              @if (store.selectedInvoice()?.qrCode) {
+                <div class="detail-section qr-section">
+                  <h3>QR de Verificación</h3>
+                  <div class="qr-container">
+                    <img [src]="store.selectedInvoice()?.qrCode" alt="QR Code" class="qr-image" />
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
 </div>
-

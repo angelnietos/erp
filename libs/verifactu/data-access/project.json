@@ -1,0 +1,26 @@
+{
+  "name": "verifactu-data-access",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/verifactu/data-access/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [
+    "scope:verifactu",
+    "type:data-access"
+  ],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/verifactu/data-access/jest.config.cts",
+        "tsConfig": "libs/verifactu/data-access/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

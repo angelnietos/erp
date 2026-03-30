@@ -10,11 +10,46 @@ export interface EnqueueInvoiceResponse {
 
 export interface VerifactuRecord {
 	id: string;
+	invoiceId: string;
 	series?: string;
 	number?: number;
 	customerNif?: string;
+	customerName?: string;
 	total?: number;
 	status: 'DRAFT' | 'SENT' | 'ERROR' | string;
+	verifactuStatus?: 'PENDING' | 'PROCESSING' | 'FAILED' | 'COMPLETED';
 	createdAt: string;
+	updatedAt?: string;
+	aeatReference?: string;
+	qrCode?: string;
+}
+
+export interface VerifactuInvoiceDetail {
+	id: string;
+	invoiceId: string;
+	series: string;
+	number: number;
+	issueDate: string;
+	customerNif: string;
+	customerName: string;
+	subtotal: number;
+	taxAmount: number;
+	total: number;
+	status: string;
+	verifactuStatus: string;
+	createdAt: string;
+	aeatReference?: string;
+	qrCode?: string;
+	hashChain?: {
+		currentHash: string;
+		previousHash?: string;
+	};
+}
+
+export interface SubmitToVerifactuResponse {
+	success: boolean;
+	queueItemId?: string;
+	message?: string;
+	aeatReference?: string;
 }
 
