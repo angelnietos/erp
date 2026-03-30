@@ -300,8 +300,8 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 <span class="label">Nº FACTURA</span>
                 <span class="val">{{ inv.series }}{{ inv.number }}</span>
               </div>
-              <div class="vf-status-display" [class.valid]="inv.verifactuStatus === 'sent'">
-                <lucide-icon [name]="inv.verifactuStatus === 'sent' ? 'check-circle' : 'clock'"></lucide-icon>
+              <div class="vf-status-display" [class.valid]="inv.verifactuStatus?.toLowerCase() === 'sent'">
+                <lucide-icon [name]="inv.verifactuStatus?.toLowerCase() === 'sent' ? 'check-circle' : 'clock'"></lucide-icon>
                 <span>ESTADO: {{ inv.verifactuStatus | uppercase }}</span>
               </div>
             </div>
@@ -517,7 +517,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         font-weight: 800;
         font-size: 0.85rem;
       }
-      .vf-status-display.valid { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
+      .vf-status-display.valid { color: var(--success); border-color: var(--success); box-shadow: 0 0 15px rgba(52, 211, 153, 0.3); background: rgba(52, 211, 153, 0.05); }
 
       .vf-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
 
@@ -542,7 +542,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       .row.full { flex-direction: column; gap: 4px; margin-top: 8px; }
       .row.total { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
       .row .lbl { color: var(--text-muted); font-weight: 500; }
-      .row .val { color: #fff; font-weight: 700; }
+      .row .val { color: #fff; font-weight: 700; text-align: right; }
       .row.total .val { color: var(--success); font-size: 1.1rem; }
       
       .row .hash { 
