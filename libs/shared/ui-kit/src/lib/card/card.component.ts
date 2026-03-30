@@ -27,24 +27,25 @@ export type CardVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'elevate
   `,
   styles: [`
     .card {
-      border-radius: 16px;
+      border-radius: 12px;
       overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      position: relative;
     }
 
     .card-default {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
+      background: var(--bg-secondary);
     }
 
     .card-filled {
-      background: var(--theme-background, #F8FAFC);
-      border: 1px solid var(--theme-border, #E2E8F0);
+      background: var(--bg-tertiary);
     }
 
     .card-outlined {
       background: transparent;
-      border: 2px solid var(--theme-border, #E2E8F0);
+      border: 1px solid var(--border-vibrant);
     }
 
     .card-ghost {
@@ -53,95 +54,85 @@ export type CardVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'elevate
     }
 
     .card-elevated {
-      background: var(--theme-surface, #FFFFFF);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      background: var(--bg-secondary);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
     .card-dark {
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: white;
-    }
-
-    .card-dark .card-header {
-      border-bottom-color: #334155;
-    }
-
-    .card-dark .card-header h3 {
-      color: white;
-    }
-
-    .card-dark .card-footer {
-      background: #0F172A;
-      border-top-color: #334155;
+      background: #000;
+      border: 1px solid #222;
     }
 
     .card-gradient {
-      background: linear-gradient(135deg, var(--theme-primary, #4F46E5), var(--theme-secondary, #64748B));
-      border: none;
-      color: white;
-    }
-
-    .card-gradient .card-header {
-      border-bottom-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .card-gradient .card-header h3 {
-      color: white;
-    }
-
-    .card-gradient .card-footer {
-      background: rgba(0, 0, 0, 0.1);
-      border-top-color: rgba(255, 255, 255, 0.2);
+      background: linear-gradient(135deg, #1e1b4b, #000);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .card-glass {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .card-bordered {
-      background: var(--theme-surface, #FFFFFF);
-      border: 2px solid var(--theme-primary, #4F46E5);
+      border-left: 4px solid var(--brand);
     }
 
     .card-minimal {
-      background: var(--theme-surface, #FFFFFF);
-      border: none;
-      border-radius: 8px;
-      box-shadow: none;
+      background: transparent;
+      border: 1px solid var(--border-soft);
     }
 
     .card-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--theme-border, #E2E8F0);
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .card-header h3 {
       margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--theme-text, #1E293B);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fff;
     }
 
     .card-body {
-      padding: 24px;
+      padding: 1.5rem;
     }
 
     .card-footer {
-      padding: 16px 24px;
-      background: var(--theme-background, #F8FAFC);
-      border-top: 1px solid var(--theme-border, #E2E8F0);
+      padding: 1rem 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid var(--border-soft);
     }
 
     .hover-effect:hover {
-      border-color: var(--theme-primary, #4F46E5);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+      border-color: var(--brand);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+    }
+    
+    .hover-effect::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--brand);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      transform-origin: left;
+    }
+    
+    .hover-effect:hover::after {
+      transform: scaleX(1);
     }
   `],
 })

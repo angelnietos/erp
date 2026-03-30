@@ -15,93 +15,84 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
   `,
   styles: [`
     .alert {
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      margin-bottom: 20px;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
       display: flex;
       align-items: center;
-      gap: 12px;
-      animation: slide-up 0.3s ease-out;
+      gap: 1rem;
+      animation: alertSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid transparent;
+      font-weight: 500;
     }
 
-    @keyframes slide-up {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes alertSlideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     /* Variants */
     .alert-error {
-      background: var(--theme-error, #EF4444);
-      color: white;
-      border: 1px solid var(--theme-error, #EF4444);
-      opacity: 0.15;
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.2);
+      box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.05);
     }
 
     .alert-success {
-      background: var(--theme-success, #10B981);
-      color: white;
-      border: 1px solid var(--theme-success, #10B981);
-      opacity: 0.15;
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.2);
     }
 
     .alert-warning {
-      background: var(--theme-warning, #F59E0B);
-      color: white;
-      border: 1px solid var(--theme-warning, #F59E0B);
-      opacity: 0.15;
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.2);
     }
 
     .alert-info {
-      background: var(--theme-info, #0EA5E9);
-      color: white;
-      border: 1px solid var(--theme-info, #0EA5E9);
-      opacity: 0.15;
+      background: rgba(59, 130, 246, 0.1);
+      color: #60a5fa;
+      border-color: rgba(59, 130, 246, 0.2);
     }
 
-    /* Reset opacity for text */
-    .alert-error, .alert-success, .alert-warning, .alert-info {
-      opacity: 1;
-    }
-
-    .alert-error { background: rgba(239, 68, 68, 0.15); color: #DC2626; border-color: rgba(239, 68, 68, 0.2); }
-    .alert-success { background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.2); }
-    .alert-warning { background: rgba(245, 158, 11, 0.15); color: #D97706; border-color: rgba(245, 158, 11, 0.2); }
-    .alert-info { background: rgba(14, 165, 233, 0.15); color: #0284C7; border-color: rgba(14, 165, 233, 0.2); }
     .alert-primary {
-      background: rgba(79, 70, 229, 0.15);
-      color: #4f46e5;
-      border: 1px solid rgba(79, 70, 229, 0.2);
+      background: rgba(240, 62, 62, 0.1);
+      color: var(--brand);
+      border-color: rgba(240, 62, 62, 0.2);
     }
 
     .alert-secondary {
-      background: rgba(100, 116, 139, 0.15);
-      color: #475569;
-      border: 1px solid rgba(100, 116, 139, 0.2);
+      background: rgba(34, 211, 238, 0.1);
+      color: var(--accent);
+      border-color: rgba(34, 211, 238, 0.2);
     }
 
     .alert-dark {
-      background: #1E293B;
+      background: rgba(0, 0, 0, 0.8);
       color: white;
-      border: 1px solid #334155;
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .alert-light {
-      background: #F8FAFC;
-      color: #1E293B;
-      border: 1px solid #E2E8F0;
+      background: rgba(255, 255, 255, 0.9);
+      color: #000;
     }
 
     .alert-ghost {
       background: transparent;
-      color: var(--theme-text, #1E293B);
+      color: var(--text-primary);
       border: none;
     }
 
     .alert-outline {
       background: transparent;
-      color: var(--theme-text, #1E293B);
-      border: 2px solid var(--theme-border, #E2E8F0);
+      color: var(--text-primary);
+      border: 1px solid var(--border-vibrant);
     }
   `],
 })

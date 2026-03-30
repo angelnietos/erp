@@ -41,152 +41,124 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     </div>
   `,
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-    label { color: var(--theme-text-muted, #64748B); font-size: 13px; font-weight: 500; margin-left: 4px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    label { 
+      font-size: 0.75rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em; 
+      color: var(--text-secondary); 
+      margin-left: 2px; 
+    }
     .select-wrapper { position: relative; display: flex; align-items: center; }
 
     /* Base Select Styles */
     select {
-      width: 100%; padding: 12px 36px 12px 14px; border-radius: 12px;
-      font-size: 14px; transition: all 0.2s ease; outline: none; font-family: inherit;
-      appearance: none; cursor: pointer;
+      width: 100%; 
+      padding: 12px 40px 12px 16px; 
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.9rem; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      outline: none; 
+      font-family: var(--font-main);
+      appearance: none; 
+      cursor: pointer;
     }
 
-    /* Theme Variant - Uses CSS variables from ThemeService */
-    .select-theme {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .select-theme:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-    }
-    .select-theme option {
-      background: var(--theme-surface, #FFFFFF);
-      color: var(--theme-text, #1E293B);
+    select:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
     /* Variants */
-    .select-default {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .select-default:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    .select-theme, .select-default {
+      background: var(--bg-tertiary);
+      border-color: var(--border-vibrant);
     }
 
     .select-filled {
-      background: var(--theme-background, #F8FAFC);
-      border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
-    }
-    .select-filled:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: transparent;
     }
 
     .select-outlined {
       background: transparent;
-      border: 2px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .select-outlined:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      border: 2px solid var(--border-vibrant);
     }
 
     .select-ghost {
       background: transparent;
       border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
     }
     .select-ghost:focus {
-      background: var(--theme-surface, #FFFFFF);
-      border-color: var(--theme-border, #E2E8F0);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--brand);
     }
 
     .select-dark {
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: white;
-    }
-    .select-dark:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .select-light {
-      background: #F8FAFC;
-      border: 1px solid #E2E8F0;
-      color: #1E293B;
-    }
-    .select-light:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      background: #000;
+      border-color: #222;
     }
 
     .select-error {
-      border-color: #EF4444;
-      background: #FEF2F2;
-      color: #DC2626;
+      border-color: var(--danger) !important;
+      background: rgba(239, 68, 68, 0.05);
     }
+    
     .select-error:focus {
-      border-color: #EF4444;
-      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
     }
 
     .select-success {
-      border-color: #10B981;
-      background: #ECFDF5;
-      color: #059669;
-    }
-    .select-success:focus {
-      border-color: #10B981;
-      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+      border-color: var(--success);
     }
 
-    .select-warning {
-      border-color: #F59E0B;
-      background: #FFFBEB;
-      color: #D97706;
+    select.invalid { border-color: var(--danger); }
+    select:disabled { 
+      opacity: 0.4; 
+      cursor: not-allowed; 
+      filter: grayscale(1);
     }
-    .select-warning:focus {
-      border-color: #F59E0B;
-      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
-    }
-
-    .select-info {
-      border-color: #0EA5E9;
-      background: #F0F9FF;
-      color: #0284C7;
-    }
-    .select-info:focus {
-      border-color: #0EA5E9;
-      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
-    }
-
-    select.invalid { border-color: rgba(239, 68, 68, 0.5); }
-    select:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .chevron {
-      position: absolute; right: 14px; width: 8px; height: 8px;
-      border-right: 2px solid var(--theme-text-muted, #64748B); border-bottom: 2px solid var(--theme-text-muted, #64748B);
-      transform: rotate(45deg); pointer-events: none; margin-top: -4px;
+      position: absolute; 
+      right: 16px; 
+      width: 10px; 
+      height: 10px;
+      border-right: 2px solid var(--text-muted); 
+      border-bottom: 2px solid var(--text-muted);
+      transform: rotate(45deg); 
+      pointer-events: none; 
+      margin-top: -6px;
+      transition: all 0.3s ease;
     }
-    option { background: var(--theme-surface, #FFFFFF); color: var(--theme-text, #1E293B); }
+    
+    select:focus + .chevron {
+      border-color: var(--brand);
+      transform: rotate(225deg) translateY(-2px);
+    }
+
+    option { 
+      background: var(--bg-secondary); 
+      color: var(--text-primary); 
+    }
   `],
 })
 export class UiSelectComponent implements ControlValueAccessor {
   @Input() id = '';
   @Input() label = '';
   @Input() placeholder = '';
-  @Input() options: { label: string, value: any }[] = [];
+  @Input() options: { label: string, value: unknown }[] = [];
   @Input() error = false;
   @Input() variant: SelectVariant = 'default';
 
-  value: any = '';
+  value: unknown = '';
   disabled = false;
-  onChange = (_value: unknown) => {
+  onChange = (_: unknown) => {
     // Standard Angular ControlValueAccessor placeholder
   };
   onTouched = () => {

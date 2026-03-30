@@ -31,169 +31,122 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
     </div>
   `,
   styles: [`
-    .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; }
-
-    /* Default Variant */
-    .tabs-default {
-      background: rgba(255,255,255,0.03);
-    }
-    .tabs-default .tab-item {
-      color: #94A3B8;
-    }
-    .tabs-default .tab-item:hover {
-      color: #E2E8F0;
-      background: rgba(255,255,255,0.05);
-    }
-    .tabs-default .tab-item.active {
-      background: #4F46E5;
-      color: white;
+    .tabs { 
+      display: flex; 
+      gap: 6px; 
+      padding: 6px; 
+      border-radius: 8px; 
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      width: fit-content;
     }
 
-    /* Pills Variant */
-    .tabs-pills {
-      background: transparent;
-      gap: 8px;
-      padding: 0;
-    }
-    .tabs-pills .tab-item {
-      background: transparent;
-      border-radius: 8px;
-      color: var(--theme-text, #1E293B);
-    }
-    .tabs-pills .tab-item:hover {
-      background: var(--theme-border, #E2E8F0);
-    }
-    .tabs-pills .tab-item.active {
-      background: var(--theme-primary, #4F46E5);
-      color: white;
+    .tab-item {
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      padding: 10px 20px;
+      background: transparent; 
+      border: none; 
+      border-radius: 6px;
+      font-size: 0.85rem; 
+      font-weight: 700; 
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-secondary);
+      font-family: var(--font-display);
+      position: relative;
     }
 
-    /* Underline Variant */
+    .tab-item:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-item.active {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 4px 15px -5px var(--brand-glow);
+    }
+
+    .tab-icon { width: 18px; height: 18px; transition: transform 0.3s ease; }
+    .tab-item:hover .tab-icon { transform: scale(1.1); }
+
+    .tab-badge {
+      background: rgba(255, 255, 255, 0.15); 
+      padding: 2px 8px;
+      border-radius: 4px; 
+      font-size: 0.7rem; 
+      font-weight: 900;
+    }
+    
+    /* Variant Modifiers */
     .tabs-underline {
       background: transparent;
-      padding: 0;
-      gap: 0;
-      border-bottom: 1px solid var(--theme-border, #E2E8F0);
-    }
-    .tabs-underline .tab-item {
-      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-soft);
       border-radius: 0;
-      color: var(--theme-text-muted, #64748B);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
+      padding: 0;
+      width: 100%;
     }
-    .tabs-underline .tab-item:hover {
-      color: var(--theme-text, #1E293B);
-      background: transparent;
+    
+    .tabs-underline .tab-item {
+      border-radius: 0;
     }
+    
     .tabs-underline .tab-item.active {
       background: transparent;
-      color: var(--theme-primary, #4F46E5);
-      border-bottom-color: var(--theme-primary, #4F46E5);
+      color: var(--brand);
+      box-shadow: none;
+    }
+    
+    .tabs-underline .tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--brand);
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
-    /* Enclosed Variant */
+    .tabs-pills {
+      background: transparent;
+      border: none;
+      gap: 12px;
+    }
+    
+    .tabs-pills .tab-item {
+      border-radius: 999px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+    }
+    
+    .tabs-pills .tab-item.active {
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
     .tabs-enclosed {
-      background: var(--theme-background, #F8FAFC);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      border-radius: 8px;
-    }
-    .tabs-enclosed .tab-item {
-      background: transparent;
-      color: var(--theme-text-muted, #64748B);
-    }
-    .tabs-enclosed .tab-item:hover {
-      color: var(--theme-text, #1E293B);
-    }
-    .tabs-enclosed .tab-item.active {
-      background: var(--theme-surface, #FFFFFF);
-      color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background: #000;
+      border-color: #222;
     }
 
-    /* Dark Variant */
     .tabs-dark {
-      background: #1E293B;
+      background: #000;
     }
-    .tabs-dark .tab-item {
-      color: #94A3B8;
-      background: transparent;
-    }
-    .tabs-dark .tab-item:hover {
-      color: #E2E8F0;
-      background: rgba(255,255,255,0.05);
-    }
-    .tabs-dark .tab-item.active {
-      background: #334155;
-      color: white;
-    }
-
-    /* Light Variant */
-    .tabs-light {
-      background: #F1F5F9;
-    }
-    .tabs-light .tab-item {
-      color: #64748B;
-      background: transparent;
-    }
-    .tabs-light .tab-item:hover {
-      color: #1E293B;
-      background: rgba(255,255,255,0.5);
-    }
-    .tabs-light .tab-item.active {
-      background: white;
-      color: #1E293B;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    /* Primary Variant */
-    .tabs-primary {
-      background: rgba(79, 70, 229, 0.1);
-    }
-    .tabs-primary .tab-item {
-      color: #6366F1;
-      background: transparent;
-    }
-    .tabs-primary .tab-item:hover {
-      background: rgba(79, 70, 229, 0.2);
-    }
-    .tabs-primary .tab-item.active {
-      background: #4F46E5;
-      color: white;
-    }
-
-    /* Ghost Variant */
+    
     .tabs-ghost {
       background: transparent;
-      padding: 0;
-      gap: 2px;
+      border: none;
     }
-    .tabs-ghost .tab-item {
-      background: transparent;
-      color: var(--theme-text-muted, #64748B);
-      border-radius: 6px;
+    
+    .tabs-primary .tab-item.active {
+      background: var(--brand);
     }
-    .tabs-ghost .tab-item:hover {
-      color: var(--theme-text, #1E293B);
-      background: var(--theme-border, #E2E8F0);
-    }
-    .tabs-ghost .tab-item.active {
-      background: var(--theme-primary, #4F46E5);
-      color: white;
-    }
-
-    /* Common Tab Item Styles */
-    .tab-item {
-      display: flex; align-items: center; gap: 8px; padding: 10px 20px;
-      background: transparent; border: none; border-radius: 8px;
-      font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-    }
-    .tab-icon { width: 18px; height: 18px; }
-    .tab-badge {
-      background: rgba(255,255,255,0.15); padding: 2px 8px;
-      border-radius: 10px; font-size: 11px; font-weight: 600;
-    }
-    .tab-item.active .tab-badge { background: rgba(255,255,255,0.25); }
   `],
 })
 export class UiTabsComponent {

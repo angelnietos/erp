@@ -33,125 +33,93 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
     </div>
   `,
   styles: [`
-    .datepicker { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-    .label { color: var(--theme-text-muted, #64748B); font-size: 13px; font-weight: 500; }
+    .datepicker { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .label { 
+      font-size: 0.75rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em; 
+      color: var(--text-secondary); 
+      margin-left: 2px; 
+    }
     .input-wrapper { position: relative; }
 
     /* Base Input Styles */
     input {
-      width: 100%; padding: 12px 14px; border-radius: 12px;
-      font-size: 14px; transition: all 0.2s ease; outline: none; font-family: inherit;
+      width: 100%; 
+      padding: 12px 16px; 
+      border-radius: 6px;
+      font-size: 0.9rem; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      outline: none; 
+      font-family: var(--font-main);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      color: var(--text-primary);
     }
 
-    /* Default Variant */
-    .datepicker-default {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .datepicker-default:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    input:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
-    /* Filled Variant */
+    /* Webkit Calendar Icon Styling */
+    input::-webkit-calendar-picker-indicator {
+      filter: invert(0.8) sepia(1) saturate(5) hue-rotate(-50deg); /* Brand-ish color */
+      cursor: pointer;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus::-webkit-calendar-picker-indicator {
+      opacity: 1;
+      filter: invert(1);
+    }
+
+    /* Variants */
+    .datepicker-default, .datepicker-theme {
+      background: var(--bg-tertiary);
+      border-color: var(--border-vibrant);
+    }
+
     .datepicker-filled {
-      background: var(--theme-background, #F8FAFC);
-      border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
-    }
-    .datepicker-filled:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: transparent;
     }
 
-    /* Outlined Variant */
     .datepicker-outlined {
       background: transparent;
-      border: 2px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .datepicker-outlined:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      border: 2px solid var(--border-vibrant);
     }
 
-    /* Ghost Variant */
     .datepicker-ghost {
       background: transparent;
       border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
     }
     .datepicker-ghost:focus {
-      background: var(--theme-surface, #FFFFFF);
-      border-color: var(--theme-border, #E2E8F0);
+      background: rgba(255, 255, 255, 0.03);
     }
 
-    /* Dark Variant */
     .datepicker-dark {
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: white;
-    }
-    .datepicker-dark::-webkit-calendar-picker-indicator { filter: invert(1); }
-    .datepicker-dark:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      background: rgba(255, 255, 255, 0.08);
+      background: #000;
+      border-color: #222;
     }
 
-    /* Light Variant */
-    .datepicker-light {
-      background: #F8FAFC;
-      border: 1px solid #E2E8F0;
-      color: #1E293B;
-    }
-    .datepicker-light:focus {
-      border-color: var(--theme-primary, #4F46E5);
-    }
-
-    /* Error Variant */
     .datepicker-error {
-      border-color: #EF4444;
-      background: #FEF2F2;
-      color: #DC2626;
-    }
-    .datepicker-error:focus {
-      border-color: #EF4444;
-      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+      border-color: var(--danger) !important;
+      background: rgba(239, 68, 68, 0.05);
     }
 
-    /* Success Variant */
     .datepicker-success {
-      border-color: #10B981;
-      background: #ECFDF5;
-      color: #059669;
-    }
-    .datepicker-success:focus {
-      border-color: #10B981;
-      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+      border-color: var(--success);
     }
 
-    /* Warning Variant */
-    .datepicker-warning {
-      border-color: #F59E0B;
-      background: #FFFBEB;
-      color: #D97706;
+    input:disabled { 
+      opacity: 0.4; 
+      cursor: not-allowed; 
+      filter: grayscale(1);
     }
-    .datepicker-warning:focus {
-      border-color: #F59E0B;
-      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
-    }
-
-    /* Info Variant */
-    .datepicker-info {
-      border-color: #0EA5E9;
-      background: #F0F9FF;
-      color: #0284C7;
-    }
-    .datepicker-info:focus {
-      border-color: #0EA5E9;
-      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
-    }
-
-    input:disabled { opacity: 0.6; cursor: not-allowed; }
   `],
 })
 export class UiDatepickerComponent implements ControlValueAccessor {

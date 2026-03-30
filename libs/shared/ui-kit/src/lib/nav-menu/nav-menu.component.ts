@@ -67,68 +67,84 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
   styles: [`
     :host { display: block; }
     .nav-menu { width: 100%; }
-    .nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+    .nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
     .nav-item { display: flex; flex-direction: column; }
     .nav-link {
-      display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-      border-radius: 8px; text-decoration: none; color: inherit;
-      transition: all 0.2s ease; font-size: 0.875rem; font-weight: 500;
+      display: flex; 
+      align-items: center; 
+      gap: 14px; 
+      padding: 12px 16px;
+      border-radius: 6px; 
+      text-decoration: none; 
+      color: var(--text-secondary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      font-size: 0.85rem; 
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: relative;
+      font-family: var(--font-display);
     }
-    .nav-link.child { padding-left: 36px; font-size: 0.8125rem; }
-    .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .nav-icon lucide-icon { width: 20px; height: 20px; }
+    
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 0%;
+      width: 3px;
+      background: var(--brand);
+      transition: height 0.3s ease;
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+
+    .nav-link.child { padding-left: 44px; font-size: 0.8rem; opacity: 0.8; }
+    .nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.3s ease; }
     .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nav-badge {
-      font-size: 0.6875rem; font-weight: 600; padding: 2px 6px;
-      border-radius: 10px; min-width: 18px; text-align: center;
+      font-size: 0.65rem; 
+      font-weight: 900; 
+      padding: 2px 6px;
+      border-radius: 4px; 
+      background: var(--brand); 
+      color: white;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
-    .nav-children { list-style: none; padding: 0; margin: 4px 0 0 0; display: flex; flex-direction: column; gap: 2px; }
+    .nav-children { list-style: none; padding: 0; margin: 4px 0 0 0; display: flex; flex-direction: column; gap: 4px; }
 
-    /* Default Variant (Dark) */
-    .nav-menu-default .nav-link { color: #e2e8f0; }
-    .nav-menu-default .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: #f8fafc; }
-    .nav-menu-default .nav-link.active { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
-    .nav-menu-default .nav-badge { background: #0ea5e9; color: white; }
+    /* Interactions */
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+    }
+    
+    .nav-link:hover .nav-icon {
+      transform: scale(1.15);
+      color: var(--brand);
+    }
 
-    /* Dark Variant */
-    .nav-menu-dark .nav-link { color: #94a3b8; }
-    .nav-menu-dark .nav-link:hover { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
-    .nav-menu-dark .nav-link.active { background: #1e293b; color: white; }
-    .nav-menu-dark .nav-badge { background: #334155; color: #e2e8f0; }
+    .nav-link.active {
+      background: rgba(240, 62, 62, 0.08); 
+      color: #fff; 
+    }
+    
+    .nav-link.active::before {
+      height: 100%;
+    }
 
-    /* Light Variant */
-    .nav-menu-light .nav-link { color: #64748b; }
-    .nav-menu-light .nav-link:hover { background: #f1f5f9; color: #1e293b; }
-    .nav-menu-light .nav-link.active { background: #e0e7ff; color: #4f46e5; }
-    .nav-menu-light .nav-badge { background: #4f46e5; color: white; }
+    /* Variant Modifiers */
+    .nav-menu-dark .nav-link { color: var(--text-muted); }
+    .nav-menu-dark .nav-link.active { background: #000; border-right: 1px solid var(--brand); }
 
-    /* Primary Variant */
-    .nav-menu-primary .nav-link { color: #64748b; }
-    .nav-menu-primary .nav-link:hover { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
-    .nav-menu-primary .nav-link.active { background: #4f46e5; color: white; }
-    .nav-menu-primary .nav-badge { background: #818cf8; color: white; }
+    .nav-menu-primary .nav-link.active { background: var(--brand); color: white; }
+    .nav-menu-primary .nav-badge { background: #fff; color: var(--brand); }
 
-    /* Ghost Variant */
-    .nav-menu-ghost .nav-link { color: var(--theme-text, #1E293B); background: transparent; }
-    .nav-menu-ghost .nav-link:hover { background: var(--theme-border, #E2E8F0); }
-    .nav-menu-ghost .nav-link.active { background: var(--theme-primary, #4F46E5); color: white; }
-    .nav-menu-ghost .nav-badge { background: var(--theme-primary, #4F46E5); color: white; }
+    .nav-menu-bordered .nav-link { border: 1px solid transparent; }
+    .nav-menu-bordered .nav-link.active { border-color: var(--brand); }
 
-    /* Bordered Variant */
-    .nav-menu-bordered .nav-link { color: #64748b; border: 1px solid transparent; }
-    .nav-menu-bordered .nav-link:hover { border-color: #e2e8f0; color: #1e293b; }
-    .nav-menu-bordered .nav-link.active { border-color: #4f46e5; background: #e0e7ff; color: #4f46e5; }
-    .nav-menu-bordered .nav-badge { background: #4f46e5; color: white; }
-
-    /* Compact Variant */
-    .nav-menu-compact .nav-link { padding: 6px 10px; font-size: 0.8125rem; }
-    .nav-menu-compact .nav-link.child { padding-left: 28px; font-size: 0.75rem; }
-    .nav-menu-compact .nav-icon { width: 16px; height: 16px; }
-    .nav-menu-compact .nav-icon lucide-icon { width: 16px; height: 16px; }
-    .nav-menu-compact .nav-link { color: #e2e8f0; }
-    .nav-menu-compact .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: #f8fafc; }
-    .nav-menu-compact .nav-link.active { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
-    .nav-menu-compact .nav-badge { font-size: 0.625rem; padding: 1px 4px; }
+    .nav-menu-compact .nav-link { padding: 8px 12px; font-size: 0.75rem; }
+    .nav-menu-compact .nav-icon { width: 18px; height: 18px; }
   `]
 })
 export class NavMenuComponent {

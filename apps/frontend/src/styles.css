@@ -3,30 +3,116 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #020617;
-  --bg-secondary: #0f172a;
-  --surface: rgba(15, 23, 42, 0.72);
-  --border-soft: rgba(148, 163, 184, 0.2);
-  --text-primary: #e2e8f0;
-  --text-muted: #94a3b8;
-  --brand: #4f46e5;
+  /* Ultra-Premium Color Palette */
+  --bg-primary: #05070a;
+  --bg-secondary: #0a0e14;
+  --bg-tertiary: #111827;
+  
+  --surface: rgba(15, 23, 42, 0.8);
+  --surface-hover: rgba(30, 41, 59, 0.9);
+  
+  --brand: #f03e3e; /* Rockstar Red / Nintendo Red vibe but slightly modernized */
+  --brand-glow: rgba(240, 62, 62, 0.4);
+  
+  --accent: #22d3ee; /* Ubisoft / Tech Cyan */
+  --accent-glow: rgba(34, 211, 238, 0.3);
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --border-soft: rgba(148, 163, 184, 0.1);
+  --border-vibrant: rgba(148, 163, 184, 0.2);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(240, 62, 62, 0.15);
+  
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Inter', sans-serif;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
 body {
   margin: 0;
-  min-height: 100%;
-  background: radial-gradient(circle at 10% 10%, #1e1b4b 0%, var(--bg-primary) 45%, #000 100%);
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(240, 62, 62, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(34, 211, 238, 0.05) 0%, transparent 50%);
   color: var(--text-primary);
-  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-main);
+  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
-  line-height: 1.4;
+  line-height: 1.6;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand);
+}
+
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+/* Selection */
+::selection {
+  background: var(--brand);
+  color: white;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+

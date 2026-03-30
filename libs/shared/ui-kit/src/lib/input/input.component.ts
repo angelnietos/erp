@@ -42,18 +42,17 @@ export type InputVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       width: 100%;
     }
 
     .label {
-      font-size: 13px;
-      font-weight: 500;
-      margin-left: 4px;
-    }
-
-    .label, .hint {
-      color: var(--theme-text-muted, #64748B);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-left: 2px;
     }
 
     .input-wrapper {
@@ -67,120 +66,106 @@ export type InputVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' 
       left: 14px;
       width: 18px;
       height: 18px;
-      color: var(--theme-text-muted, #64748B);
+      color: var(--text-muted);
       pointer-events: none;
+      transition: color 0.3s ease;
     }
 
     input {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      transition: all 0.2s ease;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
-      font-family: inherit;
+      font-family: var(--font-main);
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.5;
     }
 
     .has-icon input {
-      padding-left: 42px;
+      padding-left: 44px;
     }
 
-    /* Theme Variant - Uses CSS variables from ThemeService */
-    .input-theme {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
+    input:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
-    .input-theme:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    
+    .has-icon input:focus + .field-icon,
+    input:focus ~ .field-icon {
+      color: var(--brand);
     }
 
-    /* Variants */
-    .input-default {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
+    /* Variants mapping to gaming aesthetics */
+    .input-theme, .input-default {
+      background: var(--bg-tertiary);
+      border-color: var(--border-vibrant);
     }
 
     .input-filled {
-      background: var(--theme-background, #F8FAFC);
-      border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: transparent;
     }
 
     .input-outlined {
       background: transparent;
-      border: 2px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
+      border: 2px solid var(--border-vibrant);
     }
 
     .input-ghost {
       background: transparent;
       border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
     }
-
     .input-ghost:focus {
-      background: var(--theme-surface, #FFFFFF);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--brand);
     }
 
     .input-dark {
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: white;
-    }
-
-    .input-dark::placeholder {
-      color: #94A3B8;
-    }
-
-    .input-light {
-      background: #F8FAFC;
-      border: 1px solid #E2E8F0;
-      color: #1E293B;
+      background: #000;
+      border-color: #222;
     }
 
     .input-error {
-      border-color: #EF4444;
-      background: #FEF2F2;
+      border-color: var(--danger) !important;
+      background: rgba(239, 68, 68, 0.05);
+    }
+    
+    .input-error:focus {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
     }
 
     .input-success {
-      border-color: #10B981;
-      background: #ECFDF5;
-    }
-
-    .input-warning {
-      border-color: #F59E0B;
-      background: #FFFBEB;
-    }
-
-    .input-info {
-      border-color: #0EA5E9;
-      background: #F0F9FF;
-    }
-
-    input:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+      border-color: var(--success);
     }
 
     input.invalid {
-      border-color: #EF4444;
+      border-color: var(--danger);
     }
 
     input:disabled {
-      opacity: 0.6;
+      opacity: 0.4;
       cursor: not-allowed;
+      filter: grayscale(1);
     }
 
     .hint {
-      font-size: 12px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .hint.error {
-      color: #EF4444;
+      color: #f87171;
+      font-weight: 500;
     }
   `],
 })
@@ -189,7 +174,7 @@ export class UiInputComponent implements ControlValueAccessor {
   @Input() label = '';
   @Input() type = 'text';
   @Input() placeholder = '';
-  @Input() icon: any = '';
+  @Input() icon = '';
   @Input() hint?: string;
   @Input() variant: InputVariant = 'default';
   @Input() error = false;
@@ -200,8 +185,8 @@ export class UiInputComponent implements ControlValueAccessor {
   onTouched = () => { /* empty */ };
 
   writeValue(value: string): void { this.value = value; }
-  registerOnChange(fn: any): void { this.onChange = fn; }
-  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  registerOnChange(fn: (value: string) => void): void { this.onChange = fn; }
+  registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
   onInput(event: Event): void {

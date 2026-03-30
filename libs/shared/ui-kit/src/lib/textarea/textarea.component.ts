@@ -33,119 +33,103 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     </div>
   `,
   styles: [`
-    .textarea-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-    .label { color: var(--theme-text-muted, #64748B); font-size: 13px; font-weight: 500; }
+    .textarea-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-left: 2px;
+    }
 
     /* Base Textarea Styles */
     textarea {
-      width: 100%; padding: 12px 14px; border-radius: 12px;
-      font-size: 14px; transition: all 0.2s ease; outline: none;
-      font-family: inherit; resize: vertical;
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      font-family: var(--font-main);
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    textarea:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
     /* Variants */
     .textarea-default {
-      background: var(--theme-surface, #FFFFFF);
-      border: 1px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .textarea-default:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+      background: var(--bg-tertiary);
+      border-color: var(--border-vibrant);
     }
 
     .textarea-filled {
-      background: var(--theme-background, #F8FAFC);
-      border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
-    }
-    .textarea-filled:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: transparent;
     }
 
     .textarea-outlined {
       background: transparent;
-      border: 2px solid var(--theme-border, #E2E8F0);
-      color: var(--theme-text, #1E293B);
-    }
-    .textarea-outlined:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      border: 2px solid var(--border-vibrant);
     }
 
     .textarea-ghost {
       background: transparent;
       border: 1px solid transparent;
-      color: var(--theme-text, #1E293B);
     }
     .textarea-ghost:focus {
-      background: var(--theme-surface, #FFFFFF);
-      border-color: var(--theme-border, #E2E8F0);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--brand);
     }
 
     .textarea-dark {
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: white;
-    }
-    .textarea-dark::placeholder { color: #94A3B8; }
-    .textarea-dark:focus {
-      border-color: var(--theme-primary, #4F46E5);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .textarea-light {
-      background: #F8FAFC;
-      border: 1px solid #E2E8F0;
-      color: #1E293B;
-    }
-    .textarea-light:focus {
-      border-color: var(--theme-primary, #4F46E5);
+      background: #000;
+      border-color: #222;
     }
 
     .textarea-error {
-      border-color: #EF4444;
-      background: #FEF2F2;
-      color: #DC2626;
+      border-color: var(--danger) !important;
+      background: rgba(239, 68, 68, 0.05);
     }
+    
     .textarea-error:focus {
-      border-color: #EF4444;
-      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
     }
 
     .textarea-success {
-      border-color: #10B981;
-      background: #ECFDF5;
-      color: #059669;
-    }
-    .textarea-success:focus {
-      border-color: #10B981;
-      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+      border-color: var(--success);
     }
 
-    .textarea-warning {
-      border-color: #F59E0B;
-      background: #FFFBEB;
-      color: #D97706;
+    textarea.error { border-color: var(--danger) !important; }
+    textarea:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(1);
     }
-    .textarea-warning:focus {
-      border-color: #F59E0B;
-      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
-    }
-
-    .textarea-info {
-      border-color: #0EA5E9;
-      background: #F0F9FF;
-      color: #0284C7;
-    }
-    .textarea-info:focus {
-      border-color: #0EA5E9;
-      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+    
+    .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
-    textarea.error { border-color: #EF4444 !important; }
-    textarea:disabled { opacity: 0.6; cursor: not-allowed; }
-    .hint { color: var(--theme-text-muted, #64748B); font-size: 12px; }
-    .hint.error { color: #EF4444; }
+    .hint.error {
+      color: #f87171;
+      font-weight: 500;
+    }
   `],
 })
 export class UiTextareaComponent implements ControlValueAccessor {

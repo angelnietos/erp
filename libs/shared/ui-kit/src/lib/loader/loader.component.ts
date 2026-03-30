@@ -18,84 +18,79 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
     </div>
   `,
   styles: [`
-    .loader-container { display: flex; justify-content: center; align-items: center; padding: 40px; }
+    .loader-container { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 3rem; 
+    }
+    
     .loader-container.overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); z-index: 1000;
+      background: rgba(5, 7, 10, 0.85); 
+      backdrop-filter: blur(12px);
+      z-index: 2000;
     }
-    .loader { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    
+    .loader { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 1.5rem; 
+    }
 
-    /* Spinner Base */
+    /* Spinner Base - Modern Tech Style */
     .spinner {
-      width: 40px; height: 40px; border: 3px solid rgba(79,70,229,0.2);
-      border-radius: 50%; animation: spin 0.8s infinite linear;
+      width: 50px; 
+      height: 50px; 
+      border: 2px solid rgba(255, 255, 255, 0.05);
+      border-top: 2px solid var(--brand);
+      border-right: 2px solid var(--brand);
+      border-radius: 50%; 
+      animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      box-shadow: 0 0 15px var(--brand-glow);
+      position: relative;
+    }
+    
+    .spinner::after {
+      content: '';
+      position: absolute;
+      top: 5px; left: 5px; right: 5px; bottom: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 2px solid var(--accent);
+      border-left: 2px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite reverse;
     }
 
     /* Variants */
-    .loader-default .spinner {
-      border-color: rgba(79,70,229,0.2);
-      border-top-color: #4F46E5;
-    }
-    .loader-default .message { color: #94A3B8; }
+    .loader-default .spinner { border-top-color: var(--brand); border-right-color: var(--brand); }
+    .loader-default .message { color: var(--text-secondary); }
 
-    .loader-dark .spinner {
-      border-color: rgba(255,255,255,0.2);
-      border-top-color: white;
-    }
-    .loader-dark .message { color: #E2E8F0; }
+    .loader-dark .spinner { border-top-color: #fff; border-right-color: #fff; }
+    .loader-dark .message { color: #fff; }
 
-    .loader-light .spinner {
-      border-color: rgba(0,0,0,0.1);
-      border-top-color: #1E293B;
-    }
-    .loader-light .message { color: #64748B; }
+    .loader-primary .spinner { border-top-color: var(--brand); border-right-color: var(--brand); }
+    .loader-primary .message { color: var(--brand); }
 
-    .loader-primary .spinner {
-      border-color: rgba(79, 70, 229, 0.2);
-      border-top-color: #4F46E5;
-    }
-    .loader-primary .message { color: #4F46E5; }
+    .loader-success .spinner { border-top-color: var(--success); border-right-color: var(--success); }
+    .loader-success .message { color: var(--success); }
 
-    .loader-success .spinner {
-      border-color: rgba(16, 185, 129, 0.2);
-      border-top-color: #10B981;
-    }
-    .loader-success .message { color: #10B981; }
+    .loader-danger .spinner { border-top-color: var(--danger); border-right-color: var(--danger); }
+    .loader-danger .message { color: var(--danger); }
 
-    .loader-warning .spinner {
-      border-color: rgba(245, 158, 11, 0.2);
-      border-top-color: #F59E0B;
-    }
-    .loader-warning .message { color: #F59E0B; }
-
-    .loader-danger .spinner {
-      border-color: rgba(239, 68, 68, 0.2);
-      border-top-color: #EF4444;
-    }
-    .loader-danger .message { color: #EF4444; }
-
-    .loader-info .spinner {
-      border-color: rgba(14, 165, 233, 0.2);
-      border-top-color: #0EA5E9;
-    }
-    .loader-info .message { color: #0EA5E9; }
-
-    .loader-gradient .spinner {
-      border-color: rgba(79, 70, 229, 0.2);
-      border-top-color: transparent;
-      border-radius: 50%;
-      background: linear-gradient(45deg, #4F46E5, #10B981, #F59E0B, #EF4444);
-      -webkit-background-clip: content-box;
-      background-clip: content-box;
-    }
-    .loader-gradient .message { 
-      background: linear-gradient(45deg, #4F46E5, #10B981);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .message { 
+      font-size: 0.8rem; 
+      font-weight: 800; 
+      text-transform: uppercase; 
+      letter-spacing: 0.2rem;
+      margin: 0; 
+      color: var(--text-muted);
+      animation: pulse 1.5s ease-in-out infinite;
     }
 
-    .message { font-size: 14px; margin: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
   `],
 })
 export class UiLoaderComponent {

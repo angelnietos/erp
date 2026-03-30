@@ -41,157 +41,131 @@ export type TableVariant = 'default' | 'dark' | 'light' | 'striped' | 'bordered'
     </div>
   `,
   styles: [`
-    .table-container { width: 100%; overflow-x: auto; border-radius: 12px; }
+    .table-container { 
+      width: 100%; 
+      overflow-x: auto; 
+      border-radius: 8px; 
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-lg);
+    }
+
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      text-align: left; 
+    }
+
+    thead {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    th { 
+      padding: 1.25rem 1rem;
+      font-size: 0.75rem; 
+      font-weight: 800; 
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border-soft);
+      font-family: var(--font-display);
+    }
+
+    td { 
+      padding: 1rem; 
+      font-size: 0.9rem; 
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-soft);
+      transition: all 0.2s ease;
+    }
+
+    tbody tr {
+      transition: background 0.3s ease;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
 
     /* Default Variant */
-    .table-default {
-      background: rgba(255,255,255,0.01);
-    }
-    .table-default th {
-      color: #94A3B8;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .table-default td {
-      color: #E2E8F0;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-    }
     .table-default tr:hover td {
-      background: rgba(255,255,255,0.02);
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
     }
 
     /* Dark Variant */
     .table-dark {
-      background: #1E293B;
+      background: #000;
+      border-color: #222;
     }
     .table-dark th {
-      color: #94A3B8;
-      border-bottom: 1px solid #334155;
-    }
-    .table-dark td {
-      color: #E2E8F0;
-      border-bottom: 1px solid #334155;
-    }
-    .table-dark tr:hover td {
-      background: #334155;
+      background: #0a0a0a;
+      border-bottom-color: #333;
     }
 
     /* Light Variant */
     .table-light {
-      background: #FFFFFF;
+      background: rgba(255, 255, 255, 0.95);
     }
     .table-light th {
-      color: #64748B;
-      border-bottom: 1px solid #E2E8F0;
+      color: #111;
+      border-bottom-color: #ddd;
     }
     .table-light td {
-      color: #1E293B;
-      border-bottom: 1px solid #F1F5F9;
+      color: #333;
+      border-bottom-color: #eee;
     }
     .table-light tr:hover td {
-      background: #F8FAFC;
+      background: rgba(0, 0, 0, 0.03);
     }
 
     /* Striped Variant */
-    .table-striped {
-      background: transparent;
-    }
-    .table-striped th {
-      color: #94A3B8;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .table-striped td {
-      color: #E2E8F0;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-    }
-    .table-striped tbody tr:nth-child(odd) td {
-      background: rgba(255,255,255,0.02);
-    }
-    .table-striped tr:hover td {
-      background: rgba(255,255,255,0.05);
+    .table-striped tbody tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.015);
     }
 
     /* Bordered Variant */
-    .table-bordered {
-      background: transparent;
-    }
-    .table-bordered th {
-      color: #94A3B8;
-      border: 1px solid rgba(255,255,255,0.05);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .table-bordered td {
-      color: #E2E8F0;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-    .table-bordered tr:hover td {
-      background: rgba(255,255,255,0.02);
+    .table-bordered td, .table-bordered th {
+      border: 1px solid var(--border-soft);
     }
 
     /* Hover Variant */
-    .table-hover {
-      background: transparent;
-    }
-    .table-hover th {
-      color: #94A3B8;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .table-hover td {
-      color: #E2E8F0;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-    }
     .table-hover tr:hover td {
-      background: rgba(79, 70, 229, 0.1);
+      background: rgba(240, 62, 62, 0.05);
+      border-bottom-color: var(--brand-glow);
     }
 
     /* Compact Variant */
-    .table-compact {
-      background: transparent;
-    }
-    .table-compact th {
-      color: #94A3B8;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      padding: 8px 12px;
-    }
-    .table-compact td {
-      color: #E2E8F0;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-      padding: 8px 12px;
-    }
-    .table-compact tr:hover td {
-      background: rgba(255,255,255,0.02);
+    .table-compact th, .table-compact td {
+      padding: 0.5rem 0.75rem;
     }
 
     /* Glass Variant */
     .table-glass {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(12px);
     }
     .table-glass th {
-      color: rgba(255,255,255,0.7);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .table-glass td {
-      color: #E2E8F0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .table-glass tr:hover td {
-      background: rgba(255,255,255,0.05);
+      background: rgba(0, 0, 0, 0.2);
     }
 
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { padding: 16px; font-size: 13px; font-weight: 500; }
-    td { padding: 16px; font-size: 14px; }
-    .empty-state { text-align: center; padding: 48px; color: #64748B; font-style: italic; }
+    .empty-state { 
+      text-align: center; 
+      padding: 4rem; 
+      color: var(--text-muted); 
+      font-style: italic; 
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
   `],
 })
 export class UiTableComponent {
   @Input() columns: { key: string, header: string, width?: string }[] = [];
-  @Input() data: any[] = [];
+  @Input() data: unknown[] = [];
   @Input() trackByKey = 'id';
   @Input() variant: TableVariant = 'default';
 
-  @ContentChild('cellTemplate') cellTemplate!: TemplateRef<any>;
+  @ContentChild('cellTemplate') cellTemplate!: TemplateRef<unknown>;
 
-  trackBy(item: any) { return item[this.trackByKey]; }
+  trackBy(item: unknown) { return (item as Record<string, unknown>)[this.trackByKey]; }
 }
