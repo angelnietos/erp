@@ -9,7 +9,7 @@ import { LucideAngularModule } from 'lucide-angular';
   template: `
     <div class="stat-card ui-glass ui-neon" [class.accent]="accent">
       <div class="stat-icon-wrapper">
-        <lucide-icon [name]="icon" size="24"></lucide-icon>
+        <lucide-icon [name]="icon" size="20"></lucide-icon>
       </div>
       <div class="stat-content">
         <span class="stat-label text-uppercase">{{ label }}</span>
@@ -27,19 +27,19 @@ import { LucideAngularModule } from 'lucide-angular';
   `,
   styles: [`
     .stat-card {
-      padding: 1.75rem;
+      padding: 1rem 1.15rem;
       border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1rem;
       position: relative;
       overflow: hidden;
       cursor: pointer;
     }
 
     .stat-icon-wrapper {
-      width: 3.5rem;
-      height: 3.5rem;
+      width: 2.65rem;
+      height: 2.65rem;
       background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
       border: 1px solid var(--brand-border-soft, color-mix(in srgb, var(--brand) 32%, transparent));
       border-radius: var(--radius-md);
@@ -52,11 +52,11 @@ import { LucideAngularModule } from 'lucide-angular';
 
     .stat-content { display: flex; flex-direction: column; gap: 0.25rem; }
     
-    .stat-label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.8; }
+    .stat-label { font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; }
     
     .stat-value-row { display: flex; align-items: baseline; gap: 0.75rem; }
     
-    .stat-value { font-size: 2rem; font-weight: 900; margin: 0; font-family: var(--font-display); }
+    .stat-value { font-size: 1.35rem; font-weight: 800; margin: 0; font-family: var(--font-main); letter-spacing: -0.02em; }
     
     .stat-trend { font-size: 0.75rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
     .stat-trend.up { background: rgba(0, 210, 138, 0.1); color: var(--success); }

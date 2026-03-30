@@ -18,9 +18,9 @@ export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'default' 
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 0.25rem 0.75rem;
+      padding: 0.2rem 0.55rem;
       border-radius: 100px;
-      font-size: 0.65rem;
+      font-size: 0.55rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;

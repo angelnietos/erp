@@ -22,7 +22,7 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
       display: flex; 
       justify-content: center; 
       align-items: center; 
-      padding: 3rem; 
+      padding: 1.5rem; 
     }
     
     .loader-container.overlay {
@@ -36,13 +36,13 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
       display: flex; 
       flex-direction: column; 
       align-items: center; 
-      gap: 1.5rem; 
+      gap: 0.85rem; 
     }
 
     /* Spinner Base - Modern Tech Style */
     .spinner {
-      width: 50px; 
-      height: 50px; 
+      width: 36px; 
+      height: 36px; 
       border: 2px solid rgba(255, 255, 255, 0.05);
       border-top: 2px solid var(--brand);
       border-right: 2px solid var(--brand);
@@ -80,13 +80,14 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
     .loader-danger .message { color: var(--danger); }
 
     .message { 
-      font-size: 0.8rem; 
-      font-weight: 800; 
+      font-size: 0.58rem; 
+      font-weight: 700; 
       text-transform: uppercase; 
-      letter-spacing: 0.2rem;
+      letter-spacing: 0.08em;
       margin: 0; 
       color: var(--text-muted);
       animation: pulse 1.5s ease-in-out infinite;
+      font-family: var(--font-main);
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }

@@ -105,40 +105,40 @@ import {
     </div>
   `,
   styles: [`
-    .dashboard-container { padding: 2.5rem; display: flex; flex-direction: column; gap: 2.5rem; }
+    .dashboard-container { padding: 0; display: flex; flex-direction: column; gap: 1.15rem; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
       align-items: flex-end;
-      padding-bottom: 2rem;
+      padding-bottom: 1rem;
       border-bottom: 1px solid var(--border-soft);
     }
     
-    .page-title { font-size: 2rem; font-weight: 900; color: #fff; margin: 0 0 0.5rem 0; letter-spacing: -0.02em; }
-    .breadcrumb { display: flex; gap: 8px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em; color: var(--text-muted); }
+    .page-title { font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0; letter-spacing: -0.02em; font-family: var(--font-main); }
+    .breadcrumb { display: flex; gap: 6px; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); }
     .breadcrumb .active { color: var(--brand); }
     .header-actions { display: flex; gap: 1rem; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
 
-    .main-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; min-height: 400px; }
+    .main-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; min-height: 320px; }
     
-    .sidebar-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+    .sidebar-grid { display: flex; flex-direction: column; gap: 1rem; }
 
     .activity-list { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); border-radius: 4px; overflow: hidden; }
-    .activity-item { background: var(--bg-tertiary); padding: 1rem; display: flex; align-items: center; gap: 1.5rem; transition: 0.2s; }
+    .activity-item { background: var(--bg-tertiary); padding: 0.65rem 0.85rem; display: flex; align-items: center; gap: 0.85rem; transition: 0.2s; }
     .activity-item:hover { background: rgba(255, 255, 255, 0.03); }
     
-    .activity-time { font-size: 0.65rem; color: var(--text-muted); width: 60px; }
+    .activity-time { font-size: 0.55rem; color: var(--text-muted); width: 52px; }
     .activity-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-    .activity-user { font-size: 0.75rem; font-weight: 800; color: #fff; text-transform: uppercase; }
-    .activity-msg { font-size: 0.75rem; color: var(--text-secondary); }
+    .activity-user { font-size: 0.62rem; font-weight: 700; color: #fff; text-transform: uppercase; }
+    .activity-msg { font-size: 0.62rem; color: var(--text-secondary); }
 
-    .performance-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .performance-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .perf-stat { display: flex; flex-direction: column; gap: 4px; }
-    .p-lbl { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); }
-    .p-val { font-size: 1.25rem; font-weight: 900; color: var(--brand); font-family: var(--font-display); }
+    .p-lbl { font-size: 0.52rem; font-weight: 700; color: var(--text-muted); }
+    .p-val { font-size: 0.95rem; font-weight: 800; color: var(--brand); font-family: var(--font-main); }
 
     @media (max-width: 1200px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }

@@ -56,30 +56,31 @@ import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
     </div>
   `,
   styles: [`
-    .placeholder-container { padding: 2.5rem; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }
+    .placeholder-container { padding: 0; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
       align-items: flex-end;
-      padding-bottom: 1.5rem;
+      padding-bottom: 0.85rem;
       border-bottom: 1px solid var(--border-soft);
     }
     
     .page-title { 
-      font-size: 2.25rem; 
-      font-weight: 900; 
+      font-size: 1.35rem; 
+      font-weight: 800; 
       color: #fff; 
-      margin: 0 0 0.5rem 0; 
+      margin: 0 0 0.25rem 0; 
       letter-spacing: -0.02em;
+      font-family: var(--font-main);
     }
     
     .breadcrumb {
       display: flex;
-      gap: 8px;
-      font-size: 0.65rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
+      gap: 6px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       color: var(--text-muted);
     }
     .breadcrumb .active { color: var(--brand); }

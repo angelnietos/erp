@@ -51,7 +51,7 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
     }
 
     .card-header {
-      padding: 1.25rem 1.75rem;
+      padding: 0.65rem 1rem;
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
@@ -62,19 +62,19 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
     .header-main { display: flex; flex-direction: column; gap: 0.25rem; }
 
     .card-header h3 {
-      font-size: 0.8rem;
-      letter-spacing: 0.15em;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
       color: var(--text-secondary);
       margin: 0;
     }
 
     .card-body {
-      padding: 1.75rem;
+      padding: 1rem 1.1rem;
       flex: 1;
     }
 
     .card-footer {
-      padding: 1.25rem 1.75rem;
+      padding: 0.65rem 1rem;
       background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
       border-top: 1px solid var(--border-soft);
     }

@@ -137,7 +137,7 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     }
 
     .top-nav {
-      height: 72px;
+      height: 56px;
       background: rgba(10, 10, 10, 0.8);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -145,7 +145,7 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 40px;
+      padding: 0 20px;
       flex-shrink: 0;
       z-index: 100;
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
@@ -153,7 +153,7 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
 
     .search-container {
       flex: 1;
-      max-width: 520px;
+      max-width: 400px;
     }
 
     .search-box {
@@ -162,8 +162,8 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       align-items: center;
       background: rgba(255, 255, 255, 0.03);
       border-radius: 8px;
-      padding: 0 16px;
-      height: 42px;
+      padding: 0 12px;
+      height: 34px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid rgba(255, 255, 255, 0.05);
       cursor: pointer;
@@ -194,9 +194,9 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       border: none;
       width: 100%;
       height: 100%;
-      padding-left: 12px;
+      padding-left: 8px;
       color: var(--text-primary);
-      font-size: 0.9rem;
+      font-size: 0.78rem;
       outline: none;
       font-family: var(--font-main);
       cursor: pointer;
@@ -205,9 +205,9 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     .search-box input::placeholder {
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-size: 0.7rem;
-      font-weight: 700;
+      letter-spacing: 0.06em;
+      font-size: 0.58rem;
+      font-weight: 600;
     }
 
     .search-shortcut {
@@ -225,21 +225,21 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     .actions-container {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 12px;
     }
 
     .tenant-badge {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: rgba(240, 62, 62, 0.1);
+      gap: 6px;
+      padding: 5px 10px;
+      background: color-mix(in srgb, var(--brand) 12%, transparent);
       color: var(--brand);
       border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 800;
+      font-size: 0.58rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       border: 1px solid var(--brand);
       box-shadow: 0 0 10px var(--brand-glow);
     }
@@ -249,8 +249,8 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.05);
       color: var(--text-secondary);
-      width: 42px;
-      height: 42px;
+      width: 34px;
+      height: 34px;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -287,8 +287,8 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.05);
       color: var(--text-secondary);
-      width: 42px;
-      height: 42px;
+      width: 34px;
+      height: 34px;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -376,25 +376,29 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     }
 
     .user-name {
-      font-weight: 800;
-      font-size: 0.9rem;
+      font-weight: 700;
+      font-size: 0.68rem;
       color: #fff;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-family: var(--font-display);
+      letter-spacing: 0.04em;
+      font-family: var(--font-main);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .user-role {
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.55rem;
+      font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.06em;
     }
 
     .avatar {
-      width: 44px;
-      height: 44px;
+      width: 32px;
+      height: 32px;
       background: linear-gradient(135deg, var(--brand), #a00);
       border-radius: 8px;
       display: flex;
@@ -478,7 +482,7 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     }
 
     .content {
-      padding: 40px;
+      padding: 0 16px 20px;
       max-width: 1600px;
       margin: 0 auto;
     }

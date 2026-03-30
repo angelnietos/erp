@@ -68,7 +68,8 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .sidebar-container {
-      width: 260px;
+      width: 248px;
+      min-width: 248px;
       height: 100%;
       background: rgba(10, 10, 10, 0.8);
       border-right: 1px solid var(--border-soft);
@@ -85,7 +86,7 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .header {
-      height: 80px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -114,10 +115,10 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .logo-text {
-      font-weight: 900;
-      font-size: 1.25rem;
-      letter-spacing: 0.15em;
-      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      font-family: 'Syne', var(--font-display);
     }
 
     .toggle-btn {
@@ -142,12 +143,12 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
     .nav-area {
       flex: 1;
-      padding: 20px 0;
+      padding: 12px 0;
       overflow-y: auto;
     }
 
     .footer-area {
-      padding: 20px 10px;
+      padding: 12px 8px;
       border-top: 1px solid var(--border-soft);
       background: rgba(0, 0, 0, 0.2);
     }
@@ -164,17 +165,17 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 10px 14px;
+      padding: 8px 12px;
       margin: 0 8px;
-      border-radius: 8px;
+      border-radius: var(--radius-sm, 8px);
       text-decoration: none;
       color: var(--text-secondary);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition-base, 0.2s ease);
       position: relative;
-      height: 44px;
+      min-height: 40px;
       font-family: var(--font-main);
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 0.68rem;
     }
 
     .collapsed .nav-link {
@@ -192,10 +193,12 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .label-text {
-      margin-left: 12px;
+      margin-left: 10px;
       white-space: nowrap;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
+      font-size: 0.68rem;
+      font-weight: 700;
     }
 
     .nav-link:hover, .nav-link.active {

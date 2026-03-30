@@ -77,9 +77,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     .btn:active:not(:disabled) { transform: scale(0.94); }
 
-    .btn-sm { padding: 0.6rem 1.25rem; font-size: 0.7rem; gap: 8px; }
-    .btn-md { padding: 0.9rem 2rem; font-size: 0.8rem; }
-    .btn-lg { padding: 1.2rem 3rem; font-size: 0.95rem; }
+    .btn-sm { padding: 0.45rem 0.85rem; font-size: 0.58rem; gap: 6px; }
+    .btn-md { padding: 0.55rem 1.15rem; font-size: 0.62rem; }
+    .btn-lg { padding: 0.7rem 1.5rem; font-size: 0.68rem; }
 
     .btn-primary {
       background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 88%, #fff) 0%, var(--brand) 100%);

@@ -18,7 +18,7 @@ import { UiLoaderComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
 
       <ui-josanz-card variant="glass" class="settings-card">
         <div class="maintenance-mode">
-          <lucide-icon name="settings-2" class="spin-slow" size="48"></lucide-icon>
+          <lucide-icon name="settings-2" class="spin-slow" size="36"></lucide-icon>
           <h3>MÓDULO EN DESARROLLO</h3>
           <p>Los ingenieros del sistema están configurando las interfaces de control.</p>
           <ui-josanz-loader message="Sincronizando consola de administración..."></ui-josanz-loader>
@@ -27,49 +27,49 @@ import { UiLoaderComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
     </div>
   `,
   styles: [`
-    .page-container { padding: 2rem; }
+    .page-container { padding: 0; }
     
     .page-header {
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.15rem;
       border-bottom: 1px solid var(--border-soft);
-      padding-bottom: 1.5rem;
+      padding-bottom: 0.85rem;
     }
     
     .glow-text { 
-      font-size: 2.5rem; 
-      font-weight: 900; 
+      font-size: 1.35rem; 
+      font-weight: 800; 
       color: #fff; 
       margin: 0; 
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: var(--font-display);
-      text-shadow: 0 0 20px var(--brand-glow);
+      letter-spacing: 0.06em;
+      font-family: var(--font-main);
+      text-shadow: 0 0 16px var(--brand-glow);
     }
     
-    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    .subtitle { margin: 0.35rem 0 0 0; color: var(--text-secondary); font-size: 0.72rem; font-weight: 500; }
 
-    .settings-card { min-height: 400px; display: flex; align-items: center; justify-content: center; }
+    .settings-card { min-height: 280px; display: flex; align-items: center; justify-content: center; }
 
     .maintenance-mode {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 1.5rem;
-      padding: 3rem;
+      gap: 1rem;
+      padding: 1.5rem;
     }
 
     .maintenance-mode h3 {
-      font-size: 1.2rem;
-      font-weight: 900;
+      font-size: 0.85rem;
+      font-weight: 800;
       color: var(--brand);
       margin: 0;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.12em;
     }
 
     .maintenance-mode p {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.72rem;
       max-width: 300px;
       line-height: 1.6;
     }

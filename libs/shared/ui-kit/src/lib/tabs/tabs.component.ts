@@ -32,11 +32,13 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
     </div>
   `,
   styles: [`
+    :host { display: block; min-width: 0; }
+
     .tabs { 
       display: flex; 
-      gap: 8px; 
-      padding: 6px; 
-      border-radius: var(--radius-lg); 
+      gap: 4px; 
+      padding: 4px; 
+      border-radius: var(--radius-md); 
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       width: fit-content;
@@ -45,15 +47,15 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
     .tab-item {
       display: flex; 
       align-items: center; 
-      gap: 10px; 
-      padding: 0.75rem 1.25rem;
+      gap: 6px; 
+      padding: 0.45rem 0.75rem;
       background: transparent; 
       border: none;
-      border-radius: var(--radius-md);
-      font-size: 0.75rem; 
-      font-weight: 800; 
+      border-radius: var(--radius-sm);
+      font-size: 0.58rem; 
+      font-weight: 700; 
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
       cursor: pointer; 
       transition: var(--transition-base);
       color: var(--text-secondary);
@@ -96,7 +98,7 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
       background: transparent;
       border: none;
       padding: 0;
-      gap: 24px;
+      gap: 12px;
       border-bottom: 1px solid var(--border-soft);
       border-radius: 0;
       width: 100%;
@@ -104,7 +106,7 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
 
     .tabs-underline .tab-item { 
       border-radius: 0; 
-      padding: 1rem 0.5rem; 
+      padding: 0.5rem 0.35rem; 
       background: transparent !important;
       color: var(--text-secondary);
       box-shadow: none !important;

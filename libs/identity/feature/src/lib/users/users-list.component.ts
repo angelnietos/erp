@@ -38,49 +38,50 @@ import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
     </div>
   `,
   styles: [`
-    .page-container { padding: 2.5rem; max-width: 1600px; margin: 0 auto; }
+    .page-container { padding: 0; max-width: 1600px; margin: 0 auto; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
       align-items: flex-end;
-      margin-bottom: 3rem;
-      padding-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
       border-bottom: 1px solid var(--border-soft);
     }
     
     .page-title { 
-      font-size: 2.25rem; 
-      font-weight: 900; 
+      font-size: 1.35rem; 
+      font-weight: 800; 
       color: #fff; 
-      margin: 0 0 0.5rem 0; 
+      margin: 0 0 0.25rem 0; 
       letter-spacing: -0.02em;
-      font-family: var(--font-display);
+      font-family: var(--font-main);
+      line-height: 1.15;
     }
     
     .breadcrumb {
       display: flex;
-      gap: 8px;
-      font-size: 0.65rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
+      gap: 6px;
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       color: var(--text-muted);
     }
     .breadcrumb .active { color: var(--brand); }
     .breadcrumb .separator { opacity: 0.3; }
 
-    .empty-state-card { min-height: 400px; display: flex; align-items: center; justify-content: center; }
+    .empty-state-card { min-height: 280px; display: flex; align-items: center; justify-content: center; }
     
     .empty-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1.5rem;
-      padding: 3rem;
+      gap: 1rem;
+      padding: 1.5rem;
     }
     
-    .empty-state h2 { font-size: 1.25rem; font-weight: 900; margin: 0; letter-spacing: 0.1em; }
+    .empty-state h2 { font-size: 0.95rem; font-weight: 800; margin: 0; letter-spacing: 0.06em; }
     .max-w-lg { max-width: 500px; line-height: 1.6; }
     .mt-4 { margin-top: 1rem; }
   `],

@@ -35,10 +35,10 @@
   --border-vibrant: rgba(255, 255, 255, 0.11);
   --ring-focus: color-mix(in srgb, var(--brand) 55%, transparent);
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-xl: 28px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
   --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.38);
@@ -47,7 +47,8 @@
   --shadow-inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   --font-main: 'Outfit', 'Inter', -apple-system, system-ui, sans-serif;
-  --font-display: 'Syne', 'Outfit', sans-serif;
+  /* Outfit for UI density; Syne only where explicitly needed (e.g. logo) */
+  --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 160ms var(--ease-out-expo);
@@ -115,7 +116,7 @@ h5,
 h6 {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin: 0;
 }
@@ -123,10 +124,10 @@ h6 {
 /* Modern Typography */
 .text-uppercase {
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.72rem;
-  font-weight: 800;
-  font-family: var(--font-display);
+  letter-spacing: 0.07em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: var(--font-main);
 }
 
 /* Selection */
@@ -233,7 +234,7 @@ h6 {
 
 /* Global UI Utils */
 .page-container {
-  padding: 2.5rem;
+  padding: 1.35rem 1.5rem 1.5rem;
   max-width: 1600px;
   margin: 0 auto;
   opacity: 0;
@@ -241,13 +242,13 @@ h6 {
 }
 
 .section-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
   font-family: var(--font-display);
 }
 

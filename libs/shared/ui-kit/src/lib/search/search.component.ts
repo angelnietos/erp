@@ -63,10 +63,10 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     input {
       width: 100%; 
-      padding: 0.9rem 3.5rem 0.9rem 3rem; 
+      padding: 0.55rem 2.5rem 0.55rem 2.35rem; 
       background: transparent;
       border: none; 
-      font-size: 0.85rem; 
+      font-size: 0.72rem; 
       font-weight: 500;
       outline: none; 
       font-family: var(--font-main);
@@ -76,11 +76,11 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     input::placeholder {
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-size: 0.65rem;
-      font-weight: 800;
-      font-family: var(--font-display);
-      opacity: 0.5;
+      letter-spacing: 0.05em;
+      font-size: 0.55rem;
+      font-weight: 600;
+      font-family: var(--font-main);
+      opacity: 0.55;
     }
 
     .clear-btn {

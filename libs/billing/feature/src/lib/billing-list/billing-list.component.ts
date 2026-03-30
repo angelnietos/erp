@@ -347,32 +347,33 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
   `,
   styles: [
     `
-      .page-container { padding: 2.5rem; max-width: 1600px; margin: 0 auto; }
+      .page-container { padding: 0; max-width: 1600px; margin: 0 auto; }
       
       .page-header {
         display: flex; 
         justify-content: space-between; 
         align-items: flex-end;
-        margin-bottom: 3rem;
-        padding-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.85rem;
         border-bottom: 1px solid var(--border-soft);
       }
       
       .page-title { 
-        font-size: 2.25rem; 
-        font-weight: 900; 
+        font-size: 1.35rem; 
+        font-weight: 800; 
         color: #fff; 
-        margin: 0 0 0.5rem 0; 
+        margin: 0 0 0.25rem 0; 
         letter-spacing: -0.02em;
-        font-family: var(--font-display);
+        font-family: var(--font-main);
+        line-height: 1.15;
       }
       
       .breadcrumb {
         display: flex;
-        gap: 8px;
-        font-size: 0.65rem;
-        font-weight: 800;
-        letter-spacing: 0.15em;
+        gap: 6px;
+        font-size: 0.55rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
         color: var(--text-muted);
       }
       .breadcrumb .active { color: var(--brand); }
@@ -381,18 +382,20 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       .stats-row { 
         display: grid; 
         grid-template-columns: repeat(3, 1fr); 
-        gap: 1.5rem; 
-        margin-bottom: 2.5rem; 
+        gap: 0.85rem; 
+        margin-bottom: 1.15rem; 
       }
       
       .navigation-bar { 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
-        margin-bottom: 2rem; 
-        gap: 2rem;
+        margin-bottom: 1rem; 
+        gap: 1rem;
+        flex-wrap: wrap;
       }
-      .search-bar { max-width: 400px; }
+      .navigation-bar ui-josanz-tabs { flex: 1 1 auto; min-width: 0; }
+      .search-bar { flex: 1 1 220px; min-width: min(100%, 200px); max-width: 480px; }
       
       .invoice-link { 
         color: var(--brand); 
@@ -404,7 +407,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       }
       .invoice-link:hover { color: #fff; text-decoration: underline; }
       
-      .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
+      .currency-value { color: #fff; font-weight: 700; font-family: var(--font-main); font-size: 0.76rem; }
       .overdue { color: var(--danger); font-weight: 800; }
       
       .row-actions { display: flex; gap: 4px; }
@@ -416,12 +419,12 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1.5rem;
+        padding: 0.65rem 1rem;
         background: rgba(0, 0, 0, 0.1);
         border-top: 1px solid var(--border-soft);
       }
 
-      .table-info { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
+      .table-info { font-size: 0.55rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; }
 
       /* Form Grid Refinement */
       .form-grid { display: flex; flex-direction: column; gap: 2.5rem; padding: 1rem 0; }

@@ -4,8 +4,52 @@ import {
   OnDestroy,
   ViewChild,
   AfterViewInit,
+  inject,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from '@josanz-erp/shared-data-access';
+
+function parseCssColor(input: string): { r: number; g: number; b: number } | null {
+  const v = input.trim();
+  if (!v) return null;
+  const hex = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) {
+    let h = hex[1];
+    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    const n = parseInt(h, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  const rgb = v.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+  if (rgb) return { r: +rgb[1], g: +rgb[2], b: +rgb[3] };
+  return null;
+}
+
+function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+        break;
+      case g:
+        h = ((b - r) / d + 2) / 6;
+        break;
+      default:
+        h = ((r - g) / d + 4) / 6;
+    }
+  }
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
 
 @Component({
   selector: 'josanz-crm-background',
@@ -32,13 +76,28 @@ import { CommonModule } from '@angular/common';
 export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
+  private readonly themeService = inject(ThemeService);
+
   private ctx!: CanvasRenderingContext2D;
   private animationId = 0;
   private time = 0;
   private particles: Particle[] = [];
   private bubbles: Bubble[] = [];
 
+  /** Synced from :root when theme changes */
+  private brandRgb = { r: 132, g: 204, b: 22 };
+  private bgRgb = { r: 7, g: 8, b: 11 };
+  private bg2Rgb = { r: 14, g: 16, b: 22 };
+  private brandHue = 84;
+
   private readonly boundResize = () => this.resizeCanvas();
+
+  constructor() {
+    effect(() => {
+      this.themeService.currentTheme();
+      queueMicrotask(() => this.syncPaletteFromTheme());
+    });
+  }
 
   ngAfterViewInit() {
     const canvas = this.canvasRef.nativeElement;
@@ -47,8 +106,31 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx = ctx;
     this.resizeCanvas();
     window.addEventListener('resize', this.boundResize);
+    this.syncPaletteFromTheme();
     this.initElements();
     this.animate();
+  }
+
+  private syncPaletteFromTheme() {
+    const root = document.documentElement;
+    const cs = getComputedStyle(root);
+    const brand = parseCssColor(cs.getPropertyValue('--brand').trim());
+    const bg = parseCssColor(cs.getPropertyValue('--bg-primary').trim());
+    const bg2 = parseCssColor(cs.getPropertyValue('--bg-secondary').trim());
+    if (brand) {
+      this.brandRgb = brand;
+      this.brandHue = rgbToHsl(brand.r, brand.g, brand.b).h;
+    }
+    if (bg) this.bgRgb = bg;
+    if (bg2) this.bg2Rgb = bg2;
+    this.applyHueToParticles();
+  }
+
+  private applyHueToParticles() {
+    if (!this.particles.length) return;
+    for (const p of this.particles) {
+      p.hue = this.brandHue + (Math.random() - 0.5) * 42;
+    }
   }
 
   ngOnDestroy() {
@@ -82,7 +164,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
         speedX: (Math.random() - 0.5) * 0.2,
         speedY: -Math.random() * 0.15 - 0.05,
         opacity: Math.random() * 0.6 + 0.2,
-        hue: Math.random() > 0.5 ? 220 + Math.random() * 30 : 180 + Math.random() * 20,
+        hue: this.brandHue + (Math.random() - 0.5) * 40,
       });
     }
     
@@ -116,21 +198,22 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
   };
 
   private drawGradientBackground(w: number, h: number) {
-    // More visible gradient for testing
+    const { r: br, g: bg, b: bb } = this.brandRgb;
+    const { r: r0, g: g0, b: b0 } = this.bgRgb;
+    const { r: r1, g: g1, b: b1 } = this.bg2Rgb;
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, 'rgba(25, 30, 50, 0.95)');
-    g.addColorStop(0.5, 'rgba(20, 25, 40, 0.96)');
-    g.addColorStop(1, 'rgba(15, 20, 35, 0.97)');
+    g.addColorStop(0, `rgba(${r1}, ${g1}, ${b1}, 0.97)`);
+    g.addColorStop(0.55, `rgba(${r0}, ${g0}, ${b0}, 0.98)`);
+    g.addColorStop(1, `rgba(${Math.max(0, r0 - 8)}, ${Math.max(0, g0 - 8)}, ${Math.max(0, b0 - 8)}, 0.99)`);
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
 
-    // More visible top light
     const topLight = this.ctx.createRadialGradient(
-      w * 0.5, -h * 0.1, 0,
-      w * 0.5, h * 0.3, h * 0.8
+      w * 0.5, -h * 0.12, 0,
+      w * 0.5, h * 0.32, h * 0.75
     );
-    topLight.addColorStop(0, 'rgba(100, 150, 255, 0.3)');
-    topLight.addColorStop(0.4, 'rgba(80, 120, 200, 0.15)');
+    topLight.addColorStop(0, `rgba(${br}, ${bg}, ${bb}, 0.22)`);
+    topLight.addColorStop(0.35, `rgba(${br}, ${bg}, ${bb}, 0.08)`);
     topLight.addColorStop(1, 'transparent');
     this.ctx.fillStyle = topLight;
     this.ctx.fillRect(0, 0, w, h);
@@ -150,7 +233,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
       if (p.x > w) p.x = 0;
 
       const gradient = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-      gradient.addColorStop(0, `hsla(${p.hue}, 60%, 70%, ${p.opacity})`);
+      gradient.addColorStop(0, `hsla(${p.hue}, 72%, 62%, ${p.opacity})`);
       gradient.addColorStop(1, 'transparent');
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
@@ -172,12 +255,13 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
         b.x = Math.random() * w;
       }
 
+      const { r: br, g: bg, b: bb } = this.brandRgb;
       const gradient = this.ctx.createRadialGradient(
         b.x - b.radius * 0.3, b.y - b.radius * 0.3, 0,
         b.x, b.y, b.radius
       );
-      gradient.addColorStop(0, `rgba(139, 92, 246, ${b.opacity})`);
-      gradient.addColorStop(0.5, `rgba(99, 102, 241, ${b.opacity * 0.5})`);
+      gradient.addColorStop(0, `rgba(${br}, ${bg}, ${bb}, ${b.opacity})`);
+      gradient.addColorStop(0.45, `rgba(${br}, ${bg}, ${bb}, ${b.opacity * 0.45})`);
       gradient.addColorStop(1, 'transparent');
       
       this.ctx.fillStyle = gradient;
@@ -189,13 +273,13 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawSubtleGlow(w: number, h: number) {
-    // Very subtle corner glows
+    const { r: br, g: bg, b: bb } = this.brandRgb;
     const cornerGlow = this.ctx.createRadialGradient(
-      w * 0.85, h * 0.85, 0,
-      w * 0.85, h * 0.85, h * 0.5
+      w * 0.88, h * 0.88, 0,
+      w * 0.88, h * 0.88, h * 0.48
     );
-    cornerGlow.addColorStop(0, 'rgba(139, 92, 246, 0.04)');
-    cornerGlow.addColorStop(0.5, 'rgba(99, 102, 241, 0.02)');
+    cornerGlow.addColorStop(0, `rgba(${br}, ${bg}, ${bb}, 0.06)`);
+    cornerGlow.addColorStop(0.5, `rgba(${br}, ${bg}, ${bb}, 0.02)`);
     cornerGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = cornerGlow;
     this.ctx.fillRect(0, 0, w, h);

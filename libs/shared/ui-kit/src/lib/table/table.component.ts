@@ -66,11 +66,11 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     }
 
     th { 
-      padding: 1.25rem 1.5rem;
-      font-size: 0.7rem; 
-      font-weight: 800; 
+      padding: 0.65rem 1rem;
+      font-size: 0.58rem; 
+      font-weight: 700; 
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.07em;
       color: var(--text-secondary);
       border-bottom: 1px solid var(--border-soft);
       font-family: var(--font-display);
@@ -78,8 +78,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     }
 
     td { 
-      padding: 1.25rem 1.5rem; 
-      font-size: 0.85rem; 
+      padding: 0.65rem 1rem; 
+      font-size: 0.76rem; 
       color: var(--text-primary);
       border-bottom: 1px solid var(--border-soft);
       transition: var(--transition-fast);
@@ -117,8 +117,9 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 5rem 2rem;
+      padding: 2.5rem 1.5rem;
       color: var(--text-muted); 
+      font-size: 0.62rem;
     }
     
     .empty-state span { font-size: 0.8rem; letter-spacing: 0.2em; opacity: 0.6; }

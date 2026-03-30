@@ -253,31 +253,31 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 2rem; }
+    .page-container { padding: 0; }
     
     .page-header {
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.15rem;
       border-bottom: 1px solid var(--border-soft);
-      padding-bottom: 1.5rem;
+      padding-bottom: 0.85rem;
     }
     
     .glow-text { 
-      font-size: 2.5rem; 
-      font-weight: 900; 
+      font-size: 1.35rem; 
+      font-weight: 800; 
       color: #fff; 
       margin: 0; 
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: var(--font-display);
-      text-shadow: 0 0 20px var(--brand-glow);
+      letter-spacing: 0.06em;
+      font-family: var(--font-main);
+      text-shadow: 0 0 16px var(--brand-glow);
     }
     
-    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    .subtitle { margin: 0.35rem 0 0 0; color: var(--text-secondary); font-size: 0.72rem; font-weight: 500; }
     
-    .filters-bar { margin-bottom: 2rem; display: flex; }
+    .filters-bar { margin-bottom: 1rem; display: flex; }
     .flex-1 { flex: 1; }
     
     .client-link { 

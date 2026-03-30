@@ -32,7 +32,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
               (click)="itemClick.emit(item)"
             >
               <span class="nav-icon">
-                <lucide-icon [name]="item.icon" size="20"></lucide-icon>
+                <lucide-icon [name]="item.icon" size="18"></lucide-icon>
               </span>
               <span class="nav-label">{{ item.label }}</span>
               @if (item.badge) {
@@ -51,7 +51,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
                       (click)="itemClick.emit(child)"
                     >
                       <span class="nav-icon">
-                        <lucide-icon [name]="child.icon" size="20"></lucide-icon>
+                        <lucide-icon [name]="child.icon" size="18"></lucide-icon>
                       </span>
                       <span class="nav-label">{{ child.label }}</span>
                     </a>
@@ -67,24 +67,25 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
   styles: [`
     :host { display: block; }
     .nav-menu { width: 100%; }
-    .nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
     .nav-item { display: flex; flex-direction: column; }
     .nav-link {
       display: flex; 
       align-items: center; 
-      gap: 14px; 
-      padding: 10px 16px;
-      border-radius: 4px; 
+      gap: 8px; 
+      padding: 6px 10px;
+      border-radius: var(--radius-sm, 8px); 
       text-decoration: none; 
       color: var(--text-secondary);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-      font-size: 0.8rem; 
-      font-weight: 800;
+      transition: var(--transition-base, 0.25s ease); 
+      font-size: 0.6rem; 
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.04em;
       position: relative;
-      font-family: var(--font-display);
+      font-family: var(--font-main);
       border: 1px solid transparent;
+      line-height: 1.25;
     }
     
     .nav-link::before {
@@ -100,9 +101,9 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
       box-shadow: 0 0 10px var(--brand-glow);
     }
 
-    .nav-link.child { padding-left: 44px; font-size: 0.75rem; opacity: 0.7; }
-    .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; color: var(--text-muted); }
-    .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-link.child { padding-left: 38px; font-size: 0.64rem; opacity: 0.75; }
+    .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: var(--transition-base, 0.25s ease); color: var(--text-muted); }
+    .nav-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nav-badge {
       font-size: 0.6rem; 
       font-weight: 950; 
@@ -126,8 +127,8 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
     }
 
     .nav-link.active {
-      background: rgba(240, 62, 62, 0.12); 
-      color: #fff; 
+      background: color-mix(in srgb, var(--brand) 14%, transparent); 
+      color: var(--text-primary); 
       border-right: 1px solid var(--brand);
     }
     
@@ -150,7 +151,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
     .nav-menu-bordered .nav-link { border: 1px solid var(--border-soft); }
     .nav-menu-bordered .nav-link.active { border-color: var(--brand); }
 
-    .nav-menu-compact .nav-link { padding: 6px 12px; font-size: 0.7rem; }
+    .nav-menu-compact .nav-link { padding: 5px 10px; font-size: 0.62rem; letter-spacing: 0.04em; }
     .nav-menu-compact .nav-icon { width: 16px; height: 16px; }
   `]
 })

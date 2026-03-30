@@ -44,30 +44,30 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
   styles: [`
     .pagination { 
       display: flex; 
-      gap: 12px; 
+      gap: 8px; 
       justify-content: center; 
       align-items: center;
-      padding: 1rem; 
+      padding: 0.5rem 0.25rem; 
       width: 100%;
     }
 
     .pages-group { display: flex; gap: 6px; }
 
     .page-btn {
-      height: 2.25rem;
-      min-width: 2.25rem;
-      padding: 0 0.75rem;
+      height: 1.75rem;
+      min-width: 1.75rem;
+      padding: 0 0.5rem;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-sm);
       color: var(--text-secondary);
-      font-size: 0.75rem;
-      font-weight: 800;
+      font-size: 0.58rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       cursor: pointer;
       transition: var(--transition-base);
-      font-family: var(--font-display);
+      font-family: var(--font-main);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -90,7 +90,7 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
 
     .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    .nav-btn { font-size: 0.65rem; letter-spacing: 0.1em; }
+    .nav-btn { font-size: 0.52rem; letter-spacing: 0.05em; }
     .nav-btn lucide-icon { width: 1.1rem; height: 1.1rem; }
 
     /* Variants */
