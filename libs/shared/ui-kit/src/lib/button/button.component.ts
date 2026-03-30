@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'warning' | 'glass';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'warning' | 'glass' | 'filled';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
@@ -13,7 +13,13 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     <button 
       [type]="type" 
       class="btn"
-      [class]="'btn-' + variant + ' btn-' + size"
+      [class.btn-primary]="variant === 'primary'"
+      [class.ui-glass]="variant === 'glass'"
+      [class.ui-filled]="variant === 'secondary' || variant === 'filled'"
+      [class.ui-ghost]="variant === 'ghost'"
+      [class.btn-danger]="variant === 'danger'"
+      [class.btn-success]="variant === 'success'"
+      [class]="'btn-' + size"
       [disabled]="disabled || loading"
       (click)="clicked.emit($event)"
     >
@@ -54,16 +60,12 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       filter: grayscale(0.5);
     }
 
-    .btn:active:not(:disabled) {
-      transform: scale(0.94);
-    }
+    .btn:active:not(:disabled) { transform: scale(0.94); }
 
-    /* Sizes */
     .btn-sm { padding: 0.6rem 1.25rem; font-size: 0.7rem; gap: 8px; }
     .btn-md { padding: 0.9rem 2rem; font-size: 0.8rem; }
     .btn-lg { padding: 1.2rem 3rem; font-size: 0.95rem; }
 
-    /* Variants */
     .btn-primary {
       background: var(--brand);
       color: white;
@@ -75,73 +77,21 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       transform: translateY(-2px);
     }
 
-    .btn-secondary {
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-      border-color: var(--border-soft);
-    }
-    .btn-secondary:not(:disabled):hover {
-      background: var(--surface-hover);
-      border-color: var(--border-vibrant);
-    }
+    .btn-danger { background: rgba(255, 75, 75, 0.1); color: var(--danger); border-color: rgba(255, 75, 75, 0.2); }
+    .btn-danger:hover { background: var(--danger); color: white; }
 
-    .btn-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: white;
-      border-color: var(--border-soft);
-    }
-    .btn-glass:not(:disabled):hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--brand);
-    }
+    .btn-success { background: rgba(0, 210, 138, 0.1); color: var(--success); border-color: rgba(0, 210, 138, 0.2); }
+    .btn-success:hover { background: var(--success); color: white; }
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-secondary);
-    }
-    .btn-ghost:not(:disabled):hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: white;
-    }
-
-    .btn-danger {
-      background: rgba(255, 75, 75, 0.1);
-      color: var(--danger);
-      border-color: rgba(255, 75, 75, 0.2);
-    }
-    .btn-danger:not(:disabled):hover {
-      background: var(--danger);
-      color: white;
-      box-shadow: 0 0 15px rgba(255, 75, 75, 0.3);
-    }
-
-    .btn-success {
-      background: rgba(0, 210, 138, 0.1);
-      color: var(--success);
-      border-color: rgba(0, 210, 138, 0.2);
-    }
-    .btn-success:not(:disabled):hover {
-      background: var(--success);
-      color: white;
-      box-shadow: 0 0 15px rgba(0, 210, 138, 0.3);
-    }
-
-    .btn-icon {
-      width: 1.25rem;
-      height: 1.25rem;
-    }
+    .btn-icon { width: 1.1rem; height: 1.1rem; }
 
     .spinner {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.25rem; height: 1.25rem;
       border: 3px solid rgba(255,255,255,0.2);
       border-top-color: currentColor;
       border-radius: 50%;
       animation: rotate 0.8s infinite linear;
     }
-    
     @keyframes rotate { to { transform: rotate(360deg); } }
   `],
 })

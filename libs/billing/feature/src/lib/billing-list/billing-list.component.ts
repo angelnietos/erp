@@ -13,6 +13,7 @@ import {
   UiTabsComponent,
   UiCardComponent,
   UiInputComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
@@ -36,12 +37,13 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiTabsComponent,
     UiCardComponent,
     UiInputComponent,
+    UiStatCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container animate-fade-in">
-      <div class="page-header">
-        <div class="header-main">
+    <div class="page-container animate-slide-up">
+      <header class="page-header">
+        <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase">Facturación y Fiscalidad</h1>
           <div class="breadcrumb">
             <span class="active">GESTIÓN INTEGRAL</span>
@@ -49,11 +51,19 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             <span>VERIFACTU REGULATION</span>
           </div>
         </div>
-        @if (config.enableCreate) {
-          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
-            EMITIR FACTURA
-          </ui-josanz-button>
-        }
+        <div class="header-actions">
+           @if (config.enableCreate) {
+             <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+               EMITIR FACTURA
+             </ui-josanz-button>
+           }
+        </div>
+      </header>
+
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Total Emitido" [value]="formatCurrencyEu(totalInvoiced())" icon="trending-up" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Pendiente Cobro" [value]="formatCurrencyEu(totalPending())" icon="clock" [trend]="5"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Documentos AEAT" [value]="invoices().length.toString()" icon="shield-check"></ui-josanz-stat-card>
       </div>
 
       <div class="navigation-bar">
@@ -77,7 +87,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
           <ui-josanz-loader message="SINCRONIZANDO DATOS FISCALES..."></ui-josanz-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
+        <ui-josanz-card variant="glass" class="table-card ui-neon">
           <ui-josanz-table [columns]="columns" [data]="invoices()" variant="default">
             <ng-template #cellTemplate let-inv let-key="key">
               @switch (key) {
@@ -114,29 +124,17 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <button class="action-btn" [routerLink]="['/billing', inv.id]" title="Detalles">
-                      <lucide-icon name="eye" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/billing', inv.id]" title="Detalles"></ui-josanz-button>
                     @if (config.enableEdit) {
-                      <button class="action-btn" title="Editar" (click)="editInvoice(inv)">
-                        <lucide-icon name="pencil" size="16"></lucide-icon>
-                      </button>
+                       <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editInvoice(inv)" title="Editar"></ui-josanz-button>
                     }
-                    <button class="action-btn success" title="Enviar e-mail" (click)="sendInvoice(inv)">
-                      <lucide-icon name="mail" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="mail" (clicked)="sendInvoice(inv)" title="Enviar e-mail"></ui-josanz-button>
                     @if (config.enableVerifactu) {
-                      <button class="action-btn verifactu" title="Sincronizar AEAT" (click)="sendToVerifactu(inv)">
-                        <lucide-icon name="shield-check" size="16"></lucide-icon>
-                      </button>
-                      <button class="action-btn verifactu" title="Ver QR Legal" (click)="viewVerifactuQr(inv)">
-                        <lucide-icon name="qr-code" size="16"></lucide-icon>
-                      </button>
+                      <ui-josanz-button variant="ghost" size="sm" icon="shield-check" (clicked)="sendToVerifactu(inv)" title="Sincronizar AEAT"></ui-josanz-button>
+                      <ui-josanz-button variant="ghost" size="sm" icon="qr-code" (clicked)="viewVerifactuQr(inv)" title="Ver QR Legal"></ui-josanz-button>
                     }
                     @if (config.enableDelete) {
-                      <button class="action-btn danger" title="Anular" (click)="confirmDelete(inv)">
-                        <lucide-icon name="slash" size="16"></lucide-icon>
-                      </button>
+                       <ui-josanz-button variant="ghost" size="sm" icon="slash" (clicked)="confirmDelete(inv)" title="Anular" class="btn-danger-ghost"></ui-josanz-button>
                     }
                   </div>
                 }
@@ -380,6 +378,13 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       .breadcrumb .active { color: var(--brand); }
       .breadcrumb .separator { opacity: 0.3; }
       
+      .stats-row { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 1.5rem; 
+        margin-bottom: 2.5rem; 
+      }
+      
       .navigation-bar { 
         display: flex; 
         justify-content: space-between; 
@@ -402,32 +407,10 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
       .overdue { color: var(--danger); font-weight: 800; }
       
-      .row-actions { display: flex; gap: 6px; }
+      .row-actions { display: flex; gap: 4px; }
       
-      .action-btn { 
-        background: var(--bg-tertiary); 
-        border: 1px solid var(--border-soft); 
-        color: var(--text-secondary); 
-        cursor: pointer; 
-        width: 34px;
-        height: 34px;
-        border-radius: var(--radius-sm);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: var(--transition-base);
-      }
-      
-      .action-btn:hover { 
-        color: #fff; 
-        border-color: var(--brand);
-        background: var(--brand-muted);
-        transform: translateY(-2px);
-      }
-      
-      .action-btn.success:hover { background: var(--success); border-color: var(--success); }
-      .action-btn.verifactu:hover { background: var(--info); border-color: var(--info); }
-      .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+      .btn-danger-ghost :host ::ng-deep .btn { color: var(--danger) !important; }
+      .btn-danger-ghost :host ::ng-deep .btn:hover { background: var(--danger) !important; color: white !important; }
 
       .table-footer {
         display: flex;
@@ -774,4 +757,7 @@ export class BillingListComponent implements OnInit {
     if (amount === undefined || amount === null) return '-';
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
   }
+
+  totalInvoiced = () => this.invoices().reduce((acc, inv) => acc + (inv.total || 0), 0);
+  totalPending = () => this.invoices().filter(i => i.status === 'pending').reduce((acc, inv) => acc + (inv.total || 0), 0);
 }

@@ -2,7 +2,7 @@ import { Component, HostListener, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
-import { UiSearchComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { UiSearchComponent } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, AuthStore } from '@josanz-erp/shared-data-access';
 
 export interface CommandItem {
@@ -18,7 +18,7 @@ export interface CommandItem {
 @Component({
   selector: 'josanz-command-palette',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiSearchComponent, UiBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, UiSearchComponent],
   template: `
     <div class="overlay animate-fade-in" (click)="close.emit()" (keydown.escape)="close.emit()">
       <div class="palette-container animate-scale-in" (click)="$event.stopPropagation()">

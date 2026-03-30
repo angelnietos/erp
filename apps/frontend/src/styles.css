@@ -114,22 +114,44 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
-/* Global Variant Mixins (to be used in components) */
-.glass-effect {
-  background: var(--surface);
+/* Global UI Variant Mixins */
+.glass-effect, .ui-glass {
+  background: rgba(23, 26, 33, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: var(--shadow-md);
 }
 
-.glow-hover {
+.filled-effect, .ui-filled {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-soft);
+}
+
+.accent-effect, .ui-accent {
+  border-top: 3px solid var(--brand) !important;
+  background: linear-gradient(180deg, rgba(230, 0, 18, 0.05) 0%, transparent 100%);
+}
+
+.neon-effect, .ui-neon {
   transition: var(--transition-base);
 }
 
-.glow-hover:hover {
-  border-color: var(--brand);
-  box-shadow: 0 0 20px var(--brand-glow);
+.neon-effect:hover, .ui-neon:hover {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 30px var(--brand-glow) !important;
+  transform: translateY(-2px);
+}
+
+.ghost-effect, .ui-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
+}
+
+.ghost-effect:hover, .ui-ghost:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: white;
 }
 
 /* Animations */

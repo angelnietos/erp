@@ -29,7 +29,9 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass';
           (input)="onInput($event)"
           (blur)="onBlur()"
           [disabled]="disabled"
-          [class]="'input-' + variant"
+          [class.ui-glass]="variant === 'glass'"
+          [class.ui-filled]="variant === 'filled'"
+          [class.ui-ghost]="variant === 'ghost'"
         >
         <div class="focus-ring"></div>
       </div>
@@ -39,52 +41,27 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass';
     </div>
   `,
   styles: [`
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      width: 100%;
-      position: relative;
-    }
+    .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.7rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-secondary);
-      margin-left: 4px;
-      font-family: var(--font-display);
+      font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-secondary);
+      margin-left: 4px; font-family: var(--font-display);
     }
 
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
+    .input-wrapper { position: relative; display: flex; align-items: center; }
 
     .field-icon {
-      position: absolute;
-      left: 1.1rem;
-      width: 1.1rem;
-      height: 1.1rem;
-      color: var(--text-muted);
-      pointer-events: none;
-      transition: var(--transition-base);
+      position: absolute; left: 1.1rem; width: 1.1rem; height: 1.1rem;
+      color: var(--text-muted); pointer-events: none; transition: var(--transition-base);
     }
 
     input {
-      width: 100%;
-      padding: 0.9rem 1.1rem;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: var(--transition-base);
-      outline: none;
-      font-family: var(--font-main);
+      width: 100%; padding: 0.9rem 1.1rem;
+      background: var(--bg-tertiary); border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md); color: var(--text-primary);
+      font-size: 0.85rem; font-weight: 500; transition: var(--transition-base);
+      outline: none; font-family: var(--font-main);
     }
 
     input::placeholder { color: var(--text-muted); opacity: 0.4; }
@@ -92,26 +69,14 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass';
     .has-icon input { padding-left: 3rem; }
 
     input:focus {
-      background: var(--bg-secondary);
-      border-color: var(--brand);
+      background: var(--bg-secondary); border-color: var(--brand);
       box-shadow: 0 0 20px var(--brand-glow);
     }
     
     input:focus ~ .field-icon { color: var(--brand); }
 
-    .input-glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .input-filled { background: var(--bg-secondary); border-color: transparent; }
-
-    .input-ghost { background: transparent; border-color: transparent; }
-    .input-ghost:focus { background: var(--bg-tertiary); }
-
-    .has-error input { border-color: var(--danger); }
-    .has-error input:focus { box-shadow: 0 0 20px rgba(255, 75, 75, 0.2); }
+    .has-error input { border-color: var(--danger) !important; }
+    .has-error input:focus { box-shadow: 0 0 20px rgba(255, 75, 75, 0.2) !important; }
 
     input:disabled { opacity: 0.5; cursor: not-allowed; }
 

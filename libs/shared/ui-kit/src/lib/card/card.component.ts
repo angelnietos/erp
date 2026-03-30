@@ -10,7 +10,10 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered';
   template: `
     <div 
       class="card" 
-      [class]="'card-' + variant" 
+      [class.ui-glass]="variant === 'glass'"
+      [class.ui-filled]="variant === 'filled'"
+      [class.ui-accent]="variant === 'bordered'"
+      [class.ui-neon]="hover"
       [class.hover-effect]="hover"
     >
       @if (title) {
@@ -46,18 +49,6 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered';
       position: relative;
     }
 
-    .card-default { background: var(--bg-secondary); }
-    .card-filled { background: var(--bg-tertiary); }
-    .card-glass {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-    .card-bordered {
-      border: 1px solid var(--border-vibrant);
-      border-top: 3px solid var(--brand);
-    }
-
     .card-header {
       padding: 1.25rem 1.75rem;
       border-bottom: 1px solid var(--border-soft);
@@ -87,17 +78,8 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered';
       border-top: 1px solid var(--border-soft);
     }
 
-    .hover-effect:hover {
-      border-color: var(--border-vibrant);
-      transform: translateY(-4px) scale(1.01);
-      box-shadow: var(--shadow-lg);
-      z-index: 10;
-    }
-
-    .card-glass.hover-effect:hover {
-      background: var(--surface-hover);
-      border-color: var(--brand);
-      box-shadow: 0 0 30px var(--brand-glow);
+    .hover-effect {
+      cursor: pointer;
     }
   `],
 })

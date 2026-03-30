@@ -2,16 +2,23 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { 
+  UiCardComponent, UiButtonComponent, UiBadgeComponent, 
+  UiStatCardComponent, UiResourceMonitorComponent, ResourceItem 
+} from '@josanz-erp/shared-ui-kit';
 
 @Component({
   selector: 'josanz-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiBadgeComponent],
+  imports: [
+    CommonModule, RouterModule, LucideAngularModule, 
+    UiCardComponent, UiButtonComponent, UiBadgeComponent,
+    UiStatCardComponent, UiResourceMonitorComponent
+  ],
   template: `
-    <div class="dashboard-container animate-fade-in">
+    <div class="dashboard-container animate-slide-up">
       <header class="page-header">
-        <div class="header-main">
+        <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase">Panel de Control General</h1>
           <div class="breadcrumb">
             <span class="active">VISIÓN GLOBAL</span>
@@ -26,49 +33,41 @@ import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-er
       </header>
 
       <div class="stats-grid">
-        <ui-josanz-card variant="glass" class="stat-card">
-          <div class="stat-icon"><lucide-icon name="trending-up" size="24"></lucide-icon></div>
-          <div class="stat-content">
-            <span class="stat-lbl text-uppercase">Facturación Mensual</span>
-            <span class="stat-val font-mono">€42,850.00</span>
-            <span class="stat-delta success">+12.5% vs Mes Ant.</span>
-          </div>
-        </ui-josanz-card>
+        <ui-josanz-stat-card 
+          label="Facturación Mensual" 
+          value="€42,850.00" 
+          icon="trending-up" 
+          [trend]="12.5" 
+          [accent]="true">
+        </ui-josanz-stat-card>
 
-        <ui-josanz-card variant="glass" class="stat-card">
-          <div class="stat-icon"><lucide-icon name="key" size="24"></lucide-icon></div>
-          <div class="stat-content">
-            <span class="stat-lbl text-uppercase">Alquileres Activos</span>
-            <span class="stat-val font-mono">24</span>
-            <span class="stat-delta info">8 Entregas Hoy</span>
-          </div>
-        </ui-josanz-card>
+        <ui-josanz-stat-card 
+          label="Alquileres Activos" 
+          value="24" 
+          icon="key" 
+          [trend]="8">
+        </ui-josanz-stat-card>
 
-        <ui-josanz-card variant="glass" class="stat-card">
-          <div class="stat-icon"><lucide-icon name="alert-circle" size="24"></lucide-icon></div>
-          <div class="stat-content">
-            <span class="stat-lbl text-uppercase">Presupuestos Pendientes</span>
-            <span class="stat-val font-mono">15</span>
-            <span class="stat-delta warning">3 Requieren Acción</span>
-          </div>
-        </ui-josanz-card>
+        <ui-josanz-stat-card 
+          label="Presupuestos Pendientes" 
+          value="15" 
+          icon="alert-circle" 
+          [trend]="-2">
+        </ui-josanz-stat-card>
 
-        <ui-josanz-card variant="glass" class="stat-card">
-          <div class="stat-icon"><lucide-icon name="truck" size="24"></lucide-icon></div>
-          <div class="stat-content">
-            <span class="stat-lbl text-uppercase">Disponibilidad Flota</span>
-            <span class="stat-val font-mono">92%</span>
-            <span class="stat-delta success">Operativa</span>
-          </div>
-        </ui-josanz-card>
+        <ui-josanz-stat-card 
+          label="Disponibilidad Flota" 
+          value="92%" 
+          icon="truck">
+        </ui-josanz-stat-card>
       </div>
 
       <div class="main-content-grid">
-        <ui-josanz-card variant="glass" class="recent-card">
-          <header class="card-header">
-            <h3 class="text-uppercase">Registro de Actividad</h3>
+        <ui-josanz-card variant="glass" title="Registro de Actividad" class="recent-card">
+          <div slot="header-actions">
             <ui-josanz-button variant="ghost" size="sm">VER TODO</ui-josanz-button>
-          </header>
+          </div>
+          
           <div class="activity-list">
             @for (act of activities; track act.id) {
               <div class="activity-item">
@@ -83,50 +82,25 @@ import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-er
           </div>
         </ui-josanz-card>
 
-        <ui-josanz-card variant="glass" class="performance-card">
-          <header class="card-header">
-            <h3 class="text-uppercase">Disponibilidad de Recursos</h3>
-          </header>
-          <div class="resource-stats">
-            <div class="res-item">
-              <div class="res-meta">
-                <span class="res-name text-uppercase">Cámaras & Ópticas</span>
-                <span class="res-status text-success font-mono">OK</span>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
-              <div class="res-footer"><span class="res-val">85%</span><span class="res-lbl text-uppercase">CAPACIDAD</span></div>
-            </div>
-            
-            <div class="res-item">
-              <div class="res-meta">
-                <span class="res-name text-uppercase">Iluminación</span>
-                <span class="res-status text-warning font-mono">STOCK BAJO</span>
-              </div>
-              <div class="progress-bar"><div class="progress-fill warning" style="width: 42%"></div></div>
-              <div class="res-footer"><span class="res-val">42%</span><span class="res-lbl text-uppercase">CAPACIDAD</span></div>
-            </div>
+        <div class="sidebar-grid">
+          <ui-josanz-resource-monitor 
+            title="Sistemas de Captación" 
+            [items]="resourceItems">
+          </ui-josanz-resource-monitor>
 
-            <div class="res-item">
-              <div class="res-meta">
-                <span class="res-name text-uppercase">Puesto Logística</span>
-                <span class="res-status text-info font-mono">SÍNCRONO</span>
+          <ui-josanz-card variant="glass" title="Rendimiento del Sistema">
+            <div class="performance-summary">
+              <div class="perf-stat">
+                <span class="p-lbl text-uppercase">UPTIME GLOBAL</span>
+                <span class="p-val font-mono">99.98%</span>
               </div>
-              <div class="progress-bar"><div class="progress-fill info" style="width: 70%"></div></div>
-              <div class="res-footer"><span class="res-val">70%</span><span class="res-lbl text-uppercase">CAPACIDAD</span></div>
+              <div class="perf-stat">
+                <span class="p-lbl text-uppercase">LATENCIA API</span>
+                <span class="p-val font-mono">14MS</span>
+              </div>
             </div>
-          </div>
-
-          <div class="performance-summary">
-            <div class="perf-stat">
-              <span class="p-lbl text-uppercase">UPTIME</span>
-              <span class="p-val font-mono">99.98%</span>
-            </div>
-            <div class="perf-stat">
-              <span class="p-lbl text-uppercase">LATENCY</span>
-              <span class="p-val font-mono">14MS</span>
-            </div>
-          </div>
-        </ui-josanz-card>
+          </ui-josanz-card>
+        </div>
       </div>
     </div>
   `,
@@ -147,22 +121,10 @@ import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-er
     .header-actions { display: flex; gap: 1rem; }
 
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-    
-    .stat-card { display: flex; gap: 1.5rem; align-items: center; padding: 1.5rem !important; }
-    .stat-icon { width: 48px; height: 48px; border-radius: 8px; background: rgba(240, 62, 62, 0.1); border: 1px solid var(--brand); color: var(--brand); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--brand-glow); }
-    
-    .stat-content { display: flex; flex-direction: column; gap: 4px; }
-    .stat-lbl { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
-    .stat-val { font-size: 1.5rem; font-weight: 900; color: #fff; line-height: 1; margin: 4px 0; }
-    .stat-delta { font-size: 0.65rem; font-weight: 800; }
-    .stat-delta.success { color: var(--success); }
-    .stat-delta.info { color: var(--info); }
-    .stat-delta.warning { color: var(--warning); }
 
     .main-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; min-height: 400px; }
     
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .card-header h3 { font-size: 0.85rem; font-weight: 900; color: var(--brand); letter-spacing: 0.15em; margin: 0; }
+    .sidebar-grid { display: flex; flex-direction: column; gap: 1.5rem; }
 
     .activity-list { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); border-radius: 4px; overflow: hidden; }
     .activity-item { background: var(--bg-tertiary); padding: 1rem; display: flex; align-items: center; gap: 1.5rem; transition: 0.2s; }
@@ -173,36 +135,16 @@ import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-er
     .activity-user { font-size: 0.75rem; font-weight: 800; color: #fff; text-transform: uppercase; }
     .activity-msg { font-size: 0.75rem; color: var(--text-secondary); }
 
-    .resource-stats { display: flex; flex-direction: column; gap: 2rem; }
-    .res-item { display: flex; flex-direction: column; gap: 10px; }
-    .res-meta { display: flex; justify-content: space-between; align-items: center; }
-    .res-name { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
-    .res-status { font-size: 0.6rem; font-weight: 900; }
-    
-    .progress-bar { height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden; position: relative; }
-    .progress-fill { position: absolute; top: 0; left: 0; bottom: 0; background: var(--brand); box-shadow: 0 0 10px var(--brand-glow); }
-    .progress-fill.warning { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
-    .progress-fill.info { background: var(--info); box-shadow: 0 0 10px var(--info); }
-    
-    .res-footer { display: flex; justify-content: space-between; align-items: center; }
-    .res-val { font-size: 0.75rem; font-weight: 900; color: #fff; font-family: var(--font-mono); }
-    .res-lbl { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); opacity: 0.6; }
-
-    .performance-summary { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-soft); display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .performance-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .perf-stat { display: flex; flex-direction: column; gap: 4px; }
     .p-lbl { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); }
-    .p-val { font-size: 1rem; font-weight: 900; color: var(--brand); }
-
-    .text-brand { color: var(--brand); }
-    .text-success { color: var(--success); }
-    .text-warning { color: var(--warning); }
-    .text-info { color: var(--info); }
+    .p-val { font-size: 1.25rem; font-weight: 900; color: var(--brand); font-family: var(--font-display); }
 
     @media (max-width: 1200px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .main-content-grid { grid-template-columns: 1fr; }
     }
-  `]
+  `],
 })
 export class DashboardComponent {
   activities = [
@@ -210,5 +152,11 @@ export class DashboardComponent {
     { id: '2', time: '13:15', user: 'Sistema', msg: 'Nuevo presupuesto recibido: Producciones Madrid S.L.', type: 'budget' },
     { id: '3', time: '12:05', user: 'Juan Perez', msg: 'Entrega completada: Expediente #RNT-005', type: 'rental' },
     { id: '4', time: '10:45', user: 'Sistema', msg: 'Aviso de stock bajo: Opticas Canon L-Series', type: 'inventory' },
+  ];
+
+  resourceItems: ResourceItem[] = [
+    { id: '1', name: 'Cámaras & Ópticas', status: 'ok', value: 85, label: '85%', icon: 'camera' },
+    { id: '2', name: 'Iluminación LED', status: 'warning', value: 42, label: 'BAJO STOCK', icon: 'sun' },
+    { id: '3', name: 'Puestos Logística', status: 'ok', value: 100, label: 'ACTIVO', icon: 'truck' },
   ];
 }
