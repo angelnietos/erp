@@ -21,7 +21,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
         <span class="spinner"></span>
       } @else {
         <ng-content></ng-content>
-        @if (icon) { <lucide-icon [name]="getIconName()" class="btn-icon"></lucide-icon> }
+        @if (icon && getIconName()) { <lucide-icon [name]="getIconName()" class="btn-icon"></lucide-icon> }
       }
     </button>
   `,
@@ -180,9 +180,9 @@ export class UiButtonComponent {
   @Input() icon: any = '';
   @Output() clicked = new EventEmitter<Event>();
 
-  getIconName(): string {
-    if (!this.icon) return '';
+  getIconName(): string | undefined {
+    if (!this.icon) return undefined;
     if (typeof this.icon === 'string') return this.icon;
-    return (this.icon as any).name || '';
+    return (this.icon as any).name || undefined;
   }
 }

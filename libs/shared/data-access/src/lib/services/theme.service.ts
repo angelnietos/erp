@@ -169,6 +169,10 @@ export class ThemeService {
   readonly themes = THEMES;
 
   constructor() {
+    // Apply theme immediately on service initialization
+    this.applyTheme(this.currentTheme());
+    
+    // Watch for theme changes using signal effect
     effect(() => {
       const theme = this.currentTheme();
       this.applyTheme(theme);
