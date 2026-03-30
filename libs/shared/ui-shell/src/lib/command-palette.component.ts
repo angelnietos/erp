@@ -210,27 +210,28 @@ export class CommandPaletteComponent {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onDocumentEscape(event: KeyboardEvent) {
+  onDocumentEscape(event: Event) {
     event.preventDefault();
     event.stopPropagation();
     this.closePalette.emit();
   }
 
   @HostListener('window:keydown', ['$event'])
-  handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
+  handleKeyDown(event: Event) {
+    const e = event as KeyboardEvent;
+    if (e.key === 'Escape') {
       return;
     }
-    if (event.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown') {
       this.moveSelection(1);
-      event.preventDefault();
-    } else if (event.key === 'ArrowUp') {
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
       this.moveSelection(-1);
-      event.preventDefault();
-    } else if (event.key === 'Enter') {
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
       const selected = this.filteredItems().find(i => i.id === this.selectedId());
       if (selected) this.executeCommand(selected);
-      event.preventDefault();
+      e.preventDefault();
     }
   }
 
