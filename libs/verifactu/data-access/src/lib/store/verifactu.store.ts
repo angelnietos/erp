@@ -4,7 +4,6 @@ import {
 	VerifactuEnqueueRequest,
 	EnqueueInvoiceResponse,
 	VerifactuInvoiceDetail,
-	SubmitToVerifactuResponse,
 } from '@josanz-erp/verifactu-api';
 import { VerifactuService } from '../services/verifactu.service';
 
@@ -83,7 +82,9 @@ export class VerifactuStore {
 					...s,
 					selectedInvoice: s.selectedInvoice ? { ...s.selectedInvoice, qrCode } : null,
 				})),
-			error: () => {}, // QR is optional
+			error: () => {
+				// QR is optional - don't show error if QR fails to load
+			},
 		});
 	}
 
@@ -106,4 +107,5 @@ export class VerifactuStore {
 		this.state.update((s) => ({ ...s, error: null }));
 	}
 }
+
 
