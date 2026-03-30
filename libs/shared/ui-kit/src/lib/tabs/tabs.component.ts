@@ -33,9 +33,9 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
   styles: [`
     .tabs { 
       display: flex; 
-      gap: 6px; 
-      padding: 6px; 
-      border-radius: 8px; 
+      gap: 4px; 
+      padding: 4px; 
+      border-radius: 4px; 
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       width: fit-content;
@@ -45,14 +45,14 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
       display: flex; 
       align-items: center; 
       gap: 10px; 
-      padding: 10px 20px;
+      padding: 8px 18px;
       background: transparent; 
-      border: none; 
-      border-radius: 6px;
-      font-size: 0.85rem; 
-      font-weight: 700; 
+      border: 1px solid transparent; 
+      border-radius: 2px;
+      font-size: 0.75rem; 
+      font-weight: 800; 
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.1em;
       cursor: pointer; 
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       color: var(--text-secondary);
@@ -66,20 +66,36 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
     }
 
     .tab-item.active {
-      background: var(--brand);
+      background: var(--bg-secondary);
       color: #fff;
-      box-shadow: 0 4px 15px -5px var(--brand-glow);
+      border-color: var(--brand);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
-    .tab-icon { width: 18px; height: 18px; transition: transform 0.3s ease; }
-    .tab-item:hover .tab-icon { transform: scale(1.1); }
+    .tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 2px;
+      background: var(--brand);
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+
+    .tab-icon { width: 16px; height: 16px; transition: transform 0.3s ease; color: var(--text-muted); }
+    .tab-item.active .tab-icon { color: var(--brand); }
+    .tab-item:hover .tab-icon { transform: scale(1.1); color: #fff; }
 
     .tab-badge {
-      background: rgba(255, 255, 255, 0.15); 
-      padding: 2px 8px;
-      border-radius: 4px; 
-      font-size: 0.7rem; 
-      font-weight: 900;
+      background: var(--brand); 
+      padding: 1px 6px;
+      border-radius: 2px; 
+      font-size: 0.65rem; 
+      font-weight: 950;
+      color: #fff;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
     
     /* Variant Modifiers */
@@ -90,63 +106,20 @@ export type TabsVariant = 'default' | 'pills' | 'underline' | 'enclosed' | 'dark
       border-radius: 0;
       padding: 0;
       width: 100%;
+      gap: 20px;
     }
     
-    .tabs-underline .tab-item {
-      border-radius: 0;
-    }
-    
-    .tabs-underline .tab-item.active {
-      background: transparent;
-      color: var(--brand);
-      box-shadow: none;
-    }
-    
-    .tabs-underline .tab-item.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: var(--brand);
-      box-shadow: 0 0 10px var(--brand-glow);
-    }
+    .tabs-underline .tab-item { border-radius: 0; padding: 12px 10px; }
+    .tabs-underline .tab-item.active { background: transparent; color: var(--brand); box-shadow: none; border: none; }
+    .tabs-underline .tab-item.active::after { bottom: 0; width: 100%; height: 3px; }
 
-    .tabs-pills {
-      background: transparent;
-      border: none;
-      gap: 12px;
-    }
-    
-    .tabs-pills .tab-item {
-      border-radius: 999px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-    }
-    
-    .tabs-pills .tab-item.active {
-      background: var(--brand);
-      border-color: var(--brand);
-    }
+    .tabs-pills { background: transparent; border: none; gap: 10px; }
+    .tabs-pills .tab-item { border-radius: 4px; background: var(--bg-tertiary); border: 1px solid var(--border-soft); }
+    .tabs-pills .tab-item.active { background: var(--brand); border-color: var(--brand); box-shadow: 0 0 20px var(--brand-glow); }
+    .tabs-pills .tab-item.active::after { display: none; }
 
-    .tabs-enclosed {
-      background: #000;
-      border-color: #222;
-    }
-
-    .tabs-dark {
-      background: #000;
-    }
-    
-    .tabs-ghost {
-      background: transparent;
-      border: none;
-    }
-    
-    .tabs-primary .tab-item.active {
-      background: var(--brand);
-    }
+    .tabs-ghost { background: transparent; border: none; }
+    .tabs-ghost .tab-item.active { background: rgba(255, 255, 255, 0.05); border-color: var(--border-soft); box-shadow: none; }
   `],
 })
 export class UiTabsComponent {

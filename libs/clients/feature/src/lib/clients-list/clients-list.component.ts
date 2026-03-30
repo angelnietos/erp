@@ -35,163 +35,180 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     <div class="page-container">
       <div class="page-header">
         <div class="header-content">
-          <h1>Clientes</h1>
-          <p class="subtitle">Gestiona los clientes de la empresa</p>
+          <h1 class="glow-text">Clientes</h1>
+          <p class="subtitle">Gestiona la base de datos de asociados y colaboradores</p>
         </div>
-        <ui-josanz-button icon="plus" (clicked)="openCreateModal()">
+        <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
+          <lucide-icon name="plus" class="mr-2"></lucide-icon>
           Nuevo Cliente
         </ui-josanz-button>
       </div>
 
       <div class="filters-bar">
         <ui-josanz-search 
-          placeholder="Buscar clientes..." 
+          variant="filled"
+          placeholder="BUSCAR CLIENTES..." 
           (searchChange)="onSearch($any($event))"
+          class="flex-1"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando clientes..."></ui-josanz-loader>
+        <ui-josanz-loader message="Sincronizando base de datos..."></ui-josanz-loader>
       } @else {
-        <ui-josanz-table [columns]="columns" [data]="clients()">
-          <ng-template #cellTemplate let-client let-key="key">
-            @switch (key) {
-              @case ('name') {
-                <a [routerLink]="['/clients', client.id]" class="client-link">
-                  {{ client.name }}
-                </a>
+        <ui-josanz-card variant="glass" class="table-card">
+          <ui-josanz-table [columns]="columns" [data]="clients()" variant="hover">
+            <ng-template #cellTemplate let-client let-key="key">
+              @switch (key) {
+                @case ('name') {
+                  <a [routerLink]="['/clients', client.id]" class="client-link">
+                    {{ client.name }}
+                  </a>
+                }
+                @case ('sector') {
+                  <ui-josanz-badge variant="info">{{ client.sector }}</ui-josanz-badge>
+                }
+                @case ('createdAt') {
+                  <span class="date-text">{{ formatDate(client.createdAt) }}</span>
+                }
+                @case ('actions') {
+                  <div class="actions">
+                    <button class="action-trigger" [routerLink]="['/clients', client.id]" title="Ver">
+                      <lucide-icon name="eye" size="18"></lucide-icon>
+                    </button>
+                    <button class="action-trigger" (click)="editClient(client)" title="Editar">
+                      <lucide-icon name="pencil" size="18"></lucide-icon>
+                    </button>
+                    <button class="action-trigger danger" (click)="confirmDelete(client)" title="Eliminar">
+                      <lucide-icon name="trash-2" size="18"></lucide-icon>
+                    </button>
+                  </div>
+                }
+                @default {
+                  {{ client[key] }}
+                }
               }
-              @case ('sector') {
-                <ui-josanz-badge>{{ client.sector }}</ui-josanz-badge>
-              }
-              @case ('createdAt') {
-                {{ formatDate(client.createdAt) }}
-              }
-              @case ('actions') {
-                <div class="actions">
-                  <button class="action-btn" [routerLink]="['/clients', client.id]" title="Ver">
-                    <lucide-icon name="eye"></lucide-icon>
-                  </button>
-                  <button class="action-btn" (click)="editClient(client)" title="Editar">
-                    <lucide-icon name="pencil"></lucide-icon>
-                  </button>
-                  <button class="action-btn danger" (click)="confirmDelete(client)" title="Eliminar">
-                    <lucide-icon name="trash-2"></lucide-icon>
-                  </button>
-                </div>
-              }
-              @default {
-                {{ client[key] }}
-              }
-            }
-          </ng-template>
-        </ui-josanz-table>
+            </ng-template>
+          </ui-josanz-table>
 
-        <ui-josanz-pagination 
-          [currentPage]="currentPage()" 
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)"
-        ></ui-josanz-pagination>
+          <div class="pagination-wrapper">
+             <ui-josanz-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              variant="minimal"
+              (pageChange)="onPageChange($event)"
+            ></ui-josanz-pagination>
+          </div>
+        </ui-josanz-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingClient() ? 'Editar Cliente' : 'Nuevo Cliente'"
+      [title]="editingClient() ? 'IDENTIFICACIÓN: EDITAR CLIENTE' : 'IDENTIFICACIÓN: NUEVO CLIENTE'"
       (closed)="closeModal()"
+      variant="dark"
     >
-      <form (ngSubmit)="saveClient()" #clientForm="ngForm">
+      <div class="form-container">
         <div class="form-grid">
-          <div class="form-group">
-            <label for="name">Nombre *</label>
-            <input 
-              type="text" 
-              id="name"
-              [(ngModel)]="formData.name" 
-              name="name" 
-              required
-              placeholder="Nombre del cliente"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="sector">Sector</label>
-            <input 
-              type="text" 
-              id="sector"
-              [(ngModel)]="formData.sector" 
-              name="sector" 
-              placeholder="Sector del cliente"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="contact">Persona de Contacto</label>
-            <input 
-              type="text" 
-              id="contact"
-              [(ngModel)]="formData.contact" 
-              name="contact" 
-              placeholder="Nombre del contacto"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input 
-              type="email" 
-              id="email"
-              [(ngModel)]="formData.email" 
-              name="email" 
-              placeholder="email@ejemplo.com"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="phone">Teléfono</label>
-            <input 
-              type="tel" 
-              id="phone"
-              [(ngModel)]="formData.phone" 
-              name="phone" 
-              placeholder="+34 600 000 000"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="address">Dirección</label>
-            <input 
-              type="text" 
-              id="address"
-              [(ngModel)]="formData.address" 
-              name="address" 
-              placeholder="Dirección"
-            >
-          </div>
-          
-          <div class="form-group full-width">
-            <label for="description">Descripción</label>
-            <textarea 
-              id="description"
-              [(ngModel)]="formData.description" 
-              name="description" 
-              rows="3"
-              placeholder="Descripción del cliente"
-            ></textarea>
-          </div>
+           <div class="form-col">
+             <label class="field-label" for="client-name">Nombre del Cliente *</label>
+             <input 
+               type="text" 
+               id="client-name"
+               class="technical-input"
+               [(ngModel)]="formData.name" 
+               name="name" 
+               required
+               placeholder="NOMBRE COMPLETO"
+             >
+           </div>
+           
+           <div class="form-col">
+             <label class="field-label" for="client-sector">Sector Industrial</label>
+             <input 
+               type="text" 
+               id="client-sector"
+               class="technical-input"
+               [(ngModel)]="formData.sector" 
+               name="sector" 
+               placeholder="SECTOR"
+             >
+           </div>
+           
+           <div class="form-col">
+             <label class="field-label" for="client-contact">Contacto principal</label>
+             <input 
+               type="text" 
+               id="client-contact"
+               class="technical-input"
+               [(ngModel)]="formData.contact" 
+               name="contact" 
+               placeholder="PERSONA DE CONTACTO"
+             >
+           </div>
+           
+           <div class="form-col">
+             <label class="field-label" for="client-email">Correo Electrónico</label>
+             <input 
+               type="email" 
+               id="client-email"
+               class="technical-input"
+               [(ngModel)]="formData.email" 
+               name="email" 
+               placeholder="EMAIL@SISTEMA.COM"
+             >
+           </div>
+           
+           <div class="form-col">
+             <label class="field-label" for="client-phone">Teléfono</label>
+             <input 
+               type="tel" 
+               id="client-phone"
+               class="technical-input"
+               [(ngModel)]="formData.phone" 
+               name="phone" 
+               placeholder="+34 000 000 000"
+             >
+           </div>
+           
+           <div class="form-col">
+             <label class="field-label" for="client-address">Ubicación / Sede</label>
+             <input 
+               type="text" 
+               id="client-address"
+               class="technical-input"
+               [(ngModel)]="formData.address" 
+               name="address" 
+               placeholder="DIRECCIÓN FÍSICA"
+             >
+           </div>
+           
+           <div class="form-col full-width">
+             <label class="field-label" for="client-description">Observaciones Técnicas</label>
+             <textarea 
+               id="client-description"
+               class="technical-textarea"
+               [(ngModel)]="formData.description" 
+               name="description" 
+               rows="3"
+               placeholder="NOTAS ADICIONALES"
+             ></textarea>
+           </div>
         </div>
-      </form>
+      </div>
       
-      <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeModal()">
-          Cancelar
+      <div modal-footer class="modal-footer">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">
+          ABORTAR
         </ui-josanz-button>
         <ui-josanz-button 
+          variant="primary"
           (clicked)="saveClient()"
           [disabled]="!formData.name"
         >
-          {{ editingClient() ? 'Actualizar' : 'Crear' }}
+          {{ editingClient() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
@@ -199,81 +216,162 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     <!-- Delete Confirmation Modal -->
     <ui-josanz-modal
       [isOpen]="isDeleteModalOpen()"
-      title="Confirmar Eliminación"
+      title="ADVERTENCIA: ELIMINACIÓN DE REGISTRO"
       (closed)="closeDeleteModal()"
+      variant="dark"
     >
-      <p>¿Estás seguro de que deseas eliminar el cliente <strong>{{ clientToDelete()?.name }}</strong>?</p>
-      <p class="warning-text">Esta acción no se puede deshacer.</p>
+      <div class="delete-warning">
+        <lucide-icon name="alert-triangle" class="warning-icon"></lucide-icon>
+        <div class="warning-content">
+          <p>¿Estás seguro de que deseas eliminar el cliente <strong>{{ clientToDelete()?.name }}</strong>?</p>
+          <p class="critical-text">ESTA ACCIÓN ES IRREVERSIBLE Y ELIMINARÁ TODOS LOS DATOS ASOCIADOS.</p>
+        </div>
+      </div>
       
       <div modal-footer>
-        <ui-josanz-button variant="secondary" (clicked)="closeDeleteModal()">
-          Cancelar
+        <ui-josanz-button variant="ghost" (clicked)="closeDeleteModal()">
+          CANCELAR
         </ui-josanz-button>
         <ui-josanz-button variant="danger" (clicked)="deleteClient()">
-          Eliminar
+          ELIMINAR DEFINITIVAMENTE
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 24px; }
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .header-content h1 { margin: 0 0 4px 0; color: white; font-size: 28px; font-weight: 700; }
-    .subtitle { margin: 0; color: #94A3B8; font-size: 14px; }
-    .filters-bar { display: flex; gap: 16px; margin-bottom: 20px; }
-    .client-link { color: #4F46E5; text-decoration: none; font-weight: 500; }
-    .client-link:hover { text-decoration: underline; }
-    .actions { display: flex; gap: 8px; }
-    .action-btn {
-      background: none; border: none; padding: 6px; cursor: pointer;
-      color: #94A3B8; border-radius: 6px; transition: all 0.2s;
-    }
-    .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-    .action-btn.danger:hover { background: rgba(239,68,68,0.15); color: #EF4444; }
+    .page-container { padding: 2rem; }
     
+    .page-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 1.5rem;
+    }
+    
+    .glow-text { 
+      font-size: 2.5rem; 
+      font-weight: 900; 
+      color: #fff; 
+      margin: 0; 
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      text-shadow: 0 0 20px var(--brand-glow);
+    }
+    
+    .subtitle { margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+    
+    .filters-bar { margin-bottom: 2rem; display: flex; }
+    .flex-1 { flex: 1; }
+    
+    .client-link { 
+      color: var(--brand); 
+      text-decoration: none; 
+      font-weight: 800; 
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .client-link:hover { color: #fff; text-shadow: 0 0 10px var(--brand-glow); }
+    
+    .date-text { color: var(--text-muted); font-size: 0.85rem; }
+    
+    .actions { display: flex; gap: 10px; }
+    
+    .action-trigger { 
+      background: var(--bg-tertiary); 
+      border: 1px solid var(--border-soft); 
+      color: var(--text-muted); 
+      cursor: pointer; 
+      width: 34px;
+      height: 34px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .action-trigger:hover { 
+      color: #fff; 
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 10px var(--brand-glow);
+    }
+    
+    .action-trigger.danger:hover {
+      border-color: var(--danger);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .pagination-wrapper {
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      margin-top: 1rem;
+    }
+
+    /* Form Styles */
+    .form-container { padding: 1rem 0; }
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 1.5rem;
     }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .form-col { display: flex; flex-direction: column; gap: 8px; }
+    .form-col.full-width { grid-column: 1 / -1; }
+    
+    .field-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
-    .form-group.full-width {
-      grid-column: 1 / -1;
-    }
-    .form-group label {
-      color: #94A3B8;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .form-group input,
-    .form-group textarea {
-      background: #0F172A;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: white;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group textarea:focus {
+    
+    .technical-input, .technical-textarea {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: var(--font-main);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
-      border-color: #4F46E5;
     }
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: #64748B;
+    
+    .technical-input:focus, .technical-textarea:focus {
+      border-color: var(--brand);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
-    .warning-text {
-      color: #EF4444;
-      font-size: 14px;
+
+    .delete-warning {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 6px;
+    }
+    
+    .warning-icon { color: var(--danger); width: 40px; height: 40px; }
+    
+    .critical-text {
+      color: var(--danger);
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
+
+    .mr-2 { margin-right: 8px; }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .glow-text { font-size: 1.8rem; }
     }
   `],
 })

@@ -73,17 +73,18 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
       display: flex; 
       align-items: center; 
       gap: 14px; 
-      padding: 12px 16px;
-      border-radius: 6px; 
+      padding: 10px 16px;
+      border-radius: 4px; 
       text-decoration: none; 
       color: var(--text-secondary);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-      font-size: 0.85rem; 
-      font-weight: 700;
+      font-size: 0.8rem; 
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.1em;
       position: relative;
       font-family: var(--font-display);
+      border: 1px solid transparent;
     }
     
     .nav-link::before {
@@ -93,25 +94,25 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
       top: 50%;
       transform: translateY(-50%);
       height: 0%;
-      width: 3px;
+      width: 2px;
       background: var(--brand);
       transition: height 0.3s ease;
       box-shadow: 0 0 10px var(--brand-glow);
     }
 
-    .nav-link.child { padding-left: 44px; font-size: 0.8rem; opacity: 0.8; }
-    .nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.3s ease; }
+    .nav-link.child { padding-left: 44px; font-size: 0.75rem; opacity: 0.7; }
+    .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; color: var(--text-muted); }
     .nav-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nav-badge {
-      font-size: 0.65rem; 
-      font-weight: 900; 
+      font-size: 0.6rem; 
+      font-weight: 950; 
       padding: 2px 6px;
-      border-radius: 4px; 
+      border-radius: 2px; 
       background: var(--brand); 
       color: white;
       box-shadow: 0 0 10px var(--brand-glow);
     }
-    .nav-children { list-style: none; padding: 0; margin: 4px 0 0 0; display: flex; flex-direction: column; gap: 4px; }
+    .nav-children { list-style: none; padding: 0; margin: 2px 0; display: flex; flex-direction: column; gap: 2px; }
 
     /* Interactions */
     .nav-link:hover {
@@ -120,31 +121,37 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
     }
     
     .nav-link:hover .nav-icon {
-      transform: scale(1.15);
+      transform: translateX(3px);
       color: var(--brand);
     }
 
     .nav-link.active {
-      background: rgba(240, 62, 62, 0.08); 
+      background: rgba(240, 62, 62, 0.12); 
       color: #fff; 
+      border-right: 1px solid var(--brand);
+    }
+    
+    .nav-link.active .nav-icon {
+      color: var(--brand);
+      filter: drop-shadow(0 0 5px var(--brand-glow));
     }
     
     .nav-link.active::before {
-      height: 100%;
+      height: 70%;
     }
 
     /* Variant Modifiers */
-    .nav-menu-dark .nav-link { color: var(--text-muted); }
-    .nav-menu-dark .nav-link.active { background: #000; border-right: 1px solid var(--brand); }
+    .nav-menu-dark .nav-link { color: var(--text-muted); background: rgba(0, 0, 0, 0.2); }
+    .nav-menu-dark .nav-link.active { background: #000; border-color: var(--brand); }
 
-    .nav-menu-primary .nav-link.active { background: var(--brand); color: white; }
+    .nav-menu-primary .nav-link.active { background: var(--brand); color: white; border: none; }
     .nav-menu-primary .nav-badge { background: #fff; color: var(--brand); }
 
-    .nav-menu-bordered .nav-link { border: 1px solid transparent; }
+    .nav-menu-bordered .nav-link { border: 1px solid var(--border-soft); }
     .nav-menu-bordered .nav-link.active { border-color: var(--brand); }
 
-    .nav-menu-compact .nav-link { padding: 8px 12px; font-size: 0.75rem; }
-    .nav-menu-compact .nav-icon { width: 18px; height: 18px; }
+    .nav-menu-compact .nav-link { padding: 6px 12px; font-size: 0.7rem; }
+    .nav-menu-compact .nav-icon { width: 16px; height: 16px; }
   `]
 })
 export class NavMenuComponent {

@@ -70,15 +70,15 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     .sidebar-container {
       width: 260px;
       height: 100%;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
       transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      color: #94a3b8;
+      color: var(--text-secondary);
       overflow: hidden;
       position: relative;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
     }
 
     .sidebar-container.collapsed {
@@ -92,6 +92,7 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       justify-content: space-between;
       padding: 0 24px;
       flex-shrink: 0;
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .collapsed .header {
@@ -107,27 +108,28 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .logo-pill {
-      width: 12px;
-      height: 24px;
-      background: linear-gradient(to bottom, #22d3ee, #0ea5e9);
-      border-radius: 4px;
-      box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+      width: 10px;
+      height: 20px;
+      background: var(--brand);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .logo-text {
-      font-weight: 800;
-      font-size: 1.25rem;
-      color: #f8fafc;
-      letter-spacing: 0.1em;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #fff;
+      letter-spacing: 0.2em;
+      font-family: var(--font-display);
     }
 
     .toggle-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: none;
-      color: #94a3b8;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      color: var(--text-muted);
       width: 32px;
       height: 32px;
-      border-radius: 8px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -136,15 +138,21 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #f8fafc;
-      transform: scale(1.05);
+      border-color: var(--brand);
+      color: #fff;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .nav-area {
       flex: 1;
-      padding: 24px 12px;
+      padding: 24px 0;
       overflow-y: auto;
+    }
+
+    .footer-area {
+      padding: 20px 12px;
+      border-top: 1px solid var(--border-soft);
+      background: rgba(0, 0, 0, 0.1);
     }
 
     .nav-list {
@@ -153,84 +161,61 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
     }
 
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 0 8px;
+      border-radius: 4px;
       text-decoration: none;
-      color: inherit;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
       position: relative;
-      height: 48px;
+      height: 44px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      font-size: 0.8rem;
     }
 
     .collapsed .nav-link {
       justify-content: center;
-      padding: 12px 0;
+      margin: 0 12px;
     }
 
     .icon-wrapper {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: transform 0.2s;
     }
 
     .label-text {
       margin-left: 16px;
-      font-weight: 500;
-      font-size: 0.9375rem;
       white-space: nowrap;
       animation: fadeIn 0.2s ease;
     }
 
     .nav-link:hover {
       background: rgba(255, 255, 255, 0.03);
-      color: #f8fafc;
-    }
-
-    .nav-link:hover .icon-wrapper {
-      transform: scale(1.1);
-    }
-
-    .nav-link.active {
-      background: rgba(14, 165, 233, 0.1);
-      color: #0ea5e9;
-    }
-
-    .active-indicator {
-      position: absolute;
-      right: 0;
-      width: 4px;
-      height: 24px;
-      background: #0ea5e9;
-      border-radius: 4px 0 0 4px;
-      box-shadow: -4px 0 12px rgba(14, 165, 233, 0.4);
-    }
-
-    .footer-area {
-      padding: 20px 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .secondary {
-      color: #64748b;
+      color: #fff;
+      border-bottom: 1px solid var(--brand);
     }
 
     .logout:hover {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1) !important;
+      color: var(--danger) !important;
+      border-bottom-color: var(--danger) !important;
     }
 
     button.nav-link {
-      width: 100%;
+      width: calc(100% - 16px);
       background: none;
       border: none;
       cursor: pointer;
@@ -242,13 +227,10 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       to { opacity: 1; transform: translateX(0); }
     }
 
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
   `]
 })
 export class SidebarComponent {

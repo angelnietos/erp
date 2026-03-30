@@ -88,12 +88,14 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
       display: block;
       height: 100vh;
       overflow: hidden;
+      font-family: var(--font-main);
     }
 
     .app-layout {
       display: flex;
       height: 100%;
-      background: #f8fafc;
+      background: var(--bg-primary);
+      color: var(--text-primary);
     }
 
     .main-container {
@@ -101,45 +103,52 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
 
     .top-nav {
       height: 72px;
-      background: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 32px;
+      padding: 0 40px;
       flex-shrink: 0;
-      z-index: 10;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .search-container {
       flex: 1;
-      max-width: 480px;
+      max-width: 520px;
     }
 
     .search-box {
       position: relative;
       display: flex;
       align-items: center;
-      background: #f1f5f9;
-      border-radius: 12px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
       padding: 0 16px;
-      height: 44px;
-      transition: all 0.2s;
-      border: 1px solid transparent;
+      height: 42px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border-soft);
     }
 
     .search-box:focus-within {
-      background: #ffffff;
-      border-color: #0ea5e9;
-      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+      background: var(--bg-secondary);
+      border-color: var(--brand);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
     .search-icon {
-      color: #94a3b8;
+      color: var(--text-muted);
+      transition: color 0.3s ease;
+    }
+
+    .search-box:focus-within .search-icon {
+      color: var(--brand);
     }
 
     .search-box input {
@@ -148,70 +157,86 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
       width: 100%;
       height: 100%;
       padding-left: 12px;
-      color: #1e293b;
-      font-size: 0.9375rem;
+      color: var(--text-primary);
+      font-size: 0.9rem;
       outline: none;
+      font-family: var(--font-main);
+    }
+    
+    .search-box input::placeholder {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.7rem;
+      font-weight: 700;
     }
 
     .search-shortcut {
-      background: #ffffff;
-      color: #94a3b8;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 4px 8px;
       border-radius: 4px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border-soft);
       pointer-events: none;
+      font-family: var(--font-display);
     }
 
     .actions-container {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
     }
 
     .tenant-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: #f0f9ff;
-      color: #0369a1;
-      border-radius: 100px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      border: 1px solid #bae6fd;
+      gap: 10px;
+      padding: 8px 16px;
+      background: rgba(240, 62, 62, 0.1);
+      color: var(--brand);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--brand);
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .icon-btn {
       position: relative;
-      background: none;
-      border: none;
-      color: #64748b;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      color: var(--text-secondary);
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
     }
 
     .icon-btn:hover {
-      background: #f1f5f9;
-      color: #1e293b;
+      background: var(--bg-secondary);
+      color: #fff;
+      border-color: var(--brand);
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .notification-dot {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       width: 8px;
       height: 8px;
-      background: #ef4444;
-      border: 2px solid #ffffff;
+      background: var(--brand);
+      border: 2px solid var(--bg-secondary);
       border-radius: 50%;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .theme-selector {
@@ -219,76 +244,85 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
     }
 
     .theme-btn {
-      background: none;
-      border: none;
-      color: #64748b;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-soft);
+      color: var(--text-secondary);
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
     }
 
     .theme-btn:hover {
-      background: #f1f5f9;
-      color: #1e293b;
+      border-color: var(--brand);
+      color: #fff;
     }
 
     .theme-menu {
       position: absolute;
       top: 100%;
       right: 0;
-      margin-top: 8px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 8px;
-      min-width: 160px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      z-index: 100;
+      margin-top: 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 180px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      animation: menuFadeIn 0.3s ease;
+    }
+    
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .theme-option {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       width: 100%;
-      padding: 8px 12px;
-      background: none;
+      padding: 10px 14px;
+      background: transparent;
       border: none;
-      border-radius: 8px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 0.875rem;
-      color: #1e293b;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
       transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .theme-option:hover {
-      background: #f1f5f9;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
     }
 
     .theme-option.active {
-      background: #f0f9ff;
-      color: #0ea5e9;
+      background: rgba(240, 62, 62, 0.1);
+      color: var(--brand);
     }
 
     .theme-color {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px #e2e8f0;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .user-profile {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding-left: 24px;
-      border-left: 1px solid #e2e8f0;
+      gap: 20px;
+      padding-left: 20px;
+      border-left: 1px solid var(--border-soft);
     }
 
     .user-info {
@@ -298,50 +332,52 @@ import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
     }
 
     .user-name {
-      font-weight: 600;
-      font-size: 0.9375rem;
-      color: #1e293b;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-family: var(--font-display);
     }
 
     .user-role {
-      font-size: 0.75rem;
-      color: #64748b;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     .avatar {
       width: 44px;
       height: 44px;
-      background: linear-gradient(135deg, #0ea5e9, #2563eb);
-      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand), #a00);
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      box-shadow: 0 0 15px var(--brand-glow);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .content-scroll {
       flex: 1;
       overflow-y: auto;
-      background: #f8fafc;
+      background: var(--bg-primary);
     }
 
     .content {
-      padding: 32px;
-      max-width: 1440px;
+      padding: 40px;
+      max-width: 1600px;
       margin: 0 auto;
     }
 
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f8fafc;
-    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
   `]
 })
 export class AppLayoutComponent {
