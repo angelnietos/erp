@@ -150,6 +150,11 @@ model Invoice {
   id              String               @id @default(uuid()) @db.Uuid
   budgetId        String               @map("budget_id") @db.Uuid
   tenantId        String?              @map("tenant_id") @db.Uuid
+  invoiceNumber   String               @unique @map("invoice_number")
+  status          String               @default("DRAFT")
+  type            String               @default("NORMAL")
+  issueDate       DateTime             @default(now()) @map("issue_date")
+  dueDate         DateTime             @default(now()) @map("due_date")
   total           Float
   verifactuStatus String               @default("PENDING") @map("verifactu_status")
   currentHash     String?              @map("current_hash")

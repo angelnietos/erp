@@ -5,6 +5,7 @@ import { SubmitInvoiceToVerifactuUseCase } from './application/use-cases/submit-
 import { VERIFACTU_SUBMISSION_PORT } from './application/ports/verifactu-submission.port';
 import { VerifactuSubmissionAdapter } from './infrastructure/adapters/verifactu/verifactu-submission.adapter';
 import { VerifactuErpAdapterModule } from '@josanz-erp/verifactu-adapters';
+import { InvoiceService } from './application/services/invoice.service';
 
 export interface BillingConfig {
   _isBillingConfig?: boolean;
@@ -19,6 +20,7 @@ export class BillingModule {
       controllers: [BillingController],
       providers: [
         SubmitInvoiceToVerifactuUseCase,
+        InvoiceService,
         {
           provide: VERIFACTU_SUBMISSION_PORT,
           useClass: VerifactuSubmissionAdapter,

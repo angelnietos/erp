@@ -116,10 +116,12 @@ async function main() {
     { name: 'Congresos S.A.', sector: 'Corporate', description: 'Annual events' },
   ];
 
+  const insertedClients = [];
   for (const client of clients) {
-    await prisma.client.create({
+    const c = await prisma.client.create({
       data: { ...client, tenantId: tenant.id },
     });
+    insertedClients.push(c);
   }
 
   // 6. Products & Inventory
@@ -130,6 +132,7 @@ async function main() {
     { name: 'Lote de Cableado HDMI', price: 50, stock: 50 },
   ];
 
+  const insertedProducts = [];
   for (const p of products) {
     const product = await prisma.product.create({
       data: {
@@ -145,8 +148,92 @@ async function main() {
         },
       },
     });
+    insertedProducts.push(product);
     console.log(`- Created product: ${product.name}`);
   }
+
+  // 7. Budgets (Presupuestos)
+  const budget1 = await prisma.budget.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: insertedClients[0].id,
+      startDate: new Date('2026-04-10'),
+      endDate: new Date('2026-04-15'),
+      status: 'APPROVED',
+      total: 2300,
+      items: {
+        create: [
+          { productId: insertedProducts[0].id, quantity: 1, price: 1500, tax: 21 },
+          { productId: insertedProducts[1].id, quantity: 1, price: 800, tax: 21 },
+        ],
+      },
+    },
+  });
+
+  const budget2 = await prisma.budget.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: insertedClients[1].id,
+      startDate: new Date('2026-04-20'),
+      endDate: new Date('2026-04-22'),
+      status: 'APPROVED',
+      total: 1200,
+      items: {
+        create: [
+          { productId: insertedProducts[2].id, quantity: 2, price: 600, tax: 21 },
+        ],
+      },
+    },
+  });
+  console.log(`- Created budgets`);
+
+  // 8. Delivery Notes (Albaranes)
+  await prisma.deliveryNote.create({
+    data: {
+      tenantId: tenant.id,
+      budgetId: budget1.id,
+      status: 'signed',
+      signatureBlobUrl: 'https://fake-signature-url.com/sig1.png',
+    },
+  });
+
+  await prisma.deliveryNote.create({
+    data: {
+      tenantId: tenant.id,
+      budgetId: budget2.id,
+      status: 'pending',
+    },
+  });
+  console.log(`- Created delivery notes`);
+
+  // 9. Invoices (Facturas / Verifactu)
+  await prisma.invoice.create({
+    data: {
+      tenantId: tenant.id,
+      budgetId: budget1.id,
+      invoiceNumber: 'F/2026/0001',
+      status: 'PAID',
+      type: 'NORMAL',
+      total: 2300 * 1.21,
+      verifactuStatus: 'SENT',
+      currentHash: createHash('sha256').update('hash1').digest('hex'),
+    },
+  });
+
+  await prisma.invoice.create({
+    data: {
+      tenantId: tenant.id,
+      budgetId: budget2.id,
+      invoiceNumber: 'F/2026/0002',
+      status: 'PENDING',
+      type: 'NORMAL',
+      total: 1200 * 1.21,
+      verifactuStatus: 'PENDING',
+      currentHash: createHash('sha256').update('hash2').digest('hex'),
+      previousHash: createHash('sha256').update('hash1').digest('hex'),
+    },
+  });
+  console.log(`- Created invoices`);
 
   console.log('✅ Database seeded successfully!');
 }
