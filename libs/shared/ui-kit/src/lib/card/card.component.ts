@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered';
+export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevated' | 'flat' | 'gradient' | 'dark' | 'light' | 'interactive' | 'highlight' | 'shadow' | 'outline';
 
 @Component({
   selector: 'ui-josanz-card',
@@ -80,6 +80,55 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered';
 
     .hover-effect {
       cursor: pointer;
+    }
+
+    /* Additional variants */
+    .ui-elevated {
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: none;
+    }
+
+    .ui-flat {
+      background: var(--bg-tertiary);
+      border: none;
+      box-shadow: none;
+    }
+
+    .ui-gradient {
+      background: linear-gradient(135deg, var(--bg-secondary), rgba(99, 102, 241, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .ui-dark {
+      background: rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .ui-light {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .ui-interactive {
+      cursor: pointer;
+    }
+    .ui-interactive:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .ui-highlight {
+      border-color: var(--brand);
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+    }
+
+    .ui-shadow {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .ui-outline {
+      background: transparent;
+      border: 2px solid var(--border-soft);
     }
   `],
 })

@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'warning' | 'glass' | 'filled';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'warning' | 'glass' | 'filled' | 'outline' | 'outline-primary' | 'outline-secondary' | 'outline-danger' | 'soft' | 'link' | 'gradient' | 'app';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
@@ -14,11 +14,21 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       [type]="type" 
       class="btn"
       [class.btn-primary]="variant === 'primary'"
+      [class.btn-secondary]="variant === 'secondary'"
       [class.ui-glass]="variant === 'glass'"
-      [class.ui-filled]="variant === 'secondary' || variant === 'filled'"
+      [class.ui-filled]="variant === 'filled'"
       [class.ui-ghost]="variant === 'ghost'"
       [class.btn-danger]="variant === 'danger'"
       [class.btn-success]="variant === 'success'"
+      [class.btn-warning]="variant === 'warning'"
+      [class.btn-outline]="variant === 'outline'"
+      [class.btn-outline-primary]="variant === 'outline-primary'"
+      [class.btn-outline-secondary]="variant === 'outline-secondary'"
+      [class.btn-outline-danger]="variant === 'outline-danger'"
+      [class.btn-soft]="variant === 'soft'"
+      [class.btn-link]="variant === 'link'"
+      [class.btn-gradient]="variant === 'gradient'"
+      [class.btn-app]="variant === 'app'"
       [class]="'btn-' + size"
       [disabled]="disabled || loading"
       (click)="clicked.emit($event)"
@@ -82,6 +92,113 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     .btn-success { background: rgba(0, 210, 138, 0.1); color: var(--success); border-color: rgba(0, 210, 138, 0.2); }
     .btn-success:hover { background: var(--success); color: white; }
+
+    .btn-secondary {
+      background: var(--brand-secondary, #6366f1);
+      color: white;
+      box-shadow: 0 4px 15px -5px rgba(99, 102, 241, 0.4);
+    }
+    .btn-secondary:not(:disabled):hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
+    }
+
+    .btn-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning, #f59e0b);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    .btn-warning:hover {
+      background: var(--warning, #f59e0b);
+      color: white;
+    }
+
+    /* Outline variants */
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border-color: var(--border-soft);
+    }
+    .btn-outline:not(:disabled):hover {
+      background: var(--bg-tertiary);
+      border-color: var(--text-primary);
+    }
+
+    .btn-outline-primary {
+      background: transparent;
+      color: var(--brand);
+      border-color: var(--brand);
+    }
+    .btn-outline-primary:not(:disabled):hover {
+      background: var(--brand);
+      color: white;
+    }
+
+    .btn-outline-secondary {
+      background: transparent;
+      color: #6366f1;
+      border-color: #6366f1;
+    }
+    .btn-outline-secondary:not(:disabled):hover {
+      background: #6366f1;
+      color: white;
+    }
+
+    .btn-outline-danger {
+      background: transparent;
+      color: var(--danger, #ef4444);
+      border-color: var(--danger, #ef4444);
+    }
+    .btn-outline-danger:not(:disabled):hover {
+      background: var(--danger, #ef4444);
+      color: white;
+    }
+
+    /* Soft variant */
+    .btn-soft {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border: none;
+    }
+    .btn-soft:not(:disabled):hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Link variant */
+    .btn-link {
+      background: transparent;
+      color: var(--brand);
+      border: none;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .btn-link:not(:disabled):hover {
+      color: var(--brand-muted);
+    }
+
+    /* Gradient variant */
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--brand), #8b5cf6);
+      color: white;
+      border: none;
+    }
+    .btn-gradient:not(:disabled):hover {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      box-shadow: 0 8px 25px -5px rgba(139, 92, 246, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* App variant - uses current theme's primary color */
+    .btn-app {
+      background: var(--theme-primary, var(--brand));
+      color: white;
+      border: none;
+    }
+    .btn-app:not(:disabled):hover {
+      background: var(--brand-muted, var(--theme-primary));
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
 
     .btn-icon { width: 1.1rem; height: 1.1rem; }
 

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type ModalVariant = 'default' | 'dark' | 'light' | 'glass' | 'gradient' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
+export type ModalVariant = 'default' | 'dark' | 'light' | 'glass' | 'gradient' | 'primary' | 'danger' | 'success' | 'warning' | 'info' | 'soft' | 'outline' | 'transparent' | 'centered' | 'fullscreen';
 
 @Component({
   selector: 'ui-josanz-modal',
@@ -137,6 +137,36 @@ export type ModalVariant = 'default' | 'dark' | 'light' | 'glass' | 'gradient' |
     .modal-success { border-top: 4px solid var(--success); }
     .modal-warning { border-top: 4px solid var(--warning); }
     .modal-info { border-top: 4px solid var(--info); }
+
+    /* Additional variants */
+    .modal-soft {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-outline {
+      background: transparent;
+      border: 2px solid var(--border-soft);
+    }
+
+    .modal-transparent {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .modal-centered {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-fullscreen {
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      border-radius: 0;
+      margin: 0;
+    }
 
     /* Custom Scrollbar for Modal Body */
     .modal-body::-webkit-scrollbar { width: 6px; }

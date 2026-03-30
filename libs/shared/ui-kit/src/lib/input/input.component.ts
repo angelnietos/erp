@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass';
+export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined' | 'underline' | 'rounded' | 'error' | 'success' | 'warning' | 'dark' | 'light' | 'minimal';
 
 @Component({
   selector: 'ui-josanz-input',
@@ -19,7 +19,7 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass';
   template: `
     <div class="form-group" [class.disabled]="disabled">
       @if (label) { <label [for]="id" class="label">{{ label }}</label> }
-      <div class="input-wrapper" [class.has-icon]="icon" [class.has-error]="error">
+      <div class="input-wrapper" [class.has-icon]="icon" [class.has-error]="error" [class.input-outlined]="variant === 'outlined'" [class.input-underline]="variant === 'underline'" [class.input-rounded]="variant === 'rounded'" [class.input-error]="variant === 'error'" [class.input-success]="variant === 'success'" [class.input-warning]="variant === 'warning'" [class.input-dark]="variant === 'dark'" [class.input-light]="variant === 'light'" [class.input-minimal]="variant === 'minimal'">
         @if (icon) { <lucide-icon [name]="icon" class="field-icon"></lucide-icon> }
         <input 
           [id]="id" 
@@ -82,6 +82,64 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass';
 
     .hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; margin-left: 4px; font-weight: 500; }
     .hint.error { color: var(--danger); font-weight: 600; }
+
+    /* Additional variants */
+    .input-outlined input {
+      background: transparent;
+      border: 2px solid var(--border-soft);
+    }
+    .input-outlined input:focus {
+      border-color: var(--brand);
+    }
+
+    .input-underline input {
+      border: none;
+      border-bottom: 2px solid var(--border-soft);
+      border-radius: 0;
+      background: transparent;
+    }
+    .input-underline input:focus {
+      border-bottom-color: var(--brand);
+    }
+
+    .input-rounded input {
+      border-radius: 50px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    .input-error input {
+      border-color: var(--danger);
+    }
+
+    .input-success input {
+      border-color: var(--success);
+    }
+
+    .input-warning input {
+      border-color: var(--warning);
+    }
+
+    .input-dark input {
+      background: rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .input-light input {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .input-minimal input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .input-minimal input:focus {
+      box-shadow: none;
+      border-bottom-color: var(--brand);
+    }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {

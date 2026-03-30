@@ -2,7 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info';
+export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'rounded' | 'minimal' | 'soft' | 'glass';
 
 @Component({
   selector: 'ui-josanz-textarea',
@@ -111,6 +111,30 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
 
     .textarea-success {
       border-color: var(--success);
+    }
+
+    /* Additional variants */
+    .textarea-rounded {
+      border-radius: 20px;
+      padding: 1rem 1.5rem;
+    }
+
+    .textarea-minimal {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--border-soft);
+      border-radius: 0;
+    }
+
+    .textarea-soft {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .textarea-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     textarea.error { border-color: var(--danger) !important; }

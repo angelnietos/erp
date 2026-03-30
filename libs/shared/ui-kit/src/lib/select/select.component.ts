@@ -2,7 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'theme';
+export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'theme' | 'primary' | 'secondary' | 'transparent' | 'minimal' | 'rounded' | 'glass' | 'soft';
 
 @Component({
   selector: 'ui-josanz-select',
@@ -115,6 +115,46 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
 
     .select-success {
       border-color: var(--success);
+    }
+
+    /* Additional variants */
+    .select-primary {
+      background: rgba(79, 70, 229, 0.1);
+      border-color: var(--brand);
+    }
+
+    .select-secondary {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: #6366f1;
+    }
+
+    .select-transparent {
+      background: transparent;
+      border: none;
+    }
+
+    .select-minimal {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--border-soft);
+      border-radius: 0;
+    }
+
+    .select-rounded {
+      border-radius: 50px;
+      padding-left: 1.5rem;
+    }
+
+    .select-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .select-soft {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
     }
 
     select.invalid { border-color: var(--danger); }

@@ -1,7 +1,36 @@
 import { Injectable, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type Theme = 'light' | 'dark' | 'blue' | 'green' | 'purple' | 'orange' | 'rose' | 'slate' | 'zinc' | 'neutral';
+/** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
+export type Theme =
+  | 'light'
+  | 'dark'
+  | 'blue'
+  | 'green'
+  | 'purple'
+  | 'orange'
+  | 'rose'
+  | 'slate'
+  | 'zinc'
+  | 'neutral'
+  | 'cyan'
+  | 'teal'
+  | 'amber'
+  | 'indigo'
+  | 'lime'
+  | 'violet'
+  | 'crimson'
+  | 'mint'
+  | 'coral'
+  | 'gold';
+
+function hexToRgbTriplet(hex: string): string {
+  const normalized = hex.replace('#', '').trim();
+  if (normalized.length !== 6) return '79, 70, 229';
+  const n = parseInt(normalized, 16);
+  if (Number.isNaN(n)) return '79, 70, 229';
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+}
 
 export interface ThemeConfig {
   name: string;
@@ -160,6 +189,146 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     bgSecondary: '#171717',
     bgTertiary: '#262626',
   },
+  cyan: {
+    name: 'Arctic-Pulse',
+    primary: '#06b6d4',
+    secondary: '#64748B',
+    background: '#020a0f',
+    surface: '#082028',
+    text: '#ecfeff',
+    textMuted: '#67e8f9',
+    border: '#06b6d433',
+    brand: '#06b6d4',
+    brandGlow: 'rgba(6, 182, 212, 0.45)',
+    bgSecondary: '#082028',
+    bgTertiary: '#0c2e38',
+  },
+  teal: {
+    name: 'Abyss-Teal',
+    primary: '#14b8a6',
+    secondary: '#64748B',
+    background: '#020807',
+    surface: '#0a1f1c',
+    text: '#f0fdfa',
+    textMuted: '#5eead4',
+    border: '#14b8a633',
+    brand: '#14b8a6',
+    brandGlow: 'rgba(20, 184, 166, 0.45)',
+    bgSecondary: '#0a1f1c',
+    bgTertiary: '#0f2e29',
+  },
+  amber: {
+    name: 'Forge-Amber',
+    primary: '#f59e0b',
+    secondary: '#64748B',
+    background: '#0c0800',
+    surface: '#1c1400',
+    text: '#fffbeb',
+    textMuted: '#fcd34d',
+    border: '#f59e0b33',
+    brand: '#f59e0b',
+    brandGlow: 'rgba(245, 158, 11, 0.45)',
+    bgSecondary: '#1c1400',
+    bgTertiary: '#2d1f00',
+  },
+  indigo: {
+    name: 'Nebula-Indigo',
+    primary: '#6366f1',
+    secondary: '#64748B',
+    background: '#050510',
+    surface: '#0f1020',
+    text: '#eef2ff',
+    textMuted: '#a5b4fc',
+    border: '#6366f133',
+    brand: '#6366f1',
+    brandGlow: 'rgba(99, 102, 241, 0.45)',
+    bgSecondary: '#0f1020',
+    bgTertiary: '#16182e',
+  },
+  lime: {
+    name: 'Acid-Lime',
+    primary: '#84cc16',
+    secondary: '#64748B',
+    background: '#050800',
+    surface: '#121a05',
+    text: '#f7fee7',
+    textMuted: '#bef264',
+    border: '#84cc1633',
+    brand: '#84cc16',
+    brandGlow: 'rgba(132, 204, 22, 0.45)',
+    bgSecondary: '#121a05',
+    bgTertiary: '#1c2608',
+  },
+  violet: {
+    name: 'Ultra-Violet',
+    primary: '#7c3aed',
+    secondary: '#64748B',
+    background: '#080214',
+    surface: '#14082a',
+    text: '#f5f3ff',
+    textMuted: '#c4b5fd',
+    border: '#7c3aed33',
+    brand: '#7c3aed',
+    brandGlow: 'rgba(124, 58, 237, 0.45)',
+    bgSecondary: '#14082a',
+    bgTertiary: '#1c0c3d',
+  },
+  crimson: {
+    name: 'Crimson-Code',
+    primary: '#e11d48',
+    secondary: '#64748B',
+    background: '#0a0205',
+    surface: '#1a0510',
+    text: '#fff1f2',
+    textMuted: '#fb7185',
+    border: '#e11d4833',
+    brand: '#e11d48',
+    brandGlow: 'rgba(225, 29, 72, 0.45)',
+    bgSecondary: '#1a0510',
+    bgTertiary: '#2d0819',
+  },
+  mint: {
+    name: 'Mint-Signal',
+    primary: '#34d399',
+    secondary: '#64748B',
+    background: '#020807',
+    surface: '#0a1812',
+    text: '#ecfdf5',
+    textMuted: '#6ee7b7',
+    border: '#34d39933',
+    brand: '#34d399',
+    brandGlow: 'rgba(52, 211, 153, 0.45)',
+    bgSecondary: '#0a1812',
+    bgTertiary: '#0f241b',
+  },
+  coral: {
+    name: 'Coral-Neon',
+    primary: '#fb7185',
+    secondary: '#64748B',
+    background: '#0a0406',
+    surface: '#1a0a10',
+    text: '#fff1f2',
+    textMuted: '#fda4af',
+    border: '#fb718533',
+    brand: '#fb7185',
+    brandGlow: 'rgba(251, 113, 133, 0.45)',
+    bgSecondary: '#1a0a10',
+    bgTertiary: '#2d1018',
+  },
+  gold: {
+    name: 'Gilded-Data',
+    primary: '#eab308',
+    secondary: '#64748B',
+    background: '#0a0800',
+    surface: '#181505',
+    text: '#fefce8',
+    textMuted: '#fde047',
+    border: '#eab30833',
+    brand: '#eab308',
+    brandGlow: 'rgba(234, 179, 8, 0.45)',
+    bgSecondary: '#181505',
+    bgTertiary: '#262008',
+  },
 };
 
 @Injectable({
@@ -189,6 +358,7 @@ export class ThemeService {
     
     // Core legacy tokens
     root.style.setProperty('--theme-primary', config.primary);
+    root.style.setProperty('--theme-primary-rgb', hexToRgbTriplet(config.primary));
     root.style.setProperty('--theme-secondary', config.secondary);
     root.style.setProperty('--theme-background', config.background);
     root.style.setProperty('--theme-surface', config.surface);

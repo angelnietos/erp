@@ -9,7 +9,7 @@ export interface TabItem {
   badge?: number;
 }
 
-export type TabsVariant = 'default' | 'underline';
+export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordered' | 'soft' | 'minimal' | 'icon' | 'animated' | 'gradient';
 
 @Component({
   selector: 'ui-josanz-tabs',
@@ -126,6 +126,76 @@ export type TabsVariant = 'default' | 'underline';
 
     .tabs-underline .tab-item.active .active-indicator {
       transform: scaleX(1);
+    }
+
+    /* Pills variant */
+    .tabs-pills .tab-list {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: 4px;
+    }
+
+    .tabs-pills .tab-item {
+      border-radius: 8px;
+    }
+
+    /* Boxed variant */
+    .tabs-boxed {
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .tabs-boxed .tab-item {
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .tabs-boxed .tab-item.active {
+      background: var(--bg-secondary);
+      border-color: var(--border-soft);
+    }
+
+    /* Bordered variant */
+    .tabs-bordered {
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+    }
+
+    /* Soft variant */
+    .tabs-soft .tab-item {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tabs-soft .tab-item.active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Minimal variant */
+    .tabs-minimal .tab-item {
+      background: transparent;
+      border: none;
+    }
+
+    /* Icon variant */
+    .tabs-icon .tab-item {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* Animated variant */
+    .tabs-animated .tab-item.active {
+      animation: tabPulse 0.3s ease;
+    }
+
+    @keyframes tabPulse {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    /* Gradient variant */
+    .tabs-gradient .tab-list {
+      background: linear-gradient(180deg, var(--bg-tertiary), transparent);
     }
   `],
 })

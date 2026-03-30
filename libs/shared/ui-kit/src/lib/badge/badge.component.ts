@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'default' | 'primary';
+export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'default' | 'primary' | 'secondary' | 'dark' | 'light' | 'outline' | 'ghost' | 'purple' | 'indigo' | 'teal' | 'orange' | 'pink' | 'rose' | 'violet' | 'fuchsia' | 'app';
 
 @Component({
   selector: 'ui-josanz-badge',
@@ -71,6 +71,85 @@ export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'default' 
       background: var(--bg-tertiary);
       color: var(--text-secondary);
       border-color: var(--border-soft);
+    }
+
+    /* Additional variants */
+    .badge-secondary {
+      background: rgba(99, 102, 241, 0.1);
+      color: #6366f1;
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .badge-dark {
+      background: rgba(0, 0, 0, 0.3);
+      color: #e2e8f0;
+      border-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .badge-light {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .badge-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border-color: var(--border-soft);
+    }
+
+    .badge-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+    }
+
+    .badge-purple {
+      background: rgba(168, 85, 247, 0.1);
+      color: #a855f7;
+      border-color: rgba(168, 85, 247, 0.2);
+    }
+
+    .badge-indigo {
+      background: rgba(99, 102, 241, 0.1);
+      color: #6366f1;
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .badge-teal {
+      background: rgba(20, 184, 166, 0.1);
+      color: #14b8a6;
+      border-color: rgba(20, 184, 166, 0.2);
+    }
+
+    .badge-orange {
+      background: rgba(249, 115, 22, 0.1);
+      color: #f97316;
+      border-color: rgba(249, 115, 22, 0.2);
+    }
+
+    .badge-pink {
+      background: rgba(236, 72, 153, 0.1);
+      color: #ec4899;
+      border-color: rgba(236, 72, 153, 0.2);
+    }
+
+    .badge-rose {
+      background: rgba(244, 63, 94, 0.1);
+      color: #f43f5e;
+      border-color: rgba(244, 63, 94, 0.2);
+    }
+
+    .badge-violet {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+      border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .badge-fuchsia {
+      background: rgba(217, 70, 239, 0.1);
+      color: #d946ef;
+      border-color: rgba(217, 70, 239, 0.2);
     }
   `],
 })

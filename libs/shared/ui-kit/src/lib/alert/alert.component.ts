@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' | 'secondary' | 'dark' | 'light' | 'ghost' | 'outline' | 'theme';
+export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' | 'secondary' | 'dark' | 'light' | 'ghost' | 'outline' | 'theme' | 'purple' | 'indigo' | 'teal' | 'orange' | 'pink' | 'rose' | 'violet' | 'fuchsia' | 'app';
 
 @Component({
   selector: 'ui-josanz-alert',
@@ -92,6 +92,78 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
       background: transparent;
       color: var(--text-primary);
       border: 1px solid var(--border-soft);
+    }
+
+    /* Additional color variants */
+    .alert-purple {
+      background: rgba(168, 85, 247, 0.08);
+      color: #a855f7;
+      border-color: rgba(168, 85, 247, 0.3);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+    }
+
+    .alert-indigo {
+      background: rgba(99, 102, 241, 0.08);
+      color: #6366f1;
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
+    }
+
+    .alert-teal {
+      background: rgba(20, 184, 166, 0.08);
+      color: #14b8a6;
+      border-color: rgba(20, 184, 166, 0.3);
+      box-shadow: 0 0 15px rgba(20, 184, 166, 0.1);
+    }
+
+    .alert-orange {
+      background: rgba(249, 115, 22, 0.08);
+      color: #f97316;
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+    }
+
+    .alert-pink {
+      background: rgba(236, 72, 153, 0.08);
+      color: #ec4899;
+      border-color: rgba(236, 72, 153, 0.3);
+      box-shadow: 0 0 15px rgba(236, 72, 153, 0.1);
+    }
+
+    .alert-rose {
+      background: rgba(244, 63, 94, 0.08);
+      color: #f43f5e;
+      border-color: rgba(244, 63, 94, 0.3);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.1);
+    }
+
+    .alert-violet {
+      background: rgba(139, 92, 246, 0.08);
+      color: #8b5cf6;
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+    }
+
+    .alert-fuchsia {
+      background: rgba(217, 70, 239, 0.08);
+      color: #d946ef;
+      border-color: rgba(217, 70, 239, 0.3);
+      box-shadow: 0 0 15px rgba(217, 70, 239, 0.1);
+    }
+
+    .alert-theme {
+      background: var(--bg-tertiary);
+      color: var(--brand);
+      border-color: var(--brand);
+      box-shadow: 0 0 20px var(--brand-glow);
+    }
+
+    /* App variant - uses current theme's primary color */
+    .alert-app {
+      background: rgba(var(--theme-primary-rgb, 79, 70, 229), 0.08);
+      color: var(--theme-primary, var(--brand));
+      border-color: rgba(var(--theme-primary-rgb, 79, 70, 229), 0.3);
+      box-shadow: 0 0 15px rgba(var(--theme-primary-rgb, 79, 70, 229), 0.1);
     }
   `],
 })
