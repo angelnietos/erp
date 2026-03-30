@@ -1,7 +1,7 @@
 import { Component, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { UiButtonComponent } from '@josanz-erp/shared-ui-kit';
 
 export interface AppNotification {
   id: string;
@@ -15,7 +15,7 @@ export interface AppNotification {
 @Component({
   selector: 'josanz-notification-drawer',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiButtonComponent, UiBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, UiButtonComponent],
   template: `
     <div class="drawer-overlay" (click)="closeDrawer.emit()" (keydown.escape)="closeDrawer.emit()" tabindex="0" role="button" aria-label="Cerrar notificaciones"></div>
     <div class="drawer-container animate-slide-in">
