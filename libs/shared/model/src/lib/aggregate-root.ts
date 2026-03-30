@@ -6,6 +6,8 @@ export interface DomainEvent {
   readonly occurredAt: Date;
 }
 
+
+
 export abstract class AggregateRoot {
   private _domainEvents: DomainEvent[] = [];
 
