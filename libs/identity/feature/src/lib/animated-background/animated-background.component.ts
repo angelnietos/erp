@@ -20,11 +20,17 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private ctx!: CanvasRenderingContext2D;
   private animationId = 0;
   private time = 0;
+  
+  // All animation elements
   private particles: Particle[] = [];
   private fireflies: Firefly[] = [];
+  private spirits: Spirit[] = [];
   private lightBeams: LightBeam[] = [];
   private clouds: Cloud[] = [];
+  private stars: Star[] = [];
+  private rainDrops: RainDrop[] = [];
   private lumens: Lumen[] = [];
+  private floatingElements: FloatingElement[] = [];
 
   private readonly boundResize = () => this.resizeCanvas();
 
@@ -35,7 +41,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx = ctx;
     this.resizeCanvas();
     window.addEventListener('resize', this.boundResize);
-    this.initElements();
+    this.initAllElements();
     this.animate();
   }
 
@@ -56,60 +62,120 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  private initElements() {
+  private initAllElements() {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // Particles
-    const particleCount = Math.min(100, Math.floor((w * h) / 16000));
+    // === STARS (background stars) ===
+    const starCount = 80;
+    for (let i = 0; i < starCount; i++) {
+      this.stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h * 0.5,
+        size: Math.random() * 2 + 0.5,
+        twinkleSpeed: Math.random() * 0.03 + 0.01,
+        twinklePhase: Math.random() * Math.PI * 2,
+        brightness: Math.random() * 0.5 + 0.3,
+      });
+    }
+
+    // === PARTICLES (fairy dust) ===
+    const particleCount = 150;
     for (let i = 0; i < particleCount; i++) {
       this.particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        size: Math.random() * 2 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.2,
-        opacity: Math.random() * 0.4 + 0.2,
-        hue: Math.random() > 0.5 ? 45 + Math.random() * 20 : 180 + Math.random() * 30,
+        size: Math.random() * 2.5 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.4,
+        speedY: (Math.random() - 0.5) * 0.25,
+        opacity: Math.random() * 0.5 + 0.2,
+        hue: Math.random() > 0.5 ? 40 + Math.random() * 30 : 180 + Math.random() * 40,
         phase: Math.random() * Math.PI * 2,
       });
     }
 
-    // Fireflies
-    const fireflyCount = 20;
+    // === FIREFLIES ===
+    const fireflyCount = 30;
     for (let i = 0; i < fireflyCount; i++) {
       this.fireflies.push({
         x: Math.random() * w,
-        y: Math.random() * h * 0.7,
+        y: Math.random() * h * 0.8,
         vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 3 + 2,
+        vy: (Math.random() - 0.5) * 0.4,
+        size: Math.random() * 3.5 + 1.5,
         brightness: Math.random(),
-        blinkSpeed: Math.random() * 0.04 + 0.02,
-        hue: 50 + Math.random() * 15,
+        blinkSpeed: Math.random() * 0.05 + 0.02,
+        hue: 45 + Math.random() * 25,
       });
     }
 
-    // Light beams
+    // === SPIRITS (large glowing orbs) ===
+    const spiritCount = 12;
+    for (let i = 0; i < spiritCount; i++) {
+      this.spirits.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: Math.random() * 50 + 30,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.2,
+        hue: i % 3 === 0 ? 45 + Math.random() * 20 : i % 3 === 1 ? 200 + Math.random() * 30 : 280 + Math.random() * 20,
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: Math.random() * 0.02 + 0.01,
+      });
+    }
+
+    // === LIGHT BEAMS ===
     this.lightBeams = [
-      { originX: 0.1, originY: -0.05, angle: 0.4, spread: 0.5, hue: 45, speed: 0.35 },
-      { originX: 0.85, originY: 0, angle: -0.35, spread: 0.45, hue: 200, speed: -0.3 },
-      { originX: 0.5, originY: -0.08, angle: 0.08, spread: 0.55, hue: 55, speed: 0.2 },
+      { originX: 0.08, originY: -0.05, angle: 0.42, spread: 0.55, hue: 45, speed: 0.35 },
+      { originX: 0.88, originY: 0, angle: -0.38, spread: 0.5, hue: 200, speed: -0.32 },
+      { originX: 0.5, originY: -0.1, angle: 0.06, spread: 0.6, hue: 55, speed: 0.22 },
+      { originX: 0.25, originY: 0.02, angle: 0.55, spread: 0.4, hue: 280, speed: 0.48 },
+      { originX: 0.75, originY: -0.03, angle: -0.25, spread: 0.45, hue: 160, speed: 0.28 },
     ];
 
-    // Clouds
-    const cloudCount = 5;
+    // === CLOUDS ===
+    const cloudCount = 8;
     for (let i = 0; i < cloudCount; i++) {
       this.clouds.push({
         x: Math.random() * w,
         y: Math.random() * h * 0.35,
-        width: Math.random() * 180 + 120,
-        speed: Math.random() * 0.12 + 0.03,
-        opacity: Math.random() * 0.12 + 0.03,
+        width: Math.random() * 220 + 120,
+        speed: Math.random() * 0.15 + 0.03,
+        opacity: Math.random() * 0.15 + 0.03,
       });
     }
 
-    // Lumen characters - flying CRM features
+    // === RAIN DROPS ===
+    const rainCount = 50;
+    for (let i = 0; i < rainCount; i++) {
+      this.rainDrops.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        speed: Math.random() * 3 + 2,
+        length: Math.random() * 20 + 10,
+        opacity: Math.random() * 0.3 + 0.1,
+      });
+    }
+
+    // === FLOATING ELEMENTS (magical items) ===
+    const floatCount = 15;
+    const floatTypes = ['✨', '⭐', '💫', '🔮', '🌟', '💎', '🔷', '🌙'];
+    for (let i = 0; i < floatCount; i++) {
+      this.floatingElements.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.3,
+        symbol: floatTypes[Math.floor(Math.random() * floatTypes.length)],
+        size: Math.random() * 20 + 15,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.03,
+        opacity: Math.random() * 0.6 + 0.3,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+
+    // === LUMEN CHARACTERS (CRM feature emojis flying) ===
     const lumenTypes = [
       { type: 'inventory', hue: 35, label: '📦' },
       { type: 'clients', hue: 200, label: '👥' },
@@ -120,21 +186,20 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       { type: 'budget', hue: 120, label: '📊' },
     ];
 
-    // Create multiple lumens for each type
-    lumenTypes.forEach((type, typeIndex) => {
-      for (let i = 0; i < 3; i++) {
+    lumenTypes.forEach((type) => {
+      for (let i = 0; i < 4; i++) {
         this.lumens.push({
           type: type.type,
           hue: type.hue,
           label: type.label,
           x: Math.random() * w,
-          y: Math.random() * h * 0.6 + h * 0.2,
+          y: Math.random() * h * 0.5 + h * 0.2,
           vx: (Math.random() - 0.5) * 0.8,
           vy: (Math.random() - 0.5) * 0.5,
-          size: 18 + Math.random() * 12,
+          size: 18 + Math.random() * 14,
           phase: Math.random() * Math.PI * 2,
-          floatSpeed: 0.5 + Math.random() * 0.5,
-          bobAmount: 15 + Math.random() * 10,
+          floatSpeed: 0.4 + Math.random() * 0.5,
+          bobAmount: 12 + Math.random() * 12,
         });
       }
     });
@@ -146,11 +211,17 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.time += 0.016;
     this.ctx.clearRect(0, 0, w, h);
 
-    this.drawDynamicSky(w, h);
+    // Draw everything in layers (back to front)
+    this.drawSky(w, h);
+    this.drawStars(w, h);
+    this.drawAurora(w, h);
     this.drawClouds(w, h);
     this.drawLightBeams(w, h);
+    this.drawSpirits(w, h);
+    this.drawRain(w, h);
     this.drawParticles(w, h);
     this.drawFireflies(w, h);
+    this.drawFloatingElements(w, h);
     this.drawLumenCharacters(w, h);
     this.drawGearSilhouettes(w, h);
     this.drawMascot(w, h);
@@ -160,26 +231,75 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.animationId = requestAnimationFrame(this.animate);
   };
 
-  private drawDynamicSky(w: number, h: number) {
-    const t = this.time * 0.1;
+  private drawSky(w: number, h: number) {
+    const t = this.time * 0.08;
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
     
-    g.addColorStop(0, `hsl(${210 + Math.sin(t * 0.5) * 10}, 50%, ${35 + Math.sin(t * 0.3) * 5}%)`);
-    g.addColorStop(0.35, `hsl(${230 + Math.sin(t * 0.4) * 8}, 45%, ${25 + Math.sin(t * 0.25) * 4}%)`);
-    g.addColorStop(0.65, `hsl(${250 + Math.sin(t * 0.35) * 6}, 40%, ${18 + Math.sin(t * 0.2) * 3}%)`);
-    g.addColorStop(1, '#0a1525');
+    g.addColorStop(0, `hsl(${215 + Math.sin(t * 0.4) * 8}, 45%, ${32 + Math.sin(t * 0.25) * 4}%)`);
+    g.addColorStop(0.3, `hsl(${230 + Math.sin(t * 0.35) * 6}, 42%, ${22 + Math.sin(t * 0.2) * 3}%)`);
+    g.addColorStop(0.55, `hsl(${250 + Math.sin(t * 0.3) * 5}, 38%, ${16 + Math.sin(t * 0.15) * 2}%)`);
+    g.addColorStop(0.75, `hsl(${270 + Math.sin(t * 0.25) * 4}, 35%, ${12 + Math.sin(t * 0.1) * 2}%)`);
+    g.addColorStop(1, '#080d18');
     
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
+  }
 
-    const aurora = this.ctx.createLinearGradient(0, 0, w, 0);
-    aurora.addColorStop(0, 'hsla(160, 70%, 40%, 0.06)');
-    aurora.addColorStop(0.3, 'hsla(200, 60%, 45%, 0.08)');
-    aurora.addColorStop(0.5, 'hsla(240, 50%, 40%, 0.1)');
-    aurora.addColorStop(0.7, 'hsla(280, 45%, 35%, 0.06)');
-    aurora.addColorStop(1, 'hsla(320, 50%, 30%, 0.04)');
-    this.ctx.fillStyle = aurora;
-    this.ctx.fillRect(0, 0, w, h * 0.45);
+  private drawStars(w: number, h: number) {
+    this.stars.forEach((star) => {
+      const twinkle = Math.sin(this.time * star.twinkleSpeed * 60 + star.twinklePhase);
+      const alpha = star.brightness * (0.5 + twinkle * 0.5);
+      
+      const gradient = this.ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 2);
+      gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+      gradient.addColorStop(0.5, `rgba(200, 220, 255, ${alpha * 0.5})`);
+      gradient.addColorStop(1, 'transparent');
+      
+      this.ctx.fillStyle = gradient;
+      this.ctx.beginPath();
+      this.ctx.arc(star.x, star.y, star.size * 2, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+  }
+
+  private drawAurora(w: number, h: number) {
+    const t = this.time * 0.15;
+    
+    // Aurora wave 1
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h * 0.15);
+    for (let x = 0; x <= w; x += 20) {
+      const y = h * 0.15 + Math.sin(x * 0.005 + t) * 30 + Math.sin(x * 0.01 + t * 0.7) * 15;
+      this.ctx.lineTo(x, y);
+    }
+    this.ctx.lineTo(w, h * 0.3);
+    this.ctx.lineTo(0, h * 0.3);
+    this.ctx.closePath();
+    
+    const auroraGrad1 = this.ctx.createLinearGradient(0, h * 0.1, 0, h * 0.35);
+    auroraGrad1.addColorStop(0, 'hsla(160, 70%, 50%, 0.15)');
+    auroraGrad1.addColorStop(0.5, 'hsla(200, 60%, 45%, 0.1)');
+    auroraGrad1.addColorStop(1, 'transparent');
+    this.ctx.fillStyle = auroraGrad1;
+    this.ctx.fill();
+
+    // Aurora wave 2
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h * 0.2);
+    for (let x = 0; x <= w; x += 20) {
+      const y = h * 0.2 + Math.sin(x * 0.006 + t + 2) * 25 + Math.sin(x * 0.012 + t * 0.6) * 12;
+      this.ctx.lineTo(x, y);
+    }
+    this.ctx.lineTo(w, h * 0.35);
+    this.ctx.lineTo(0, h * 0.35);
+    this.ctx.closePath();
+    
+    const auroraGrad2 = this.ctx.createLinearGradient(0, h * 0.15, 0, h * 0.4);
+    auroraGrad2.addColorStop(0, 'hsla(260, 55%, 45%, 0.12)');
+    auroraGrad2.addColorStop(0.5, 'hsla(300, 50%, 40%, 0.08)');
+    auroraGrad2.addColorStop(1, 'transparent');
+    this.ctx.fillStyle = auroraGrad2;
+    this.ctx.fill();
   }
 
   private drawClouds(w: number, h: number) {
@@ -188,39 +308,46 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       if (cloud.x > w + cloud.width) cloud.x = -cloud.width;
 
       const gradient = this.ctx.createRadialGradient(cloud.x, cloud.y, 0, cloud.x, cloud.y, cloud.width);
-      gradient.addColorStop(0, `rgba(100, 140, 200, ${cloud.opacity})`);
-      gradient.addColorStop(0.5, `rgba(80, 120, 180, ${cloud.opacity * 0.4})`);
+      gradient.addColorStop(0, `rgba(120, 150, 200, ${cloud.opacity})`);
+      gradient.addColorStop(0.4, `rgba(90, 120, 180, ${cloud.opacity * 0.4})`);
       gradient.addColorStop(1, 'transparent');
       
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.width * 0.25, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.width * 0.2, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+      
+      // Add some cloud layers for depth
+      this.ctx.fillStyle = `rgba(100, 130, 190, ${cloud.opacity * 0.5})`;
+      this.ctx.beginPath();
+      this.ctx.ellipse(cloud.x - cloud.width * 0.3, cloud.y + 10, cloud.width * 0.5, cloud.width * 0.15, 0, 0, Math.PI * 2);
       this.ctx.fill();
     });
   }
 
   private drawLightBeams(w: number, h: number) {
     this.lightBeams.forEach((beam, i) => {
-      const sway = Math.sin(this.time * beam.speed + i * 1.5) * 0.12;
+      const sway = Math.sin(this.time * beam.speed + i * 1.5) * 0.15;
       const ox = beam.originX * w;
       const oy = beam.originY * h;
       const angle = beam.angle + sway;
-      const len = Math.hypot(w, h) * 1.1;
+      const len = Math.hypot(w, h) * 1.25;
 
       this.ctx.save();
       this.ctx.translate(ox, oy);
       this.ctx.rotate(angle);
 
       const flicker = 0.9 + Math.sin(this.time * 2.5 + i) * 0.1;
-      const a = (0.3 + Math.sin(this.time * 2 + i) * 0.08) * flicker;
+      const a = (0.32 + Math.sin(this.time * 2.2 + i) * 0.08) * flicker;
       
       const grad = this.ctx.createLinearGradient(0, 0, 0, len);
-      grad.addColorStop(0, `hsla(${beam.hue}, 95%, 92%, ${a})`);
-      grad.addColorStop(0.3, `hsla(${beam.hue}, 85%, 70%, ${a * 0.5})`);
-      grad.addColorStop(0.7, `hsla(${beam.hue}, 70%, 50%, ${a * 0.15})`);
+      grad.addColorStop(0, `hsla(${beam.hue}, 92%, 92%, ${a})`);
+      grad.addColorStop(0.1, `hsla(${beam.hue}, 88%, 78%, ${a * 0.9})`);
+      grad.addColorStop(0.35, `hsla(${beam.hue}, 80%, 62%, ${a * 0.5})`);
+      grad.addColorStop(0.7, `hsla(${beam.hue}, 70%, 48%, ${a * 0.15})`);
       grad.addColorStop(1, 'transparent');
 
-      const halfW = w * beam.spread * 0.5;
+      const halfW = w * beam.spread * 0.55;
       this.ctx.beginPath();
       this.ctx.moveTo(0, 0);
       this.ctx.lineTo(-halfW, len);
@@ -230,10 +357,13 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.fill();
       this.ctx.restore();
 
-      const spotR = 40 + Math.sin(this.time * 3 + i) * 10;
+      // Glowing source orb
+      const pulse = 0.5 + Math.sin(this.time * 3.5 + i) * 0.2;
+      const spotR = 55 * pulse;
       const spot = this.ctx.createRadialGradient(ox, oy, 0, ox, oy, spotR);
-      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 96%, 0.8)`);
-      spot.addColorStop(0.3, `hsla(${beam.hue}, 90%, 70%, 0.3)`);
+      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 98%, 0.92)`);
+      spot.addColorStop(0.12, `hsla(${beam.hue}, 95%, 82%, 0.6)`);
+      spot.addColorStop(0.35, `hsla(${beam.hue}, 88%, 58%, 0.25)`);
       spot.addColorStop(1, 'transparent');
       this.ctx.fillStyle = spot;
       this.ctx.beginPath();
@@ -242,11 +372,74 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private drawSpirits(w: number, h: number) {
+    this.spirits.forEach((spirit) => {
+      spirit.x += spirit.vx + Math.sin(this.time * 0.5 + spirit.phase) * 0.25;
+      spirit.y += spirit.vy + Math.cos(this.time * 0.35 + spirit.phase) * 0.18;
+      
+      if (spirit.x < -spirit.radius) spirit.x = w + spirit.radius;
+      if (spirit.x > w + spirit.radius) spirit.x = -spirit.radius;
+      if (spirit.y < -spirit.radius) spirit.y = h + spirit.radius;
+      if (spirit.y > h + spirit.radius) spirit.y = -spirit.radius;
+
+      const pulse = 0.8 + Math.sin(this.time * 2 + spirit.phase) * 0.2;
+      const radius = spirit.radius * pulse;
+      
+      // Multiple glow layers
+      const outerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 3);
+      outerGlow.addColorStop(0, `hsla(${spirit.hue}, 80%, 60%, 0.2)`);
+      outerGlow.addColorStop(0.5, `hsla(${spirit.hue}, 70%, 50%, 0.08)`);
+      outerGlow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = outerGlow;
+      this.ctx.beginPath();
+      this.ctx.arc(spirit.x, spirit.y, radius * 3, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      const innerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 1.2);
+      innerGlow.addColorStop(0, `hsla(${spirit.hue}, 88%, 78%, 0.5)`);
+      innerGlow.addColorStop(0.6, `hsla(${spirit.hue}, 78%, 58%, 0.25)`);
+      innerGlow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = innerGlow;
+      this.ctx.beginPath();
+      this.ctx.arc(spirit.x, spirit.y, radius * 1.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.fillStyle = `hsla(${spirit.hue}, 95%, 92%, 0.75)`;
+      this.ctx.beginPath();
+      this.ctx.arc(spirit.x, spirit.y, radius * 0.35, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+  }
+
+  private drawRain(w: number, h: number) {
+    this.ctx.globalCompositeOperation = 'screen';
+    this.rainDrops.forEach((drop) => {
+      drop.y += drop.speed;
+      if (drop.y > h) {
+        drop.y = -drop.length;
+        drop.x = Math.random() * w;
+      }
+
+      const gradient = this.ctx.createLinearGradient(drop.x, drop.y, drop.x, drop.y + drop.length);
+      gradient.addColorStop(0, `rgba(150, 180, 255, ${drop.opacity})`);
+      gradient.addColorStop(1, 'transparent');
+      
+      this.ctx.strokeStyle = gradient;
+      this.ctx.lineWidth = 1.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(drop.x, drop.y);
+      this.ctx.lineTo(drop.x - 2, drop.y + drop.length);
+      this.ctx.stroke();
+    });
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+
   private drawParticles(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
     this.particles.forEach((p) => {
-      p.x += p.speedX + Math.sin(this.time + p.y * 0.005) * 0.15;
-      p.y += p.speedY;
+      p.x += p.speedX + Math.sin(this.time + p.y * 0.005) * 0.2;
+      p.y += p.speedY + Math.cos(this.time * 0.7 + p.x * 0.004) * 0.12;
+      
       if (p.x < 0) p.x = w;
       if (p.x > w) p.x = 0;
       if (p.y < 0) p.y = h;
@@ -255,16 +448,16 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const twinkle = 0.7 + Math.sin(this.time * 3 + p.phase) * 0.3;
       const opacity = p.opacity * twinkle;
 
-      const glow = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
-      glow.addColorStop(0, `hsla(${p.hue}, 95%, 85%, ${opacity})`);
-      glow.addColorStop(0.5, `hsla(${p.hue}, 85%, 65%, ${opacity * 0.25})`);
+      const glow = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
+      glow.addColorStop(0, `hsla(${p.hue}, 92%, 85%, ${opacity})`);
+      glow.addColorStop(0.4, `hsla(${p.hue}, 85%, 65%, ${opacity * 0.3})`);
       glow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = glow;
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+      this.ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
       this.ctx.fill();
 
-      this.ctx.fillStyle = `hsla(${p.hue}, 100%, 95%, ${opacity})`;
+      this.ctx.fillStyle = `hsla(${p.hue}, 100%, 95%, ${opacity * 1.1})`;
       this.ctx.beginPath();
       this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       this.ctx.fill();
@@ -275,8 +468,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private drawFireflies(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
     this.fireflies.forEach((ff) => {
-      ff.x += ff.vx + Math.sin(this.time * 2 + ff.brightness * 8) * 0.25;
-      ff.y += ff.vy + Math.cos(this.time * 1.5 + ff.brightness * 6) * 0.15;
+      ff.x += ff.vx + Math.sin(this.time * 2 + ff.brightness * 8) * 0.3;
+      ff.y += ff.vy + Math.cos(this.time * 1.5 + ff.brightness * 6) * 0.2;
       ff.brightness += ff.blinkSpeed;
       
       if (ff.x < 0) ff.x = w;
@@ -285,293 +478,324 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       if (ff.y > h) ff.y = 0;
 
       const glow = Math.sin(ff.brightness) * 0.5 + 0.5;
-      const alpha = glow * 0.7;
+      const alpha = glow * 0.75;
 
-      const gradient = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.size * 3.5);
+      const gradient = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.size * 4);
       gradient.addColorStop(0, `hsla(${ff.hue}, 100%, 90%, ${alpha})`);
-      gradient.addColorStop(0.4, `hsla(${ff.hue}, 95%, 70%, ${alpha * 0.4})`);
+      gradient.addColorStop(0.3, `hsla(${ff.hue}, 95%, 70%, ${alpha * 0.5})`);
       gradient.addColorStop(1, 'transparent');
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.arc(ff.x, ff.y, ff.size * 3.5, 0, Math.PI * 2);
+      this.ctx.arc(ff.x, ff.y, ff.size * 4, 0, Math.PI * 2);
       this.ctx.fill();
 
       this.ctx.fillStyle = `hsla(${ff.hue}, 100%, 98%, ${alpha})`;
       this.ctx.beginPath();
-      this.ctx.arc(ff.x, ff.y, ff.size * 0.5, 0, Math.PI * 2);
+      this.ctx.arc(ff.x, ff.y, ff.size * 0.55, 0, Math.PI * 2);
       this.ctx.fill();
     });
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  /** Flying lumen characters representing CRM features */
+  private drawFloatingElements(w: number, h: number) {
+    this.ctx.globalCompositeOperation = 'screen';
+    this.floatingElements.forEach((el) => {
+      el.x += el.vx + Math.sin(this.time * 0.5 + el.phase) * 0.15;
+      el.y += el.vy + Math.cos(this.time * 0.4 + el.phase) * 0.1;
+      el.rotation += el.rotationSpeed;
+      
+      if (el.x < -30) el.x = w + 30;
+      if (el.x > w + 30) el.x = -30;
+      if (el.y < -30) el.y = h + 30;
+      if (el.y > h + 30) el.y = -30;
+
+      const pulse = 0.7 + Math.sin(this.time * 2 + el.phase) * 0.3;
+      
+      this.ctx.save();
+      this.ctx.translate(el.x, el.y);
+      this.ctx.rotate(el.rotation);
+      this.ctx.globalAlpha = el.opacity * pulse;
+      this.ctx.font = `${el.size}px Arial`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(el.symbol, 0, 0);
+      this.ctx.restore();
+    });
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+
   private drawLumenCharacters(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
-    
     this.lumens.forEach((lumen) => {
-      // Update position with floating motion
-      lumen.x += lumen.vx + Math.sin(this.time * lumen.floatSpeed + lumen.phase) * 0.3;
-      lumen.y += lumen.vy + Math.cos(this.time * lumen.floatSpeed * 0.7 + lumen.phase) * 0.2;
+      lumen.x += lumen.vx + Math.sin(this.time * lumen.floatSpeed + lumen.phase) * 0.35;
+      lumen.y += lumen.vy + Math.cos(this.time * lumen.floatSpeed * 0.7 + lumen.phase) * 0.22;
       
-      // Wrap around
-      if (lumen.x < -50) lumen.x = w + 50;
-      if (lumen.x > w + 50) lumen.x = -50;
-      if (lumen.y < h * 0.15) lumen.y = h * 0.85;
-      if (lumen.y > h * 0.85) lumen.y = h * 0.15;
+      if (lumen.x < -40) lumen.x = w + 40;
+      if (lumen.x > w + 40) lumen.x = -40;
+      if (lumen.y < h * 0.12) lumen.y = h * 0.88;
+      if (lumen.y > h * 0.88) lumen.y = h * 0.12;
 
-      // Bobbing motion
-      const bobY = lumen.y + Math.sin(this.time * 2 + lumen.phase) * lumen.bobAmount;
+      const bobY = lumen.y + Math.sin(this.time * 2.2 + lumen.phase) * lumen.bobAmount;
+      const pulseAlpha = 0.55 + Math.sin(this.time * 3 + lumen.phase) * 0.3;
       
-      // Glow effect
-      const pulseAlpha = 0.6 + Math.sin(this.time * 3 + lumen.phase) * 0.3;
-      
-      const glow = this.ctx.createRadialGradient(lumen.x, bobY, 0, lumen.x, bobY, lumen.size * 2.5);
-      glow.addColorStop(0, `hsla(${lumen.hue}, 80%, 70%, ${pulseAlpha})`);
-      glow.addColorStop(0.4, `hsla(${lumen.hue}, 70%, 55%, ${pulseAlpha * 0.4})`);
+      const glow = this.ctx.createRadialGradient(lumen.x, bobY, 0, lumen.x, bobY, lumen.size * 2.8);
+      glow.addColorStop(0, `hsla(${lumen.hue}, 75%, 68%, ${pulseAlpha})`);
+      glow.addColorStop(0.4, `hsla(${lumen.hue}, 65%, 52%, ${pulseAlpha * 0.35})`);
       glow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = glow;
       this.ctx.beginPath();
-      this.ctx.arc(lumen.x, bobY, lumen.size * 2.5, 0, Math.PI * 2);
+      this.ctx.arc(lumen.x, bobY, lumen.size * 2.8, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Character icon with glow
-      this.ctx.fillStyle = `hsla(${lumen.hue}, 90%, 80%, ${pulseAlpha + 0.2})`;
+      this.ctx.fillStyle = `hsla(${lumen.hue}, 88%, 78%, ${pulseAlpha + 0.15})`;
       this.ctx.font = `${lumen.size}px Arial`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText(lumen.label, lumen.x, bobY);
     });
-    
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
   private drawGearSilhouettes(w: number, h: number) {
     const base = h * 0.88;
-    this.ctx.fillStyle = 'rgba(22, 18, 42, 0.85)';
-    this.ctx.strokeStyle = 'rgba(55, 48, 88, 0.92)';
+    this.ctx.fillStyle = 'rgba(18, 14, 38, 0.92)';
+    this.ctx.strokeStyle = 'rgba(50, 42, 82, 0.95)';
     this.ctx.lineWidth = 3;
 
-    const tx = w * 0.06;
+    // Camera tripod
+    const tx = w * 0.05;
     this.ctx.beginPath();
     this.ctx.moveTo(tx, base);
-    this.ctx.lineTo(tx - 28, h + 4);
+    this.ctx.lineTo(tx - 30, h + 5);
     this.ctx.moveTo(tx, base);
-    this.ctx.lineTo(tx + 32, h + 4);
+    this.ctx.lineTo(tx + 35, h + 5);
     this.ctx.moveTo(tx, base);
-    this.ctx.lineTo(tx, h + 2);
+    this.ctx.lineTo(tx, h + 3);
     this.ctx.stroke();
 
-    const camY = base - 95;
-    this.ctx.fillStyle = 'rgba(22, 18, 42, 0.9)';
-    this.ctx.fillRect(tx - 38, camY, 76, 52);
+    const camY = base - 100;
+    this.ctx.fillStyle = 'rgba(18, 14, 38, 0.95)';
+    this.ctx.fillRect(tx - 42, camY, 84, 58);
     this.ctx.beginPath();
-    this.ctx.arc(tx + 42, camY + 26, 22, 0, Math.PI * 2);
+    this.ctx.arc(tx + 46, camY + 29, 24, 0, Math.PI * 2);
     this.ctx.fill();
-    this.ctx.fillStyle = 'rgba(28, 24, 50, 0.92)';
+    this.ctx.fillStyle = 'rgba(24, 20, 48, 0.95)';
     this.ctx.beginPath();
-    this.ctx.arc(tx + 48, camY + 26, 12, 0, Math.PI * 2);
+    this.ctx.arc(tx + 52, camY + 29, 14, 0, Math.PI * 2);
     this.ctx.fill();
 
-    const sx = w * 0.88;
-    this.ctx.fillStyle = 'rgba(22, 18, 42, 0.88)';
-    this.ctx.fillRect(sx - 40, base - 120, 80, 125);
-    this.ctx.strokeStyle = 'rgba(55, 48, 88, 0.9)';
-    this.ctx.strokeRect(sx - 40, base - 120, 80, 125);
-    for (let i = 0; i < 4; i++) {
-      this.ctx.fillStyle = 'rgba(14, 12, 30, 0.88)';
-      this.ctx.fillRect(sx - 32, base - 112 + i * 26, 64, 18);
+    // Mixer/Speaker
+    const sx = w * 0.9;
+    this.ctx.fillStyle = 'rgba(18, 14, 38, 0.92)';
+    this.ctx.fillRect(sx - 45, base - 130, 90, 135);
+    this.ctx.strokeStyle = 'rgba(50, 42, 82, 0.92)';
+    this.ctx.strokeRect(sx - 45, base - 130, 90, 135);
+    for (let i = 0; i < 5; i++) {
+      this.ctx.fillStyle = 'rgba(12, 10, 28, 0.92)';
+      this.ctx.fillRect(sx - 36, base - 120 + i * 24, 72, 18);
     }
 
-    const px = w * 0.72;
-    this.ctx.fillStyle = 'rgba(20, 16, 38, 0.88)';
-    this.ctx.fillRect(px - 2, base - 140, 6, 140);
-    this.ctx.fillStyle = 'rgba(220, 230, 255, 0.22)';
-    this.ctx.fillRect(px - 48, base - 135, 96, 72);
-    this.ctx.strokeStyle = 'rgba(90, 82, 130, 0.85)';
-    this.ctx.strokeRect(px - 48, base - 135, 96, 72);
+    // Light panel
+    const px = w * 0.73;
+    this.ctx.fillStyle = 'rgba(16, 12, 34, 0.92)';
+    this.ctx.fillRect(px - 3, base - 150, 8, 150);
+    this.ctx.fillStyle = 'rgba(200, 220, 250, 0.18)';
+    this.ctx.fillRect(px - 52, base - 145, 104, 78);
+    this.ctx.strokeStyle = 'rgba(80, 70, 120, 0.88)';
+    this.ctx.strokeRect(px - 52, base - 145, 104, 78);
 
-    const ledPulse = 0.75 + Math.sin(this.time * 2.5) * 0.25;
-    this.ctx.fillStyle = `rgba(180, 210, 255, ${0.12 * ledPulse})`;
-    this.ctx.fillRect(px - 46, base - 132, 92, 20);
+    const ledPulse = 0.7 + Math.sin(this.time * 2.8) * 0.3;
+    this.ctx.fillStyle = `rgba(160, 200, 255, ${0.1 * ledPulse})`;
+    this.ctx.fillRect(px - 50, base - 142, 100, 22);
 
-    this.ctx.strokeStyle = 'rgba(45, 42, 75, 0.75)';
-    this.ctx.lineWidth = 2;
+    // Foreground curve
+    this.ctx.strokeStyle = 'rgba(40, 36, 70, 0.78)';
+    this.ctx.lineWidth = 2.5;
     this.ctx.beginPath();
-    this.ctx.moveTo(w * 0.15, base + 8);
-    this.ctx.bezierCurveTo(w * 0.35, base - 20, w * 0.5, base + 30, w * 0.78, base + 5);
+    this.ctx.moveTo(w * 0.12, base + 10);
+    this.ctx.bezierCurveTo(w * 0.35, base - 25, w * 0.5, base + 35, w * 0.8, base + 8);
     this.ctx.stroke();
   }
 
-  /** Main mascot character - Rayman inspired */
   private drawMascot(w: number, h: number) {
-    const cx = w * 0.15;
-    const cy = h * 0.72;
-    const bounce = Math.sin(this.time * 5) * 6;
-    const squash = 1 + Math.sin(this.time * 5 + 0.4) * 0.06;
+    const cx = w * 0.14;
+    const cy = h * 0.73;
+    const bounce = Math.sin(this.time * 5.2) * 7;
+    const squash = 1 + Math.sin(this.time * 5.2 + 0.4) * 0.065;
 
     this.ctx.save();
     this.ctx.translate(cx, cy + bounce);
     this.ctx.scale(1, squash);
 
-    const bodyW = 80;
-    const bodyH = 65;
+    const bodyW = 85;
+    const bodyH = 70;
     const bx = -bodyW / 2;
     const by = -bodyH / 2;
 
     // Shadow
-    this.ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    this.ctx.fillStyle = 'rgba(0,0,0,0.38)';
     this.ctx.beginPath();
-    this.ctx.ellipse(4, bodyH * 0.55, 42, 11, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(5, bodyH * 0.52, 45, 12, 0, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // Body - red/pink colors like Rayman
-    this.roundRect(bx, by, bodyW, bodyH, 18, '#e01f3d');
-    this.roundRect(bx + 5, by + 7, bodyW - 10, bodyH - 20, 14, '#ff3b5c');
+    // Body
+    this.roundRect2(bx, by, bodyW, bodyH, 20, '#dc2626');
+    this.roundRect2(bx + 5, by + 8, bodyW - 10, bodyH - 22, 15, '#ef4444');
 
     // Highlight
-    this.ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    this.ctx.fillStyle = 'rgba(255,255,255,0.38)';
     this.ctx.beginPath();
-    this.ctx.ellipse(bx + 20, by + 16, 16, 9, -0.4, 0, Math.PI * 2);
+    this.ctx.ellipse(bx + 22, by + 18, 18, 10, -0.4, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Eyes
-    const eyeY = by + 18;
+    const eyeY = by + 20;
     this.ctx.fillStyle = '#fff';
     this.ctx.beginPath();
-    this.ctx.arc(bx + 24, eyeY, 12, 0, Math.PI * 2);
-    this.ctx.arc(bx + 56, eyeY, 12, 0, Math.PI * 2);
+    this.ctx.arc(bx + 26, eyeY, 13, 0, Math.PI * 2);
+    this.ctx.arc(bx + 59, eyeY, 13, 0, Math.PI * 2);
     this.ctx.fill();
 
-    const look = Math.sin(this.time * 2) * 2;
+    const look = Math.sin(this.time * 2.2) * 2.2;
     this.ctx.fillStyle = '#0a0a12';
     this.ctx.beginPath();
-    this.ctx.arc(bx + 26 + look, eyeY + 1, 5.5, 0, Math.PI * 2);
-    this.ctx.arc(bx + 58 + look, eyeY + 1, 5.5, 0, Math.PI * 2);
+    this.ctx.arc(bx + 28 + look, eyeY + 1, 6, 0, Math.PI * 2);
+    this.ctx.arc(bx + 61 + look, eyeY + 1, 6, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Feet
-    this.ctx.fillStyle = '#b81832';
-    this.ctx.fillRect(bx + 15, by + bodyH - 6, 18, 24);
-    this.ctx.fillRect(bx + 47, by + bodyH - 6, 18, 24);
+    this.ctx.fillStyle = '#b91c1c';
+    this.ctx.fillRect(bx + 16, by + bodyH - 6, 20, 26);
+    this.ctx.fillRect(bx + 49, by + bodyH - 6, 20, 26);
 
-    // Arms with hands
-    const armSwing = Math.sin(this.time * 4) * 0.12;
+    // Arms
+    const armSwing = Math.sin(this.time * 4.2) * 0.14;
     this.ctx.save();
-    this.ctx.translate(bx + bodyW - 4, by + 30);
+    this.ctx.translate(bx + bodyW - 4, by + 32);
     this.ctx.rotate(armSwing);
-    this.ctx.fillStyle = '#ff3b5c';
-    this.ctx.fillRect(0, -7, 40, 14);
-    this.ctx.fillStyle = '#2a2838';
-    this.ctx.fillRect(36, -12, 12, 32);
-    this.ctx.fillStyle = '#444';
+    this.ctx.fillStyle = '#ef4444';
+    this.ctx.fillRect(0, -8, 44, 16);
+    this.ctx.fillStyle = '#1f1f2e';
+    this.ctx.fillRect(40, -14, 14, 36);
+    this.ctx.fillStyle = '#333';
     this.ctx.beginPath();
-    this.ctx.arc(42, 20, 10, 0, Math.PI * 2);
+    this.ctx.arc(47, 22, 11, 0, Math.PI * 2);
     this.ctx.fill();
-    this.ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    this.ctx.fillStyle = 'rgba(255,255,255,0.22)';
     this.ctx.beginPath();
-    this.ctx.arc(39, 16, 3.5, 0, Math.PI * 2);
+    this.ctx.arc(44, 17, 4, 0, Math.PI * 2);
     this.ctx.fill();
     this.ctx.restore();
 
     this.ctx.restore();
   }
 
-  /** Secondary mascot - sidekick character */
   private drawMascotSidekick(w: number, h: number) {
-    const cx = w * 0.82;
-    const cy = h * 0.71;
-    const bounce = Math.sin(this.time * 4.3 + 1.2) * 5;
-    const squash = 1 + Math.sin(this.time * 4.3 + 1.7) * 0.05;
+    const cx = w * 0.84;
+    const cy = h * 0.72;
+    const bounce = Math.sin(this.time * 4.5 + 1.2) * 5.5;
+    const squash = 1 + Math.sin(this.time * 4.5 + 1.7) * 0.055;
 
     this.ctx.save();
     this.ctx.translate(cx, cy + bounce);
     this.ctx.scale(1, squash);
 
-    const bodyW = 65;
-    const bodyH = 55;
+    const bodyW = 70;
+    const bodyH = 60;
     const bx = -bodyW / 2;
     const by = -bodyH / 2;
 
     // Shadow
-    this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    this.ctx.fillStyle = 'rgba(0,0,0,0.32)';
     this.ctx.beginPath();
-    this.ctx.ellipse(2, bodyH * 0.58, 33, 10, 0, 0, Math.PI * 2);
+    this.ctx.ellipse(3, bodyH * 0.56, 36, 11, 0, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // Boom microphone pole
-    const boomAngle = -0.85 + Math.sin(this.time * 3) * 0.06;
+    // Boom mic
+    const boomAngle = -0.88 + Math.sin(this.time * 3.2) * 0.07;
     this.ctx.save();
     this.ctx.rotate(boomAngle);
-    this.ctx.fillStyle = 'rgba(45, 42, 58, 0.95)';
-    this.ctx.fillRect(-130, -4, 128, 8);
-    this.ctx.fillStyle = 'rgba(75, 72, 95, 0.9)';
-    this.ctx.fillRect(-135, -7, 15, 14);
+    this.ctx.fillStyle = 'rgba(40, 36, 55, 0.96)';
+    this.ctx.fillRect(-140, -5, 138, 10);
+    this.ctx.fillStyle = 'rgba(68, 64, 88, 0.92)';
+    this.ctx.fillRect(-145, -8, 16, 16);
     this.ctx.restore();
 
-    // Body - teal/green
-    this.roundRect(bx, by, bodyW, bodyH, 16, '#0f766e');
-    this.roundRect(bx + 4, by + 6, bodyW - 8, bodyH - 18, 12, '#14b8a6');
+    // Body
+    this.roundRect2(bx, by, bodyW, bodyH, 18, '#0d9488');
+    this.roundRect2(bx + 4, by + 7, bodyW - 8, bodyH - 20, 14, '#14b8a6');
 
     // Highlight
-    this.ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    this.ctx.fillStyle = 'rgba(255,255,255,0.3)';
     this.ctx.beginPath();
-    this.ctx.ellipse(bx + 18, by + 14, 12, 7, -0.35, 0, Math.PI * 2);
+    this.ctx.ellipse(bx + 20, by + 16, 14, 8, -0.35, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Headphones
-    this.ctx.strokeStyle = 'rgba(15, 23, 42, 0.95)';
-    this.ctx.lineWidth = 5;
+    this.ctx.strokeStyle = 'rgba(12, 20, 40, 0.96)';
+    this.ctx.lineWidth = 5.5;
     this.ctx.beginPath();
-    this.ctx.arc(bx + bodyW * 0.5, by + 7, 24, Math.PI * 1.05, Math.PI * 1.95);
+    this.ctx.arc(bx + bodyW * 0.5, by + 8, 26, Math.PI * 1.05, Math.PI * 1.95);
     this.ctx.stroke();
     this.ctx.fillStyle = '#1e293b';
-    this.ctx.fillRect(bx + 4, by - 2, 14, 18);
-    this.ctx.fillRect(bx + bodyW - 18, by - 2, 14, 18);
+    this.ctx.fillRect(bx + 4, by - 2, 16, 20);
+    this.ctx.fillRect(bx + bodyW - 20, by - 2, 16, 20);
 
     // Eyes
-    const eyeY = by + 22;
+    const eyeY = by + 24;
     this.ctx.fillStyle = '#fff';
     this.ctx.beginPath();
-    this.ctx.arc(bx + 20, eyeY, 9, 0, Math.PI * 2);
-    this.ctx.arc(bx + 45, eyeY, 9, 0, Math.PI * 2);
+    this.ctx.arc(bx + 22, eyeY, 10, 0, Math.PI * 2);
+    this.ctx.arc(bx + 48, eyeY, 10, 0, Math.PI * 2);
     this.ctx.fill();
-    const look = Math.sin(this.time * 2.1 + 0.8) * 1.5;
+    const look = Math.sin(this.time * 2.3 + 0.8) * 1.6;
     this.ctx.fillStyle = '#0f172a';
     this.ctx.beginPath();
-    this.ctx.arc(bx + 21 + look, eyeY + 1, 4, 0, Math.PI * 2);
-    this.ctx.arc(bx + 46 + look, eyeY + 1, 4, 0, Math.PI * 2);
+    this.ctx.arc(bx + 23 + look, eyeY + 1, 4.5, 0, Math.PI * 2);
+    this.ctx.arc(bx + 49 + look, eyeY + 1, 4.5, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Feet
-    this.ctx.fillStyle = '#0d5c54';
-    this.ctx.fillRect(bx + 14, by + bodyH - 5, 15, 20);
-    this.ctx.fillRect(bx + 37, by + bodyH - 5, 15, 20);
+    this.ctx.fillStyle = '#0f766e';
+    this.ctx.fillRect(bx + 15, by + bodyH - 5, 17, 22);
+    this.ctx.fillRect(bx + 39, by + bodyH - 5, 17, 22);
 
     this.ctx.restore();
   }
 
   private drawForegroundGlow(w: number, h: number) {
-    const bottomGlow = this.ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h * 0.6, h * 0.7);
-    bottomGlow.addColorStop(0, 'hsla(280, 50%, 35%, 0.12)');
-    bottomGlow.addColorStop(0.5, 'hsla(240, 45%, 30%, 0.06)');
+    // Bottom warm glow
+    const bottomGlow = this.ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h * 0.55, h * 0.75);
+    bottomGlow.addColorStop(0, 'hsla(280, 45%, 30%, 0.14)');
+    bottomGlow.addColorStop(0.4, 'hsla(240, 40%, 25%, 0.07)');
     bottomGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = bottomGlow;
     this.ctx.fillRect(0, 0, w, h);
 
-    const leftGlow = this.ctx.createRadialGradient(0, h * 0.6, 0, 0, h * 0.6, h * 0.7);
-    leftGlow.addColorStop(0, 'hsla(200, 50%, 35%, 0.08)');
+    // Left cool glow
+    const leftGlow = this.ctx.createRadialGradient(0, h * 0.55, 0, 0, h * 0.55, h * 0.75);
+    leftGlow.addColorStop(0, 'hsla(200, 45%, 32%, 0.1)');
     leftGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = leftGlow;
     this.ctx.fillRect(0, 0, w * 0.35, h);
 
-    const rightGlow = this.ctx.createRadialGradient(w, h * 0.4, 0, w, h * 0.4, h * 0.6);
-    rightGlow.addColorStop(0, 'hsla(160, 45%, 30%, 0.06)');
+    // Right accent glow
+    const rightGlow = this.ctx.createRadialGradient(w, h * 0.35, 0, w, h * 0.35, h * 0.65);
+    rightGlow.addColorStop(0, 'hsla(160, 40%, 28%, 0.08)');
     rightGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = rightGlow;
     this.ctx.fillRect(w * 0.65, 0, w * 0.35, h);
+
+    // Subtle vignette
+    const vignette = this.ctx.createRadialGradient(w * 0.5, h * 0.4, Math.min(w, h) * 0.3, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
+    vignette.addColorStop(0, 'transparent');
+    vignette.addColorStop(0.6, 'rgba(0,0,0,0.04)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.15)');
+    this.ctx.fillStyle = vignette;
+    this.ctx.fillRect(0, 0, w, h);
   }
 
-  private roundRect(x: number, y: number, w: number, h: number, r: number, fill: string) {
+  private roundRect2(x: number, y: number, w: number, h: number, r: number, fill: string) {
     this.ctx.fillStyle = fill;
     this.ctx.beginPath();
     this.ctx.moveTo(x + r, y);
@@ -584,55 +808,52 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 }
 
+// Interfaces
 interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  speedX: number;
-  speedY: number;
-  opacity: number;
-  hue: number;
-  phase: number;
+  x: number; y: number; size: number;
+  speedX: number; speedY: number;
+  opacity: number; hue: number; phase: number;
 }
 
 interface Firefly {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  brightness: number;
-  blinkSpeed: number;
-  hue: number;
+  x: number; y: number; vx: number; vy: number;
+  size: number; brightness: number; blinkSpeed: number; hue: number;
+}
+
+interface Spirit {
+  x: number; y: number; radius: number;
+  vx: number; vy: number; hue: number;
+  phase: number; pulseSpeed: number;
 }
 
 interface LightBeam {
-  originX: number;
-  originY: number;
-  angle: number;
-  spread: number;
-  hue: number;
-  speed: number;
+  originX: number; originY: number;
+  angle: number; spread: number; hue: number; speed: number;
 }
 
 interface Cloud {
-  x: number;
-  y: number;
-  width: number;
-  speed: number;
-  opacity: number;
+  x: number; y: number; width: number;
+  speed: number; opacity: number;
+}
+
+interface Star {
+  x: number; y: number; size: number;
+  twinkleSpeed: number; twinklePhase: number; brightness: number;
+}
+
+interface RainDrop {
+  x: number; y: number; speed: number;
+  length: number; opacity: number;
 }
 
 interface Lumen {
-  type: string;
-  hue: number;
-  label: string;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  phase: number;
-  floatSpeed: number;
-  bobAmount: number;
+  type: string; hue: number; label: string;
+  x: number; y: number; vx: number; vy: number;
+  size: number; phase: number; floatSpeed: number; bobAmount: number;
+}
+
+interface FloatingElement {
+  x: number; y: number; vx: number; vy: number;
+  symbol: string; size: number;
+  rotation: number; rotationSpeed: number; opacity: number; phase: number;
 }
