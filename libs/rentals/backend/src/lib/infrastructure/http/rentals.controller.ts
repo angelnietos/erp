@@ -25,7 +25,7 @@ export class RentalsController {
   @Post()
   async create(@Req() req: Request, @Body() data: AnyPayload) {
     const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.rentalsService.create(r.tenantId || r.headers['x-tenant-id'] || 'default', data as any);
+    return this.rentalsService.create(r.tenantId || r.headers['x-tenant-id'] || 'default', data as Record<string, unknown>);
   }
 
   @Put(':id')

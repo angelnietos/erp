@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
-import { FleetService } from '../application/fleet.service';
+import { FleetService } from '../../application/fleet.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
@@ -25,7 +25,7 @@ export class FleetController {
   @Post()
   async create(@Req() req: Request, @Body() data: AnyPayload) {
     const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.fleetService.create(r.tenantId || r.headers['x-tenant-id'] || 'default', data as any);
+    return this.fleetService.create(r.tenantId || r.headers['x-tenant-id'] || 'default', data as Record<string, unknown>);
   }
 
   @Put(':id')

@@ -1,23 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 
-type ProductData = { name: string; sku?: string; category?: string; type?: string; totalStock?: number; availableStock?: number; reservedStock?: number; status?: string; dailyRate?: number; [key: string]: unknown };
+type ProductData = Record<string, unknown>;
 
 @Injectable()
 export class InventoryService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private get db(): any { return this.prisma; }
+
   async findAll(tenantId: string) {
-    const products = await this.prisma.product.findMany({
+    const products = await this.db.product.findMany({
       where: { tenantId },
       include: { inventory: true },
       orderBy: { name: 'asc' },
     });
-    return products.map(p => this.mapToDto(p));
+    return products.map((p: Record<string, unknown>) => this.mapToDto(p));
   }
 
   async findOne(tenantId: string, id: string) {
-    const product = await this.prisma.product.findFirst({
+    const product = await this.db.product.findFirst({
       where: { id, tenantId },
       include: { inventory: true },
     });
@@ -26,19 +29,19 @@ export class InventoryService {
   }
 
   async create(tenantId: string, data: ProductData) {
-    const product = await this.prisma.product.create({
+    const product = await this.db.product.create({
       data: {
         tenantId,
-        name: data.name,
-        sku: data.sku,
-        category: data.category,
-        type: data.type || 'generic',
-        price: data.dailyRate || 0,
-        dailyRate: data.dailyRate || 0,
+        name: String(data['name'] || 'Producto sin nombre'),
+        sku: data['sku'] ? String(data['sku']) : undefined,
+        category: data['category'] ? String(data['category']) : undefined,
+        type: String(data['type'] || 'generic'),
+        price: Number(data['dailyRate'] || 0),
+        dailyRate: Number(data['dailyRate'] || 0),
         inventory: {
           create: {
-            totalStock: data.totalStock || 0,
-            status: data.status || 'available',
+            totalStock: Number(data['totalStock'] || 0),
+            status: String(data['status'] || 'available'),
           }
         }
       },
@@ -48,52 +51,58 @@ export class InventoryService {
   }
 
   async update(tenantId: string, id: string, data: ProductData) {
-    const product = await this.prisma.product.update({
+    const updatePayload: Record<string, unknown> = {};
+    if (data['name']) updatePayload['name'] = String(data['name']);
+    if (data['sku']) updatePayload['sku'] = String(data['sku']);
+    if (data['category']) updatePayload['category'] = String(data['category']);
+    if (data['type']) updatePayload['type'] = String(data['type']);
+    if (data['dailyRate'] !== undefined) {
+      updatePayload['price'] = Number(data['dailyRate']);
+      updatePayload['dailyRate'] = Number(data['dailyRate']);
+    }
+
+    const product = await this.db.product.update({
       where: { id },
       data: {
-        name: data.name,
-        sku: data.sku,
-        category: data.category,
-        type: data.type,
-        price: data.dailyRate,
-        dailyRate: data.dailyRate,
-        inventory: {
-          update: {
-            totalStock: data.totalStock,
-            status: data.status,
+        ...updatePayload,
+        ...(data['totalStock'] !== undefined || data['status'] ? {
+          inventory: {
+            update: {
+              ...(data['totalStock'] !== undefined ? { totalStock: Number(data['totalStock']) } : {}),
+              ...(data['status'] ? { status: String(data['status']) } : {}),
+            }
           }
-        }
+        } : {})
       },
       include: { inventory: true }
     });
     return this.mapToDto(product);
   }
 
-  async delete(tenantId: string, id: string) {
-    // Inventory and other relations need to be deleted via cascade or manual in real world
-    // We will do a manual delete of inventory first then product to not break FKs
-    await this.prisma.$transaction(async (tx) => {
+  async delete(_tenantId: string, id: string) {
+    await this.db.$transaction(async (tx: any) => {
       await tx.inventory.deleteMany({ where: { productId: id } });
       await tx.product.delete({ where: { id } });
     });
     return { success: true };
   }
 
-  private mapToDto(product: any) {
+  private mapToDto(product: Record<string, unknown>) {
+    const inv = product['inventory'] as Record<string, unknown> | null;
     return {
-      id: product.id,
-      name: product.name,
-      sku: product.sku || `SKU-${product.id.split('-')[0]}`,
-      category: product.category || 'Varios',
-      type: product.type || 'generic',
-      totalStock: product.inventory?.totalStock || 0,
-      availableStock: product.inventory?.totalStock || 0, // Should calculate from reservations in real life
+      id: product['id'],
+      name: product['name'],
+      sku: product['sku'] || `SKU-${String(product['id']).split('-')[0]}`,
+      category: product['category'] || 'Varios',
+      type: product['type'] || 'generic',
+      totalStock: inv?.['totalStock'] || 0,
+      availableStock: inv?.['totalStock'] || 0,
       reservedStock: 0,
-      status: product.inventory?.status || 'available',
-      dailyRate: product.dailyRate || product.price || 0,
-      imageUrl: product.imageUrl,
-      description: product.description,
-      serialNumber: product.serialNumber
+      status: inv?.['status'] || 'available',
+      dailyRate: product['dailyRate'] || product['price'] || 0,
+      imageUrl: product['imageUrl'],
+      description: product['description'],
+      serialNumber: product['serialNumber']
     };
   }
 }

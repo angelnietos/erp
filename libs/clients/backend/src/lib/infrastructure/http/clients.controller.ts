@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
-import { ClientsService } from '../application/clients.service';
+import { ClientsService } from '../../application/clients.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
