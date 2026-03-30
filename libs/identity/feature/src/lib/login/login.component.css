@@ -2,10 +2,10 @@
   display: block;
   height: 100vh;
   width: 100%;
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
+  --primary: #f03e3e;
+  --primary-hover: #d93636;
   --bg-dark: #0F172A;
-  --text-dim: #94A3B8;
+  --text-dim: #94a3b8;
   --error: #EF4444;
 }
 
@@ -24,11 +24,18 @@
 /* Legacy background blobs - replaced by animated background */
 
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    145deg,
+    rgba(28, 22, 48, 0.55) 0%,
+    rgba(12, 10, 24, 0.72) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(240, 62, 62, 0.12),
+    0 25px 60px -12px rgba(0, 0, 0, 0.65),
+    0 0 80px -30px rgba(240, 62, 62, 0.15);
 }
 
 .auth-card {
@@ -48,20 +55,48 @@
 .logo-circle {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, var(--primary), #8B5CF6);
+  background: linear-gradient(135deg, #f03e3e, #c026d3);
   border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 12px;
   color: white;
-  box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+  box-shadow:
+    0 10px 28px -6px rgba(240, 62, 62, 0.55),
+    0 0 24px rgba(192, 38, 211, 0.25);
 }
 
 .logo-icon { width: 32px; height: 32px; }
 
-h1 { color: white; font-size: 24px; margin: 0 0 8px; font-weight: 700; }
-p { color: var(--text-dim); font-size: 14px; margin: 0; }
+.brand-tag {
+  margin: 0 0 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+h1 {
+  color: #fff;
+  font-size: 1.5rem;
+  margin: 0 0 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.auth-sub {
+  color: var(--text-dim);
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+p:not(.auth-sub):not(.brand-tag) {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 0;
+}
 
 .auth-form {
   display: flex;
