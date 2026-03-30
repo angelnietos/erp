@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' | 'secondary' | 'dark' | 'light' | 'ghost' | 'outline';
+export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' | 'secondary' | 'dark' | 'light' | 'ghost' | 'outline' | 'theme';
 
 @Component({
   selector: 'ui-josanz-alert',
@@ -32,30 +32,42 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
 
     /* Variants */
     .alert-error {
-      background: rgba(239, 68, 68, 0.15);
-      color: #DC2626;
-      border: 1px solid rgba(239, 68, 68, 0.2);
+      background: var(--theme-error, #EF4444);
+      color: white;
+      border: 1px solid var(--theme-error, #EF4444);
+      opacity: 0.15;
     }
 
     .alert-success {
-      background: rgba(16, 185, 129, 0.15);
-      color: #059669;
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      background: var(--theme-success, #10B981);
+      color: white;
+      border: 1px solid var(--theme-success, #10B981);
+      opacity: 0.15;
     }
 
     .alert-warning {
-      background: rgba(245, 158, 11, 0.15);
-      color: #D97706;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: var(--theme-warning, #F59E0B);
+      color: white;
+      border: 1px solid var(--theme-warning, #F59E0B);
+      opacity: 0.15;
     }
 
     .alert-info {
-      background: rgba(14, 165, 233, 0.15);
-      color: #0284C7;
-      border: 1px solid rgba(14, 165, 233, 0.2);
+      background: var(--theme-info, #0EA5E9);
+      color: white;
+      border: 1px solid var(--theme-info, #0EA5E9);
+      opacity: 0.15;
     }
 
-    .alert-primary {
+    /* Reset opacity for text */
+    .alert-error, .alert-success, .alert-warning, .alert-info {
+      opacity: 1;
+    }
+
+    .alert-error { background: rgba(239, 68, 68, 0.15); color: #DC2626; border-color: rgba(239, 68, 68, 0.2); }
+    .alert-success { background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.2); }
+    .alert-warning { background: rgba(245, 158, 11, 0.15); color: #D97706; border-color: rgba(245, 158, 11, 0.2); }
+    .alert-info { background: rgba(14, 165, 233, 0.15); color: #0284C7; border-color: rgba(14, 165, 233, 0.2); }
       background: rgba(79, 70, 229, 0.15);
       color: #4F46E5;
       border: 1px solid rgba(79, 70, 229, 0.2);

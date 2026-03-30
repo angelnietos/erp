@@ -2,7 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info';
+export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'theme';
 
 @Component({
   selector: 'ui-josanz-select',
@@ -50,6 +50,21 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       width: 100%; padding: 12px 36px 12px 14px; border-radius: 12px;
       font-size: 14px; transition: all 0.2s ease; outline: none; font-family: inherit;
       appearance: none; cursor: pointer;
+    }
+
+    /* Theme Variant - Uses CSS variables from ThemeService */
+    .select-theme {
+      background: var(--theme-surface, #FFFFFF);
+      border: 1px solid var(--theme-border, #E2E8F0);
+      color: var(--theme-text, #1E293B);
+    }
+    .select-theme:focus {
+      border-color: var(--theme-primary, #4F46E5);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+    }
+    .select-theme option {
+      background: var(--theme-surface, #FFFFFF);
+      color: var(--theme-text, #1E293B);
     }
 
     /* Variants */

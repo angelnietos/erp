@@ -95,7 +95,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
 
     .btn-danger {
-      background: #EF4444;
+      background: var(--theme-error, #EF4444);
       color: white;
     }
     .btn-danger:hover:not(:disabled) {
@@ -103,7 +103,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
 
     .btn-success {
-      background: #10B981;
+      background: var(--theme-success, #10B981);
       color: white;
     }
     .btn-success:hover:not(:disabled) {
@@ -111,7 +111,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
 
     .btn-warning {
-      background: #F59E0B;
+      background: var(--theme-warning, #F59E0B);
       color: white;
     }
     .btn-warning:hover:not(:disabled) {
@@ -119,7 +119,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
 
     .btn-info {
-      background: #0EA5E9;
+      background: var(--theme-info, #0EA5E9);
       color: white;
     }
     .btn-info:hover:not(:disabled) {

@@ -12,6 +12,10 @@ export interface ThemeConfig {
   text: string;
   textMuted: string;
   border: string;
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
 }
 
 export const THEMES: Record<Theme, ThemeConfig> = {
@@ -24,6 +28,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#1E293B',
     textMuted: '#64748B',
     border: '#E2E8F0',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   dark: {
     name: 'Dark',
@@ -34,6 +42,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#F1F5F9',
     textMuted: '#94A3B8',
     border: '#334155',
+    success: '#34D399',
+    warning: '#FBBF24',
+    error: '#F87171',
+    info: '#38BDF8',
   },
   blue: {
     name: 'Blue',
@@ -44,6 +56,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#0C4A6E',
     textMuted: '#0369A1',
     border: '#BAE6FD',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   green: {
     name: 'Green',
@@ -54,6 +70,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#064E3B',
     textMuted: '#047857',
     border: '#A7F3D0',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   purple: {
     name: 'Purple',
@@ -64,6 +84,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#5B21B6',
     textMuted: '#7C3AED',
     border: '#DDD6FE',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   orange: {
     name: 'Orange',
@@ -74,6 +98,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#7C2D12',
     textMuted: '#C2410C',
     border: '#FED7AA',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   rose: {
     name: 'Rose',
@@ -84,6 +112,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#881337',
     textMuted: '#E11D48',
     border: '#FECDD3',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   slate: {
     name: 'Slate',
@@ -94,6 +126,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#1E293B',
     textMuted: '#475569',
     border: '#E2E8F0',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   zinc: {
     name: 'Zinc',
@@ -104,6 +140,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#18181B',
     textMuted: '#3F3F46',
     border: '#E4E4E7',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
   neutral: {
     name: 'Neutral',
@@ -114,6 +154,10 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     text: '#171717',
     textMuted: '#404040',
     border: '#E5E5E5',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#0EA5E9',
   },
 };
 
@@ -147,6 +191,10 @@ export class ThemeService {
     root.style.setProperty('--theme-text', config.text);
     root.style.setProperty('--theme-text-muted', config.textMuted);
     root.style.setProperty('--theme-border', config.border);
+    root.style.setProperty('--theme-success', config.success);
+    root.style.setProperty('--theme-warning', config.warning);
+    root.style.setProperty('--theme-error', config.error);
+    root.style.setProperty('--theme-info', config.info);
     
     root.setAttribute('data-theme', theme);
   }

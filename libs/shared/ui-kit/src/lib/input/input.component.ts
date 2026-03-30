@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type InputVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info';
+export type InputVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'theme';
 
 @Component({
   selector: 'ui-josanz-input',
@@ -83,6 +83,17 @@ export type InputVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' 
 
     .has-icon input {
       padding-left: 42px;
+    }
+
+    /* Theme Variant - Uses CSS variables from ThemeService */
+    .input-theme {
+      background: var(--theme-surface, #FFFFFF);
+      border: 1px solid var(--theme-border, #E2E8F0);
+      color: var(--theme-text, #1E293B);
+    }
+    .input-theme:focus {
+      border-color: var(--theme-primary, #4F46E5);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
     }
 
     /* Variants */
