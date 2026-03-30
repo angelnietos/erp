@@ -22,9 +22,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private time = 0;
   private particles: Particle[] = [];
   private fireflies: Firefly[] = [];
-  private spirits: Spirit[] = [];
   private lightBeams: LightBeam[] = [];
   private clouds: Cloud[] = [];
+  private lumens: Lumen[] = [];
 
   private readonly boundResize = () => this.resizeCanvas();
 
@@ -60,71 +60,84 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // Initialize floating particles
-    const particleCount = Math.min(120, Math.floor((w * h) / 14000));
+    // Particles
+    const particleCount = Math.min(100, Math.floor((w * h) / 16000));
     for (let i = 0; i < particleCount; i++) {
       this.particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        size: Math.random() * 2.5 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.4,
-        speedY: (Math.random() - 0.5) * 0.25,
-        opacity: Math.random() * 0.5 + 0.25,
-        hue: Math.random() > 0.5 ? 45 + Math.random() * 25 : 180 + Math.random() * 40,
+        size: Math.random() * 2 + 0.5,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.2,
+        opacity: Math.random() * 0.4 + 0.2,
+        hue: Math.random() > 0.5 ? 45 + Math.random() * 20 : 180 + Math.random() * 30,
         phase: Math.random() * Math.PI * 2,
       });
     }
 
-    // Initialize fireflies
-    const fireflyCount = 25;
+    // Fireflies
+    const fireflyCount = 20;
     for (let i = 0; i < fireflyCount; i++) {
       this.fireflies.push({
         x: Math.random() * w,
-        y: Math.random() * h * 0.8,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.4,
-        size: Math.random() * 4 + 2,
+        y: Math.random() * h * 0.7,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 3 + 2,
         brightness: Math.random(),
-        blinkSpeed: Math.random() * 0.05 + 0.02,
-        hue: 50 + Math.random() * 20,
+        blinkSpeed: Math.random() * 0.04 + 0.02,
+        hue: 50 + Math.random() * 15,
       });
     }
 
-    // Initialize spirits (larger glowing orbs)
-    const spiritCount = 8;
-    for (let i = 0; i < spiritCount; i++) {
-      this.spirits.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        radius: Math.random() * 40 + 30,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.2,
-        hue: i % 2 === 0 ? 45 + Math.random() * 15 : 200 + Math.random() * 30,
-        phase: Math.random() * Math.PI * 2,
-        pulseSpeed: Math.random() * 0.02 + 0.01,
-      });
-    }
-
-    // Initialize light beams
+    // Light beams
     this.lightBeams = [
-      { originX: 0.1, originY: -0.05, angle: 0.4, spread: 0.55, hue: 45, speed: 0.35 },
-      { originX: 0.85, originY: 0, angle: -0.35, spread: 0.5, hue: 200, speed: -0.3 },
-      { originX: 0.5, originY: -0.08, angle: 0.08, spread: 0.6, hue: 55, speed: 0.2 },
-      { originX: 0.3, originY: 0.02, angle: 0.5, spread: 0.4, hue: 280, speed: 0.45 },
-      { originX: 0.7, originY: -0.03, angle: -0.2, spread: 0.45, hue: 170, speed: 0.25 },
+      { originX: 0.1, originY: -0.05, angle: 0.4, spread: 0.5, hue: 45, speed: 0.35 },
+      { originX: 0.85, originY: 0, angle: -0.35, spread: 0.45, hue: 200, speed: -0.3 },
+      { originX: 0.5, originY: -0.08, angle: 0.08, spread: 0.55, hue: 55, speed: 0.2 },
     ];
 
-    // Initialize clouds
-    const cloudCount = 6;
+    // Clouds
+    const cloudCount = 5;
     for (let i = 0; i < cloudCount; i++) {
       this.clouds.push({
         x: Math.random() * w,
-        y: Math.random() * h * 0.4,
-        width: Math.random() * 200 + 150,
-        speed: Math.random() * 0.15 + 0.05,
-        opacity: Math.random() * 0.15 + 0.05,
+        y: Math.random() * h * 0.35,
+        width: Math.random() * 180 + 120,
+        speed: Math.random() * 0.12 + 0.03,
+        opacity: Math.random() * 0.12 + 0.03,
       });
     }
+
+    // Lumen characters - flying CRM features
+    const lumenTypes = [
+      { type: 'inventory', hue: 35, label: '📦' },
+      { type: 'clients', hue: 200, label: '👥' },
+      { type: 'billing', hue: 45, label: '💰' },
+      { type: 'fleet', hue: 220, label: '🚗' },
+      { type: 'rentals', hue: 280, label: '📅' },
+      { type: 'delivery', hue: 160, label: '🚚' },
+      { type: 'budget', hue: 120, label: '📊' },
+    ];
+
+    // Create multiple lumens for each type
+    lumenTypes.forEach((type, typeIndex) => {
+      for (let i = 0; i < 3; i++) {
+        this.lumens.push({
+          type: type.type,
+          hue: type.hue,
+          label: type.label,
+          x: Math.random() * w,
+          y: Math.random() * h * 0.6 + h * 0.2,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: 18 + Math.random() * 12,
+          phase: Math.random() * Math.PI * 2,
+          floatSpeed: 0.5 + Math.random() * 0.5,
+          bobAmount: 15 + Math.random() * 10,
+        });
+      }
+    });
   }
 
   private animate = () => {
@@ -136,9 +149,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.drawDynamicSky(w, h);
     this.drawClouds(w, h);
     this.drawLightBeams(w, h);
-    this.drawSpirits(w, h);
     this.drawParticles(w, h);
     this.drawFireflies(w, h);
+    this.drawLumenCharacters(w, h);
     this.drawGearSilhouettes(w, h);
     this.drawMascot(w, h);
     this.drawMascotSidekick(w, h);
@@ -147,31 +160,26 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.animationId = requestAnimationFrame(this.animate);
   };
 
-  /** Dynamic gradient sky - more vibrant */
   private drawDynamicSky(w: number, h: number) {
     const t = this.time * 0.1;
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
     
-    const topColor = `hsl(${210 + Math.sin(t * 0.5) * 10}, 50%, ${35 + Math.sin(t * 0.3) * 5}%)`;
-    const midColor = `hsl(${230 + Math.sin(t * 0.4) * 8}, 45%, ${25 + Math.sin(t * 0.25) * 4}%)`;
-    const bottomColor = `hsl(${250 + Math.sin(t * 0.35) * 6}, 40%, ${18 + Math.sin(t * 0.2) * 3}%)`;
-    
-    g.addColorStop(0, topColor);
-    g.addColorStop(0.3, midColor);
-    g.addColorStop(0.6, bottomColor);
+    g.addColorStop(0, `hsl(${210 + Math.sin(t * 0.5) * 10}, 50%, ${35 + Math.sin(t * 0.3) * 5}%)`);
+    g.addColorStop(0.35, `hsl(${230 + Math.sin(t * 0.4) * 8}, 45%, ${25 + Math.sin(t * 0.25) * 4}%)`);
+    g.addColorStop(0.65, `hsl(${250 + Math.sin(t * 0.35) * 6}, 40%, ${18 + Math.sin(t * 0.2) * 3}%)`);
     g.addColorStop(1, '#0a1525');
     
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
 
     const aurora = this.ctx.createLinearGradient(0, 0, w, 0);
-    aurora.addColorStop(0, 'hsla(160, 70%, 40%, 0.08)');
-    aurora.addColorStop(0.3, 'hsla(200, 60%, 45%, 0.1)');
-    aurora.addColorStop(0.5, 'hsla(240, 50%, 40%, 0.12)');
-    aurora.addColorStop(0.7, 'hsla(280, 45%, 35%, 0.08)');
-    aurora.addColorStop(1, 'hsla(320, 50%, 30%, 0.06)');
+    aurora.addColorStop(0, 'hsla(160, 70%, 40%, 0.06)');
+    aurora.addColorStop(0.3, 'hsla(200, 60%, 45%, 0.08)');
+    aurora.addColorStop(0.5, 'hsla(240, 50%, 40%, 0.1)');
+    aurora.addColorStop(0.7, 'hsla(280, 45%, 35%, 0.06)');
+    aurora.addColorStop(1, 'hsla(320, 50%, 30%, 0.04)');
     this.ctx.fillStyle = aurora;
-    this.ctx.fillRect(0, 0, w, h * 0.5);
+    this.ctx.fillRect(0, 0, w, h * 0.45);
   }
 
   private drawClouds(w: number, h: number) {
@@ -179,44 +187,40 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       cloud.x += cloud.speed;
       if (cloud.x > w + cloud.width) cloud.x = -cloud.width;
 
-      const gradient = this.ctx.createRadialGradient(
-        cloud.x, cloud.y, 0,
-        cloud.x, cloud.y, cloud.width
-      );
+      const gradient = this.ctx.createRadialGradient(cloud.x, cloud.y, 0, cloud.x, cloud.y, cloud.width);
       gradient.addColorStop(0, `rgba(100, 140, 200, ${cloud.opacity})`);
-      gradient.addColorStop(0.5, `rgba(80, 120, 180, ${cloud.opacity * 0.5})`);
+      gradient.addColorStop(0.5, `rgba(80, 120, 180, ${cloud.opacity * 0.4})`);
       gradient.addColorStop(1, 'transparent');
       
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.width * 0.3, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.width * 0.25, 0, 0, Math.PI * 2);
       this.ctx.fill();
     });
   }
 
   private drawLightBeams(w: number, h: number) {
     this.lightBeams.forEach((beam, i) => {
-      const sway = Math.sin(this.time * beam.speed + i * 1.5) * 0.15;
+      const sway = Math.sin(this.time * beam.speed + i * 1.5) * 0.12;
       const ox = beam.originX * w;
       const oy = beam.originY * h;
       const angle = beam.angle + sway;
-      const len = Math.hypot(w, h) * 1.2;
+      const len = Math.hypot(w, h) * 1.1;
 
       this.ctx.save();
       this.ctx.translate(ox, oy);
       this.ctx.rotate(angle);
 
       const flicker = 0.9 + Math.sin(this.time * 2.5 + i) * 0.1;
-      const a = (0.35 + Math.sin(this.time * 2.2 + i) * 0.1) * flicker;
+      const a = (0.3 + Math.sin(this.time * 2 + i) * 0.08) * flicker;
       
       const grad = this.ctx.createLinearGradient(0, 0, 0, len);
       grad.addColorStop(0, `hsla(${beam.hue}, 95%, 92%, ${a})`);
-      grad.addColorStop(0.1, `hsla(${beam.hue}, 90%, 78%, ${a * 0.9})`);
-      grad.addColorStop(0.35, `hsla(${beam.hue}, 80%, 62%, ${a * 0.5})`);
-      grad.addColorStop(0.7, `hsla(${beam.hue}, 70%, 48%, ${a * 0.15})`);
+      grad.addColorStop(0.3, `hsla(${beam.hue}, 85%, 70%, ${a * 0.5})`);
+      grad.addColorStop(0.7, `hsla(${beam.hue}, 70%, 50%, ${a * 0.15})`);
       grad.addColorStop(1, 'transparent');
 
-      const halfW = w * beam.spread * 0.55;
+      const halfW = w * beam.spread * 0.5;
       this.ctx.beginPath();
       this.ctx.moveTo(0, 0);
       this.ctx.lineTo(-halfW, len);
@@ -226,12 +230,10 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.fill();
       this.ctx.restore();
 
-      const pulse = 0.5 + Math.sin(this.time * 3.5 + i) * 0.2;
-      const spotR = 50 * pulse;
+      const spotR = 40 + Math.sin(this.time * 3 + i) * 10;
       const spot = this.ctx.createRadialGradient(ox, oy, 0, ox, oy, spotR);
-      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 98%, 0.9)`);
-      spot.addColorStop(0.15, `hsla(${beam.hue}, 95%, 80%, 0.6)`);
-      spot.addColorStop(0.4, `hsla(${beam.hue}, 85%, 58%, 0.25)`);
+      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 96%, 0.8)`);
+      spot.addColorStop(0.3, `hsla(${beam.hue}, 90%, 70%, 0.3)`);
       spot.addColorStop(1, 'transparent');
       this.ctx.fillStyle = spot;
       this.ctx.beginPath();
@@ -240,57 +242,11 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private drawSpirits(w: number, h: number) {
-    this.spirits.forEach((spirit, i) => {
-      spirit.x += spirit.vx + Math.sin(this.time * 0.5 + spirit.phase) * 0.2;
-      spirit.y += spirit.vy + Math.cos(this.time * 0.3 + spirit.phase) * 0.15;
-      
-      if (spirit.x < -spirit.radius) spirit.x = w + spirit.radius;
-      if (spirit.x > w + spirit.radius) spirit.x = -spirit.radius;
-      if (spirit.y < -spirit.radius) spirit.y = h + spirit.radius;
-      if (spirit.y > h + spirit.radius) spirit.y = -spirit.radius;
-
-      const pulse = 0.8 + Math.sin(this.time * 2 + spirit.phase) * 0.2;
-      const radius = spirit.radius * pulse;
-      
-      const outerGlow = this.ctx.createRadialGradient(
-        spirit.x, spirit.y, 0,
-        spirit.x, spirit.y, radius * 2.5
-      );
-      outerGlow.addColorStop(0, `hsla(${spirit.hue}, 85%, 65%, 0.25)`);
-      outerGlow.addColorStop(0.4, `hsla(${spirit.hue}, 75%, 55%, 0.12)`);
-      outerGlow.addColorStop(1, 'transparent');
-      this.ctx.fillStyle = outerGlow;
-      this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius * 2.5, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      const innerGlow = this.ctx.createRadialGradient(
-        spirit.x, spirit.y, 0,
-        spirit.x, spirit.y, radius
-      );
-      innerGlow.addColorStop(0, `hsla(${spirit.hue}, 90%, 80%, 0.6)`);
-      innerGlow.addColorStop(0.5, `hsla(${spirit.hue}, 80%, 60%, 0.3)`);
-      innerGlow.addColorStop(1, 'transparent');
-      this.ctx.fillStyle = innerGlow;
-      this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.fillStyle = `hsla(${spirit.hue}, 95%, 92%, 0.8)`;
-      this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius * 0.3, 0, Math.PI * 2);
-      this.ctx.fill();
-    });
-  }
-
   private drawParticles(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
-    
     this.particles.forEach((p) => {
-      p.x += p.speedX + Math.sin(this.time + p.y * 0.006) * 0.2;
-      p.y += p.speedY + Math.cos(this.time * 0.7 + p.x * 0.004) * 0.1;
-      
+      p.x += p.speedX + Math.sin(this.time + p.y * 0.005) * 0.15;
+      p.y += p.speedY;
       if (p.x < 0) p.x = w;
       if (p.x > w) p.x = 0;
       if (p.y < 0) p.y = h;
@@ -299,30 +255,28 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const twinkle = 0.7 + Math.sin(this.time * 3 + p.phase) * 0.3;
       const opacity = p.opacity * twinkle;
 
-      const glow = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
+      const glow = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
       glow.addColorStop(0, `hsla(${p.hue}, 95%, 85%, ${opacity})`);
-      glow.addColorStop(0.4, `hsla(${p.hue}, 85%, 65%, ${opacity * 0.3})`);
+      glow.addColorStop(0.5, `hsla(${p.hue}, 85%, 65%, ${opacity * 0.25})`);
       glow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = glow;
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
+      this.ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
       this.ctx.fill();
 
-      this.ctx.fillStyle = `hsla(${p.hue}, 100%, 95%, ${opacity * 1.2})`;
+      this.ctx.fillStyle = `hsla(${p.hue}, 100%, 95%, ${opacity})`;
       this.ctx.beginPath();
       this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       this.ctx.fill();
     });
-    
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
   private drawFireflies(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
-    
     this.fireflies.forEach((ff) => {
-      ff.x += ff.vx + Math.sin(this.time * 2 + ff.brightness * 10) * 0.3;
-      ff.y += ff.vy + Math.cos(this.time * 1.5 + ff.brightness * 8) * 0.2;
+      ff.x += ff.vx + Math.sin(this.time * 2 + ff.brightness * 8) * 0.25;
+      ff.y += ff.vy + Math.cos(this.time * 1.5 + ff.brightness * 6) * 0.15;
       ff.brightness += ff.blinkSpeed;
       
       if (ff.x < 0) ff.x = w;
@@ -331,21 +285,61 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       if (ff.y > h) ff.y = 0;
 
       const glow = Math.sin(ff.brightness) * 0.5 + 0.5;
-      const alpha = glow * 0.8;
+      const alpha = glow * 0.7;
 
-      const gradient = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.size * 4);
+      const gradient = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.size * 3.5);
       gradient.addColorStop(0, `hsla(${ff.hue}, 100%, 90%, ${alpha})`);
-      gradient.addColorStop(0.3, `hsla(${ff.hue}, 95%, 70%, ${alpha * 0.5})`);
+      gradient.addColorStop(0.4, `hsla(${ff.hue}, 95%, 70%, ${alpha * 0.4})`);
       gradient.addColorStop(1, 'transparent');
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.arc(ff.x, ff.y, ff.size * 4, 0, Math.PI * 2);
+      this.ctx.arc(ff.x, ff.y, ff.size * 3.5, 0, Math.PI * 2);
       this.ctx.fill();
 
       this.ctx.fillStyle = `hsla(${ff.hue}, 100%, 98%, ${alpha})`;
       this.ctx.beginPath();
-      this.ctx.arc(ff.x, ff.y, ff.size * 0.6, 0, Math.PI * 2);
+      this.ctx.arc(ff.x, ff.y, ff.size * 0.5, 0, Math.PI * 2);
       this.ctx.fill();
+    });
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+
+  /** Flying lumen characters representing CRM features */
+  private drawLumenCharacters(w: number, h: number) {
+    this.ctx.globalCompositeOperation = 'screen';
+    
+    this.lumens.forEach((lumen) => {
+      // Update position with floating motion
+      lumen.x += lumen.vx + Math.sin(this.time * lumen.floatSpeed + lumen.phase) * 0.3;
+      lumen.y += lumen.vy + Math.cos(this.time * lumen.floatSpeed * 0.7 + lumen.phase) * 0.2;
+      
+      // Wrap around
+      if (lumen.x < -50) lumen.x = w + 50;
+      if (lumen.x > w + 50) lumen.x = -50;
+      if (lumen.y < h * 0.15) lumen.y = h * 0.85;
+      if (lumen.y > h * 0.85) lumen.y = h * 0.15;
+
+      // Bobbing motion
+      const bobY = lumen.y + Math.sin(this.time * 2 + lumen.phase) * lumen.bobAmount;
+      
+      // Glow effect
+      const pulseAlpha = 0.6 + Math.sin(this.time * 3 + lumen.phase) * 0.3;
+      
+      const glow = this.ctx.createRadialGradient(lumen.x, bobY, 0, lumen.x, bobY, lumen.size * 2.5);
+      glow.addColorStop(0, `hsla(${lumen.hue}, 80%, 70%, ${pulseAlpha})`);
+      glow.addColorStop(0.4, `hsla(${lumen.hue}, 70%, 55%, ${pulseAlpha * 0.4})`);
+      glow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = glow;
+      this.ctx.beginPath();
+      this.ctx.arc(lumen.x, bobY, lumen.size * 2.5, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Character icon with glow
+      this.ctx.fillStyle = `hsla(${lumen.hue}, 90%, 80%, ${pulseAlpha + 0.2})`;
+      this.ctx.font = `${lumen.size}px Arial`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(lumen.label, lumen.x, bobY);
     });
     
     this.ctx.globalCompositeOperation = 'source-over';
@@ -557,44 +551,34 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawForegroundGlow(w: number, h: number) {
-    const bottomGlow = this.ctx.createRadialGradient(
-      w * 0.5, h, 0,
-      w * 0.5, h * 0.7, h * 0.8
-    );
-    bottomGlow.addColorStop(0, 'hsla(280, 50%, 35%, 0.15)');
-    bottomGlow.addColorStop(0.5, 'hsla(240, 45%, 30%, 0.08)');
+    const bottomGlow = this.ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h * 0.6, h * 0.7);
+    bottomGlow.addColorStop(0, 'hsla(280, 50%, 35%, 0.12)');
+    bottomGlow.addColorStop(0.5, 'hsla(240, 45%, 30%, 0.06)');
     bottomGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = bottomGlow;
     this.ctx.fillRect(0, 0, w, h);
 
-    const leftGlow = this.ctx.createRadialGradient(0, h * 0.6, 0, 0, h * 0.6, h * 0.8);
-    leftGlow.addColorStop(0, 'hsla(200, 50%, 35%, 0.1)');
+    const leftGlow = this.ctx.createRadialGradient(0, h * 0.6, 0, 0, h * 0.6, h * 0.7);
+    leftGlow.addColorStop(0, 'hsla(200, 50%, 35%, 0.08)');
     leftGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = leftGlow;
-    this.ctx.fillRect(0, 0, w * 0.4, h);
+    this.ctx.fillRect(0, 0, w * 0.35, h);
 
-    const rightGlow = this.ctx.createRadialGradient(w, h * 0.4, 0, w, h * 0.4, h * 0.7);
-    rightGlow.addColorStop(0, 'hsla(160, 45%, 30%, 0.08)');
+    const rightGlow = this.ctx.createRadialGradient(w, h * 0.4, 0, w, h * 0.4, h * 0.6);
+    rightGlow.addColorStop(0, 'hsla(160, 45%, 30%, 0.06)');
     rightGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = rightGlow;
-    this.ctx.fillRect(w * 0.6, 0, w * 0.4, h);
+    this.ctx.fillRect(w * 0.65, 0, w * 0.35, h);
   }
 
-  private roundRect(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    r: number,
-    fill: string,
-  ) {
+  private roundRect(x: number, y: number, w: number, h: number, r: number, fill: string) {
     this.ctx.fillStyle = fill;
     this.ctx.beginPath();
     this.ctx.moveTo(x + r, y);
-    this.ctx.arcTo(x + width, y, x + width, y + height, r);
-    this.ctx.arcTo(x + width, y + height, x, y + height, r);
-    this.ctx.arcTo(x, y + height, x, y, r);
-    this.ctx.arcTo(x, y, x + width, y, r);
+    this.ctx.arcTo(x + w, y, x + w, y + h, r);
+    this.ctx.arcTo(x + w, y + h, x, y + h, r);
+    this.ctx.arcTo(x, y + h, x, y, r);
+    this.ctx.arcTo(x, y, x + w, y, r);
     this.ctx.closePath();
     this.ctx.fill();
   }
@@ -622,17 +606,6 @@ interface Firefly {
   hue: number;
 }
 
-interface Spirit {
-  x: number;
-  y: number;
-  radius: number;
-  vx: number;
-  vy: number;
-  hue: number;
-  phase: number;
-  pulseSpeed: number;
-}
-
 interface LightBeam {
   originX: number;
   originY: number;
@@ -648,4 +621,18 @@ interface Cloud {
   width: number;
   speed: number;
   opacity: number;
+}
+
+interface Lumen {
+  type: string;
+  hue: number;
+  label: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  phase: number;
+  floatSpeed: number;
+  bobAmount: number;
 }
