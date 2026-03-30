@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import {
   UiTabsComponent,
   UiCardComponent,
   UiInputComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -35,12 +36,13 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiTabsComponent,
     UiCardComponent,
     UiInputComponent,
+    UiStatCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <div class="page-container animate-slide-up">
       <header class="page-header">
-        <div class="header-main">
+        <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase">Inventario de Activos</h1>
           <div class="breadcrumb">
             <span class="active">CENTRO DE RECURSOS</span>
@@ -48,12 +50,20 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
             <span>MONITOREO GLOBAL</span>
           </div>
         </div>
-        @if (config.enableCreate) {
-          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
-            NUEVO PRODUCTO
-          </ui-josanz-button>
-        }
+        <div class="header-actions">
+          @if (config.enableCreate) {
+            <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+              NUEVO PRODUCTO
+            </ui-josanz-button>
+          }
+        </div>
       </header>
+
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Total Equipos" [value]="products().length.toString()" icon="package" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Stock Crítico" [value]="criticalCount().toString()" icon="alert-octagon" [trend]="-1"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Valoración Flota" [value]="formatCurrencyEu(totalValue())" icon="bar-chart-3"></ui-josanz-stat-card>
+      </div>
 
       <div class="navigation-bar">
         <ui-josanz-tabs 
@@ -76,7 +86,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
           <ui-josanz-loader message="SINCRONIZANDO INVENTARIO GLOBAL..."></ui-josanz-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
+        <ui-josanz-card variant="glass" class="table-card ui-neon">
           <ui-josanz-table [columns]="columns" [data]="products()" variant="default">
             <ng-template #cellTemplate let-product let-key="key">
               @switch (key) {
@@ -104,18 +114,12 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <button class="action-btn" [routerLink]="['/inventory', product.id]" title="Detalles">
-                      <lucide-icon name="eye" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/inventory', product.id]" title="Detalles"></ui-josanz-button>
                     @if (config.enableEdit) {
-                      <button class="action-btn" (click)="editProduct(product)" title="Editar">
-                        <lucide-icon name="pencil" size="16"></lucide-icon>
-                      </button>
+                      <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editProduct(product)" title="Editar"></ui-josanz-button>
                     }
                     @if (config.enableDelete) {
-                      <button class="action-btn danger" (click)="confirmDelete(product)" title="Eliminar">
-                        <lucide-icon name="trash-2" size="16"></lucide-icon>
-                      </button>
+                      <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(product)" title="Eliminar" class="btn-danger-ghost"></ui-josanz-button>
                     }
                   </div>
                 }
@@ -278,56 +282,43 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     .breadcrumb .active { color: var(--brand); }
     .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-bar { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 2rem; 
-      gap: 2rem;
-    }
-    .search-bar { max-width: 400px; flex: 1; }
-    
-    .product-link { 
-      color: var(--brand); 
-      text-decoration: none; 
-      font-weight: 800; 
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-      transition: var(--transition-fast);
-    }
-    .product-link:hover { color: #fff; text-decoration: underline; }
-    
-    .stock-info { display: flex; align-items: center; gap: 8px; }
-    .stock-info .val { color: #fff; font-weight: 800; }
-    .stock-info .res { font-size: 0.65rem; font-weight: 900; }
-    
-    .price-val { color: #fff; font-weight: 700; }
-    .unit { color: var(--text-muted); font-size: 0.65rem; margin-left: 2px; font-weight: 800; }
+      .stats-row { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 1.5rem; 
+        margin-bottom: 2.5rem; 
+      }
 
-    .row-actions { display: flex; gap: 6px; }
-    
-    .action-btn { 
-      background: var(--bg-tertiary); 
-      border: 1px solid var(--border-soft); 
-      color: var(--text-secondary); 
-      cursor: pointer; 
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-base);
-    }
-    
-    .action-btn:hover { 
-      color: #fff; 
-      border-color: var(--brand);
-      background: var(--brand-muted);
-      transform: translateY(-2px);
-    }
-    
-    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+      .navigation-bar { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 2rem; 
+        gap: 2rem;
+      }
+      .search-bar { max-width: 400px; flex: 1; }
+      
+      .product-link { 
+        color: var(--brand); 
+        text-decoration: none; 
+        font-weight: 800; 
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        transition: var(--transition-fast);
+      }
+      .product-link:hover { color: #fff; text-decoration: underline; }
+      
+      .stock-info { display: flex; align-items: center; gap: 8px; }
+      .stock-info .val { color: #fff; font-weight: 800; }
+      .stock-info .res { font-size: 0.65rem; font-weight: 900; }
+      
+      .price-val { color: #fff; font-weight: 700; }
+      .unit { color: var(--text-muted); font-size: 0.65rem; margin-left: 2px; font-weight: 800; }
+
+      .row-actions { display: flex; gap: 4px; }
+      
+      .btn-danger-ghost :host ::ng-deep .btn { color: var(--danger) !important; }
+      .btn-danger-ghost :host ::ng-deep .btn:hover { background: var(--danger) !important; color: white !important; }
 
     .table-footer {
       display: flex;
@@ -507,4 +498,16 @@ export class InventoryListComponent implements OnInit {
       default: return status;
     }
   }
+
+  formatCurrencyEu(amount: number): string {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
+  }
+
+  totalValue = computed(() => {
+    return this.products().reduce((acc, p) => acc + (p.dailyRate * p.totalStock), 0);
+  });
+
+  criticalCount = computed(() => {
+    return this.products().filter(p => p.availableStock < (p.totalStock * 0.2)).length;
+  });
 }

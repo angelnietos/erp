@@ -1,6 +1,7 @@
-import { Routes } from '@angular/router';
+import { Route } from '@angular/router';
+import { DetailPlaceholderComponent } from '@josanz-erp/shared-ui-kit';
 
-export const budgetRoutes: Routes = [
+export const budgetRoutes: Route[] = [
   {
     path: '',
     loadComponent: () => import('@josanz-erp/budget-feature').then(m => m.BudgetListComponent),
@@ -11,6 +12,6 @@ export const budgetRoutes: Routes = [
   },
   {
     path: ':id',
-    loadComponent: () => import('@josanz-erp/shared-ui-kit').then(m => m.DetailPlaceholderComponent),
+    component: DetailPlaceholderComponent,
   },
 ];

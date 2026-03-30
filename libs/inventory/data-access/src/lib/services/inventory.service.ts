@@ -8,6 +8,7 @@ export interface Product {
   name: string;
   sku: string;
   category: string;
+  type: 'serialized' | 'generic'; // New field
   totalStock: number;
   availableStock: number;
   reservedStock: number;
@@ -15,6 +16,7 @@ export interface Product {
   dailyRate: number;
   imageUrl?: string;
   description?: string;
+  serialNumber?: string; // Optional unit tracking
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +31,7 @@ export class InventoryService {
       name: 'Cámara Sony FX6',
       sku: 'CAM-FX6-001',
       category: 'Cámaras',
+      type: 'serialized',
       totalStock: 5,
       availableStock: 3,
       reservedStock: 2,
@@ -40,6 +43,7 @@ export class InventoryService {
       name: 'Iluminación LED Aputure 600d',
       sku: 'LED-APU-002',
       category: 'Iluminación',
+      type: 'generic',
       totalStock: 8,
       availableStock: 8,
       reservedStock: 0,
@@ -51,6 +55,7 @@ export class InventoryService {
       name: 'Trípode Sachtler Video 18',
       sku: 'TRP-SAC-003',
       category: 'Soportes',
+      type: 'generic',
       totalStock: 12,
       availableStock: 10,
       reservedStock: 2,
@@ -62,6 +67,7 @@ export class InventoryService {
       name: 'Micrófono Rode NTG5',
       sku: 'MIC-ROD-004',
       category: 'Audio',
+      type: 'serialized',
       totalStock: 6,
       availableStock: 6,
       reservedStock: 0,

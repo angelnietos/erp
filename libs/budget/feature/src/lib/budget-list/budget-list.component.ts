@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BudgetStore } from '@josanz-erp/budget-data-access';
-import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiStatCardComponent } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, Plus, FileText, Download } from 'lucide-angular';
 import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 import { Budget } from '@josanz-erp/budget-api';
@@ -17,10 +17,11 @@ import { Budget } from '@josanz-erp/budget-api';
     UiCardComponent, 
     UiButtonComponent, 
     UiBadgeComponent, 
+    UiStatCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <div class="page-container animate-slide-up">
       <header class="page-header">
         <div class="header-main">
           <h1 class="page-title text-uppercase">Cotizaciones y Presupuestos</h1>
@@ -37,7 +38,13 @@ import { Budget } from '@josanz-erp/budget-api';
         }
       </header>
 
-      <ui-josanz-card variant="glass" class="table-card">
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Pipeline Total" [value]="formatCurrencyEu(totalPipeline())" icon="pie-chart" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Cerrados (Mes)" [value]="formatCurrencyEu(totalAccepted())" icon="check-square" [trend]="8"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Cotizaciones Pendientes" [value]="pendingCount().toString()" icon="clock"></ui-josanz-stat-card>
+      </div>
+
+      <ui-josanz-card variant="glass" class="table-card ui-neon">
         <ui-josanz-table [columns]="columns" [data]="store.budgets()" variant="default">
           <ng-template #cellTemplate let-item let-key="key">
             @switch (key) {
@@ -53,16 +60,10 @@ import { Budget } from '@josanz-erp/budget-api';
               @case ('endDate') { <span class="text-secondary font-mono" [class.overdue]="isExpired(item)">{{ item.endDate | date:'dd/MM/yyyy' }}</span> }
               @case ('actions') {
                 <div class="row-actions">
-                  <button class="action-btn" [routerLink]="['/budgets', item.id]" title="Consultar">
-                    <lucide-icon name="eye" size="16"></lucide-icon>
-                  </button>
-                  <button class="action-btn" title="Editar" [routerLink]="['/budgets', item.id, 'edit']">
-                    <lucide-icon name="pencil" size="16"></lucide-icon>
-                  </button>
+                  <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]" title="Consultar"></ui-josanz-button>
+                  <ui-josanz-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']" title="Editar"></ui-josanz-button>
                   @if (config.enableDownload) {
-                    <button class="action-btn success" title="Generar PDF">
-                      <lucide-icon name="download" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="download" title="Generar PDF" class="btn-success-ghost"></ui-josanz-button>
                   }
                 </div>
               }
@@ -111,6 +112,13 @@ import { Budget } from '@josanz-erp/budget-api';
     .breadcrumb .active { color: var(--brand); }
     .breadcrumb .separator { opacity: 0.3; }
 
+    .stats-row { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 1.5rem; 
+      margin-bottom: 2.5rem; 
+    }
+
     .mono-id { 
       font-family: var(--font-mono, monospace); 
       color: var(--brand); 
@@ -122,30 +130,9 @@ import { Budget } from '@josanz-erp/budget-api';
     .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
     .overdue { color: var(--danger); font-weight: 800; }
 
-    .row-actions { display: flex; gap: 6px; }
+    .row-actions { display: flex; gap: 4px; }
     
-    .action-btn { 
-      background: var(--bg-tertiary); 
-      border: 1px solid var(--border-soft); 
-      color: var(--text-secondary); 
-      cursor: pointer; 
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-base);
-    }
-    
-    .action-btn:hover { 
-      color: #fff; 
-      border-color: var(--brand);
-      background: var(--brand-muted);
-      transform: translateY(-2px);
-    }
-
-    .action-btn.success:hover { background: var(--success); border-color: var(--success); }
+    .btn-success-ghost :host ::ng-deep .btn:hover { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
 
     .table-footer {
       display: flex;
@@ -163,6 +150,7 @@ import { Budget } from '@josanz-erp/budget-api';
     @media (max-width: 900px) {
       .page-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .page-title { font-size: 1.8rem; }
+      .stats-row { grid-template-columns: 1fr; }
     }
   `],
 })
@@ -176,8 +164,18 @@ export class BudgetListComponent implements OnInit {
 
   columns = this.config.defaultColumns;
 
+  // Computed Metrics
+  totalPipeline = computed(() => this.store.budgets().reduce((acc, b) => acc + (b.total || 0), 0));
+  totalAccepted = computed(() => this.store.budgets().filter(b => b.status === 'ACCEPTED').reduce((acc, b) => acc + (b.total || 0), 0));
+  pendingCount = computed(() => this.store.budgets().filter(b => b.status === 'DRAFT' || b.status === 'SENT').length);
+
   ngOnInit() {
     this.store.loadBudgets();
+  }
+
+  formatCurrencyEu(amount: number | undefined): string {
+    if (amount === undefined || amount === null) return '-';
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'error' | 'default' {

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +13,8 @@ import {
   UiModalComponent,
   UiCardComponent,
   UiInputComponent,
+  UiTextareaComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
@@ -33,12 +35,14 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     UiModalComponent,
     UiCardComponent,
     UiInputComponent,
+    UiTextareaComponent,
+    UiStatCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <div class="page-container animate-slide-up">
       <header class="page-header">
-        <div class="header-main">
+        <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase">Gestión de Albaranes</h1>
           <div class="breadcrumb">
             <span class="active">LOGÍSTICA INTEGRAL</span>
@@ -46,12 +50,20 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
             <span>MANIFIESTOS DE CARGA</span>
           </div>
         </div>
-        @if (config.enableCreate) {
-          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
-            NUEVO ALBARÁN
-          </ui-josanz-button>
-        }
+        <div class="header-actions">
+           @if (config.enableCreate) {
+             <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+               NUEVO ALBARÁN
+             </ui-josanz-button>
+           }
+        </div>
       </header>
+
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Salidas Hoy" [value]="todayCount().toString()" icon="truck" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Pendientes Firma" [value]="pendingCount().toString()" icon="pen-tool" [trend]="2"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Retornos Pendientes" [value]="returnCount().toString()" icon="rotate-ccw"></ui-josanz-stat-card>
+      </div>
 
       <div class="navigation-bar">
         <ui-josanz-search 
@@ -67,7 +79,7 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
           <ui-josanz-loader message="SINCRONIZANDO MANIFIESTOS DE ENTREGA..."></ui-josanz-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
+        <ui-josanz-card variant="glass" class="table-card ui-neon">
           <ui-josanz-table [columns]="columns" [data]="deliveryNotes()" variant="default">
             <ng-template #cellTemplate let-delivery let-key="key">
               @switch (key) {
@@ -89,26 +101,16 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <button class="action-btn" [routerLink]="['/delivery', delivery.id]" title="Detalles">
-                      <lucide-icon name="eye" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]" title="Detalles"></ui-josanz-button>
                     @if (delivery.status === 'pending' && config.enableSign) {
-                      <button class="action-btn success" title="Firmar" (click)="signDelivery(delivery)">
-                        <lucide-icon name="pen-tool" size="15"></lucide-icon>
-                      </button>
+                       <ui-josanz-button variant="ghost" size="sm" icon="pen-tool" (clicked)="signDelivery(delivery)" title="Firmar" class="btn-success-ghost"></ui-josanz-button>
                     }
                     @if (delivery.status === 'signed') {
-                      <button class="action-btn info" title="Completar" (click)="completeDelivery(delivery)">
-                        <lucide-icon name="check-circle" size="16"></lucide-icon>
-                      </button>
+                       <ui-josanz-button variant="ghost" size="sm" icon="check-circle" (clicked)="completeDelivery(delivery)" title="Completar" class="btn-info-ghost"></ui-josanz-button>
                     }
-                    <button class="action-btn" (click)="editDelivery(delivery)" title="Editar">
-                      <lucide-icon name="pencil" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editDelivery(delivery)" title="Editar"></ui-josanz-button>
                     @if (config.enableDelete) {
-                      <button class="action-btn danger" (click)="confirmDelete(delivery)" title="Eliminar">
-                        <lucide-icon name="trash-2" size="16"></lucide-icon>
-                      </button>
+                       <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(delivery)" title="Eliminar" class="btn-danger-ghost"></ui-josanz-button>
                     }
                   </div>
                 }
@@ -194,16 +196,13 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
             id="delivery-items"
           ></ui-josanz-input>
           
-          <div class="form-group">
-            <label for="delivery-notes" class="field-label text-uppercase">Observaciones de Operación</label>
-            <textarea 
-              id="delivery-notes"
-              class="tech-textarea"
-              [(ngModel)]="formData.notes" 
-              rows="3"
-              placeholder="ESPECIFICACIONES ADICIONALES PARA LA ENTREGA..."
-            ></textarea>
-          </div>
+          <ui-josanz-textarea
+            label="Observaciones de Operación"
+            [(ngModel)]="formData.notes" 
+            [rows]="3"
+            placeholder="ESPECIFICACIONES ADICIONALES PARA LA ENTREGA..."
+            variant="filled"
+          ></ui-josanz-textarea>
         </div>
       </div>
       
@@ -233,12 +232,13 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
           Registre la firma digital para validar la conformidad:
         </div>
         
-        <textarea 
-          class="tech-textarea signature-pad"
+        <ui-josanz-textarea
           [(ngModel)]="signatureText" 
           placeholder="INTRODUZCA FIRMA O CÓDIGO DE VERIFICACIÓN..."
-          rows="5"
-        ></textarea>
+          [rows]="5"
+          variant="dark"
+          class="signature-pad"
+        ></ui-josanz-textarea>
         
         <div class="disclaimer-alert">
           <lucide-icon name="info" size="16"></lucide-icon>
@@ -307,46 +307,37 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     .breadcrumb .active { color: var(--brand); }
     .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-bar { margin-bottom: 2rem; }
-    .search-bar { max-width: 450px; }
-    
-    .delivery-link { 
-      color: var(--brand); 
-      text-decoration: none; 
-      font-weight: 800; 
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      transition: var(--transition-fast);
-    }
-    .delivery-link:hover { color: #fff; text-decoration: underline; }
-    
-    .row-actions { display: flex; gap: 6px; }
-    
-    .action-btn { 
-      background: var(--bg-tertiary); 
-      border: 1px solid var(--border-soft); 
-      color: var(--text-secondary); 
-      cursor: pointer; 
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-base);
-    }
-    
-    .action-btn:hover { 
-      color: #fff; 
-      border-color: var(--brand);
-      background: var(--brand-muted);
-      transform: translateY(-2px);
-    }
-    
-    .action-btn.success:hover { background: var(--success); border-color: var(--success); }
-    .action-btn.info:hover { background: var(--info); border-color: var(--info); }
-    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+      .stats-row { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 1.5rem; 
+        margin-bottom: 2.5rem; 
+      }
+
+      .navigation-bar { margin-bottom: 2rem; }
+      .search-bar { max-width: 450px; }
+      
+      .delivery-link { 
+        color: var(--brand); 
+        text-decoration: none; 
+        font-weight: 800; 
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        transition: var(--transition-fast);
+      }
+      .delivery-link:hover { color: #fff; text-decoration: underline; }
+      
+      .row-actions { display: flex; gap: 4px; }
+      
+      .btn-success-ghost :host ::ng-deep .btn { color: var(--success) !important; }
+      .btn-success-ghost :host ::ng-deep .btn:hover { background: var(--success) !important; color: white !important; }
+
+      .btn-info-ghost :host ::ng-deep .btn { color: var(--info) !important; }
+      .btn-info-ghost :host ::ng-deep .btn:hover { background: var(--info) !important; color: white !important; }
+
+      .btn-danger-ghost :host ::ng-deep .btn { color: var(--danger) !important; }
+      .btn-danger-ghost :host ::ng-deep .btn:hover { background: var(--danger) !important; color: white !important; }
 
     .table-footer {
       display: flex;
@@ -578,4 +569,13 @@ export class DeliveryListComponent implements OnInit {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
+
+  todayCount = computed(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return this.deliveryNotes().filter(d => d.deliveryDate === today).length;
+  });
+  
+  pendingCount = computed(() => this.deliveryNotes().filter(d => d.status === 'pending').length);
+  
+  returnCount = computed(() => this.deliveryNotes().filter(d => d.status === 'signed' || d.status === 'completed').length);
 }

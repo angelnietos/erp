@@ -136,7 +136,9 @@ import { CommandPaletteComponent } from './command-palette.component';
 
     .top-nav {
       height: 72px;
-      background: var(--bg-secondary);
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
@@ -144,7 +146,7 @@ import { CommandPaletteComponent } from './command-palette.component';
       padding: 0 40px;
       flex-shrink: 0;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
 
     .search-container {
@@ -156,16 +158,22 @@ import { CommandPaletteComponent } from './command-palette.component';
       position: relative;
       display: flex;
       align-items: center;
-      background: var(--bg-tertiary);
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
       padding: 0 16px;
       height: 42px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid var(--border-soft);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+    }
+
+    .search-box:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .search-box:focus-within {
-      background: var(--bg-secondary);
+      background: rgba(255, 255, 255, 0.05);
       border-color: var(--brand);
       box-shadow: 0 0 15px var(--brand-glow);
     }
@@ -189,6 +197,7 @@ import { CommandPaletteComponent } from './command-palette.component';
       font-size: 0.9rem;
       outline: none;
       font-family: var(--font-main);
+      cursor: pointer;
     }
     
     .search-box input::placeholder {
@@ -200,13 +209,13 @@ import { CommandPaletteComponent } from './command-palette.component';
     }
 
     .search-shortcut {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text-muted);
       font-size: 0.65rem;
       font-weight: 800;
       padding: 4px 8px;
       border-radius: 4px;
-      border: 1px solid var(--border-soft);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       pointer-events: none;
       font-family: var(--font-display);
     }
@@ -224,7 +233,7 @@ import { CommandPaletteComponent } from './command-palette.component';
       padding: 8px 16px;
       background: rgba(240, 62, 62, 0.1);
       color: var(--brand);
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
@@ -235,24 +244,25 @@ import { CommandPaletteComponent } from './command-palette.component';
 
     .icon-btn {
       position: relative;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       color: var(--text-secondary);
       width: 42px;
       height: 42px;
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .icon-btn:hover {
-      background: var(--bg-secondary);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
       border-color: var(--brand);
       box-shadow: 0 0 10px var(--brand-glow);
+      transform: translateY(-1px);
     }
 
     .notification-dot {
@@ -272,22 +282,23 @@ import { CommandPaletteComponent } from './command-palette.component';
     }
 
     .theme-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       color: var(--text-secondary);
       width: 42px;
       height: 42px;
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .theme-btn:hover {
       border-color: var(--brand);
       color: #fff;
+      transform: scale(1.05);
     }
 
     .theme-menu {
@@ -295,14 +306,15 @@ import { CommandPaletteComponent } from './command-palette.component';
       top: 100%;
       right: 0;
       margin-top: 12px;
-      background: var(--bg-secondary);
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border-soft);
       border-radius: 8px;
       padding: 10px;
       min-width: 180px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       z-index: 200;
-      animation: menuFadeIn 0.3s ease;
+      animation: menuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     @keyframes menuFadeIn {
@@ -318,7 +330,7 @@ import { CommandPaletteComponent } from './command-palette.component';
       padding: 10px 14px;
       background: transparent;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 0.85rem;
       font-weight: 600;
@@ -329,7 +341,7 @@ import { CommandPaletteComponent } from './command-palette.component';
     }
 
     .theme-option:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.05);
       color: #fff;
     }
 
@@ -351,6 +363,8 @@ import { CommandPaletteComponent } from './command-palette.component';
       gap: 20px;
       padding-left: 20px;
       border-left: 1px solid var(--border-soft);
+      position: relative;
+      cursor: pointer;
     }
 
     .user-info {
@@ -380,13 +394,78 @@ import { CommandPaletteComponent } from './command-palette.component';
       width: 44px;
       height: 44px;
       background: linear-gradient(135deg, var(--brand), #a00);
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
       box-shadow: 0 0 15px var(--brand-glow);
       border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .user-profile:hover .avatar {
+      transform: scale(1.05);
+    }
+
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 16px;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 12px;
+      min-width: 220px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      z-index: 200;
+    }
+
+    .menu-header {
+      padding: 8px 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 8px;
+    }
+
+    .menu-header span {
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .menu-item.logout {
+      margin-top: 4px;
+    }
+
+    .menu-item.logout:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
     }
 
     .content-scroll {
@@ -402,10 +481,10 @@ import { CommandPaletteComponent } from './command-palette.component';
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--brand); }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+
   `]
 })
 export class AppLayoutComponent {

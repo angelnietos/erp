@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiCardComponent,
+  UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -31,59 +32,67 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiLoaderComponent,
     UiModalComponent,
     UiCardComponent,
+    UiStatCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <div class="header-content">
-          <h1 class="glow-text">Clientes</h1>
-          <p class="subtitle">Gestiona la base de datos de asociados y colaboradores</p>
+    <div class="page-container animate-slide-up">
+      <header class="page-header">
+        <div class="header-breadcrumb">
+          <h1 class="page-title text-uppercase">Directorio de Clientes</h1>
+          <div class="breadcrumb">
+            <span class="active">GESTIÓN COMERCIAL</span>
+            <span class="separator">/</span>
+            <span>BASE DE DATOS</span>
+          </div>
         </div>
-        <ui-josanz-button variant="primary" (clicked)="openCreateModal()">
-          <lucide-icon name="plus" class="mr-2"></lucide-icon>
-          Nuevo Cliente
-        </ui-josanz-button>
+        <div class="header-actions">
+          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+            NUEVO CLIENTE
+          </ui-josanz-button>
+        </div>
+      </header>
+
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Total Clientes" [value]="clients().length.toString()" icon="users" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Nuevos este mes" [value]="newClientsCount().toString()" icon="user-plus" [trend]="12"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Sectores Activos" [value]="activeSectorsCount().toString()" icon="briefcase"></ui-josanz-stat-card>
       </div>
 
       <div class="filters-bar">
         <ui-josanz-search 
           variant="filled"
-          placeholder="BUSCAR CLIENTES..." 
+          placeholder="BUSCAR CLEINTES POR NOMBRE O SECTOR..." 
           (searchChange)="onSearch($any($event))"
-          class="flex-1"
+          class="flex-1 max-w-md"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando base de datos..."></ui-josanz-loader>
+        <div class="loader-container">
+          <ui-josanz-loader message="SINCRONIZANDO BASE DE DATOS..."></ui-josanz-loader>
+        </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
-          <ui-josanz-table [columns]="columns" [data]="clients()" variant="hover">
+        <ui-josanz-card variant="glass" class="table-card ui-neon">
+          <ui-josanz-table [columns]="columns" [data]="clients()" variant="default">
             <ng-template #cellTemplate let-client let-key="key">
               @switch (key) {
                 @case ('name') {
                   <a [routerLink]="['/clients', client.id]" class="client-link">
-                    {{ client.name }}
+                    {{ client.name | uppercase }}
                   </a>
                 }
                 @case ('sector') {
-                  <ui-josanz-badge variant="info">{{ client.sector }}</ui-josanz-badge>
+                  <ui-josanz-badge variant="info">{{ (client.sector || 'GENERAL') | uppercase }}</ui-josanz-badge>
                 }
                 @case ('createdAt') {
-                  <span class="date-text">{{ formatDate(client.createdAt) }}</span>
+                  <span class="date-text font-mono">{{ formatDate(client.createdAt) }}</span>
                 }
                 @case ('actions') {
-                  <div class="actions">
-                    <button class="action-trigger" [routerLink]="['/clients', client.id]" title="Ver">
-                      <lucide-icon name="eye" size="18"></lucide-icon>
-                    </button>
-                    <button class="action-trigger" (click)="editClient(client)" title="Editar">
-                      <lucide-icon name="pencil" size="18"></lucide-icon>
-                    </button>
-                    <button class="action-trigger danger" (click)="confirmDelete(client)" title="Eliminar">
-                      <lucide-icon name="trash-2" size="18"></lucide-icon>
-                    </button>
+                  <div class="row-actions">
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/clients', client.id]" title="Detalles"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editClient(client)" title="Editar"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(client)" title="Eliminar" class="btn-danger-ghost"></ui-josanz-button>
                   </div>
                 }
                 @default {
@@ -93,14 +102,17 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
             </ng-template>
           </ui-josanz-table>
 
-          <div class="pagination-wrapper">
+          <footer class="table-footer">
+            <div class="table-info text-uppercase">
+              {{ clients().length }} CLIENTES REGISTRADOS
+            </div>
              <ui-josanz-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
-              variant="minimal"
+              variant="default"
               (pageChange)="onPageChange($event)"
             ></ui-josanz-pagination>
-          </div>
+          </footer>
         </ui-josanz-card>
       }
     </div>
@@ -108,7 +120,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     <!-- Create/Edit Modal -->
     <ui-josanz-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingClient() ? 'IDENTIFICACIÓN: EDITAR CLIENTE' : 'IDENTIFICACIÓN: NUEVO CLIENTE'"
+      [title]="editingClient() ? 'MODIFICACIÓN DE PERFIL CLIENTE' : 'ALTA DE NUEVO CLIENTE'"
       (closed)="closeModal()"
       variant="dark"
     >
@@ -408,6 +420,18 @@ export class ClientsListComponent implements OnInit {
   };
 
   // Forms no longer need the ClientService in the constructor
+
+  // Computed Metrics
+  newClientsCount = computed(() => {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    return this.clients().filter(c => new Date(c.createdAt) >= startOfMonth).length;
+  });
+
+  activeSectorsCount = computed(() => {
+    return new Set(this.clients().map(c => c.sector).filter(Boolean)).size;
+  });
 
   ngOnInit() {
     this.loadClients();

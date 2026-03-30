@@ -13,19 +13,19 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
   imports: [CommonModule, RouterModule, LucideAngularModule, NavMenuComponent],
   template: `
     <aside 
-      class="sidebar-container" 
+      class="sidebar-container ui-glass" 
       [class.collapsed]="isCollapsed()"
     >
       <!-- Logo & Toggle -->
       <div class="header">
         @if (!isCollapsed()) {
-          <div class="logo-area">
-            <div class="logo-pill"></div>
-            <span class="logo-text">JOSANZ</span>
+          <div class="logo-area animate-fade-in">
+            <div class="logo-capsule"></div>
+            <span class="logo-text text-brand">JOSANZ</span>
           </div>
         }
-        <button class="toggle-btn" (click)="toggle()">
-          <lucide-icon [name]="isCollapsed() ? 'menu' : 'chevron-left'" size="20"></lucide-icon>
+        <button class="toggle-btn ui-filled" (click)="toggle()">
+          <lucide-icon [name]="isCollapsed() ? 'menu' : 'chevron-left'" size="18"></lucide-icon>
         </button>
       </div>
 
@@ -38,9 +38,9 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       <div class="footer-area">
         <ul class="nav-list">
            <li class="nav-item">
-            <a routerLink="/settings" class="nav-link secondary">
+            <a routerLink="/settings" class="nav-link secondary" routerLinkActive="active">
               <div class="icon-wrapper">
-                <lucide-icon name="settings" size="20"></lucide-icon>
+                <lucide-icon name="settings" size="18"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Configuración</span>
@@ -50,7 +50,7 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
           <li class="nav-item">
             <button class="nav-link logout" (click)="logout()">
               <div class="icon-wrapper">
-                <lucide-icon name="log-out" size="20"></lucide-icon>
+                <lucide-icon name="log-out" size="18"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Cerrar Sesión</span>
@@ -70,15 +70,14 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     .sidebar-container {
       width: 260px;
       height: 100%;
-      background: var(--bg-secondary);
+      background: rgba(10, 10, 10, 0.8);
       border-right: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       color: var(--text-secondary);
       overflow: hidden;
       position: relative;
-      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
     }
 
     .sidebar-container.collapsed {
@@ -90,7 +89,7 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 20px;
       flex-shrink: 0;
       border-bottom: 1px solid var(--border-soft);
     }
@@ -104,22 +103,20 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       display: flex;
       align-items: center;
       gap: 12px;
-      animation: fadeIn 0.3s ease;
     }
 
-    .logo-pill {
-      width: 10px;
-      height: 20px;
+    .logo-capsule {
+      width: 6px;
+      height: 24px;
       background: var(--brand);
-      border-radius: 2px;
-      box-shadow: 0 0 10px var(--brand-glow);
+      border-radius: 100px;
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
     .logo-text {
       font-weight: 900;
-      font-size: 1.1rem;
-      color: #fff;
-      letter-spacing: 0.2em;
+      font-size: 1.25rem;
+      letter-spacing: 0.15em;
       font-family: var(--font-display);
     }
 
@@ -129,30 +126,30 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       color: var(--text-muted);
       width: 32px;
       height: 32px;
-      border-radius: 4px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: var(--transition-base);
     }
 
     .toggle-btn:hover {
       border-color: var(--brand);
       color: #fff;
-      box-shadow: 0 0 10px var(--brand-glow);
+      transform: scale(1.05);
     }
 
     .nav-area {
       flex: 1;
-      padding: 24px 0;
+      padding: 20px 0;
       overflow-y: auto;
     }
 
     .footer-area {
-      padding: 20px 12px;
+      padding: 20px 10px;
       border-top: 1px solid var(--border-soft);
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .nav-list {
@@ -161,23 +158,21 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
 
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 12px 16px;
+      padding: 10px 14px;
       margin: 0 8px;
-      border-radius: 4px;
+      border-radius: 8px;
       text-decoration: none;
       color: var(--text-secondary);
-      transition: all 0.3s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       height: 44px;
-      font-family: var(--font-display);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-family: var(--font-main);
       font-weight: 700;
       font-size: 0.8rem;
     }
@@ -188,8 +183,8 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .icon-wrapper {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -197,21 +192,33 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .label-text {
-      margin-left: 16px;
+      margin-left: 12px;
       white-space: nowrap;
-      animation: fadeIn 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .nav-link:hover {
-      background: rgba(255, 255, 255, 0.03);
+    .nav-link:hover, .nav-link.active {
+      background: rgba(255, 255, 255, 0.05);
       color: #fff;
-      border-bottom: 1px solid var(--brand);
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.02);
+    }
+    
+    .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      background: var(--brand);
+      border-radius: 0 4px 4px 0;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .logout:hover {
       background: rgba(239, 68, 68, 0.1) !important;
       color: var(--danger) !important;
-      border-bottom-color: var(--danger) !important;
     }
 
     button.nav-link {
@@ -222,14 +229,9 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       text-align: left;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-10px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
   `]
 })

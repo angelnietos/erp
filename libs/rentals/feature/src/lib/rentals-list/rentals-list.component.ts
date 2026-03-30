@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import {
   UiTabsComponent,
   UiCardComponent,
   UiInputComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 
@@ -34,12 +35,13 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiTabsComponent,
     UiCardComponent,
     UiInputComponent,
+    UiStatCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <div class="page-container animate-slide-up">
       <header class="page-header">
-        <div class="header-main">
+        <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase">Arrendamientos y Alquileres</h1>
           <div class="breadcrumb">
             <span class="active">GESTIÓN OPERATIVA</span>
@@ -47,10 +49,18 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
             <span>FLUJO DE EXPEDIENTES</span>
           </div>
         </div>
-        <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
-          NUEVO EXPEDIENTE
-        </ui-josanz-button>
+        <div class="header-actions">
+          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+            NUEVO EXPEDIENTE
+          </ui-josanz-button>
+        </div>
       </header>
+
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Expedientes Activos" [value]="activeCount().toString()" icon="play-circle" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Pendientes Inicio" [value]="draftCount().toString()" icon="clock" [trend]="1"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Facturación Ciclo" [value]="formatCurrencyEu(totalRevenue())" icon="trending-up"></ui-josanz-stat-card>
+      </div>
 
       <div class="navigation-bar">
         <ui-josanz-tabs 
@@ -73,7 +83,7 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
           <ui-josanz-loader message="SINCRONIZANDO REGISTROS DE ALQUILER..."></ui-josanz-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
+        <ui-josanz-card variant="glass" class="table-card ui-neon">
           <ui-josanz-table [columns]="columns" [data]="rentals()" variant="default">
             <ng-template #cellTemplate let-rental let-key="key">
               @switch (key) {
@@ -98,20 +108,12 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <button class="action-btn" [routerLink]="['/rentals', rental.id]" title="Detalles">
-                      <lucide-icon name="eye" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/rentals', rental.id]" title="Detalles"></ui-josanz-button>
                     @if (rental.status === 'DRAFT') {
-                      <button class="action-btn success" title="Activar" (click)="activateRental(rental)">
-                        <lucide-icon name="play" size="15"></lucide-icon>
-                      </button>
+                      <ui-josanz-button variant="ghost" size="sm" icon="play" (clicked)="activateRental(rental)" title="Activar" class="btn-success-ghost"></ui-josanz-button>
                     }
-                    <button class="action-btn" (click)="editRental(rental)" title="Editar">
-                      <lucide-icon name="pencil" size="16"></lucide-icon>
-                    </button>
-                    <button class="action-btn danger" (click)="confirmDelete(rental)" title="Eliminar">
-                      <lucide-icon name="trash-2" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editRental(rental)" title="Editar"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(rental)" title="Eliminar" class="btn-danger-ghost"></ui-josanz-button>
                   </div>
                 }
                 @default {
@@ -265,53 +267,42 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     .breadcrumb .active { color: var(--brand); }
     .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-bar { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 2rem; 
-      gap: 2rem;
-    }
-    .search-bar { max-width: 400px; }
-    
-    .rental-link { 
-      color: var(--brand); 
-      text-decoration: none; 
-      font-weight: 800; 
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      transition: var(--transition-fast);
-    }
-    .rental-link:hover { color: #fff; text-decoration: underline; }
-    
-    .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
+      .stats-row { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 1.5rem; 
+        margin-bottom: 2.5rem; 
+      }
 
-    .row-actions { display: flex; gap: 6px; }
-    
-    .action-btn { 
-      background: var(--bg-tertiary); 
-      border: 1px solid var(--border-soft); 
-      color: var(--text-secondary); 
-      cursor: pointer; 
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-base);
-    }
-    
-    .action-btn:hover { 
-      color: #fff; 
-      border-color: var(--brand);
-      background: var(--brand-muted);
-      transform: translateY(-2px);
-    }
-    
-    .action-btn.success:hover { background: var(--success); border-color: var(--success); }
-    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+      .navigation-bar { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 2rem; 
+        gap: 2rem;
+      }
+      .search-bar { max-width: 400px; }
+      
+      .rental-link { 
+        color: var(--brand); 
+        text-decoration: none; 
+        font-weight: 800; 
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        transition: var(--transition-fast);
+      }
+      .rental-link:hover { color: #fff; text-decoration: underline; }
+      
+      .currency-value { color: #fff; font-weight: 700; font-family: var(--font-display); }
+
+      .row-actions { display: flex; gap: 4px; }
+      
+      .btn-success-ghost :host ::ng-deep .btn { color: var(--success) !important; }
+      .btn-success-ghost :host ::ng-deep .btn:hover { background: var(--success) !important; color: white !important; }
+
+      .btn-danger-ghost :host ::ng-deep .btn { color: var(--danger) !important; }
+      .btn-danger-ghost :host ::ng-deep .btn:hover { background: var(--danger) !important; color: white !important; }
 
     .table-footer {
       display: flex;
@@ -607,4 +598,16 @@ export class RentalsListComponent implements OnInit {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
+
+  formatCurrencyEu(amount: number): string {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
+  }
+
+  activeCount = computed(() => this.rentals().filter(r => r.status === 'ACTIVE').length);
+  draftCount = computed(() => this.rentals().filter(r => r.status === 'DRAFT').length);
+  totalRevenue = computed(() => {
+    return this.rentals()
+      .filter(r => r.status === 'ACTIVE' || r.status === 'COMPLETED')
+      .reduce((acc, r) => acc + r.totalAmount, 0);
+  });
 }

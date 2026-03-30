@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import {
   UiCardComponent,
   UiTabsComponent,
   UiInputComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
@@ -34,12 +35,13 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     UiCardComponent,
     UiTabsComponent,
     UiInputComponent,
+    UiStatCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <div class="page-container animate-slide-up">
       <header class="page-header">
-        <div class="header-main">
+        <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase">Gestión de Flota Logística</h1>
           <div class="breadcrumb">
             <span class="active">UNIDADES LOGÍSTICAS</span>
@@ -47,10 +49,18 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
             <span>MONITOREO DE MOVILIDAD</span>
           </div>
         </div>
-        <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
-          NUEVA UNIDAD
-        </ui-josanz-button>
+        <div class="header-actions">
+          <ui-josanz-button variant="primary" size="md" (clicked)="openCreateModal()" icon="plus">
+            NUEVA UNIDAD
+          </ui-josanz-button>
+        </div>
       </header>
+
+      <div class="stats-row animate-slide-up">
+        <ui-josanz-stat-card label="Unidades Activas" [value]="vehicles().length.toString()" icon="truck" [accent]="true"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="En Mantenimiento" [value]="maintenanceCount().toString()" icon="wrench" [trend]="-2"></ui-josanz-stat-card>
+        <ui-josanz-stat-card label="Alertas Técnicas" [value]="alertCount().toString()" icon="alert-triangle" [class.text-danger]="alertCount() > 0"></ui-josanz-stat-card>
+      </div>
 
       <div class="navigation-bar">
         <ui-josanz-tabs 
@@ -73,7 +83,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           <ui-josanz-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-josanz-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
+        <ui-josanz-card variant="glass" class="table-card ui-neon">
           <ui-josanz-table [columns]="columns" [data]="vehicles()" variant="default">
             <ng-template #cellTemplate let-vehicle let-key="key">
               @switch (key) {
@@ -102,15 +112,9 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <button class="action-btn" [routerLink]="['/fleet', vehicle.id]" title="Detalles">
-                      <lucide-icon name="eye" size="16"></lucide-icon>
-                    </button>
-                    <button class="action-btn" (click)="editVehicle(vehicle)" title="Editar">
-                      <lucide-icon name="pencil" size="16"></lucide-icon>
-                    </button>
-                    <button class="action-btn danger" (click)="confirmDelete(vehicle)" title="Eliminar">
-                      <lucide-icon name="trash-2" size="16"></lucide-icon>
-                    </button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/fleet', vehicle.id]" title="Detalles"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editVehicle(vehicle)" title="Editar"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(vehicle)" title="Eliminar" class="btn-danger-ghost"></ui-josanz-button>
                   </div>
                 }
                 @default {
@@ -294,51 +298,38 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     .breadcrumb .active { color: var(--brand); }
     .breadcrumb .separator { opacity: 0.3; }
     
-    .navigation-bar { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 2rem; 
-      gap: 2rem;
-    }
-    .search-bar { max-width: 400px; }
-    
-    .vehicle-link { 
-      color: var(--brand); 
-      text-decoration: none; 
-      font-weight: 800; 
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-      transition: var(--transition-fast);
-    }
-    .vehicle-link:hover { color: #fff; text-decoration: underline; }
-    
-    .overdue { color: var(--danger); font-weight: 800; }
-    
-    .row-actions { display: flex; gap: 6px; }
-    
-    .action-btn { 
-      background: var(--bg-tertiary); 
-      border: 1px solid var(--border-soft); 
-      color: var(--text-secondary); 
-      cursor: pointer; 
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-base);
-    }
-    
-    .action-btn:hover { 
-      color: #fff; 
-      border-color: var(--brand);
-      background: var(--brand-muted);
-      transform: translateY(-2px);
-    }
-    
-    .action-btn.danger:hover { background: var(--danger); border-color: var(--danger); }
+      .stats-row { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 1.5rem; 
+        margin-bottom: 2.5rem; 
+      }
+
+      .navigation-bar { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 2rem; 
+        gap: 2rem;
+      }
+      .search-bar { max-width: 400px; }
+      
+      .vehicle-link { 
+        color: var(--brand); 
+        text-decoration: none; 
+        font-weight: 800; 
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+        transition: var(--transition-fast);
+      }
+      .vehicle-link:hover { color: #fff; text-decoration: underline; }
+      
+      .overdue { color: var(--danger); font-weight: 800; }
+      
+      .row-actions { display: flex; gap: 4px; }
+      
+      .btn-danger-ghost :host ::ng-deep .btn { color: var(--danger) !important; }
+      .btn-danger-ghost :host ::ng-deep .btn:hover { background: var(--danger) !important; color: white !important; }
 
     .table-footer {
       display: flex;
@@ -616,4 +607,7 @@ export class FleetListComponent implements OnInit {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
+
+  maintenanceCount = computed(() => this.vehicles().filter(v => v.status === 'maintenance').length);
+  alertCount = computed(() => this.vehicles().filter(v => this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry)).length);
 }

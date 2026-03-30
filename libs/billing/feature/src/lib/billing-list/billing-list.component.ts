@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -758,6 +758,6 @@ export class BillingListComponent implements OnInit {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 
-  totalInvoiced = () => this.invoices().reduce((acc, inv) => acc + (inv.total || 0), 0);
-  totalPending = () => this.invoices().filter(i => i.status === 'pending').reduce((acc, inv) => acc + (inv.total || 0), 0);
+  totalInvoiced = computed(() => this.invoices().reduce((acc, inv) => acc + (inv.total || 0), 0));
+  totalPending = computed(() => this.invoices().filter(i => i.status === 'pending').reduce((acc, inv) => acc + (inv.total || 0), 0));
 }
