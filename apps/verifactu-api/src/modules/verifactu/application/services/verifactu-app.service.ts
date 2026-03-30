@@ -56,5 +56,13 @@ export class VerifactuAppService {
   async complianceSummary(tenantId: string) {
     return this.runtime.complianceSummary(tenantId);
   }
+
+  getInvoiceDetail(invoiceId: string) {
+    return this.runtime.getInvoiceDetail(invoiceId);
+  }
+
+  getInvoiceQr(invoiceId: string) {
+    return this.runtime.getInvoiceQr(invoiceId);
+  }
 }
 

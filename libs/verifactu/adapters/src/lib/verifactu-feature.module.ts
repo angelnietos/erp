@@ -56,6 +56,7 @@ import { VerifactuQueueController } from './http/verifactu-queue.controller';
 		VerifactuPrismaService,
 		VerifactuQueueService,
 		VerifactuApiKeyGuard,
+		VerifactuQrService,
 	],
 })
 export class VerifactuFeatureModule {}
