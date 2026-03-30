@@ -2,7 +2,17 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent, UiTabsComponent, TabItem } from '@josanz-erp/shared-ui-kit';
+import {
+  UiTableComponent,
+  UiButtonComponent,
+  UiSearchComponent,
+  UiPaginationComponent,
+  UiBadgeComponent,
+  UiLoaderComponent,
+  UiModalComponent,
+  UiTabsComponent,
+  TabItem,
+} from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
 
@@ -20,9 +30,7 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiInputComponent,
-    UiSelectComponent,
-    UiTabsComponent
+    UiTabsComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `

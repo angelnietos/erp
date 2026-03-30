@@ -1,5 +1,5 @@
 {
-  "name": "verifactu-api",
+  "name": "verifactu-api-lib",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/verifactu/api/src",
   "prefix": "lib",

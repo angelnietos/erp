@@ -9,9 +9,6 @@
     "type:feature"
   ],
   "targets": {
-    "build": {
-      "executor": "@nx/angular:package"
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": [

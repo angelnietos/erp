@@ -3,17 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { 
-  UiTableComponent, 
-  UiButtonComponent, 
-  UiSearchComponent, 
-  UiPaginationComponent, 
-  UiBadgeComponent, 
-  UiLoaderComponent, 
-  UiModalComponent, 
-  UiInputComponent, 
-  UiSelectComponent, 
-  UiTabsComponent 
+import {
+  UiTableComponent,
+  UiButtonComponent,
+  UiSearchComponent,
+  UiPaginationComponent,
+  UiBadgeComponent,
+  UiLoaderComponent,
+  UiModalComponent,
+  UiTabsComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -32,8 +30,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiInputComponent,
-    UiSelectComponent,
     UiTabsComponent,
     LucideAngularModule
   ],

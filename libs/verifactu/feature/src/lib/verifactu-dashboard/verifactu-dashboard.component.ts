@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { VerifactuStore, VerifactuInvoiceDetail } from '@josanz-erp/verifactu-data-access';
-import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
+import { UiCardComponent } from '@josanz-erp/shared-ui-kit';
 
 @Component({
 	selector: 'verifactu-dashboard',
 	standalone: true,
-	imports: [CommonModule, FormsModule, UiCardComponent, UiButtonComponent, UiBadgeComponent],
+	imports: [CommonModule, FormsModule, UiCardComponent],
 	templateUrl: './verifactu-dashboard.component.html',
 	styleUrls: ['./verifactu-dashboard.component.css'],
 })

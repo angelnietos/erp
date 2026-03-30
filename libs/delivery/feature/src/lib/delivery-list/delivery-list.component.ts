@@ -2,7 +2,15 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UiTableComponent, UiButtonComponent, UiSearchComponent, UiPaginationComponent, UiBadgeComponent, UiLoaderComponent, UiModalComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
+import {
+  UiTableComponent,
+  UiButtonComponent,
+  UiSearchComponent,
+  UiPaginationComponent,
+  UiBadgeComponent,
+  UiLoaderComponent,
+  UiModalComponent,
+} from '@josanz-erp/shared-ui-kit';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
@@ -21,8 +29,6 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiInputComponent,
-    UiSelectComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `

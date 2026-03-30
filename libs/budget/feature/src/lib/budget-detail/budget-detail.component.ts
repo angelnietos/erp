@@ -2,13 +2,12 @@ import { Component, OnInit, signal, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { 
-  UiCardComponent, 
-  UiButtonComponent, 
-  UiBadgeComponent, 
-  UiLoaderComponent, 
-  UiTabsComponent,
-  UiTableComponent 
+import {
+  UiCardComponent,
+  UiButtonComponent,
+  UiBadgeComponent,
+  UiLoaderComponent,
+  UiTableComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 export interface BudgetItem {
@@ -42,10 +41,9 @@ export interface Budget {
     LucideAngularModule, 
     UiCardComponent, 
     UiButtonComponent, 
-    UiBadgeComponent, 
-    UiLoaderComponent, 
-    UiTabsComponent, 
-    UiTableComponent
+    UiBadgeComponent,
+    UiLoaderComponent,
+    UiTableComponent,
   ],
   template: `
     <div class="page-container">

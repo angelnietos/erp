@@ -68,8 +68,9 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
     .alert-success { background: rgba(16, 185, 129, 0.15); color: #059669; border-color: rgba(16, 185, 129, 0.2); }
     .alert-warning { background: rgba(245, 158, 11, 0.15); color: #D97706; border-color: rgba(245, 158, 11, 0.2); }
     .alert-info { background: rgba(14, 165, 233, 0.15); color: #0284C7; border-color: rgba(14, 165, 233, 0.2); }
+    .alert-primary {
       background: rgba(79, 70, 229, 0.15);
-      color: #4F46E5;
+      color: #4f46e5;
       border: 1px solid rgba(79, 70, 229, 0.2);
     }
 

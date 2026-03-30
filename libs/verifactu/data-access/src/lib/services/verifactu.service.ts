@@ -35,7 +35,9 @@ export class VerifactuService {
 
 	// Get QR code for an invoice
 	getQrCode(invoiceId: string): Observable<string> {
-		return this.api.getQrCode(invoiceId).pipe(map((res) => res.qrCode));
+		return this.api
+			.getQrCode(invoiceId)
+			.pipe(map((res: { qrCode: string }) => res.qrCode));
 	}
 
 	// Get queue status
@@ -45,7 +47,9 @@ export class VerifactuService {
 
 	// Cancel invoice
 	cancelInvoice(invoiceId: string, tenantId: string): Observable<boolean> {
-		return this.api.cancelInvoice(invoiceId, tenantId).pipe(map((res) => res.success));
+		return this.api
+			.cancelInvoice(invoiceId, tenantId)
+			.pipe(map((res: { success: boolean }) => res.success));
 	}
 }
 

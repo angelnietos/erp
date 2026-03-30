@@ -3,17 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { 
-  UiTableComponent, 
-  UiButtonComponent, 
-  UiSearchComponent, 
-  UiPaginationComponent, 
-  UiBadgeComponent, 
-  UiLoaderComponent, 
-  UiModalComponent, 
-  UiInputComponent, 
-  UiTextareaComponent, 
-  UiTabsComponent 
+import {
+  UiTableComponent,
+  UiButtonComponent,
+  UiSearchComponent,
+  UiPaginationComponent,
+  UiBadgeComponent,
+  UiLoaderComponent,
+  UiModalComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -32,10 +29,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiInputComponent,
-    UiTextareaComponent,
-    UiTabsComponent,
-    LucideAngularModule
+    LucideAngularModule,
   ],
   template: `
     <div class="page-container">
