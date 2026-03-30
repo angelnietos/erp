@@ -31,6 +31,19 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private rainDrops: RainDrop[] = [];
   private lumens: Lumen[] = [];
   private floatingElements: FloatingElement[] = [];
+  private tinyPals: TinyPal[] = [];
+  private skyFloaters: SkyFloater[] = [];
+
+  private readonly crewPhrases = [
+    '¡Hola!',
+    'ERP ON',
+    'ROLL 🎬',
+    'ACTION!',
+    'JOSANZ',
+    'CUT ✂️',
+    '¡DALE!',
+    'STUDIO',
+  ];
 
   private readonly boundResize = () => this.resizeCanvas();
 
@@ -158,8 +171,11 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     }
 
     // === FLOATING ELEMENTS (magical items) ===
-    const floatCount = 15;
-    const floatTypes = ['✨', '⭐', '💫', '🔮', '🌟', '💎', '🔷', '🌙'];
+    const floatCount = 28;
+    const floatTypes = [
+      '✨', '⭐', '💫', '🔮', '🌟', '💎', '🔷', '🌙', '🎪', '🎈', '🌀', '⚡',
+      '🎯', '🎊', '🔔', '☄️', '💜', '🟣', '🔆',
+    ];
     for (let i = 0; i < floatCount; i++) {
       this.floatingElements.push({
         x: Math.random() * w,
@@ -187,7 +203,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     ];
 
     lumenTypes.forEach((type) => {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 5; i++) {
         this.lumens.push({
           type: type.type,
           hue: type.hue,
@@ -196,13 +212,53 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
           y: Math.random() * h * 0.5 + h * 0.2,
           vx: (Math.random() - 0.5) * 0.8,
           vy: (Math.random() - 0.5) * 0.5,
-          size: 18 + Math.random() * 14,
+          size: 16 + Math.random() * 16,
           phase: Math.random() * Math.PI * 2,
           floatSpeed: 0.4 + Math.random() * 0.5,
           bobAmount: 12 + Math.random() * 12,
         });
       }
     });
+
+    const bonusLabels = ['🎬', '🎥', '🎤', '🍿', '🎮', '📽️', '🎧', '🎭', '🖥️', '✨', '🦄', '🤖'];
+    for (let i = 0; i < 18; i++) {
+      this.lumens.push({
+        type: 'bonus',
+        hue: 200 + Math.random() * 160,
+        label: bonusLabels[Math.floor(Math.random() * bonusLabels.length)],
+        x: Math.random() * w,
+        y: Math.random() * h * 0.55 + h * 0.08,
+        vx: (Math.random() - 0.5) * 1.1,
+        vy: (Math.random() - 0.5) * 0.65,
+        size: 14 + Math.random() * 18,
+        phase: Math.random() * Math.PI * 2,
+        floatSpeed: 0.55 + Math.random() * 0.6,
+        bobAmount: 10 + Math.random() * 18,
+      });
+    }
+
+    const palHues = [350, 200, 45, 280, 130, 25, 310, 175];
+    for (let i = 0; i < 12; i++) {
+      this.tinyPals.push({
+        x: (w / 13) * (i + 0.5) + (Math.random() - 0.5) * 40,
+        baseY: h * 0.82 + Math.random() * h * 0.06,
+        vx: (Math.random() - 0.5) * 0.35,
+        hue: palHues[i % palHues.length] + Math.random() * 18,
+        phase: Math.random() * Math.PI * 2,
+        r: 9 + Math.random() * 7,
+        kind: i % 4,
+      });
+    }
+
+    for (let i = 0; i < 5; i++) {
+      this.skyFloaters.push({
+        x: Math.random() * w,
+        y: Math.random() * h * 0.28 + h * 0.04,
+        vx: 0.25 + Math.random() * 0.45,
+        phase: Math.random() * Math.PI * 2,
+        scale: 0.85 + Math.random() * 0.35,
+      });
+    }
   }
 
   private animate = () => {
@@ -223,9 +279,12 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.drawFireflies(w, h);
     this.drawFloatingElements(w, h);
     this.drawLumenCharacters(w, h);
+    this.drawSkyFloaters(w, h);
     this.drawGearSilhouettes(w, h);
+    this.drawTinyPals(w, h);
     this.drawMascot(w, h);
     this.drawMascotSidekick(w, h);
+    this.drawCrewSpeech(w, h);
     this.drawForegroundGlow(w, h);
 
     this.animationId = requestAnimationFrame(this.animate);
@@ -515,7 +574,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.translate(el.x, el.y);
       this.ctx.rotate(el.rotation);
       this.ctx.globalAlpha = el.opacity * pulse;
-      this.ctx.font = `${el.size}px Arial`;
+      this.ctx.font = `${el.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText(el.symbol, 0, 0);
@@ -548,7 +607,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.fill();
 
       this.ctx.fillStyle = `hsla(${lumen.hue}, 88%, 78%, ${pulseAlpha + 0.15})`;
-      this.ctx.font = `${lumen.size}px Arial`;
+      this.ctx.font = `${lumen.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText(lumen.label, lumen.x, bobY);
@@ -657,10 +716,42 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.fill();
 
     const look = Math.sin(this.time * 2.2) * 2.2;
-    this.ctx.fillStyle = '#0a0a12';
+    const blink = Math.sin(this.time * 2.8) > 0.88;
+    if (blink) {
+      this.ctx.strokeStyle = '#0a0a12';
+      this.ctx.lineWidth = 3;
+      this.ctx.lineCap = 'round';
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx + 18, eyeY);
+      this.ctx.lineTo(bx + 34, eyeY);
+      this.ctx.moveTo(bx + 51, eyeY);
+      this.ctx.lineTo(bx + 67, eyeY);
+      this.ctx.stroke();
+    } else {
+      this.ctx.fillStyle = '#0a0a12';
+      this.ctx.beginPath();
+      this.ctx.arc(bx + 28 + look, eyeY + 1, 6, 0, Math.PI * 2);
+      this.ctx.arc(bx + 61 + look, eyeY + 1, 6, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.fillStyle = '#fff';
+      this.ctx.beginPath();
+      this.ctx.arc(bx + 30 + look, eyeY - 1, 2, 0, Math.PI * 2);
+      this.ctx.arc(bx + 63 + look, eyeY - 1, 2, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+
+    // Smile + rosy cheeks
+    this.ctx.strokeStyle = 'rgba(0,0,0,0.38)';
+    this.ctx.lineWidth = 2.2;
+    this.ctx.lineCap = 'round';
     this.ctx.beginPath();
-    this.ctx.arc(bx + 28 + look, eyeY + 1, 6, 0, Math.PI * 2);
-    this.ctx.arc(bx + 61 + look, eyeY + 1, 6, 0, Math.PI * 2);
+    this.ctx.moveTo(bx + 22, by + 36);
+    this.ctx.quadraticCurveTo(bx + bodyW * 0.5, by + 52, bx + 63, by + 36);
+    this.ctx.stroke();
+    this.ctx.fillStyle = 'rgba(255, 120, 140, 0.35)';
+    this.ctx.beginPath();
+    this.ctx.arc(bx + 14, by + 32, 9, 0, Math.PI * 2);
+    this.ctx.arc(bx + 71, by + 32, 9, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Feet
@@ -749,10 +840,35 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.arc(bx + 48, eyeY, 10, 0, Math.PI * 2);
     this.ctx.fill();
     const look = Math.sin(this.time * 2.3 + 0.8) * 1.6;
-    this.ctx.fillStyle = '#0f172a';
+    const blink = Math.sin(this.time * 3.1 + 0.9) > 0.9;
+    if (blink) {
+      this.ctx.strokeStyle = '#0f172a';
+      this.ctx.lineWidth = 2.2;
+      this.ctx.lineCap = 'round';
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx + 16, eyeY);
+      this.ctx.lineTo(bx + 28, eyeY);
+      this.ctx.moveTo(bx + 42, eyeY);
+      this.ctx.lineTo(bx + 54, eyeY);
+      this.ctx.stroke();
+    } else {
+      this.ctx.fillStyle = '#0f172a';
+      this.ctx.beginPath();
+      this.ctx.arc(bx + 23 + look, eyeY + 1, 4.5, 0, Math.PI * 2);
+      this.ctx.arc(bx + 49 + look, eyeY + 1, 4.5, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+
+    this.ctx.strokeStyle = 'rgba(15,23,42,0.45)';
+    this.ctx.lineWidth = 1.8;
     this.ctx.beginPath();
-    this.ctx.arc(bx + 23 + look, eyeY + 1, 4.5, 0, Math.PI * 2);
-    this.ctx.arc(bx + 49 + look, eyeY + 1, 4.5, 0, Math.PI * 2);
+    this.ctx.arc(bx + bodyW * 0.5, by + 34, 12, 0.2 * Math.PI, 0.8 * Math.PI);
+    this.ctx.stroke();
+
+    this.ctx.fillStyle = 'rgba(255, 160, 170, 0.28)';
+    this.ctx.beginPath();
+    this.ctx.arc(bx + 12, by + 30, 6, 0, Math.PI * 2);
+    this.ctx.arc(bx + 58, by + 30, 6, 0, Math.PI * 2);
     this.ctx.fill();
 
     // Feet
@@ -761,6 +877,203 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.fillRect(bx + 39, by + bodyH - 5, 17, 22);
 
     this.ctx.restore();
+  }
+
+  private drawSkyFloaters(w: number, h: number) {
+    this.skyFloaters.forEach((u) => {
+      u.x += u.vx;
+      if (u.x > w + 60) u.x = -60;
+      const y = u.y + Math.sin(this.time * 1.8 + u.phase) * 14;
+
+      this.ctx.save();
+      this.ctx.translate(u.x, y);
+      this.ctx.scale(u.scale, u.scale);
+
+      const saucerGrad = this.ctx.createLinearGradient(-32, 6, 32, 6);
+      saucerGrad.addColorStop(0, 'hsla(265, 40%, 28%, 0.95)');
+      saucerGrad.addColorStop(0.5, 'hsla(200, 45%, 42%, 0.92)');
+      saucerGrad.addColorStop(1, 'hsla(265, 40%, 28%, 0.95)');
+      this.ctx.fillStyle = saucerGrad;
+      this.ctx.beginPath();
+      this.ctx.ellipse(0, 10, 34, 10, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.fillStyle = 'hsla(195, 55%, 55%, 0.88)';
+      this.ctx.beginPath();
+      this.ctx.arc(0, 2, 22, Math.PI, 0);
+      this.ctx.lineTo(22, 10);
+      this.ctx.lineTo(-22, 10);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      this.ctx.strokeStyle = 'hsla(210, 70%, 70%, 0.5)';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 2, 22, Math.PI, 0);
+      this.ctx.stroke();
+
+      const blink = Math.sin(this.time * 4 + u.phase * 3) > 0.85;
+      if (!blink) {
+        this.ctx.fillStyle = '#0c1220';
+        this.ctx.beginPath();
+        this.ctx.ellipse(-8, 4, 5, 6, 0, 0, Math.PI * 2);
+        this.ctx.ellipse(8, 4, 5, 6, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#7dd3fc';
+        this.ctx.beginPath();
+        this.ctx.arc(-9, 2, 2, 0, Math.PI * 2);
+        this.ctx.arc(7, 2, 2, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+
+      const beamA = 0.12 + Math.sin(this.time * 3 + u.phase) * 0.05;
+      const beam = this.ctx.createRadialGradient(0, 14, 0, 0, 40, 55);
+      beam.addColorStop(0, `hsla(190, 90%, 70%, ${beamA})`);
+      beam.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = beam;
+      this.ctx.beginPath();
+      this.ctx.moveTo(-8, 12);
+      this.ctx.lineTo(8, 12);
+      this.ctx.lineTo(18, 70);
+      this.ctx.lineTo(-18, 70);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      this.ctx.restore();
+    });
+  }
+
+  private drawTinyPals(w: number, h: number) {
+    this.tinyPals.forEach((pal) => {
+      pal.x += pal.vx;
+      if (pal.x < -20) pal.x = w + 20;
+      if (pal.x > w + 20) pal.x = -20;
+
+      const y = pal.baseY + Math.sin(this.time * 4.2 + pal.phase) * 11;
+      const squash = 1 + Math.sin(this.time * 5 + pal.phase) * 0.08;
+
+      this.ctx.save();
+      this.ctx.translate(pal.x, y);
+      this.ctx.scale(1, squash);
+
+      const g = this.ctx.createRadialGradient(0, -pal.r * 0.2, 0, 0, 0, pal.r * 1.4);
+      g.addColorStop(0, `hsla(${pal.hue}, 78%, 62%, 0.95)`);
+      g.addColorStop(0.7, `hsla(${pal.hue}, 65%, 42%, 0.9)`);
+      g.addColorStop(1, `hsla(${pal.hue}, 55%, 28%, 0.85)`);
+      this.ctx.fillStyle = g;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, pal.r, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.stroke();
+
+      if (pal.kind === 1) {
+        this.ctx.fillStyle = 'hsla(40, 90%, 55%, 0.95)';
+        this.ctx.fillRect(-pal.r * 0.35, -pal.r * 1.35, pal.r * 0.7, pal.r * 0.45);
+      } else if (pal.kind === 2) {
+        this.ctx.fillStyle = `hsla(${(pal.hue + 40) % 360}, 70%, 55%, 0.95)`;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, -pal.r * 1.5);
+        this.ctx.lineTo(-pal.r * 0.5, -pal.r * 0.75);
+        this.ctx.lineTo(pal.r * 0.5, -pal.r * 0.75);
+        this.ctx.closePath();
+        this.ctx.fill();
+      } else if (pal.kind === 3) {
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, pal.r + 4, -Math.PI * 0.25, Math.PI * 0.1);
+        this.ctx.stroke();
+      }
+
+      const eyeY = -pal.r * 0.15;
+      const blink = Math.sin(this.time * 3.3 + pal.phase * 2) > 0.91;
+      if (blink) {
+        this.ctx.strokeStyle = '#0a0a12';
+        this.ctx.lineWidth = 1.8;
+        this.ctx.beginPath();
+        this.ctx.moveTo(-pal.r * 0.45, eyeY);
+        this.ctx.lineTo(-pal.r * 0.15, eyeY);
+        this.ctx.moveTo(pal.r * 0.15, eyeY);
+        this.ctx.lineTo(pal.r * 0.45, eyeY);
+        this.ctx.stroke();
+      } else {
+        this.ctx.fillStyle = '#fff';
+        this.ctx.beginPath();
+        this.ctx.arc(-pal.r * 0.32, eyeY, pal.r * 0.28, 0, Math.PI * 2);
+        this.ctx.arc(pal.r * 0.32, eyeY, pal.r * 0.28, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#0a0a12';
+        this.ctx.beginPath();
+        this.ctx.arc(-pal.r * 0.28, eyeY, pal.r * 0.12, 0, Math.PI * 2);
+        this.ctx.arc(pal.r * 0.36, eyeY, pal.r * 0.12, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+
+      this.ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      this.ctx.lineWidth = 1.2;
+      this.ctx.lineCap = 'round';
+      this.ctx.beginPath();
+      this.ctx.moveTo(-pal.r * 0.35, pal.r * 0.35);
+      this.ctx.quadraticCurveTo(0, pal.r * 0.62, pal.r * 0.35, pal.r * 0.35);
+      this.ctx.stroke();
+
+      this.ctx.restore();
+    });
+  }
+
+  private drawSpeechBubble(cx: number, cy: number, text: string, fill: string) {
+    this.ctx.save();
+    this.ctx.font = '700 12px Outfit, "Segoe UI", system-ui, sans-serif';
+    const padX = 12;
+    const tw = Math.ceil(this.ctx.measureText(text).width) + padX * 2;
+    const th = 26;
+    const x = cx - tw / 2;
+    const y = cy - th;
+    const r = 10;
+
+    this.roundRect2(x, y, tw, th, r, fill);
+    this.ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+    this.ctx.lineWidth = 1.5;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + r, y);
+    this.ctx.arcTo(x + tw, y, x + tw, y + th, r);
+    this.ctx.arcTo(x + tw, y + th, x, y + th, r);
+    this.ctx.arcTo(x, y + th, x, y, r);
+    this.ctx.arcTo(x, y, x + tw, y, r);
+    this.ctx.closePath();
+    this.ctx.stroke();
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(cx - 6, y + th);
+    this.ctx.lineTo(cx + 6, y + th);
+    this.ctx.lineTo(cx, y + th + 9);
+    this.ctx.closePath();
+    this.ctx.fillStyle = fill;
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    this.ctx.fillStyle = 'rgba(15, 20, 35, 0.92)';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText(text, cx, y + th / 2 + 0.5);
+    this.ctx.restore();
+  }
+
+  private drawCrewSpeech(w: number, h: number) {
+    const bounce1 = Math.sin(this.time * 5.2) * 7;
+    const cx1 = w * 0.14;
+    const cy1 = h * 0.73 + bounce1;
+    const i1 = Math.floor(this.time / 2.6) % this.crewPhrases.length;
+    this.drawSpeechBubble(cx1 + 48, cy1 - 88, this.crewPhrases[i1], 'rgba(255, 248, 252, 0.94)');
+
+    const bounce2 = Math.sin(this.time * 4.5 + 1.2) * 5.5;
+    const cx2 = w * 0.84;
+    const cy2 = h * 0.72 + bounce2;
+    const i2 = Math.floor(this.time / 3.1 + 2) % this.crewPhrases.length;
+    this.drawSpeechBubble(cx2 - 52, cy2 - 82, this.crewPhrases[i2], 'rgba(236, 253, 250, 0.92)');
   }
 
   private drawForegroundGlow(w: number, h: number) {
@@ -856,4 +1169,22 @@ interface FloatingElement {
   x: number; y: number; vx: number; vy: number;
   symbol: string; size: number;
   rotation: number; rotationSpeed: number; opacity: number; phase: number;
+}
+
+interface TinyPal {
+  x: number;
+  baseY: number;
+  vx: number;
+  hue: number;
+  phase: number;
+  r: number;
+  kind: number;
+}
+
+interface SkyFloater {
+  x: number;
+  y: number;
+  vx: number;
+  phase: number;
+  scale: number;
 }
