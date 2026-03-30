@@ -1,16 +1,17 @@
-import { Component, Input, output, inject, signal } from '@angular/core';
+import { Component, Input, output, inject, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, Theme } from '@josanz-erp/shared-data-access';
+import { ThemeService, Theme, AuthStore } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
+import { CommandPaletteComponent } from './command-palette.component';
 
 @Component({
   selector: 'josanz-app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent, CommandPaletteComponent],
   template: `
     <div class="app-layout">
       <!-- Sidebar -->
@@ -21,9 +22,9 @@ import { NotificationDrawerComponent } from './notification-drawer.component';
         <!-- Top Navbar -->
         <header class="top-nav">
           <div class="search-container">
-            <div class="search-box">
+            <div class="search-box" (click)="toggleCommandPalette()" (keydown.enter)="toggleCommandPalette()" tabindex="0" role="button" aria-label="Abrir paleta de comandos">
               <lucide-icon name="search" size="18" class="search-icon"></lucide-icon>
-              <input type="text" placeholder="Buscar en el ERP..." />
+              <input type="text" placeholder="Buscar en el ERP..." readonly />
               <div class="search-shortcut">⌘K</div>
             </div>
           </div>
@@ -63,7 +64,7 @@ import { NotificationDrawerComponent } from './notification-drawer.component';
               }
             </div>
 
-            <div class="user-profile">
+            <div class="user-profile" (click)="toggleUserMenu()" (keydown.enter)="toggleUserMenu()" tabindex="0" role="button" aria-label="Abrir panel de usuario">
               <div class="user-info">
                 <span class="user-name">Antonio Munias</span>
                 <span class="user-role">Administrador</span>
@@ -71,6 +72,22 @@ import { NotificationDrawerComponent } from './notification-drawer.component';
               <div class="avatar">
                 <lucide-icon name="user" size="20"></lucide-icon>
               </div>
+
+              @if (showUserMenu()) {
+                <div class="user-menu animate-fade-in">
+                  <div class="menu-header">
+                    <span class="text-uppercase">SISTEMA CORE v2.1</span>
+                  </div>
+                  <button class="menu-item" routerLink="/settings">
+                    <lucide-icon name="settings" size="16"></lucide-icon>
+                    CONFIGURACIÓN
+                  </button>
+                  <button class="menu-item logout" (click)="logout()">
+                    <lucide-icon name="log-out" size="16"></lucide-icon>
+                    CERRAR SESIÓN
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </header>
@@ -78,6 +95,11 @@ import { NotificationDrawerComponent } from './notification-drawer.component';
         <!-- Notification Drawer -->
         @if (showNotifications()) {
           <josanz-notification-drawer (closeDrawer)="toggleNotifications()"></josanz-notification-drawer>
+        }
+
+        <!-- Command Palette -->
+        @if (showCommandPalette()) {
+          <josanz-command-palette (close)="toggleCommandPalette()"></josanz-command-palette>
         }
 
         <!-- Dynamic Content -->
@@ -396,6 +418,18 @@ export class AppLayoutComponent {
   @Input() navItems: NavMenuItem[] = [];
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
   showNotifications = signal(false);
+  showCommandPalette = signal(false);
+  showUserMenu = signal(false);
+
+  private readonly authStore = inject(AuthStore);
+
+  @HostListener('window:keydown', ['$event'])
+  handleGlobalShortcuts(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      this.toggleCommandPalette();
+    }
+  }
 
   toggleThemeMenu() {
     this.showThemeMenu.update(v => !v);
@@ -403,6 +437,18 @@ export class AppLayoutComponent {
 
   toggleNotifications() {
     this.showNotifications.update(v => !v);
+  }
+
+  toggleCommandPalette() {
+    this.showCommandPalette.update(v => !v);
+  }
+
+  toggleUserMenu() {
+    this.showUserMenu.update(v => !v);
+  }
+
+  logout() {
+    this.authStore.logout();
   }
 
   setTheme(theme: Theme) {

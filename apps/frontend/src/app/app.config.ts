@@ -10,7 +10,12 @@ import {
   History, Menu, ChevronLeft, Settings, LogOut,
   Pencil, Trash2, Eye, Play, CheckCircle, XCircle,
   Plus, FileText, FileCheck, Download, Sun, Moon,
-  Send, ShieldCheck, QrCode,
+  Send, ShieldCheck, QrCode, Save, AlertTriangle,
+  Mail, Slash, TrendingUp, AlertCircle, BellOff,
+  X, Clock, RefreshCw, Construction, ArrowLeft,
+  SearchX, FilePlus, UserPlus, Hash, Calendar,
+  CalendarClock, Euro, ChevronRight, ChevronDown,
+  ChevronUp, MoreVertical, MoreHorizontal,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -26,7 +31,12 @@ export const appConfig: ApplicationConfig = {
       Menu, ChevronLeft, Settings, LogOut,
       Pencil, Trash2, Eye, Play, CheckCircle, XCircle,
       Plus, FileText, FileCheck, Download, Sun, Moon,
-      Send, ShieldCheck, QrCode,
+      Send, ShieldCheck, QrCode, Save, AlertTriangle,
+      Mail, Slash, TrendingUp, AlertCircle, BellOff,
+      X, Clock, RefreshCw, Construction, ArrowLeft,
+      SearchX, FilePlus, UserPlus, Hash, Calendar,
+      CalendarClock, Euro, ChevronRight, ChevronDown,
+      ChevronUp, MoreVertical, MoreHorizontal,
     })),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3100/api' },
   ],

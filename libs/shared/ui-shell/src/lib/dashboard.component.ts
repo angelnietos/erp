@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -89,19 +89,41 @@ import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-er
           </header>
           <div class="resource-stats">
             <div class="res-item">
-              <span class="res-name text-uppercase">Cámaras & Ópticas</span>
+              <div class="res-meta">
+                <span class="res-name text-uppercase">Cámaras & Ópticas</span>
+                <span class="res-status text-success font-mono">OK</span>
+              </div>
               <div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
-              <span class="res-val">85%</span>
+              <div class="res-footer"><span class="res-val">85%</span><span class="res-lbl text-uppercase">CAPACIDAD</span></div>
             </div>
+            
             <div class="res-item">
-              <span class="res-name text-uppercase">Iluminación</span>
-              <div class="progress-bar"><div class="progress-fill" style="width: 42%"></div></div>
-              <span class="res-val">42%</span>
+              <div class="res-meta">
+                <span class="res-name text-uppercase">Iluminación</span>
+                <span class="res-status text-warning font-mono">STOCK BAJO</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill warning" style="width: 42%"></div></div>
+              <div class="res-footer"><span class="res-val">42%</span><span class="res-lbl text-uppercase">CAPACIDAD</span></div>
             </div>
+
             <div class="res-item">
-              <span class="res-name text-uppercase">Sonido & Microfonía</span>
-              <div class="progress-bar"><div class="progress-fill" style="width: 70%"></div></div>
-              <span class="res-val">70%</span>
+              <div class="res-meta">
+                <span class="res-name text-uppercase">Puesto Logística</span>
+                <span class="res-status text-info font-mono">SÍNCRONO</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill info" style="width: 70%"></div></div>
+              <div class="res-footer"><span class="res-val">70%</span><span class="res-lbl text-uppercase">CAPACIDAD</span></div>
+            </div>
+          </div>
+
+          <div class="performance-summary">
+            <div class="perf-stat">
+              <span class="p-lbl text-uppercase">UPTIME</span>
+              <span class="p-val font-mono">99.98%</span>
+            </div>
+            <div class="perf-stat">
+              <span class="p-lbl text-uppercase">LATENCY</span>
+              <span class="p-val font-mono">14MS</span>
             </div>
           </div>
         </ui-josanz-card>
@@ -153,10 +175,28 @@ import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-er
 
     .resource-stats { display: flex; flex-direction: column; gap: 2rem; }
     .res-item { display: flex; flex-direction: column; gap: 10px; }
+    .res-meta { display: flex; justify-content: space-between; align-items: center; }
     .res-name { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
+    .res-status { font-size: 0.6rem; font-weight: 900; }
+    
     .progress-bar { height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden; position: relative; }
     .progress-fill { position: absolute; top: 0; left: 0; bottom: 0; background: var(--brand); box-shadow: 0 0 10px var(--brand-glow); }
-    .res-val { align-self: flex-end; font-size: 0.7rem; font-weight: 900; color: #fff; font-family: var(--font-mono); }
+    .progress-fill.warning { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
+    .progress-fill.info { background: var(--info); box-shadow: 0 0 10px var(--info); }
+    
+    .res-footer { display: flex; justify-content: space-between; align-items: center; }
+    .res-val { font-size: 0.75rem; font-weight: 900; color: #fff; font-family: var(--font-mono); }
+    .res-lbl { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); opacity: 0.6; }
+
+    .performance-summary { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-soft); display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .perf-stat { display: flex; flex-direction: column; gap: 4px; }
+    .p-lbl { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); }
+    .p-val { font-size: 1rem; font-weight: 900; color: var(--brand); }
+
+    .text-brand { color: var(--brand); }
+    .text-success { color: var(--success); }
+    .text-warning { color: var(--warning); }
+    .text-info { color: var(--info); }
 
     @media (max-width: 1200px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
