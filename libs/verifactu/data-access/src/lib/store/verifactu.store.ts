@@ -5,6 +5,8 @@ import {
 	EnqueueInvoiceResponse,
 	VerifactuInvoiceDetail,
 } from '@josanz-erp/verifactu-api';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { VerifactuService } from '../services/verifactu.service';
 
 export interface VerifactuState {
@@ -74,14 +76,39 @@ export class VerifactuStore {
 		});
 	}
 
-	// Load QR code
+	/** Detail + QR in one shot (avoids race where QR arrives before detail and is dropped). */
+	loadInvoiceDetailWithQr(invoiceId: string): void {
+		this.state.update((s) => ({ ...s, loading: true, error: null, selectedInvoice: null }));
+		forkJoin({
+			detail: this.service.getInvoiceDetail(invoiceId),
+			qr: this.service.getQrCode(invoiceId).pipe(catchError(() => of(undefined))),
+		}).subscribe({
+			next: ({ detail, qr }) =>
+				this.state.update((s) => ({
+					...s,
+					loading: false,
+					selectedInvoice: qr != null ? { ...detail, qrCode: qr } : { ...detail },
+				})),
+			error: (err) =>
+				this.state.update((s) => ({
+					...s,
+					loading: false,
+					error: err?.message ?? 'No se pudo cargar VeriFactu',
+				})),
+		});
+	}
+
+	// Load QR code (merges only when detail for the same invoice is already selected)
 	loadQrCode(invoiceId: string): void {
 		this.service.getQrCode(invoiceId).subscribe({
 			next: (qrCode) =>
-				this.state.update((s) => ({
-					...s,
-					selectedInvoice: s.selectedInvoice ? { ...s.selectedInvoice, qrCode } : null,
-				})),
+				this.state.update((s) => {
+					const cur = s.selectedInvoice;
+					if (cur?.invoiceId === invoiceId) {
+						return { ...s, selectedInvoice: { ...cur, qrCode } };
+					}
+					return s;
+				}),
 			error: () => {
 				// QR is optional - don't show error if QR fails to load
 			},

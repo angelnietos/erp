@@ -249,6 +249,102 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         <ui-josanz-button variant="danger" (clicked)="deleteInvoice()">Eliminar</ui-josanz-button>
       </div>
     </ui-josanz-modal>
+
+    <ui-josanz-modal
+      [isOpen]="isVerifactuQrModalOpen()"
+      title="Verificación VeriFactu"
+      variant="dark"
+      [showFooter]="false"
+      (closed)="closeVerifactuQrModal()"
+    >
+      @if (verifactuStore.loading()) {
+        <ui-josanz-loader message="Cargando datos VeriFactu..."></ui-josanz-loader>
+      } @else if (verifactuStore.error()) {
+        <p class="vf-error">{{ verifactuStore.error() }}</p>
+        <div class="vf-modal-actions">
+          <ui-josanz-button variant="secondary" (clicked)="closeVerifactuQrModal()">Cerrar</ui-josanz-button>
+        </div>
+      } @else if (verifactuStore.selectedInvoice(); as inv) {
+        <div class="vf-detail">
+          <div class="vf-section">
+            <h4>Factura</h4>
+            <div class="vf-grid">
+              <div class="vf-item">
+                <span class="vf-label">Serie</span>
+                <span>{{ inv.series }}</span>
+              </div>
+              <div class="vf-item">
+                <span class="vf-label">Número</span>
+                <span>{{ inv.number }}</span>
+              </div>
+              <div class="vf-item">
+                <span class="vf-label">Fecha emisión</span>
+                <span>{{ formatDate(inv.issueDate) }}</span>
+              </div>
+              <div class="vf-item">
+                <span class="vf-label">Estado VeriFactu</span>
+                <span class="vf-status">{{ inv.verifactuStatus }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="vf-section">
+            <h4>Cliente</h4>
+            <div class="vf-grid">
+              <div class="vf-item vf-span-2">
+                <span class="vf-label">Nombre</span>
+                <span>{{ inv.customerName }}</span>
+              </div>
+              <div class="vf-item">
+                <span class="vf-label">NIF</span>
+                <span>{{ inv.customerNif }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="vf-section">
+            <h4>Totales</h4>
+            <div class="vf-grid">
+              <div class="vf-item">
+                <span class="vf-label">Subtotal</span>
+                <span>{{ formatCurrencyEu(inv.subtotal) }}</span>
+              </div>
+              <div class="vf-item">
+                <span class="vf-label">IVA</span>
+                <span>{{ formatCurrencyEu(inv.taxAmount) }}</span>
+              </div>
+              <div class="vf-item vf-highlight">
+                <span class="vf-label">Total</span>
+                <span>{{ formatCurrencyEu(inv.total) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="vf-section">
+            <h4>AEAT</h4>
+            <div class="vf-grid">
+              <div class="vf-item vf-span-2">
+                <span class="vf-label">Referencia</span>
+                <span>{{ inv.aeatReference || 'Pendiente' }}</span>
+              </div>
+              @if (inv.hashChain?.currentHash) {
+                <div class="vf-item vf-span-2">
+                  <span class="vf-label">Hash</span>
+                  <span class="vf-hash">{{ inv.hashChain.currentHash }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          @if (inv.qrCode) {
+            <div class="vf-section vf-qr">
+              <h4>QR de verificación</h4>
+              <div class="vf-qr-wrap">
+                <img [src]="inv.qrCode" alt="Código QR VeriFactu" class="vf-qr-img" />
+              </div>
+            </div>
+          } @else {
+            <p class="vf-qr-missing">QR no disponible.</p>
+          }
+        </div>
+      }
+    </ui-josanz-modal>
   `,
   styles: [
     `
@@ -359,13 +455,85 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       .verifactu-qr:hover {
         background: rgba(34, 197, 94, 0.15);
       }
+      .vf-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: min(520px, 85vw);
+      }
+      .vf-section h4 {
+        margin: 0 0 12px 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .vf-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 20px;
+      }
+      .vf-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .vf-item.vf-span-2 {
+        grid-column: 1 / -1;
+      }
+      .vf-item.vf-highlight span:last-child {
+        font-weight: 700;
+        color: #4ade80;
+      }
+      .vf-label {
+        font-size: 12px;
+        color: #64748b;
+      }
+      .vf-status {
+        font-weight: 600;
+        color: #38bdf8;
+      }
+      .vf-hash {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        word-break: break-all;
+        color: #cbd5e1;
+      }
+      .vf-error {
+        color: #f87171;
+        margin: 0 0 16px 0;
+      }
+      .vf-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .vf-qr-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 12px;
+        background: #0f172a;
+        border-radius: 12px;
+        border: 1px solid #334155;
+      }
+      .vf-qr-img {
+        max-width: 280px;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+      .vf-qr-missing {
+        margin: 0;
+        font-size: 14px;
+        color: #94a3b8;
+      }
     `,
   ],
 })
 export class BillingListComponent implements OnInit {
   public readonly config = inject(BILLING_FEATURE_CONFIG);
   private readonly facade = inject(BillingFacade);
-  private readonly verifactuStore = inject(VerifactuStore);
+  readonly verifactuStore = inject(VerifactuStore);
 
   tabs = this.facade.tabs;
   columns = this.config.defaultColumns;
@@ -379,6 +547,7 @@ export class BillingListComponent implements OnInit {
 
   isModalOpen = signal(false);
   isDeleteModalOpen = signal(false);
+  isVerifactuQrModalOpen = signal(false);
   editingInvoice = signal<Invoice | null>(null);
   invoiceToDelete = signal<Invoice | null>(null);
 
@@ -496,8 +665,15 @@ export class BillingListComponent implements OnInit {
   }
 
   viewVerifactuQr(invoice: Invoice): void {
-    this.verifactuStore.loadInvoiceDetail(invoice.id);
-    this.verifactuStore.loadQrCode(invoice.id);
+    this.verifactuStore.clearError();
+    this.isVerifactuQrModalOpen.set(true);
+    this.verifactuStore.loadInvoiceDetailWithQr(invoice.id);
+  }
+
+  closeVerifactuQrModal(): void {
+    this.isVerifactuQrModalOpen.set(false);
+    this.verifactuStore.clearSelectedInvoice();
+    this.verifactuStore.clearError();
   }
 
   markAsPaid(invoice: Invoice) {
@@ -573,5 +749,10 @@ export class BillingListComponent implements OnInit {
   formatDate(date: string): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
+  }
+
+  formatCurrencyEu(amount: number | undefined): string {
+    if (amount === undefined || amount === null) return '-';
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 }
