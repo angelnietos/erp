@@ -9,7 +9,7 @@ import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-backgr
 interface BackgroundThemeOption {
   id: BackgroundTheme;
   name: string;
-  icon: any;
+  icon: typeof Palette | typeof Zap | typeof Sparkles | typeof Waves | typeof Cpu | typeof Volume2 | typeof Grid | typeof Aperture | typeof Search | typeof Moon;
   color: string;
 }
 
