@@ -75,14 +75,30 @@ interface PluginDescriptor {
                 <span>Sincronización en tiempo real</span>
                 <p>Habilita la actualización automática de sockets</p>
               </div>
-              <div class="pref-toggle active"></div>
+              <div 
+                class="pref-toggle" 
+                role="switch"
+                [attr.aria-checked]="realtimeSync()"
+                tabindex="0"
+                [class.active]="realtimeSync()"
+                (click)="toggleRealtime()"
+                (keydown.enter)="toggleRealtime()"
+              ></div>
             </div>
             <div class="pref-item">
               <div class="pref-info">
                 <span>Modo de alto rendimiento</span>
                 <p>Optimiza animaciones para hardware limitado</p>
               </div>
-              <div class="pref-toggle"></div>
+              <div 
+                class="pref-toggle" 
+                role="switch"
+                [attr.aria-checked]="highPerformanceMode()"
+                tabindex="0"
+                [class.active]="highPerformanceMode()"
+                (click)="togglePerformance()"
+                (keydown.enter)="togglePerformance()"
+              ></div>
             </div>
           </ui-josanz-card>
         </section>
@@ -136,7 +152,7 @@ interface PluginDescriptor {
     /* Plugin Cards */
     .plugin-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1rem;
     }
 
@@ -237,6 +253,12 @@ interface PluginDescriptor {
       border-radius: 100px;
       position: relative;
       cursor: pointer;
+      outline: none;
+      transition: var(--transition-base, 0.2s);
+    }
+
+    .pref-toggle:focus-visible {
+      box-shadow: 0 0 0 2px var(--brand);
     }
 
     .pref-toggle::after {
@@ -266,7 +288,12 @@ interface PluginDescriptor {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsFeatureComponent {
-  private readonly pluginStore = inject(PluginStore);
+  private readonly _pluginStore = inject(PluginStore);
+
+  // Expose signals explicitly for better template inference
+  public readonly realtimeSync = this._pluginStore.realtimeSync;
+  public readonly highPerformanceMode = this._pluginStore.highPerformanceMode;
+  public readonly enabledPlugins = this._pluginStore.enabledPlugins;
 
   readonly plugins: PluginDescriptor[] = [
     { id: 'inventory', name: 'Inventario Pro', description: 'Control de stock y trazabilidad de material.', icon: 'package', category: 'core' },
@@ -277,10 +304,18 @@ export class SettingsFeatureComponent {
   ];
 
   isPluginEnabled(id: string) {
-    return this.pluginStore.enabledPlugins().includes(id);
+    return this.enabledPlugins().includes(id);
   }
 
   togglePlugin(id: string) {
-    this.pluginStore.togglePlugin(id);
+    this._pluginStore.togglePlugin(id);
+  }
+
+  toggleRealtime() {
+    this._pluginStore.toggleRealtime();
+  }
+
+  togglePerformance() {
+    this._pluginStore.togglePerformance();
   }
 }

@@ -2,10 +2,14 @@ import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 
 export interface PluginState {
   enabledPlugins: string[];
+  realtimeSync: boolean;
+  highPerformanceMode: boolean;
 }
 
 const initialState: PluginState = {
   enabledPlugins: ['dashboard', 'clients', 'inventory', 'budgets', 'delivery', 'fleet', 'rentals', 'billing', 'verifactu'],
+  realtimeSync: true,
+  highPerformanceMode: false,
 };
 
 export const PluginStore = signalStore(
@@ -19,6 +23,12 @@ export const PluginStore = signalStore(
       } else {
         patchState(store, { enabledPlugins: [...current, pluginId] });
       }
+    },
+    toggleRealtime() {
+      patchState(store, { realtimeSync: !store.realtimeSync() });
+    },
+    togglePerformance() {
+      patchState(store, { highPerformanceMode: !store.highPerformanceMode() });
     },
     setPlugins(plugins: string[]) {
       patchState(store, { enabledPlugins: plugins });
