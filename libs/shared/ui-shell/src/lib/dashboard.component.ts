@@ -127,7 +127,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     </div>
   `,
   styles: [`
-    .dashboard-container { padding: 0; max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    .dashboard-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;

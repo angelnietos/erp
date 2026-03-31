@@ -137,7 +137,7 @@ import { RentalService, Rental } from '@josanz-erp/rentals-data-access';
     </div>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
     
     .back-btn {
       background: none; border: none; color: var(--text-muted); 

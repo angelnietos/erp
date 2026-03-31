@@ -115,7 +115,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
     }
 
     .sidebar-container.collapsed {
-      width: 84px;
+      width: 68px;
     }
 
     .header {
@@ -123,10 +123,16 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 20px;
       flex-shrink: 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       margin-bottom: 8px;
+      transition: padding 0.3s ease;
+    }
+
+    .collapsed .header {
+      padding: 0;
+      justify-content: center;
     }
 
     .logo-area {
@@ -183,7 +189,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
     .nav-area {
       flex: 1;
-      padding: 12px 12px;
+      padding: 12px 10px;
       overflow-y: auto;
       scrollbar-width: none;
     }
@@ -191,7 +197,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
     .nav-area::-webkit-scrollbar { display: none; }
 
     .footer-area {
-      padding: 16px;
+      padding: 12px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
       background: rgba(0, 0, 0, 0.25);
     }
@@ -222,11 +228,20 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       border: 1px solid transparent;
     }
 
+    .collapsed .nav-link {
+      padding: 10px 0;
+      justify-content: center;
+    }
+
     .nav-link:hover {
       background: rgba(255, 255, 255, 0.04);
       color: #fff;
       border-color: rgba(255, 255, 255, 0.05);
       transform: translateX(4px);
+    }
+
+    .collapsed .nav-link:hover {
+      transform: scale(1.1);
     }
 
     .nav-link.active {

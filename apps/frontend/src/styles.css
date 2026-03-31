@@ -179,7 +179,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Layout Commons */
 .page-container {
   padding: 1.5rem 2rem;
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -380,7 +380,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Global UI Utils */
 .page-container {
   padding: 1.35rem 1.5rem 1.5rem;
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
   opacity: 0;
 }

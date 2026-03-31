@@ -208,7 +208,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
   `,
   styles: [
     `
-      .page-container { padding: 0; max-width: 1600px; margin: 0 auto; }
+      .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
       
       .page-header {
         display: flex; justify-content: space-between; align-items: flex-end;

@@ -489,7 +489,7 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
 
     .content {
       padding: 0 16px 20px;
-      max-width: 1600px;
+      max-width: 100%;
       margin: 0 auto;
     }
 

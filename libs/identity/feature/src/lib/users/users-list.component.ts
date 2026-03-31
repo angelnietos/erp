@@ -38,7 +38,7 @@ import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
     </div>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 1600px; margin: 0 auto; }
+    .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
     
     .page-header {
       display: flex; 

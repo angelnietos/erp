@@ -189,7 +189,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     </ui-josanz-modal>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 1600px; margin: 0 auto; }
+    .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;
