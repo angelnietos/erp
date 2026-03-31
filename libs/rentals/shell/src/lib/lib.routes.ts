@@ -1,10 +1,12 @@
 import { Route } from '@angular/router';
-import { RentalsListComponent } from '@josanz-erp/rentals-feature';
-import { DetailPlaceholderComponent } from '@josanz-erp/shared-ui-kit';
 
 export const rentalsShellRoutes: Route[] = [
-  { path: '', component: RentalsListComponent },
-  { path: ':id', component: DetailPlaceholderComponent },
+  { 
+    path: '', 
+    loadComponent: () => import('@josanz-erp/rentals-feature').then(m => m.RentalsListComponent) 
+  },
+  { 
+    path: ':id', 
+    loadComponent: () => import('@josanz-erp/rentals-feature').then(m => m.RentalsDetailComponent) 
+  },
 ];
-
-export { RentalsListComponent } from '@josanz-erp/rentals-feature';

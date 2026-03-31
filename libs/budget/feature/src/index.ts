@@ -3,3 +3,4 @@ export * from './lib/budget-create/budget-create.component';
 export * from './lib/lib.routes';
 export * from './lib/budget-feature/budget-feature.component';
 export * from './lib/budget-feature.config';
+export * from './lib/budget-detail/budget-detail.component';

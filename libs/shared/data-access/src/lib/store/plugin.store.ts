@@ -17,6 +17,8 @@ export const PluginStore = signalStore(
   withState(initialState),
   withMethods((store) => ({
     togglePlugin(pluginId: string) {
+      if (pluginId === 'dashboard') return;
+      
       const current = store.enabledPlugins();
       if (current.includes(pluginId)) {
         patchState(store, { enabledPlugins: current.filter(id => id !== pluginId) });

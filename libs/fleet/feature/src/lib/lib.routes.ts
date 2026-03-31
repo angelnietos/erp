@@ -1,10 +1,10 @@
 import { Route } from '@angular/router';
 import { FleetListComponent } from './fleet-list/fleet-list.component';
-import { DetailPlaceholderComponent } from '@josanz-erp/shared-ui-kit';
+import { FleetDetailComponent } from './fleet-detail/fleet-detail.component';
 
 export const fleetFeatureRoutes: Route[] = [
   { path: '', component: FleetListComponent },
-  { path: ':id', component: DetailPlaceholderComponent },
+  { path: ':id', component: FleetDetailComponent },
 ];
 
 export * from './fleet-list/fleet-list.component';

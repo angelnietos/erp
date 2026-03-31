@@ -11,32 +11,51 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
   imports: [CommonModule, RouterModule, LucideAngularModule, NavMenuComponent],
   template: `
     <aside 
-      class="sidebar-container ui-glass" 
+      class="sidebar-container" 
       [class.collapsed]="isCollapsed()"
     >
       <!-- Logo & Toggle -->
       <div class="header">
         @if (!isCollapsed()) {
-          <div class="logo-area animate-fade-in">
+          <div class="logo-area">
             <div class="logo-capsule"></div>
-            <span class="logo-text text-brand">JOSANZ</span>
+            <span class="logo-text">JOSANZ</span>
           </div>
         }
-        <button class="toggle-btn ui-filled" (click)="toggle()">
-          <lucide-icon [name]="isCollapsed() ? 'menu' : 'chevron-left'" size="18"></lucide-icon>
+        
+        <button class="toggle-control" (click)="toggle()" [attr.aria-label]="isCollapsed() ? 'Expandir' : 'Contraer'">
+          <lucide-icon [name]="isCollapsed() ? 'chevron-right' : 'chevron-left'" size="16"></lucide-icon>
         </button>
       </div>
 
       <!-- Main Navigation -->
       <nav class="nav-area">
-        <ui-josanz-nav-menu [items]="filteredNavItems()"></ui-josanz-nav-menu>
+        <ul class="nav-list">
+          @for (item of filteredNavItems(); track item.id) {
+            <li class="nav-item">
+              <a [routerLink]="item.route" 
+                 [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+                 routerLinkActive="active" 
+                 class="nav-link"
+                 [attr.title]="item.label">
+                <div class="icon-wrapper">
+                  <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                </div>
+                @if (!isCollapsed()) {
+                  <span class="label-text">{{ item.label }}</span>
+                  <div class="active-glow"></div>
+                }
+              </a>
+            </li>
+          }
+        </ul>
       </nav>
 
       <!-- Footer Actions -->
       <div class="footer-area">
         <ul class="nav-list">
            <li class="nav-item">
-            <a routerLink="/settings" class="nav-link secondary" routerLinkActive="active">
+            <a routerLink="/settings" class="nav-link settings-link" routerLinkActive="active">
               <div class="icon-wrapper">
                 <lucide-icon name="settings" size="18"></lucide-icon>
               </div>
@@ -69,86 +88,112 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       width: 248px;
       min-width: 248px;
       height: 100%;
-      background: rgba(10, 10, 10, 0.8);
-      border-right: 1px solid var(--border-soft);
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
       display: flex;
       flex-direction: column;
-      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
       color: var(--text-secondary);
       overflow: hidden;
       position: relative;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Neon edge effect */
+    .sidebar-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--brand), transparent);
+      opacity: 0.3;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .sidebar-container.collapsed {
-      width: 80px;
+      width: 84px;
     }
 
     .header {
-      height: 56px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 24px;
       flex-shrink: 0;
-      border-bottom: 1px solid var(--border-soft);
-    }
-
-    .collapsed .header {
-      justify-content: center;
-      padding: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 8px;
     }
 
     .logo-area {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .logo-capsule {
-      width: 6px;
-      height: 24px;
+      width: 4px;
+      height: 28px;
       background: var(--brand);
-      border-radius: 100px;
-      box-shadow: 0 0 15px var(--brand-glow);
+      border-radius: 2px;
+      box-shadow: 0 0 20px var(--brand-glow);
+      animation: logoPulse 3s infinite ease-in-out;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { transform: scaleY(1); opacity: 0.8; }
+      50% { transform: scaleY(1.1); opacity: 1; filter: brightness(1.2); }
     }
 
     .logo-text {
-      font-weight: 800;
-      font-size: 0.95rem;
-      letter-spacing: 0.14em;
-      font-family: 'Syne', var(--font-display);
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to right, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .toggle-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
+    .toggle-control {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       color: var(--text-muted);
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: var(--transition-base);
+      transition: all 0.2s ease;
     }
 
-    .toggle-btn:hover {
+    .toggle-control:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--brand);
       border-color: var(--brand);
-      color: #fff;
-      transform: scale(1.05);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
     .nav-area {
       flex: 1;
-      padding: 12px 0;
+      padding: 12px 12px;
       overflow-y: auto;
+      scrollbar-width: none;
     }
+    
+    .nav-area::-webkit-scrollbar { display: none; }
 
     .footer-area {
-      padding: 12px 8px;
-      border-top: 1px solid var(--border-soft);
-      background: rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.25);
     }
 
     .nav-list {
@@ -157,77 +202,90 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 8px 12px;
-      margin: 0 8px;
-      border-radius: var(--radius-sm, 8px);
+      padding: 10px 14px;
+      border-radius: 10px;
       text-decoration: none;
-      color: var(--text-secondary);
-      transition: var(--transition-base, 0.2s ease);
+      color: var(--text-muted);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
-      min-height: 40px;
-      font-family: var(--font-main);
+      min-height: 44px;
       font-weight: 700;
-      font-size: 0.68rem;
-    }
-
-    .collapsed .nav-link {
-      justify-content: center;
-      margin: 0 12px;
-    }
-
-    .icon-wrapper {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .label-text {
-      margin-left: 10px;
-      white-space: nowrap;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-size: 0.68rem;
-      font-weight: 700;
+      letter-spacing: 0.08em;
+      border: 1px solid transparent;
     }
 
-    .nav-link:hover, .nav-link.active {
-      background: rgba(255, 255, 255, 0.05);
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.04);
       color: #fff;
-      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.05);
+      transform: translateX(4px);
     }
-    
+
+    .nav-link.active {
+      background: color-mix(in srgb, var(--brand) 10%, transparent);
+      color: var(--brand);
+      border-color: color-mix(in srgb, var(--brand) 20%, transparent);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
     .nav-link.active::before {
       content: '';
       position: absolute;
-      left: -8px;
-      top: 12px;
-      bottom: 12px;
+      left: -4px;
+      top: 15%;
+      height: 70%;
       width: 3px;
       background: var(--brand);
       border-radius: 0 4px 4px 0;
-      box-shadow: 0 0 10px var(--brand-glow);
+      box-shadow: 0 0 15px var(--brand-glow);
+    }
+
+    .active-glow {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      background: linear-gradient(to right, transparent, color-mix(in srgb, var(--brand) 15%, transparent));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .nav-link.active .active-glow {
+      opacity: 1;
     }
 
     .logout:hover {
       background: rgba(239, 68, 68, 0.1) !important;
-      color: var(--danger) !important;
+      color: #ff4b4b !important;
+      border-color: rgba(239, 68, 68, 0.2) !important;
     }
 
-    button.nav-link {
-      width: calc(100% - 16px);
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-align: left;
+    .icon-wrapper {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link:hover .icon-wrapper {
+      transform: scale(1.1);
+    }
+
+    .label-text {
+      margin-left: 12px;
+      white-space: nowrap;
     }
 
     /* Custom Scrollbar */
