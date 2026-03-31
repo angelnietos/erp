@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 export type BadgeColor = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'indigo' | 'teal' | 'orange' | 'pink' | 'rose' | 'violet' | 'fuchsia';
 export type BadgeShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumorphic' | 'minimal' | 'ghost';
+export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'dark' | 'light' | 'app' | string;
 
 @Component({
   selector: 'ui-josanz-badge',

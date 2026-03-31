@@ -22,7 +22,7 @@ import {
   DollarSign, Archive, Shield, AlertOctagon, 
   BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag,
   Puzzle, Sliders, Settings2, FileWarning, UploadCloud, Printer, Timer, FileUp, Wallet, HelpCircle,
-  Phone, Smartphone, MapPin, Sparkles
+  Phone, Smartphone, MapPin, Sparkles, Inbox
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -51,7 +51,7 @@ export const appConfig: ApplicationConfig = {
       DollarSign, Archive, Shield, AlertOctagon, 
       BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag,
       Puzzle, Sliders, Settings2, FileWarning, UploadCloud, Printer, Timer, FileUp, Wallet, HelpCircle,
-      Phone, Smartphone, MapPin, Sparkles
+      Phone, Smartphone, MapPin, Sparkles, Inbox
     })),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
   ],
