@@ -22,7 +22,12 @@ export type Theme =
   | 'crimson'
   | 'mint'
   | 'coral'
-  | 'gold';
+  | 'gold'
+  | 'corporate-light'
+  | 'classic-dark'
+  | 'nordic'
+  | 'latte'
+  | 'forest-dark';
 
 function hexToRgbTriplet(hex: string): string {
   const normalized = hex.replace('#', '').trim();
@@ -438,6 +443,101 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     danger: '#ef4444',
     info: '#f5c518'
   },
+  'corporate-light': {
+    name: 'Corporate Light',
+    primary: '#0ea5e9',
+    secondary: '#475569',
+    background: '#f8fafc',
+    surface: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#64748b',
+    border: '#e2e8f0',
+    brand: '#0ea5e9',
+    brandGlow: 'rgba(14, 165, 233, 0.15)',
+    bgSecondary: '#f1f5f9',
+    bgTertiary: '#e2e8f0',
+    bgStyle: 'spot',
+    success: '#059669',
+    warning: '#f59e0b',
+    danger: '#dc2626',
+    info: '#0284c7'
+  },
+  'classic-dark': {
+    name: 'Classic Dark',
+    primary: '#3b82f6',
+    secondary: '#94a3b8',
+    background: '#0f172a',
+    surface: '#1e293b',
+    text: '#f8fafc',
+    textMuted: '#94a3b8',
+    border: '#334155',
+    brand: '#3b82f6',
+    brandGlow: 'rgba(59, 130, 246, 0.1)',
+    bgSecondary: '#020617',
+    bgTertiary: '#0f172a',
+    bgStyle: 'spot',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6'
+  },
+  nordic: {
+    name: 'Nordic Frost',
+    primary: '#88c0d0',
+    secondary: '#4c566a',
+    background: '#2e3440',
+    surface: '#3b4252',
+    text: '#eceff4',
+    textMuted: '#d8dee9',
+    border: '#434c5e',
+    brand: '#88c0d0',
+    brandGlow: 'rgba(136, 192, 208, 0.1)',
+    bgSecondary: '#242933',
+    bgTertiary: '#2e3440',
+    bgStyle: 'aurora',
+    success: '#a3be8c',
+    warning: '#ebcb8b',
+    danger: '#bf616a',
+    info: '#5e81ac'
+  },
+  latte: {
+    name: 'Vanilla Latte',
+    primary: '#d97706',
+    secondary: '#57534e',
+    background: '#fafaf9',
+    surface: '#ffffff',
+    text: '#292524',
+    textMuted: '#78716c',
+    border: '#e7e5e4',
+    brand: '#d97706',
+    brandGlow: 'rgba(217, 119, 6, 0.1)',
+    bgSecondary: '#f5f5f4',
+    bgTertiary: '#e7e5e4',
+    bgStyle: 'spot',
+    success: '#15803d',
+    warning: '#c2410c',
+    danger: '#b91c1c',
+    info: '#0369a1'
+  },
+  'forest-dark': {
+    name: 'Deep Forest',
+    primary: '#10b981',
+    secondary: '#a1a1aa',
+    background: '#06180c',
+    surface: '#0c2415',
+    text: '#f0fdf4',
+    textMuted: '#86efac',
+    border: '#166534',
+    brand: '#10b981',
+    brandGlow: 'rgba(16, 185, 129, 0.15)',
+    bgSecondary: '#020d04',
+    bgTertiary: '#041508',
+    bgStyle: 'spot',
+    success: '#10b981',
+    warning: '#eab308',
+    danger: '#ef4444',
+    info: '#3b82f6'
+  }
 };
 
 @Injectable({
