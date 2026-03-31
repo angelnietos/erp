@@ -333,17 +333,18 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.spotlights = [];
 
     if (cfg.style === 'matrix') {
-      const columns = Math.floor(w / 25);
+      const columns = Math.floor(w / 35); // Reduced density
+      const matrixChars = '0123456789ABCDEFHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲ';
       for (let i = 0; i < columns; i++) {
         this.matrixCodes.push({
-          x: i * 25,
+          x: i * 35,
           y: Math.random() * h,
-          speed: 2 + Math.random() * 5,
-          chars: Array.from({ length: 15 + Math.floor(Math.random() * 20) }, () => 
-            this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)]
+          speed: 1.5 + Math.random() * 4,
+          chars: Array.from({ length: 10 + Math.floor(Math.random() * 15) }, () => 
+            matrixChars[Math.floor(Math.random() * matrixChars.length)]
           ),
-          opacity: 0.1 + Math.random() * 0.4,
-          size: 14 + Math.random() * 8,
+          opacity: 0.15 + Math.random() * 0.45,
+          size: 16 + Math.random() * 6,
         });
       }
     }
@@ -607,11 +608,15 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       this.drawNebulaStyle(w, h);
     }
     
-    this.drawGearSilhouettes(w, h);
-    this.drawTinyPals(w, h);
-    this.drawMascot(w, h);
-    this.drawMascotSidekick(w, h);
-    this.drawCrewSpeech(w, h);
+    // Draw characters and logos only if NOT in matrix theme (performance optimization)
+    if (cfg.style !== 'matrix') {
+      this.drawGearSilhouettes(w, h);
+      this.drawTinyPals(w, h);
+      this.drawMascot(w, h);
+      this.drawMascotSidekick(w, h);
+      this.drawCrewSpeech(w, h);
+    }
+    
     this.drawForegroundGlow(w, h);
 
     this.animationId = requestAnimationFrame(this.animate);
@@ -1007,28 +1012,37 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
 
   private drawMatrixStyle(w: number, h: number) {
     const cfg = this.getThemeConfig();
+    this.ctx.textAlign = 'center';
+    
     this.matrixCodes.forEach(code => {
       code.y += code.speed;
       if (code.y - (code.chars.length * code.size) > h) {
         code.y = -code.size;
-        code.speed = 2 + Math.random() * 5;
+        code.speed = 1.5 + Math.random() * 4;
       }
 
-      this.ctx.font = `${code.size}px monospace`;
-      this.ctx.textAlign = 'center';
+      this.ctx.font = `${code.size}px "JetBrains Mono", monospace`;
       
       code.chars.forEach((char, i) => {
         const charY = code.y - (i * code.size);
-        if (charY < 0 || charY > h) return;
+        if (charY < -20 || charY > h + 20) return;
 
-        const charOpacity = code.opacity * (1 - (i / code.chars.length));
-        this.ctx.fillStyle = i === 0 
-          ? `rgba(255, 255, 255, ${charOpacity * 2})` 
-          : `hsla(${cfg.sky[0]}, 100%, 70%, ${charOpacity})`;
+        const charRatio = 1 - (i / code.chars.length);
+        const charOpacity = code.opacity * charRatio;
+        
+        if (i === 0) {
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${charOpacity * 2})`;
+          this.ctx.shadowBlur = 10;
+          this.ctx.shadowColor = `hsla(${cfg.sky[0]}, 100%, 70%, 1)`;
+        } else {
+          this.ctx.fillStyle = `hsla(${cfg.sky[0]}, 100%, 70%, ${charOpacity})`;
+          this.ctx.shadowBlur = 0;
+        }
         
         this.ctx.fillText(char, code.x, charY);
       });
     });
+    this.ctx.shadowBlur = 0;
   }
 
   private drawAudioStyle(w: number, h: number) {
