@@ -1,11 +1,9 @@
-import { Component, Input, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { AuthStore } from '@josanz-erp/shared-data-access';
+import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
-
-
 
 @Component({
   selector: 'josanz-sidebar',
@@ -31,7 +29,7 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
       <!-- Main Navigation -->
       <nav class="nav-area">
-        <ui-josanz-nav-menu [items]="navItems"></ui-josanz-nav-menu>
+        <ui-josanz-nav-menu [items]="filteredNavItems()"></ui-josanz-nav-menu>
       </nav>
 
       <!-- Footer Actions -->
@@ -240,8 +238,9 @@ import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
 })
 export class SidebarComponent {
   private readonly authStore = inject(AuthStore);
+  private readonly pluginStore = inject(PluginStore);
 
-  @Input() navItems: NavMenuItem[] = [
+  private readonly navItems: NavMenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
     { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
     { id: 'inventory', label: 'Inventario', icon: 'package', route: '/inventory' },
@@ -252,6 +251,11 @@ export class SidebarComponent {
     { id: 'billing', label: 'Facturación', icon: 'history', route: '/billing' },
     { id: 'verifactu', label: 'VeriFactu', icon: 'file-check', route: '/verifactu' },
   ];
+
+  filteredNavItems = computed(() => {
+    const enabled = this.pluginStore.enabledPlugins();
+    return this.navItems.filter(item => enabled.includes(item.id || ''));
+  });
 
   isCollapsed = signal(false);
 

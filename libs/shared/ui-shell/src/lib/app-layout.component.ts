@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
-import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, Theme, AuthStore } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
@@ -17,7 +16,7 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     <josanz-crm-background></josanz-crm-background>
     <div class="app-layout" style="position: relative; z-index: 1;">
       <!-- Sidebar -->
-      <josanz-sidebar [navItems]="navItems" (logoutClick)="logoutClick.emit()"></josanz-sidebar>
+      <josanz-sidebar (logoutClick)="logoutClick.emit()"></josanz-sidebar>
 
       <!-- Main Container -->
       <div class="main-container">
@@ -501,7 +500,6 @@ export class AppLayoutComponent {
   readonly themeKeys = Object.keys(this.themeService.themes) as Theme[];
   showThemeMenu = signal(false);
 
-  @Input() navItems: NavMenuItem[] = [];
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
   showNotifications = signal(false);
   showCommandPalette = signal(false);
