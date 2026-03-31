@@ -20,7 +20,13 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private ctx!: CanvasRenderingContext2D;
   private animationId = 0;
   private time = 0;
-  
+
+  /** Parallax -1..1 objetivo / suavizado (sigue al puntero). */
+  private parallaxTgX = 0;
+  private parallaxTgY = 0;
+  private parallaxSmX = 0;
+  private parallaxSmY = 0;
+
   // All animation elements
   private particles: Particle[] = [];
   private fireflies: Firefly[] = [];
@@ -30,6 +36,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private stars: Star[] = [];
   /** Solo iconografía AV; opacidad pulsada y símbolo que rota al pasar por el “vacío”. */
   private ephemeralGlyphs: EphemeralGlyph[] = [];
+  /** Lumens con halo (solo pool AV). */
+  private avLumens: AvLumen[] = [];
   private tinyPals: TinyPal[] = [];
 
   /** Pool audiovisual (sin logística / ERP genérico). */
@@ -63,6 +71,17 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   ];
 
   private readonly boundResize = () => this.resizeCanvas();
+  private readonly boundPointerMove = (e: PointerEvent) => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (w < 1 || h < 1) return;
+    this.parallaxTgX = (e.clientX / w) * 2 - 1;
+    this.parallaxTgY = (e.clientY / h) * 2 - 1;
+  };
+  private readonly boundPointerLeave = () => {
+    this.parallaxTgX = 0;
+    this.parallaxTgY = 0;
+  };
 
   ngAfterViewInit() {
     const canvas = this.canvasRef.nativeElement;
@@ -71,6 +90,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx = ctx;
     this.resizeCanvas();
     window.addEventListener('resize', this.boundResize);
+    window.addEventListener('pointermove', this.boundPointerMove, { passive: true });
+    window.addEventListener('pointerleave', this.boundPointerLeave);
     this.initAllElements();
     this.animate();
   }
@@ -78,6 +99,35 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', this.boundResize);
+    window.removeEventListener('pointermove', this.boundPointerMove);
+    window.removeEventListener('pointerleave', this.boundPointerLeave);
+  }
+
+  private smoothParallax(): void {
+    const k = 0.085;
+    this.parallaxSmX += (this.parallaxTgX - this.parallaxSmX) * k;
+    this.parallaxSmY += (this.parallaxTgY - this.parallaxSmY) * k;
+  }
+
+  /** Capas: fondo mueve poco, primer plano más (efecto profundidad). */
+  private shiftBack(w: number, h: number): { x: number; y: number } {
+    const m = Math.min(w, h) * 0.02;
+    return { x: this.parallaxSmX * m, y: this.parallaxSmY * m };
+  }
+
+  private shiftMid(w: number, h: number): { x: number; y: number } {
+    const m = Math.min(w, h) * 0.036;
+    return { x: this.parallaxSmX * m, y: this.parallaxSmY * m };
+  }
+
+  private shiftFront(w: number, h: number): { x: number; y: number } {
+    const m = Math.min(w, h) * 0.052;
+    return { x: this.parallaxSmX * m, y: this.parallaxSmY * m };
+  }
+
+  private shiftNear(w: number, h: number): { x: number; y: number } {
+    const m = Math.min(w, h) * 0.028;
+    return { x: this.parallaxSmX * m, y: this.parallaxSmY * m };
   }
 
   private resizeCanvas() {
@@ -96,8 +146,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // === STARS (fondo, menos densidad) ===
-    const starCount = 38;
+    // === STARS ===
+    const starCount = 52;
     for (let i = 0; i < starCount; i++) {
       this.stars.push({
         x: Math.random() * w,
@@ -109,8 +159,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    // === PARTICLES (polvo de luz, suave) ===
-    const particleCount = 52;
+    // === PARTICLES ===
+    const particleCount = 72;
     for (let i = 0; i < particleCount; i++) {
       this.particles.push({
         x: Math.random() * w,
@@ -125,7 +175,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     }
 
     // === FIREFLIES ===
-    const fireflyCount = 11;
+    const fireflyCount = 17;
     for (let i = 0; i < fireflyCount; i++) {
       this.fireflies.push({
         x: Math.random() * w,
@@ -139,8 +189,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    // === SPIRITS (orbes suaves, pocos) ===
-    const spiritCount = 5;
+    // === SPIRITS ===
+    const spiritCount = 8;
     for (let i = 0; i < spiritCount; i++) {
       this.spirits.push({
         x: Math.random() * w,
@@ -154,15 +204,16 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    // === LIGHT BEAMS (tres focos, menos ruido) ===
+    // === LIGHT BEAMS ===
     this.lightBeams = [
       { originX: 0.1, originY: -0.04, angle: 0.4, spread: 0.48, hue: 48, speed: 0.3 },
       { originX: 0.9, originY: 0, angle: -0.36, spread: 0.46, hue: 205, speed: -0.28 },
       { originX: 0.52, originY: -0.08, angle: 0.05, spread: 0.52, hue: 200, speed: 0.2 },
+      { originX: 0.32, originY: -0.02, angle: 0.28, spread: 0.38, hue: 175, speed: 0.36 },
     ];
 
     // === CLOUDS ===
-    const cloudCount = 5;
+    const cloudCount = 7;
     for (let i = 0; i < cloudCount; i++) {
       this.clouds.push({
         x: Math.random() * w,
@@ -173,8 +224,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    // === GLIFOS EFÍMEROS AV (rotan símbolo al desvanecer) ===
-    const glyphCount = 13;
+    // === GLIFOS EFÍMEROS AV ===
+    const glyphCount = 21;
     for (let i = 0; i < glyphCount; i++) {
       this.ephemeralGlyphs.push({
         x: Math.random() * w,
@@ -192,16 +243,36 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    // === Mini crew plató (pocos, rol AV por kind) ===
-    const palHues = [195, 210, 175, 265, 40];
-    for (let i = 0; i < 5; i++) {
+    // === LUMENS AV (halo + emoji, sin iconos ERP) ===
+    const lumenCount = 16;
+    const lumenHues = [42, 52, 195, 210, 265, 175, 310, 125];
+    for (let i = 0; i < lumenCount; i++) {
+      const label = this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)];
+      this.avLumens.push({
+        label,
+        hue: lumenHues[i % lumenHues.length] + Math.random() * 20,
+        x: Math.random() * w,
+        y: Math.random() * h * 0.62 + h * 0.12,
+        vx: (Math.random() - 0.5) * 0.72,
+        vy: (Math.random() - 0.5) * 0.48,
+        size: 15 + Math.random() * 14,
+        phase: Math.random() * Math.PI * 2,
+        floatSpeed: 0.38 + Math.random() * 0.42,
+        bobAmount: 11 + Math.random() * 14,
+      });
+    }
+
+    // === Mini crew plató ===
+    const palHues = [195, 210, 175, 265, 40, 220, 155, 48, 300, 185];
+    const palCount = 10;
+    for (let i = 0; i < palCount; i++) {
       this.tinyPals.push({
-        x: (w / 6) * (i + 0.6) + (Math.random() - 0.5) * 50,
-        baseY: h * 0.84 + Math.random() * h * 0.05,
-        vx: (Math.random() - 0.5) * 0.22,
+        x: (w / (palCount + 1)) * (i + 1) + (Math.random() - 0.5) * 36,
+        baseY: h * 0.83 + Math.random() * h * 0.055,
+        vx: (Math.random() - 0.5) * 0.2,
         hue: palHues[i % palHues.length] + Math.random() * 12,
         phase: Math.random() * Math.PI * 2,
-        r: 8 + Math.random() * 5,
+        r: 7.5 + Math.random() * 5.5,
         kind: i % 4,
       });
     }
@@ -211,6 +282,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.time += 0.016;
+    this.smoothParallax();
     this.ctx.clearRect(0, 0, w, h);
 
     // Draw everything in layers (back to front)
@@ -223,6 +295,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.drawParticles(w, h);
     this.drawFireflies(w, h);
     this.drawEphemeralGlyphs(w, h);
+    this.drawAvLumens(w, h);
     this.drawGearSilhouettes(w, h);
     this.drawTinyPals(w, h);
     this.drawMascot(w, h);
@@ -248,90 +321,107 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawStars(w: number, h: number) {
+    const s = this.shiftBack(w, h);
     this.stars.forEach((star) => {
+      const sx = star.x + s.x;
+      const sy = star.y + s.y;
       const twinkle = Math.sin(this.time * star.twinkleSpeed * 60 + star.twinklePhase);
       const alpha = star.brightness * (0.5 + twinkle * 0.5);
-      
-      const gradient = this.ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 2);
+
+      const gradient = this.ctx.createRadialGradient(sx, sy, 0, sx, sy, star.size * 2);
       gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
       gradient.addColorStop(0.5, `rgba(200, 220, 255, ${alpha * 0.5})`);
       gradient.addColorStop(1, 'transparent');
-      
+
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.arc(star.x, star.y, star.size * 2, 0, Math.PI * 2);
+      this.ctx.arc(sx, sy, star.size * 2, 0, Math.PI * 2);
       this.ctx.fill();
     });
   }
 
   private drawAurora(w: number, h: number) {
     const t = this.time * 0.15;
-    
+    const p = this.shiftBack(w, h);
+    const oy = p.y * 0.65;
+
     // Aurora wave 1
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h * 0.15);
+    this.ctx.moveTo(0, h * 0.15 + oy);
     for (let x = 0; x <= w; x += 20) {
-      const y = h * 0.15 + Math.sin(x * 0.005 + t) * 30 + Math.sin(x * 0.01 + t * 0.7) * 15;
-      this.ctx.lineTo(x, y);
+      const y =
+        h * 0.15 +
+        oy +
+        Math.sin(x * 0.005 + t + p.x * 0.002) * 30 +
+        Math.sin(x * 0.01 + t * 0.7) * 15;
+      this.ctx.lineTo(x + p.x * 0.35, y);
     }
-    this.ctx.lineTo(w, h * 0.3);
-    this.ctx.lineTo(0, h * 0.3);
+    this.ctx.lineTo(w + p.x * 0.35, h * 0.3 + oy);
+    this.ctx.lineTo(0, h * 0.3 + oy);
     this.ctx.closePath();
-    
-    const auroraGrad1 = this.ctx.createLinearGradient(0, h * 0.1, 0, h * 0.35);
-    auroraGrad1.addColorStop(0, 'hsla(160, 70%, 50%, 0.09)');
-    auroraGrad1.addColorStop(0.5, 'hsla(200, 60%, 45%, 0.06)');
+
+    const auroraGrad1 = this.ctx.createLinearGradient(0, h * 0.1 + oy, 0, h * 0.35 + oy);
+    auroraGrad1.addColorStop(0, 'hsla(160, 70%, 50%, 0.12)');
+    auroraGrad1.addColorStop(0.5, 'hsla(200, 60%, 45%, 0.085)');
     auroraGrad1.addColorStop(1, 'transparent');
     this.ctx.fillStyle = auroraGrad1;
     this.ctx.fill();
 
     // Aurora wave 2
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h * 0.2);
+    this.ctx.moveTo(0, h * 0.2 + oy);
     for (let x = 0; x <= w; x += 20) {
-      const y = h * 0.2 + Math.sin(x * 0.006 + t + 2) * 25 + Math.sin(x * 0.012 + t * 0.6) * 12;
-      this.ctx.lineTo(x, y);
+      const y =
+        h * 0.2 +
+        oy +
+        Math.sin(x * 0.006 + t + 2 + p.x * 0.0015) * 25 +
+        Math.sin(x * 0.012 + t * 0.6) * 12;
+      this.ctx.lineTo(x + p.x * 0.28, y);
     }
-    this.ctx.lineTo(w, h * 0.35);
-    this.ctx.lineTo(0, h * 0.35);
+    this.ctx.lineTo(w + p.x * 0.28, h * 0.35 + oy);
+    this.ctx.lineTo(0, h * 0.35 + oy);
     this.ctx.closePath();
-    
-    const auroraGrad2 = this.ctx.createLinearGradient(0, h * 0.15, 0, h * 0.4);
-    auroraGrad2.addColorStop(0, 'hsla(260, 55%, 45%, 0.07)');
-    auroraGrad2.addColorStop(0.5, 'hsla(300, 50%, 40%, 0.045)');
+
+    const auroraGrad2 = this.ctx.createLinearGradient(0, h * 0.15 + oy, 0, h * 0.4 + oy);
+    auroraGrad2.addColorStop(0, 'hsla(260, 55%, 45%, 0.095)');
+    auroraGrad2.addColorStop(0.5, 'hsla(300, 50%, 40%, 0.065)');
     auroraGrad2.addColorStop(1, 'transparent');
     this.ctx.fillStyle = auroraGrad2;
     this.ctx.fill();
   }
 
   private drawClouds(w: number, h: number) {
+    const s = this.shiftMid(w, h);
     this.clouds.forEach((cloud) => {
       cloud.x += cloud.speed;
       if (cloud.x > w + cloud.width) cloud.x = -cloud.width;
 
-      const gradient = this.ctx.createRadialGradient(cloud.x, cloud.y, 0, cloud.x, cloud.y, cloud.width);
+      const cx = cloud.x + s.x;
+      const cy = cloud.y + s.y;
+
+      const gradient = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, cloud.width);
       gradient.addColorStop(0, `rgba(120, 150, 200, ${cloud.opacity})`);
       gradient.addColorStop(0.4, `rgba(90, 120, 180, ${cloud.opacity * 0.4})`);
       gradient.addColorStop(1, 'transparent');
-      
+
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.width * 0.2, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(cx, cy, cloud.width, cloud.width * 0.2, 0, 0, Math.PI * 2);
       this.ctx.fill();
-      
-      // Add some cloud layers for depth
+
       this.ctx.fillStyle = `rgba(100, 130, 190, ${cloud.opacity * 0.5})`;
       this.ctx.beginPath();
-      this.ctx.ellipse(cloud.x - cloud.width * 0.3, cloud.y + 10, cloud.width * 0.5, cloud.width * 0.15, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(cx - cloud.width * 0.3, cy + 10, cloud.width * 0.5, cloud.width * 0.15, 0, 0, Math.PI * 2);
       this.ctx.fill();
     });
   }
 
   private drawLightBeams(w: number, h: number) {
+    const s = this.shiftMid(w, h);
     this.lightBeams.forEach((beam, i) => {
       const sway = Math.sin(this.time * beam.speed + i * 1.5) * 0.15;
-      const ox = beam.originX * w;
-      const oy = beam.originY * h;
+      const ox = beam.originX * w + s.x * (0.85 + i * 0.05);
+      const oy = beam.originY * h + s.y * (0.75 + i * 0.04);
       const angle = beam.angle + sway;
       const len = Math.hypot(w, h) * 1.25;
 
@@ -340,7 +430,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.rotate(angle);
 
       const flicker = 0.9 + Math.sin(this.time * 2.5 + i) * 0.1;
-      const a = (0.32 + Math.sin(this.time * 2.2 + i) * 0.08) * flicker * 0.48;
+      const a = (0.32 + Math.sin(this.time * 2.2 + i) * 0.08) * flicker * 0.64;
       
       const grad = this.ctx.createLinearGradient(0, 0, 0, len);
       grad.addColorStop(0, `hsla(${beam.hue}, 92%, 92%, ${a})`);
@@ -363,9 +453,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const pulse = 0.5 + Math.sin(this.time * 3.5 + i) * 0.2;
       const spotR = 55 * pulse;
       const spot = this.ctx.createRadialGradient(ox, oy, 0, ox, oy, spotR);
-      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 98%, 0.62)`);
-      spot.addColorStop(0.12, `hsla(${beam.hue}, 95%, 82%, 0.38)`);
-      spot.addColorStop(0.35, `hsla(${beam.hue}, 88%, 58%, 0.14)`);
+      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 98%, 0.78)`);
+      spot.addColorStop(0.12, `hsla(${beam.hue}, 95%, 82%, 0.5)`);
+      spot.addColorStop(0.35, `hsla(${beam.hue}, 88%, 58%, 0.2)`);
       spot.addColorStop(1, 'transparent');
       this.ctx.fillStyle = spot;
       this.ctx.beginPath();
@@ -375,108 +465,117 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawSpirits(w: number, h: number) {
+    const s = this.shiftMid(w, h);
     this.spirits.forEach((spirit) => {
       spirit.x += spirit.vx + Math.sin(this.time * 0.5 + spirit.phase) * 0.25;
       spirit.y += spirit.vy + Math.cos(this.time * 0.35 + spirit.phase) * 0.18;
-      
+
       if (spirit.x < -spirit.radius) spirit.x = w + spirit.radius;
       if (spirit.x > w + spirit.radius) spirit.x = -spirit.radius;
       if (spirit.y < -spirit.radius) spirit.y = h + spirit.radius;
       if (spirit.y > h + spirit.radius) spirit.y = -spirit.radius;
 
+      const sx = spirit.x + s.x;
+      const sy = spirit.y + s.y;
       const pulse = 0.8 + Math.sin(this.time * 2 + spirit.phase) * 0.2;
       const radius = spirit.radius * pulse;
-      
-      // Multiple glow layers
-      const outerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 2.4);
-      outerGlow.addColorStop(0, `hsla(${spirit.hue}, 80%, 60%, 0.12)`);
-      outerGlow.addColorStop(0.5, `hsla(${spirit.hue}, 70%, 50%, 0.05)`);
+
+      const outerGlow = this.ctx.createRadialGradient(sx, sy, 0, sx, sy, radius * 2.4);
+      outerGlow.addColorStop(0, `hsla(${spirit.hue}, 80%, 60%, 0.17)`);
+      outerGlow.addColorStop(0.5, `hsla(${spirit.hue}, 70%, 50%, 0.08)`);
       outerGlow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = outerGlow;
       this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius * 2.4, 0, Math.PI * 2);
+      this.ctx.arc(sx, sy, radius * 2.4, 0, Math.PI * 2);
       this.ctx.fill();
 
-      const innerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 1.2);
-      innerGlow.addColorStop(0, `hsla(${spirit.hue}, 88%, 78%, 0.5)`);
-      innerGlow.addColorStop(0.6, `hsla(${spirit.hue}, 78%, 58%, 0.25)`);
+      const innerGlow = this.ctx.createRadialGradient(sx, sy, 0, sx, sy, radius * 1.2);
+      innerGlow.addColorStop(0, `hsla(${spirit.hue}, 88%, 78%, 0.55)`);
+      innerGlow.addColorStop(0.6, `hsla(${spirit.hue}, 78%, 58%, 0.28)`);
       innerGlow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = innerGlow;
       this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius * 1.2, 0, Math.PI * 2);
+      this.ctx.arc(sx, sy, radius * 1.2, 0, Math.PI * 2);
       this.ctx.fill();
 
-      this.ctx.fillStyle = `hsla(${spirit.hue}, 95%, 92%, 0.75)`;
+      this.ctx.fillStyle = `hsla(${spirit.hue}, 95%, 92%, 0.78)`;
       this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius * 0.35, 0, Math.PI * 2);
+      this.ctx.arc(sx, sy, radius * 0.35, 0, Math.PI * 2);
       this.ctx.fill();
     });
   }
 
   private drawParticles(w: number, h: number) {
+    const s = this.shiftFront(w, h);
     this.ctx.globalCompositeOperation = 'screen';
     this.particles.forEach((p) => {
       p.x += p.speedX + Math.sin(this.time + p.y * 0.005) * 0.2;
       p.y += p.speedY + Math.cos(this.time * 0.7 + p.x * 0.004) * 0.12;
-      
+
       if (p.x < 0) p.x = w;
       if (p.x > w) p.x = 0;
       if (p.y < 0) p.y = h;
       if (p.y > h) p.y = 0;
 
+      const px = p.x + s.x;
+      const py = p.y + s.y;
       const twinkle = 0.65 + Math.sin(this.time * 3 + p.phase) * 0.28;
-      const opacity = p.opacity * twinkle * 0.72;
+      const opacity = p.opacity * twinkle * 0.78;
 
-      const glow = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
+      const glow = this.ctx.createRadialGradient(px, py, 0, px, py, p.size * 5);
       glow.addColorStop(0, `hsla(${p.hue}, 92%, 85%, ${opacity})`);
       glow.addColorStop(0.4, `hsla(${p.hue}, 85%, 65%, ${opacity * 0.3})`);
       glow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = glow;
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
+      this.ctx.arc(px, py, p.size * 5, 0, Math.PI * 2);
       this.ctx.fill();
 
       this.ctx.fillStyle = `hsla(${p.hue}, 100%, 95%, ${opacity * 1.1})`;
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.arc(px, py, p.size, 0, Math.PI * 2);
       this.ctx.fill();
     });
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
   private drawFireflies(w: number, h: number) {
+    const s = this.shiftFront(w, h);
     this.ctx.globalCompositeOperation = 'screen';
     this.fireflies.forEach((ff) => {
       ff.x += ff.vx + Math.sin(this.time * 2 + ff.brightness * 8) * 0.3;
       ff.y += ff.vy + Math.cos(this.time * 1.5 + ff.brightness * 6) * 0.2;
       ff.brightness += ff.blinkSpeed;
-      
+
       if (ff.x < 0) ff.x = w;
       if (ff.x > w) ff.x = 0;
       if (ff.y < 0) ff.y = h;
       if (ff.y > h) ff.y = 0;
 
+      const fx = ff.x + s.x;
+      const fy = ff.y + s.y;
       const glow = Math.sin(ff.brightness) * 0.5 + 0.5;
-      const alpha = glow * 0.48;
+      const alpha = glow * 0.58;
 
-      const gradient = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.size * 4);
+      const gradient = this.ctx.createRadialGradient(fx, fy, 0, fx, fy, ff.size * 4);
       gradient.addColorStop(0, `hsla(${ff.hue}, 100%, 90%, ${alpha})`);
       gradient.addColorStop(0.3, `hsla(${ff.hue}, 95%, 70%, ${alpha * 0.5})`);
       gradient.addColorStop(1, 'transparent');
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.arc(ff.x, ff.y, ff.size * 4, 0, Math.PI * 2);
+      this.ctx.arc(fx, fy, ff.size * 4, 0, Math.PI * 2);
       this.ctx.fill();
 
       this.ctx.fillStyle = `hsla(${ff.hue}, 100%, 98%, ${alpha})`;
       this.ctx.beginPath();
-      this.ctx.arc(ff.x, ff.y, ff.size * 0.55, 0, Math.PI * 2);
+      this.ctx.arc(fx, fy, ff.size * 0.55, 0, Math.PI * 2);
       this.ctx.fill();
     });
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
   private drawEphemeralGlyphs(w: number, h: number) {
+    const s = this.shiftFront(w, h);
     this.ctx.globalCompositeOperation = 'screen';
     this.ephemeralGlyphs.forEach((g) => {
       g.x += g.vx + Math.sin(this.time * 0.38 + g.phase) * 0.1;
@@ -490,7 +589,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
 
       g.pulsePhase += 0.018 * g.pulseSpeed;
       const wave = Math.sin(g.pulsePhase);
-      const alpha = 0.04 + 0.36 * wave * wave;
+      const alpha = 0.07 + 0.4 * wave * wave;
 
       if (wave < -0.82 && !g.swapLock) {
         g.symbol = this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)];
@@ -501,7 +600,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       }
 
       this.ctx.save();
-      this.ctx.translate(g.x, g.y);
+      this.ctx.translate(g.x + s.x, g.y + s.y);
       this.ctx.rotate(g.rotation);
       this.ctx.globalAlpha = alpha;
       this.ctx.font = `${g.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
@@ -513,21 +612,57 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
+  private drawAvLumens(w: number, h: number) {
+    const s = this.shiftFront(w, h);
+    this.ctx.globalCompositeOperation = 'screen';
+    this.avLumens.forEach((lumen) => {
+      lumen.x += lumen.vx + Math.sin(this.time * lumen.floatSpeed + lumen.phase) * 0.32;
+      lumen.y += lumen.vy + Math.cos(this.time * lumen.floatSpeed * 0.72 + lumen.phase) * 0.2;
+
+      if (lumen.x < -48) lumen.x = w + 48;
+      if (lumen.x > w + 48) lumen.x = -48;
+      if (lumen.y < h * 0.1) lumen.y = h * 0.9;
+      if (lumen.y > h * 0.9) lumen.y = h * 0.1;
+
+      const lx = lumen.x + s.x;
+      const ly = lumen.y + s.y;
+      const bobY = ly + Math.sin(this.time * 2.05 + lumen.phase) * lumen.bobAmount;
+      const pulseAlpha = 0.52 + Math.sin(this.time * 2.65 + lumen.phase) * 0.28;
+
+      const glow = this.ctx.createRadialGradient(lx, bobY, 0, lx, bobY, lumen.size * 3.1);
+      glow.addColorStop(0, `hsla(${lumen.hue}, 72%, 66%, ${pulseAlpha * 0.95})`);
+      glow.addColorStop(0.38, `hsla(${lumen.hue}, 62%, 52%, ${pulseAlpha * 0.42})`);
+      glow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = glow;
+      this.ctx.beginPath();
+      this.ctx.arc(lx, bobY, lumen.size * 3.1, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.fillStyle = `hsla(${lumen.hue}, 86%, 80%, ${pulseAlpha + 0.12})`;
+      this.ctx.font = `${lumen.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(lumen.label, lx, bobY);
+    });
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+
   private drawGearSilhouettes(w: number, h: number) {
-    const base = h * 0.88;
+    const sn = this.shiftNear(w, h);
+    const base = h * 0.88 + sn.y * 0.55;
     this.ctx.fillStyle = 'rgba(18, 14, 38, 0.92)';
     this.ctx.strokeStyle = 'rgba(50, 42, 82, 0.95)';
     this.ctx.lineWidth = 3;
 
     // Camera tripod
-    const tx = w * 0.05;
+    const tx = w * 0.05 + sn.x;
     this.ctx.beginPath();
     this.ctx.moveTo(tx, base);
-    this.ctx.lineTo(tx - 30, h + 5);
+    this.ctx.lineTo(tx - 30, h + 5 + sn.y * 0.2);
     this.ctx.moveTo(tx, base);
-    this.ctx.lineTo(tx + 35, h + 5);
+    this.ctx.lineTo(tx + 35, h + 5 + sn.y * 0.2);
     this.ctx.moveTo(tx, base);
-    this.ctx.lineTo(tx, h + 3);
+    this.ctx.lineTo(tx, h + 3 + sn.y * 0.2);
     this.ctx.stroke();
 
     const camY = base - 100;
@@ -542,7 +677,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.fill();
 
     // Mixer/Speaker
-    const sx = w * 0.9;
+    const sx = w * 0.9 + sn.x;
     this.ctx.fillStyle = 'rgba(18, 14, 38, 0.92)';
     this.ctx.fillRect(sx - 45, base - 130, 90, 135);
     this.ctx.strokeStyle = 'rgba(50, 42, 82, 0.92)';
@@ -553,30 +688,38 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     }
 
     // Light panel
-    const px = w * 0.73;
+    const px = w * 0.73 + sn.x;
     this.ctx.fillStyle = 'rgba(16, 12, 34, 0.92)';
     this.ctx.fillRect(px - 3, base - 150, 8, 150);
-    this.ctx.fillStyle = 'rgba(200, 220, 250, 0.18)';
+    this.ctx.fillStyle = 'rgba(200, 220, 250, 0.26)';
     this.ctx.fillRect(px - 52, base - 145, 104, 78);
     this.ctx.strokeStyle = 'rgba(80, 70, 120, 0.88)';
     this.ctx.strokeRect(px - 52, base - 145, 104, 78);
 
     const ledPulse = 0.7 + Math.sin(this.time * 2.8) * 0.3;
-    this.ctx.fillStyle = `rgba(160, 200, 255, ${0.1 * ledPulse})`;
+    this.ctx.fillStyle = `rgba(160, 200, 255, ${0.16 * ledPulse})`;
     this.ctx.fillRect(px - 50, base - 142, 100, 22);
 
     // Foreground curve
     this.ctx.strokeStyle = 'rgba(40, 36, 70, 0.78)';
     this.ctx.lineWidth = 2.5;
     this.ctx.beginPath();
-    this.ctx.moveTo(w * 0.12, base + 10);
-    this.ctx.bezierCurveTo(w * 0.35, base - 25, w * 0.5, base + 35, w * 0.8, base + 8);
+    this.ctx.moveTo(w * 0.12 + sn.x * 0.4, base + 10);
+    this.ctx.bezierCurveTo(
+      w * 0.35 + sn.x * 0.35,
+      base - 25,
+      w * 0.5 + sn.x * 0.3,
+      base + 35,
+      w * 0.8 + sn.x * 0.35,
+      base + 8
+    );
     this.ctx.stroke();
   }
 
   private drawMascot(w: number, h: number) {
-    const cx = w * 0.14;
-    const cy = h * 0.73;
+    const sn = this.shiftNear(w, h);
+    const cx = w * 0.14 + sn.x * 1.14;
+    const cy = h * 0.73 + sn.y * 1.06;
     const bounce = Math.sin(this.time * 5.2) * 7;
     const squash = 1 + Math.sin(this.time * 5.2 + 0.4) * 0.065;
 
@@ -680,8 +823,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawMascotSidekick(w: number, h: number) {
-    const cx = w * 0.84;
-    const cy = h * 0.72;
+    const sn = this.shiftNear(w, h);
+    const cx = w * 0.84 + sn.x * 1.14;
+    const cy = h * 0.72 + sn.y * 1.06;
     const bounce = Math.sin(this.time * 4.5 + 1.2) * 5.5;
     const squash = 1 + Math.sin(this.time * 4.5 + 1.7) * 0.055;
 
@@ -778,6 +922,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawTinyPals(w: number, h: number) {
+    const sn = this.shiftNear(w, h);
     this.tinyPals.forEach((pal) => {
       pal.x += pal.vx;
       if (pal.x < -20) pal.x = w + 20;
@@ -787,7 +932,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const squash = 1 + Math.sin(this.time * 5 + pal.phase) * 0.08;
 
       this.ctx.save();
-      this.ctx.translate(pal.x, y);
+      this.ctx.translate(pal.x + sn.x, y + sn.y * 0.62);
       this.ctx.scale(1, squash);
 
       const g = this.ctx.createRadialGradient(0, -pal.r * 0.2, 0, 0, 0, pal.r * 1.4);
@@ -919,15 +1064,16 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawCrewSpeech(w: number, h: number) {
+    const sn = this.shiftNear(w, h);
     const bounce1 = Math.sin(this.time * 5.2) * 7;
-    const cx1 = w * 0.14;
-    const cy1 = h * 0.73 + bounce1;
+    const cx1 = w * 0.14 + sn.x * 1.14;
+    const cy1 = h * 0.73 + bounce1 + sn.y * 1.06;
     const i1 = Math.floor(this.time / 2.6) % this.crewPhrases.length;
     this.drawSpeechBubble(cx1 + 48, cy1 - 88, this.crewPhrases[i1], 'rgba(255, 248, 252, 0.94)');
 
     const bounce2 = Math.sin(this.time * 4.5 + 1.2) * 5.5;
-    const cx2 = w * 0.84;
-    const cy2 = h * 0.72 + bounce2;
+    const cx2 = w * 0.84 + sn.x * 1.14;
+    const cy2 = h * 0.72 + bounce2 + sn.y * 1.06;
     const i2 = Math.floor(this.time / 3.1 + 2) % this.crewPhrases.length;
     this.drawSpeechBubble(cx2 - 52, cy2 - 82, this.crewPhrases[i2], 'rgba(236, 253, 250, 0.92)');
   }
@@ -935,8 +1081,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private drawForegroundGlow(w: number, h: number) {
     // Bottom warm glow
     const bottomGlow = this.ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h * 0.55, h * 0.75);
-    bottomGlow.addColorStop(0, 'hsla(280, 45%, 30%, 0.14)');
-    bottomGlow.addColorStop(0.4, 'hsla(240, 40%, 25%, 0.07)');
+    bottomGlow.addColorStop(0, 'hsla(280, 45%, 34%, 0.18)');
+    bottomGlow.addColorStop(0.4, 'hsla(240, 40%, 28%, 0.09)');
     bottomGlow.addColorStop(1, 'transparent');
     this.ctx.fillStyle = bottomGlow;
     this.ctx.fillRect(0, 0, w, h);
@@ -1023,6 +1169,19 @@ interface EphemeralGlyph {
   pulsePhase: number;
   pulseSpeed: number;
   swapLock: boolean;
+}
+
+interface AvLumen {
+  label: string;
+  hue: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  phase: number;
+  floatSpeed: number;
+  bobAmount: number;
 }
 
 interface TinyPal {
