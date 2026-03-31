@@ -150,58 +150,65 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* --- STRUCTURAL ENFORCEMENT MIXINS (data-ui-variant) --- */
+/* These rules overload the baseline :root tokens dynamically based on the theme loaded */
+
 html[data-ui-variant="glass"] {
-  --variant-bg: var(--surface);
   --variant-blur: 28px;
-  --variant-border: 1px solid var(--border-vibrant);
-  --variant-shadow: var(--shadow-md), var(--shadow-inset-shine);
-  --variant-radius: var(--radius-lg);
+  /* Retains default :root values representing the premium glass look */
 }
 
 html[data-ui-variant="solid"] {
-  --variant-bg: var(--bg-secondary);
   --variant-blur: 0px;
-  --variant-border: 1px solid var(--border-soft);
-  --variant-shadow: 0 4px 12px rgba(0,0,0, 0.08);
-  --variant-radius: var(--radius-md);
+  --radius-lg: 8px;
+  --surface: var(--bg-secondary);
+  --shadow-md: 0 4px 12px rgba(0,0,0, 0.2);
+  --shadow-inset-shine: none;
+  --border-vibrant: var(--border-soft);
 }
 
 html[data-ui-variant="flat"] {
-  --variant-bg: var(--surface);
   --variant-blur: 0px;
-  --variant-border: none;
-  --variant-shadow: 0 1px 3px rgba(0,0,0, 0.05);
-  --variant-radius: var(--radius-sm);
+  --radius-lg: 4px;
+  --surface: var(--bg-secondary);
+  --shadow-md: none;
+  --shadow-inset-shine: none;
+  --border-soft: transparent;
+  --border-vibrant: var(--border-soft);
 }
 
 html[data-ui-variant="neumorphic"] {
-  --variant-bg: var(--surface);
   --variant-blur: 0px;
-  --variant-border: 1px solid var(--border-soft);
-  --variant-shadow: -4px -4px 10px rgba(255,255,255,0.03), 8px 8px 20px rgba(0,0,0,0.6);
-  --variant-radius: var(--radius-xl);
+  --radius-lg: 20px;
+  --surface: var(--bg-primary);
+  --bg-secondary: var(--bg-primary);
+  --bg-tertiary: var(--bg-primary);
+  --shadow-md: -8px -8px 16px rgba(255,255,255,0.02), 8px 8px 16px rgba(0,0,0,0.6);
+  --shadow-inset-shine: none;
+  --border-soft: transparent;
+  --border-vibrant: transparent;
 }
 
 html[data-ui-variant="minimal"] {
-  --variant-bg: transparent;
   --variant-blur: 0px;
-  --variant-border: 1px solid var(--border-soft);
-  --variant-shadow: none;
-  --variant-radius: 4px;
+  --radius-lg: 0px;
+  --surface: transparent;
+  --bg-secondary: transparent;
+  --shadow-md: none;
+  --shadow-inset-shine: none;
 }
 
-/* UI Variant Utilities - Bound to Mixins */
+/* Base UI Component Utilities */
 .ui-glass {
-  background: var(--variant-bg, var(--surface));
-  border: var(--variant-border, 1px solid var(--border-vibrant));
-  border-radius: var(--variant-radius, var(--radius-lg));
-  box-shadow: var(--variant-shadow, var(--shadow-md));
+  background: var(--surface);
+  border: 1px solid var(--border-vibrant);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md), var(--shadow-inset-shine);
 }
 
 .ui-filled {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-soft);
-  border-radius: var(--variant-radius, var(--radius-lg));
+  border-radius: var(--radius-lg);
 }
 
 .ui-accent {
