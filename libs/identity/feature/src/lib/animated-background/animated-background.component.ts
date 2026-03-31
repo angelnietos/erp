@@ -40,6 +40,31 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private avLumens: AvLumen[] = [];
   private tinyPals: TinyPal[] = [];
 
+  /** ============================================ */
+  /** RAYMAN-INSPIRED EPHEMERAL LUMENS SYSTEM */
+  /** ============================================ */
+  
+  /** Object pool for ephemeral lumens (Rayman-style) */
+  private ephemeralLumens: EphemeralLumen[] = [];
+  private readonly EPHEMERAL_LUMEN_POOL_SIZE = 28;
+  
+  /** Particle trail pool for lumens */
+  private lumenParticles: LumenParticle[] = [];
+  private readonly LUMEN_PARTICLE_POOL_SIZE = 180;
+  
+  /** Sparkle effects for magical atmosphere */
+  private sparkles: Sparkle[] = [];
+  private readonly SPARKLE_POOL_SIZE = 45;
+  
+  /** Ring effects that spawn from lumens */
+  private rings: LumenRing[] = [];
+  private readonly RING_POOL_SIZE = 20;
+
+  /** NEW ATMOSPHERE ELEMENTS */
+  private fogLayers: FogLayer[] = [];
+  private shootingStars: ShootingStar[] = [];
+  private readonly SHOOTING_STAR_POOL_SIZE = 4;
+
   /** Pool audiovisual (sin logística / ERP genérico). */
   private readonly avSymbolPool = [
     '🎬',
@@ -152,10 +177,10 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.stars.push({
         x: Math.random() * w,
         y: Math.random() * h * 0.5,
-        size: Math.random() * 1.8 + 0.4,
-        twinkleSpeed: Math.random() * 0.025 + 0.008,
+        size: Math.random() * 1.5 + 0.3,
+        twinkleSpeed: Math.random() * 0.035 + 0.005,
         twinklePhase: Math.random() * Math.PI * 2,
-        brightness: Math.random() * 0.42 + 0.22,
+        brightness: Math.random() * 0.5 + 0.2,
       });
     }
 
@@ -262,6 +287,18 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       });
     }
 
+    // === RAYMAN-STYLE EPHEMERAL LUMENS (Object Pool) ===
+    this.initEphemeralLumenPool(w, h);
+    
+    // === LUMEN PARTICLE TRAIL POOL ===
+    this.initLumenParticlePool(w, h);
+    
+    // === SPARKLE POOL ===
+    this.initSparklePool(w, h);
+    
+    // === RING EFFECT POOL ===
+    this.initRingPool(w, h);
+
     // === Mini crew plató ===
     const palHues = [195, 210, 175, 265, 40, 220, 155, 48, 300, 185];
     const palCount = 10;
@@ -276,6 +313,27 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
         kind: i % 4,
       });
     }
+
+    // === ATMOSPHERIC FOG ===
+    const fogCount = 5;
+    for (let i = 0; i < fogCount; i++) {
+      this.fogLayers.push({
+        x: Math.random() * w,
+        y: h * (0.6 + Math.random() * 0.4),
+        width: w * (1.2 + Math.random() * 0.8),
+        height: h * (0.3 + Math.random() * 0.3),
+        vx: (Math.random() - 0.5) * 0.15,
+        opacity: 0.03 + Math.random() * 0.05,
+        hue: i % 2 === 0 ? 210 : 260,
+      });
+    }
+
+    // === SHOOTING STARS ===
+    for (let i = 0; i < this.SHOOTING_STAR_POOL_SIZE; i++) {
+      this.shootingStars.push({
+        x: 0, y: 0, vx: 0, vy: 0, len: 0, active: false, opacity: 0
+      });
+    }
   }
 
   private animate = () => {
@@ -288,14 +346,23 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     // Draw everything in layers (back to front)
     this.drawSky(w, h);
     this.drawStars(w, h);
+    this.drawShootingStars(w, h);
     this.drawAurora(w, h);
     this.drawClouds(w, h);
+    this.drawFog(w, h);
     this.drawLightBeams(w, h);
     this.drawSpirits(w, h);
     this.drawParticles(w, h);
     this.drawFireflies(w, h);
     this.drawEphemeralGlyphs(w, h);
     this.drawAvLumens(w, h);
+    
+    // === NEW: Rayman-style ephemeral lumens with particle trails ===
+    this.drawEphemeralLumens(w, h);
+    this.drawLumenParticles(w, h);
+    this.drawSparkles(w, h);
+    this.drawRings(w, h);
+    
     this.drawGearSilhouettes(w, h);
     this.drawTinyPals(w, h);
     this.drawMascot(w, h);
@@ -310,14 +377,17 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     const t = this.time * 0.08;
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
     
-    g.addColorStop(0, `hsl(${215 + Math.sin(t * 0.4) * 8}, 45%, ${32 + Math.sin(t * 0.25) * 4}%)`);
-    g.addColorStop(0.3, `hsl(${230 + Math.sin(t * 0.35) * 6}, 42%, ${22 + Math.sin(t * 0.2) * 3}%)`);
-    g.addColorStop(0.55, `hsl(${250 + Math.sin(t * 0.3) * 5}, 38%, ${16 + Math.sin(t * 0.15) * 2}%)`);
-    g.addColorStop(0.75, `hsl(${270 + Math.sin(t * 0.25) * 4}, 35%, ${12 + Math.sin(t * 0.1) * 2}%)`);
-    g.addColorStop(1, '#080d18');
+    // Deeper, more atmospheric colors
+    g.addColorStop(0, `hsl(${215 + Math.sin(t * 0.4) * 12}, 55%, ${28 + Math.sin(t * 0.25) * 6}%)`);
+    g.addColorStop(0.35, `hsl(${230 + Math.sin(t * 0.35) * 8}, 48%, ${18 + Math.sin(t * 0.2) * 5}%)`);
+    g.addColorStop(0.6, `hsl(${255 + Math.sin(t * 0.3) * 6}, 42%, ${12 + Math.sin(t * 0.15) * 4}%)`);
+    g.addColorStop(0.85, `hsl(${280 + Math.sin(t * 0.25) * 5}, 38%, ${8 + Math.sin(t * 0.1) * 3}%)`);
+    g.addColorStop(1, '#05070c');
     
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
+
+    // Subtle atmospheric grain/noise (simulated with very low opacity random points if needed, but gradient is fine)
   }
 
   private drawStars(w: number, h: number) {
@@ -326,67 +396,67 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const sx = star.x + s.x;
       const sy = star.y + s.y;
       const twinkle = Math.sin(this.time * star.twinkleSpeed * 60 + star.twinklePhase);
-      const alpha = star.brightness * (0.5 + twinkle * 0.5);
+      const alpha = star.brightness * (0.4 + twinkle * 0.6);
+      const scale = 0.8 + twinkle * 0.4;
 
-      const gradient = this.ctx.createRadialGradient(sx, sy, 0, sx, sy, star.size * 2);
+      const gradient = this.ctx.createRadialGradient(sx, sy, 0, sx, sy, star.size * 3 * scale);
       gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
-      gradient.addColorStop(0.5, `rgba(200, 220, 255, ${alpha * 0.5})`);
+      gradient.addColorStop(0.3, `rgba(220, 240, 255, ${alpha * 0.6})`);
       gradient.addColorStop(1, 'transparent');
 
       this.ctx.fillStyle = gradient;
       this.ctx.beginPath();
-      this.ctx.arc(sx, sy, star.size * 2, 0, Math.PI * 2);
+      this.ctx.arc(sx, sy, star.size * 3 * scale, 0, Math.PI * 2);
       this.ctx.fill();
+
+      // Sharp core for some stars
+      if (star.brightness > 0.55 && twinkle > 0.7) {
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        this.ctx.fillRect(sx - 0.5, sy - star.size * 2, 1, star.size * 4);
+        this.ctx.fillRect(sx - star.size * 2, sy - 0.5, star.size * 4, 1);
+      }
     });
   }
 
   private drawAurora(w: number, h: number) {
-    const t = this.time * 0.15;
+    const t = this.time * 0.12;
     const p = this.shiftBack(w, h);
     const oy = p.y * 0.65;
 
-    // Aurora wave 1
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = 'screen';
+
+    // Aurora wave 1 (Emerald/Cyan)
+    this.renderAuroraWave(w, h, t, p.x, oy, 160, 0.15, 0.14, 35);
+    
+    // Aurora wave 2 (Purple/Violet)
+    this.renderAuroraWave(w, h, t + 2, p.x * 0.8, oy + 20, 280, 0.22, 0.12, 45);
+
+    // Aurora wave 3 (Deep Blue/Indigo)
+    this.renderAuroraWave(w, h, t * 0.7, p.x * 1.2, oy - 15, 230, 0.28, 0.1, 25);
+
+    this.ctx.restore();
+  }
+
+  private renderAuroraWave(w: number, h: number, t: number, px: number, oy: number, hue: number, startY: number, alpha: number, amplitude: number) {
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h * 0.15 + oy);
-    for (let x = 0; x <= w; x += 20) {
-      const y =
-        h * 0.15 +
-        oy +
-        Math.sin(x * 0.005 + t + p.x * 0.002) * 30 +
-        Math.sin(x * 0.01 + t * 0.7) * 15;
-      this.ctx.lineTo(x + p.x * 0.35, y);
+    this.ctx.moveTo(0, h * startY + oy);
+    for (let x = 0; x <= w; x += 15) {
+      const y = h * startY + oy +
+        Math.sin(x * 0.004 + t + px * 0.001) * amplitude +
+        Math.sin(x * 0.008 + t * 0.6) * (amplitude * 0.5);
+      this.ctx.lineTo(x + px * 0.3, y);
     }
-    this.ctx.lineTo(w + p.x * 0.35, h * 0.3 + oy);
-    this.ctx.lineTo(0, h * 0.3 + oy);
+    this.ctx.lineTo(w + px * 0.3, h * (startY + 0.25) + oy);
+    this.ctx.lineTo(0, h * (startY + 0.25) + oy);
     this.ctx.closePath();
 
-    const auroraGrad1 = this.ctx.createLinearGradient(0, h * 0.1 + oy, 0, h * 0.35 + oy);
-    auroraGrad1.addColorStop(0, 'hsla(160, 70%, 50%, 0.12)');
-    auroraGrad1.addColorStop(0.5, 'hsla(200, 60%, 45%, 0.085)');
-    auroraGrad1.addColorStop(1, 'transparent');
-    this.ctx.fillStyle = auroraGrad1;
-    this.ctx.fill();
-
-    // Aurora wave 2
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, h * 0.2 + oy);
-    for (let x = 0; x <= w; x += 20) {
-      const y =
-        h * 0.2 +
-        oy +
-        Math.sin(x * 0.006 + t + 2 + p.x * 0.0015) * 25 +
-        Math.sin(x * 0.012 + t * 0.6) * 12;
-      this.ctx.lineTo(x + p.x * 0.28, y);
-    }
-    this.ctx.lineTo(w + p.x * 0.28, h * 0.35 + oy);
-    this.ctx.lineTo(0, h * 0.35 + oy);
-    this.ctx.closePath();
-
-    const auroraGrad2 = this.ctx.createLinearGradient(0, h * 0.15 + oy, 0, h * 0.4 + oy);
-    auroraGrad2.addColorStop(0, 'hsla(260, 55%, 45%, 0.095)');
-    auroraGrad2.addColorStop(0.5, 'hsla(300, 50%, 40%, 0.065)');
-    auroraGrad2.addColorStop(1, 'transparent');
-    this.ctx.fillStyle = auroraGrad2;
+    const grad = this.ctx.createLinearGradient(0, h * startY + oy - amplitude, 0, h * (startY + 0.3) + oy);
+    grad.addColorStop(0, `hsla(${hue}, 80%, 55%, 0)`);
+    grad.addColorStop(0.2, `hsla(${hue}, 70%, 50%, ${alpha})`);
+    grad.addColorStop(0.5, `hsla(${hue + 30}, 60%, 45%, ${alpha * 0.7})`);
+    grad.addColorStop(1, 'transparent');
+    this.ctx.fillStyle = grad;
     this.ctx.fill();
   }
 
@@ -414,6 +484,85 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.ellipse(cx - cloud.width * 0.3, cy + 10, cloud.width * 0.5, cloud.width * 0.15, 0, 0, Math.PI * 2);
       this.ctx.fill();
     });
+  }
+
+  private drawFog(w: number, h: number) {
+    const s = this.shiftMid(w, h);
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = 'screen';
+    
+    this.fogLayers.forEach(fog => {
+      fog.x += fog.vx;
+      if (fog.x > w + fog.width) fog.x = -fog.width;
+      if (fog.x < -fog.width) fog.x = w + fog.width;
+
+      const fx = fog.x + s.x * 0.5;
+      const fy = fog.y + s.y * 0.5;
+
+      const grad = this.ctx.createRadialGradient(fx, fy, 0, fx, fy, fog.width);
+      grad.addColorStop(0, `hsla(${fog.hue}, 50%, 70%, ${fog.opacity})`);
+      grad.addColorStop(0.6, `hsla(${fog.hue}, 40%, 60%, ${fog.opacity * 0.4})`);
+      grad.addColorStop(1, 'transparent');
+
+      this.ctx.fillStyle = grad;
+      this.ctx.beginPath();
+      this.ctx.ellipse(fx, fy, fog.width, fog.height, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+    this.ctx.restore();
+  }
+
+  private spawnShootingStar(w: number, h: number) {
+    const star = this.shootingStars.find(s => !s.active);
+    if (star) {
+      star.active = true;
+      star.x = Math.random() * w;
+      star.y = Math.random() * h * 0.4;
+      star.vx = (Math.random() + 1) * 12; // Directional speed
+      star.vy = (Math.random() + 0.5) * 6;
+      star.len = 120 + Math.random() * 150;
+      star.opacity = 0.8 + Math.random() * 0.2;
+    }
+  }
+
+  private drawShootingStars(w: number, h: number) {
+    if (Math.random() < 0.004) {
+      this.spawnShootingStar(w, h);
+    }
+
+    this.ctx.save();
+    this.ctx.lineWidth = 1.5;
+    this.ctx.lineCap = 'round';
+    
+    this.shootingStars.forEach(star => {
+      if (!star.active) return;
+
+      star.x += star.vx;
+      star.y += star.vy;
+      star.opacity -= 0.015;
+
+      if (star.opacity <= 0 || star.x > w + star.len || star.y > h + star.len) {
+        star.active = false;
+        return;
+      }
+
+      const grad = this.ctx.createLinearGradient(star.x, star.y, star.x - star.vx, star.y - star.vy);
+      grad.addColorStop(0, `rgba(255, 255, 255, ${star.opacity})`);
+      grad.addColorStop(1, 'transparent');
+
+      this.ctx.strokeStyle = grad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(star.x, star.y);
+      this.ctx.lineTo(star.x - star.vx * 3, star.y - star.vy * 3);
+      this.ctx.stroke();
+
+      // Small point at head
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+      this.ctx.beginPath();
+      this.ctx.arc(star.x, star.y, 1.2, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+    this.ctx.restore();
   }
 
   private drawLightBeams(w: number, h: number) {
@@ -644,6 +793,372 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText(lumen.label, lx, bobY);
     });
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+
+  // ============================================================
+  // RAYMAN-INSPIRED EPHEMERAL LUMENS SYSTEM
+  // ============================================================
+  
+  /** Initialize ephemeral lumen object pool */
+  private initEphemeralLumenPool(w: number, h: number) {
+    const lumenHues = [42, 52, 195, 210, 265, 175, 310, 125, 45, 85];
+    
+    for (let i = 0; i < this.EPHEMERAL_LUMEN_POOL_SIZE; i++) {
+      const isActive = i < 12;
+      this.ephemeralLumens.push({
+        x: Math.random() * w,
+        y: Math.random() * h * 0.7 + h * 0.15,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: (Math.random() - 0.5) * 0.8,
+        size: 8 + Math.random() * 18,
+        hue: lumenHues[Math.floor(Math.random() * lumenHues.length)] + Math.random() * 15,
+        phase: Math.random() * Math.PI * 2,
+        life: isActive ? Math.random() * 3 + 1 : 0,
+        maxLife: isActive ? 3 + Math.random() * 2 : 0,
+        active: isActive,
+        spawnDelay: Math.random() * 4,
+        pulsePhase: Math.random() * Math.PI * 2,
+        wiggleAmp: 0.3 + Math.random() * 0.5,
+        wiggleFreq: 1.5 + Math.random() * 2,
+        label: this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)],
+        trailCooldown: 0,
+      });
+    }
+  }
+  
+  /** Initialize lumen particle trail pool */
+  private initLumenParticlePool(w: number, h: number) {
+    for (let i = 0; i < this.LUMEN_PARTICLE_POOL_SIZE; i++) {
+      this.lumenParticles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3 - 0.2,
+        size: 1 + Math.random() * 3,
+        life: Math.random() * 1.5,
+        maxLife: 1 + Math.random() * 1.5,
+        hue: 45 + Math.random() * 60,
+        active: false,
+        alpha: 0,
+      });
+    }
+  }
+  
+  /** Initialize sparkle pool */
+  private initSparklePool(w: number, h: number) {
+    for (let i = 0; i < this.SPARKLE_POOL_SIZE; i++) {
+      this.sparkles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: 1 + Math.random() * 4,
+        hue: 40 + Math.random() * 50,
+        life: Math.random() * 2,
+        maxLife: 1.5 + Math.random() * 1.5,
+        active: i < 20,
+        phase: Math.random() * Math.PI * 2,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 3,
+        decaySpeed: 0.5 + Math.random() * 0.8,
+      });
+    }
+  }
+  
+  /** Initialize ring effect pool */
+  private initRingPool(w: number, h: number) {
+    for (let i = 0; i < this.RING_POOL_SIZE; i++) {
+      this.rings.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: 0,
+        maxRadius: 20 + Math.random() * 40,
+        life: Math.random() * 0.8,
+        maxLife: 0.6 + Math.random() * 0.4,
+        hue: 45 + Math.random() * 50,
+        active: false,
+        thickness: 2 + Math.random() * 3,
+      });
+    }
+  }
+  
+  /** Spawn a new ephemeral lumen from pool */
+  private spawnEphemeralLumen(w: number, h: number) {
+    const inactive = this.ephemeralLumens.find(l => !l.active && l.spawnDelay <= 0);
+    if (inactive) {
+      inactive.x = Math.random() * w;
+      inactive.y = h + 30;
+      inactive.vx = (Math.random() - 0.5) * 1.2;
+      inactive.vy = -(0.5 + Math.random() * 0.8);
+      inactive.life = 0;
+      inactive.maxLife = 3 + Math.random() * 2.5;
+      inactive.active = true;
+      inactive.spawnDelay = Math.random() * 2;
+    }
+  }
+  
+  /** Spawn particle from a lumen */
+  private spawnLumenParticle(x: number, y: number, hue: number) {
+    const inactive = this.lumenParticles.find(p => !p.active);
+    if (inactive) {
+      inactive.x = x + (Math.random() - 0.5) * 10;
+      inactive.y = y + (Math.random() - 0.5) * 10;
+      inactive.vx = (Math.random() - 0.5) * 0.4;
+      inactive.vy = (Math.random() - 0.5) * 0.3 - 0.15;
+      inactive.life = 0;
+      inactive.maxLife = 0.8 + Math.random() * 1.2;
+      inactive.hue = hue + Math.random() * 20 - 10;
+      inactive.active = true;
+      inactive.alpha = 0.8 + Math.random() * 0.2;
+    }
+  }
+  
+  /** Spawn sparkle effect */
+  private spawnSparkle(w: number, h: number) {
+    const inactive = this.sparkles.find(s => !s.active);
+    if (inactive) {
+      inactive.x = Math.random() * w;
+      inactive.y = Math.random() * h;
+      inactive.life = 0;
+      inactive.maxLife = 1 + Math.random() * 1.5;
+      inactive.active = true;
+      inactive.phase = Math.random() * Math.PI * 2;
+      inactive.rotation = Math.random() * Math.PI * 2;
+    }
+  }
+  
+  /** Spawn ring effect from a lumen position */
+  private spawnRing(x: number, y: number, hue: number) {
+    const inactive = this.rings.find(r => !r.active);
+    if (inactive) {
+      inactive.x = x;
+      inactive.y = y;
+      inactive.radius = 5;
+      inactive.life = 0;
+      inactive.maxLife = 0.5 + Math.random() * 0.4;
+      inactive.hue = hue;
+      inactive.active = true;
+    }
+  }
+  
+  /** Draw ephemeral lumens (Rayman-style) */
+  private drawEphemeralLumens(w: number, h: number) {
+    const s = this.shiftFront(w, h);
+    this.ctx.globalCompositeOperation = 'screen';
+    
+    if (Math.random() < 0.08) {
+      this.spawnEphemeralLumen(w, h);
+    }
+    
+    this.ephemeralLumens.forEach((lumen) => {
+      if (lumen.spawnDelay > 0) lumen.spawnDelay -= 0.016;
+      
+      if (!lumen.active) return;
+      
+      lumen.life += 0.016;
+      if (lumen.life >= lumen.maxLife) {
+        lumen.active = false;
+        lumen.spawnDelay = 1 + Math.random() * 3;
+        return;
+      }
+      
+      const lifeRatio = lumen.life / lumen.maxLife;
+      lumen.x += lumen.vx + Math.sin(this.time * lumen.wiggleFreq + lumen.phase) * lumen.wiggleAmp;
+      lumen.y += lumen.vy + Math.cos(this.time * lumen.wiggleFreq * 0.7 + lumen.phase) * lumen.wiggleAmp * 0.5;
+      
+      if (lumen.y < -50 && lifeRatio < 0.2) {
+        lumen.y = h + 30;
+        lumen.x = Math.random() * w;
+      }
+      
+      const fadeIn = Math.min(lumen.life / 0.5, 1);
+      const fadeOut = 1 - Math.min((lumen.life - lumen.maxLife + 0.8) / 0.8, 1);
+      const alpha = fadeIn * fadeOut * (0.6 + Math.sin(this.time * 3 + lumen.pulsePhase) * 0.15);
+      
+      const lx = lumen.x + s.x;
+      const ly = lumen.y + s.y;
+      
+      const glowSize = lumen.size * (2.5 + Math.sin(this.time * 2.5 + lumen.pulsePhase) * 0.3);
+      const glow = this.ctx.createRadialGradient(lx, ly, 0, lx, ly, glowSize);
+      glow.addColorStop(0, `hsla(${lumen.hue}, 85%, 75%, ${alpha * 0.9})`);
+      glow.addColorStop(0.35, `hsla(${lumen.hue}, 75%, 55%, ${alpha * 0.5})`);
+      glow.addColorStop(0.7, `hsla(${lumen.hue}, 65%, 45%, ${alpha * 0.2})`);
+      glow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = glow;
+      this.ctx.beginPath();
+      this.ctx.arc(lx, ly, glowSize, 0, Math.PI * 2);
+      this.ctx.fill();
+      
+      const coreSize = lumen.size * 0.4;
+      const core = this.ctx.createRadialGradient(lx, ly, 0, lx, ly, coreSize);
+      core.addColorStop(0, `hsla(${lumen.hue}, 100%, 95%, ${alpha})`);
+      core.addColorStop(0.5, `hsla(${lumen.hue}, 90%, 80%, ${alpha * 0.8})`);
+      core.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = core;
+      this.ctx.beginPath();
+      this.ctx.arc(lx, ly, coreSize, 0, Math.PI * 2);
+      this.ctx.fill();
+      
+      lumen.trailCooldown -= 0.016;
+      if (lumen.trailCooldown <= 0 && Math.random() < 0.3) {
+        this.spawnLumenParticle(lx, ly, lumen.hue);
+        lumen.trailCooldown = 0.08 + Math.random() * 0.12;
+      }
+      
+      if (Math.random() < 0.008) {
+        this.spawnRing(lx, ly, lumen.hue);
+      }
+      
+      if (Math.random() < 0.02) {
+        this.spawnSparkle(w, h);
+      }
+    });
+    
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+  
+  /** Draw lumen particle trails */
+  private drawLumenParticles(w: number, h: number) {
+    const s = this.shiftFront(w, h);
+    this.ctx.globalCompositeOperation = 'screen';
+    
+    this.lumenParticles.forEach((particle) => {
+      if (!particle.active) return;
+      
+      particle.life += 0.016;
+      if (particle.life >= particle.maxLife) {
+        particle.active = false;
+        return;
+      }
+      
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      
+      const lifeRatio = particle.life / particle.maxLife;
+      const alpha = (1 - lifeRatio) * particle.alpha * 0.7;
+      
+      const px = particle.x + s.x;
+      const py = particle.y + s.y;
+      
+      const glow = this.ctx.createRadialGradient(px, py, 0, px, py, particle.size * 3);
+      glow.addColorStop(0, `hsla(${particle.hue}, 90%, 80%, ${alpha})`);
+      glow.addColorStop(0.5, `hsla(${particle.hue}, 80%, 60%, ${alpha * 0.3})`);
+      glow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = glow;
+      this.ctx.beginPath();
+      this.ctx.arc(px, py, particle.size * 3, 0, Math.PI * 2);
+      this.ctx.fill();
+      
+      this.ctx.fillStyle = `hsla(${particle.hue}, 100%, 92%, ${alpha})`;
+      this.ctx.beginPath();
+      this.ctx.arc(px, py, particle.size * 0.5, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+    
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+  
+  /** Draw sparkle effects */
+  private drawSparkles(w: number, h: number) {
+    const s = this.shiftFront(w, h);
+    this.ctx.globalCompositeOperation = 'screen';
+    
+    if (Math.random() < 0.06) {
+      this.spawnSparkle(w, h);
+    }
+    
+    this.sparkles.forEach((sparkle) => {
+      if (!sparkle.active) return;
+      
+      sparkle.life += 0.016;
+      sparkle.rotation += sparkle.rotationSpeed * 0.016;
+      
+      if (sparkle.life >= sparkle.maxLife) {
+        sparkle.active = false;
+        return;
+      }
+      
+      const lifeRatio = sparkle.life / sparkle.maxLife;
+      const alpha = (1 - lifeRatio) * 0.9;
+      const twinkle = 0.5 + Math.sin(this.time * 8 + sparkle.phase) * 0.5;
+      
+      const sx = sparkle.x + s.x;
+      const sy = sparkle.y + s.y;
+      
+      this.ctx.save();
+      this.ctx.translate(sx, sy);
+      this.ctx.rotate(sparkle.rotation);
+      
+      const size = sparkle.size * (1 + twinkle * 0.5);
+      this.ctx.fillStyle = `hsla(${sparkle.hue}, 100%, 90%, ${alpha})`;
+      this.ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        const outerX = Math.cos(angle) * size;
+        const outerY = Math.sin(angle) * size;
+        const innerAngle = angle + Math.PI / 4;
+        const innerX = Math.cos(innerAngle) * size * 0.35;
+        const innerY = Math.sin(innerAngle) * size * 0.35;
+        
+        if (i === 0) {
+          this.ctx.moveTo(outerX, outerY);
+        } else {
+          this.ctx.lineTo(outerX, outerY);
+        }
+        this.ctx.lineTo(innerX, innerY);
+      }
+      this.ctx.closePath();
+      this.ctx.fill();
+      
+      const glow = this.ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
+      glow.addColorStop(0, `hsla(${sparkle.hue}, 90%, 85%, ${alpha * 0.6})`);
+      glow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = glow;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, size * 2, 0, Math.PI * 2);
+      this.ctx.fill();
+      
+      this.ctx.restore();
+    });
+    
+    this.ctx.globalCompositeOperation = 'source-over';
+  }
+  
+  /** Draw ring effects */
+  private drawRings(w: number, h: number) {
+    const s = this.shiftFront(w, h);
+    this.ctx.globalCompositeOperation = 'screen';
+    
+    this.rings.forEach((ring) => {
+      if (!ring.active) return;
+      
+      ring.life += 0.016;
+      if (ring.life >= ring.maxLife) {
+        ring.active = false;
+        return;
+      }
+      
+      const lifeRatio = ring.life / ring.maxLife;
+      ring.radius = ring.maxRadius * lifeRatio;
+      const alpha = (1 - lifeRatio) * 0.7;
+      
+      const rx = ring.x + s.x;
+      const ry = ring.y + s.y;
+      
+      this.ctx.strokeStyle = `hsla(${ring.hue}, 85%, 70%, ${alpha})`;
+      this.ctx.lineWidth = ring.thickness * (1 - lifeRatio);
+      this.ctx.beginPath();
+      this.ctx.arc(rx, ry, ring.radius, 0, Math.PI * 2);
+      this.ctx.stroke();
+      
+      const innerGlow = this.ctx.createRadialGradient(rx, ry, ring.radius * 0.5, rx, ry, ring.radius);
+      innerGlow.addColorStop(0, `hsla(${ring.hue}, 80%, 65%, ${alpha * 0.2})`);
+      innerGlow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = innerGlow;
+      this.ctx.beginPath();
+      this.ctx.arc(rx, ry, ring.radius, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+    
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
@@ -1192,4 +1707,86 @@ interface TinyPal {
   phase: number;
   r: number;
   kind: number;
+}
+
+/** ============================================ */
+/** RAYMAN-INSPIRED LUMENS INTERFACES */
+/** ============================================ */
+
+interface EphemeralLumen {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  hue: number;
+  phase: number;
+  life: number;
+  maxLife: number;
+  active: boolean;
+  spawnDelay: number;
+  pulsePhase: number;
+  wiggleAmp: number;
+  wiggleFreq: number;
+  label: string;
+  trailCooldown: number;
+}
+
+interface LumenParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  maxLife: number;
+  hue: number;
+  active: boolean;
+  alpha: number;
+}
+
+interface Sparkle {
+  x: number;
+  y: number;
+  size: number;
+  hue: number;
+  life: number;
+  maxLife: number;
+  active: boolean;
+  phase: number;
+  rotation: number;
+  rotationSpeed: number;
+  decaySpeed: number;
+}
+
+interface LumenRing {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  life: number;
+  maxLife: number;
+  hue: number;
+  active: boolean;
+  thickness: number;
+}
+
+interface FogLayer {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  vx: number;
+  opacity: number;
+  hue: number;
+}
+
+interface ShootingStar {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  len: number;
+  active: boolean;
+  opacity: number;
 }
