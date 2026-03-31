@@ -49,6 +49,7 @@ export interface ThemeConfig {
   brandGlow: string;
   bgSecondary: string;
   bgTertiary: string;
+  bgStyle: 'aurora' | 'matrix' | 'nebula' | 'grid' | 'bokeh' | 'spot';
 }
 
 export const THEMES: Record<Theme, ThemeConfig> = {
@@ -65,6 +66,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(67, 56, 202, 0.35)',
     bgSecondary: '#ffffff',
     bgTertiary: '#e8edf5',
+    bgStyle: 'bokeh'
   },
   dark: {
     name: 'Noir Circuit',
@@ -79,6 +81,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(255, 59, 59, 0.42)',
     bgSecondary: '#0c0c0f',
     bgTertiary: '#15151a',
+    bgStyle: 'nebula'
   },
   blue: {
     name: 'Helix Blue',
@@ -93,8 +96,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(56, 189, 248, 0.45)',
     bgSecondary: '#0a1220',
     bgTertiary: '#111e33',
+    bgStyle: 'nebula'
   },
-  // Keep others with balanced defaults but focused on premium dark if possible
   green: {
     name: 'Signal Matrix',
     primary: '#10b981',
@@ -108,6 +111,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(16, 185, 129, 0.4)',
     bgSecondary: '#0f1510',
     bgTertiary: '#1a241b',
+    bgStyle: 'matrix'
   },
   purple: {
     name: 'Void Spiral',
@@ -122,6 +126,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(139, 92, 246, 0.4)',
     bgSecondary: '#140028',
     bgTertiary: '#1e003c',
+    bgStyle: 'aurora'
   },
   orange: {
     name: 'Solar Forge',
@@ -136,6 +141,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(249, 115, 22, 0.4)',
     bgSecondary: '#1a0d00',
     bgTertiary: '#2d1600',
+    bgStyle: 'spot'
   },
   rose: {
     name: 'Cyber-Rose',
@@ -150,6 +156,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(244, 63, 94, 0.4)',
     bgSecondary: '#1a000d',
     bgTertiary: '#2d0016',
+    bgStyle: 'bokeh'
   },
   slate: {
     name: 'Technical-Slate',
@@ -164,6 +171,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(100, 116, 139, 0.4)',
     bgSecondary: '#1e293b',
     bgTertiary: '#334155',
+    bgStyle: 'grid'
   },
   zinc: {
     name: 'Monochrome',
@@ -178,6 +186,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(113, 113, 122, 0.4)',
     bgSecondary: '#18181b',
     bgTertiary: '#27272a',
+    bgStyle: 'aurora'
   },
   neutral: {
     name: 'Raw-Metal',
@@ -192,6 +201,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(115, 115, 115, 0.4)',
     bgSecondary: '#171717',
     bgTertiary: '#262626',
+    bgStyle: 'aurora'
   },
   cyan: {
     name: 'Arctic-Pulse',
@@ -206,6 +216,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(6, 182, 212, 0.45)',
     bgSecondary: '#082028',
     bgTertiary: '#0c2e38',
+    bgStyle: 'nebula'
   },
   teal: {
     name: 'Abyss-Teal',
@@ -220,6 +231,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(20, 184, 166, 0.45)',
     bgSecondary: '#0a1f1c',
     bgTertiary: '#0f2e29',
+    bgStyle: 'nebula'
   },
   amber: {
     name: 'Forge-Amber',
@@ -234,6 +246,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(245, 158, 11, 0.45)',
     bgSecondary: '#1c1400',
     bgTertiary: '#2d1f00',
+    bgStyle: 'aurora'
   },
   indigo: {
     name: 'Nebula-Indigo',
@@ -248,6 +261,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(99, 102, 241, 0.45)',
     bgSecondary: '#0f1020',
     bgTertiary: '#16182e',
+    bgStyle: 'nebula'
   },
   lime: {
     name: 'Acid-Lime',
@@ -262,6 +276,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(132, 204, 22, 0.45)',
     bgSecondary: '#121a05',
     bgTertiary: '#1c2608',
+    bgStyle: 'aurora'
   },
   violet: {
     name: 'Ultra-Violet',
@@ -276,6 +291,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(124, 58, 237, 0.45)',
     bgSecondary: '#14082a',
     bgTertiary: '#1c0c3d',
+    bgStyle: 'nebula'
   },
   crimson: {
     name: 'Crimson-Code',
@@ -290,6 +306,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(225, 29, 72, 0.45)',
     bgSecondary: '#1a0510',
     bgTertiary: '#2d0819',
+    bgStyle: 'matrix'
   },
   mint: {
     name: 'Mint-Signal',
@@ -304,6 +321,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(52, 211, 153, 0.45)',
     bgSecondary: '#0a1812',
     bgTertiary: '#0f241b',
+    bgStyle: 'aurora'
   },
   coral: {
     name: 'Coral-Neon',
@@ -318,6 +336,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(251, 113, 133, 0.45)',
     bgSecondary: '#1a0a10',
     bgTertiary: '#2d1018',
+    bgStyle: 'bokeh'
   },
   gold: {
     name: 'Vinewood Gold',
@@ -332,6 +351,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(245, 197, 24, 0.48)',
     bgSecondary: '#121008',
     bgTertiary: '#1f1a0c',
+    bgStyle: 'aurora'
   },
 };
 
