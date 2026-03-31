@@ -82,7 +82,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#3b82f6',
-    uiVariant: 'solid'
+    uiVariant: 'solid',
   },
   dark: {
     name: 'Noir Circuit',
@@ -102,7 +102,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ff3b3b',
     info: '#38bdf8',
-    uiVariant: 'glass'
+    uiVariant: 'glass',
   },
   blue: {
     name: 'Helix Blue',
@@ -122,7 +122,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#f43f5e',
     info: '#38bdf8',
-    uiVariant: 'glass'
+    uiVariant: 'solid',
   },
   green: {
     name: 'Signal Matrix',
@@ -142,7 +142,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#10b981',
-    uiVariant: 'glass'
+    uiVariant: 'neumorphic',
   },
   purple: {
     name: 'Void Spiral',
@@ -162,7 +162,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#f43f5e',
     info: '#8b5cf6',
-    uiVariant: 'glass'
+    uiVariant: 'minimal',
   },
   orange: {
     name: 'Solar Forge',
@@ -182,7 +182,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f97316',
     danger: '#ef4444',
     info: '#f97316',
-    uiVariant: 'minimal'
+    uiVariant: 'solid',
   },
   rose: {
     name: 'Cyber-Rose',
@@ -222,7 +222,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#64748b',
-    uiVariant: 'neumorphic'
+    uiVariant: 'neumorphic',
   },
   zinc: {
     name: 'Monochrome',
@@ -600,6 +600,7 @@ export class ThemeService {
   private applyTheme(theme: Theme) {
     const config = THEMES[theme];
     const root = document.documentElement;
+    const variant = config.uiVariant || 'glass';
     
     // Core legacy tokens
     root.style.setProperty('--theme-primary', config.primary);
@@ -627,7 +628,179 @@ export class ThemeService {
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
     
     root.setAttribute('data-theme', theme);
-    root.setAttribute('data-ui-variant', config.uiVariant || 'glass');
+    root.setAttribute('data-ui-variant', variant);
+
+    // ── STRUCTURAL TOKENS ──────────────────────────────────────────────
+    // Apply variant-specific tokens directly via inline style to bypass
+    // Angular ViewEncapsulation (encapsulated component styles cannot see
+    // CSS-rule-level html[data-ui-variant] overrides, but they CAN inherit
+    // inline CSS variables from :root / documentElement).
+    this.applyStructuralTokens(root, variant, config);
+  }
+
+  /**
+   * Pushes per-variant structural tokens directly via style.setProperty() so
+   * they are available as inherited CSS custom properties inside encapsulated
+   * Angular components. Stylesheet-level html[data-ui-variant] rules are
+   * overridden by inline style declarations, so we must set them in JS too.
+   */
+  private applyStructuralTokens(root: HTMLElement, variant: string, config: ThemeConfig): void {
+    // Reset all structural tokens first
+    const structuralTokens = [
+      '--radius-md', '--radius-lg', '--radius-xl',
+      '--shadow-md', '--shadow-lg', '--shadow-inset-shine',
+      '--border-vibrant', '--variant-blur',
+      // Component-level token overrides
+      '--card-bg', '--card-border', '--card-border-width', '--card-shadow',
+      '--input-bg', '--input-border', '--input-radius', '--input-shadow',
+      '--modal-bg', '--modal-border', '--modal-border-width', '--modal-radius', '--modal-shadow',
+      '--badge-radius', '--badge-border-width',
+      '--btn-radius', '--btn-shadow', '--btn-border-width',
+    ];
+    structuralTokens.forEach(t => root.style.removeProperty(t));
+
+    switch (variant) {
+      case 'glass':
+        root.style.setProperty('--variant-blur', '28px');
+        root.style.setProperty('--radius-lg', '16px');
+        root.style.setProperty('--radius-md', '10px');
+        root.style.setProperty('--radius-xl', '24px');
+        root.style.setProperty('--border-vibrant', `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`);
+        root.style.setProperty('--shadow-inset-shine', 'inset 0 1px 0 rgba(255,255,255,0.08)');
+        root.style.setProperty('--shadow-md', '0 8px 32px rgba(0,0,0,0.4)');
+        // Card
+        root.style.setProperty('--card-bg', `color-mix(in srgb, ${config.surface} 70%, transparent)`);
+        root.style.setProperty('--card-border', `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`);
+        root.style.setProperty('--card-shadow', '0 8px 32px rgba(0,0,0,0.4)');
+        // Input
+        root.style.setProperty('--input-bg', `color-mix(in srgb, ${config.surface} 50%, transparent)`);
+        root.style.setProperty('--input-radius', '10px');
+        // Modal
+        root.style.setProperty('--modal-radius', '24px');
+        root.style.setProperty('--modal-bg', `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`);
+        // Button
+        root.style.setProperty('--btn-radius', '10px');
+        root.style.setProperty('--btn-shadow', `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`);
+        break;
+
+      case 'solid':
+        root.style.setProperty('--variant-blur', '0px');
+        root.style.setProperty('--radius-lg', '10px');
+        root.style.setProperty('--radius-md', '6px');
+        root.style.setProperty('--radius-xl', '14px');
+        root.style.setProperty('--border-vibrant', config.border);
+        root.style.setProperty('--shadow-inset-shine', 'none');
+        root.style.setProperty('--shadow-md', '0 4px 12px rgba(0,0,0,0.25)');
+        // Card
+        root.style.setProperty('--card-bg', config.bgSecondary);
+        root.style.setProperty('--card-border', config.border);
+        root.style.setProperty('--card-shadow', '0 2px 8px rgba(0,0,0,0.2)');
+        // Input
+        root.style.setProperty('--input-bg', config.bgTertiary);
+        root.style.setProperty('--input-radius', '6px');
+        root.style.setProperty('--input-shadow', 'inset 0 1px 3px rgba(0,0,0,0.2)');
+        // Modal
+        root.style.setProperty('--modal-radius', '10px');
+        root.style.setProperty('--modal-bg', config.bgSecondary);
+        // Button
+        root.style.setProperty('--btn-radius', '6px');
+        root.style.setProperty('--btn-shadow', 'none');
+        root.style.setProperty('--btn-border-width', '0px');
+        break;
+
+      case 'flat':
+        root.style.setProperty('--variant-blur', '0px');
+        root.style.setProperty('--radius-lg', '4px');
+        root.style.setProperty('--radius-md', '2px');
+        root.style.setProperty('--radius-xl', '6px');
+        root.style.setProperty('--border-vibrant', 'transparent');
+        root.style.setProperty('--shadow-inset-shine', 'none');
+        root.style.setProperty('--shadow-md', 'none');
+        root.style.setProperty('--shadow-lg', 'none');
+        // Card
+        root.style.setProperty('--card-bg', config.bgTertiary);
+        root.style.setProperty('--card-border', 'transparent');
+        root.style.setProperty('--card-border-width', '0px');
+        root.style.setProperty('--card-shadow', 'none');
+        // Input
+        root.style.setProperty('--input-bg', config.bgTertiary);
+        root.style.setProperty('--input-border', 'transparent');
+        root.style.setProperty('--input-radius', '2px');
+        root.style.setProperty('--input-shadow', 'none');
+        // Modal
+        root.style.setProperty('--modal-radius', '4px');
+        root.style.setProperty('--modal-bg', config.bgTertiary);
+        root.style.setProperty('--modal-border-width', '0px');
+        root.style.setProperty('--modal-shadow', '0 2px 20px rgba(0,0,0,0.3)');
+        // Button
+        root.style.setProperty('--btn-radius', '2px');
+        root.style.setProperty('--btn-shadow', 'none');
+        root.style.setProperty('--btn-border-width', '0px');
+        break;
+
+      case 'neumorphic':
+        root.style.setProperty('--variant-blur', '0px');
+        root.style.setProperty('--radius-lg', '20px');
+        root.style.setProperty('--radius-md', '14px');
+        root.style.setProperty('--radius-xl', '28px');
+        root.style.setProperty('--border-vibrant', 'transparent');
+        root.style.setProperty('--shadow-inset-shine', 'none');
+        root.style.setProperty('--shadow-md', `-6px -6px 14px rgba(255,255,255,0.025), 6px 6px 14px rgba(0,0,0,0.55)`);
+        // Card — uses bg-primary so the depth effect is visible
+        root.style.setProperty('--card-bg', config.background);
+        root.style.setProperty('--card-border', 'transparent');
+        root.style.setProperty('--card-border-width', '0px');
+        root.style.setProperty('--card-shadow', `-8px -8px 16px rgba(255,255,255,0.02), 8px 8px 16px rgba(0,0,0,0.6)`);
+        // Input
+        root.style.setProperty('--input-bg', config.background);
+        root.style.setProperty('--input-border', 'transparent');
+        root.style.setProperty('--input-radius', '14px');
+        root.style.setProperty('--input-shadow', `inset -4px -4px 8px rgba(255,255,255,0.02), inset 4px 4px 8px rgba(0,0,0,0.5)`);
+        // Modal
+        root.style.setProperty('--modal-radius', '28px');
+        root.style.setProperty('--modal-bg', config.background);
+        root.style.setProperty('--modal-border-width', '0px');
+        root.style.setProperty('--modal-shadow', `-12px -12px 30px rgba(255,255,255,0.02), 12px 12px 30px rgba(0,0,0,0.65)`);
+        // Button
+        root.style.setProperty('--btn-radius', '14px');
+        root.style.setProperty('--btn-shadow', `-4px -4px 10px rgba(255,255,255,0.02), 4px 4px 10px rgba(0,0,0,0.5)`);
+        root.style.setProperty('--btn-border-width', '0px');
+        // Badge
+        root.style.setProperty('--badge-radius', '8px');
+        break;
+
+      case 'minimal':
+        root.style.setProperty('--variant-blur', '0px');
+        root.style.setProperty('--radius-lg', '0px');
+        root.style.setProperty('--radius-md', '0px');
+        root.style.setProperty('--radius-xl', '0px');
+        root.style.setProperty('--border-vibrant', config.border);
+        root.style.setProperty('--shadow-inset-shine', 'none');
+        root.style.setProperty('--shadow-md', 'none');
+        root.style.setProperty('--shadow-lg', '0 1px 0 ' + config.border);
+        // Card
+        root.style.setProperty('--card-bg', 'transparent');
+        root.style.setProperty('--card-border', config.border);
+        root.style.setProperty('--card-border-width', '0px');
+        root.style.setProperty('--card-shadow', 'none');
+        // Input — underline-only
+        root.style.setProperty('--input-bg', 'transparent');
+        root.style.setProperty('--input-border', 'transparent');
+        root.style.setProperty('--input-radius', '0px');
+        root.style.setProperty('--input-shadow', 'none');
+        // Modal
+        root.style.setProperty('--modal-radius', '0px');
+        root.style.setProperty('--modal-bg', config.background);
+        root.style.setProperty('--modal-border-width', '0px');
+        root.style.setProperty('--modal-shadow', '0 20px 60px rgba(0,0,0,0.5)');
+        // Button
+        root.style.setProperty('--btn-radius', '0px');
+        root.style.setProperty('--btn-shadow', 'none');
+        root.style.setProperty('--btn-border-width', '0px');
+        // Badge
+        root.style.setProperty('--badge-radius', '0px');
+        break;
+    }
   }
 
   private applyPerformanceMode(isHighPerf: boolean) {

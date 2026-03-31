@@ -72,6 +72,7 @@ export type ModalVariant = string;
       --modal-shadow: var(--shadow-lg, 0 24px 64px rgba(0, 0, 0, 0.55));
       --modal-header-color: var(--text-primary);
       
+      /* Read JS-injected tokens — these override the defaults above */
       border-radius: var(--modal-radius); 
       min-width: 480px;
       max-width: 90vw; 
@@ -82,12 +83,18 @@ export type ModalVariant = string;
       box-shadow:
         var(--modal-shadow),
         0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent),
-        var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+        var(--shadow-inset-shine, none);
       animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
     }
 
-    /* COLOR THEMATIC TOKENS */
+    /* shape-auto: reads ThemeService-injected tokens directly */
+    .modal-shape-auto {
+      border-radius: var(--modal-radius);
+      background: var(--modal-bg);
+      border-width: var(--modal-border-width);
+      box-shadow: var(--modal-shadow), 0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent);
+    }
     .modal-color-default { --modal-border: var(--border-soft); }
     .modal-color-primary { border-top: 4px solid var(--brand); --modal-header-color: var(--brand); }
     .modal-color-danger { border-top: 4px solid var(--danger); --modal-header-color: var(--danger); }

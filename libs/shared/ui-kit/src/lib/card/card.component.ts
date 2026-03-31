@@ -41,16 +41,24 @@ export type CardVariant = string;
   `,
   styles: [`
     .card {
-      /* Base Structural inheritance from DOM mixins dynamically configured by active Theme! */
-      border-radius: var(--radius-lg, 12px);
+      /* Structural tokens injected via JS in ThemeService.applyStructuralTokens() */
+      border-radius: var(--card-radius, var(--radius-lg, 12px));
       background: var(--card-bg, var(--surface, #1a1a24));
       border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft, #333));
-      box-shadow: var(--card-shadow, var(--shadow-md)), var(--shadow-inset-shine);
+      box-shadow: var(--card-shadow, var(--shadow-md)), var(--shadow-inset-shine, none);
       transition: all var(--transition-base, 0.3s ease);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       position: relative;
+    }
+
+    /* shape-auto: picks up all tokens from ThemeService */
+    .card-shape-auto {
+      border-radius: var(--card-radius, var(--radius-lg, 12px));
+      background: var(--card-bg, var(--surface));
+      border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft));
+      box-shadow: var(--card-shadow, var(--shadow-md, 0 4px 20px rgba(0,0,0,0.3))), var(--shadow-inset-shine, none);
     }
 
     /* COLOR THEMATIC TOKENS */

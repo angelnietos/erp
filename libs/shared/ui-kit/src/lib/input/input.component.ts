@@ -139,15 +139,23 @@ export type InputVariant = string;
     /* ELEMENT BASE RULES */
     input {
       width: 100%; padding: 0.8rem 1.25rem;
-      background: var(--input-bg); 
-      border: 1px solid var(--input-border);
-      border-radius: var(--input-radius); 
-      color: var(--input-color);
+      background: var(--input-bg, rgba(255, 255, 255, 0.02)); 
+      border: 1px solid var(--input-border, var(--border-soft));
+      border-radius: var(--input-radius, var(--radius-md, 8px)); 
+      color: var(--input-color, var(--text-primary));
       font-size: 0.8rem; font-weight: 600; 
       transition: all var(--transition-base, 0.3s ease);
       outline: none; font-family: var(--font-main);
-      box-shadow: var(--input-shadow);
+      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
       box-sizing: border-box;
+    }
+
+    /* shape-auto: reads JS-injected tokens from ThemeService */
+    .input-shape-auto input {
+      background: var(--input-bg, rgba(255, 255, 255, 0.02));
+      border: 1px solid var(--input-border, var(--border-soft));
+      border-radius: var(--input-radius, var(--radius-md, 8px));
+      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
     }
 
     .input-shape-underline input { border-bottom: 2px solid var(--border-soft); }

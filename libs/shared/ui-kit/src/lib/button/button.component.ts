@@ -48,8 +48,8 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
-      /* Inherit dynamic global shape by default */
-      border-radius: var(--variant-radius, 12px);
+      /* Inherit dynamic global shape from ThemeService-injected tokens */
+      border-radius: var(--btn-radius, var(--radius-md, 8px));
     }
 
     .btn:focus-visible {
@@ -81,16 +81,17 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     /* EXPLICIT STRUCTURAL SHAPES */
     .btn-shape-auto {
-      /* Uses global Theme HTML data rules magically */
+      /* Reads tokens pushed by ThemeService.applyStructuralTokens() */
       background: var(--btn-bg);
       color: var(--btn-text);
-      border: 1px solid var(--btn-border);
-      box-shadow: 0 4px 15px -4px var(--btn-glow);
+      border: var(--btn-border-width, 1px) solid var(--btn-border);
+      box-shadow: var(--btn-shadow, 0 4px 15px -4px var(--btn-glow));
+      border-radius: var(--btn-radius, var(--radius-md, 8px));
     }
-    .btn-auto-overrides:hover:not(:disabled) {
+    .btn-shape-auto:hover:not(:disabled) {
       filter: brightness(1.15);
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px -5px var(--btn-glow);
+      box-shadow: var(--btn-shadow, 0 8px 25px -5px var(--btn-glow));
     }
 
     .btn-shape-solid {
