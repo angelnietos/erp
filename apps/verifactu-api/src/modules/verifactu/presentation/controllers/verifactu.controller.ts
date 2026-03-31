@@ -77,14 +77,14 @@ export class VerifactuController {
     return this.appService.complianceSummary(tenantId);
   }
 
-  @Get('invoices/:invoiceId')
-  invoiceDetail(@Param('invoiceId') invoiceId: string) {
-    return this.appService.getInvoiceDetail(invoiceId);
-  }
-
   @Get('invoices/:invoiceId/qr')
   invoiceQr(@Param('invoiceId') invoiceId: string) {
     return this.appService.getInvoiceQr(invoiceId);
+  }
+
+  @Get('invoices/:invoiceId')
+  invoiceDetail(@Param('invoiceId') invoiceId: string) {
+    return this.appService.getInvoiceDetail(invoiceId);
   }
 }
 
