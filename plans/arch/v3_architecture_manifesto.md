@@ -8,6 +8,8 @@ La evolución de la V3 trasciende la operativa funcional para centrarse en la **
 - **Vertical Feature Plugins:** Capacidad de empaquetar lógica sectorial (ej. Gestión de Plató, Logística de Equipamiento) en librerías Nx independientes que se activan bajo demanda ("Vertical Slopes").
 - **Performance-First Design:** Uso intensivo de **Object Pooling** y optimización de Canvas para mantener 60FPS constantes en entornos corporativos de alta carga.
 - **Multi-Tenant UI Composition:** El layout se compone dinámicamente basándose en el Perfil de Suscripción del Tenant, inyectando estilos y funcionalidades en runtime.
+- **Isolated UI Laboratory (Storybook):** Desarrollo y testing de componentes en aislamiento total antes de integrarlos en la App, garantizando robustez y reusabilidad.
+- **AI-Native Framework readiness:** La arquitectura modular por capas permite inyectar a futuro un "Crocante-AI" que entienda el framework para autogenerar features y productos verticales a velocidad de luz.
 
 ---
 
@@ -72,6 +74,36 @@ La arquitectura V3 está diseñada para facilitar la venta de:
 - **Upgrades de Estilo:** Venta de "Visual Skins" (ej. El tema Matrix o el tema Nebula) como complementos estéticos para empresas de perfil tech.
 - **Product Verticals:** El usuario base compra "Facturación", pero puede añadir "Gestión de Activos" o "Planificación de Plató" como plugins adicionales.
 - **API-as-a-Product:** Gracias a la arquitectura hexagonal, el core del ERP puede exponerse como una API para que terceros construyan sus propias interfaces (Headless ERP).
+
+---
+
+## 5. El Poder de los Plugins y Líneas de Monetización
+
+La arquitectura de V3 no es solo un diseño técnico; es una **Estrategia de Ventas**. El desacoplamiento radical permite explotar múltiples vías de ingresos paralelos:
+
+1.  **Visual Style Packs (Skinning-as-a-Service):** Venta de "atmósferas" (Skins). El cliente puede pagar por el Pack "Matrix", "Nebula" o "Cyber", los cuales inyectamos dinámicamente en el login y CRM.
+2.  **Vertical Tiers (Functional Add-ons):** El ERP core es gratuito o económico. Los beneficios reales vienen de los plugins verticales (ej. Gestión de Plató, Logística de Unidades Móviles, Analítica con Big Data).
+3.  **Third-Party Marketplace:** Gracias a que cada plugin es una lib de Nx con su propio `backend` y `feature`, permitiremos que terceros desarrollen extensiones que sigan nuestro estándar `ui-josanz`.
+
+---
+
+## 6. Testing en Aislamiento y Storybook
+
+Para escalar el diseño sin romper la estabilidad, utilizamos **Storybook como entorno de laboratorio**.
+- **Desarrollo Atómico:** Construimos los componentes del UI-Kit (`libs/shared/ui-kit`) de forma aislada, permitiendo ver todos los estados visuales (error, cargo, hover) sin necesidad de levantar el backend o navegar por la aplicación.
+- **Visual Regression Testing:** Storybook nos permite automatizar la detección de "rompimientos" estéticos antes de que lleguen a producción.
+- **Documentación Viva:** Storybook actúa como la guía de estilo definitiva para cualquier desarrollador externo que cree plugins, simplificando radicalmente el "onboarding".
+
+---
+
+## 7. El Futuro: AI-Accelerated Framework
+
+La modularidad extrema de la V3 es el "combustible" para una IA propia integrada. Estamos preparando el terreno para que una **IA de arquitectura Josanz** pueda:
+1.  Esquematizar un nuevo dominio basándose en interfaces (`core/api`).
+2.  Generar componentes `feature` ensamblando piezas del `ui-kit` de forma coherente.
+3.  Auto-generar casos de uso NestJS que respeten la inyección de `tenant_id`.
+
+Este nivel de modularidad es lo que hace que Josanz ERP sea una inversión de futuro: es una **Plataforma Programable**.
 
 ---
 

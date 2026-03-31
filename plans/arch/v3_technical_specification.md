@@ -1,76 +1,92 @@
-# 🛠️ Josanz ERP Tech-Spec V3: Modular Monolith & SaaS Infrastructure
+# 🛠️ Josanz ERP Tech-Spec V3: Real-World Architecture & SaaS Foundation
 
-## 1. Topología del Monorepo (Nx Workspace)
-El sistema utiliza un **Monorepo gestionado por Nx**, optimizado para el despliegue de múltiples aplicaciones (*Apps*) que consumen una base compartida de librerías (*Libs*).
-
-### 1.1 Estructura de Directorios
-```bash
-apps/
-  ├── frontend-erp/       # Single Page Application (SPA) principal
-  ├── backend-api/        # API Gateway y Core funcional (NestJS)
-  └── [tenant]-custom/    # Aplicaciones personalizadas para clientes específicos
-libs/
-  ├── shared/             # Utilidades, UI-Kit y Data-Access global
-  ├── identity/           # Autenticación, RBAC y Branding Engine
-  ├── inventory/          # Dominio de Inventario (Plugin)
-  ├── budgets/            # Dominio de Presupuestos (Plugin)
-  └── [feature]/          # Nuevos productos verticales
-```
+Este documento describe la arquitectura **actualmente implementada** en el ecosistema Josanz ERP, reflejando fielmente la estructura de directorios y la modularidad del workspace Nx.
 
 ---
 
-## 2. Arquitectura Frontend (Angular High-Fidelity)
+## 1. Topología del Workspace: "Modular Monolith with Micro-Services"
 
-### 2.1 Descomposición de Librerías (Niveles)
-Cada dominio funcional se divide en 4 capas para asegurar el desacoplamiento total:
-1.  **`feature-*`**: Componentes "Smart" con lógica de rutas, Lazy Loading y conexión al estado.
-2.  **`ui-*`**: Componentes "Dumb" (Preséntacionales) que reciben `@Input` y emiten `@Output`. Prohibido inyectar servicios aquí.
-3.  **`data-access-*`**: Gestión de estado mediante **Angular Signals** y servicios HTTP. Implementa el patrón *Facade* para exponer solo lo necesario a las features.
-4.  **`utils-*`**: Funciones puras, validadores y constantes.
+El proyecto se gestiona como un Monorepo de Nx con una hibridación de **Monolito Modular** para el core y **Microservicios Especializados** para tareas críticas de cumplimiento.
 
-### 2.2 Branding & Animation Engine (Object Pooling)
-Para garantizar 60FPS en las animaciones de fondo (`AnimatedBackgroundComponent`):
-- **Memoria Estática:** Se inicializan pools de objetos (`particles[]`, `lumens[]`) al arrancar el componente para evitar el *Garbage Collection Stutter*.
-- **Canvas Rendering Cycle:** El `requestAnimationFrame` procesa únicamente los motores de dibujo activos según el `bgStyle` inyectado por el `ThemeService`.
+### 1.1 Directorio `apps/` (Runtime Targets)
+- **`frontend`**: Aplicación Angular principal (CRM).
+- **`backend`**: Núcleo API basado en NestJS que orquesta los dominios de la empresa.
+- **`verifactu-api` & `verifactu-worker`**: Microservicios desacoplados para la integración con la AEAT. El `worker` procesa la cola de eventos asíncronos para evitar latencia en la UI.
+- **`frontend-e2e`**: Suite de pruebas Cypress para validación de flujos instrumentales.
 
----
+### 1.2 Directorio `libs/` (Functional Building Blocks)
+Las librerías se organizan por **Dominio de Negocio** y, dentro de cada una, por **Responsabilidad Técnica**:
 
-## 3. Arquitectura Backend (NestJS Hexagonal)
-
-El backend sigue un patrón de **Modular Monolith** con aislamiento estricto por dominios, preparándolo para una futura migración a microservicios si fuera necesario.
-
-### 3.1 Capas de Dominio (Hexagonal)
-1.  **Capa de Dominio:** Interfaces puras, modelos Prisma y lógica de negocio agnóstica al framework.
-2.  **Capa de Aplicación:** Casos de uso y servicios NestJS. Gestionan la orquestación pero no los detalles de persistencia.
-3.  **Capa de Infraestructura:** Implementaciones de adaptadores (Prisma, Repositorios, Clientes de API externa).
-
-### 3.2 Aislamiento Multi-Tenant (Security First)
-Implementamos el aislamiento mediante **`nestjs-cls` (Continuation Local Storage)**:
-- **Interceptor de Tenant:** Captura el `tenant_id` del JWT/Header.
-- **Prisma Extension:** Todas las consultas a DB son interceptadas automáticamente por un middleware que aplica un filtro `WHERE tenantId = :current_tenant_id`, garantizando que un cliente jamás acceda a datos de otro por error de programación.
+| Dominio | Capas Implementadas (`libs/[domain]/*`) |
+| :--- | :--- |
+| **`identity`** | `feature`, `data-access`, `backend`, `shell`, `core`, `api` |
+| **`inventory`** | `feature`, `data-access`, `backend`, `ui`, `core`, `api` |
+| **`budget`** | `feature`, `data-access`, `backend`, `core` |
+| **`billing`** | Contiene la lógica transaccional de facturación y firma. |
+| **`verifactu`** | Librería compartida para el cumplimiento normativo fiscal. |
 
 ---
 
-## 4. Sistema de Plugins y Extensibilidad SaaS
+## 2. El Ciclo de Vida de los Plugins (Vertical SaaS)
 
-### 4.1 Inyección de Funcionalidad Vertical
-El Josanz ERP permite la creación de **Productos Verticales** mediante librerías Nx que se inyectan en el `AppModule` principal:
-- **Plugins de Pago:** Funcionalidades avanzadas (ej. `AdvancedReportingModule`) se cargan dinámicamente.
-- **Service Decoration:** Se pueden extender servicios base mediante el patrón *Decorator* sin modificar el core.
+La modularidad de Josanz ERP permite que dominios como `rentals`, `fleet` o `delivery` actúen como plugins lógicos.
 
-### 4.2 Comunicación Inter-Módulos (Transactional Outbox)
-Para evitar el acoplamiento fuerte entre módulos (ej. que Presupuestos dependa de Facturación):
-1.  El módulo emisor guarda un evento en la tabla `Outbox` dentro de la **misma transacción atómica** de negocio.
-2.  Un proceso de fondo (*Worker*) emite el evento mediante un **EventEmitter** interno o un bus de mensajes (Redis/Kafka).
-3.  El módulo receptor escucha y reacciona de forma asíncrona.
+### 2.1 Descomposición Multi-Capa (Frontend)
+- **`feature`**: Smart Components (ej. `InventoryListComponent`) integrados con Signals.
+- **`data-access`**: Implementación de Store/Signals y servicios `HttpClient` especializados.
+- **`shell`**: Punto de entrada que agrupa rutas perezosas (Lazy-Loading) del dominio.
+- **`shared/ui-kit`**: Sistema de diseño atómico (Storybook). Componentes de marca (Alertas, Inputs, Botones) que aseguran coherencia visual en todos los plugins.
 
----
-
-## 5. Estrategia de Despliegue y CI/CD
-- **Nx Affected:** El pipeline solo compila y testea las librerías modificadas en cada PR, reduciendo los tiempos de build en un 60-80%.
-- **Docker Multi-Stage:** Generación de imágenes ligeras optimizadas para producción.
+### 2.2 Descomposición Domain-Driven (Backend)
+- **`backend`**: Controladores, servicios y proveedores de persistencia (Repositories) encapsulados por dominio.
+- **`core`**: Lógica de negocio pura e interfaces agnósticas (POJOs/Interfaces).
+- **`api`**: DTOs y tipos exportados para que el `frontend` o otros servicios puedan hablar con el dominio de forma segura.
 
 ---
 
-> [!NOTE]
-> **Technical Conclusion:** Esta arquitectura V3 prioriza la **Composibilidad**. Cada pieza del sistema es un bloque de construcción intercambiable, permitiendo que Josanz ERP escale de manera eficiente como un SaaS Multi-País y Multi-Industria.
+## 3. Infraestructura y Comunicación (Cross-Cutting)
+
+### 3.1 `shared-infrastructure` & `shared/cqrs`
+El sistema utiliza un bus de eventos y patrones CQRS para desacoplar módulos backend. 
+- Cuando un **Presupuesto** (`budget`) se aprueba, emite un evento que el dominio de **Facturación** (`billing`) captura para generar el documento, sin que `Budget` conozca de la existencia de `Billing`.
+
+### 3.2 `shared/ui-shell` (CRM Experience)
+Contiene los componentes de infra-estructura visual del ERP:
+- **`crm-background`**: El motor de animaciones de alta fidelidad sincronizado con el `ThemeService`.
+- **`navbar` / `sidebar`**: Navegación dinámica basada en los estados del `AuthStore`.
+
+---
+
+## 4. Estándares Técnicos Implementados
+1.  **State Management**: Uso nativo de **Angular Signals** y `signalStore` (NgRx) para reactividad de alto rendimiento.
+2.  **Persistence**: Prisma ORM con esquemas modulares para evitar el acoplamiento directo entre tablas de distintos dominios.
+3.  **Tenancy**: Inyección automática de `tenant_id` mediante contextos asíncronos en NestJS (`nestjs-cls`).
+
+---
+
+## 5. Estrategias de Monetización y Escalado Vertical
+La modularidad técnica habilita directamente las siguientes líneas de negocio:
+1.  **SaaS Tiers**: Activación selectiva de librerías `feature` (ej: el módulo `fleet` solo se activa en planes "Premium").
+2.  **Branding Packs**: Inyección dinámica de configuraciones en `AnimatedBackgroundComponent` para vender experiencias visuales personalizadas.
+3.  **Verticalization**: Reutilización de librerías `core` y `data-access` para crear versiones sectoriales del ERP en tiempo récord.
+
+---
+
+## 6. Storybook & Testing de Aislamiento
+El desarrollo de UI se realiza en **Storybook** para:
+- **Testeo de Regresión Visual**: Asegurar que cambios en componentes compartidos no rompan interfaces dependientes.
+- **Mocking de Datos**: Simular comportamientos de la API sin necesidad de levantar servicios Backend.
+- **Entorno de Laboratorio**: Desarrollo de componentes atómicos en aislamiento total de la lógica de negocio.
+
+---
+
+## 7. Infraestructura AI-Ready
+Diseño preparado para la integración de una IA generativa de código interna:
+- **Determinismo Estructural**: La estructura fija de carpetas permite que la IA localice y genere código coherente (Feature -> Data-Access -> Core).
+- **Consumo de UI-Kit**: La IA puede "componer" pantallas nuevas usando exclusivamente el catálogo de Storybook, manteniendo la identidad visual intacta.
+- **Modularidad Total**: Facilita que la IA cree "Plugins" enteros que se auto-registran en el sistema mediante inyección de dependencias.
+
+---
+
+> [!IMPORTANT]
+> **Real-World Enforcement:** La estructura actual permite que el equipo de desarrollo cree una nueva funcionalidad vertical simplemente ejecutando `nx g @nx/angular:library libs/new-feature/feature`, manteniendo el aislamiento total y la capacidad de monetizar esa librería como un asset independiente del SaaS.
