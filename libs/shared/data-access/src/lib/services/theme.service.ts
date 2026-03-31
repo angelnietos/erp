@@ -1,4 +1,4 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, computed } from '@angular/core';
 
 /** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
 export type Theme =
@@ -359,7 +359,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   providedIn: 'root',
 })
 export class ThemeService {
-  readonly currentTheme = signal<Theme>(this.getStoredTheme() || 'dark'); // Default to dark for Cyber-Luxe
+  readonly currentTheme = signal<Theme>(this.getStoredTheme() || 'dark');
+  readonly currentThemeData = computed(() => this.themes[this.currentTheme()]);
   readonly themes = THEMES;
 
   constructor() {
