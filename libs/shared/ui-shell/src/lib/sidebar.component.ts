@@ -94,7 +94,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       border-right: 1px solid rgba(255, 255, 255, 0.05);
       display: flex;
       flex-direction: column;
-      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
       color: var(--text-secondary);
       overflow: hidden;
       position: relative;
@@ -116,6 +116,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
     .sidebar-container.collapsed {
       width: 68px;
+      min-width: 68px;
     }
 
     .header {
