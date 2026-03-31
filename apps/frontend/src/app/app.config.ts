@@ -48,7 +48,8 @@ export const appConfig: ApplicationConfig = {
       PlayCircle, CalendarCheck, Box, Briefcase, 
       PieChart, CheckSquare, PenTool, RotateCcw, 
       DollarSign, Archive, Shield, AlertOctagon, 
-      BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag
+      BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag,
+      Puzzle, Sliders, Settings2
     })),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
   ],
