@@ -28,20 +28,37 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private lightBeams: LightBeam[] = [];
   private clouds: Cloud[] = [];
   private stars: Star[] = [];
-  private rainDrops: RainDrop[] = [];
-  private lumens: Lumen[] = [];
-  private floatingElements: FloatingElement[] = [];
+  /** Solo iconografía AV; opacidad pulsada y símbolo que rota al pasar por el “vacío”. */
+  private ephemeralGlyphs: EphemeralGlyph[] = [];
   private tinyPals: TinyPal[] = [];
-  private skyFloaters: SkyFloater[] = [];
+
+  /** Pool audiovisual (sin logística / ERP genérico). */
+  private readonly avSymbolPool = [
+    '🎬',
+    '🎥',
+    '🎞️',
+    '📽️',
+    '🎤',
+    '🎧',
+    '📹',
+    '📷',
+    '🎭',
+    '🍿',
+    '✨',
+    '💡',
+    '🎙️',
+    '📼',
+    '🎚️',
+  ];
 
   private readonly crewPhrases = [
     '¡Hola!',
-    'ERP ON',
     'ROLL 🎬',
+    'QUIETO',
     'ACTION!',
     'JOSANZ',
-    'CUT ✂️',
-    '¡DALE!',
+    'TIC… TAC',
+    '¡PLATÓ!',
     'STUDIO',
   ];
 
@@ -79,184 +96,113 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // === STARS (background stars) ===
-    const starCount = 80;
+    // === STARS (fondo, menos densidad) ===
+    const starCount = 38;
     for (let i = 0; i < starCount; i++) {
       this.stars.push({
         x: Math.random() * w,
         y: Math.random() * h * 0.5,
-        size: Math.random() * 2 + 0.5,
-        twinkleSpeed: Math.random() * 0.03 + 0.01,
+        size: Math.random() * 1.8 + 0.4,
+        twinkleSpeed: Math.random() * 0.025 + 0.008,
         twinklePhase: Math.random() * Math.PI * 2,
-        brightness: Math.random() * 0.5 + 0.3,
+        brightness: Math.random() * 0.42 + 0.22,
       });
     }
 
-    // === PARTICLES (fairy dust) ===
-    const particleCount = 150;
+    // === PARTICLES (polvo de luz, suave) ===
+    const particleCount = 52;
     for (let i = 0; i < particleCount; i++) {
       this.particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        size: Math.random() * 2.5 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.4,
-        speedY: (Math.random() - 0.5) * 0.25,
-        opacity: Math.random() * 0.5 + 0.2,
-        hue: Math.random() > 0.5 ? 40 + Math.random() * 30 : 180 + Math.random() * 40,
+        size: Math.random() * 2 + 0.4,
+        speedX: (Math.random() - 0.5) * 0.28,
+        speedY: (Math.random() - 0.5) * 0.18,
+        opacity: Math.random() * 0.35 + 0.12,
+        hue: Math.random() > 0.5 ? 42 + Math.random() * 28 : 195 + Math.random() * 35,
         phase: Math.random() * Math.PI * 2,
       });
     }
 
     // === FIREFLIES ===
-    const fireflyCount = 30;
+    const fireflyCount = 11;
     for (let i = 0; i < fireflyCount; i++) {
       this.fireflies.push({
         x: Math.random() * w,
         y: Math.random() * h * 0.8,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.4,
-        size: Math.random() * 3.5 + 1.5,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.32,
+        size: Math.random() * 2.8 + 1.2,
         brightness: Math.random(),
-        blinkSpeed: Math.random() * 0.05 + 0.02,
-        hue: 45 + Math.random() * 25,
+        blinkSpeed: Math.random() * 0.04 + 0.018,
+        hue: 48 + Math.random() * 22,
       });
     }
 
-    // === SPIRITS (large glowing orbs) ===
-    const spiritCount = 12;
+    // === SPIRITS (orbes suaves, pocos) ===
+    const spiritCount = 5;
     for (let i = 0; i < spiritCount; i++) {
       this.spirits.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        radius: Math.random() * 50 + 30,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.2,
-        hue: i % 3 === 0 ? 45 + Math.random() * 20 : i % 3 === 1 ? 200 + Math.random() * 30 : 280 + Math.random() * 20,
+        radius: Math.random() * 38 + 22,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: (Math.random() - 0.5) * 0.16,
+        hue: i % 3 === 0 ? 48 + Math.random() * 18 : i % 3 === 1 ? 205 + Math.random() * 25 : 265 + Math.random() * 18,
         phase: Math.random() * Math.PI * 2,
-        pulseSpeed: Math.random() * 0.02 + 0.01,
+        pulseSpeed: Math.random() * 0.018 + 0.008,
       });
     }
 
-    // === LIGHT BEAMS ===
+    // === LIGHT BEAMS (tres focos, menos ruido) ===
     this.lightBeams = [
-      { originX: 0.08, originY: -0.05, angle: 0.42, spread: 0.55, hue: 45, speed: 0.35 },
-      { originX: 0.88, originY: 0, angle: -0.38, spread: 0.5, hue: 200, speed: -0.32 },
-      { originX: 0.5, originY: -0.1, angle: 0.06, spread: 0.6, hue: 55, speed: 0.22 },
-      { originX: 0.25, originY: 0.02, angle: 0.55, spread: 0.4, hue: 280, speed: 0.48 },
-      { originX: 0.75, originY: -0.03, angle: -0.25, spread: 0.45, hue: 160, speed: 0.28 },
+      { originX: 0.1, originY: -0.04, angle: 0.4, spread: 0.48, hue: 48, speed: 0.3 },
+      { originX: 0.9, originY: 0, angle: -0.36, spread: 0.46, hue: 205, speed: -0.28 },
+      { originX: 0.52, originY: -0.08, angle: 0.05, spread: 0.52, hue: 200, speed: 0.2 },
     ];
 
     // === CLOUDS ===
-    const cloudCount = 8;
+    const cloudCount = 5;
     for (let i = 0; i < cloudCount; i++) {
       this.clouds.push({
         x: Math.random() * w,
-        y: Math.random() * h * 0.35,
-        width: Math.random() * 220 + 120,
-        speed: Math.random() * 0.15 + 0.03,
-        opacity: Math.random() * 0.15 + 0.03,
+        y: Math.random() * h * 0.32,
+        width: Math.random() * 200 + 100,
+        speed: Math.random() * 0.12 + 0.025,
+        opacity: Math.random() * 0.11 + 0.025,
       });
     }
 
-    // === RAIN DROPS ===
-    const rainCount = 50;
-    for (let i = 0; i < rainCount; i++) {
-      this.rainDrops.push({
+    // === GLIFOS EFÍMEROS AV (rotan símbolo al desvanecer) ===
+    const glyphCount = 13;
+    for (let i = 0; i < glyphCount; i++) {
+      this.ephemeralGlyphs.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        speed: Math.random() * 3 + 2,
-        length: Math.random() * 20 + 10,
-        opacity: Math.random() * 0.3 + 0.1,
-      });
-    }
-
-    // === FLOATING ELEMENTS (magical items) ===
-    const floatCount = 28;
-    const floatTypes = [
-      '✨', '⭐', '💫', '🔮', '🌟', '💎', '🔷', '🌙', '🎪', '🎈', '🌀', '⚡',
-      '🎯', '🎊', '🔔', '☄️', '💜', '🟣', '🔆',
-    ];
-    for (let i = 0; i < floatCount; i++) {
-      this.floatingElements.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.3,
-        symbol: floatTypes[Math.floor(Math.random() * floatTypes.length)],
-        size: Math.random() * 20 + 15,
+        vx: (Math.random() - 0.5) * 0.32,
+        vy: (Math.random() - 0.5) * 0.22,
+        symbol: this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)],
+        size: Math.random() * 12 + 15,
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.03,
-        opacity: Math.random() * 0.6 + 0.3,
+        rotSpeed: (Math.random() - 0.5) * 0.012,
         phase: Math.random() * Math.PI * 2,
+        pulsePhase: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.28 + Math.random() * 0.4,
+        swapLock: false,
       });
     }
 
-    // === LUMEN CHARACTERS (CRM feature emojis flying) ===
-    const lumenTypes = [
-      { type: 'inventory', hue: 35, label: '📦' },
-      { type: 'clients', hue: 200, label: '👥' },
-      { type: 'billing', hue: 45, label: '💰' },
-      { type: 'fleet', hue: 220, label: '🚗' },
-      { type: 'rentals', hue: 280, label: '📅' },
-      { type: 'delivery', hue: 160, label: '🚚' },
-      { type: 'budget', hue: 120, label: '📊' },
-    ];
-
-    lumenTypes.forEach((type) => {
-      for (let i = 0; i < 5; i++) {
-        this.lumens.push({
-          type: type.type,
-          hue: type.hue,
-          label: type.label,
-          x: Math.random() * w,
-          y: Math.random() * h * 0.5 + h * 0.2,
-          vx: (Math.random() - 0.5) * 0.8,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: 16 + Math.random() * 16,
-          phase: Math.random() * Math.PI * 2,
-          floatSpeed: 0.4 + Math.random() * 0.5,
-          bobAmount: 12 + Math.random() * 12,
-        });
-      }
-    });
-
-    const bonusLabels = ['🎬', '🎥', '🎤', '🍿', '🎮', '📽️', '🎧', '🎭', '🖥️', '✨', '🦄', '🤖'];
-    for (let i = 0; i < 18; i++) {
-      this.lumens.push({
-        type: 'bonus',
-        hue: 200 + Math.random() * 160,
-        label: bonusLabels[Math.floor(Math.random() * bonusLabels.length)],
-        x: Math.random() * w,
-        y: Math.random() * h * 0.55 + h * 0.08,
-        vx: (Math.random() - 0.5) * 1.1,
-        vy: (Math.random() - 0.5) * 0.65,
-        size: 14 + Math.random() * 18,
-        phase: Math.random() * Math.PI * 2,
-        floatSpeed: 0.55 + Math.random() * 0.6,
-        bobAmount: 10 + Math.random() * 18,
-      });
-    }
-
-    const palHues = [350, 200, 45, 280, 130, 25, 310, 175];
-    for (let i = 0; i < 12; i++) {
-      this.tinyPals.push({
-        x: (w / 13) * (i + 0.5) + (Math.random() - 0.5) * 40,
-        baseY: h * 0.82 + Math.random() * h * 0.06,
-        vx: (Math.random() - 0.5) * 0.35,
-        hue: palHues[i % palHues.length] + Math.random() * 18,
-        phase: Math.random() * Math.PI * 2,
-        r: 9 + Math.random() * 7,
-        kind: i % 4,
-      });
-    }
-
+    // === Mini crew plató (pocos, rol AV por kind) ===
+    const palHues = [195, 210, 175, 265, 40];
     for (let i = 0; i < 5; i++) {
-      this.skyFloaters.push({
-        x: Math.random() * w,
-        y: Math.random() * h * 0.28 + h * 0.04,
-        vx: 0.25 + Math.random() * 0.45,
+      this.tinyPals.push({
+        x: (w / 6) * (i + 0.6) + (Math.random() - 0.5) * 50,
+        baseY: h * 0.84 + Math.random() * h * 0.05,
+        vx: (Math.random() - 0.5) * 0.22,
+        hue: palHues[i % palHues.length] + Math.random() * 12,
         phase: Math.random() * Math.PI * 2,
-        scale: 0.85 + Math.random() * 0.35,
+        r: 8 + Math.random() * 5,
+        kind: i % 4,
       });
     }
   }
@@ -274,12 +220,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.drawClouds(w, h);
     this.drawLightBeams(w, h);
     this.drawSpirits(w, h);
-    this.drawRain(w, h);
     this.drawParticles(w, h);
     this.drawFireflies(w, h);
-    this.drawFloatingElements(w, h);
-    this.drawLumenCharacters(w, h);
-    this.drawSkyFloaters(w, h);
+    this.drawEphemeralGlyphs(w, h);
     this.drawGearSilhouettes(w, h);
     this.drawTinyPals(w, h);
     this.drawMascot(w, h);
@@ -336,8 +279,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.closePath();
     
     const auroraGrad1 = this.ctx.createLinearGradient(0, h * 0.1, 0, h * 0.35);
-    auroraGrad1.addColorStop(0, 'hsla(160, 70%, 50%, 0.15)');
-    auroraGrad1.addColorStop(0.5, 'hsla(200, 60%, 45%, 0.1)');
+    auroraGrad1.addColorStop(0, 'hsla(160, 70%, 50%, 0.09)');
+    auroraGrad1.addColorStop(0.5, 'hsla(200, 60%, 45%, 0.06)');
     auroraGrad1.addColorStop(1, 'transparent');
     this.ctx.fillStyle = auroraGrad1;
     this.ctx.fill();
@@ -354,8 +297,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.closePath();
     
     const auroraGrad2 = this.ctx.createLinearGradient(0, h * 0.15, 0, h * 0.4);
-    auroraGrad2.addColorStop(0, 'hsla(260, 55%, 45%, 0.12)');
-    auroraGrad2.addColorStop(0.5, 'hsla(300, 50%, 40%, 0.08)');
+    auroraGrad2.addColorStop(0, 'hsla(260, 55%, 45%, 0.07)');
+    auroraGrad2.addColorStop(0.5, 'hsla(300, 50%, 40%, 0.045)');
     auroraGrad2.addColorStop(1, 'transparent');
     this.ctx.fillStyle = auroraGrad2;
     this.ctx.fill();
@@ -397,7 +340,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.rotate(angle);
 
       const flicker = 0.9 + Math.sin(this.time * 2.5 + i) * 0.1;
-      const a = (0.32 + Math.sin(this.time * 2.2 + i) * 0.08) * flicker;
+      const a = (0.32 + Math.sin(this.time * 2.2 + i) * 0.08) * flicker * 0.48;
       
       const grad = this.ctx.createLinearGradient(0, 0, 0, len);
       grad.addColorStop(0, `hsla(${beam.hue}, 92%, 92%, ${a})`);
@@ -420,9 +363,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const pulse = 0.5 + Math.sin(this.time * 3.5 + i) * 0.2;
       const spotR = 55 * pulse;
       const spot = this.ctx.createRadialGradient(ox, oy, 0, ox, oy, spotR);
-      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 98%, 0.92)`);
-      spot.addColorStop(0.12, `hsla(${beam.hue}, 95%, 82%, 0.6)`);
-      spot.addColorStop(0.35, `hsla(${beam.hue}, 88%, 58%, 0.25)`);
+      spot.addColorStop(0, `hsla(${beam.hue}, 100%, 98%, 0.62)`);
+      spot.addColorStop(0.12, `hsla(${beam.hue}, 95%, 82%, 0.38)`);
+      spot.addColorStop(0.35, `hsla(${beam.hue}, 88%, 58%, 0.14)`);
       spot.addColorStop(1, 'transparent');
       this.ctx.fillStyle = spot;
       this.ctx.beginPath();
@@ -445,13 +388,13 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       const radius = spirit.radius * pulse;
       
       // Multiple glow layers
-      const outerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 3);
-      outerGlow.addColorStop(0, `hsla(${spirit.hue}, 80%, 60%, 0.2)`);
-      outerGlow.addColorStop(0.5, `hsla(${spirit.hue}, 70%, 50%, 0.08)`);
+      const outerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 2.4);
+      outerGlow.addColorStop(0, `hsla(${spirit.hue}, 80%, 60%, 0.12)`);
+      outerGlow.addColorStop(0.5, `hsla(${spirit.hue}, 70%, 50%, 0.05)`);
       outerGlow.addColorStop(1, 'transparent');
       this.ctx.fillStyle = outerGlow;
       this.ctx.beginPath();
-      this.ctx.arc(spirit.x, spirit.y, radius * 3, 0, Math.PI * 2);
+      this.ctx.arc(spirit.x, spirit.y, radius * 2.4, 0, Math.PI * 2);
       this.ctx.fill();
 
       const innerGlow = this.ctx.createRadialGradient(spirit.x, spirit.y, 0, spirit.x, spirit.y, radius * 1.2);
@@ -470,29 +413,6 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private drawRain(w: number, h: number) {
-    this.ctx.globalCompositeOperation = 'screen';
-    this.rainDrops.forEach((drop) => {
-      drop.y += drop.speed;
-      if (drop.y > h) {
-        drop.y = -drop.length;
-        drop.x = Math.random() * w;
-      }
-
-      const gradient = this.ctx.createLinearGradient(drop.x, drop.y, drop.x, drop.y + drop.length);
-      gradient.addColorStop(0, `rgba(150, 180, 255, ${drop.opacity})`);
-      gradient.addColorStop(1, 'transparent');
-      
-      this.ctx.strokeStyle = gradient;
-      this.ctx.lineWidth = 1.5;
-      this.ctx.beginPath();
-      this.ctx.moveTo(drop.x, drop.y);
-      this.ctx.lineTo(drop.x - 2, drop.y + drop.length);
-      this.ctx.stroke();
-    });
-    this.ctx.globalCompositeOperation = 'source-over';
-  }
-
   private drawParticles(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
     this.particles.forEach((p) => {
@@ -504,8 +424,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       if (p.y < 0) p.y = h;
       if (p.y > h) p.y = 0;
 
-      const twinkle = 0.7 + Math.sin(this.time * 3 + p.phase) * 0.3;
-      const opacity = p.opacity * twinkle;
+      const twinkle = 0.65 + Math.sin(this.time * 3 + p.phase) * 0.28;
+      const opacity = p.opacity * twinkle * 0.72;
 
       const glow = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
       glow.addColorStop(0, `hsla(${p.hue}, 92%, 85%, ${opacity})`);
@@ -537,7 +457,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       if (ff.y > h) ff.y = 0;
 
       const glow = Math.sin(ff.brightness) * 0.5 + 0.5;
-      const alpha = glow * 0.75;
+      const alpha = glow * 0.48;
 
       const gradient = this.ctx.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, ff.size * 4);
       gradient.addColorStop(0, `hsla(${ff.hue}, 100%, 90%, ${alpha})`);
@@ -556,61 +476,39 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  private drawFloatingElements(w: number, h: number) {
+  private drawEphemeralGlyphs(w: number, h: number) {
     this.ctx.globalCompositeOperation = 'screen';
-    this.floatingElements.forEach((el) => {
-      el.x += el.vx + Math.sin(this.time * 0.5 + el.phase) * 0.15;
-      el.y += el.vy + Math.cos(this.time * 0.4 + el.phase) * 0.1;
-      el.rotation += el.rotationSpeed;
-      
-      if (el.x < -30) el.x = w + 30;
-      if (el.x > w + 30) el.x = -30;
-      if (el.y < -30) el.y = h + 30;
-      if (el.y > h + 30) el.y = -30;
+    this.ephemeralGlyphs.forEach((g) => {
+      g.x += g.vx + Math.sin(this.time * 0.38 + g.phase) * 0.1;
+      g.y += g.vy + Math.cos(this.time * 0.32 + g.phase) * 0.08;
+      g.rotation += g.rotSpeed;
 
-      const pulse = 0.7 + Math.sin(this.time * 2 + el.phase) * 0.3;
-      
+      if (g.x < -40) g.x = w + 40;
+      if (g.x > w + 40) g.x = -40;
+      if (g.y < -40) g.y = h + 40;
+      if (g.y > h + 40) g.y = -40;
+
+      g.pulsePhase += 0.018 * g.pulseSpeed;
+      const wave = Math.sin(g.pulsePhase);
+      const alpha = 0.04 + 0.36 * wave * wave;
+
+      if (wave < -0.82 && !g.swapLock) {
+        g.symbol = this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)];
+        g.swapLock = true;
+      }
+      if (wave > 0.15) {
+        g.swapLock = false;
+      }
+
       this.ctx.save();
-      this.ctx.translate(el.x, el.y);
-      this.ctx.rotate(el.rotation);
-      this.ctx.globalAlpha = el.opacity * pulse;
-      this.ctx.font = `${el.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+      this.ctx.translate(g.x, g.y);
+      this.ctx.rotate(g.rotation);
+      this.ctx.globalAlpha = alpha;
+      this.ctx.font = `${g.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
-      this.ctx.fillText(el.symbol, 0, 0);
+      this.ctx.fillText(g.symbol, 0, 0);
       this.ctx.restore();
-    });
-    this.ctx.globalCompositeOperation = 'source-over';
-  }
-
-  private drawLumenCharacters(w: number, h: number) {
-    this.ctx.globalCompositeOperation = 'screen';
-    this.lumens.forEach((lumen) => {
-      lumen.x += lumen.vx + Math.sin(this.time * lumen.floatSpeed + lumen.phase) * 0.35;
-      lumen.y += lumen.vy + Math.cos(this.time * lumen.floatSpeed * 0.7 + lumen.phase) * 0.22;
-      
-      if (lumen.x < -40) lumen.x = w + 40;
-      if (lumen.x > w + 40) lumen.x = -40;
-      if (lumen.y < h * 0.12) lumen.y = h * 0.88;
-      if (lumen.y > h * 0.88) lumen.y = h * 0.12;
-
-      const bobY = lumen.y + Math.sin(this.time * 2.2 + lumen.phase) * lumen.bobAmount;
-      const pulseAlpha = 0.55 + Math.sin(this.time * 3 + lumen.phase) * 0.3;
-      
-      const glow = this.ctx.createRadialGradient(lumen.x, bobY, 0, lumen.x, bobY, lumen.size * 2.8);
-      glow.addColorStop(0, `hsla(${lumen.hue}, 75%, 68%, ${pulseAlpha})`);
-      glow.addColorStop(0.4, `hsla(${lumen.hue}, 65%, 52%, ${pulseAlpha * 0.35})`);
-      glow.addColorStop(1, 'transparent');
-      this.ctx.fillStyle = glow;
-      this.ctx.beginPath();
-      this.ctx.arc(lumen.x, bobY, lumen.size * 2.8, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.fillStyle = `hsla(${lumen.hue}, 88%, 78%, ${pulseAlpha + 0.15})`;
-      this.ctx.font = `${lumen.size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText(lumen.label, lumen.x, bobY);
     });
     this.ctx.globalCompositeOperation = 'source-over';
   }
@@ -879,70 +777,6 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.restore();
   }
 
-  private drawSkyFloaters(w: number, h: number) {
-    this.skyFloaters.forEach((u) => {
-      u.x += u.vx;
-      if (u.x > w + 60) u.x = -60;
-      const y = u.y + Math.sin(this.time * 1.8 + u.phase) * 14;
-
-      this.ctx.save();
-      this.ctx.translate(u.x, y);
-      this.ctx.scale(u.scale, u.scale);
-
-      const saucerGrad = this.ctx.createLinearGradient(-32, 6, 32, 6);
-      saucerGrad.addColorStop(0, 'hsla(265, 40%, 28%, 0.95)');
-      saucerGrad.addColorStop(0.5, 'hsla(200, 45%, 42%, 0.92)');
-      saucerGrad.addColorStop(1, 'hsla(265, 40%, 28%, 0.95)');
-      this.ctx.fillStyle = saucerGrad;
-      this.ctx.beginPath();
-      this.ctx.ellipse(0, 10, 34, 10, 0, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.fillStyle = 'hsla(195, 55%, 55%, 0.88)';
-      this.ctx.beginPath();
-      this.ctx.arc(0, 2, 22, Math.PI, 0);
-      this.ctx.lineTo(22, 10);
-      this.ctx.lineTo(-22, 10);
-      this.ctx.closePath();
-      this.ctx.fill();
-
-      this.ctx.strokeStyle = 'hsla(210, 70%, 70%, 0.5)';
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.arc(0, 2, 22, Math.PI, 0);
-      this.ctx.stroke();
-
-      const blink = Math.sin(this.time * 4 + u.phase * 3) > 0.85;
-      if (!blink) {
-        this.ctx.fillStyle = '#0c1220';
-        this.ctx.beginPath();
-        this.ctx.ellipse(-8, 4, 5, 6, 0, 0, Math.PI * 2);
-        this.ctx.ellipse(8, 4, 5, 6, 0, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.fillStyle = '#7dd3fc';
-        this.ctx.beginPath();
-        this.ctx.arc(-9, 2, 2, 0, Math.PI * 2);
-        this.ctx.arc(7, 2, 2, 0, Math.PI * 2);
-        this.ctx.fill();
-      }
-
-      const beamA = 0.12 + Math.sin(this.time * 3 + u.phase) * 0.05;
-      const beam = this.ctx.createRadialGradient(0, 14, 0, 0, 40, 55);
-      beam.addColorStop(0, `hsla(190, 90%, 70%, ${beamA})`);
-      beam.addColorStop(1, 'transparent');
-      this.ctx.fillStyle = beam;
-      this.ctx.beginPath();
-      this.ctx.moveTo(-8, 12);
-      this.ctx.lineTo(8, 12);
-      this.ctx.lineTo(18, 70);
-      this.ctx.lineTo(-18, 70);
-      this.ctx.closePath();
-      this.ctx.fill();
-
-      this.ctx.restore();
-    });
-  }
-
   private drawTinyPals(w: number, h: number) {
     this.tinyPals.forEach((pal) => {
       pal.x += pal.vx;
@@ -969,23 +803,45 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
       this.ctx.lineWidth = 1.5;
       this.ctx.stroke();
 
+      // Accesorios de plató (no blobs genéricos)
       if (pal.kind === 1) {
-        this.ctx.fillStyle = 'hsla(40, 90%, 55%, 0.95)';
-        this.ctx.fillRect(-pal.r * 0.35, -pal.r * 1.35, pal.r * 0.7, pal.r * 0.45);
+        // Claqueta mini
+        this.ctx.fillStyle = 'rgba(20, 18, 32, 0.95)';
+        this.ctx.fillRect(-pal.r * 0.55, -pal.r * 1.45, pal.r * 1.1, pal.r * 0.55);
+        this.ctx.fillStyle = 'hsla(48, 92%, 58%, 0.95)';
+        this.ctx.fillRect(-pal.r * 0.55, -pal.r * 1.45, pal.r * 1.1, pal.r * 0.22);
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(-pal.r * 0.55, -pal.r * 1.45, pal.r * 1.1, pal.r * 0.55);
       } else if (pal.kind === 2) {
-        this.ctx.fillStyle = `hsla(${(pal.hue + 40) % 360}, 70%, 55%, 0.95)`;
+        // Aro objetivo / lente
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        this.ctx.lineWidth = 2.2;
         this.ctx.beginPath();
-        this.ctx.moveTo(0, -pal.r * 1.5);
-        this.ctx.lineTo(-pal.r * 0.5, -pal.r * 0.75);
-        this.ctx.lineTo(pal.r * 0.5, -pal.r * 0.75);
-        this.ctx.closePath();
+        this.ctx.arc(0, -pal.r * 0.85, pal.r * 0.65, 0, Math.PI * 2);
+        this.ctx.stroke();
+        this.ctx.fillStyle = 'rgba(30, 40, 60, 0.85)';
+        this.ctx.beginPath();
+        this.ctx.arc(0, -pal.r * 0.85, pal.r * 0.28, 0, Math.PI * 2);
         this.ctx.fill();
       } else if (pal.kind === 3) {
-        this.ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        // Perforaciones tipo celuloide
+        for (let k = -2; k <= 2; k++) {
+          this.ctx.fillStyle = 'rgba(255,255,255,0.35)';
+          this.ctx.fillRect(k * pal.r * 0.35 - 1.5, -pal.r * 1.35, 3, 5);
+        }
+      } else {
+        // kind 0: pértiga / boom
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.45)';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
-        this.ctx.arc(0, 0, pal.r + 4, -Math.PI * 0.25, Math.PI * 0.1);
+        this.ctx.moveTo(0, -pal.r);
+        this.ctx.lineTo(pal.r * 1.1, -pal.r * 1.85);
         this.ctx.stroke();
+        this.ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        this.ctx.beginPath();
+        this.ctx.arc(pal.r * 1.1, -pal.r * 1.85, 3, 0, Math.PI * 2);
+        this.ctx.fill();
       }
 
       const eyeY = -pal.r * 0.15;
@@ -1154,21 +1010,19 @@ interface Star {
   twinkleSpeed: number; twinklePhase: number; brightness: number;
 }
 
-interface RainDrop {
-  x: number; y: number; speed: number;
-  length: number; opacity: number;
-}
-
-interface Lumen {
-  type: string; hue: number; label: string;
-  x: number; y: number; vx: number; vy: number;
-  size: number; phase: number; floatSpeed: number; bobAmount: number;
-}
-
-interface FloatingElement {
-  x: number; y: number; vx: number; vy: number;
-  symbol: string; size: number;
-  rotation: number; rotationSpeed: number; opacity: number; phase: number;
+interface EphemeralGlyph {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  symbol: string;
+  size: number;
+  rotation: number;
+  rotSpeed: number;
+  phase: number;
+  pulsePhase: number;
+  pulseSpeed: number;
+  swapLock: boolean;
 }
 
 interface TinyPal {
@@ -1179,12 +1033,4 @@ interface TinyPal {
   phase: number;
   r: number;
   kind: number;
-}
-
-interface SkyFloater {
-  x: number;
-  y: number;
-  vx: number;
-  phase: number;
-  scale: number;
 }
