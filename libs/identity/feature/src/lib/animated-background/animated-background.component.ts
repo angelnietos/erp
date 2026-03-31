@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type BackgroundTheme = 'josanz-classic' | 'cyber-neon' | 'golden-vintage' | 'deep-abyss';
+export type BackgroundTheme = 'josanz-classic' | 'cyber-neon' | 'golden-vintage' | 'deep-abyss' | 'digital-matrix' | 'audio-rhythm';
 
 @Component({
   selector: 'lib-animated-background',
@@ -72,6 +72,10 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   private fogLayers: FogLayer[] = [];
   private shootingStars: ShootingStar[] = [];
   private readonly SHOOTING_STAR_POOL_SIZE = 4;
+
+  /** THEME SPECIFIC COLLECTIONS */
+  private matrixCodes: MatrixCode[] = [];
+  private soundBars: SoundBar[] = [];
 
   /** Pool audiovisual (sin logística / ERP genérico). */
   private readonly avSymbolPool = [
@@ -151,6 +155,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   private getThemeConfig(): ThemeConfigInternal {
     const themes: Record<BackgroundTheme, ThemeConfigInternal> = {
       'josanz-classic': {
+        style: 'aurora',
         sky: [215, 230, 255, 280],
         aurora: [160, 280, 230],
         particles: [42, 195],
@@ -161,6 +166,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         lumenHues: [42, 52, 195, 210, 265, 175, 310, 125, 45, 85]
       },
       'cyber-neon': {
+        style: 'aurora',
         sky: [195, 300, 280, 320],
         aurora: [180, 300, 330],
         particles: [180, 300],
@@ -171,6 +177,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         lumenHues: [180, 200, 280, 300, 320, 190, 220, 210]
       },
       'golden-vintage': {
+        style: 'aurora',
         sky: [35, 45, 55, 25],
         aurora: [40, 50, 45],
         particles: [45, 35],
@@ -181,6 +188,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         lumenHues: [40, 45, 50, 35, 55, 42, 38, 48]
       },
       'deep-abyss': {
+        style: 'aurora',
         sky: [200, 210, 220, 230],
         aurora: [170, 190, 210],
         particles: [175, 190],
@@ -189,6 +197,28 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         sidekick: { body: '#111827', highlight: '#1f2937', feet: '#111827' },
         fog: [200, 180],
         lumenHues: [180, 190, 200, 210, 175, 205, 195, 220]
+      },
+      'digital-matrix': {
+        style: 'matrix',
+        sky: [140, 160, 180, 200],
+        aurora: [],
+        particles: [160, 140],
+        spirits: [140, 160],
+        mascot: { body: '#10b981', highlight: '#34d399', feet: '#065f46' },
+        sidekick: { body: '#047857', highlight: '#10b981', feet: '#064e3b' },
+        fog: [140, 120],
+        lumenHues: [140, 160, 150, 170]
+      },
+      'audio-rhythm': {
+        style: 'audio',
+        sky: [280, 260, 240, 300],
+        aurora: [],
+        particles: [280, 300],
+        spirits: [280, 260],
+        mascot: { body: '#8b5cf6', highlight: '#a78bfa', feet: '#5b21b6' },
+        sidekick: { body: '#4c1d95', highlight: '#8b5cf6', feet: '#2e1065' },
+        fog: [280, 310],
+        lumenHues: [280, 300, 320, 260]
       }
     };
     return themes[this.theme] || themes['josanz-classic'];
@@ -246,6 +276,38 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.lumenParticles = [];
     this.sparkles = [];
     this.rings = [];
+    this.matrixCodes = [];
+    this.soundBars = [];
+
+    if (cfg.style === 'matrix') {
+      const columns = Math.floor(w / 25);
+      for (let i = 0; i < columns; i++) {
+        this.matrixCodes.push({
+          x: i * 25,
+          y: Math.random() * h,
+          speed: 2 + Math.random() * 5,
+          chars: Array.from({ length: 15 + Math.floor(Math.random() * 20) }, () => 
+            this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)]
+          ),
+          opacity: 0.1 + Math.random() * 0.4,
+          size: 14 + Math.random() * 8,
+        });
+      }
+    }
+
+    if (cfg.style === 'audio') {
+      const barCount = 40;
+      const barWidth = w / barCount;
+      for (let i = 0; i < barCount; i++) {
+        this.soundBars.push({
+          x: i * barWidth,
+          height: 0,
+          targetHeight: 50 + Math.random() * 200,
+          width: barWidth - 4,
+          hue: cfg.sky[i % cfg.sky.length],
+        });
+      }
+    }
 
     // === STARS ===
     const starCount = 52;
@@ -417,29 +479,35 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   private animate = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const cfg = this.getThemeConfig();
     this.time += 0.016;
     this.smoothParallax();
     this.ctx.clearRect(0, 0, w, h);
 
     // Draw everything in layers (back to front)
     this.drawSky(w, h);
-    this.drawStars(w, h);
-    this.drawShootingStars(w, h);
-    this.drawAurora(w, h);
-    this.drawClouds(w, h);
-    this.drawFog(w, h);
-    this.drawLightBeams(w, h);
-    this.drawSpirits(w, h);
-    this.drawParticles(w, h);
-    this.drawFireflies(w, h);
-    this.drawEphemeralGlyphs(w, h);
-    this.drawAvLumens(w, h);
     
-    // === NEW: Rayman-style ephemeral lumens with particle trails ===
-    this.drawEphemeralLumens(w, h);
-    this.drawLumenParticles(w, h);
-    this.drawSparkles(w, h);
-    this.drawRings(w, h);
+    if (cfg.style === 'aurora') {
+      this.drawStars(w, h);
+      this.drawShootingStars(w, h);
+      this.drawAurora(w, h);
+      this.drawClouds(w, h);
+      this.drawFog(w, h);
+      this.drawLightBeams(w, h);
+      this.drawSpirits(w, h);
+      this.drawParticles(w, h);
+      this.drawFireflies(w, h);
+      this.drawEphemeralGlyphs(w, h);
+      this.drawAvLumens(w, h);
+      this.drawEphemeralLumens(w, h);
+      this.drawLumenParticles(w, h);
+      this.drawSparkles(w, h);
+      this.drawRings(w, h);
+    } else if (cfg.style === 'matrix') {
+      this.drawMatrixStyle(w, h);
+    } else if (cfg.style === 'audio') {
+      this.drawAudioStyle(w, h);
+    }
     
     this.drawGearSilhouettes(w, h);
     this.drawTinyPals(w, h);
@@ -837,6 +905,64 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       this.ctx.restore();
     });
     this.ctx.globalCompositeOperation = 'source-over';
+  }
+
+  private drawMatrixStyle(w: number, h: number) {
+    const cfg = this.getThemeConfig();
+    this.matrixCodes.forEach(code => {
+      code.y += code.speed;
+      if (code.y - (code.chars.length * code.size) > h) {
+        code.y = -code.size;
+        code.speed = 2 + Math.random() * 5;
+      }
+
+      this.ctx.font = `${code.size}px monospace`;
+      this.ctx.textAlign = 'center';
+      
+      code.chars.forEach((char, i) => {
+        const charY = code.y - (i * code.size);
+        if (charY < 0 || charY > h) return;
+
+        const charOpacity = code.opacity * (1 - (i / code.chars.length));
+        this.ctx.fillStyle = i === 0 
+          ? `rgba(255, 255, 255, ${charOpacity * 2})` 
+          : `hsla(${cfg.sky[0]}, 100%, 70%, ${charOpacity})`;
+        
+        this.ctx.fillText(char, code.x, charY);
+      });
+    });
+  }
+
+  private drawAudioStyle(w: number, h: number) {
+    const ground = h * 0.88;
+    
+    this.soundBars.forEach(bar => {
+      // Smooth growth towards target
+      bar.height += (bar.targetHeight - bar.height) * 0.15;
+      if (Math.abs(bar.targetHeight - bar.height) < 2) {
+        bar.targetHeight = 30 + Math.random() * 250;
+      }
+
+      const grad = this.ctx.createLinearGradient(bar.x, ground, bar.x, ground - bar.height);
+      grad.addColorStop(0, `hsla(${bar.hue}, 80%, 60%, 0.7)`);
+      grad.addColorStop(1, `hsla(${bar.hue + 40}, 100%, 80%, 0.1)`);
+
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(bar.x, ground - bar.height, bar.width, bar.height);
+      
+      // Top tip highlight
+      this.ctx.fillStyle = `hsla(${bar.hue}, 100%, 90%, 0.8)`;
+      this.ctx.fillRect(bar.x, ground - bar.height - 4, bar.width, 4);
+
+      // Pulse particles from top
+      if (Math.random() < 0.05) {
+        this.spawnSparkle(w, h);
+      }
+    });
+
+    // Spirits used as pulses
+    this.drawSpirits(w, h);
+    this.drawParticles(w, h);
   }
 
   private drawAvLumens(w: number, h: number) {
@@ -1865,6 +1991,7 @@ interface LumenRing {
 }
 
 interface ThemeConfigInternal {
+  style: 'aurora' | 'matrix' | 'audio';
   sky: number[];
   aurora: number[];
   particles: number[];
@@ -1873,6 +2000,23 @@ interface ThemeConfigInternal {
   sidekick: { body: string; highlight: string; feet: string };
   fog: number[];
   lumenHues: number[];
+}
+
+interface MatrixCode {
+  x: number;
+  y: number;
+  speed: number;
+  chars: string[];
+  opacity: number;
+  size: number;
+}
+
+interface SoundBar {
+  x: number;
+  height: number;
+  targetHeight: number;
+  width: number;
+  hue: number;
 }
 
 interface FogLayer {
