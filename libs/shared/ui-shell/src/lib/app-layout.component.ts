@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
-import { ThemeService, Theme, AuthStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, Theme, AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
@@ -43,6 +43,13 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
               <lucide-icon name="bell" size="20"></lucide-icon>
               <div class="notification-dot"></div>
             </button>
+
+            @if (premiumExperience()) {
+              <div class="premium-status animate-fade-in" [style.color]="currentThemeData().primary" [style.border-color]="currentThemeData().primary + '44'">
+                <lucide-icon name="sparkles" size="14"></lucide-icon>
+                <span>LUXE MODE</span>
+              </div>
+            }
 
             <!-- Theme Selector -->
             <div class="theme-selector">
@@ -486,6 +493,23 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       margin: 0 auto;
     }
 
+    /* Premium Status Badge */
+    .premium-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid;
+      border-radius: 100px;
+      font-size: 0.58rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    
+    .premium-status lucide-icon { opacity: 0.8; }
+
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 10px; }
@@ -497,6 +521,7 @@ export class AppLayoutComponent {
   readonly logoutClick = output<void>();
   readonly themeService = inject(ThemeService);
   readonly currentTheme = this.themeService.currentTheme;
+  readonly currentThemeData = this.themeService.currentThemeData;
   readonly themeKeys = Object.keys(this.themeService.themes) as Theme[];
   showThemeMenu = signal(false);
 
@@ -506,6 +531,8 @@ export class AppLayoutComponent {
   showUserMenu = signal(false);
 
   private readonly authStore = inject(AuthStore);
+  private readonly pluginStore = inject(PluginStore);
+  readonly premiumExperience = this.pluginStore.premiumExperience;
 
   @HostListener('window:keydown', ['$event'])
   handleGlobalShortcuts(event: KeyboardEvent) {

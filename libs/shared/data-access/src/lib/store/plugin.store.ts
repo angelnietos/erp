@@ -1,4 +1,5 @@
-import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
+import { signalStore, withState, withMethods, patchState, withComputed } from '@ngrx/signals';
+import { computed } from '@angular/core';
 
 export interface PluginState {
   enabledPlugins: string[];
@@ -15,6 +16,9 @@ const initialState: PluginState = {
 export const PluginStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+  withComputed((state) => ({
+    premiumExperience: computed(() => !state.highPerformanceMode()),
+  })),
   withMethods((store) => ({
     togglePlugin(pluginId: string) {
       if (pluginId === 'dashboard') return;
@@ -31,6 +35,9 @@ export const PluginStore = signalStore(
     },
     togglePerformance() {
       patchState(store, { highPerformanceMode: !store.highPerformanceMode() });
+    },
+    setPremiumExperience(enabled: boolean) {
+      patchState(store, { highPerformanceMode: !enabled });
     },
     setPlugins(plugins: string[]) {
       patchState(store, { enabledPlugins: plugins });

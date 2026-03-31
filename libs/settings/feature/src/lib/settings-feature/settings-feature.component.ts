@@ -87,17 +87,17 @@ interface PluginDescriptor {
             </div>
             <div class="pref-item">
               <div class="pref-info">
-                <span>Modo de alto rendimiento</span>
-                <p>Optimiza animaciones para hardware limitado</p>
+                <span class="premium-label" [style.color]="premiumExperience() ? 'var(--brand)' : '#fff'">Experiencia Premium (LUXE Mode)</span>
+                <p>Habilita trazado de rayos simulado, glassmorphism avanzado y efectos cinemáticos</p>
               </div>
               <div 
-                class="pref-toggle" 
+                class="pref-toggle premium-toggle" 
                 role="switch"
-                [attr.aria-checked]="highPerformanceMode()"
+                [attr.aria-checked]="premiumExperience()"
                 tabindex="0"
-                [class.active]="highPerformanceMode()"
-                (click)="togglePerformance()"
-                (keydown.enter)="togglePerformance()"
+                [class.active]="premiumExperience()"
+                (click)="togglePremium()"
+                (keydown.enter)="togglePremium()"
               ></div>
             </div>
           </ui-josanz-card>
@@ -293,6 +293,7 @@ export class SettingsFeatureComponent {
   // Expose signals explicitly for better template inference
   public readonly realtimeSync = this._pluginStore.realtimeSync;
   public readonly highPerformanceMode = this._pluginStore.highPerformanceMode;
+  public readonly premiumExperience = this._pluginStore.premiumExperience;
   public readonly enabledPlugins = this._pluginStore.enabledPlugins;
 
   readonly plugins: PluginDescriptor[] = [
@@ -315,7 +316,7 @@ export class SettingsFeatureComponent {
     this._pluginStore.toggleRealtime();
   }
 
-  togglePerformance() {
+  togglePremium() {
     this._pluginStore.togglePerformance();
   }
 }

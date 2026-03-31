@@ -1,4 +1,5 @@
-import { Injectable, signal, effect, computed } from '@angular/core';
+import { Injectable, signal, effect, computed, inject } from '@angular/core';
+import { PluginStore } from '../store/plugin.store';
 
 /** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
 export type Theme =
@@ -443,6 +444,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   providedIn: 'root',
 })
 export class ThemeService {
+  private readonly pluginStore = inject(PluginStore);
+  
   readonly currentTheme = signal<Theme>(this.getStoredTheme() || 'dark');
   readonly currentThemeData = computed(() => this.themes[this.currentTheme()]);
   readonly themes = THEMES;
@@ -450,10 +453,17 @@ export class ThemeService {
   constructor() {
     this.applyTheme(this.currentTheme());
     
+    // Theme effect
     effect(() => {
       const theme = this.currentTheme();
       this.applyTheme(theme);
       this.storeTheme(theme);
+    });
+
+    // Performance mode effect
+    effect(() => {
+      const isHighPerf = this.pluginStore.highPerformanceMode();
+      this.applyPerformanceMode(isHighPerf);
     });
   }
 
@@ -491,6 +501,17 @@ export class ThemeService {
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
     
     root.setAttribute('data-theme', theme);
+  }
+
+  private applyPerformanceMode(isHighPerf: boolean) {
+    const root = document.documentElement;
+    if (isHighPerf) {
+      root.classList.add('high-perf');
+      root.classList.remove('premium-mode');
+    } else {
+      root.classList.remove('high-perf');
+      root.classList.add('premium-mode');
+    }
   }
 
   private storeTheme(theme: Theme) {
