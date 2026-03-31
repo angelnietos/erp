@@ -13,6 +13,8 @@ import {
   UiTabsComponent,
   UiCardComponent,
   UiStatCardComponent,
+  UiModalComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
@@ -33,6 +35,8 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiTabsComponent,
     UiCardComponent,
     UiStatCardComponent,
+    UiModalComponent,
+    UiInputComponent,
     LucideAngularModule
   ],
   template: `
@@ -143,8 +147,63 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
         </ui-josanz-card>
       }
     </div>
+
+    <!-- Create/Edit Modal -->
+    <ui-josanz-modal
+      [isOpen]="isModalOpen()"
+      [title]="editingRental() ? 'EDITAR EXPEDIENTE' : 'NUEVO EXPEDIENTE'"
+      variant="dark"
+      (closed)="closeModal()"
+    >
+      <div class="form-container">
+        <ui-josanz-input 
+          label="NOMBRE DEL CLIENTE/PRODUCCIÓN" 
+          [(ngModel)]="formData.clientName" 
+          placeholder="Ej: Producciones Audiovisuales S.L."
+        ></ui-josanz-input>
+        
+        <div class="form-row">
+          <ui-josanz-input 
+            label="FECHA DE INICIO" 
+            type="date" 
+            [(ngModel)]="formData.startDate"
+          ></ui-josanz-input>
+          
+          <ui-josanz-input 
+            label="FECHA DE RETORNO" 
+            type="date" 
+            [(ngModel)]="formData.endDate"
+          ></ui-josanz-input>
+        </div>
+
+        <div class="form-row">
+          <ui-josanz-input 
+            label="UNIDADES TÉCNICAS" 
+            type="number" 
+            [(ngModel)]="formData.itemsCount"
+          ></ui-josanz-input>
+          
+          <ui-josanz-input 
+            label="IMPORTE ESTIMADO (€)" 
+            type="number" 
+            [(ngModel)]="formData.totalAmount"
+          ></ui-josanz-input>
+        </div>
+      </div>
+      
+      <div slot="footer" class="modal-footer-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
+        <ui-josanz-button variant="app" (clicked)="saveRental()" [disabled]="!formData.clientName">
+          GUARDAR EXPEDIENTE
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
   `,
   styles: [`
+    .form-container { display: flex; flex-direction: column; gap: 1.5rem; padding: 0.5rem 0; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-footer-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
+    
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
     
     .page-header {
