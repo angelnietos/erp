@@ -1,5 +1,5 @@
 <div class="auth-wrapper">
-  <lib-animated-background></lib-animated-background>
+  <lib-animated-background [theme]="backgroundTheme()"></lib-animated-background>
 
   <div class="auth-card glass">
     <div class="auth-header">
@@ -9,6 +9,27 @@
       <p class="brand-tag text-uppercase">Josanz Audiovisuales</p>
       <h1>Acceso ERP</h1>
       <p class="auth-sub">Plató listo. Entra al panel de producción.</p>
+    </div>
+
+    <!-- Theme Selector -->
+    <div class="theme-selector-container">
+      <div class="theme-label">
+        <lucide-icon [name]="icons.Palette" size="14"></lucide-icon>
+        <span>Estilo de Fondo</span>
+      </div>
+      <div class="theme-options">
+        @for (t of themes; track t.id) {
+          <button 
+            type="button"
+            class="theme-opt"
+            [class.active]="backgroundTheme() === t.id"
+            (click)="setBackgroundTheme(t.id)"
+            [title]="t.name">
+            <div class="theme-color-dot" [style.background]="t.color"></div>
+            <lucide-icon [name]="t.icon" size="14"></lucide-icon>
+          </button>
+        }
+      </div>
     </div>
 
     @if (store.error()) {

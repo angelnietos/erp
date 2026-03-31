@@ -4,8 +4,13 @@ import {
   OnDestroy,
   ViewChild,
   AfterViewInit,
+  Input,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+export type BackgroundTheme = 'josanz-classic' | 'cyber-neon' | 'golden-vintage' | 'deep-abyss';
 
 @Component({
   selector: 'lib-animated-background',
@@ -14,8 +19,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './animated-background.component.html',
   styleUrl: './animated-background.component.css',
 })
-export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
+export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, OnChanges {
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  
+  /** Current theme of the background */
+  @Input() theme: BackgroundTheme = 'josanz-classic';
 
   private ctx!: CanvasRenderingContext2D;
   private animationId = 0;
@@ -121,6 +129,12 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.animate();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['theme'] && !changes['theme'].firstChange) {
+      this.initAllElements();
+    }
+  }
+
   ngOnDestroy() {
     cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', this.boundResize);
@@ -132,6 +146,52 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     const k = 0.085;
     this.parallaxSmX += (this.parallaxTgX - this.parallaxSmX) * k;
     this.parallaxSmY += (this.parallaxTgY - this.parallaxSmY) * k;
+  }
+
+  private getThemeConfig(): ThemeConfigInternal {
+    const themes: Record<BackgroundTheme, ThemeConfigInternal> = {
+      'josanz-classic': {
+        sky: [215, 230, 255, 280],
+        aurora: [160, 280, 230],
+        particles: [42, 195],
+        spirits: [48, 205, 265],
+        mascot: { body: '#dc2626', highlight: '#ef4444', feet: '#b91c1c' },
+        sidekick: { body: '#0d9488', highlight: '#14b8a6', feet: '#0f766e' },
+        fog: [210, 260],
+        lumenHues: [42, 52, 195, 210, 265, 175, 310, 125, 45, 85]
+      },
+      'cyber-neon': {
+        sky: [195, 300, 280, 320],
+        aurora: [180, 300, 330],
+        particles: [180, 300],
+        spirits: [180, 310, 190],
+        mascot: { body: '#06b6d4', highlight: '#22d3ee', feet: '#0891b2' },
+        sidekick: { body: '#d946ef', highlight: '#f0abfc', feet: '#c026d3' },
+        fog: [180, 300],
+        lumenHues: [180, 200, 280, 300, 320, 190, 220, 210]
+      },
+      'golden-vintage': {
+        sky: [35, 45, 55, 25],
+        aurora: [40, 50, 45],
+        particles: [45, 35],
+        spirits: [45, 40, 50],
+        mascot: { body: '#d97706', highlight: '#fbbf24', feet: '#b45309' },
+        sidekick: { body: '#71717a', highlight: '#a1a1aa', feet: '#52525b' },
+        fog: [40, 30],
+        lumenHues: [40, 45, 50, 35, 55, 42, 38, 48]
+      },
+      'deep-abyss': {
+        sky: [200, 210, 220, 230],
+        aurora: [170, 190, 210],
+        particles: [175, 190],
+        spirits: [175, 200, 220],
+        mascot: { body: '#1e3a8a', highlight: '#2563eb', feet: '#1e3a8a' },
+        sidekick: { body: '#111827', highlight: '#1f2937', feet: '#111827' },
+        fog: [200, 180],
+        lumenHues: [180, 190, 200, 210, 175, 205, 195, 220]
+      }
+    };
+    return themes[this.theme] || themes['josanz-classic'];
   }
 
   /** Capas: fondo mueve poco, primer plano más (efecto profundidad). */
@@ -170,6 +230,22 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   private initAllElements() {
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const cfg = this.getThemeConfig();
+
+    // Reset arrays
+    this.stars = [];
+    this.particles = [];
+    this.fireflies = [];
+    this.spirits = [];
+    this.clouds = [];
+    this.ephemeralGlyphs = [];
+    this.avLumens = [];
+    this.tinyPals = [];
+    this.fogLayers = [];
+    this.ephemeralLumens = [];
+    this.lumenParticles = [];
+    this.sparkles = [];
+    this.rings = [];
 
     // === STARS ===
     const starCount = 52;
@@ -187,6 +263,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     // === PARTICLES ===
     const particleCount = 72;
     for (let i = 0; i < particleCount; i++) {
+      const hueBase = cfg.particles[i % cfg.particles.length];
       this.particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -194,7 +271,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
         speedX: (Math.random() - 0.5) * 0.28,
         speedY: (Math.random() - 0.5) * 0.18,
         opacity: Math.random() * 0.35 + 0.12,
-        hue: Math.random() > 0.5 ? 42 + Math.random() * 28 : 195 + Math.random() * 35,
+        hue: hueBase + Math.random() * 20,
         phase: Math.random() * Math.PI * 2,
       });
     }
@@ -210,20 +287,21 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
         size: Math.random() * 2.8 + 1.2,
         brightness: Math.random(),
         blinkSpeed: Math.random() * 0.04 + 0.018,
-        hue: 48 + Math.random() * 22,
+        hue: cfg.particles[0] + Math.random() * 30,
       });
     }
 
     // === SPIRITS ===
     const spiritCount = 8;
     for (let i = 0; i < spiritCount; i++) {
+      const hueBase = cfg.spirits[i % cfg.spirits.length];
       this.spirits.push({
         x: Math.random() * w,
         y: Math.random() * h,
         radius: Math.random() * 38 + 22,
         vx: (Math.random() - 0.5) * 0.22,
         vy: (Math.random() - 0.5) * 0.16,
-        hue: i % 3 === 0 ? 48 + Math.random() * 18 : i % 3 === 1 ? 205 + Math.random() * 25 : 265 + Math.random() * 18,
+        hue: hueBase + Math.random() * 15,
         phase: Math.random() * Math.PI * 2,
         pulseSpeed: Math.random() * 0.018 + 0.008,
       });
@@ -231,10 +309,10 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
 
     // === LIGHT BEAMS ===
     this.lightBeams = [
-      { originX: 0.1, originY: -0.04, angle: 0.4, spread: 0.48, hue: 48, speed: 0.3 },
-      { originX: 0.9, originY: 0, angle: -0.36, spread: 0.46, hue: 205, speed: -0.28 },
-      { originX: 0.52, originY: -0.08, angle: 0.05, spread: 0.52, hue: 200, speed: 0.2 },
-      { originX: 0.32, originY: -0.02, angle: 0.28, spread: 0.38, hue: 175, speed: 0.36 },
+      { originX: 0.1, originY: -0.04, angle: 0.4, spread: 0.48, hue: cfg.sky[0], speed: 0.3 },
+      { originX: 0.9, originY: 0, angle: -0.36, spread: 0.46, hue: cfg.sky[1], speed: -0.28 },
+      { originX: 0.52, originY: -0.08, angle: 0.05, spread: 0.52, hue: cfg.sky[2], speed: 0.2 },
+      { originX: 0.32, originY: -0.02, angle: 0.28, spread: 0.38, hue: cfg.sky[3], speed: 0.36 },
     ];
 
     // === CLOUDS ===
@@ -270,7 +348,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
 
     // === LUMENS AV (halo + emoji, sin iconos ERP) ===
     const lumenCount = 16;
-    const lumenHues = [42, 52, 195, 210, 265, 175, 310, 125];
+    const lumenHues = cfg.lumenHues;
     for (let i = 0; i < lumenCount; i++) {
       const label = this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)];
       this.avLumens.push({
@@ -374,20 +452,19 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   };
 
   private drawSky(w: number, h: number) {
+    const cfg = this.getThemeConfig();
     const t = this.time * 0.08;
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
     
     // Deeper, more atmospheric colors
-    g.addColorStop(0, `hsl(${215 + Math.sin(t * 0.4) * 12}, 55%, ${28 + Math.sin(t * 0.25) * 6}%)`);
-    g.addColorStop(0.35, `hsl(${230 + Math.sin(t * 0.35) * 8}, 48%, ${18 + Math.sin(t * 0.2) * 5}%)`);
-    g.addColorStop(0.6, `hsl(${255 + Math.sin(t * 0.3) * 6}, 42%, ${12 + Math.sin(t * 0.15) * 4}%)`);
-    g.addColorStop(0.85, `hsl(${280 + Math.sin(t * 0.25) * 5}, 38%, ${8 + Math.sin(t * 0.1) * 3}%)`);
-    g.addColorStop(1, '#05070c');
+    g.addColorStop(0, `hsl(${cfg.sky[0] + Math.sin(t * 0.4) * 12}, 55%, ${28 + Math.sin(t * 0.25) * 6}%)`);
+    g.addColorStop(0.35, `hsl(${cfg.sky[1] + Math.sin(t * 0.35) * 8}, 48%, ${18 + Math.sin(t * 0.2) * 5}%)`);
+    g.addColorStop(0.6, `hsl(${cfg.sky[2] + Math.sin(t * 0.3) * 6}, 42%, ${12 + Math.sin(t * 0.15) * 4}%)`);
+    g.addColorStop(0.85, `hsl(${cfg.sky[3] + Math.sin(t * 0.25) * 5}, 38%, ${8 + Math.sin(t * 0.1) * 3}%)`);
+    g.addColorStop(1, this.theme === 'golden-vintage' ? '#1a0d00' : '#05070c');
     
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
-
-    // Subtle atmospheric grain/noise (simulated with very low opacity random points if needed, but gradient is fine)
   }
 
   private drawStars(w: number, h: number) {
@@ -419,6 +496,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawAurora(w: number, h: number) {
+    const cfg = this.getThemeConfig();
     const t = this.time * 0.12;
     const p = this.shiftBack(w, h);
     const oy = p.y * 0.65;
@@ -426,14 +504,14 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.save();
     this.ctx.globalCompositeOperation = 'screen';
 
-    // Aurora wave 1 (Emerald/Cyan)
-    this.renderAuroraWave(w, h, t, p.x, oy, 160, 0.15, 0.14, 35);
+    // Aurora wave 1
+    this.renderAuroraWave(w, h, t, p.x, oy, cfg.aurora[0], 0.15, 0.14, 35);
     
-    // Aurora wave 2 (Purple/Violet)
-    this.renderAuroraWave(w, h, t + 2, p.x * 0.8, oy + 20, 280, 0.22, 0.12, 45);
+    // Aurora wave 2
+    this.renderAuroraWave(w, h, t + 2, p.x * 0.8, oy + 20, cfg.aurora[1], 0.22, 0.12, 45);
 
-    // Aurora wave 3 (Deep Blue/Indigo)
-    this.renderAuroraWave(w, h, t * 0.7, p.x * 1.2, oy - 15, 230, 0.28, 0.1, 25);
+    // Aurora wave 3
+    this.renderAuroraWave(w, h, t * 0.7, p.x * 1.2, oy - 15, cfg.aurora[2], 0.28, 0.1, 25);
 
     this.ctx.restore();
   }
@@ -802,7 +880,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
   
   /** Initialize ephemeral lumen object pool */
   private initEphemeralLumenPool(w: number, h: number) {
-    const lumenHues = [42, 52, 195, 210, 265, 175, 310, 125, 45, 85];
+    const cfg = this.getThemeConfig();
+    const lumenHues = cfg.lumenHues;
     
     for (let i = 0; i < this.EPHEMERAL_LUMEN_POOL_SIZE; i++) {
       const isActive = i < 12;
@@ -1253,9 +1332,16 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.ellipse(5, bodyH * 0.52, 45, 12, 0, 0, Math.PI * 2);
     this.ctx.fill();
 
+    // Shadows / Glow
+    this.ctx.fillStyle = 'rgba(0,0,0,0.38)';
+    this.ctx.beginPath();
+    this.ctx.ellipse(5, bodyH * 0.52, 45, 12, 0, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    const cfg = this.getThemeConfig();
     // Body
-    this.roundRect2(bx, by, bodyW, bodyH, 20, '#dc2626');
-    this.roundRect2(bx + 5, by + 8, bodyW - 10, bodyH - 22, 15, '#ef4444');
+    this.roundRect2(bx, by, bodyW, bodyH, 20, cfg.mascot.body);
+    this.roundRect2(bx + 5, by + 8, bodyW - 10, bodyH - 22, 15, cfg.mascot.highlight);
 
     // Highlight
     this.ctx.fillStyle = 'rgba(255,255,255,0.38)';
@@ -1311,7 +1397,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.fill();
 
     // Feet
-    this.ctx.fillStyle = '#b91c1c';
+    this.ctx.fillStyle = cfg.mascot.feet;
     this.ctx.fillRect(bx + 16, by + bodyH - 6, 20, 26);
     this.ctx.fillRect(bx + 49, by + bodyH - 6, 20, 26);
 
@@ -1320,7 +1406,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.save();
     this.ctx.translate(bx + bodyW - 4, by + 32);
     this.ctx.rotate(armSwing);
-    this.ctx.fillStyle = '#ef4444';
+    this.ctx.fillStyle = cfg.mascot.highlight;
     this.ctx.fillRect(0, -8, 44, 16);
     this.ctx.fillStyle = '#1f1f2e';
     this.ctx.fillRect(40, -14, 14, 36);
@@ -1359,6 +1445,13 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.ellipse(3, bodyH * 0.56, 36, 11, 0, 0, Math.PI * 2);
     this.ctx.fill();
 
+    // Shadows / Glow
+    this.ctx.fillStyle = 'rgba(0,0,0,0.32)';
+    this.ctx.beginPath();
+    this.ctx.ellipse(3, bodyH * 0.56, 36, 11, 0, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    const cfg = this.getThemeConfig();
     // Boom mic
     const boomAngle = -0.88 + Math.sin(this.time * 3.2) * 0.07;
     this.ctx.save();
@@ -1370,8 +1463,8 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.restore();
 
     // Body
-    this.roundRect2(bx, by, bodyW, bodyH, 18, '#0d9488');
-    this.roundRect2(bx + 4, by + 7, bodyW - 8, bodyH - 20, 14, '#14b8a6');
+    this.roundRect2(bx, by, bodyW, bodyH, 18, cfg.sidekick.body);
+    this.roundRect2(bx + 4, by + 7, bodyW - 8, bodyH - 20, 14, cfg.sidekick.highlight);
 
     // Highlight
     this.ctx.fillStyle = 'rgba(255,255,255,0.3)';
@@ -1429,7 +1522,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.fill();
 
     // Feet
-    this.ctx.fillStyle = '#0f766e';
+    this.ctx.fillStyle = cfg.sidekick.feet;
     this.ctx.fillRect(bx + 15, by + bodyH - 5, 17, 22);
     this.ctx.fillRect(bx + 39, by + bodyH - 5, 17, 22);
 
@@ -1769,6 +1862,17 @@ interface LumenRing {
   hue: number;
   active: boolean;
   thickness: number;
+}
+
+interface ThemeConfigInternal {
+  sky: number[];
+  aurora: number[];
+  particles: number[];
+  spirits: number[];
+  mascot: { body: string; highlight: string; feet: string };
+  sidekick: { body: string; highlight: string; feet: string };
+  fog: number[];
+  lumenHues: number[];
 }
 
 interface FogLayer {
