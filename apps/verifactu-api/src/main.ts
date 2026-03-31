@@ -88,7 +88,8 @@ async function bootstrap() {
   const swaggerDoc = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(`${globalPrefix}/docs`, app, swaggerDoc);
 
-  const port = process.env.VERIFACTU_PORT || 3100;
+  // 3110 por defecto: 3100 suele estar ocupado por Loki u otros servicios en Docker.
+  const port = process.env.VERIFACTU_PORT || 3110;
   await app.listen(port);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,

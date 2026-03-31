@@ -49,6 +49,6 @@ export const appConfig: ApplicationConfig = {
       DollarSign, Archive, Shield, AlertOctagon, 
       BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag
     })),
-    { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3100/api' },
+    { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
   ],
 };

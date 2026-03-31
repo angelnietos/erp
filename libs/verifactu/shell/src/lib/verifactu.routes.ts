@@ -9,7 +9,7 @@ export const verifactuRoutes: Route[] = [
 		providers: [
 			{
 				provide: VERIFACTU_API_BASE_URL,
-				useValue: 'http://localhost:3100/api',
+				useValue: 'http://localhost:3110/api',
 			},
 		],
 	},
