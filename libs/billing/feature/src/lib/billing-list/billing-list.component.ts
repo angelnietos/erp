@@ -12,7 +12,6 @@ import {
   UiModalComponent,
   UiTabsComponent,
   UiCardComponent,
-  UiInputComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
@@ -37,7 +36,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiModalComponent,
     UiTabsComponent,
     UiCardComponent,
-    UiInputComponent,
     UiStatCardComponent,
     LucideAngularModule,
   ],

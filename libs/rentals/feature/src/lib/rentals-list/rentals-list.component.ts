@@ -10,10 +10,8 @@ import {
   UiPaginationComponent,
   UiBadgeComponent,
   UiLoaderComponent,
-  UiModalComponent,
   UiTabsComponent,
   UiCardComponent,
-  UiInputComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
@@ -32,10 +30,8 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     UiPaginationComponent, 
     UiBadgeComponent,
     UiLoaderComponent,
-    UiModalComponent,
     UiTabsComponent,
     UiCardComponent,
-    UiInputComponent,
     UiStatCardComponent,
     LucideAngularModule
   ],

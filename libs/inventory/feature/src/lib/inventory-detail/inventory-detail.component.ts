@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiLoaderComponent, UiStatCardComponent, UiTabsComponent 
+  UiLoaderComponent, UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { InventoryFacade, Product } from '@josanz-erp/inventory-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
@@ -15,7 +15,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
   imports: [
     CommonModule, RouterModule, LucideAngularModule,
     UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent, UiTabsComponent
+    UiLoaderComponent, UiStatCardComponent
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -46,18 +46,18 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         <div class="stats-row">
           <ui-josanz-stat-card 
             label="Existencias" 
-            [value]="product()?.stock?.toString() || '0'" 
+            [value]="product()?.totalStock?.toString() || '0'" 
             icon="box" 
             [accent]="true">
           </ui-josanz-stat-card>
           <ui-josanz-stat-card 
             label="Precio Unitario" 
-            [value]="formatCurrencyEu(product()?.price || 0)" 
+            [value]="formatCurrencyEu(product()?.dailyRate || 0)" 
             icon="tag">
           </ui-josanz-stat-card>
           <ui-josanz-stat-card 
             label="Valor Stock" 
-            [value]="formatCurrencyEu((product()?.stock || 0) * (product()?.price || 0))" 
+            [value]="formatCurrencyEu((product()?.totalStock || 0) * (product()?.dailyRate || 0))" 
             icon="trending-up">
           </ui-josanz-stat-card>
         </div>
@@ -71,8 +71,8 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
               </div>
               <div class="spec-item">
                 <span class="label">ESTADO DE STOCK</span>
-                <ui-josanz-badge [variant]="(product()?.stock || 0) < 5 ? 'warning' : 'success'">
-                  {{ (product()?.stock || 0) < 5 ? 'CRÍTICO' : 'OPTIMO' }}
+                <ui-josanz-badge [variant]="(product()?.totalStock || 0) < 5 ? 'warning' : 'success'">
+                  {{ (product()?.totalStock || 0) < 5 ? 'CRÍTICO' : 'OPTIMO' }}
                 </ui-josanz-badge>
               </div>
               <div class="spec-item">

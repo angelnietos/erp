@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiCardComponent, UiButtonComponent, UiBadgeComponent,
+  UiCardComponent, UiButtonComponent,
   UiLoaderComponent, UiTableComponent, UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
@@ -35,7 +35,7 @@ export interface Budget {
   standalone: true,
   imports: [
     CommonModule, RouterModule, LucideAngularModule,
-    UiCardComponent, UiButtonComponent, UiBadgeComponent,
+    UiCardComponent, UiButtonComponent, 
     UiLoaderComponent, UiTableComponent, UiStatCardComponent
   ],
   template: `

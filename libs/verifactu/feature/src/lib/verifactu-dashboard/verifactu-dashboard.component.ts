@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiLoaderComponent, UiStatCardComponent, UiSearchComponent
+  UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
@@ -15,7 +15,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 	imports: [
     CommonModule, FormsModule, LucideAngularModule,
     UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent, UiSearchComponent
+    UiStatCardComponent
   ],
 	template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -80,7 +80,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                        <tr class="luxe-row">
                           <td class="font-mono">{{ record.id.slice(0, 8) }}</td>
                           <td>{{ formatDate(record.createdAt) }}</td>
-                          <td class="font-mono">{{ formatCurrency(record.amount) }}</td>
+                          <td class="font-mono">{{ formatCurrency(record.total) }}</td>
                           <td>
                              <ui-josanz-badge [variant]="getStatusVariant(record.status)">
                                 {{ record.status }}

@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
-import { NavMenuComponent, NavMenuItem } from '@josanz-erp/shared-ui-kit';
+import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
 @Component({
   selector: 'josanz-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, NavMenuComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `
     <aside 
       class="sidebar-container" 
