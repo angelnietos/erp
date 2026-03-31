@@ -49,7 +49,7 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
+          <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
             NUEVO EXPEDIENTE
           </ui-josanz-button>
         </div>

@@ -34,7 +34,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
           </div>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button variant="glass" size="md" routerLink="/budgets/create" icon="plus">
+          <ui-josanz-button variant="app" size="md" routerLink="/budgets/create" icon="plus">
             NUEVO PRESUPUESTO
           </ui-josanz-button>
         }

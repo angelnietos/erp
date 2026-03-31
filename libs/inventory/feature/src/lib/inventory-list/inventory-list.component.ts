@@ -55,7 +55,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         </div>
         <div class="header-actions">
           @if (config.enableCreate) {
-            <ui-josanz-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
+            <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
               NUEVO PRODUCTO
             </ui-josanz-button>
           }

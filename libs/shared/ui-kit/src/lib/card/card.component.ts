@@ -47,16 +47,18 @@ export type CardVariant = 'default' | 'filled' | 'glass' | 'bordered' | 'elevate
       display: flex;
       flex-direction: column;
       position: relative;
-      box-shadow: var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.25)), var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.05));
+      box-shadow: 
+        0 10px 40px -10px rgba(0,0,0,0.5),
+        var(--shadow-inset-shine);
     }
 
     .card-header {
-      padding: 0.65rem 1rem;
+      padding: 0.85rem 1.25rem;
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
+      background: rgba(255, 255, 255, 0.015);
     }
 
     .header-main { display: flex; flex-direction: column; gap: 0.25rem; }

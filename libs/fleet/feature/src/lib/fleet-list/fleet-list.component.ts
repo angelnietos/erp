@@ -53,7 +53,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
+          <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
             NUEVA UNIDAD
           </ui-josanz-button>
         </div>

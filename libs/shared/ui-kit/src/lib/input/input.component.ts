@@ -44,34 +44,31 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined'
     .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--text-secondary);
-      margin-left: 4px; font-family: var(--font-display);
+      font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-muted);
+      margin-left: 12px; font-family: var(--font-display);
     }
 
     .input-wrapper { position: relative; display: flex; align-items: center; }
 
-    .field-icon {
-      position: absolute; left: 1.1rem; width: 1.1rem; height: 1.1rem;
-      color: var(--text-muted); pointer-events: none; transition: var(--transition-base);
-    }
-
     input {
-      width: 100%; padding: 0.9rem 1.1rem;
-      background: var(--bg-tertiary); border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md); color: var(--text-primary);
-      font-size: 0.85rem; font-weight: 500; transition: var(--transition-base);
+      width: 100%; padding: 0.8rem 1.25rem;
+      background: rgba(255, 255, 255, 0.02); 
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md); 
+      color: var(--text-primary);
+      font-size: 0.8rem; font-weight: 600; 
+      transition: var(--transition-base);
       outline: none; font-family: var(--font-main);
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    input::placeholder { color: var(--text-muted); opacity: 0.4; }
-
-    .has-icon input { padding-left: 3rem; }
+    input::placeholder { color: var(--text-muted); opacity: 0.3; }
 
     input:focus {
-      background: var(--bg-secondary); border-color: var(--brand);
-      box-shadow: 0 0 0 1px var(--brand-border-soft, transparent), 0 0 28px var(--brand-glow);
+      background: rgba(255, 255, 255, 0.04); 
+      border-color: var(--brand);
+      box-shadow: 0 0 24px var(--brand-glow), inset 0 0 0 1px var(--brand-border-soft);
     }
 
     input:focus-visible {

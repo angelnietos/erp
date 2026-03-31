@@ -17,57 +17,40 @@ export type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'default' 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 0.2rem 0.55rem;
+      gap: 8px;
+      padding: 0.25rem 0.75rem;
       border-radius: 100px;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       font-family: var(--font-display);
       border: 1px solid transparent;
       white-space: nowrap;
+      transition: var(--transition-base);
     }
+    
+    .badge:hover { transform: scale(1.05); }
 
     .dot {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: currentColor;
+      box-shadow: 0 0 8px currentColor;
     }
 
-    /* Variants */
     .badge-primary {
-      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
+      background: var(--brand-ambient-strong);
       color: var(--brand);
-      border-color: var(--brand-border-soft, color-mix(in srgb, var(--brand) 32%, transparent));
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+      border-color: var(--brand-border-soft);
     }
 
-    .badge-success {
-      background: rgba(0, 210, 138, 0.1);
-      color: var(--success);
-      border-color: rgba(0, 210, 138, 0.2);
-    }
-
-    .badge-warning {
-      background: rgba(255, 184, 0, 0.1);
-      color: var(--warning);
-      border-color: rgba(255, 184, 0, 0.2);
-    }
-
-    .badge-error {
-      background: rgba(255, 75, 75, 0.1);
-      color: var(--danger);
-      border-color: rgba(255, 75, 75, 0.2);
-    }
-
-    .badge-info {
-      background: rgba(0, 136, 255, 0.1);
-      color: var(--info);
-      border-color: rgba(0, 136, 255, 0.2);
-    }
-
+    .badge-success { background: rgba(0, 242, 173, 0.12); color: var(--success); border-color: rgba(0, 242, 173, 0.25); }
+    .badge-warning { background: rgba(255, 202, 58, 0.12); color: var(--warning); border-color: rgba(255, 202, 58, 0.25); }
+    .badge-error { background: rgba(255, 94, 108, 0.12); color: var(--danger); border-color: rgba(255, 94, 108, 0.25); }
+    .badge-info { background: rgba(63, 193, 255, 0.12); color: var(--info); border-color: rgba(63, 193, 255, 0.25); }
+    
     .badge-default {
       background: var(--bg-tertiary);
       color: var(--text-secondary);

@@ -54,7 +54,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         </div>
         <div class="header-actions">
            @if (config.enableCreate) {
-             <ui-josanz-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
+             <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
                EMITIR FACTURA
              </ui-josanz-button>
            }
