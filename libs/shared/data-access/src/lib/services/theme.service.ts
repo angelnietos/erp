@@ -50,6 +50,10 @@ export interface ThemeConfig {
   bgSecondary: string;
   bgTertiary: string;
   bgStyle: 'aurora' | 'matrix' | 'nebula' | 'grid' | 'bokeh' | 'spot';
+  success: string;
+  warning: string;
+  danger: string;
+  info: string;
 }
 
 export const THEMES: Record<Theme, ThemeConfig> = {
@@ -66,7 +70,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(67, 56, 202, 0.35)',
     bgSecondary: '#ffffff',
     bgTertiary: '#e8edf5',
-    bgStyle: 'bokeh'
+    bgStyle: 'bokeh',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6'
   },
   dark: {
     name: 'Noir Circuit',
@@ -81,7 +89,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(255, 59, 59, 0.42)',
     bgSecondary: '#0c0c0f',
     bgTertiary: '#15151a',
-    bgStyle: 'nebula'
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ff3b3b',
+    info: '#38bdf8'
   },
   blue: {
     name: 'Helix Blue',
@@ -96,7 +108,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(56, 189, 248, 0.45)',
     bgSecondary: '#0a1220',
     bgTertiary: '#111e33',
-    bgStyle: 'nebula'
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#f43f5e',
+    info: '#38bdf8'
   },
   green: {
     name: 'Signal Matrix',
@@ -111,7 +127,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(16, 185, 129, 0.4)',
     bgSecondary: '#0f1510',
     bgTertiary: '#1a241b',
-    bgStyle: 'matrix'
+    bgStyle: 'matrix',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#10b981'
   },
   purple: {
     name: 'Void Spiral',
@@ -126,7 +146,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(139, 92, 246, 0.4)',
     bgSecondary: '#140028',
     bgTertiary: '#1e003c',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#f43f5e',
+    info: '#8b5cf6'
   },
   orange: {
     name: 'Solar Forge',
@@ -141,7 +165,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(249, 115, 22, 0.4)',
     bgSecondary: '#1a0d00',
     bgTertiary: '#2d1600',
-    bgStyle: 'spot'
+    bgStyle: 'spot',
+    success: '#10b981',
+    warning: '#f97316',
+    danger: '#ef4444',
+    info: '#f97316'
   },
   rose: {
     name: 'Cyber-Rose',
@@ -156,7 +184,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(244, 63, 94, 0.4)',
     bgSecondary: '#1a000d',
     bgTertiary: '#2d0016',
-    bgStyle: 'bokeh'
+    bgStyle: 'bokeh',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#f43f5e',
+    info: '#f43f5e'
   },
   slate: {
     name: 'Technical-Slate',
@@ -171,7 +203,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(100, 116, 139, 0.4)',
     bgSecondary: '#1e293b',
     bgTertiary: '#334155',
-    bgStyle: 'grid'
+    bgStyle: 'grid',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#64748b'
   },
   zinc: {
     name: 'Monochrome',
@@ -186,7 +222,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(113, 113, 122, 0.4)',
     bgSecondary: '#18181b',
     bgTertiary: '#27272a',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#71717a'
   },
   neutral: {
     name: 'Raw-Metal',
@@ -201,7 +241,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(115, 115, 115, 0.4)',
     bgSecondary: '#171717',
     bgTertiary: '#262626',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#737373'
   },
   cyan: {
     name: 'Arctic-Pulse',
@@ -216,7 +260,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(6, 182, 212, 0.45)',
     bgSecondary: '#082028',
     bgTertiary: '#0c2e38',
-    bgStyle: 'nebula'
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4'
   },
   teal: {
     name: 'Abyss-Teal',
@@ -231,7 +279,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(20, 184, 166, 0.45)',
     bgSecondary: '#0a1f1c',
     bgTertiary: '#0f2e29',
-    bgStyle: 'nebula'
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#14b8a6'
   },
   amber: {
     name: 'Forge-Amber',
@@ -246,7 +298,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(245, 158, 11, 0.45)',
     bgSecondary: '#1c1400',
     bgTertiary: '#2d1f00',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#f59e0b'
   },
   indigo: {
     name: 'Nebula-Indigo',
@@ -261,7 +317,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(99, 102, 241, 0.45)',
     bgSecondary: '#0f1020',
     bgTertiary: '#16182e',
-    bgStyle: 'nebula'
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#6366f1'
   },
   lime: {
     name: 'Acid-Lime',
@@ -276,7 +336,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(132, 204, 22, 0.45)',
     bgSecondary: '#121a05',
     bgTertiary: '#1c2608',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#84cc16'
   },
   violet: {
     name: 'Ultra-Violet',
@@ -291,7 +355,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(124, 58, 237, 0.45)',
     bgSecondary: '#14082a',
     bgTertiary: '#1c0c3d',
-    bgStyle: 'nebula'
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#7c3aed'
   },
   crimson: {
     name: 'Crimson-Code',
@@ -306,7 +374,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(225, 29, 72, 0.45)',
     bgSecondary: '#1a0510',
     bgTertiary: '#2d0819',
-    bgStyle: 'matrix'
+    bgStyle: 'matrix',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#e11d48'
   },
   mint: {
     name: 'Mint-Signal',
@@ -321,7 +393,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(52, 211, 153, 0.45)',
     bgSecondary: '#0a1812',
     bgTertiary: '#0f241b',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#34d399'
   },
   coral: {
     name: 'Coral-Neon',
@@ -336,7 +412,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(251, 113, 133, 0.45)',
     bgSecondary: '#1a0a10',
     bgTertiary: '#2d1018',
-    bgStyle: 'bokeh'
+    bgStyle: 'bokeh',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#fb7185'
   },
   gold: {
     name: 'Vinewood Gold',
@@ -351,7 +431,11 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     brandGlow: 'rgba(245, 197, 24, 0.48)',
     bgSecondary: '#121008',
     bgTertiary: '#1f1a0c',
-    bgStyle: 'aurora'
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#f5c518'
   },
 };
 

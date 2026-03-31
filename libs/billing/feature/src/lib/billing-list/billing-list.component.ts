@@ -285,7 +285,7 @@ export class BillingListComponent implements OnInit {
   private readonly facade = inject(BillingFacade);
   readonly verifactuStore = inject(VerifactuStore);
 
-  currentTheme = this.themeService.currentTheme;
+  currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
   columns = this.config.defaultColumns;
 
