@@ -21,7 +21,7 @@ import {
   PieChart, CheckSquare, PenTool, RotateCcw, 
   DollarSign, Archive, Shield, AlertOctagon, 
   BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag,
-  Puzzle, Sliders, Settings2
+  Puzzle, Sliders, Settings2, FileWarning, UploadCloud, Printer, Timer, FileUp, Wallet, HelpCircle
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -49,7 +49,7 @@ export const appConfig: ApplicationConfig = {
       PieChart, CheckSquare, PenTool, RotateCcw, 
       DollarSign, Archive, Shield, AlertOctagon, 
       BarChart3, Layers, Wrench, Activity, Camera, Clapperboard, Info, Tag,
-      Puzzle, Sliders, Settings2
+      Puzzle, Sliders, Settings2, FileWarning, UploadCloud, Printer, Timer, FileUp, Wallet, HelpCircle
     })),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
   ],
