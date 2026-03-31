@@ -56,6 +56,7 @@ export interface ThemeConfig {
   bgSecondary: string;
   bgTertiary: string;
   bgStyle: 'aurora' | 'matrix' | 'nebula' | 'grid' | 'bokeh' | 'spot';
+  uiVariant: 'glass' | 'solid' | 'flat' | 'neumorphic' | 'minimal';
   success: string;
   warning: string;
   danger: string;
@@ -80,7 +81,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#3b82f6'
+    info: '#3b82f6',
+    uiVariant: 'solid'
   },
   dark: {
     name: 'Noir Circuit',
@@ -99,7 +101,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ff3b3b',
-    info: '#38bdf8'
+    info: '#38bdf8',
+    uiVariant: 'glass'
   },
   blue: {
     name: 'Helix Blue',
@@ -118,7 +121,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#f43f5e',
-    info: '#38bdf8'
+    info: '#38bdf8',
+    uiVariant: 'glass'
   },
   green: {
     name: 'Signal Matrix',
@@ -137,7 +141,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#10b981'
+    info: '#10b981',
+    uiVariant: 'glass'
   },
   purple: {
     name: 'Void Spiral',
@@ -156,7 +161,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#f43f5e',
-    info: '#8b5cf6'
+    info: '#8b5cf6',
+    uiVariant: 'glass'
   },
   orange: {
     name: 'Solar Forge',
@@ -175,7 +181,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f97316',
     danger: '#ef4444',
-    info: '#f97316'
+    info: '#f97316',
+    uiVariant: 'minimal'
   },
   rose: {
     name: 'Cyber-Rose',
@@ -194,7 +201,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#f43f5e',
-    info: '#f43f5e'
+    info: '#f43f5e',
+    uiVariant: 'glass'
   },
   slate: {
     name: 'Technical-Slate',
@@ -213,7 +221,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#64748b'
+    info: '#64748b',
+    uiVariant: 'neumorphic'
   },
   zinc: {
     name: 'Monochrome',
@@ -232,7 +241,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#71717a'
+    info: '#71717a',
+    uiVariant: 'neumorphic'
   },
   neutral: {
     name: 'Raw-Metal',
@@ -251,7 +261,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#737373'
+    info: '#737373',
+    uiVariant: 'minimal'
   },
   cyan: {
     name: 'Arctic-Pulse',
@@ -270,7 +281,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#06b6d4'
+    info: '#06b6d4',
+    uiVariant: 'minimal'
   },
   teal: {
     name: 'Abyss-Teal',
@@ -289,7 +301,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#14b8a6'
+    info: '#14b8a6',
+    uiVariant: 'minimal'
   },
   amber: {
     name: 'Forge-Amber',
@@ -308,7 +321,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#f59e0b'
+    info: '#f59e0b',
+    uiVariant: 'minimal'
   },
   indigo: {
     name: 'Nebula-Indigo',
@@ -327,7 +341,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#6366f1'
+    info: '#6366f1',
+    uiVariant: 'minimal'
   },
   lime: {
     name: 'Acid-Lime',
@@ -346,7 +361,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#84cc16'
+    info: '#84cc16',
+    uiVariant: 'minimal'
   },
   violet: {
     name: 'Ultra-Violet',
@@ -365,7 +381,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#7c3aed'
+    info: '#7c3aed',
+    uiVariant: 'minimal'
   },
   crimson: {
     name: 'Crimson-Code',
@@ -384,7 +401,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#e11d48'
+    info: '#e11d48',
+    uiVariant: 'minimal'
   },
   mint: {
     name: 'Mint-Signal',
@@ -403,7 +421,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#34d399'
+    info: '#34d399',
+    uiVariant: 'glass'
   },
   coral: {
     name: 'Coral-Neon',
@@ -422,7 +441,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#fb7185'
+    info: '#fb7185',
+    uiVariant: 'glass'
   },
   gold: {
     name: 'Vinewood Gold',
@@ -441,7 +461,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#f5c518'
+    info: '#f5c518',
+    uiVariant: 'glass'
   },
   'corporate-light': {
     name: 'Corporate Light',
@@ -460,7 +481,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#059669',
     warning: '#f59e0b',
     danger: '#dc2626',
-    info: '#0284c7'
+    info: '#0284c7',
+    uiVariant: 'solid'
   },
   'classic-dark': {
     name: 'Classic Dark',
@@ -479,7 +501,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#3b82f6'
+    info: '#3b82f6',
+    uiVariant: 'solid'
   },
   nordic: {
     name: 'Nordic Frost',
@@ -498,7 +521,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#a3be8c',
     warning: '#ebcb8b',
     danger: '#bf616a',
-    info: '#5e81ac'
+    info: '#5e81ac',
+    uiVariant: 'flat'
   },
   latte: {
     name: 'Vanilla Latte',
@@ -517,7 +541,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#15803d',
     warning: '#c2410c',
     danger: '#b91c1c',
-    info: '#0369a1'
+    info: '#0369a1',
+    uiVariant: 'flat'
   },
   'forest-dark': {
     name: 'Deep Forest',
@@ -536,7 +561,8 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     success: '#10b981',
     warning: '#eab308',
     danger: '#ef4444',
-    info: '#3b82f6'
+    info: '#3b82f6',
+    uiVariant: 'flat'
   }
 };
 
@@ -601,6 +627,7 @@ export class ThemeService {
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
     
     root.setAttribute('data-theme', theme);
+    root.setAttribute('data-ui-variant', config.uiVariant || 'glass');
   }
 
   private applyPerformanceMode(isHighPerf: boolean) {

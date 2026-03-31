@@ -108,6 +108,7 @@ h1, h2, h3, h4, h5, h6 {
 .glow-text {
   background: linear-gradient(to bottom, #fff 40%, rgba(255,255,255,0.7) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -121,11 +122,8 @@ h1, h2, h3, h4, h5, h6 {
 /* --- PERFORMANCE & QUALITY MODES --- */
 
 .premium-mode .ui-glass {
-  backdrop-filter: blur(28px) saturate(1.8) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
-  background: var(--surface) !important;
-  border: 1px solid var(--border-vibrant) !important;
-  box-shadow: var(--shadow-md), var(--shadow-inset-shine) !important;
+  backdrop-filter: blur(var(--variant-blur, 28px)) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(var(--variant-blur, 28px)) saturate(1.8) !important;
 }
 
 .premium-mode .ui-neon:hover {
@@ -151,17 +149,59 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none !important;
 }
 
-/* UI Variant Utilities */
+/* --- STRUCTURAL ENFORCEMENT MIXINS (data-ui-variant) --- */
+html[data-ui-variant="glass"] {
+  --variant-bg: var(--surface);
+  --variant-blur: 28px;
+  --variant-border: 1px solid var(--border-vibrant);
+  --variant-shadow: var(--shadow-md), var(--shadow-inset-shine);
+  --variant-radius: var(--radius-lg);
+}
+
+html[data-ui-variant="solid"] {
+  --variant-bg: var(--bg-secondary);
+  --variant-blur: 0px;
+  --variant-border: 1px solid var(--border-soft);
+  --variant-shadow: 0 4px 12px rgba(0,0,0, 0.08);
+  --variant-radius: var(--radius-md);
+}
+
+html[data-ui-variant="flat"] {
+  --variant-bg: var(--surface);
+  --variant-blur: 0px;
+  --variant-border: none;
+  --variant-shadow: 0 1px 3px rgba(0,0,0, 0.05);
+  --variant-radius: var(--radius-sm);
+}
+
+html[data-ui-variant="neumorphic"] {
+  --variant-bg: var(--surface);
+  --variant-blur: 0px;
+  --variant-border: 1px solid var(--border-soft);
+  --variant-shadow: -4px -4px 10px rgba(255,255,255,0.03), 8px 8px 20px rgba(0,0,0,0.6);
+  --variant-radius: var(--radius-xl);
+}
+
+html[data-ui-variant="minimal"] {
+  --variant-bg: transparent;
+  --variant-blur: 0px;
+  --variant-border: 1px solid var(--border-soft);
+  --variant-shadow: none;
+  --variant-radius: 4px;
+}
+
+/* UI Variant Utilities - Bound to Mixins */
 .ui-glass {
-  background: var(--surface);
-  border: 1px solid var(--border-vibrant);
-  border-radius: var(--radius-lg);
+  background: var(--variant-bg, var(--surface));
+  border: var(--variant-border, 1px solid var(--border-vibrant));
+  border-radius: var(--variant-radius, var(--radius-lg));
+  box-shadow: var(--variant-shadow, var(--shadow-md));
 }
 
 .ui-filled {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
+  border-radius: var(--variant-radius, var(--radius-lg));
 }
 
 .ui-accent {
@@ -208,14 +248,8 @@ h1, h2, h3, h4, h5, h6 {
 /* PREMIUM MODE: Immersive High-Fidelity (Default) */
 .premium-mode .ui-glass,
 .premium-mode .glass-effect {
-  background: var(--surface) !important;
-  backdrop-filter: blur(32px) saturate(1.8) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(1.8) !important;
-  border: 1px solid var(--border-vibrant) !important;
-  box-shadow: 
-    var(--shadow-md), 
-    var(--shadow-inset-shine),
-    0 0 40px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(var(--variant-blur, 32px)) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(var(--variant-blur, 32px)) saturate(1.8) !important;
 }
 
 .premium-mode .ui-neon:hover {
