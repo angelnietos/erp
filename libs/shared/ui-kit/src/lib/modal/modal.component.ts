@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 export type ModalColor = 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
 export type ModalShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumorphic' | 'minimal' | 'fullscreen';
+export type ModalVariant = string;
 
 @Component({
   selector: 'ui-josanz-modal',

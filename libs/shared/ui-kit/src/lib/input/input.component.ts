@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 export type InputColor = 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
 export type InputShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumorphic' | 'underline' | 'minimal' | 'rounded';
+export type InputVariant = string;
 
 @Component({
   selector: 'ui-josanz-input',

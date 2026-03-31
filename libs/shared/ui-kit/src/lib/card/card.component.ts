@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 export type CardColor = 'default' | 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info' | 'brand';
 export type CardShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumorphic' | 'gradient' | 'minimal';
+export type CardVariant = string;
 
 @Component({
   selector: 'ui-josanz-card',

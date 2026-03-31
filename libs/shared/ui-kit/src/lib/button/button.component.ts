@@ -4,6 +4,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 export type ButtonColor = 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info' | 'app' | 'default';
 export type ButtonShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'ghost' | 'neumorphic' | 'gradient' | 'soft' | 'link';
+export type ButtonVariant = string;
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
