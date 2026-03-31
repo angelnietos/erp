@@ -135,9 +135,24 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/billing', inv.id]"></ui-josanz-button>
-                    @if (config.enableVerifactu) {
-                       <ui-josanz-button variant="ghost" size="sm" icon="qr-code" (clicked)="viewVerifactuQr(inv)"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/billing', inv.id]" title="Ver Detalle"></ui-josanz-button>
+                    
+                    @if (inv.status === 'draft') {
+                      <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editInvoice(inv)" title="Editar Borrador"></ui-josanz-button>
+                      <ui-josanz-button variant="ghost" size="sm" icon="play" (clicked)="issueInvoice(inv)" [style.color]="currentTheme().success" title="Emitir Factura"></ui-josanz-button>
+                    }
+                    
+                    @if (inv.status !== 'draft' && config.enableVerifactu) {
+                       @if (!inv.verifactuStatus || inv.verifactuStatus === 'pending') {
+                         <ui-josanz-button variant="ghost" size="sm" icon="upload-cloud" (clicked)="sendToVerifactu(inv)" [style.color]="currentTheme().warning" title="Firmar y Enviar a AEAT"></ui-josanz-button>
+                       }
+                       @if (inv.verifactuStatus === 'sent') {
+                         <ui-josanz-button variant="ghost" size="sm" icon="file-warning" (clicked)="rectifyInvoice(inv)" title="Rectificar Anulación AEAT"></ui-josanz-button>
+                         <ui-josanz-button variant="ghost" size="sm" icon="qr-code" (clicked)="viewVerifactuQr(inv)" title="Ver Certificado Legal"></ui-josanz-button>
+                       }
+                       @if (inv.verifactuStatus === 'error') {
+                         <ui-josanz-button variant="ghost" size="sm" icon="refresh-cw" (clicked)="sendToVerifactu(inv)" [style.color]="currentTheme().danger" title="Reintentar Envío AEAT"></ui-josanz-button>
+                       }
                     }
                   </div>
                 }
@@ -328,10 +343,29 @@ export class BillingListComponent implements OnInit {
     this.closeModal();
   }
 
+  issueInvoice(inv: Invoice) {
+    if (!inv.id) return;
+    this.facade.updateInvoice(inv.id, { status: 'pending' });
+  }
+
   viewVerifactuQr(invoice: Invoice): void {
     this.verifactuStore.clearError();
     this.isVerifactuQrModalOpen.set(true);
     this.verifactuStore.loadInvoiceDetailWithQr(invoice.id);
+  }
+
+  sendToVerifactu(inv: Invoice): void {
+    if (!inv.id) return;
+    this.verifactuStore.submitInvoiceDirect(inv.id, 'TENANT-PRO-2026');
+    this.facade.updateInvoice(inv.id, { verifactuStatus: 'sent' });
+  }
+
+  rectifyInvoice(inv: Invoice): void {
+    if (!inv.id) return;
+    if (confirm(`¿Estás seguro de que deseas emitir una factura rectificativa para ${inv.invoiceNumber} y notificar a la AEAT?`)) {
+      this.verifactuStore.cancelInvoice(inv.id, 'TENANT-PRO-2026');
+      this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
+    }
   }
 
   closeVerifactuQrModal(): void {

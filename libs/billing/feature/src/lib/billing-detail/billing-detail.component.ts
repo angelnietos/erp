@@ -11,7 +11,8 @@ import {
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
-import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
+import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
+import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 
 @Component({
   selector: 'lib-billing-detail',
@@ -49,11 +50,22 @@ import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
           </div>
           <div class="header-actions">
             <ui-josanz-button variant="glass" icon="printer" (clicked)="printInvoice()">IMPRIMIR</ui-josanz-button>
+            @if (inv.status === 'draft') {
+              <ui-josanz-button variant="primary" icon="play" (clicked)="issueInvoice()">EMITIR FACTURA</ui-josanz-button>
+            }
             @if (inv.status === 'pending') {
               <ui-josanz-button variant="primary" icon="check-circle" (clicked)="markAsPaid()">NOTIFICAR PAGO</ui-josanz-button>
             }
-            @if (inv.verifactuStatus !== 'sent') {
-              <ui-josanz-button variant="app" icon="shield-check" (clicked)="sendToAEAT()">ENVIAR AEAT</ui-josanz-button>
+            @if (inv.status !== 'draft') {
+               @if (!inv.verifactuStatus || inv.verifactuStatus === 'pending') {
+                 <ui-josanz-button variant="app" icon="shield-check" (clicked)="sendToAEAT()">ENVIAR AEAT</ui-josanz-button>
+               }
+               @if (inv.verifactuStatus === 'sent') {
+                 <ui-josanz-button variant="outline" icon="file-warning" (clicked)="rectifyInvoice()">RECTIFICAR FACTURA</ui-josanz-button>
+               }
+               @if (inv.verifactuStatus === 'error') {
+                 <ui-josanz-button variant="app" icon="refresh-cw" (clicked)="sendToAEAT()">REINTENTAR AEAT</ui-josanz-button>
+               }
             }
           </div>
         </header>
@@ -224,6 +236,8 @@ import { Invoice, InvoiceService } from '@josanz-erp/billing-data-access';
 export class BillingDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly invoiceService = inject(InvoiceService);
+  private readonly facade = inject(BillingFacade);
+  private readonly verifactuStore = inject(VerifactuStore);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -330,6 +344,36 @@ export class BillingDetailComponent implements OnInit {
   }
 
   printInvoice() { window.print(); }
-  markAsPaid() { /* TODO */ }
-  sendToAEAT() { /* TODO */ }
+  
+  issueInvoice() {
+     const inv = this.invoice();
+     if (!inv) return;
+     this.facade.updateInvoice(inv.id, { status: 'pending' });
+     this.invoice.update(i => i ? { ...i, status: 'pending' } : i);
+  }
+
+  markAsPaid() { 
+     const inv = this.invoice();
+     if (!inv) return;
+     this.facade.markAsPaid(inv.id);
+     this.invoice.update(i => i ? { ...i, status: 'paid' } : i);
+  }
+
+  sendToAEAT() { 
+     const inv = this.invoice();
+     if (!inv) return;
+     this.verifactuStore.submitInvoiceDirect(inv.id, 'TENANT-PRO-2026');
+     this.facade.updateInvoice(inv.id, { verifactuStatus: 'sent' });
+     this.invoice.update(i => i ? { ...i, verifactuStatus: 'sent' } : i);
+  }
+
+  rectifyInvoice() {
+     const inv = this.invoice();
+     if (!inv) return;
+     if (confirm(`¿Estás seguro de que deseas emitir una factura rectificativa para ${inv.invoiceNumber}?`)) {
+       this.verifactuStore.cancelInvoice(inv.id, 'TENANT-PRO-2026');
+       this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
+       this.invoice.update(i => i ? { ...i, status: 'cancelled', verifactuStatus: 'error' } : i);
+     }
+  }
 }
