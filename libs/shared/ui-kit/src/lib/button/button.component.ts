@@ -2,7 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'warning' | 'glass' | 'filled' | 'outline' | 'outline-primary' | 'outline-secondary' | 'outline-danger' | 'soft' | 'link' | 'gradient' | 'app';
+export type ButtonColor = 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info' | 'app' | 'default';
+export type ButtonShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'ghost' | 'neumorphic' | 'gradient' | 'soft' | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
@@ -13,23 +14,10 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     <button 
       [type]="type" 
       class="btn"
-      [class.btn-primary]="variant === 'primary'"
-      [class.btn-secondary]="variant === 'secondary'"
-      [class.ui-glass]="variant === 'glass'"
-      [class.ui-filled]="variant === 'filled'"
-      [class.ui-ghost]="variant === 'ghost'"
-      [class.btn-danger]="variant === 'danger'"
-      [class.btn-success]="variant === 'success'"
-      [class.btn-warning]="variant === 'warning'"
-      [class.btn-outline]="variant === 'outline'"
-      [class.btn-outline-primary]="variant === 'outline-primary'"
-      [class.btn-outline-secondary]="variant === 'outline-secondary'"
-      [class.btn-outline-danger]="variant === 'outline-danger'"
-      [class.btn-soft]="variant === 'soft'"
-      [class.btn-link]="variant === 'link'"
-      [class.btn-gradient]="variant === 'gradient'"
-      [class.btn-app]="variant === 'app'"
+      [class]="'btn-color-' + color"
+      [class]="'btn-shape-' + shape"
       [class]="'btn-' + size"
+      [class.btn-auto-overrides]="shape === 'auto'"
       [disabled]="disabled || loading"
       (click)="clicked.emit($event)"
     >
@@ -46,190 +34,126 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   styles: [`
     .btn {
       position: relative;
-      border: none;
-      border-radius: var(--radius-lg);
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       justify-content: center;
       align-items: center;
       gap: 12px;
-      transition: var(--transition-base);
-      font-family: var(--font-display);
+      transition: all var(--transition-base, 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+      font-family: var(--font-display, inherit);
       text-transform: uppercase;
       letter-spacing: 0.12em;
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
-      border: 1px solid transparent;
+      /* Inherit dynamic global shape by default */
+      border-radius: var(--variant-radius, 12px);
     }
 
     .btn:focus-visible {
-      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
+      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--btn-bg) 50%, transparent));
       outline-offset: 3px;
     }
 
     .btn:disabled {
       opacity: 0.4;
       cursor: not-allowed;
-      filter: grayscale(0.5);
+      filter: grayscale(0.6);
+      transform: none !important;
+      box-shadow: none !important;
     }
-
-    .btn:active:not(:disabled) { transform: scale(0.94); }
 
     .btn-sm { padding: 0.45rem 0.85rem; font-size: 0.58rem; gap: 6px; }
     .btn-md { padding: 0.55rem 1.15rem; font-size: 0.62rem; }
     .btn-lg { padding: 0.7rem 1.5rem; font-size: 0.68rem; }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-muted) 100%);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 
-        0 8px 32px -8px var(--brand-glow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    /* CORE COLOR TOKENS */
+    .btn-color-primary { --btn-bg: var(--brand, #4338ca); --btn-border: var(--brand, #4338ca); --btn-text: #fff; --btn-glow: var(--brand-glow, rgba(67, 56, 202, 0.4)); }
+    .btn-color-danger { --btn-bg: var(--danger, #ef4444); --btn-border: var(--danger, #ef4444); --btn-text: #fff; --btn-glow: rgba(239, 68, 68, 0.4); }
+    .btn-color-success { --btn-bg: var(--success, #10b981); --btn-border: var(--success, #10b981); --btn-text: #fff; --btn-glow: rgba(16, 185, 129, 0.4); }
+    .btn-color-warning { --btn-bg: var(--warning, #f59e0b); --btn-border: var(--warning, #f59e0b); --btn-text: #fff; --btn-glow: rgba(245, 158, 11, 0.4); }
+    .btn-color-secondary { --btn-bg: var(--secondary, #64748b); --btn-border: var(--secondary, #64748b); --btn-text: #fff; --btn-glow: rgba(100, 116, 139, 0.4); }
+    .btn-color-info { --btn-bg: var(--info, #3b82f6); --btn-border: var(--info, #3b82f6); --btn-text: #fff; --btn-glow: rgba(59, 130, 246, 0.4); }
+    .btn-color-app { --btn-bg: var(--theme-primary, var(--brand, #4338ca)); --btn-border: var(--theme-primary, var(--brand, #4338ca)); --btn-text: #fff; --btn-glow: var(--brand-glow, rgba(67, 56, 202, 0.4)); }
+    .btn-color-default { --btn-bg: var(--bg-tertiary, #1a1a1a); --btn-border: var(--border-soft, #333); --btn-text: var(--text-primary, #fff); --btn-glow: rgba(0,0,0,0.2); }
+
+    /* EXPLICIT STRUCTURAL SHAPES */
+    .btn-shape-auto {
+      /* Uses global Theme HTML data rules magically */
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid var(--btn-border);
+      box-shadow: 0 4px 15px -4px var(--btn-glow);
     }
-    .btn-primary:not(:disabled):hover {
+    .btn-auto-overrides:hover:not(:disabled) {
       filter: brightness(1.15);
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 
-        0 12px 48px -10px var(--brand-glow),
-        0 0 20px var(--brand-glow);
-    }
-
-    .btn-danger { background: rgba(255, 75, 75, 0.1); color: var(--danger); border-color: rgba(255, 75, 75, 0.2); }
-    .btn-danger:hover { background: var(--danger); color: white; }
-
-    .btn-success { background: rgba(0, 210, 138, 0.1); color: var(--success); border-color: rgba(0, 210, 138, 0.2); }
-    .btn-success:hover { background: var(--success); color: white; }
-
-    .btn-secondary {
-      background: var(--brand-secondary, #6366f1);
-      color: white;
-      box-shadow: 0 4px 15px -5px rgba(99, 102, 241, 0.4);
-    }
-    .btn-secondary:not(:disabled):hover {
-      background: #4f46e5;
       transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px var(--btn-glow);
     }
 
-    .btn-warning {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--warning, #f59e0b);
-      border-color: rgba(245, 158, 11, 0.2);
+    .btn-shape-solid {
+      background: var(--btn-bg); color: var(--btn-text);
+      border: 1px solid var(--btn-border);
+      box-shadow: 0 4px 10px -2px var(--btn-glow);
     }
-    .btn-warning:hover {
-      background: var(--warning, #f59e0b);
-      color: white;
-    }
+    .btn-shape-solid:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 15px -4px var(--btn-glow); }
 
-    /* Outline variants */
-    .btn-outline {
-      background: transparent;
-      color: var(--text-primary);
-      border-color: var(--border-soft);
+    .btn-shape-glass {
+      background: color-mix(in srgb, var(--btn-bg) 15%, transparent);
+      color: var(--text-primary, #fff);
+      border: 1px solid color-mix(in srgb, var(--btn-bg) 40%, transparent);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px -5px rgba(0,0,0,0.3);
     }
-    .btn-outline:not(:disabled):hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--brand);
-      box-shadow: 0 0 15px var(--brand-glow);
-    }
+    .btn-shape-glass:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-bg) 35%, transparent); border-color: var(--btn-bg); color: #fff; transform: translateY(-2px); }
 
-    .ui-glass {
-      color: #fff;
-      border: 1px solid var(--border-vibrant);
-      box-shadow: var(--shadow-sm), var(--shadow-inset-shine);
+    .btn-shape-outline {
+      background: transparent; color: var(--btn-bg);
+      border: 2px solid var(--btn-bg);
+      box-shadow: none;
     }
-    .ui-glass:not(:disabled):hover {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border-color: var(--brand) !important;
-      box-shadow: 0 0 25px var(--brand-glow) !important;
-      transform: translateY(-2px);
-    }
+    .btn-shape-outline:hover:not(:disabled) { background: var(--btn-bg); color: var(--btn-text); box-shadow: 0 0 15px var(--btn-glow); }
 
-    .btn-outline-primary {
-      background: transparent;
-      color: var(--brand);
-      border-color: var(--brand);
+    .btn-shape-flat {
+      background: var(--btn-bg); color: var(--btn-text);
+      border: none; border-radius: 4px; box-shadow: none;
     }
-    .btn-outline-primary:not(:disabled):hover {
-      background: var(--brand);
-      color: white;
-    }
+    .btn-shape-flat:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
 
-    .btn-outline-secondary {
-      background: transparent;
-      color: #6366f1;
-      border-color: #6366f1;
-    }
-    .btn-outline-secondary:not(:disabled):hover {
-      background: #6366f1;
-      color: white;
-    }
+    .btn-shape-ghost { background: transparent; color: var(--btn-bg); border: 1px solid transparent; box-shadow: none; }
+    .btn-shape-ghost:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-bg) 15%, transparent); }
 
-    .btn-outline-danger {
-      background: transparent;
-      color: var(--danger, #ef4444);
-      border-color: var(--danger, #ef4444);
+    .btn-shape-neumorphic {
+      background: var(--bg-primary, #050608);
+      color: var(--btn-bg);
+      border: 1px solid var(--border-soft, transparent);
+      border-radius: 24px;
+      box-shadow: -4px -4px 10px rgba(255,255,255,0.02), 4px 4px 10px rgba(0,0,0,0.5);
     }
-    .btn-outline-danger:not(:disabled):hover {
-      background: var(--danger, #ef4444);
-      color: white;
-    }
+    .btn-shape-neumorphic:active:not(:disabled) { box-shadow: inset -4px -4px 10px rgba(255,255,255,0.02), inset 4px 4px 10px rgba(0,0,0,0.5); }
 
-    /* Soft variant */
-    .btn-soft {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
+    .btn-shape-soft {
+      background: color-mix(in srgb, var(--btn-bg) 15%, transparent);
+      color: var(--btn-bg);
       border: none;
     }
-    .btn-soft:not(:disabled):hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+    .btn-shape-soft:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-bg) 25%, transparent); }
 
-    /* Link variant */
-    .btn-link {
-      background: transparent;
-      color: var(--brand);
-      border: none;
-      text-decoration: underline;
-      text-underline-offset: 4px;
+    .btn-shape-gradient {
+      background: linear-gradient(135deg, var(--btn-bg), color-mix(in srgb, var(--btn-bg) 20%, #000));
+      color: #fff; border: none;
+      box-shadow: 0 6px 20px -5px var(--btn-glow), inset 0 1px 0 rgba(255,255,255,0.2);
     }
-    .btn-link:not(:disabled):hover {
-      color: var(--brand-muted);
-    }
+    .btn-shape-gradient:hover:not(:disabled) { filter: brightness(1.15); box-shadow: 0 10px 25px -4px var(--btn-glow); transform: translateY(-2px); }
 
-    /* Gradient variant */
-    .btn-gradient {
-      background: linear-gradient(
-        125deg,
-        var(--brand) 0%,
-        color-mix(in srgb, var(--brand) 35%, #6366f1) 48%,
-        color-mix(in srgb, var(--brand) 20%, #a855f7) 100%
-      );
-      color: white;
-      border: none;
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 12px 40px -14px var(--brand-glow);
+    .btn-shape-link {
+      background: transparent; color: var(--btn-bg); border: none; padding: 0; box-shadow: none;
+      text-decoration: underline; text-underline-offset: 4px; border-radius: 0;
     }
-    .btn-gradient:not(:disabled):hover {
-      filter: brightness(1.06);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 18px 48px -12px var(--brand-glow);
-      transform: translateY(-2px);
-    }
+    .btn-shape-link:hover:not(:disabled) { filter: brightness(1.2); }
 
-    /* App variant - uses current theme's primary color */
-    .btn-app {
-      background: var(--theme-primary, var(--brand));
-      color: white;
-      border: none;
-    }
-    .btn-app:not(:disabled):hover {
-      background: var(--brand-muted, var(--theme-primary));
-      filter: brightness(1.1);
-      transform: translateY(-2px);
-    }
-
-    .btn-icon { width: 1.1rem; height: 1.1rem; }
+    .btn-icon { width: 1.15rem; height: 1.15rem; }
 
     .spinner {
       width: 1.25rem; height: 1.25rem;
@@ -243,11 +167,31 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 })
 export class UiButtonComponent {
   @Input() type: 'button' | 'submit' = 'button';
-  @Input() variant: ButtonVariant = 'primary';
   @Input() size: ButtonSize = 'md';
   @Input() disabled = false;
   @Input() loading = false;
   @Input() icon: string | { name: string } = '';
+  
+  @Input() color: ButtonColor = 'app';
+  @Input() shape: ButtonShape = 'auto';
+
+  // Backwards compatibility layer mapping legacy 'variant' attributes to the new Color/Shape architecture
+  @Input() set variant(val: string) {
+    if (['primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'].includes(val)) {
+      this.color = val as ButtonColor;
+      this.shape = 'auto'; // Will inherit shape natively from active Theme
+    } else if (['glass', 'outline', 'ghost', 'gradient', 'soft', 'link', 'flat', 'neumorphic', 'solid'].includes(val)) {
+      this.shape = val as ButtonShape;
+      // Keep existing color or default
+    } else if (val.startsWith('outline-')) {
+      this.shape = 'outline';
+      this.color = val.split('-')[1] as ButtonColor;
+    } else {
+      this.color = 'default';
+      this.shape = 'auto';
+    }
+  }
+
   @Output() clicked = new EventEmitter<Event>();
 
   getIconName(): string | undefined {

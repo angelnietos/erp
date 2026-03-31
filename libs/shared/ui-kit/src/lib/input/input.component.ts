@@ -3,7 +3,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
-export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined' | 'underline' | 'rounded' | 'error' | 'success' | 'warning' | 'dark' | 'light' | 'minimal';
+export type InputColor = 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info';
+export type InputShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumorphic' | 'underline' | 'minimal' | 'rounded';
 
 @Component({
   selector: 'ui-josanz-input',
@@ -19,7 +20,15 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined'
   template: `
     <div class="form-group" [class.disabled]="disabled">
       @if (label) { <label [for]="id" class="label">{{ label }}</label> }
-      <div class="input-wrapper" [class.has-icon]="icon" [class.has-error]="error" [class.input-outlined]="variant === 'outlined'" [class.input-underline]="variant === 'underline'" [class.input-rounded]="variant === 'rounded'" [class.input-error]="variant === 'error'" [class.input-success]="variant === 'success'" [class.input-warning]="variant === 'warning'" [class.input-dark]="variant === 'dark'" [class.input-light]="variant === 'light'" [class.input-minimal]="variant === 'minimal'">
+      
+      <div 
+        class="input-wrapper" 
+        [class]="'input-color-' + color"
+        [class]="'input-shape-' + shape"
+        [class.input-auto-overrides]="shape === 'auto'"
+        [class.has-icon]="icon" 
+        [class.has-error]="error" 
+      >
         @if (icon) { <lucide-icon [name]="icon" class="field-icon"></lucide-icon> }
         <input 
           [id]="id" 
@@ -29,12 +38,10 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined'
           (input)="onInput($event)"
           (blur)="onBlur()"
           [disabled]="disabled"
-          [class.ui-glass]="variant === 'glass'"
-          [class.ui-filled]="variant === 'filled'"
-          [class.ui-ghost]="variant === 'ghost'"
         >
         <div class="focus-ring"></div>
       </div>
+      
       @if (hint) {
         <span class="hint" [class.error]="error">{{ hint }}</span>
       }
@@ -49,100 +56,142 @@ export type InputVariant = 'default' | 'filled' | 'ghost' | 'glass' | 'outlined'
       margin-left: 12px; font-family: var(--font-display);
     }
 
-    .input-wrapper { position: relative; display: flex; align-items: center; }
-
-    input {
-      width: 100%; padding: 0.8rem 1.25rem;
-      background: rgba(255, 255, 255, 0.02); 
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md); 
-      color: var(--text-primary);
-      font-size: 0.8rem; font-weight: 600; 
-      transition: var(--transition-base);
-      outline: none; font-family: var(--font-main);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    .input-wrapper { 
+      position: relative; display: flex; align-items: center; 
+      /* DOM inherited defaults */
+      --input-bg: var(--surface, rgba(255, 255, 255, 0.02));
+      --input-border: var(--border-soft);
+      --input-radius: var(--radius-md, 8px);
+      --input-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      --input-color: var(--text-primary);
+      --input-glow: var(--brand-glow);
+      --input-focus: var(--brand);
     }
 
-    input::placeholder { color: var(--text-muted); opacity: 0.3; }
+    /* THEMATIC COLOR TOKENS */
+    .input-color-default { --input-focus: var(--brand); --input-glow: var(--brand-glow); }
+    .input-color-primary { --input-bg: color-mix(in srgb, var(--brand) 10%, transparent); --input-border: color-mix(in srgb, var(--brand) 40%, transparent); --input-focus: var(--brand); --input-glow: var(--brand-glow); }
+    .input-color-danger { --input-border: var(--danger); --input-focus: var(--danger); --input-glow: rgba(239, 68, 68, 0.4); }
+    .input-color-success { --input-border: var(--success); --input-focus: var(--success); --input-glow: rgba(16, 185, 129, 0.4); }
+    .input-color-warning { --input-border: var(--warning); --input-focus: var(--warning); --input-glow: rgba(245, 158, 11, 0.4); }
+    .input-color-info { --input-border: var(--info); --input-focus: var(--info); --input-glow: rgba(59, 130, 246, 0.4); }
 
+    /* ERROR OVERRIDE */
+    .input-wrapper.has-error { --input-border: var(--danger); --input-focus: var(--danger); --input-glow: rgba(239, 68, 68, 0.4); }
+
+    /* STRUCTURAL SHAPES */
+    .input-shape-auto {
+      /* Adopts native HTML Token variables */
+    }
+
+    .input-shape-solid {
+      --input-bg: var(--bg-secondary);
+      --input-border: var(--border-soft);
+      --input-radius: 6px;
+      --input-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .input-shape-glass {
+      --input-bg: color-mix(in srgb, var(--surface) 50%, transparent);
+      --input-border: var(--border-vibrant);
+    }
+
+    .input-shape-outline {
+      --input-bg: transparent;
+      --input-border: var(--text-muted);
+      --input-radius: 8px;
+      --input-shadow: none;
+    }
+
+    .input-shape-flat {
+      --input-bg: var(--bg-tertiary);
+      --input-border: transparent;
+      --input-radius: 4px;
+      --input-shadow: none;
+    }
+
+    .input-shape-neumorphic {
+      --input-bg: var(--bg-primary);
+      --input-border: transparent;
+      --input-radius: 16px;
+      --input-shadow: inset -4px -4px 8px rgba(255,255,255,0.02), inset 4px 4px 8px rgba(0,0,0,0.5);
+    }
+
+    .input-shape-underline {
+      --input-bg: transparent;
+      --input-border: transparent;
+      --input-radius: 0;
+      --input-shadow: none;
+    }
+
+    .input-shape-minimal {
+      --input-bg: transparent;
+      --input-border: transparent;
+      --input-radius: 0;
+      --input-shadow: none;
+    }
+
+    .input-shape-rounded {
+      --input-radius: 50px;
+    }
+
+    /* ELEMENT BASE RULES */
+    input {
+      width: 100%; padding: 0.8rem 1.25rem;
+      background: var(--input-bg); 
+      border: 1px solid var(--input-border);
+      border-radius: var(--input-radius); 
+      color: var(--input-color);
+      font-size: 0.8rem; font-weight: 600; 
+      transition: all var(--transition-base, 0.3s ease);
+      outline: none; font-family: var(--font-main);
+      box-shadow: var(--input-shadow);
+      box-sizing: border-box;
+    }
+
+    .input-shape-underline input { border-bottom: 2px solid var(--border-soft); }
+    .input-shape-minimal input { border-bottom: 1px solid var(--border-soft); padding-left: 0; padding-right: 0; }
+    .input-shape-rounded input { padding-left: 1.5rem; padding-right: 1.5rem; }
+
+    /* FOCUS STATES */
     input:focus {
-      background: rgba(255, 255, 255, 0.04); 
-      border-color: var(--brand);
-      box-shadow: 0 0 24px var(--brand-glow), inset 0 0 0 1px var(--brand-border-soft);
+      background: color-mix(in srgb, var(--input-bg) 95%, #fff); 
+      border-color: var(--input-focus);
+      box-shadow: 0 0 24px var(--input-glow), inset 0 0 0 1px var(--input-focus);
     }
 
     input:focus-visible {
-      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
+      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--input-focus) 50%, transparent));
       outline-offset: 2px;
     }
+
+    .input-shape-underline input:focus {
+      box-shadow: none; border-bottom-color: var(--input-focus); background: transparent;
+    }
+    .input-shape-minimal input:focus {
+      box-shadow: none; border-bottom-color: var(--input-focus); background: transparent;
+    }
+    .input-shape-neumorphic input:focus {
+      box-shadow: inset -6px -6px 12px rgba(255,255,255,0.02), inset 6px 6px 12px rgba(0,0,0,0.6);
+      border-color: var(--input-focus);
+    }
     
-    input:focus ~ .field-icon { color: var(--brand); }
+    input::placeholder { color: var(--text-muted); opacity: 0.5; }
+    
+    .has-icon input { padding-left: 2.75rem; }
+    .field-icon { 
+      position: absolute; left: 1rem; width: 1.1rem; height: 1.1rem; 
+      color: var(--text-muted); pointer-events: none; transition: 0.3s;
+    }
+    input:focus ~ .field-icon,
+    input:not(:placeholder-shown) ~ .field-icon { color: var(--input-focus); }
 
-    .has-error input { border-color: var(--danger) !important; }
-    .has-error input:focus { box-shadow: 0 0 20px rgba(255, 75, 75, 0.2) !important; }
+    .input-wrapper.has-error .field-icon { color: var(--danger); }
 
-    input:disabled { opacity: 0.5; cursor: not-allowed; }
+    input:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); }
 
     .hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; margin-left: 4px; font-weight: 500; }
     .hint.error { color: var(--danger); font-weight: 600; }
-
-    /* Additional variants */
-    .input-outlined input {
-      background: transparent;
-      border: 2px solid var(--border-soft);
-    }
-    .input-outlined input:focus {
-      border-color: var(--brand);
-    }
-
-    .input-underline input {
-      border: none;
-      border-bottom: 2px solid var(--border-soft);
-      border-radius: 0;
-      background: transparent;
-    }
-    .input-underline input:focus {
-      border-bottom-color: var(--brand);
-    }
-
-    .input-rounded input {
-      border-radius: 50px;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-
-    .input-error input {
-      border-color: var(--danger);
-    }
-
-    .input-success input {
-      border-color: var(--success);
-    }
-
-    .input-warning input {
-      border-color: var(--warning);
-    }
-
-    .input-dark input {
-      background: rgba(0, 0, 0, 0.3);
-      border-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .input-light input {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .input-minimal input {
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--border-soft);
-    }
-    .input-minimal input:focus {
-      box-shadow: none;
-      border-bottom-color: var(--brand);
-    }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {
@@ -152,8 +201,26 @@ export class UiInputComponent implements ControlValueAccessor {
   @Input() placeholder = '';
   @Input() icon = '';
   @Input() hint?: string;
-  @Input() variant: InputVariant = 'default';
   @Input() error = false;
+
+  @Input() color: InputColor = 'default';
+  @Input() shape: InputShape = 'auto';
+
+  // Backwards compatibility mapper for legacy code
+  @Input() set variant(val: string) {
+    if (['error', 'success', 'warning', 'info', 'primary', 'default'].includes(val)) {
+      this.color = val as InputColor;
+      this.shape = 'auto';
+      if (val === 'error') this.error = true;
+    } else if (['solid', 'glass', 'outline', 'outlined', 'flat', 'neumorphic', 'underline', 'minimal', 'rounded'].includes(val)) {
+      this.shape = val === 'outlined' ? 'outline' : val as InputShape;
+    } else if (val === 'filled') {
+      this.shape = 'flat';
+    } else {
+      this.color = 'default';
+      this.shape = 'auto';
+    }
+  }
 
   value = '';
   disabled = false;
