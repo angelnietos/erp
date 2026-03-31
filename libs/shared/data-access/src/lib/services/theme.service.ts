@@ -637,6 +637,7 @@ export class ThemeService {
     // inline CSS variables from :root / documentElement).
     this.applyStructuralTokens(root, variant, config);
   }
+  
 
   /**
    * Pushes per-variant structural tokens directly via style.setProperty() so
