@@ -2,7 +2,10 @@
 export interface DeliveryNote {
   id: string;
   budgetId: string;
+  budgetReference?: string;
   clientName: string;
+  recipientName?: string;
+  deliveryAddress?: string;
   status: 'draft' | 'pending' | 'signed' | 'completed';
   deliveryDate: string;
   returnDate: string;
@@ -16,7 +19,7 @@ export interface DeliveryItem {
   id: string;
   name: string;
   quantity: number;
-  condition: 'good' | 'damaged' | 'missing';
+  condition: 'new' | 'good' | 'damaged' | 'missing';
   observations?: string;
 }
 

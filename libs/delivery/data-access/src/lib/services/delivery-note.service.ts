@@ -5,7 +5,12 @@ import { Observable } from 'rxjs';
 export interface DeliveryNote {
   id: string;
   budgetId: string;
+  /** Etiqueta corta para enlaces UI (p. ej. #A1B2C3D4). */
+  budgetReference?: string;
   clientName: string;
+  /** Quien firma / receptor (mismo que cliente si no hay campo dedicado en BD). */
+  recipientName?: string;
+  deliveryAddress?: string;
   status: 'draft' | 'pending' | 'signed' | 'completed';
   deliveryDate: string;
   returnDate: string;
@@ -19,7 +24,7 @@ export interface DeliveryItem {
   id: string;
   name: string;
   quantity: number;
-  condition: 'good' | 'damaged' | 'missing';
+  condition: 'new' | 'good' | 'damaged' | 'missing';
   observations?: string;
 }
 
@@ -32,7 +37,7 @@ export class DeliveryNoteService {
     return this.http.get<DeliveryNote[]>(this.apiUrl);
   }
 
-  getDeliveryNote(id: string): Observable<DeliveryNote | undefined> {
+  getDeliveryNote(id: string): Observable<DeliveryNote> {
     return this.http.get<DeliveryNote>(`${this.apiUrl}/${id}`);
   }
 

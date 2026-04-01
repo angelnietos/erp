@@ -1,9 +1,26 @@
 import type { BadgeVariant } from '@josanz-erp/shared-ui-kit';
-import { Component, OnInit, signal, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  Input,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiLoaderComponent, UiTableComponent } from '@josanz-erp/shared-ui-kit';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
+import {
+  UiCardComponent,
+  UiButtonComponent,
+  UiBadgeComponent,
+  UiLoaderComponent,
+  UiTableComponent,
+} from '@josanz-erp/shared-ui-kit';
+import {
+  DeliveryNote as ApiDeliveryNote,
+  DeliveryNoteService,
+} from '@josanz-erp/delivery-data-access';
+import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
 
 export interface DeliveryItem {
   id: string;
@@ -13,7 +30,7 @@ export interface DeliveryItem {
   observations: string;
 }
 
-export interface DeliveryNote {
+export interface DeliveryDetailView {
   id: string;
   budgetId: string;
   budgetReference: string;
@@ -23,22 +40,32 @@ export interface DeliveryNote {
   returnDate: string;
   deliveryAddress: string;
   recipientName: string;
-  recipientSignature?: string;
+  /** URL o data URL para <img>; si no hay imagen, usar signatureText. */
+  signatureImageSrc?: string;
+  signatureText?: string;
   items: DeliveryItem[];
 }
 
 @Component({
   selector: 'lib-delivery-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiLoaderComponent, UiTableComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [
+    CommonModule,
+    RouterModule,
+    LucideAngularModule,
+    UiCardComponent,
+    UiButtonComponent,
+    UiBadgeComponent,
+    UiLoaderComponent,
+    UiTableComponent,
+  ],
   template: `
     <div class="page-container">
       @if (isLoading()) {
         <ui-josanz-loader message="Cargando albarán..."></ui-josanz-loader>
-      } @else {
+      } @else if (delivery(); as d) {
         <div class="page-header">
-          <button class="back-btn" routerLink="/delivery">
+          <button type="button" class="back-btn" routerLink="/delivery">
             <lucide-icon name="arrow-left"></lucide-icon>
             Volver
           </button>
@@ -46,17 +73,17 @@ export interface DeliveryNote {
 
         <div class="delivery-header">
           <div class="delivery-info">
-            <h1>Albarán #{{ delivery()?.id?.slice(0, 8) }}</h1>
+            <h1>Albarán #{{ d.id.slice(0, 8) }}</h1>
             <div class="badges">
-              <ui-josanz-badge [variant]="getStatusVariant(delivery()?.status)">
-                {{ getStatusLabel(delivery()?.status) }}
+              <ui-josanz-badge [variant]="getStatusVariant(d.status)">
+                {{ getStatusLabel(d.status) }}
               </ui-josanz-badge>
-              <span class="client-name">{{ delivery()?.clientName }}</span>
+              <span class="client-name">{{ d.clientName }}</span>
             </div>
           </div>
           <div class="header-actions">
             <ui-josanz-button icon="download" (clicked)="downloadPDF()">Descargar PDF</ui-josanz-button>
-            @if (delivery()?.status === 'pending') {
+            @if (d.status === 'pending') {
               <ui-josanz-button icon="pen-tool" (clicked)="openSignature()">Firmar</ui-josanz-button>
             }
           </div>
@@ -65,24 +92,24 @@ export interface DeliveryNote {
         <div class="delivery-meta">
           <div class="meta-item">
             <span class="label">Presupuesto</span>
-            <a [routerLink]="['/budgets', delivery()?.budgetId]" class="link">{{ delivery()?.budgetReference }}</a>
+            <a [routerLink]="['/budgets', d.budgetId]" class="link">{{ d.budgetReference }}</a>
           </div>
           <div class="meta-item">
             <span class="label">Fecha de Entrega</span>
-            <span class="value">{{ formatDate(delivery()?.deliveryDate) }}</span>
+            <span class="value">{{ formatDate(d.deliveryDate) }}</span>
           </div>
           <div class="meta-item">
             <span class="label">Fecha de Devolución</span>
-            <span class="value">{{ formatDate(delivery()?.returnDate) }}</span>
+            <span class="value">{{ formatDate(d.returnDate) }}</span>
           </div>
           <div class="meta-item">
             <span class="label">Dirección</span>
-            <span class="value">{{ delivery()?.deliveryAddress }}</span>
+            <span class="value">{{ d.deliveryAddress }}</span>
           </div>
         </div>
 
         <ui-josanz-card title="Material Entregado">
-          <ui-josanz-table [columns]="itemColumns" [data]="delivery()?.items || []">
+          <ui-josanz-table [columns]="itemColumns" [data]="d.items">
             <ng-template #cellTemplate let-item let-key="key">
               @switch (key) {
                 @case ('condition') {
@@ -90,61 +117,171 @@ export interface DeliveryNote {
                     {{ getConditionLabel(item.condition) }}
                   </ui-josanz-badge>
                 }
-                @default { {{ item[key] }} }
+                @default {
+                  {{ item[key] }}
+                }
               }
             </ng-template>
           </ui-josanz-table>
         </ui-josanz-card>
 
-        @if (delivery()?.recipientSignature) {
-          <ui-josanz-card title="Firma del Receptor">
+        @if (d.status === 'signed' || d.status === 'completed') {
+          <ui-josanz-card title="Firma del receptor">
             <div class="signature-box">
-              <img [src]="delivery()?.recipientSignature" alt="Firma" class="signature-image" />
-              <span class="signature-name">{{ delivery()?.recipientName }}</span>
+              @if (d.signatureImageSrc) {
+                <img
+                  [src]="d.signatureImageSrc"
+                  alt="Firma"
+                  class="signature-image"
+                  (error)="onSignatureImageError()"
+                />
+              }
+              @if (sigImageBroken() && d.signatureImageSrc) {
+                <p class="signature-fallback">No se pudo cargar la imagen de firma.</p>
+              }
+              @if (d.signatureText) {
+                <p class="signature-text">Conformidad registrada: {{ d.signatureText }}</p>
+              }
+              @if (!d.signatureImageSrc && !d.signatureText) {
+                <p class="signature-muted">No hay texto ni imagen de firma guardados para este albarán.</p>
+              }
+              <span class="signature-name">{{ d.recipientName }}</span>
             </div>
           </ui-josanz-card>
         }
+      } @else {
+        <p class="not-found">No se encontró el albarán.</p>
+        <button type="button" class="back-btn" routerLink="/delivery">Volver al listado</button>
       }
     </div>
   `,
-  styles: [`
-    .page-container { padding: 24px; }
-    .page-header { margin-bottom: 16px; }
-    .back-btn {
-      display: flex; align-items: center; gap: 8px; background: none; border: none;
-      color: #94A3B8; cursor: pointer; font-size: 14px; padding: 8px 0;
-    }
-    .back-btn:hover { color: white; }
-    .delivery-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .delivery-info h1 { margin: 0 0 12px 0; color: white; font-size: 28px; font-weight: 700; }
-    .badges { display: flex; align-items: center; gap: 12px; }
-    .client-name { color: #94A3B8; font-size: 14px; }
-    .header-actions { display: flex; gap: 12px; }
-    .delivery-meta {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
-      background: rgba(255,255,255,0.03); border-radius: 12px; padding: 20px; margin-bottom: 24px;
-    }
-    .meta-item { display: flex; flex-direction: column; gap: 4px; }
-    .meta-item .label { color: #64748B; font-size: 12px; }
-    .meta-item .value { color: white; font-size: 14px; }
-    .link { color: #4F46E5; text-decoration: none; }
-    .link:hover { text-decoration: underline; }
-    .signature-box {
-      display: flex; flex-direction: column; align-items: center; gap: 12px;
-      padding: 20px; background: rgba(255,255,255,0.02); border-radius: 8px;
-    }
-    .signature-image { max-width: 200px; max-height: 80px; }
-    .signature-name { color: #E2E8F0; font-size: 14px; }
-  `],
+  styles: [
+    `
+      .page-container {
+        padding: 24px;
+      }
+      .page-header {
+        margin-bottom: 16px;
+      }
+      .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 8px 0;
+      }
+      .back-btn:hover {
+        color: white;
+      }
+      .delivery-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+      .delivery-info h1 {
+        margin: 0 0 12px 0;
+        color: white;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .badges {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .client-name {
+        color: #94a3b8;
+        font-size: 14px;
+      }
+      .header-actions {
+        display: flex;
+        gap: 12px;
+      }
+      .delivery-meta {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .meta-item .label {
+        color: #64748b;
+        font-size: 12px;
+      }
+      .meta-item .value {
+        color: white;
+        font-size: 14px;
+      }
+      .link {
+        color: #4f46e5;
+        text-decoration: none;
+      }
+      .link:hover {
+        text-decoration: underline;
+      }
+      .signature-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+      }
+      .signature-image {
+        max-width: 280px;
+        max-height: 120px;
+        object-fit: contain;
+        background: #fff;
+        border-radius: 4px;
+        padding: 4px;
+      }
+      .signature-text,
+      .signature-muted,
+      .signature-fallback {
+        color: #e2e8f0;
+        font-size: 14px;
+        text-align: center;
+        margin: 0;
+        max-width: 480px;
+        line-height: 1.4;
+      }
+      .signature-muted,
+      .signature-fallback {
+        color: #94a3b8;
+      }
+      .signature-name {
+        color: #e2e8f0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .not-found {
+        color: #94a3b8;
+      }
+    `,
+  ],
 })
 export class DeliveryDetailComponent implements OnInit {
   @Input() id?: string;
 
-  delivery = signal<DeliveryNote | null>(null);
+  private readonly route = inject(ActivatedRoute);
+  private readonly deliveryNoteService = inject(DeliveryNoteService);
+
+  delivery = signal<DeliveryDetailView | null>(null);
   isLoading = signal(true);
+  sigImageBroken = signal(false);
 
   itemColumns = [
     { key: 'productName', header: 'Producto' },
@@ -153,75 +290,131 @@ export class DeliveryDetailComponent implements OnInit {
     { key: 'observations', header: 'Observaciones' },
   ];
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
-
   ngOnInit() {
-    const id = this.id || this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadDelivery(id);
+    const routeId = this.id || this.route.snapshot.paramMap.get('id');
+    if (routeId) {
+      this.loadDelivery(routeId);
+    } else {
+      this.isLoading.set(false);
     }
+  }
+
+  onSignatureImageError() {
+    this.sigImageBroken.set(true);
+  }
+
+  private toView(api: ApiDeliveryNote): DeliveryDetailView {
+    const sig = api.signature?.trim();
+    let signatureImageSrc: string | undefined;
+    let signatureText: string | undefined;
+    if (sig) {
+      if (sig.startsWith('data:image/') || /^https?:\/\//i.test(sig)) {
+        signatureImageSrc = sig;
+      } else {
+        signatureText = sig;
+      }
+    }
+
+    const allowed: DeliveryItem['condition'][] = ['new', 'good', 'damaged', 'missing'];
+    const items: DeliveryItem[] = (api.items ?? []).map((i) => ({
+      id: i.id,
+      productName: i.name,
+      quantity: i.quantity,
+      condition: allowed.includes(i.condition as DeliveryItem['condition'])
+        ? (i.condition as DeliveryItem['condition'])
+        : 'good',
+      observations: i.observations?.trim() || '—',
+    }));
+
+    const toDay = (iso: string) =>
+      iso.includes('T') ? iso.split('T')[0]! : iso;
+
+    return {
+      id: api.id,
+      budgetId: api.budgetId,
+      budgetReference: api.budgetReference ?? `#${api.budgetId.slice(0, 8).toUpperCase()}`,
+      clientName: api.clientName,
+      status: api.status,
+      deliveryDate: toDay(api.deliveryDate),
+      returnDate: toDay(api.returnDate),
+      deliveryAddress: api.deliveryAddress?.trim() || '—',
+      recipientName: api.recipientName?.trim() || api.clientName,
+      signatureImageSrc,
+      signatureText,
+      items,
+    };
   }
 
   loadDelivery(id: string) {
     this.isLoading.set(true);
-    setTimeout(() => {
-      this.delivery.set({
-        id,
-        budgetId: 'bgt-001',
-        budgetReference: '#bgt-001',
-        clientName: 'Producciones Audiovisuales Madrid',
-        status: 'signed',
-        deliveryDate: '2026-03-20',
-        returnDate: '2026-03-25',
-        deliveryAddress: 'Calle Mayor 123, Madrid',
-        recipientName: 'Juan García',
-        recipientSignature: 'data:image/png;base64,mock',
-        items: [
-          { id: '1', productName: 'Cámara Sony FX6', quantity: 2, condition: 'good', observations: 'Sin observaciones' },
-          { id: '2', productName: 'Iluminación LED Kit', quantity: 1, condition: 'new', observations: 'Equipo nuevo' },
-          { id: '3', productName: 'Trípode profesional', quantity: 2, condition: 'good', observations: 'Funcionando correctamente' },
-        ],
-      });
-      this.isLoading.set(false);
-    }, 300);
+    this.sigImageBroken.set(false);
+    this.deliveryNoteService.getDeliveryNote(id).subscribe({
+      next: (api) => {
+        this.delivery.set(this.toView(api));
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.delivery.set(null);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   getStatusVariant(status: string | undefined): 'success' | 'warning' | 'info' | 'default' {
     switch (status) {
-      case 'signed': return 'success';
-      case 'completed': return 'info';
-      case 'pending': return 'warning';
-      default: return 'default';
+      case 'signed':
+        return 'success';
+      case 'completed':
+        return 'info';
+      case 'pending':
+        return 'warning';
+      default:
+        return 'default';
     }
   }
 
   getStatusLabel(status: string | undefined): string {
     switch (status) {
-      case 'draft': return 'Borrador';
-      case 'pending': return 'Pendiente';
-      case 'signed': return 'Firmado';
-      case 'completed': return 'Completado';
-      default: return '-';
+      case 'draft':
+        return 'Borrador';
+      case 'pending':
+        return 'Pendiente';
+      case 'signed':
+        return 'Firmado';
+      case 'completed':
+        return 'Completado';
+      default:
+        return '-';
     }
   }
 
   getConditionVariant(condition: string): BadgeVariant {
     switch (condition) {
-      case 'new': return 'success';
-      case 'good': return 'info';
-      case 'damaged': return 'warning';
-      case 'missing': return 'error';
-      default: return 'default';
+      case 'new':
+        return 'success';
+      case 'good':
+        return 'info';
+      case 'damaged':
+        return 'warning';
+      case 'missing':
+        return 'error';
+      default:
+        return 'default';
     }
   }
 
   getConditionLabel(condition: string): string {
     switch (condition) {
-      case 'new': return 'Nuevo';
-      case 'good': return 'Bueno';
-      case 'damaged': return 'Dañado';
-      case 'missing': return 'Faltante';
-      default: return condition;
+      case 'new':
+        return 'Nuevo';
+      case 'good':
+        return 'Bueno';
+      case 'damaged':
+        return 'Dañado';
+      case 'missing':
+        return 'Faltante';
+      default:
+        return condition;
     }
   }
 
@@ -230,6 +423,61 @@ export class DeliveryDetailComponent implements OnInit {
     return new Date(date).toLocaleDateString('es-ES');
   }
 
-  downloadPDF() { /* TODO */ }
-  openSignature() { /* TODO */ }
+  downloadPDF() {
+    const d = this.delivery();
+    if (!d) return;
+
+    const rows = d.items
+      .map(
+        (it) =>
+          `<tr><td>${escapeHtml(it.productName)}</td><td>${it.quantity}</td><td>${escapeHtml(
+            this.getConditionLabel(it.condition),
+          )}</td><td>${escapeHtml(it.observations)}</td></tr>`,
+      )
+      .join('');
+
+    const sigBlock = d.signatureImageSrc
+      ? `<p><strong>Firma (imagen):</strong> ver copia digital.</p>`
+      : d.signatureText
+        ? `<p><strong>Conformidad:</strong> ${escapeHtml(d.signatureText)}</p>`
+        : '';
+
+    const body = `
+      <h1>Albarán de entrega</h1>
+      <div class="meta">
+        <div><strong>Nº albarán:</strong> ${escapeHtml(d.id)}</div>
+        <div><strong>Cliente:</strong> ${escapeHtml(d.clientName)}</div>
+        <div><strong>Presupuesto:</strong> ${escapeHtml(d.budgetReference)}</div>
+        <div><strong>Entrega:</strong> ${escapeHtml(this.formatDate(d.deliveryDate))}</div>
+        <div><strong>Devolución:</strong> ${escapeHtml(this.formatDate(d.returnDate))}</div>
+        <div><strong>Dirección:</strong> ${escapeHtml(d.deliveryAddress)}</div>
+        <div><strong>Receptor:</strong> ${escapeHtml(d.recipientName)}</div>
+      </div>
+      <table>
+        <thead><tr><th>Producto</th><th>Cant.</th><th>Estado</th><th>Observaciones</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${sigBlock}
+    `;
+
+    openPrintableDocument(`Albarán ${d.id.slice(0, 8)}`, body);
+  }
+
+  openSignature() {
+    const d = this.delivery();
+    if (!d) return;
+    const sig = window.prompt(
+      'Firma de conformidad: escribe nombre o texto, o pega una imagen en formato data URL (data:image/png;base64,...).',
+    );
+    if (!sig?.trim()) return;
+    this.deliveryNoteService.signDeliveryNote(d.id, sig.trim()).subscribe({
+      next: (api) => {
+        this.sigImageBroken.set(false);
+        this.delivery.set(this.toView(api));
+      },
+      error: (err: { error?: { message?: string } }) => {
+        window.alert(err?.error?.message ?? 'No se pudo registrar la firma.');
+      },
+    });
+  }
 }

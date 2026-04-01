@@ -7,6 +7,7 @@ import {
   UiLoaderComponent, UiTableComponent, UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
 
 export interface BudgetItem {
   id: string;
@@ -251,7 +252,36 @@ export class BudgetDetailComponent implements OnInit {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
   }
 
-  downloadPDF() { /* TODO */ }
+  downloadPDF() {
+    const b = this.budget();
+    if (!b) return;
+    const rows = b.items
+      .map(
+        (it) =>
+          `<tr><td>${escapeHtml(it.description)}</td><td>${it.quantity}</td><td>${escapeHtml(
+            this.formatCurrencyEu(it.unitPrice),
+          )}</td><td>${escapeHtml(this.formatCurrencyEu(it.total))}</td></tr>`,
+      )
+      .join('');
+    const body = `
+      <h1>Presupuesto comercial</h1>
+      <div class="meta">
+        <div><strong>Nº expediente:</strong> ${escapeHtml(b.id)}</div>
+        <div><strong>Cliente:</strong> ${escapeHtml(b.clientName)}</div>
+        <div><strong>Estado:</strong> ${escapeHtml(this.getStatusLabel(b.status))}</div>
+        <div><strong>Inicio:</strong> ${escapeHtml(this.formatDate(b.startDate))}</div>
+        <div><strong>Fin:</strong> ${escapeHtml(this.formatDate(b.endDate))}</div>
+        <div><strong>Válido hasta:</strong> ${escapeHtml(this.formatDate(b.validUntil))}</div>
+        ${b.notes ? `<div><strong>Notas:</strong> ${escapeHtml(b.notes)}</div>` : ''}
+      </div>
+      <table>
+        <thead><tr><th>Concepto</th><th>Cant.</th><th>P. unit.</th><th>Total</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="totals">Total: ${escapeHtml(this.formatCurrencyEu(b.total))}</p>
+    `;
+    openPrintableDocument(`Presupuesto ${b.id.slice(0, 8)}`, body);
+  }
   sendToClient() { /* TODO */ }
   approveBudget() { /* TODO */ }
   createDelivery() { this.router.navigate(['/delivery'], { queryParams: { budgetId: this.budget()?.id } }); }

@@ -16,3 +16,6 @@ export * from './lib/string/string-utils';
 
 // Validation utilities
 export * from './lib/validation/validators';
+
+// Browser (solo entorno cliente)
+export * from './lib/browser/print-html';

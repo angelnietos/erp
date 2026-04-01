@@ -97,21 +97,26 @@ export class DeliveryService {
   private mapToDto(note: unknown) {
     const n = note as DbNoteData;
     const b = n.budget as unknown as { startDate?: Date, endDate?: Date, client?: { name: string }, items?: {id: string, product: {name: string}, quantity: number}[] };
+    const clientName = b?.client?.name || '—';
     return {
       id: n.id,
       budgetId: n.budgetId,
-      clientName: b?.client?.name || '---',
+      budgetReference: `#${String(n.budgetId).slice(0, 8).toUpperCase()}`,
+      clientName,
+      recipientName: clientName,
+      deliveryAddress: '—',
       status: n.status,
       deliveryDate: b?.startDate?.toISOString() || n.createdAt.toISOString(),
       returnDate: b?.endDate?.toISOString() || n.createdAt.toISOString(),
-      itemsCount: b?.items?.reduce((acc: number, i: {quantity: number}) => acc + i.quantity, 0) || 0,
+      itemsCount: b?.items?.reduce((acc: number, i: { quantity: number }) => acc + i.quantity, 0) || 0,
       signature: n.signatureBlobUrl,
-      items: b?.items?.map((item: {id: string, product: {name: string}, quantity: number}) => ({
+      items: b?.items?.map((item: { id: string; product: { name: string }; quantity: number }) => ({
         id: item.id,
         name: item.product?.name || 'Item Genérico',
         quantity: item.quantity,
-        condition: 'good'
-      })) || []
+        condition: 'good',
+        observations: '',
+      })) || [],
     };
   }
 }
