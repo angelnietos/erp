@@ -98,10 +98,23 @@ model Rental {
   createdAt       DateTime     @default(now()) @map("created_at")
   deletedAt       DateTime?    @map("deleted_at")
   rentalItems     RentalItem[]
+  rentalAnnexes   RentalAnnex[]
   client          Client       @relation(fields: [clientId], references: [id])
   tenant          Tenant       @relation(fields: [tenantId], references: [id])
 
   @@map("rentals")
+}
+
+model RentalAnnex {
+  id          String   @id @default(uuid()) @db.Uuid
+  rentalId    String   @map("rental_id") @db.Uuid
+  title       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  rental      Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+
+  @@index([rentalId], map: "idx_rental_annexes_rental")
+  @@map("rental_annexes")
 }
 
 model RentalItem {

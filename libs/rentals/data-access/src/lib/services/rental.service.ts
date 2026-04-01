@@ -12,6 +12,7 @@ export interface Rental {
   startDate: string;
   endDate: string;
   itemsCount: number;
+  
   totalAmount: number;
   createdAt: string;
   /** Firma digital del contrato (Verifactu / proveedor externo). */
