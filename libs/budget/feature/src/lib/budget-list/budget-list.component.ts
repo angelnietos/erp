@@ -79,7 +79,9 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
               @case ('actions') {
                 <div class="row-actions">
                   <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]"></ui-josanz-button>
-                  <ui-josanz-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-josanz-button>
+                  @if (item.status === 'DRAFT') {
+                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-josanz-button>
+                  }
                   @if (config.enableDownload) {
                     <ui-josanz-button variant="ghost" size="sm" icon="download" class="btn-success-overlay"></ui-josanz-button>
                   }

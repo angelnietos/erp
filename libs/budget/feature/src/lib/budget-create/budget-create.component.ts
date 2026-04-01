@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import { BudgetStore } from '@josanz-erp/budget-data-access';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { BudgetStore, BudgetService } from '@josanz-erp/budget-data-access';
 import { CreateBudgetDTO } from '@josanz-erp/budget-api';
 import { ClientService, Client } from '@josanz-erp/clients-data-access';
 import { InventoryService, Product } from '@josanz-erp/inventory-data-access';
@@ -12,8 +13,15 @@ import { LucideAngularModule, Plus, Trash2, Save } from 'lucide-angular';
   selector: 'lib-budget-create',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, LucideAngularModule,
-    UiCardComponent, UiInputComponent, UiButtonComponent, UiSelectComponent, SelectMapperPipe
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    LucideAngularModule,
+    UiCardComponent,
+    UiInputComponent,
+    UiButtonComponent,
+    UiSelectComponent,
+    SelectMapperPipe,
   ],
   templateUrl: './budget-create.component.html',
   styleUrl: './budget-create.component.css'
@@ -23,11 +31,19 @@ export class BudgetCreateComponent implements OnInit {
   readonly store = inject(BudgetStore);
   private clientService = inject(ClientService);
   private inventoryService = inject(InventoryService);
+  private budgetService = inject(BudgetService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   Plus = Plus; Trash2 = Trash2; Save = Save;
 
   clients = signal<Client[]>([]);
   products = signal<Product[]>([]);
+  readonly isEditMode = signal(false);
+  readonly editBudgetId = signal<string | null>(null);
+  readonly hydrating = signal(false);
+  readonly loadError = signal<string | null>(null);
+  readonly notDraft = signal(false);
 
   budgetForm = this.fb.group({
     clientId: ['', Validators.required],
@@ -39,9 +55,70 @@ export class BudgetCreateComponent implements OnInit {
   get items() { return this.budgetForm.get('items') as FormArray; }
 
   ngOnInit() {
-    this.clientService.getClients().subscribe(c => this.clients.set(c));
-    this.inventoryService.getProducts().subscribe(p => this.products.set(p));
-    this.addItem(); 
+    this.clientService.getClients().subscribe((c) => this.clients.set(c));
+    this.inventoryService.getProducts().subscribe((p) => this.products.set(p));
+
+    const path = this.route.snapshot.routeConfig?.path;
+    if (path === ':id/edit') {
+      const id = this.route.snapshot.paramMap.get('id');
+      if (!id) {
+        void this.router.navigate(['/budgets']);
+        return;
+      }
+      this.isEditMode.set(true);
+      this.editBudgetId.set(id);
+      this.hydrating.set(true);
+      this.budgetService.getBudget(id).subscribe({
+        next: (b) => {
+          this.hydrating.set(false);
+          if (!b) {
+            this.loadError.set('Presupuesto no encontrado.');
+            return;
+          }
+          if (b.status !== 'DRAFT') {
+            this.notDraft.set(true);
+            return;
+          }
+          while (this.items.length) {
+            this.items.removeAt(0);
+          }
+          this.budgetForm.patchValue({
+            clientId: b.clientId,
+            startDate: this.toDateInputValue(b.startDate),
+            endDate: this.toDateInputValue(b.endDate),
+          });
+          const lines = b.items ?? [];
+          if (lines.length === 0) {
+            this.addItem();
+          } else {
+            for (const item of lines) {
+              this.items.push(
+                this.fb.group({
+                  productId: [item.productId, Validators.required],
+                  quantity: [item.quantity, [Validators.required, Validators.min(1)]],
+                  price: [item.price, [Validators.required, Validators.min(0)]],
+                  tax: [item.tax ?? 21],
+                  discount: [item.discount ?? 0],
+                }),
+              );
+            }
+          }
+        },
+        error: () => {
+          this.hydrating.set(false);
+          this.loadError.set('No se pudo cargar el presupuesto.');
+        },
+      });
+    } else {
+      this.addItem();
+    }
+  }
+
+  private toDateInputValue(value: string): string {
+    if (!value) {
+      return '';
+    }
+    return value.includes('T') ? value.split('T')[0] : value;
   }
 
   addItem() {
@@ -85,7 +162,13 @@ export class BudgetCreateComponent implements OnInit {
       if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
         return;
       }
-      this.store.createBudget(this.budgetForm.value as CreateBudgetDTO);
+      const dto = this.budgetForm.value as CreateBudgetDTO;
+      const editId = this.editBudgetId();
+      if (this.isEditMode() && editId) {
+        this.store.updateBudget({ id: editId, dto });
+      } else {
+        this.store.createBudget(dto);
+      }
     }
   }
 }

@@ -109,6 +109,43 @@ export class Budget extends AggregateRoot {
   get items(): BudgetItem[] { return [...this.props.items]; }
   get total(): number { return this.props.total; }
   get version(): number { return this.props.version; }
+  get createdAt(): Date { return this.props.createdAt; }
+
+  /**
+   * Replaces header fields and line items. Only allowed while the budget is a draft.
+   */
+  replaceDraftContent(
+    clientId: EntityId,
+    startDate: Date,
+    endDate: Date,
+    items: Array<{
+      productId: string;
+      quantity: number;
+      price: number;
+      tax?: number;
+      discount?: number;
+    }>,
+  ): void {
+    if (this.props.status !== 'DRAFT') {
+      throw new Error('Can only edit a DRAFT budget');
+    }
+    if (endDate < startDate) {
+      throw new Error('Budget endDate must be greater than or equal to startDate');
+    }
+    this.props.clientId = clientId;
+    this.props.startDate = startDate;
+    this.props.endDate = endDate;
+    this.props.items = [];
+    for (const item of items) {
+      this.addItem(
+        new EntityId(item.productId),
+        item.quantity,
+        item.price,
+        item.tax ?? 21,
+        item.discount ?? 0,
+      );
+    }
+  }
 
   private buildEvent(eventType: string): DomainEvent {
     return {

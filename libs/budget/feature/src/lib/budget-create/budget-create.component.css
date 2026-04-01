@@ -1,3 +1,15 @@
+.state-msg { color: #94a3b8; margin: 2rem 0; }
+.state-panel { max-width: 32rem; margin: 2rem 0; }
+.state-panel h1 { margin-bottom: 0.75rem; }
+.back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #93c5fd;
+  text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }
+
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 h1 { font-size: 24px; font-weight: 700; color: white; margin: 0; }
 

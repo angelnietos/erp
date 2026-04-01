@@ -14,16 +14,16 @@ export class BudgetService {
     return this.http.get<Budget[]>(this.apiUrl);
   }
 
-  getBudget(id: string): Observable<Budget | undefined> {
-    return this.http.get<Budget>(`${this.apiUrl}/${id}`);
+  getBudget(id: string): Observable<Budget | null> {
+    return this.http.get<Budget | null>(`${this.apiUrl}/${id}`);
   }
 
   createBudget(dto: CreateBudgetDTO): Observable<Budget> {
     return this.http.post<Budget>(this.apiUrl, dto);
   }
 
-  updateBudget(id: string, budget: Partial<Budget>): Observable<Budget> {
-    return this.http.patch<Budget>(`${this.apiUrl}/${id}`, budget);
+  updateBudget(id: string, dto: CreateBudgetDTO): Observable<Budget> {
+    return this.http.patch<Budget>(`${this.apiUrl}/${id}`, dto);
   }
 
   deleteBudget(id: string): Observable<boolean> {

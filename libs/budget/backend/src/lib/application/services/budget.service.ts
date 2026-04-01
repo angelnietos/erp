@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BUDGET_REPOSITORY, BudgetRepositoryPort, Budget } from '@josanz-erp/budget-core';
 import { EntityId } from '@josanz-erp/shared-model';
 import { CreateBudgetDto } from '../dtos/create-budget.dto';
@@ -65,6 +65,36 @@ export class BudgetService {
 
   async findById(id: string): Promise<Budget | null> {
     return await this.budgetRepository.findById(new EntityId(id));
+  }
+
+  async updateDraft(id: string, dto: CreateBudgetDto): Promise<Budget> {
+    const budget = await this.budgetRepository.findById(new EntityId(id));
+    if (!budget) {
+      throw new NotFoundException('Budget not found');
+    }
+    try {
+      budget.replaceDraftContent(
+        new EntityId(dto.clientId),
+        new Date(dto.startDate),
+        new Date(dto.endDate),
+        dto.items.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          price: i.price,
+          tax: i.tax,
+          discount: i.discount,
+        })),
+      );
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await this.budgetRepository.save(budget);
+      await this.outboxService.saveEvents(budget.pullEvents(), tx);
+    });
+
+    return budget;
   }
 
   async findAll(tenantId?: string): Promise<any[]> {

@@ -54,5 +54,21 @@ export const BudgetStore = signalStore(
         )
       )
     ),
+    updateBudget: rxMethod<{ id: string; dto: CreateBudgetDTO }>(
+      pipe(
+        tap(() => patchState(store, { loading: true })),
+        switchMap(({ id, dto }) =>
+          budgetService.updateBudget(id, dto).pipe(
+            tapResponse({
+              next: () => {
+                patchState(store, { loading: false });
+                router.navigate(['/budgets', id]);
+              },
+              error: (error: Error) => patchState(store, { error: error.message, loading: false }),
+            })
+          )
+        )
+      )
+    ),
   }))
 );

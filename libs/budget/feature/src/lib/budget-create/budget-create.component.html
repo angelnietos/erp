@@ -1,7 +1,18 @@
+@if (hydrating()) {
+  <p class="state-msg">Cargando presupuesto…</p>
+} @else if (loadError()) {
+  <p class="state-msg">{{ loadError() }}</p>
+} @else if (notDraft() && editBudgetId()) {
+  <div class="state-panel">
+    <h1>No se puede editar</h1>
+    <p class="state-msg">Solo los presupuestos en estado <strong>BORRADOR</strong> se pueden modificar.</p>
+    <a [routerLink]="['/budgets', editBudgetId()!]" class="back-link">Ver presupuesto</a>
+  </div>
+} @else {
 <div class="page-header">
-  <h1>Nuevo Presupuesto</h1>
+  <h1>{{ isEditMode() ? 'Editar presupuesto' : 'Nuevo Presupuesto' }}</h1>
   <ui-josanz-button (clicked)="onSubmit()" icon="save" [disabled]="budgetForm.invalid || store.loading()" [loading]="store.loading()">
-    Guardar Presupuesto
+    {{ isEditMode() ? 'Guardar cambios' : 'Guardar Presupuesto' }}
   </ui-josanz-button>
 </div>
 
@@ -91,3 +102,4 @@
     </div>
   </ui-josanz-card>
 </div>
+}

@@ -29,15 +29,26 @@ export class BudgetController {
   @Get(':id')
   async findById(@Param('id') id: string) {
     const budget = await this.budgetService.findById(id);
-    return budget ? {
-      id: budget.id.value,
-      clientId: budget.clientId.value,
-      startDate: budget.startDate,
-      endDate: budget.endDate,
-      total: budget.total,
-      status: budget.status,
-      version: budget.version,
-    } : null;
+    return budget
+      ? {
+          id: budget.id.value,
+          clientId: budget.clientId.value,
+          startDate: budget.startDate.toISOString().split('T')[0],
+          endDate: budget.endDate.toISOString().split('T')[0],
+          total: budget.total,
+          status: budget.status,
+          version: budget.version,
+          createdAt: budget.createdAt.toISOString().split('T')[0],
+          items: budget.items.map((i) => ({
+            id: i.id.value,
+            productId: i.productId.value,
+            quantity: i.quantity,
+            price: i.price,
+            tax: i.tax,
+            discount: i.discount,
+          })),
+        }
+      : null;
   }
 
   @Patch(':id/send')
@@ -50,6 +61,29 @@ export class BudgetController {
   async accept(@Param('id') id: string) {
     await this.budgetService.accept(id);
     return { message: 'Budget accepted successfully' };
+  }
+
+  @Patch(':id')
+  async updateDraft(@Param('id') id: string, @Body() dto: CreateBudgetDto) {
+    const budget = await this.budgetService.updateDraft(id, dto);
+    return {
+      id: budget.id.value,
+      clientId: budget.clientId.value,
+      startDate: budget.startDate.toISOString().split('T')[0],
+      endDate: budget.endDate.toISOString().split('T')[0],
+      total: budget.total,
+      status: budget.status,
+      version: budget.version,
+      createdAt: budget.createdAt.toISOString().split('T')[0],
+      items: budget.items.map((i) => ({
+        id: i.id.value,
+        productId: i.productId.value,
+        quantity: i.quantity,
+        price: i.price,
+        tax: i.tax,
+        discount: i.discount,
+      })),
+    };
   }
 
   @Delete(':id')
