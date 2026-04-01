@@ -93,6 +93,8 @@ model Rental {
   totalPrice      Float?       @map("total_price")
   notes           String?
   status          String       @default("pending")
+  signatureStatus String       @default("NONE") @map("signature_status")
+  signedAt        DateTime?    @map("signed_at")
   createdAt       DateTime     @default(now()) @map("created_at")
   deletedAt       DateTime?    @map("deleted_at")
   rentalItems     RentalItem[]

@@ -1,21 +1,22 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiLoaderComponent, UiStatCardComponent 
-} from '@josanz-erp/shared-ui-kit';
+    UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent
+  } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
-import { RentalService, Rental } from '@josanz-erp/rentals-data-access';
+import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rentals-data-access';
 
 @Component({
   selector: 'lib-rentals-detail',
   standalone: true,
   imports: [
-    CommonModule, RouterModule, LucideAngularModule,
+    CommonModule, RouterModule, FormsModule, LucideAngularModule,
     UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent
+    UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -45,6 +46,9 @@ import { RentalService, Rental } from '@josanz-erp/rentals-data-access';
               <ui-josanz-button variant="primary" size="md" icon="archive" (clicked)="complete()">FINALIZAR Y RECIBIR</ui-josanz-button>
             }
             <ui-josanz-button variant="glass" size="md" icon="printer">IMPRIMIR CONTRATO</ui-josanz-button>
+            @if (rental()?.status !== 'CANCELLED' && rental()?.status !== 'COMPLETED') {
+              <ui-josanz-button variant="glass" size="md" icon="pen-tool" (clicked)="openSignatureModal()">FIRMA DIGITAL</ui-josanz-button>
+            }
           </div>
         </header>
 
@@ -123,6 +127,29 @@ import { RentalService, Rental } from '@josanz-erp/rentals-data-access';
                  </div>
               </ui-josanz-card>
 
+              <ui-josanz-card variant="glass" title="Firma digital">
+                 <div class="sig-detail">
+                    <div class="sig-row">
+                      <span class="lbl">ESTADO</span>
+                      <ui-josanz-badge [variant]="signatureBadgeVariant(rental()?.signatureStatus)">
+                        {{ getSignatureLabel(rental()?.signatureStatus) | uppercase }}
+                      </ui-josanz-badge>
+                    </div>
+                    @if (rental()?.signedAt) {
+                      <div class="sig-row">
+                        <span class="lbl">FECHA FIRMA</span>
+                        <span class="val">{{ formatDate(rental()?.signedAt) }}</span>
+                      </div>
+                    }
+                    @if (rental()?.signatureStatus !== 'SIGNED' && rental()?.status !== 'CANCELLED' && rental()?.status !== 'COMPLETED') {
+                      <div class="sig-actions">
+                        <ui-josanz-button variant="glass" class="full-width" icon="send" (clicked)="signatureRequest()">SOLICITAR FIRMA</ui-josanz-button>
+                        <ui-josanz-button variant="primary" class="full-width" icon="check" (clicked)="signatureComplete()">MARCAR FIRMADO</ui-josanz-button>
+                      </div>
+                    }
+                 </div>
+              </ui-josanz-card>
+
               <ui-josanz-card variant="glass" title="Acciones Rápidas">
                  <div class="quick-actions">
                     <ui-josanz-button variant="glass" class="full-width" icon="file-plus">AÑADIR ANEXO</ui-josanz-button>
@@ -134,6 +161,27 @@ import { RentalService, Rental } from '@josanz-erp/rentals-data-access';
            </div>
         </div>
       }
+
+      <ui-josanz-modal
+        [isOpen]="isSignatureModalOpen()"
+        title="FIRMA DIGITAL"
+        variant="dark"
+        (closed)="closeSignatureModal()"
+      >
+        @if (rental(); as r) {
+          <div class="sig-modal-body">
+            <p class="muted">Gestiona el flujo de firma electrónica del contrato. El email sirve como referencia para el envío al firmante.</p>
+            <ui-josanz-input label="Email del firmante" [(ngModel)]="signatureEmail" placeholder="firma@cliente.com"></ui-josanz-input>
+          </div>
+        }
+        <div modal-footer class="sig-modal-footer">
+          <ui-josanz-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-josanz-button>
+          @if (rental()?.signatureStatus !== 'SIGNED') {
+            <ui-josanz-button variant="glass" (clicked)="signatureRequestFromModal()">ENVIAR SOLICITUD</ui-josanz-button>
+            <ui-josanz-button variant="app" (clicked)="signatureCompleteFromModal()">MARCAR FIRMADO</ui-josanz-button>
+          }
+        </div>
+      </ui-josanz-modal>
     </div>
   `,
   styles: [`
@@ -187,6 +235,15 @@ import { RentalService, Rental } from '@josanz-erp/rentals-data-access';
     .quick-actions { display: flex; flex-direction: column; gap: 0.75rem; }
     .full-width { width: 100%; text-align: left; }
     .danger-btn:hover { background: rgba(239, 68, 68, 0.1) !important; color: #ff4b4b !important; border-color: rgba(239, 68, 68, 0.2) !important; }
+
+    .sig-detail { display: flex; flex-direction: column; gap: 1rem; }
+    .sig-row { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
+    .sig-row .lbl { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.08em; }
+    .sig-row .val { font-size: 0.7rem; font-weight: 700; color: #fff; }
+    .sig-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem; }
+    .sig-modal-body { display: flex; flex-direction: column; gap: 1rem; }
+    .sig-modal-body .muted { font-size: 0.7rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
+    .sig-modal-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.75rem; width: 100%; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -199,6 +256,13 @@ export class RentalsDetailComponent implements OnInit {
   currentTheme = this.themeService.currentThemeData;
   rental = signal<Rental | null>(null);
   isLoading = signal(true);
+  isSignatureModalOpen = signal(false);
+  signatureEmail = '';
+
+  openSignatureModal = (): void => {
+    this.signatureEmail = '';
+    this.isSignatureModalOpen.set(true);
+  };
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -246,4 +310,54 @@ export class RentalsDetailComponent implements OnInit {
   activate() { const r = this.rental(); if (r) this.service.activateRental(r.id).subscribe(() => this.loadRental(r.id)); }
   complete() { const r = this.rental(); if (r) this.service.completeRental(r.id).subscribe(() => this.loadRental(r.id)); }
   cancel() { const r = this.rental(); if (r) this.service.cancelRental(r.id).subscribe(() => this.loadRental(r.id)); }
+
+  closeSignatureModal() {
+    this.isSignatureModalOpen.set(false);
+  }
+
+  getSignatureLabel(s?: RentalSignatureStatus): string {
+    switch (s) {
+      case 'SIGNED': return 'Firmado';
+      case 'PENDING': return 'Pendiente';
+      default: return 'Sin iniciar';
+    }
+  }
+
+  signatureBadgeVariant(s?: RentalSignatureStatus): 'success' | 'warning' | 'default' {
+    switch (s) {
+      case 'SIGNED': return 'success';
+      case 'PENDING': return 'warning';
+      default: return 'default';
+    }
+  }
+
+  signatureRequest() {
+    const r = this.rental();
+    if (!r) return;
+    this.service.updateRental(r.id, { signatureStatus: 'PENDING' }).subscribe({
+      next: (upd) => {
+        this.rental.set(upd);
+      },
+    });
+  }
+
+  signatureComplete() {
+    const r = this.rental();
+    if (!r) return;
+    this.service.updateRental(r.id, { signatureStatus: 'SIGNED' }).subscribe({
+      next: (upd) => {
+        this.rental.set(upd);
+      },
+    });
+  }
+
+  signatureRequestFromModal() {
+    this.signatureRequest();
+    this.closeSignatureModal();
+  }
+
+  signatureCompleteFromModal() {
+    this.signatureComplete();
+    this.closeSignatureModal();
+  }
 }

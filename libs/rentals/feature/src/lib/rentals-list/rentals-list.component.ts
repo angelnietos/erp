@@ -17,7 +17,7 @@ import {
   UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
-import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
+import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rentals-data-access';
 
 @Component({
   selector: 'lib-rentals-list',
@@ -117,11 +117,25 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
                 @case ('totalAmount') {
                   <span class="currency-value">{{ rental.totalAmount | currency:'EUR' }}</span>
                 }
+                @case ('signature') {
+                  <div class="sig-cell">
+                    @if (rental.signatureStatus === 'SIGNED') {
+                      <lucide-icon name="check-circle" [size]="16" [style.color]="currentTheme().success" title="Contrato firmado"></lucide-icon>
+                    } @else if (rental.signatureStatus === 'PENDING') {
+                      <lucide-icon name="clock" [size]="16" [style.color]="currentTheme().warning" title="Firma pendiente"></lucide-icon>
+                    } @else {
+                      <span class="text-muted">—</span>
+                    }
+                  </div>
+                }
                 @case ('actions') {
                   <div class="row-actions">
                     <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/rentals', rental.id]"></ui-josanz-button>
                     @if (rental.status === 'DRAFT') {
                       <ui-josanz-button variant="ghost" size="sm" icon="play" (clicked)="activateRental(rental)" [style.color]="currentTheme().success"></ui-josanz-button>
+                    }
+                    @if (rental.status !== 'CANCELLED' && rental.status !== 'COMPLETED') {
+                      <ui-josanz-button variant="ghost" size="sm" icon="pen-tool" (clicked)="openSignatureModal(rental)" title="Firma digital del contrato"></ui-josanz-button>
                     }
                     <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editRental(rental)"></ui-josanz-button>
                   </div>
@@ -191,11 +205,43 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
         </div>
       </div>
       
-      <div slot="footer" class="modal-footer-actions">
+      <div modal-footer class="modal-footer-actions">
         <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
         <ui-josanz-button variant="app" (clicked)="saveRental()" [disabled]="!formData.clientName">
           GUARDAR EXPEDIENTE
         </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
+
+    <ui-josanz-modal
+      [isOpen]="isSignatureModalOpen()"
+      title="FIRMA DIGITAL DEL CONTRATO"
+      variant="dark"
+      (closed)="closeSignatureModal()"
+    >
+      @if (rentalForSignature(); as rs) {
+        <div class="sig-flow">
+          <p class="sig-intro">
+            Expediente <strong>#{{ rs.id.slice(0, 8) | uppercase }}</strong> · {{ rs.clientName }}
+          </p>
+          <p class="sig-status">
+            Estado actual:
+            <strong>{{ getSignatureLabel(rs.signatureStatus) }}</strong>
+          </p>
+          <ui-josanz-input
+            label="Email del firmante (opcional)"
+            [(ngModel)]="signatureEmail"
+            placeholder="cliente@empresa.com"
+            hint="En producción aquí se enviaría el enlace al proveedor de firma (ej. integración Verifactu / tercero)."
+          ></ui-josanz-input>
+        </div>
+      }
+      <div modal-footer class="modal-footer-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-josanz-button>
+        @if (rentalForSignature()?.signatureStatus !== 'SIGNED') {
+          <ui-josanz-button variant="glass" (clicked)="markSignaturePending()">ENVIAR SOLICITUD DE FIRMA</ui-josanz-button>
+          <ui-josanz-button variant="app" (clicked)="markSignatureSigned()">MARCAR COMO FIRMADO</ui-josanz-button>
+        }
       </div>
     </ui-josanz-modal>
   `,
@@ -244,7 +290,11 @@ import { Rental, RentalService } from '@josanz-erp/rentals-data-access';
     .rental-link:hover { color: #fff !important; text-shadow: 0 0 10px var(--brand-glow); }
     
     .currency-value { color: #fff; font-weight: 700; font-size: 0.8rem; }
-    .row-actions { display: flex; gap: 4px; }
+    .sig-cell { display: flex; align-items: center; justify-content: center; }
+    .text-muted { color: var(--text-muted); font-size: 0.75rem; }
+    .row-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .sig-flow { display: flex; flex-direction: column; gap: 1rem; }
+    .sig-intro, .sig-status { font-size: 0.75rem; color: var(--text-secondary); margin: 0; line-height: 1.4; }
     
     .table-footer {
       display: flex; justify-content: space-between; align-items: center;
@@ -283,7 +333,8 @@ export class RentalsListComponent implements OnInit {
     { key: 'itemsCount', header: 'UNIDADES', width: '80px' },
     { key: 'totalAmount', header: 'IMPORTE', width: '120px' },
     { key: 'status', header: 'ESTADO', width: '120px' },
-    { key: 'actions', header: '', width: '100px' },
+    { key: 'signature', header: 'FIRMA', width: '72px' },
+    { key: 'actions', header: '', width: '150px' },
   ];
 
   rentals = signal<Rental[]>([]);
@@ -294,6 +345,9 @@ export class RentalsListComponent implements OnInit {
   searchFilter = signal('');
   
   isModalOpen = signal(false);
+  isSignatureModalOpen = signal(false);
+  rentalForSignature = signal<Rental | null>(null);
+  signatureEmail = '';
   editingRental = signal<Rental | null>(null);
   
   formData: Partial<Rental> = {
@@ -370,6 +424,48 @@ export class RentalsListComponent implements OnInit {
   activateRental(rental: Rental) {
     this.rentalService.activateRental(rental.id).subscribe({
       next: (upd) => this.rentals.update(list => list.map(r => r.id === upd.id ? upd : r))
+    });
+  }
+
+  openSignatureModal(rental: Rental) {
+    this.rentalForSignature.set(rental);
+    this.signatureEmail = '';
+    this.isSignatureModalOpen.set(true);
+  }
+
+  closeSignatureModal() {
+    this.isSignatureModalOpen.set(false);
+    this.rentalForSignature.set(null);
+  }
+
+  getSignatureLabel(s?: RentalSignatureStatus): string {
+    switch (s) {
+      case 'SIGNED': return 'Firmado';
+      case 'PENDING': return 'Pendiente de firma';
+      default: return 'Sin iniciar';
+    }
+  }
+
+  markSignaturePending() {
+    const r = this.rentalForSignature();
+    if (!r) return;
+    this.rentalService.updateRental(r.id, { signatureStatus: 'PENDING' }).subscribe({
+      next: (upd) => {
+        this.rentals.update((list) => list.map((x) => (x.id === upd.id ? upd : x)));
+        this.rentalForSignature.set(upd);
+      },
+    });
+  }
+
+  markSignatureSigned() {
+    const r = this.rentalForSignature();
+    if (!r) return;
+    this.rentalService.updateRental(r.id, { signatureStatus: 'SIGNED' }).subscribe({
+      next: (upd) => {
+        this.rentals.update((list) => list.map((x) => (x.id === upd.id ? upd : x)));
+        this.rentalForSignature.set(upd);
+        this.closeSignatureModal();
+      },
     });
   }
 

@@ -73,6 +73,12 @@ export class RentalsService {
       updateData['totalPrice'] = Number(data['totalPrice']);
     if (data['totalAmount'] != null)
       updateData['totalPrice'] = Number(data['totalAmount']);
+    if (data['signatureStatus'] != null) {
+      updateData['signatureStatus'] = String(data['signatureStatus']);
+      if (String(data['signatureStatus']) === 'SIGNED') {
+        updateData['signedAt'] = new Date();
+      }
+    }
 
     const rental = await this.db.rental.update({
       where: { id },
@@ -117,6 +123,10 @@ export class RentalsService {
       pickupLocation: rental['pickupLocation'],
       dropoffLocation: rental['dropoffLocation'],
       notes: rental['notes'],
+      signatureStatus: rental['signatureStatus'] ?? 'NONE',
+      signedAt: rental['signedAt']
+        ? (rental['signedAt'] as Date).toISOString()
+        : undefined,
       items: items.map((i: Record<string, unknown>) => ({
         id: i['id'],
         productId: i['productId'],

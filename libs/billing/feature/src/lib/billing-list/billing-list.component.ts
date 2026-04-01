@@ -13,11 +13,15 @@ import {
   UiTabsComponent,
   UiCardComponent,
   UiStatCardComponent,
+  UiInputComponent,
+  UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
+import { BudgetService } from '@josanz-erp/budget-data-access';
+import { Budget } from '@josanz-erp/budget-api';
 import { getStoredTenantId } from '@josanz-erp/identity-data-access';
 import { VerifactuStore, VerifactuService } from '@josanz-erp/verifactu-data-access';
 
@@ -38,6 +42,8 @@ import { VerifactuStore, VerifactuService } from '@josanz-erp/verifactu-data-acc
     UiTabsComponent,
     UiCardComponent,
     UiStatCardComponent,
+    UiInputComponent,
+    UiSelectComponent,
     LucideAngularModule,
   ],
   template: `
@@ -179,6 +185,49 @@ import { VerifactuStore, VerifactuService } from '@josanz-erp/verifactu-data-acc
       }
     </div>
 
+    <ui-josanz-modal
+      [isOpen]="isModalOpen()"
+      [title]="editingInvoice() ? 'EDITAR FACTURA' : 'EMITIR FACTURA'"
+      variant="dark"
+      (closed)="closeModal()"
+    >
+      <div class="invoice-form">
+        @if (!editingInvoice()) {
+          <p class="form-hint">Selecciona un presupuesto aceptado o enviado; el importe y el cliente salen del presupuesto.</p>
+          <ui-josanz-select
+            label="Presupuesto origen"
+            placeholder="Elegir presupuesto…"
+            [options]="budgetSelectOptions()"
+            [(ngModel)]="formData.budgetId"
+          ></ui-josanz-select>
+        } @else {
+          <div class="readonly-client">
+            <span class="lbl">Cliente</span>
+            <span class="val">{{ editingInvoice()?.clientName }}</span>
+          </div>
+        }
+        <ui-josanz-input
+          label="Número de factura (opcional)"
+          [(ngModel)]="formData.invoiceNumber"
+          placeholder="F/2026/XXXX"
+        ></ui-josanz-input>
+        <div class="form-row-dates">
+          <ui-josanz-input label="Emisión" type="date" [(ngModel)]="formData.issueDate"></ui-josanz-input>
+          <ui-josanz-input label="Vencimiento" type="date" [(ngModel)]="formData.dueDate"></ui-josanz-input>
+        </div>
+      </div>
+      <div modal-footer class="modal-footer-actions">
+        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
+        <ui-josanz-button
+          variant="app"
+          (clicked)="saveInvoice()"
+          [disabled]="!editingInvoice() && !formData.budgetId"
+        >
+          {{ editingInvoice() ? 'GUARDAR' : 'CREAR BORRADOR' }}
+        </ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
+
     <!-- Verifactu QR Modal -->
     <ui-josanz-modal
       [isOpen]="isVerifactuQrModalOpen()"
@@ -272,6 +321,14 @@ import { VerifactuStore, VerifactuService } from '@josanz-erp/verifactu-data-acc
         padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.05);
       }
 
+      .invoice-form { display: flex; flex-direction: column; gap: 1.25rem; padding: 0.25rem 0; }
+      .form-hint { font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; margin: 0; }
+      .readonly-client { display: flex; flex-direction: column; gap: 6px; }
+      .readonly-client .lbl { font-size: 0.55rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; }
+      .readonly-client .val { font-size: 0.85rem; font-weight: 700; color: #fff; }
+      .form-row-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .modal-footer-actions { display: flex; justify-content: flex-end; gap: 1rem; width: 100%; }
+
       /* QR Modal Modernization */
       .vf-detail-premium { display: flex; flex-direction: column; gap: 2rem; }
       .vf-header { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 2px solid; }
@@ -299,6 +356,7 @@ export class BillingListComponent implements OnInit {
   private readonly facade = inject(BillingFacade);
   readonly verifactuStore = inject(VerifactuStore);
   private readonly verifactuApi = inject(VerifactuService);
+  private readonly budgetService = inject(BudgetService);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -317,9 +375,17 @@ export class BillingListComponent implements OnInit {
   editingInvoice = signal<Invoice | null>(null);
 
   formData: Partial<Invoice> = {
-    invoiceNumber: '', clientName: '', type: 'normal', status: 'draft',
-    total: 0, issueDate: new Date().toISOString().split('T')[0]
+    budgetId: '',
+    invoiceNumber: '',
+    clientName: '',
+    type: 'normal',
+    status: 'draft',
+    total: 0,
+    issueDate: new Date().toISOString().split('T')[0],
+    dueDate: new Date().toISOString().split('T')[0],
   };
+
+  budgetSelectOptions = signal<{ label: string; value: string }[]>([]);
 
   ngOnInit() { this.loadInvoices(); }
 
@@ -330,7 +396,29 @@ export class BillingListComponent implements OnInit {
 
   openCreateModal() {
     this.editingInvoice.set(null);
-    this.formData = { invoiceNumber: 'F/2026/...', clientName: '', type: 'normal', status: 'draft', total: 0 };
+    const today = new Date().toISOString().split('T')[0];
+    this.formData = {
+      budgetId: '',
+      invoiceNumber: '',
+      clientName: '',
+      type: 'normal',
+      status: 'draft',
+      total: 0,
+      issueDate: today,
+      dueDate: today,
+    };
+    this.budgetService.getBudgets().subscribe({
+      next: (list: Budget[]) => {
+        const eligible = list.filter((b) => b.status === 'ACCEPTED' || b.status === 'SENT');
+        this.budgetSelectOptions.set(
+          eligible.map((b) => ({
+            label: `#${b.id.slice(0, 8).toUpperCase()} · ${b.total.toFixed(2)} € · ${b.status}`,
+            value: b.id,
+          })),
+        );
+      },
+      error: () => this.budgetSelectOptions.set([]),
+    });
     this.isModalOpen.set(true);
   }
 
@@ -338,10 +426,22 @@ export class BillingListComponent implements OnInit {
   closeModal() { this.isModalOpen.set(false); this.editingInvoice.set(null); }
 
   saveInvoice() {
-    if (!this.formData.clientName) return;
     const invToEdit = this.editingInvoice();
-    if (invToEdit) this.facade.updateInvoice(invToEdit.id, this.formData);
-    else this.facade.createInvoice(this.formData as any);
+    if (invToEdit) {
+      this.facade.updateInvoice(invToEdit.id, this.formData);
+    } else {
+      if (!this.formData.budgetId) return;
+      this.facade.createInvoice({
+        budgetId: this.formData.budgetId,
+        invoiceNumber: this.formData.invoiceNumber?.trim() || `F/${new Date().getFullYear()}/${String(Date.now()).slice(-4)}`,
+        clientName: '—',
+        type: 'normal',
+        status: 'draft',
+        total: 0,
+        issueDate: this.formData.issueDate || new Date().toISOString().split('T')[0],
+        dueDate: this.formData.dueDate || new Date().toISOString().split('T')[0],
+      });
+    }
     this.closeModal();
   }
 
