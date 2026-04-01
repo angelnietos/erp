@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { MainAppShellComponent } from './main-app-shell.component';
+import { NotFoundComponent } from './not-found.component';
 import { DashboardComponent } from '@josanz-erp/shared-ui-shell';
 import { pluginGuard } from '@josanz-erp/shared-data-access';
 
@@ -66,10 +67,14 @@ export const appRoutes: Route[] = [
         path: 'settings',
         loadChildren: () => import('@josanz-erp/settings-shell').then((m) => m.settingsRoutes),
       },
+      {
+        path: 'not-found',
+        component: NotFoundComponent,
+      },
     ]
   },
   {
     path: '**',
-    redirectTo: 'auth/login',
+    redirectTo: '/not-found',
   },
 ];

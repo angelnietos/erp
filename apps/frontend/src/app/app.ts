@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 
 @Component({
   imports: [RouterModule],
@@ -9,4 +10,9 @@ import { RouterModule } from '@angular/router';
 })
 export class App {
   protected title = 'frontend';
+  private readonly authStore = inject(AuthStore);
+
+  constructor() {
+    this.authStore.loadUserFromToken();
+  }
 }

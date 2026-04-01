@@ -65,9 +65,20 @@ export const AuthStore = signalStore(
       globalAuthStore.logout();
       router.navigate(['/auth/login']);
     },
-    // Rehydrate state on app load
     loadUserFromToken() {
-        // TODO: Implement token decoding or verification endpoint
-    }
+      const session = authService.readPersistedSession();
+      if (!session) {
+        return;
+      }
+      patchState(store, { user: session.user });
+      const u = session.user;
+      const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email;
+      globalAuthStore.setUser({
+        id: u.id,
+        email: u.email,
+        name: displayName,
+        tenantId: session.tenantId,
+      });
+    },
   }))
 );
