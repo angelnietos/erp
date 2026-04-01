@@ -1,7 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '@josanz-erp/shared-data-access';
-import { VerifactuSubmissionHttpClient } from '@josanz-erp/verifactu-adapters';
+import {
+  VerifactuPrismaService,
+  VerifactuSubmissionHttpClient,
+} from '@josanz-erp/verifactu-adapters';
 
 @Injectable()
 export class VerifactuWorkerService implements OnModuleInit {
@@ -9,8 +11,8 @@ export class VerifactuWorkerService implements OnModuleInit {
   private isProcessing = false;
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly verifactuClient: VerifactuSubmissionHttpClient
+    private readonly prisma: VerifactuPrismaService,
+    private readonly verifactuClient: VerifactuSubmissionHttpClient,
   ) {}
 
   onModuleInit() {

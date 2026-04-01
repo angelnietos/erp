@@ -7,6 +7,7 @@ import {
   UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
+import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
 import { getStoredTenantId } from '@josanz-erp/identity-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
@@ -245,9 +246,10 @@ export class VerifactuDashboardComponent implements OnInit {
 		}
 	}
 
-	viewInvoiceDetail(record: { id: string }): void {
-		this.store.loadInvoiceDetail(record.id);
-		this.selectedInvoiceId.set(record.id);
+	viewInvoiceDetail(record: VerifactuRecord): void {
+		// API detail is keyed by Invoice.id, not VerifactuLog.id (record.id).
+		this.store.loadInvoiceDetailWithQr(record.invoiceId);
+		this.selectedInvoiceId.set(record.invoiceId);
 		this.isDetailModalOpen.set(true);
 	}
 
