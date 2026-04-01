@@ -20,7 +20,11 @@ import {
   DeliveryNote as ApiDeliveryNote,
   DeliveryNoteService,
 } from '@josanz-erp/delivery-data-access';
-import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
+import {
+  openPrintableDocument,
+  escapeHtml,
+  parseSignatureDisplayValue,
+} from '@josanz-erp/shared-utils';
 
 export interface DeliveryItem {
   id: string;
@@ -304,16 +308,9 @@ export class DeliveryDetailComponent implements OnInit {
   }
 
   private toView(api: ApiDeliveryNote): DeliveryDetailView {
-    const sig = api.signature?.trim();
-    let signatureImageSrc: string | undefined;
-    let signatureText: string | undefined;
-    if (sig) {
-      if (sig.startsWith('data:image/') || /^https?:\/\//i.test(sig)) {
-        signatureImageSrc = sig;
-      } else {
-        signatureText = sig;
-      }
-    }
+    const { imageSrc: signatureImageSrc, text: signatureText } = parseSignatureDisplayValue(
+      api.signature,
+    );
 
     const allowed: DeliveryItem['condition'][] = ['new', 'good', 'damaged', 'missing'];
     const items: DeliveryItem[] = (api.items ?? []).map((i) => ({

@@ -18,3 +18,4 @@ export * from './lib/validation/validators';
 
 // Browser (solo entorno cliente)
 export * from './lib/browser/print-html';
+export * from './lib/browser/signature-display';

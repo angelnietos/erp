@@ -289,12 +289,19 @@ async function main() {
   });
   console.log('- Created inventory reservation');
 
+  /** SVG embebido como data URL: evita URLs ficticias que rompen <img> en el detalle de albarán. */
+  const demoSignatureDataUrl =
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="100" viewBox="0 0 280 100"><rect fill="#ffffff" width="100%" height="100%" stroke="#94a3b8" stroke-width="1"/><path d="M24 58 Q72 28 120 52 T228 48" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><text x="140" y="86" text-anchor="middle" font-size="10" fill="#64748b" font-family="system-ui,sans-serif">Firma de demostración (seed)</text></svg>`,
+    );
+
   await prisma.deliveryNote.create({
     data: {
       tenantId: tenant.id,
       budgetId: budgetApproved1.id,
       status: 'signed',
-      signatureBlobUrl: 'https://fake-signature-url.com/sig1.png',
+      signatureBlobUrl: demoSignatureDataUrl,
     },
   });
 
