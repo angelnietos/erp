@@ -8,7 +8,6 @@ import {
   UiStatCardComponent,
   UiCardComponent,
   UiButtonComponent,
-  UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
@@ -27,7 +26,6 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
     UiStatCardComponent,
     UiCardComponent,
     UiButtonComponent,
-    UiBadgeComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
