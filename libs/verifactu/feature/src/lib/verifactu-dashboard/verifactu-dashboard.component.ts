@@ -194,10 +194,10 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
               <span class="detail-value font-mono">{{ inv.aeatReference }}</span>
             </div>
           }
-          @if (inv.hashChain?.currentHash) {
+          @if (inv.hashChain?.currentHash; as currentHash) {
             <div class="detail-block span-2">
               <span class="detail-label">Huella registro</span>
-              <span class="detail-hash">{{ inv.hashChain.currentHash }}</span>
+              <span class="detail-hash">{{ currentHash }}</span>
             </div>
           }
           @if (inv.qrCode) {
