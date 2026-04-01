@@ -278,6 +278,22 @@ export class VerifactuRuntimeFacade {
     return `${series}/${String(number).padStart(4, '0')}`;
   }
 
+  /** UI list rows use VerifactuLog.id; detail endpoint loads Invoice — accept either id. */
+  private async resolveInvoicePk(invoiceOrLogId: string): Promise<string | null> {
+    const asInvoice = await this.prisma.invoice.findUnique({
+      where: { id: invoiceOrLogId },
+      select: { id: true },
+    });
+    if (asInvoice) {
+      return asInvoice.id;
+    }
+    const log = await this.prisma.verifactuLog.findUnique({
+      where: { id: invoiceOrLogId },
+      select: { invoiceId: true },
+    });
+    return log?.invoiceId ?? null;
+  }
+
   async getInvoiceDetail(invoiceId: string) {
     const mock = BILLING_MOCK_INVOICES[invoiceId];
     if (mock) {
@@ -288,8 +304,13 @@ export class VerifactuRuntimeFacade {
       throw new NotFoundException(`Invoice ${invoiceId} not found`);
     }
 
+    const invoicePk = await this.resolveInvoicePk(invoiceId);
+    if (!invoicePk) {
+      throw new NotFoundException(`Invoice ${invoiceId} not found`);
+    }
+
     const row = await this.prisma.invoice.findUnique({
-      where: { id: invoiceId },
+      where: { id: invoicePk },
       include: {
         budget: { include: { client: true } },
         verifactuLogs: { orderBy: { createdAt: 'desc' }, take: 1 },
