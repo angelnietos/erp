@@ -149,68 +149,69 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </ui-josanz-card>
          </div>
       </div>
-
-      <ui-josanz-modal
-        [isOpen]="isDetailModalOpen()"
-        title="Detalle factura VeriFactu"
-        variant="dark"
-        [showFooter]="true"
-        (closed)="closeDetailModal()"
-      >
-        @if (store.loading() && !store.selectedInvoice()) {
-          <p class="detail-loading">Cargando detalle…</p>
-        } @else if (store.error() && !store.selectedInvoice()) {
-          <p class="detail-error">{{ store.error() }}</p>
-        } @else if (store.selectedInvoice(); as inv) {
-          <div class="detail-grid">
-            <div class="detail-block">
-              <span class="detail-label">Cliente</span>
-              <span class="detail-value">{{ inv.customerName }}</span>
-            </div>
-            <div class="detail-block">
-              <span class="detail-label">NIF</span>
-              <span class="detail-value">{{ inv.customerNif || '—' }}</span>
-            </div>
-            <div class="detail-block">
-              <span class="detail-label">Emisión</span>
-              <span class="detail-value">{{ inv.issueDate }}</span>
-            </div>
-            <div class="detail-block">
-              <span class="detail-label">Estado VeriFactu</span>
-              <span class="detail-value">{{ inv.verifactuStatus }}</span>
-            </div>
-            <div class="detail-block span-2">
-              <span class="detail-label">Importes</span>
-              <span class="detail-value">
-                Base {{ formatCurrency(inv.subtotal) }} · IVA {{ formatCurrency(inv.taxAmount) }} ·
-                <strong>Total {{ formatCurrency(inv.total) }}</strong>
-              </span>
-            </div>
-            @if (inv.aeatReference) {
-              <div class="detail-block span-2">
-                <span class="detail-label">Referencia AEAT</span>
-                <span class="detail-value font-mono">{{ inv.aeatReference }}</span>
-              </div>
-            }
-            @if (inv.hashChain?.currentHash) {
-              <div class="detail-block span-2">
-                <span class="detail-label">Huella registro</span>
-                <span class="detail-hash">{{ inv.hashChain.currentHash }}</span>
-              </div>
-            }
-            @if (inv.qrCode) {
-              <div class="detail-qr span-2">
-                <span class="detail-label">QR VeriFactu</span>
-                <img [src]="inv.qrCode" alt="Código QR factura" class="qr-img" />
-              </div>
-            }
-          </div>
-        }
-        <div modal-footer>
-          <ui-josanz-button variant="ghost" (clicked)="closeDetailModal()">Cerrar</ui-josanz-button>
-        </div>
-      </ui-josanz-modal>
     </div>
+
+    <ui-josanz-modal
+      class="verifactu-detail-modal"
+      [isOpen]="isDetailModalOpen()"
+      title="Detalle factura VeriFactu"
+      variant="dark"
+      [showFooter]="true"
+      (closed)="closeDetailModal()"
+    >
+      @if (store.loading() && !store.selectedInvoice()) {
+        <p class="detail-loading">Cargando detalle…</p>
+      } @else if (store.error() && !store.selectedInvoice()) {
+        <p class="detail-error">{{ store.error() }}</p>
+      } @else if (store.selectedInvoice(); as inv) {
+        <div class="detail-grid">
+          <div class="detail-block">
+            <span class="detail-label">Cliente</span>
+            <span class="detail-value">{{ inv.customerName }}</span>
+          </div>
+          <div class="detail-block">
+            <span class="detail-label">NIF</span>
+            <span class="detail-value">{{ inv.customerNif || '—' }}</span>
+          </div>
+          <div class="detail-block">
+            <span class="detail-label">Emisión</span>
+            <span class="detail-value">{{ inv.issueDate }}</span>
+          </div>
+          <div class="detail-block">
+            <span class="detail-label">Estado VeriFactu</span>
+            <span class="detail-value">{{ inv.verifactuStatus }}</span>
+          </div>
+          <div class="detail-block span-2">
+            <span class="detail-label">Importes</span>
+            <span class="detail-value">
+              Base {{ formatCurrency(inv.subtotal) }} · IVA {{ formatCurrency(inv.taxAmount) }} ·
+              <strong>Total {{ formatCurrency(inv.total) }}</strong>
+            </span>
+          </div>
+          @if (inv.aeatReference) {
+            <div class="detail-block span-2">
+              <span class="detail-label">Referencia AEAT</span>
+              <span class="detail-value font-mono">{{ inv.aeatReference }}</span>
+            </div>
+          }
+          @if (inv.hashChain?.currentHash) {
+            <div class="detail-block span-2">
+              <span class="detail-label">Huella registro</span>
+              <span class="detail-hash">{{ inv.hashChain.currentHash }}</span>
+            </div>
+          }
+          @if (inv.qrCode) {
+            <div class="detail-qr span-2">
+              <span class="detail-label">QR VeriFactu</span>
+              <img [src]="inv.qrCode" alt="Código QR factura" class="qr-img" />
+            </div>
+          }
+        </div>
+      }
+      <div modal-footer>
+        <ui-josanz-button variant="ghost" (clicked)="closeDetailModal()">Cerrar</ui-josanz-button>
+      </div>
+    </ui-josanz-modal>
   `,
 	styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
@@ -298,10 +299,15 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     .detail-hash { font-size: 0.65rem; color: var(--text-secondary); word-break: break-all; line-height: 1.4; }
     .detail-qr { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
     .qr-img { max-width: 220px; height: auto; border-radius: 8px; background: #fff; padding: 8px; }
+
+    :host ::ng-deep .verifactu-detail-modal .modal-overlay {
+      z-index: 12000;
+    }
   `],
 })
 export class VerifactuDashboardComponent implements OnInit {
-	protected store = inject(VerifactuStore);
+	protected readonly store = inject(VerifactuStore);
+  private readonly cdr = inject(ChangeDetectorRef);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -310,6 +316,17 @@ export class VerifactuDashboardComponent implements OnInit {
 	invoiceIdToSubmit = signal('');
 	selectedInvoiceId = signal('');
 	isDetailModalOpen = signal(false);
+
+  constructor() {
+    effect(() => {
+      this.store.records();
+      this.store.selectedInvoice();
+      this.store.loading();
+      this.store.error();
+      this.isDetailModalOpen();
+      this.cdr.markForCheck();
+    });
+  }
 
 	ngOnInit(): void {
     this.tenantId.set(getStoredTenantId() ?? '');
