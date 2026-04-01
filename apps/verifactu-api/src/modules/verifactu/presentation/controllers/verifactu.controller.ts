@@ -1,10 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { SubmitVerifactuInvoiceDto } from '@josanz-erp/verifactu-core';
 import { VerifactuApiKeyGuard } from '@josanz-erp/verifactu-adapters';
 import { EnqueueInvoiceDto } from '../../application/dtos/enqueue-invoice.dto';
 import { CreateWebhookEndpointDto } from '../../application/dtos/create-webhook-endpoint.dto';
 import { CreateCustomerDto } from '../../application/dtos/create-customer.dto';
 import { CreateSeriesDto } from '../../application/dtos/create-series.dto';
+import { CancelInvoiceDto } from '../../application/dtos/cancel-invoice.dto';
 import { VerifactuAppService } from '../../application/services/verifactu-app.service';
 
 @Controller('verifactu')
@@ -35,7 +46,7 @@ export class VerifactuController {
   }
 
   @Get('webhooks/:tenantId')
-  listWebhooks(@Param('tenantId') tenantId: string) {
+  listWebhooks(@Param('tenantId', ParseUUIDPipe) tenantId: string) {
     return this.appService.listWebhookEndpoints(tenantId);
   }
 
@@ -50,7 +61,7 @@ export class VerifactuController {
   }
 
   @Get('customers/:tenantId')
-  listCustomers(@Param('tenantId') tenantId: string) {
+  listCustomers(@Param('tenantId', ParseUUIDPipe) tenantId: string) {
     return this.appService.listCustomers(tenantId);
   }
 
@@ -60,7 +71,7 @@ export class VerifactuController {
   }
 
   @Get('series/:tenantId')
-  listSeries(@Param('tenantId') tenantId: string) {
+  listSeries(@Param('tenantId', ParseUUIDPipe) tenantId: string) {
     return this.appService.listSeries(tenantId);
   }
 
@@ -71,7 +82,7 @@ export class VerifactuController {
 
   @Get('records/:tenantId')
   queryRecords(
-    @Param('tenantId') tenantId: string,
+    @Param('tenantId', ParseUUIDPipe) tenantId: string,
     @Query('status') status?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
@@ -80,7 +91,7 @@ export class VerifactuController {
   }
 
   @Get('compliance/summary/:tenantId')
-  summary(@Param('tenantId') tenantId: string) {
+  summary(@Param('tenantId', ParseUUIDPipe) tenantId: string) {
     return this.appService.complianceSummary(tenantId);
   }
 
@@ -96,10 +107,10 @@ export class VerifactuController {
 
   @Post('invoices/:invoiceId/cancel')
   cancelInvoice(
-    @Param('invoiceId') invoiceId: string,
-    @Body() body: { tenantId: string },
+    @Param('invoiceId', ParseUUIDPipe) invoiceId: string,
+    @Body() body: CancelInvoiceDto,
   ) {
-    return this.appService.cancelInvoice(invoiceId, body?.tenantId ?? '');
+    return this.appService.cancelInvoice(invoiceId, body.tenantId);
   }
 }
 

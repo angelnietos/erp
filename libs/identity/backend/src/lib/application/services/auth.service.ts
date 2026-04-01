@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
-import { TenantContext } from '@josanz-erp/shared-infrastructure';
+import { TenantContext, isTenantUuid } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
 
@@ -26,8 +26,13 @@ export class AuthService {
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
     const fromHeader = this.cls.get('tenantId');
-    if (fromHeader) {
-      return fromHeader;
+    if (fromHeader && isTenantUuid(fromHeader)) {
+      const tenant = await this.prisma.tenant.findFirst({
+        where: { id: fromHeader.trim(), isActive: true },
+      });
+      if (tenant) {
+        return tenant.id;
+      }
     }
     if (dto.tenantSlug) {
       const tenant = await this.prisma.tenant.findUnique({
@@ -39,7 +44,7 @@ export class AuthService {
       return tenant.id;
     }
     throw new BadRequestException(
-      'Tenant is required: send the x-tenant-id header or tenantSlug in the login body (e.g. "josanz" for the default seed tenant).',
+      'Tenant is required: send a valid x-tenant-id (UUID) or tenantSlug in the login body (e.g. "josanz" for the default seed tenant).',
     );
   }
 

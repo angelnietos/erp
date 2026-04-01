@@ -1,12 +1,7 @@
 import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class EnqueueInvoiceDto {
-  @IsUUID()
-  @IsNotEmpty()
-  invoiceId!: string;
-
+export class CancelInvoiceDto {
   @IsUUID()
   @IsNotEmpty()
   tenantId!: string;
 }
-

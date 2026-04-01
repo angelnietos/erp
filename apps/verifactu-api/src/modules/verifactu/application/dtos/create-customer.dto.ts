@@ -1,7 +1,7 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateCustomerDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   tenantId!: string;
 

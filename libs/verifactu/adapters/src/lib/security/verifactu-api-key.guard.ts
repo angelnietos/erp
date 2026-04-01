@@ -15,6 +15,13 @@ function headerOne(req: HttpReq, name: string): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
 
+const TENANT_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isTenantUuid(value: string): boolean {
+  return TENANT_UUID_RE.test(value.trim());
+}
+
 @Injectable()
 export class VerifactuApiKeyGuard implements CanActivate {
   constructor(private readonly prisma: VerifactuPrismaService) {}
@@ -40,6 +47,11 @@ export class VerifactuApiKeyGuard implements CanActivate {
     const tenantId = tenantIdRaw?.trim() || undefined;
     const apiKey = apiKeyHeader?.trim() || undefined;
     if (!apiKey || !tenantId) throw new UnauthorizedException('Missing x-api-key or tenantId');
+    if (!isTenantUuid(tenantId)) {
+      throw new UnauthorizedException(
+        'tenantId must be the tenant UUID from login, not a code or slug (e.g. not TENANT-PRO-2026).',
+      );
+    }
 
     const keyHash = createHash('sha256').update(apiKey).digest('hex');
     const key = await this.prisma.tenantApiKey.findFirst({

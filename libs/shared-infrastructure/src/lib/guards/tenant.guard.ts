@@ -23,7 +23,9 @@ export class TenantGuard implements CanActivate {
 
     const tenantId = this.cls.get('tenantId');
     if (!tenantId) {
-      throw new UnauthorizedException('Security Context Failed: Missing or invalid x-tenant-id. Route is completely sealed by Multi-Tenant OCP.');
+      throw new UnauthorizedException(
+        'Missing or invalid x-tenant-id: send the tenant UUID from login (not a slug or external code like TENANT-PRO-2026).',
+      );
     }
 
     return true;
