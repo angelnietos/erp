@@ -4,6 +4,13 @@ import { Observable } from 'rxjs';
 
 export type RentalSignatureStatus = 'NONE' | 'PENDING' | 'SIGNED';
 
+export interface RentalAnnex {
+  id: string;
+  title: string;
+  description?: string | null;
+  createdAt: string;
+}
+
 export interface Rental {
   id: string;
   clientId: string;
@@ -12,12 +19,13 @@ export interface Rental {
   startDate: string;
   endDate: string;
   itemsCount: number;
-  
+
   totalAmount: number;
   createdAt: string;
   /** Firma digital del contrato (Verifactu / proveedor externo). */
   signatureStatus?: RentalSignatureStatus;
   signedAt?: string;
+  annexes?: RentalAnnex[];
 }
 
 export interface RentalItem {
@@ -37,8 +45,15 @@ export class RentalService {
     return this.http.get<Rental[]>(this.apiUrl);
   }
 
-  getRental(id: string): Observable<Rental | undefined> {
+  getRental(id: string): Observable<Rental> {
     return this.http.get<Rental>(`${this.apiUrl}/${id}`);
+  }
+
+  addRentalAnnex(
+    rentalId: string,
+    body: { title: string; description?: string },
+  ): Observable<Rental> {
+    return this.http.post<Rental>(`${this.apiUrl}/${rentalId}/annexes`, body);
   }
 
   createRental(rental: Omit<Rental, 'id' | 'createdAt'>): Observable<Rental> {

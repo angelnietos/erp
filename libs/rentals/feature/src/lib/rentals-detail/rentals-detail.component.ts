@@ -1,11 +1,19 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
-  UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent
+  UiCardComponent, UiButtonComponent, UiBadgeComponent,
+    UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent,
+    UiTextareaComponent,
   } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rentals-data-access';
@@ -15,8 +23,9 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
   standalone: true,
   imports: [
     CommonModule, RouterModule, FormsModule, LucideAngularModule,
-    UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent
+    UiCardComponent, UiButtonComponent, UiBadgeComponent,
+    UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent,
+    UiTextareaComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -96,6 +105,24 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                 </div>
               </ui-josanz-card>
 
+              <ui-josanz-card variant="glass" title="Anexos al contrato">
+                @if (rental()?.annexes?.length) {
+                  <ul class="annex-list">
+                    @for (a of rental()!.annexes!; track a.id) {
+                      <li class="annex-item">
+                        <span class="annex-title">{{ a.title }}</span>
+                        @if (a.description) {
+                          <p class="annex-desc">{{ a.description }}</p>
+                        }
+                        <span class="annex-date">{{ formatDate(a.createdAt) }}</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="annex-empty">No hay anexos. Usa «Añadir anexo» en el panel lateral.</p>
+                }
+              </ui-josanz-card>
+
               <ui-josanz-card variant="glass" title="Registro de Actividad">
                  <div class="activity-timeline">
                     <div class="timeline-item">
@@ -152,7 +179,7 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
 
               <ui-josanz-card variant="glass" title="Acciones Rápidas">
                  <div class="quick-actions">
-                    <ui-josanz-button variant="glass" class="full-width" icon="file-plus">AÑADIR ANEXO</ui-josanz-button>
+                    <ui-josanz-button variant="glass" class="full-width" icon="file-plus" (clicked)="openAnnexModal()">AÑADIR ANEXO</ui-josanz-button>
                     @if (rental()?.status !== 'CANCELLED' && rental()?.status !== 'COMPLETED') {
                       <ui-josanz-button variant="glass" class="full-width danger-btn" icon="trash-2" (clicked)="cancel()">ANULAR CONTRATO</ui-josanz-button>
                     }
@@ -180,6 +207,22 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
             <ui-josanz-button variant="glass" (clicked)="signatureRequestFromModal()">ENVIAR SOLICITUD</ui-josanz-button>
             <ui-josanz-button variant="app" (clicked)="signatureCompleteFromModal()">MARCAR FIRMADO</ui-josanz-button>
           }
+        </div>
+      </ui-josanz-modal>
+
+      <ui-josanz-modal
+        [isOpen]="isAnnexModalOpen()"
+        title="AÑADIR ANEXO"
+        variant="dark"
+        (closed)="closeAnnexModal()"
+      >
+        <div class="annex-modal-body">
+          <ui-josanz-input label="Título del anexo" [(ngModel)]="annexTitle" placeholder="Ej. Condiciones de uso"></ui-josanz-input>
+          <ui-josanz-textarea label="Descripción (opcional)" [(ngModel)]="annexDescription" placeholder="Detalle del anexo..." variant="dark"></ui-josanz-textarea>
+        </div>
+        <div modal-footer class="sig-modal-footer">
+          <ui-josanz-button variant="ghost" (clicked)="closeAnnexModal()">CANCELAR</ui-josanz-button>
+          <ui-josanz-button variant="app" [disabled]="!annexTitle.trim()" (clicked)="submitAnnex()">GUARDAR ANEXO</ui-josanz-button>
         </div>
       </ui-josanz-modal>
     </div>
@@ -244,12 +287,21 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
     .sig-modal-body { display: flex; flex-direction: column; gap: 1rem; }
     .sig-modal-body .muted { font-size: 0.7rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
     .sig-modal-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.75rem; width: 100%; }
+    .annex-modal-body { display: flex; flex-direction: column; gap: 1rem; }
+    .annex-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+    .annex-item { padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .annex-item:last-child { border-bottom: none; }
+    .annex-title { font-size: 0.75rem; font-weight: 800; color: #fff; display: block; }
+    .annex-desc { font-size: 0.65rem; color: var(--text-secondary); margin: 0.35rem 0 0; line-height: 1.4; }
+    .annex-date { font-size: 0.5rem; font-weight: 700; color: var(--text-muted); margin-top: 0.35rem; display: block; }
+    .annex-empty { font-size: 0.7rem; color: var(--text-muted); margin: 0; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RentalsDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly service = inject(RentalService);
+  private readonly cdr = inject(ChangeDetectorRef);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -257,7 +309,10 @@ export class RentalsDetailComponent implements OnInit {
   rental = signal<Rental | null>(null);
   isLoading = signal(true);
   isSignatureModalOpen = signal(false);
+  isAnnexModalOpen = signal(false);
   signatureEmail = '';
+  annexTitle = '';
+  annexDescription = '';
 
   openSignatureModal = (): void => {
     this.signatureEmail = '';
@@ -273,13 +328,18 @@ export class RentalsDetailComponent implements OnInit {
 
   loadRental(id: string) {
     this.isLoading.set(true);
-    setTimeout(() => {
-       this.service.getRentals().subscribe(list => {
-          const r = list.find(item => item.id === id);
-          this.rental.set(r || null);
-          this.isLoading.set(false);
-       });
-    }, 400);
+    this.service.getRental(id).subscribe({
+      next: (r) => {
+        this.rental.set(r);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.rental.set(null);
+        this.isLoading.set(false);
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   getStatusVariant(status: string | undefined): 'success' | 'warning' | 'error' | 'info' | 'default' {
@@ -288,6 +348,7 @@ export class RentalsDetailComponent implements OnInit {
       case 'DRAFT': return 'info';
       case 'CANCELLED': return 'error';
       case 'COMPLETED': return 'default';
+      case 'PENDING': return 'info';
       default: return 'default';
     }
   }
@@ -307,9 +368,78 @@ export class RentalsDetailComponent implements OnInit {
      return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
   }
 
-  activate() { const r = this.rental(); if (r) this.service.activateRental(r.id).subscribe(() => this.loadRental(r.id)); }
-  complete() { const r = this.rental(); if (r) this.service.completeRental(r.id).subscribe(() => this.loadRental(r.id)); }
-  cancel() { const r = this.rental(); if (r) this.service.cancelRental(r.id).subscribe(() => this.loadRental(r.id)); }
+  activate() {
+    const r = this.rental();
+    if (!r) return;
+    this.service.activateRental(r.id).subscribe({
+      next: (upd) => {
+        this.rental.set(upd);
+        this.cdr.markForCheck();
+      },
+      error: (err) => this.notifyHttpError('No se pudo activar el alquiler', err),
+    });
+  }
+
+  complete() {
+    const r = this.rental();
+    if (!r) return;
+    this.service.completeRental(r.id).subscribe({
+      next: (upd) => {
+        this.rental.set(upd);
+        this.cdr.markForCheck();
+      },
+      error: (err) => this.notifyHttpError('No se pudo finalizar el alquiler', err),
+    });
+  }
+
+  cancel() {
+    const r = this.rental();
+    if (!r) return;
+    if (!confirm('¿Anular este contrato? Esta acción marcará el alquiler como cancelado.')) return;
+    this.service.cancelRental(r.id).subscribe({
+      next: (upd) => {
+        this.rental.set(upd);
+        this.cdr.markForCheck();
+      },
+      error: (err) => this.notifyHttpError('No se pudo anular el contrato', err),
+    });
+  }
+
+  openAnnexModal() {
+    this.annexTitle = '';
+    this.annexDescription = '';
+    this.isAnnexModalOpen.set(true);
+  }
+
+  closeAnnexModal() {
+    this.isAnnexModalOpen.set(false);
+  }
+
+  submitAnnex() {
+    const r = this.rental();
+    const title = this.annexTitle.trim();
+    if (!r || !title) return;
+    this.service
+      .addRentalAnnex(r.id, {
+        title,
+        description: this.annexDescription.trim() || undefined,
+      })
+      .subscribe({
+        next: (upd) => {
+          this.rental.set(upd);
+          this.closeAnnexModal();
+          this.cdr.markForCheck();
+        },
+        error: (err) => this.notifyHttpError('No se pudo guardar el anexo', err),
+      });
+  }
+
+  private notifyHttpError(message: string, err: unknown) {
+    const body = err as { error?: { message?: string } };
+    const detail = body?.error?.message;
+    window.alert(detail ? `${message}: ${detail}` : message);
+    this.cdr.markForCheck();
+  }
 
   closeSignatureModal() {
     this.isSignatureModalOpen.set(false);
@@ -337,7 +467,9 @@ export class RentalsDetailComponent implements OnInit {
     this.service.updateRental(r.id, { signatureStatus: 'PENDING' }).subscribe({
       next: (upd) => {
         this.rental.set(upd);
+        this.cdr.markForCheck();
       },
+      error: (err) => this.notifyHttpError('No se pudo solicitar la firma', err),
     });
   }
 
@@ -347,7 +479,9 @@ export class RentalsDetailComponent implements OnInit {
     this.service.updateRental(r.id, { signatureStatus: 'SIGNED' }).subscribe({
       next: (upd) => {
         this.rental.set(upd);
+        this.cdr.markForCheck();
       },
+      error: (err) => this.notifyHttpError('No se pudo marcar como firmado', err),
     });
   }
 

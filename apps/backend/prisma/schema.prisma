@@ -113,7 +113,7 @@ model RentalAnnex {
   createdAt   DateTime @default(now()) @map("created_at")
   rental      Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
 
-  @@index([rentalId], map: "idx_rental_annexes_rental")
+  @@index([rentalId])
   @@map("rental_annexes")
 }
 

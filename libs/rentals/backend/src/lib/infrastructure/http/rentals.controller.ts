@@ -34,6 +34,20 @@ export class RentalsController {
     );
   }
 
+  @Post(':id/annexes')
+  async addAnnex(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() body: { title?: string; description?: string },
+  ) {
+    const r = req as unknown as { tenantId: string; headers: { [key: string]: string } };
+    return this.rentalsService.addAnnex(
+      r.tenantId || r.headers['x-tenant-id'] || 'default',
+      id,
+      { title: String(body?.title ?? ''), description: body?.description },
+    );
+  }
+
   @Get(':id')
   async findOne(@Req() req: Request, @Param('id') id: string) {
     const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };

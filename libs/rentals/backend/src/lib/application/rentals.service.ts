@@ -36,7 +36,11 @@ export class RentalsService {
   async findOne(tenantId: string, id: string) {
     const rental = await this.db.rental.findFirst({
       where: { id, tenantId, deletedAt: null },
-      include: { client: true, rentalItems: true },
+      include: {
+        client: true,
+        rentalItems: true,
+        rentalAnnexes: { orderBy: { createdAt: 'desc' } },
+      },
     });
     if (!rental) throw new NotFoundException('Alquiler no encontrado');
     return this.mapToDto(rental);
@@ -58,12 +62,16 @@ export class RentalsService {
         ),
         notes: String(data['notes'] || ''),
       },
-      include: { client: true, rentalItems: true }
+      include: {
+        client: true,
+        rentalItems: true,
+        rentalAnnexes: { orderBy: { createdAt: 'desc' } },
+      },
     });
     return this.mapToDto(rental);
   }
 
-  async update(_tenantId: string, id: string, data: Partial<RentalData>) {
+  async update(tenantId: string, id: string, data: Partial<RentalData>) {
     const updateData: Record<string, unknown> = {};
     if (data['status']) updateData['status'] = String(data['status']);
     if (data['notes']) updateData['notes'] = String(data['notes']);
@@ -81,25 +89,62 @@ export class RentalsService {
     }
 
     const rental = await this.db.rental.update({
-      where: { id },
+      where: { id, tenantId },
       data: updateData,
-      include: { client: true, rentalItems: true }
+      include: {
+        client: true,
+        rentalItems: true,
+        rentalAnnexes: { orderBy: { createdAt: 'desc' } },
+      },
     });
     return this.mapToDto(rental);
   }
 
-  async delete(_tenantId: string, id: string) {
+  async addAnnex(
+    tenantId: string,
+    rentalId: string,
+    data: { title: string; description?: string },
+  ) {
+    const exists = await this.db.rental.findFirst({
+      where: { id: rentalId, tenantId, deletedAt: null },
+    });
+    if (!exists) throw new NotFoundException('Alquiler no encontrado');
+    const title = String(data.title || '').trim() || 'Anexo';
+    await this.db.rentalAnnex.create({
+      data: {
+        rentalId,
+        title,
+        description:
+          data.description != null && String(data.description).trim() !== ''
+            ? String(data.description).trim()
+            : null,
+      },
+    });
+    return this.findOne(tenantId, rentalId);
+  }
+
+  async delete(tenantId: string, id: string) {
     await this.db.rental.update({
-      where: { id },
+      where: { id, tenantId },
       data: { deletedAt: new Date() },
     });
     return { success: true };
   }
 
+  private normalizeRentalStatus(raw: unknown): string {
+    const s = String(raw ?? '').toLowerCase();
+    if (s === 'pending') return 'DRAFT';
+    return String(raw ?? 'DRAFT').toUpperCase();
+  }
+
   private mapToDto(rental: Record<string, unknown>) {
     const client = rental['client'] as Record<string, unknown> | null;
     const rentalItems = rental['rentalItems'] as Record<string, unknown>[] | null;
+    const rentalAnnexes = rental['rentalAnnexes'] as
+      | Record<string, unknown>[]
+      | null;
     const items = rentalItems ?? [];
+    const annexes = rentalAnnexes ?? [];
     const totalPrice = Number(rental['totalPrice'] ?? 0);
     const createdAt = rental['createdAt'] as Date | undefined;
     return {
@@ -113,7 +158,7 @@ export class RentalsService {
       endDate: rental['endDate']
         ? (rental['endDate'] as Date).toISOString().split('T')[0]
         : '',
-      status: rental['status'],
+      status: this.normalizeRentalStatus(rental['status']),
       totalPrice,
       totalAmount: totalPrice,
       itemsCount: items.length,
@@ -134,6 +179,12 @@ export class RentalsService {
         quantity: i['quantity'],
         unitPrice: i['unitPrice'] ?? 0,
         total: Number(i['quantity']) * Number(i['unitPrice'] ?? 0),
+      })),
+      annexes: annexes.map((a: Record<string, unknown>) => ({
+        id: a['id'],
+        title: a['title'],
+        description: a['description'],
+        createdAt: (a['createdAt'] as Date).toISOString(),
       })),
     };
   }
