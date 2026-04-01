@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -134,6 +134,67 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </ui-josanz-card>
          </div>
       </div>
+
+      <ui-josanz-modal
+        [isOpen]="isDetailModalOpen()"
+        title="Detalle factura VeriFactu"
+        variant="dark"
+        [showFooter]="true"
+        (closed)="closeDetailModal()"
+      >
+        @if (store.loading() && !store.selectedInvoice()) {
+          <p class="detail-loading">Cargando detalle…</p>
+        } @else if (store.error() && !store.selectedInvoice()) {
+          <p class="detail-error">{{ store.error() }}</p>
+        } @else if (store.selectedInvoice(); as inv) {
+          <div class="detail-grid">
+            <div class="detail-block">
+              <span class="detail-label">Cliente</span>
+              <span class="detail-value">{{ inv.customerName }}</span>
+            </div>
+            <div class="detail-block">
+              <span class="detail-label">NIF</span>
+              <span class="detail-value">{{ inv.customerNif || '—' }}</span>
+            </div>
+            <div class="detail-block">
+              <span class="detail-label">Emisión</span>
+              <span class="detail-value">{{ inv.issueDate }}</span>
+            </div>
+            <div class="detail-block">
+              <span class="detail-label">Estado VeriFactu</span>
+              <span class="detail-value">{{ inv.verifactuStatus }}</span>
+            </div>
+            <div class="detail-block span-2">
+              <span class="detail-label">Importes</span>
+              <span class="detail-value">
+                Base {{ formatCurrency(inv.subtotal) }} · IVA {{ formatCurrency(inv.taxAmount) }} ·
+                <strong>Total {{ formatCurrency(inv.total) }}</strong>
+              </span>
+            </div>
+            @if (inv.aeatReference) {
+              <div class="detail-block span-2">
+                <span class="detail-label">Referencia AEAT</span>
+                <span class="detail-value font-mono">{{ inv.aeatReference }}</span>
+              </div>
+            }
+            @if (inv.hashChain?.currentHash) {
+              <div class="detail-block span-2">
+                <span class="detail-label">Huella registro</span>
+                <span class="detail-hash">{{ inv.hashChain.currentHash }}</span>
+              </div>
+            }
+            @if (inv.qrCode) {
+              <div class="detail-qr span-2">
+                <span class="detail-label">QR VeriFactu</span>
+                <img [src]="inv.qrCode" alt="Código QR factura" class="qr-img" />
+              </div>
+            }
+          </div>
+        }
+        <div modal-footer>
+          <ui-josanz-button variant="ghost" (clicked)="closeDetailModal()">Cerrar</ui-josanz-button>
+        </div>
+      </ui-josanz-modal>
     </div>
   `,
 	styles: [`
@@ -210,8 +271,19 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     .cert-info { display: flex; flex-direction: column; gap: 2px; }
     .cert-name { font-size: 0.65rem; font-weight: 900; color: #fff; }
     .cert-expiry { font-size: 0.5rem; color: var(--text-muted); }
+
+    .detail-loading, .detail-error { font-size: 0.8rem; margin: 0; color: var(--text-secondary); }
+    .detail-error { color: #f87171; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
+    .detail-block { display: flex; flex-direction: column; gap: 0.35rem; }
+    .detail-block.span-2 { grid-column: 1 / -1; }
+    .detail-label { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; }
+    .detail-value { font-size: 0.8rem; color: #fff; }
+    .font-mono { font-family: ui-monospace, monospace; font-size: 0.7rem; word-break: break-all; }
+    .detail-hash { font-size: 0.65rem; color: var(--text-secondary); word-break: break-all; line-height: 1.4; }
+    .detail-qr { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .qr-img { max-width: 220px; height: auto; border-radius: 8px; background: #fff; padding: 8px; }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerifactuDashboardComponent implements OnInit {
 	protected store = inject(VerifactuStore);
@@ -262,6 +334,7 @@ export class VerifactuDashboardComponent implements OnInit {
 		switch (status) {
 			case 'COMPLETED':
 			case 'SENT':
+			case 'SUCCESS':
 				return 'success';
 			case 'PROCESSING':
 			case 'PENDING':
