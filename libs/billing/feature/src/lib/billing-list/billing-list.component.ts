@@ -18,7 +18,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
-import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
+import { getStoredTenantId } from '@josanz-erp/identity-data-access';
+import { VerifactuStore, VerifactuService } from '@josanz-erp/verifactu-data-access';
 
 @Component({
   selector: 'lib-billing-list',
@@ -297,6 +298,7 @@ export class BillingListComponent implements OnInit {
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(BillingFacade);
   readonly verifactuStore = inject(VerifactuStore);
+  private readonly verifactuApi = inject(VerifactuService);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -355,16 +357,32 @@ export class BillingListComponent implements OnInit {
   }
 
   sendToVerifactu(inv: Invoice): void {
-    if (!inv.id) return;
-    this.verifactuStore.submitInvoiceDirect(inv.id, 'TENANT-PRO-2026');
-    this.facade.updateInvoice(inv.id, { verifactuStatus: 'sent' });
+    const tenantId = getStoredTenantId();
+    if (!inv.id || !tenantId) return;
+    this.verifactuStore.clearError();
+    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.facade.loadInvoices();
+        } else {
+          this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
+        }
+      },
+      error: () => this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' }),
+    });
   }
 
   rectifyInvoice(inv: Invoice): void {
-    if (!inv.id) return;
+    const tenantId = getStoredTenantId();
+    if (!inv.id || !tenantId) return;
     if (confirm(`¿Estás seguro de que deseas emitir una factura rectificativa para ${inv.invoiceNumber} y notificar a la AEAT?`)) {
-      this.verifactuStore.cancelInvoice(inv.id, 'TENANT-PRO-2026');
-      this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
+      this.verifactuApi.cancelInvoice(inv.id, tenantId).subscribe({
+        next: (ok) => {
+          if (ok) {
+            this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
+          }
+        },
+      });
     }
   }
 

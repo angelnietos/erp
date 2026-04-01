@@ -64,5 +64,9 @@ export class VerifactuAppService {
   getInvoiceQr(invoiceId: string) {
     return this.runtime.getInvoiceQr(invoiceId);
   }
+
+  cancelInvoice(invoiceId: string, tenantId: string) {
+    return this.runtime.cancelInvoice(invoiceId, tenantId);
+  }
 }
 

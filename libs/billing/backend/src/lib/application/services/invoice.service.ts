@@ -82,8 +82,11 @@ export class InvoiceService {
 
   async update(tenantId: string, id: string, data: InvoiceData) {
     const updateData: Record<string, unknown> = {};
-    if (data.status) updateData.status = data.status;
-    if (data.type) updateData.type = data.type;
+    if (data.status) updateData.status = String(data.status).toUpperCase();
+    if (data.type) updateData.type = String(data.type).toUpperCase();
+    if (data.verifactuStatus) {
+      updateData.verifactuStatus = String(data.verifactuStatus).toUpperCase();
+    }
 
     const invoice = await this.prisma.invoice.update({
       where: { id },

@@ -11,6 +11,8 @@ export interface EnqueueInvoiceResponse {
 export interface VerifactuRecord {
 	id: string;
 	invoiceId: string;
+	/** Nº factura ERP cuando viene de la relación con `Invoice`. */
+	reference?: string;
 	series?: string;
 	number?: number;
 	customerNif?: string;

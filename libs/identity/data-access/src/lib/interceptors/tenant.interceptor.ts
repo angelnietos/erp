@@ -4,7 +4,11 @@ const TENANT_STORAGE_KEY = 'tenant_id';
 
 /** API origins that require the multi-tenant header (adjust if your backend URL differs). */
 function shouldAttachTenantHeader(url: string): boolean {
-  return url.includes('localhost:3000') || url.includes('/api/');
+  return (
+    url.includes('localhost:3000') ||
+    url.includes('localhost:3110') ||
+    url.includes('/api/')
+  );
 }
 
 export function getStoredTenantId(): string | null {

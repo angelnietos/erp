@@ -13,8 +13,15 @@ export class VerifactuController {
   constructor(private readonly appService: VerifactuAppService) {}
 
   @Post('submit')
-  submit(@Body() dto: SubmitVerifactuInvoiceDto) {
-    return this.appService.submitInvoice(dto);
+  async submit(@Body() dto: SubmitVerifactuInvoiceDto) {
+    const r = await this.appService.submitInvoice(dto);
+    return {
+      success: r.status === 'SENT',
+      queueItemId: r.invoiceId,
+      message:
+        r.status === 'SENT' ? 'Registro fiscal enviado correctamente.' : 'El envío a Verifactu ha fallado.',
+      aeatReference: r.aeatReference,
+    };
   }
 
   @Post('queue/enqueue')
@@ -85,6 +92,14 @@ export class VerifactuController {
   @Get('invoices/:invoiceId')
   invoiceDetail(@Param('invoiceId') invoiceId: string) {
     return this.appService.getInvoiceDetail(invoiceId);
+  }
+
+  @Post('invoices/:invoiceId/cancel')
+  cancelInvoice(
+    @Param('invoiceId') invoiceId: string,
+    @Body() body: { tenantId: string },
+  ) {
+    return this.appService.cancelInvoice(invoiceId, body?.tenantId ?? '');
   }
 }
 

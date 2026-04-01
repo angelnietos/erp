@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { appRoutes } from './app.routes';
 import { authInterceptor, tenantInterceptor } from '@josanz-erp/identity-data-access';
 import { apiOriginInterceptor } from './api-origin.interceptor';
+import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
 import { 
   User, Lock, ArrowRight, LucideAngularModule, 
   Search, Building2, Bell, LayoutDashboard, 
@@ -31,7 +32,12 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideHttpClient(
-      withInterceptors([apiOriginInterceptor, tenantInterceptor, authInterceptor]),
+      withInterceptors([
+        apiOriginInterceptor,
+        verifactuApiKeyInterceptor,
+        tenantInterceptor,
+        authInterceptor,
+      ]),
     ),
     importProvidersFrom(LucideAngularModule.pick({ 
       User, Lock, ArrowRight, Search, Building2, 

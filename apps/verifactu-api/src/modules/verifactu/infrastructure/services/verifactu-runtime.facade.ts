@@ -204,8 +204,8 @@ export class VerifactuRuntimeFacade {
     });
   }
 
-  queryRecords(tenantId: string, status?: string, from?: string, to?: string) {
-    return this.prisma.verifactuLog.findMany({
+  async queryRecords(tenantId: string, status?: string, from?: string, to?: string) {
+    const rows = await this.prisma.verifactuLog.findMany({
       where: {
         tenantId,
         ...(status ? { status } : {}),
@@ -218,8 +218,30 @@ export class VerifactuRuntimeFacade {
             }
           : {}),
       },
+      include: {
+        invoice: { select: { total: true, invoiceNumber: true } },
+      },
       orderBy: { createdAt: 'desc' },
       take: 200,
+    });
+
+    return rows.map((row) => ({
+      id: row.id,
+      invoiceId: row.invoiceId,
+      total: row.invoice?.total,
+      status: row.status,
+      createdAt: row.createdAt.toISOString(),
+      reference: row.invoice?.invoiceNumber,
+    }));
+  }
+
+  /** Rectificación / anulación: stub hasta enlazar flujo AEAT completo. */
+  cancelInvoice(invoiceId: string, tenantId: string) {
+    return Promise.resolve({
+      success: true,
+      invoiceId,
+      tenantId,
+      message: 'Solicitud registrada (stub). Conectar rectificación en dominio cuando aplique.',
     });
   }
 

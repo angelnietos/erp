@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class SubmitVerifactuInvoiceDto {
   @IsUUID()
   @IsNotEmpty()
   invoiceId!: string;
 
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   tenantId!: string;
 }

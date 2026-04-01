@@ -12,7 +12,8 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
-import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
+import { getStoredTenantId } from '@josanz-erp/identity-data-access';
+import { VerifactuService } from '@josanz-erp/verifactu-data-access';
 
 @Component({
   selector: 'lib-billing-detail',
@@ -237,7 +238,7 @@ export class BillingDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly invoiceService = inject(InvoiceService);
   private readonly facade = inject(BillingFacade);
-  private readonly verifactuStore = inject(VerifactuStore);
+  private readonly verifactuApi = inject(VerifactuService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -359,21 +360,37 @@ export class BillingDetailComponent implements OnInit {
      this.invoice.update(i => i ? { ...i, status: 'paid' } : i);
   }
 
-  sendToAEAT() { 
-     const inv = this.invoice();
-     if (!inv) return;
-     this.verifactuStore.submitInvoiceDirect(inv.id, 'TENANT-PRO-2026');
-     this.facade.updateInvoice(inv.id, { verifactuStatus: 'sent' });
-     this.invoice.update(i => i ? { ...i, verifactuStatus: 'sent' } : i);
+  sendToAEAT() {
+    const inv = this.invoice();
+    const tenantId = getStoredTenantId();
+    if (!inv || !tenantId) return;
+    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId).subscribe({
+      next: (res) => {
+        if (!res.success) {
+          this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
+        }
+        this.loadInvoice(inv.id);
+      },
+      error: () => {
+        this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
+        this.loadInvoice(inv.id);
+      },
+    });
   }
 
   rectifyInvoice() {
-     const inv = this.invoice();
-     if (!inv) return;
-     if (confirm(`¿Estás seguro de que deseas emitir una factura rectificativa para ${inv.invoiceNumber}?`)) {
-       this.verifactuStore.cancelInvoice(inv.id, 'TENANT-PRO-2026');
-       this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
-       this.invoice.update(i => i ? { ...i, status: 'cancelled', verifactuStatus: 'error' } : i);
-     }
+    const inv = this.invoice();
+    const tenantId = getStoredTenantId();
+    if (!inv || !tenantId) return;
+    if (confirm(`¿Estás seguro de que deseas emitir una factura rectificativa para ${inv.invoiceNumber}?`)) {
+      this.verifactuApi.cancelInvoice(inv.id, tenantId).subscribe({
+        next: (ok) => {
+          if (ok) {
+            this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
+            this.loadInvoice(inv.id);
+          }
+        },
+      });
+    }
   }
 }

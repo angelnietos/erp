@@ -7,6 +7,7 @@ import {
   UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
+import { getStoredTenantId } from '@josanz-erp/identity-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 @Component({
@@ -33,11 +34,14 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         <div class="header-actions">
            <div class="tenant-selector ui-glass-panel">
               <lucide-icon name="building-2" size="14"></lucide-icon>
-              <input type="text" [ngModel]="tenantId()" (ngModelChange)="tenantId.set($event)" placeholder="Tenant ID...">
-              <button class="sync-btn" (click)="loadRecords()">
+              <input type="text" [ngModel]="tenantId()" (ngModelChange)="tenantId.set($event)" placeholder="UUID tenant (login)">
+              <button type="button" class="sync-btn" (click)="loadRecords()">
                  <lucide-icon name="refresh-cw" size="14"></lucide-icon>
               </button>
            </div>
+           @if (!tenantId()) {
+             <span class="tenant-hint">Sin tenant en sesión: inicia sesión o pega el UUID del tenant.</span>
+           }
            <ui-josanz-button variant="primary" size="md" icon="file-up" (clicked)="submitInvoice()">REPORTE DIRECTO</ui-josanz-button>
         </div>
       </header>
@@ -78,7 +82,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                   <tbody>
                      @for (record of store.records(); track record.id) {
                        <tr class="luxe-row">
-                          <td class="font-mono">{{ record.id.slice(0, 8) }}</td>
+                          <td class="font-mono">{{ record.reference || record.invoiceId.slice(0, 8) }}</td>
                           <td>{{ formatDate(record.createdAt) }}</td>
                           <td class="font-mono">{{ formatCurrency(record.total) }}</td>
                           <td>
@@ -149,7 +153,8 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
     }
     
-    .header-actions { display: flex; gap: 1rem; align-items: center; }
+    .header-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .tenant-hint { font-size: 0.6rem; color: var(--text-muted); max-width: 220px; line-height: 1.3; }
 
     .tenant-selector {
        display: flex; align-items: center; gap: 10px; padding: 6px 12px;
@@ -213,13 +218,13 @@ export class VerifactuDashboardComponent implements OnInit {
   public readonly pluginStore = inject(PluginStore);
 
   currentTheme = this.themeService.currentThemeData;
-	tenantId = signal('TENANT-PRO-2026');
+	tenantId = signal('');
 	invoiceIdToSubmit = signal('');
 	selectedInvoiceId = signal('');
 	isDetailModalOpen = signal(false);
 
 	ngOnInit(): void {
-    // Optionally load default records
+    this.tenantId.set(getStoredTenantId() ?? '');
     this.loadRecords();
 	}
 
