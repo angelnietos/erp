@@ -3,9 +3,8 @@
  * Provides utility functions for the ERP application
  */
 
-// Crypto utilities
+// Crypto (solo Web Crypto / sin módulo `crypto` de Node — apto para Angular)
 export * from './lib/crypto/uuid';
-export * from './lib/crypto/hash';
 
 // Date utilities
 export * from './lib/date/date-utils';
