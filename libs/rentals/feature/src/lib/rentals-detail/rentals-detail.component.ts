@@ -435,8 +435,12 @@ export class RentalsDetailComponent implements OnInit {
   }
 
   private notifyHttpError(message: string, err: unknown) {
-    const body = err as { error?: { message?: string } };
-    const detail = body?.error?.message;
+    const e = err as {
+      error?: { message?: string | string[] };
+      message?: string;
+    };
+    const raw = e?.error?.message;
+    const detail = Array.isArray(raw) ? raw.join(', ') : raw;
     window.alert(detail ? `${message}: ${detail}` : message);
     this.cdr.markForCheck();
   }
