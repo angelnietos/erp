@@ -11,10 +11,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
+  /** Por defecto 3120: evita chocar con el API principal (3000) y verifactu-api (3110). */
+  const port = Number(
+    process.env.VERIFACTU_WORKER_PORT ?? process.env.PORT ?? 3120,
+  );
   await app.listen(port);
   Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
+    `🚀 Verifactu worker: http://localhost:${port}/${globalPrefix}`,
   );
 }
 
