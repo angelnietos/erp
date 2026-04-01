@@ -186,6 +186,28 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
             <ui-josanz-input label="Categoría" [(ngModel)]="formData.category" icon="tag"></ui-josanz-input>
           </div>
         </div>
+
+        <div class="form-section">
+          <h3 class="section-title text-uppercase" [style.color]="currentTheme().primary">Stock y tarifación</h3>
+          <div class="input-row">
+            <ui-josanz-input
+              label="Unidades en stock"
+              type="number"
+              [placeholder]="'0'"
+              hint="Cantidad inicial de unidades disponibles del producto."
+              [(ngModel)]="formData.totalStock"
+              icon="layers"
+            ></ui-josanz-input>
+            <ui-josanz-input
+              label="Tarifa diaria (€)"
+              type="number"
+              [placeholder]="'0'"
+              hint="Precio de alquiler por día y unidad."
+              [(ngModel)]="formData.dailyRate"
+              icon="euro"
+            ></ui-josanz-input>
+          </div>
+        </div>
       </div>
       
       <div modal-footer class="modal-actions">
@@ -300,7 +322,17 @@ export class InventoryListComponent implements OnInit {
 
   openCreateModal() {
     this.editingProduct.set(null);
-    this.formData = { name: '', sku: '', category: '', status: 'available', totalStock: 0, dailyRate: 0, type: 'generic' };
+    this.formData = {
+      name: '',
+      sku: '',
+      category: '',
+      status: 'available',
+      totalStock: 1,
+      dailyRate: 0,
+      type: 'generic',
+      availableStock: 0,
+      reservedStock: 0,
+    };
     this.isModalOpen.set(true);
   }
 
@@ -313,12 +345,32 @@ export class InventoryListComponent implements OnInit {
   closeModal() { this.isModalOpen.set(false); this.editingProduct.set(null); }
 
   saveProduct() {
-    if (!this.formData.name) return;
+    const name = this.formData.name?.trim();
+    if (!name) return;
+
+    const totalStock = Math.max(0, Math.floor(Number(this.formData.totalStock ?? 0)));
+    const dailyRate = Math.max(0, Number(this.formData.dailyRate ?? 0));
+
     const productToEdit = this.editingProduct();
     if (productToEdit) {
-      this.facade.updateProduct(productToEdit.id, this.formData);
+      this.facade.updateProduct(productToEdit.id, {
+        ...this.formData,
+        name,
+        totalStock,
+        dailyRate,
+      });
     } else {
-      this.facade.createProduct(this.formData as Omit<Product, 'id'>);
+      this.facade.createProduct({
+        name,
+        sku: (this.formData.sku ?? '').trim(),
+        category: (this.formData.category ?? '').trim() || 'Varios',
+        type: this.formData.type ?? 'generic',
+        status: this.formData.status ?? 'available',
+        totalStock,
+        availableStock: totalStock,
+        reservedStock: 0,
+        dailyRate,
+      });
     }
     this.closeModal();
   }
