@@ -1,10 +1,20 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  effect,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { 
-  UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiStatCardComponent
+import {
+  UiBadgeComponent,
+  UiButtonComponent,
+  UiCardComponent,
+  UiModalComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
@@ -15,9 +25,14 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 	selector: 'verifactu-dashboard',
 	standalone: true,
 	imports: [
-    CommonModule, FormsModule, LucideAngularModule,
-    UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiStatCardComponent
+    CommonModule,
+    FormsModule,
+    LucideAngularModule,
+    UiCardComponent,
+    UiButtonComponent,
+    UiBadgeComponent,
+    UiStatCardComponent,
+    UiModalComponent,
   ],
 	template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
