@@ -10,8 +10,12 @@
     "moduleResolution": "node",
     "baseUrl": "../../",
     "paths": {
-      "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"],
-      "@josanz-erp/verifactu-adapters": ["libs/verifactu/adapters/src/index.ts"]
+      "@josanz-erp/verifactu-core": [
+        "../../libs/isomorphic/core/verifactu/core/src/index.ts"
+      ],
+      "@josanz-erp/verifactu-adapters": [
+        "../../libs/node/adapters/verifactu/adapters/src/index.ts"
+      ]
     }
   },
   "include": ["src/**/*.ts"],
