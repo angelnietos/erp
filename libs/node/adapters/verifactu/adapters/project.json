@@ -1,7 +1,7 @@
 {
   "name": "verifactu-adapters",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/adapters/src",
+  "sourceRoot": "libs/node/adapters/verifactu/adapters/src",
   "projectType": "library",
   "tags": ["scope:verifactu", "type:adapters"],
   "targets": {

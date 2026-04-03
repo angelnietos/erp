@@ -1,7 +1,7 @@
 {
   "name": "verifactu-data-access",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/data-access/src",
+  "sourceRoot": "libs/browser/data-access/verifactu/data-access/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [

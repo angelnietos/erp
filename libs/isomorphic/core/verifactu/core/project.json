@@ -1,7 +1,7 @@
 {
   "name": "verifactu-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/core/src",
+  "sourceRoot": "libs/isomorphic/core/verifactu/core/src",
   "projectType": "library",
   "tags": ["scope:verifactu", "type:core"],
   "targets": {

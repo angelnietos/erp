@@ -1,7 +1,7 @@
 {
   "name": "verifactu-feature",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/feature/src",
+  "sourceRoot": "libs/browser/feature/verifactu/feature/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [

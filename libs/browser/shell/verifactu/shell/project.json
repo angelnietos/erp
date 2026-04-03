@@ -1,7 +1,7 @@
 {
   "name": "verifactu-shell",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/shell/src",
+  "sourceRoot": "libs/browser/shell/verifactu/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [

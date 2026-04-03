@@ -1,7 +1,7 @@
 {
   "name": "verifactu-api-lib",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/api/src",
+  "sourceRoot": "libs/isomorphic/api/verifactu/api/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
