@@ -33,7 +33,7 @@
     "test": "nx run-many --target=test --all",
     "lint": "nx run-many --target=lint --all",
     "build": "nx run-many --target=build --all",
-    "prima:seed":"npx prisma db seed"
+    "prima:seed": "npx prisma db seed"
   },
   "private": true,
   "devDependencies": {
@@ -83,6 +83,7 @@
     "jsonc-eslint-parser": "^2.1.0",
     "ng-packagr": "^21.2.2",
     "nx": "22.6.2",
+    "playwright": "^1.59.1",
     "postcss": "^8.4.5",
     "prettier": "~3.6.2",
     "prisma": "^7.5.0",
