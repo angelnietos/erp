@@ -46,6 +46,7 @@ export { UiAlertComponent } from './lib/alert/alert.component';
 export { UiDatepickerComponent } from './lib/datepicker/datepicker.component';
 
 export { UiResourceMonitorComponent } from './lib/card/resource-monitor.component';
+export type { ResourceItem } from './lib/card/resource-monitor.component';
 
 export { NavMenuComponent } from './lib/nav-menu/nav-menu.component';
 export type { NavMenuItem } from './lib/nav-menu/nav-menu.component';
