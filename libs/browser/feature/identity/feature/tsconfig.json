@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../../../../josanz-erp/tsconfig.base.json",
   "compilerOptions": {
     "isolatedModules": true,
     "target": "es2022",

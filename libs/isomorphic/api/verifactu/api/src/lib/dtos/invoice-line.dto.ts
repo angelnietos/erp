@@ -11,7 +11,7 @@ export class InvoiceLineDto {
   @Min(0)
   quantity!: number;
 
-  @ApiProperty({ description: 'Unit price', example: 100.0 })
+  @ApiProperty({ description: 'Unit price', example: 100 })
   @IsNumber()
   @Min(0)
   unitPrice!: number;
@@ -21,7 +21,7 @@ export class InvoiceLineDto {
   @IsOptional()
   discount?: number;
 
-  @ApiProperty({ description: 'Total amount for the line', example: 100.0 })
+  @ApiProperty({ description: 'Total amount for the line', example: 100 })
   @IsNumber()
   total!: number;
 }
