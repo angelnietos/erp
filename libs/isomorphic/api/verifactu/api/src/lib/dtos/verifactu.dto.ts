@@ -11,7 +11,6 @@ import {
   Min,
   Max,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import {
   TipoFactura,
   TipoIdFiscal,
@@ -71,7 +70,6 @@ export class VeriFactuInvoiceDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TaxItemDto)
   taxItems!: TaxItemDto[];
 
   @IsNumber()

@@ -22,7 +22,7 @@
         ],
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "esbuildOptions": {
-          "external": ["class-transformer/storage"]
+          "external": ["class-transformer/storage", "@nestjs/mapped-types"]
         },
         "externalDependencies": [
           "class-transformer",
