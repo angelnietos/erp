@@ -14,13 +14,6 @@
         "browser": "apps/frontend/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/frontend/tsconfig.app.json",
-        "externalDependencies": [
-          "class-transformer",
-          "@nestjs/swagger",
-          "class-validator",
-          "@nestjs/mapped-types",
-          "class-transformer/storage"
-        ],
         "assets": [
           {
             "glob": "**/*",
