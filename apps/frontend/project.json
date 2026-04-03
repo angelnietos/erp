@@ -10,16 +10,14 @@
   ],
   "targets": {
     "build": {
-      "executor": "@angular/build:application",
+      "executor": "@nx/angular:webpack-browser",
       "outputs": [
         "{options.outputPath}"
       ],
       "options": {
         "outputPath": "dist/apps/frontend",
-        "browser": "apps/frontend/src/main.ts",
-        "polyfills": [
-          "zone.js"
-        ],
+        "main": "apps/frontend/src/main.ts",
+        "polyfills": "apps/frontend/src/polyfills.ts",
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "externalDependencies": [
           "class-transformer",
