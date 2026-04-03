@@ -28,7 +28,7 @@ export class InvoiceResponseDto {
       'AceptadoConErrores',
     ],
   })
-  status: InvoiceStatus;
+  status!: InvoiceStatus;
 
   @ApiPropertyOptional({
     description: 'CSV (Código Seguro de Verificación) returned by AEAT',
@@ -119,7 +119,7 @@ export class InvoiceQueueItemDto {
     description: 'Unique identifier for the queue item',
     example: 'uuid-1234-5678-9012',
   })
-  id: string;
+  id!: string;
 
   @ApiProperty({
     description: 'Invoice data (Datos de la factura)',
@@ -131,7 +131,7 @@ export class InvoiceQueueItemDto {
     enum: ['pending', 'processing', 'sent', 'error'],
     example: 'pending',
   })
-  status: 'pending' | 'processing' | 'sent' | 'error';
+  status!: 'pending' | 'processing' | 'sent' | 'error';
 
   @ApiPropertyOptional({
     description: 'Response from AEAT (Respuesta de la AEAT)',
@@ -142,7 +142,7 @@ export class InvoiceQueueItemDto {
     description: 'Creation timestamp (Fecha de creación)',
     example: '2024-11-15T12:00:00Z',
   })
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiPropertyOptional({
     description: 'Processing timestamp (Fecha de procesamiento)',

@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { SettingsFeatureComponent } from '../../../feature/src/lib/settings-feature/settings-feature.component';
+import { SettingsFeatureComponent } from '@josanz-erp/settings-feature';
 
 export const settingsRoutes: Route[] = [
   {

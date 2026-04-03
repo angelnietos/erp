@@ -48,7 +48,7 @@ export class TaxItemDto {
   })
   @IsNumber()
   @Min(0)
-  taxRate: number;
+  taxRate!: number;
 
   @ApiProperty({
     description: 'Tax base amount (Base imponible)',
@@ -57,7 +57,7 @@ export class TaxItemDto {
   })
   @IsNumber()
   @Min(0)
-  taxBase: number;
+  taxBase!: number;
 
   @ApiProperty({
     description: 'Tax amount (Cuota tributaria)',
@@ -66,7 +66,7 @@ export class TaxItemDto {
   })
   @IsNumber()
   @Min(0)
-  taxAmount: number;
+  taxAmount!: number;
 
   @ApiProperty({
     description:

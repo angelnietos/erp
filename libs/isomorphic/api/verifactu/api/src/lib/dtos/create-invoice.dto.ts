@@ -32,14 +32,14 @@ export class CreateInvoiceDto {
   })
   @IsString()
   @MaxLength(60)
-  invoiceNumber: string;
+  invoiceNumber!: string;
 
   @ApiProperty({
     description: 'Invoice date (Fecha de la factura) - ISO 8601 format',
     example: '2024-11-15',
   })
   @IsDateString()
-  invoiceDate: string;
+  invoiceDate!: string;
 
   @ApiProperty({
     description: 'Seller NIF/CIF (NIF del emisor)',
@@ -50,7 +50,7 @@ export class CreateInvoiceDto {
   @Matches(/^[A-Za-z0-9]{9}$/, {
     message: 'Seller ID must be a valid 9-character NIF/CIF',
   })
-  sellerID: string;
+  sellerID!: string;
 
   @ApiPropertyOptional({
     description: 'Seller name (Razón social del emisor)',
@@ -128,7 +128,7 @@ export class CreateInvoiceDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TaxItemDto)
-  taxItems: TaxItemDto[];
+  taxItems!: TaxItemDto[];
 
   @ApiPropertyOptional({
     description: 'Invoice lines (Líneas de factura)',

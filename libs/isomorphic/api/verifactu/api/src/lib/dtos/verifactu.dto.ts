@@ -29,21 +29,21 @@ import { TaxItemDto } from './tax-item.dto';
 export class VeriFactuInvoiceDto {
   @IsString()
   @IsNotEmpty()
-  invoiceNumber: string;
+  invoiceNumber!: string;
 
   @IsDateString()
-  invoiceDate: string;
+  invoiceDate!: string;
 
   @IsEnum(TipoFactura)
-  tipoFactura: TipoFactura;
+  tipoFactura!: TipoFactura;
 
   @IsString()
   @IsNotEmpty()
-  sellerNif: string;
+  sellerNif!: string;
 
   @IsString()
   @IsNotEmpty()
-  sellerName: string;
+  sellerName!: string;
 
   @IsOptional()
   @IsString()
@@ -63,26 +63,26 @@ export class VeriFactuInvoiceDto {
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsNumber()
   @Min(0)
-  baseImponible: number;
+  baseImponible!: number;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TaxItemDto)
-  taxItems: TaxItemDto[];
+  taxItems!: TaxItemDto[];
 
   @IsNumber()
   @Min(0)
-  totalInvoice: number;
+  totalInvoice!: number;
 
   @IsEnum(ClaveRegimen)
-  claveRegimen: ClaveRegimen;
+  claveRegimen!: ClaveRegimen;
 
   @IsEnum(CalificacionOperacion)
-  calificacionOperacion: CalificacionOperacion;
+  calificacionOperacion!: CalificacionOperacion;
 
   @IsOptional()
   @IsEnum(TipoRectificativa)
@@ -103,10 +103,10 @@ export class VeriFactuInvoiceDto {
  */
 export class VeriFactuResponseDto {
   @IsBoolean()
-  success: boolean;
+  success!: boolean;
 
   @IsString()
-  message: string;
+  message!: string;
 
   @IsOptional()
   @IsString()
@@ -181,10 +181,10 @@ export class VeriFactuQueryDto {
 export class VeriFactuCancelDto {
   @IsString()
   @IsNotEmpty()
-  invoiceNumber: string;
+  invoiceNumber!: string;
 
   @IsEnum(MotivoAnulacion)
-  motivoAnulacion: MotivoAnulacion;
+  motivoAnulacion!: MotivoAnulacion;
 
   @IsOptional()
   @IsString()
@@ -197,16 +197,16 @@ export class VeriFactuCancelDto {
  */
 export class VeriFactuBlockchainVerificationDto {
   @IsBoolean()
-  isValid: boolean;
+  isValid!: boolean;
 
   @IsNumber()
-  totalRecords: number;
+  totalRecords!: number;
 
   @IsDateString()
-  verifiedAt: string;
+  verifiedAt!: string;
 
   @IsArray()
-  errors: Array<{
+  errors!: Array<{
     recordId: string;
     error: string;
   }>;
