@@ -7,7 +7,8 @@
     "types": ["node"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "jest.config.cts"]
