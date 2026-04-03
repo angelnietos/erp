@@ -2,7 +2,7 @@
 
 ## Resumen ejecutivo
 
-"Dado que estamos construyendo una aplicación tipo CRM con lógica compleja, análisis de vulnerabilidades y muchos formularios, Angular es una mejor elección que React porque ofrece una arquitectura más estructurada, herramientas integradas y mayor estabilidad a largo plazo."
+"Dado que estamos construyendo una aplicación tipo CRM con lógica compleja,  porque ofrece una arquitectura más estructurada, herramientas integradas y mayor estabilidad a largo plazo."
 
 ---
 
