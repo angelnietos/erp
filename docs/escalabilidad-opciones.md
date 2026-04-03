@@ -21,29 +21,36 @@ Hoy el campo de firma puede contener data URL o URL. A escala:
 
 Recomendación típica: **objeto en bucket privado** y en BD solo **clave + hash + metadatos**; el ERP genera URLs temporales para visualización.
 
-## 3. Multi-tenant y negocio SaaS
+## 3. Features, plugins y cartera de producto
+
+- Cada gran capacidad (clientes, albaranes, Verifactu, etc.) puede tratarse como **plugin de producto**: mismo código, activación por **plan**, **tenant** o **rol**.
+- **Escalar a muchos negocios** no implica muchas copias del software: implica **configuración** (qué plugins tiene cada uno) y **gobernanza** (datos aislados, informes opcionalmente consolidados para grupos).
+- **Colectivos y redes** pueden contratar el mismo paquete base y diferenciarse solo por datos y ajustes (plantillas, pipelines), no por forks.
+- Ver detalle técnico en [tecnico-arquitectura.md](./tecnico-arquitectura.md) (§4–§7).
+
+## 4. Multi-tenant y negocio SaaS
 
 - **Modelo por esquema o por fila**: el diseño actual apunta a **filas con `tenantId`** (más simple operativamente).
 - **Planes**: límites por número de usuarios, facturas/mes, o almacenamiento de firmas/PDF.
 - **White-label**: theming en Angular y dominios por tenant con misma base de código.
 
-## 4. Verifactu y cumplimiento
+## 5. Verifactu y cumplimiento
 
 - Escalado del worker acoplado a **throughput regulatorio** (reintentos, dead letter queue, monitorización de rechazos AEAT).
 - Opción B2B: **API pública documentada** para que ERPs de terceros envíen facturas a través de Josanz (nuevo flujo de ingresos).
 
-## 5. Opciones de producto / mercado
+## 6. Opciones de producto / mercado
 
 - **Verticalización**: paquetes “alquiler AV”, “eventos”, “construcción” con plantillas de presupuesto y informes.
 - **Integraciones**: contabilidad (Holded, A3, Sage), pasarelas de pago, firma electrónica.
 - **Mobile**: PWA primero; apps nativas si el campo (conductores, técnicos) lo exige offline.
 
-## 6. Observabilidad y operación
+## 7. Observabilidad y operación
 
 - Métricas por tenant (latencia API, errores Verifactu, tamaño de cola).
 - Alertas cuando el worker deje de consumir o haya tasas altas de error AEAT.
 - Backups cifrados y pruebas de restauración antes de escalar número de clientes.
 
-## 7. Resumen
+## 8. Resumen
 
-La base monorepo y la separación **core / adapters / apps** permiten escalar por **servicios** (más instancias API, más workers) y por **almacenamiento externo** (firmas y PDF definitivos) sin reescribir el dominio. Las decisiones de mayor impacto económico son **dónde vive la prueba legal de la firma** y **cómo se factura el uso de Verifactu y almacenamiento** al cliente final.
+La base monorepo y la separación **core / adapters / apps** permiten escalar por **servicios** (más instancias API, más workers) y por **almacenamiento externo** (firmas y PDF definitivos) sin reescribir el dominio. **Sumar negocios** es combinar **plugins** y **configuración**; **propagar mejoras** es desplegar una sola línea de producto y usar plantillas o flags para el rollout. Las decisiones de mayor impacto económico son **dónde vive la prueba legal de la firma**, **cómo se empaqueta el CRM u otros verticales**, y **cómo se factura Verifactu y almacenamiento** al cliente final.

@@ -31,10 +31,17 @@ Plataforma integrada para gestionar el ciclo operativo de una empresa de servici
 - **PDF desde el navegador**: útil para comprobantes operativos; documentos con exigencia legal estricta pueden requerir PDF generado y archivado en servidor.
 - **Datos de demostración**: los entornos de prueba deben usar firmas o imágenes **válidas** (p. ej. dibujo incrustado) para que dirección y ventas vean el flujo real sin “iconos rotos” que no reflejan el producto final.
 
-## 5. Mensaje para inversores o comité
+## 5. Plugins, muchos negocios y un CRM de plataforma
 
-Josanz ERP encamina la operación diaria hacia **datos estructurados** y **registros auditables**, alineados con la **digitalización fiscal en España**. La arquitectura modular permite priorizar módulos según vertical (p. ej. alquiler de audiovisual vs. logística genérica) sin rehacer el núcleo.
+- El producto se entiende como **caja de herramientas**: cada empresa (o colectivo) contrata **el conjunto de módulos** que necesita; el mismo software sirve a un autónomo, a una filial o a una red de socios.
+- **No hace falta un CRM distinto por sector** en el sentido de “otro programa”: la ambición de plataforma es un **CRM común** (cuentas, contactos, oportunidades, actividades) **configurable** y enlazado a presupuestos, entregas y facturación ya existentes.
+- Las **novedades funcionales** se despliegan una vez y **llegan a todos los clientes** del SaaS; lo que se “copia” entre organizaciones son **plantillas y configuraciones** (embudos, listas, informes), no ramas de código distintas.
+- Detalle de cómo se mapea esto en código (features, shells, guards de plugins) en [tecnico-arquitectura.md](./tecnico-arquitectura.md).
 
-## 6. Próximos pasos de producto (orientativos)
+## 6. Mensaje para inversores o comité
 
-Definir con negocio: política de **archivo de firmas** (solo base de datos vs. almacenamiento de objetos), **retención** de documentos, y **nivel de integración Verifactu** requerido por tipo de cliente (PYME vs. gran cuenta).
+Josanz ERP encamina la operación diaria hacia **datos estructurados** y **registros auditables**, alineados con la **digitalización fiscal en España**. La arquitectura modular permite **priorizar módulos por vertical** y **empaquetar ofertas** (p. ej. “operación + fiscalidad + CRM”) sin rehacer el núcleo.
+
+## 7. Próximos pasos de producto (orientativos)
+
+Definir con negocio: política de **archivo de firmas** (solo base de datos vs. almacenamiento de objetos), **retención** de documentos, **nivel de integración Verifactu** por tipo de cliente (PYME vs. gran cuenta), y **hoja de ruta del CRM** (MVP, integración con clientes y facturación, plantillas por sector).
