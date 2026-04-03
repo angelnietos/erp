@@ -23,6 +23,7 @@
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "externalDependencies": [
           "class-transformer",
+          "class-transformer/storage",
           "@nestjs/swagger",
           "class-validator",
           "@nestjs/mapped-types"
