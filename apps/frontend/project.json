@@ -21,6 +21,12 @@
           "zone.js"
         ],
         "tsConfig": "apps/frontend/tsconfig.app.json",
+        "externalDependencies": [
+          "class-transformer",
+          "@nestjs/swagger",
+          "class-validator",
+          "@nestjs/mapped-types"
+        ],
         "assets": [
           {
             "glob": "**/*",
