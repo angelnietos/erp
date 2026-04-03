@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
+import { SharedInfrastructureModule, TenantGuard } from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
@@ -11,7 +11,7 @@ import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
 import { APP_GUARD } from '@nestjs/core';
-import { TenantGuard } from '@josanz-erp/shared-infrastructure';
+
 
 @Module({
   imports: [
