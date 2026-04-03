@@ -1,7 +1,7 @@
 {
   "name": "inventory-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/inventory/api/src",
+  "sourceRoot": "libs/isomorphic/api/inventory/api/src",
   "projectType": "library",
   "tags": [
     "scope:inventory",
@@ -14,9 +14,9 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/inventory/api",
-        "main": "libs/inventory/api/src/index.ts",
-        "tsConfig": "libs/inventory/api/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/api/inventory/api",
+        "main": "libs/isomorphic/api/inventory/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/inventory/api/tsconfig.lib.json",
         "assets": [
           "libs/inventory/api/*.md"
         ]
@@ -28,8 +28,9 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/inventory/api/jest.config.cts"
+        "jestConfig": "libs/isomorphic/api/inventory/api/jest.config.cts"
       }
     }
   }
 }
+

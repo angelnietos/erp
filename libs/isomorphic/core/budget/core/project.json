@@ -1,7 +1,7 @@
 {
   "name": "budget-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/budget/core/src",
+  "sourceRoot": "libs/isomorphic/core/budget/core/src",
   "projectType": "library",
   "tags": ["scope:budget", "type:core"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/budget/core",
-        "main": "libs/budget/core/src/index.ts",
-        "tsConfig": "libs/budget/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/budget/core",
+        "main": "libs/isomorphic/core/budget/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/budget/core/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,10 +24,11 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/budget/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/budget/core/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/budget/core"]
     }
   }
 }
+

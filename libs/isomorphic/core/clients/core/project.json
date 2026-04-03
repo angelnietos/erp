@@ -1,7 +1,7 @@
 {
   "name": "clients-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/clients/core/src",
+  "sourceRoot": "libs/isomorphic/core/clients/core/src",
   "projectType": "library",
   "tags": ["scope:clients", "type:core"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/clients/core",
-        "main": "libs/clients/core/src/index.ts",
-        "tsConfig": "libs/clients/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/clients/core",
+        "main": "libs/isomorphic/core/clients/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/clients/core/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,10 +24,11 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/clients/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/clients/core/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/clients/core"]
     }
   }
 }
+

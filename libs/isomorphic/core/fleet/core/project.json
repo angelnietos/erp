@@ -1,7 +1,7 @@
 {
   "name": "fleet-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/fleet/core/src",
+  "sourceRoot": "libs/isomorphic/core/fleet/core/src",
   "projectType": "library",
   "tags": ["scope:fleet", "type:core"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/fleet/core",
-        "main": "libs/fleet/core/src/index.ts",
-        "tsConfig": "libs/fleet/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/fleet/core",
+        "main": "libs/isomorphic/core/fleet/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/fleet/core/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,10 +24,11 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/fleet/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/fleet/core/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/fleet/core"]
     }
   }
 }
+

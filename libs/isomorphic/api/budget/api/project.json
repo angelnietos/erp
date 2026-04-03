@@ -1,7 +1,7 @@
 {
   "name": "budget-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/budget/api/src",
+  "sourceRoot": "libs/isomorphic/api/budget/api/src",
   "projectType": "library",
   "tags": [
     "scope:budget",
@@ -14,9 +14,9 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/budget/api",
-        "main": "libs/budget/api/src/index.ts",
-        "tsConfig": "libs/budget/api/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/api/budget/api",
+        "main": "libs/isomorphic/api/budget/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/budget/api/tsconfig.lib.json",
         "assets": [
           "libs/budget/api/*.md"
         ]
@@ -28,8 +28,9 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/budget/api/jest.config.cts"
+        "jestConfig": "libs/isomorphic/api/budget/api/jest.config.cts"
       }
     }
   }
 }
+

@@ -1,7 +1,7 @@
 {
   "name": "billing-backend",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/billing/backend/src",
+  "sourceRoot": "libs/node/backend/billing/backend/src",
   "projectType": "library",
   "implicitDependencies": ["verifactu-adapters"],
   "tags": ["scope:billing", "type:backend"],
@@ -10,9 +10,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/billing/backend",
-        "main": "libs/billing/backend/src/index.ts",
-        "tsConfig": "libs/billing/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/billing/backend",
+        "main": "libs/node/backend/billing/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/billing/backend/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -25,7 +25,7 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/billing/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/billing/backend/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/billing/backend"]

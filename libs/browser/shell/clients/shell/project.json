@@ -1,7 +1,7 @@
 {
   "name": "clients-shell",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/clients/shell/src",
+  "sourceRoot": "libs/browser/shell/clients/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/clients/shell/jest.config.cts",
+        "jestConfig": "libs/browser/shell/clients/shell/jest.config.cts",
         "tsConfig": "libs/clients/shell/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

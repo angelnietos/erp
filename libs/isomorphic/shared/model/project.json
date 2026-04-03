@@ -1,7 +1,7 @@
 {
   "name": "shared-model",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/model/src",
+  "sourceRoot": "libs/isomorphic/shared/model/src",
   "projectType": "library",
   "tags": [
     "scope:shared",
@@ -14,11 +14,11 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/shared/model",
-        "main": "libs/shared/model/src/index.ts",
-        "tsConfig": "libs/shared/model/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/shared/model",
+        "main": "libs/isomorphic/shared/model/src/index.ts",
+        "tsConfig": "libs/isomorphic/shared/model/tsconfig.lib.json",
         "assets": [
-          "libs/shared/model/*.md"
+          "libs/isomorphic/shared/model/*.md"
         ]
       }
     },
@@ -28,7 +28,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/shared/model/jest.config.cts"
+        "jestConfig": "libs/isomorphic/shared/model/jest.config.cts"
       }
     }
   }

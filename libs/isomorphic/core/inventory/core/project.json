@@ -1,7 +1,7 @@
 {
   "name": "inventory-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/inventory/core/src",
+  "sourceRoot": "libs/isomorphic/core/inventory/core/src",
   "projectType": "library",
   "tags": ["scope:inventory", "type:core"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/inventory/core",
-        "main": "libs/inventory/core/src/index.ts",
-        "tsConfig": "libs/inventory/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/inventory/core",
+        "main": "libs/isomorphic/core/inventory/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/inventory/core/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,10 +24,11 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/inventory/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/inventory/core/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/inventory/core"]
     }
   }
 }
+

@@ -1,7 +1,7 @@
 {
   "name": "clients-backend",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/clients/backend/src",
+  "sourceRoot": "libs/node/backend/clients/backend/src",
   "projectType": "library",
   "tags": ["scope:clients", "type:backend"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/clients/backend",
-        "main": "libs/clients/backend/src/index.ts",
-        "tsConfig": "libs/clients/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/clients/backend",
+        "main": "libs/node/backend/clients/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/clients/backend/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,7 +24,7 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/clients/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/clients/backend/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/clients/backend"]

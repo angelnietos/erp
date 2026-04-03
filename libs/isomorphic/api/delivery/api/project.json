@@ -1,7 +1,7 @@
 {
   "name": "delivery-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/delivery/api/src",
+  "sourceRoot": "libs/isomorphic/api/delivery/api/src",
   "projectType": "library",
   "tags": [
     "scope:delivery",
@@ -14,11 +14,11 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/delivery/api",
-        "main": "libs/delivery/api/src/index.ts",
-        "tsConfig": "libs/delivery/api/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/api/delivery/api",
+        "main": "libs/isomorphic/api/delivery/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/delivery/api/tsconfig.lib.json",
         "assets": [
-          "libs/delivery/api/*.md"
+          "libs/isomorphic/api/delivery/api/*.md"
         ]
       }
     },
@@ -28,7 +28,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/delivery/api/jest.config.cts"
+        "jestConfig": "libs/isomorphic/api/delivery/api/jest.config.cts"
       }
     }
   }

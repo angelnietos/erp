@@ -1,7 +1,7 @@
 {
   "name": "clients-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/clients/api/src",
+  "sourceRoot": "libs/isomorphic/api/clients/api/src",
   "projectType": "library",
   "tags": [
     "scope:clients",
@@ -14,11 +14,11 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/clients/api",
-        "main": "libs/clients/api/src/index.ts",
-        "tsConfig": "libs/clients/api/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/api/clients/api",
+        "main": "libs/isomorphic/api/clients/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/clients/api/tsconfig.lib.json",
         "assets": [
-          "libs/clients/api/*.md"
+          "libs/isomorphic/api/clients/api/*.md"
         ]
       }
     },
@@ -28,8 +28,9 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/clients/api/jest.config.cts"
+        "jestConfig": "libs/isomorphic/api/clients/api/jest.config.cts"
       }
     }
   }
 }
+

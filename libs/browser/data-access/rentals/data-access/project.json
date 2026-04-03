@@ -1,7 +1,7 @@
 {
   "name": "rentals-data-access",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/rentals/data-access/src",
+  "sourceRoot": "libs/browser/data-access/rentals/data-access/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/rentals/data-access/jest.config.cts",
+        "jestConfig": "libs/browser/data-access/rentals/data-access/jest.config.cts",
         "tsConfig": "libs/rentals/data-access/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

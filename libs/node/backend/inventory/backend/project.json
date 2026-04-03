@@ -1,7 +1,7 @@
 {
   "name": "inventory-backend",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/inventory/backend/src",
+  "sourceRoot": "libs/node/backend/inventory/backend/src",
   "projectType": "library",
   "tags": ["scope:inventory", "type:backend"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/inventory/backend",
-        "main": "libs/inventory/backend/src/index.ts",
-        "tsConfig": "libs/inventory/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/inventory/backend",
+        "main": "libs/node/backend/inventory/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/inventory/backend/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,7 +24,7 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/inventory/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/inventory/backend/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/inventory/backend"]

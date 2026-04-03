@@ -2,7 +2,7 @@ module.exports = {
   displayName: 'delivery-feature',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/delivery/feature',
+  coverageDirectory: '../../../coverage/libs/browser/feature/delivery/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
@@ -19,3 +19,4 @@ module.exports = {
     'jest-preset-angular/build/serializers/html-comment',
   ],
 };
+

@@ -1,7 +1,7 @@
 {
   "name": "budget-shell",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/budget/shell/src",
+  "sourceRoot": "libs/browser/shell/budget/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/budget/shell/jest.config.cts",
+        "jestConfig": "libs/browser/shell/budget/shell/jest.config.cts",
         "tsConfig": "libs/budget/shell/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

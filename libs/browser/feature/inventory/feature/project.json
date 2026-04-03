@@ -1,7 +1,7 @@
 {
   "name": "inventory-feature",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/inventory/feature/src",
+  "sourceRoot": "libs/browser/feature/inventory/feature/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/inventory/feature/jest.config.cts",
+        "jestConfig": "libs/browser/feature/inventory/feature/jest.config.cts",
         "tsConfig": "libs/inventory/feature/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

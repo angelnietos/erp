@@ -1,7 +1,7 @@
 {
   "name": "rentals-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/rentals/core/src",
+  "sourceRoot": "libs/isomorphic/core/rentals/core/src",
   "projectType": "library",
   "tags": ["scope:rentals", "type:core"],
   "targets": {
@@ -9,9 +9,9 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/rentals/core",
-        "main": "libs/rentals/core/src/index.ts",
-        "tsConfig": "libs/rentals/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/rentals/core",
+        "main": "libs/isomorphic/core/rentals/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/rentals/core/tsconfig.lib.json",
         "assets": []
       }
     },
@@ -24,7 +24,7 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/rentals/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/rentals/core/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": ["{workspaceRoot}/coverage/libs/rentals/core"]

@@ -9,3 +9,4 @@ export default {
   coverageDirectory: '../../../../coverage/libs/fleet/core',
   testMatch: ['**/__tests__/**', '**/?(*.)+(spec|test).[tj]s+(?#?.*)$'],
 };
+

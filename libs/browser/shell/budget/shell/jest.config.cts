@@ -2,7 +2,7 @@ module.exports = {
   displayName: 'budget-shell',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/budget/shell',
+  coverageDirectory: '../../../coverage/libs/browser/shell/budget/shell',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
@@ -19,3 +19,4 @@ module.exports = {
     'jest-preset-angular/build/serializers/html-comment',
   ],
 };
+

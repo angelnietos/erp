@@ -2,7 +2,7 @@ module.exports = {
   displayName: 'rentals-data-access',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/rentals/data-access',
+  coverageDirectory: '../../../coverage/libs/browser/data-access/rentals/data-access',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
@@ -19,3 +19,4 @@ module.exports = {
     'jest-preset-angular/build/serializers/html-comment',
   ],
 };
+

@@ -1,7 +1,7 @@
 {
   "name": "fleet-feature",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/fleet/feature/src",
+  "sourceRoot": "libs/browser/feature/fleet/feature/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/fleet/feature/jest.config.cts",
+        "jestConfig": "libs/browser/feature/fleet/feature/jest.config.cts",
         "tsConfig": "libs/fleet/feature/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

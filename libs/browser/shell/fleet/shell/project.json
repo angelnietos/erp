@@ -1,7 +1,7 @@
 {
   "name": "fleet-shell",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/fleet/shell/src",
+  "sourceRoot": "libs/browser/shell/fleet/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/fleet/shell/jest.config.cts",
+        "jestConfig": "libs/browser/shell/fleet/shell/jest.config.cts",
         "tsConfig": "libs/fleet/shell/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

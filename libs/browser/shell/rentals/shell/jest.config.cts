@@ -2,7 +2,7 @@ module.exports = {
   displayName: 'rentals-shell',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/rentals/shell',
+  coverageDirectory: '../../../coverage/libs/browser/shell/rentals/shell',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
@@ -19,3 +19,4 @@ module.exports = {
     'jest-preset-angular/build/serializers/html-comment',
   ],
 };
+

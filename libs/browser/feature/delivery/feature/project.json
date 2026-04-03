@@ -1,7 +1,7 @@
 {
   "name": "delivery-feature",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/delivery/feature/src",
+  "sourceRoot": "libs/browser/feature/delivery/feature/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/delivery/feature/jest.config.cts",
+        "jestConfig": "libs/browser/feature/delivery/feature/jest.config.cts",
         "tsConfig": "libs/delivery/feature/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+

@@ -1,7 +1,7 @@
 {
   "name": "rentals-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/rentals/api/src",
+  "sourceRoot": "libs/isomorphic/api/rentals/api/src",
   "projectType": "library",
   "tags": [
     "scope:rentals",
@@ -14,9 +14,9 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/rentals/api",
-        "main": "libs/rentals/api/src/index.ts",
-        "tsConfig": "libs/rentals/api/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/api/rentals/api",
+        "main": "libs/isomorphic/api/rentals/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/rentals/api/tsconfig.lib.json",
         "assets": [
           "libs/rentals/api/*.md"
         ]
@@ -28,8 +28,9 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/rentals/api/jest.config.cts"
+        "jestConfig": "libs/isomorphic/api/rentals/api/jest.config.cts"
       }
     }
   }
 }
+

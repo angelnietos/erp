@@ -1,7 +1,7 @@
 {
   "name": "rentals-feature",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/rentals/feature/src",
+  "sourceRoot": "libs/browser/feature/rentals/feature/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,7 +15,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/rentals/feature/jest.config.cts",
+        "jestConfig": "libs/browser/feature/rentals/feature/jest.config.cts",
         "tsConfig": "libs/rentals/feature/tsconfig.spec.json"
       }
     },
@@ -24,3 +24,4 @@
     }
   }
 }
+
