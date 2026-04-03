@@ -4,31 +4,22 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/frontend/src",
-  "tags": [
-    "scope:frontend",
-    "type:app"
-  ],
+  "tags": ["scope:frontend", "type:app"],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/frontend",
         "browser": "apps/frontend/src/main.ts",
-        "polyfills": [
-          "zone.js"
-        ],
+        "polyfills": ["zone.js"],
         "tsConfig": "apps/frontend/tsconfig.app.json",
-        "esbuildOptions": {
-          "external": ["class-transformer/storage", "@nestjs/mapped-types"]
-        },
         "externalDependencies": [
           "class-transformer",
           "@nestjs/swagger",
           "class-validator",
-          "@nestjs/mapped-types"
+          "@nestjs/mapped-types",
+          "class-transformer/storage"
         ],
         "assets": [
           {
@@ -36,9 +27,7 @@
             "input": "apps/frontend/public"
           }
         ],
-        "styles": [
-          "apps/frontend/src/styles.css"
-        ],
+        "styles": ["apps/frontend/src/styles.css"],
         "budgets": [
           {
             "type": "initial",
@@ -100,9 +89,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/frontend/jest.config.cts",
         "tsConfig": "apps/frontend/tsconfig.spec.json"
