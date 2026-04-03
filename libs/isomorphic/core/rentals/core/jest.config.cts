@@ -9,3 +9,4 @@ export default {
   coverageDirectory: '../../../../coverage/libs/rentals/core',
   testMatch: ['**/__tests__/**/*.[jt]s?(c)', '**/?(*.)+(spec|test).[jt]s?(c)'],
 };
+

@@ -1,6 +1,6 @@
 {
   "name": "inventory-core",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/isomorphic/core/inventory/core/src",
   "projectType": "library",
   "tags": ["scope:inventory", "type:core"],
@@ -31,4 +31,5 @@
     }
   }
 }
+
 

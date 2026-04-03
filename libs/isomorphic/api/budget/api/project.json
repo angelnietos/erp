@@ -1,6 +1,6 @@
 {
   "name": "budget-api",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/isomorphic/api/budget/api/src",
   "projectType": "library",
   "tags": [
@@ -33,4 +33,5 @@
     }
   }
 }
+
 

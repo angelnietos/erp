@@ -1,6 +1,6 @@
 {
   "name": "rentals-core",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/isomorphic/core/rentals/core/src",
   "projectType": "library",
   "tags": ["scope:rentals", "type:core"],
@@ -31,3 +31,4 @@
     }
   }
 }
+

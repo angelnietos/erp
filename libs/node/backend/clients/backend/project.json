@@ -1,6 +1,6 @@
 {
   "name": "clients-backend",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/backend/clients/backend/src",
   "projectType": "library",
   "tags": ["scope:clients", "type:backend"],
@@ -31,3 +31,4 @@
     }
   }
 }
+

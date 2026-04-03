@@ -1,6 +1,6 @@
 {
   "name": "billing-feature",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/browser/feature/billing/feature/src",
   "prefix": "lib",
   "projectType": "library",
@@ -24,4 +24,5 @@
     }
   }
 }
+
 

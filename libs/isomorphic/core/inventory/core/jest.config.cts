@@ -10,3 +10,4 @@ export default {
   coverageDirectory: '../../../coverage/libs/isomorphic/core/inventory/core',
 };
 
+

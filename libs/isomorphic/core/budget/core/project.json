@@ -1,6 +1,6 @@
 {
   "name": "budget-core",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/isomorphic/core/budget/core/src",
   "projectType": "library",
   "tags": ["scope:budget", "type:core"],
@@ -31,4 +31,5 @@
     }
   }
 }
+
 

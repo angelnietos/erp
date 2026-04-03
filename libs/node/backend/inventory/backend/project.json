@@ -1,6 +1,6 @@
 {
   "name": "inventory-backend",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/backend/inventory/backend/src",
   "projectType": "library",
   "tags": ["scope:inventory", "type:backend"],
@@ -31,3 +31,4 @@
     }
   }
 }
+

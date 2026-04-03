@@ -1,6 +1,6 @@
 {
   "name": "fleet-data-access",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/browser/data-access/fleet/data-access/src",
   "prefix": "lib",
   "projectType": "library",
@@ -24,4 +24,5 @@
     }
   }
 }
+
 

@@ -53,6 +53,9 @@ foreach ($oldPath in $pathMappings.Keys) {
 
         $content = Get-Content $projectJsonPath -Raw
 
+        # Update $schema
+        $content = $content -replace [regex]::Escape('$schema": "../../../node_modules/nx/schemas/project-schema.json"'), '$schema": "../../../../../../node_modules/nx/schemas/project-schema.json"'
+
         # Update sourceRoot
         $content = $content -replace [regex]::Escape("sourceRoot"": ""$oldPath/src"), "sourceRoot"": ""$newPath/src"
 

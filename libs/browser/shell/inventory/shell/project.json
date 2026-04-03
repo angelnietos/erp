@@ -1,6 +1,6 @@
 {
   "name": "inventory-shell",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/browser/shell/inventory/shell/src",
   "prefix": "lib",
   "projectType": "library",
@@ -24,4 +24,5 @@
     }
   }
 }
+
 
