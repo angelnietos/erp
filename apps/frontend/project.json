@@ -9,11 +9,17 @@
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": [],
       "options": {
         "outputPath": "dist/apps/frontend",
         "browser": "apps/frontend/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/frontend/tsconfig.app.json",
+        "allowedCommonJsDependencies": [
+          "class-validator",
+          "class-transformer",
+          "class-transformer/storage"
+        ],
         "assets": [
           {
             "glob": "**/*",

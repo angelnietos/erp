@@ -1,4 +1,14 @@
-export * from './lib/services/auth.service';
-export * from './lib/store/auth.store';
-export * from './lib/interceptors/auth.interceptor';
-export * from './lib/interceptors/tenant.interceptor';
+// Auth
+export { AuthStore } from './lib/store/auth.store';
+export { AuthService } from './lib/services/auth.service';
+
+// Interceptors
+export { authInterceptor } from './lib/interceptors/auth.interceptor';
+export { tenantInterceptor } from './lib/interceptors/tenant.interceptor';
+
+// Utils
+export {
+  getStoredTenantId,
+  setStoredTenantId,
+  clearStoredTenantId,
+} from './lib/interceptors/tenant.interceptor';

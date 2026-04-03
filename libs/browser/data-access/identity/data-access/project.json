@@ -1,7 +1,7 @@
 {
   "name": "data-access",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/identity/data-access/src",
+  "sourceRoot": "libs/browser/data-access/identity/data-access/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -13,7 +13,7 @@
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "tsConfig": "libs/identity/data-access/tsconfig.lib.json"
+        "tsConfig": "libs/browser/data-access/identity/data-access/tsconfig.lib.json"
       }
     },
     "test": {
@@ -22,8 +22,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/identity/data-access/jest.config.cts",
-        "tsConfig": "libs/identity/data-access/tsconfig.spec.json"
+        "jestConfig": "libs/browser/data-access/identity/data-access/jest.config.cts",
+        "tsConfig": "libs/browser/data-access/identity/data-access/tsconfig.spec.json"
       }
     },
     "lint": {

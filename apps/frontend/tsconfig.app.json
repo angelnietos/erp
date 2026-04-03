@@ -13,7 +13,7 @@
       "@josanz-erp/shared-data-access": [
         "libs/browser/shared/data-access/src/index.ts"
       ],
-      "@josanz-erp/shared-ui-kit": ["libs/browser/shared/ui-kit/src/index.ts"],
+
       "@josanz-erp/shared-ui-shell": [
         "libs/browser/shared/ui-shell/src/index.ts"
       ],
@@ -22,9 +22,6 @@
       ],
       "@josanz-erp/settings-shell": [
         "libs/browser/shell/settings/shell/src/index.ts"
-      ],
-      "@josanz-erp/identity-data-access": [
-        "libs/browser/data-access/identity/data-access/src/index.ts"
       ],
       "@josanz-erp/identity-feature": [
         "libs/browser/feature/identity/feature/src/index.ts"

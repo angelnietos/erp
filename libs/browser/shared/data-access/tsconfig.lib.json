@@ -3,8 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "types": ["node"],
-    "module": "commonjs"
+    "module": "preserve"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "jest.config.ts", "jest.config.cts"]
