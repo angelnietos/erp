@@ -17,7 +17,6 @@
       "options": {
         "outputPath": "dist/apps/frontend",
         "main": "apps/frontend/src/main.ts",
-        "polyfills": "apps/frontend/src/polyfills.ts",
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "externalDependencies": [
           "class-transformer",
