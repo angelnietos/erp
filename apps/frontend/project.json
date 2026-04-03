@@ -10,17 +10,22 @@
   ],
   "targets": {
     "build": {
-      "executor": "@nx/angular:webpack-browser",
+      "executor": "@angular/build:application",
       "outputs": [
         "{options.outputPath}"
       ],
       "options": {
         "outputPath": "dist/apps/frontend",
-        "main": "apps/frontend/src/main.ts",
+        "browser": "apps/frontend/src/main.ts",
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/frontend/tsconfig.app.json",
+        "esbuildOptions": {
+          "external": ["class-transformer/storage"]
+        },
         "externalDependencies": [
           "class-transformer",
-          "class-transformer/storage",
           "@nestjs/swagger",
           "class-validator",
           "@nestjs/mapped-types"
