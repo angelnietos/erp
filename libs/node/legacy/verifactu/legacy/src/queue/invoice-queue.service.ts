@@ -6,9 +6,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { CancelInvoiceDto } from '../dto/cancel-invoice.dto';
-import { InvoiceResponseDto } from '../dto/invoice-response.dto';
+import {
+  CreateInvoiceDto,
+  CancelInvoiceDto,
+  InvoiceResponseDto,
+  InvoiceStatus,
+} from '@josanz-erp/verifactu-api';
 import {
   BlockchainService,
   BlockchainRecord,
@@ -19,7 +22,6 @@ import { QrService } from '../qr/qr.service';
 import { HashService } from '../hash/hash.service';
 import { QueueRepository } from '../../database/services/queue.repository';
 import { InvoiceRepository } from '../../database/services/invoice.repository';
-import { InvoiceStatus } from '../dto/tipo-factura.enum';
 
 /**
  * Queue item type for in-memory processing

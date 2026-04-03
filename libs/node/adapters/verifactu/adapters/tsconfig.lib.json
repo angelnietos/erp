@@ -1,15 +1,18 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
     "declaration": true,
     "declarationMap": true,
     "types": ["node"],
     "module": "commonjs",
+    "moduleResolution": "node",
     "noPropertyAccessFromIndexSignature": false,
-    "baseUrl": "../../..",
+    "baseUrl": ".",
     "paths": {
-      "@josanz-erp/verifactu-core": ["libs/verifactu/core/src/index.ts"]
+      "@josanz-erp/verifactu-core": [
+        "../../../../../../isomorphic/core/verifactu/core/src/index.ts"
+      ]
     }
   },
   "include": ["src/**/*.ts"],

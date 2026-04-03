@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { CancelInvoiceDto } from '../dto/cancel-invoice.dto';
-import { InvoiceResponseDto } from '../dto/invoice-response.dto';
+import {
+  CreateInvoiceDto,
+  CancelInvoiceDto,
+  InvoiceResponseDto,
+} from '@josanz-erp/verifactu-api';
 import {
   BlockchainService,
   BlockchainRecord,
@@ -12,7 +14,7 @@ import { AeatSoapService, AeatResponse } from '../aeat/aeat-soap.service';
 import { QrService } from '../qr/qr.service';
 import { HashService } from '../hash/hash.service';
 import { InvoiceQueueService } from '../queue/invoice-queue.service';
-import { InvoiceStatus, Impuesto } from '../dto/tipo-factura.enum';
+import { InvoiceStatus, Impuesto } from '@josanz-erp/verifactu-api';
 import { InvoiceRepository } from '../../database/services/invoice.repository';
 import { InvoiceDocument } from '../../database/schemas/invoice.schema';
 import { InvoiceValidationService } from './services/invoice-validation.service';
@@ -78,14 +80,17 @@ export class InvoiceService {
       await this.validationService.validateInvoice(invoice);
 
       // Advanced validation with business rules
-      const advancedValidation = await this.advancedValidationService.validateWithBusinessRules(invoice);
+      const advancedValidation =
+        await this.advancedValidationService.validateWithBusinessRules(invoice);
       if (!advancedValidation.valid) {
         const errorMessage = advancedValidation.errors.join('; ');
         this.logger.warn(`Advanced validation failed: ${errorMessage}`);
         throw new Error(`Validación avanzada fallida: ${errorMessage}`);
       }
       if (advancedValidation.warnings.length > 0) {
-        this.logger.warn(`Validation warnings: ${advancedValidation.warnings.join('; ')}`);
+        this.logger.warn(
+          `Validation warnings: ${advancedValidation.warnings.join('; ')}`,
+        );
       }
 
       // Add to blockchain

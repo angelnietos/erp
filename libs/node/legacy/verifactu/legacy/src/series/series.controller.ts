@@ -17,7 +17,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { SeriesService } from './series.service';
-import { CreateSeriesDto, UpdateSeriesDto } from './dto/series.dto';
+import { CreateSeriesDto, UpdateSeriesDto } from '@josanz-erp/verifactu-api';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('series')

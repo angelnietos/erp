@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HashService } from '../hash/hash.service';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { CancelInvoiceDto } from '../dto/cancel-invoice.dto';
+import { CreateInvoiceDto, CancelInvoiceDto } from '@josanz-erp/verifactu-api';
 
 /**
  * Blockchain record interface

@@ -22,10 +22,12 @@ import {
 import { InvoiceService } from './invoice.service';
 import { InvoiceAnalyticsService } from './services/invoice-analytics.service';
 import { InvoiceExportService } from './services/export.service';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { CancelInvoiceDto } from '../dto/cancel-invoice.dto';
-import { InvoiceResponseDto } from '../dto/invoice-response.dto';
-import { InvoiceStatus } from '../dto/tipo-factura.enum';
+import {
+  CreateInvoiceDto,
+  CancelInvoiceDto,
+  InvoiceResponseDto,
+  InvoiceStatus,
+} from '@josanz-erp/verifactu-api';
 import { AeatSoapService } from '../aeat/aeat-soap.service';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -324,7 +326,11 @@ export class InvoiceController {
   @ApiOperation({ summary: 'Update due date and payments' })
   async updateVencimiento(
     @Param('id') id: string,
-    @Body() body: { dueDate?: string; payments?: { date: string; amount: number; note?: string }[] },
+    @Body()
+    body: {
+      dueDate?: string;
+      payments?: { date: string; amount: number; note?: string }[];
+    },
   ) {
     return this.invoiceService.updateDueDateAndPayments(
       id,

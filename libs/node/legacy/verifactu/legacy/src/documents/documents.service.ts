@@ -1,13 +1,19 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CommercialDocumentRepository } from '../../database/services/commercial-document.repository';
 import { CommercialDocumentDocument } from '../../database/schemas/commercial-document.schema';
 import { DocumentTypeValue } from '../../database/schemas/commercial-document.schema';
-import { CreateCommercialDocumentDto } from './dto/create-document.dto';
+import {
+  CreateCommercialDocumentDto,
+  CreateInvoiceDto,
+  Impuesto,
+} from '@josanz-erp/verifactu-api';
 import { InvoiceService } from '../invoice/invoice.service';
 import { InvoiceRepository } from '../../database/services/invoice.repository';
 import { SeriesService } from '../series/series.service';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { Impuesto } from '../dto/tipo-factura.enum';
 
 @Injectable()
 export class DocumentsService {
@@ -22,7 +28,10 @@ export class DocumentsService {
     type: DocumentTypeValue,
     dto: CreateCommercialDocumentDto,
   ): Promise<CommercialDocumentDocument> {
-    const existing = await this.docRepo.findByNumber(dto.documentNumber, dto.sellerNif);
+    const existing = await this.docRepo.findByNumber(
+      dto.documentNumber,
+      dto.sellerNif,
+    );
     if (existing) {
       throw new BadRequestException(
         `Documento con número ${dto.documentNumber} ya existe para este vendedor`,
@@ -78,7 +87,9 @@ export class DocumentsService {
   ): Promise<CommercialDocumentDocument> {
     const doc = await this.findOne(id);
     if (doc.status === 'converted') {
-      throw new BadRequestException('No se puede editar un documento ya convertido a factura');
+      throw new BadRequestException(
+        'No se puede editar un documento ya convertido a factura',
+      );
     }
     const updated = await this.docRepo.update(id, {
       ...(dto.issueDate && { issueDate: new Date(dto.issueDate) }),
@@ -103,7 +114,10 @@ export class DocumentsService {
     return updated;
   }
 
-  async updateStatus(id: string, status: string): Promise<CommercialDocumentDocument> {
+  async updateStatus(
+    id: string,
+    status: string,
+  ): Promise<CommercialDocumentDocument> {
     const doc = await this.findOne(id);
     const allowed = ['draft', 'sent', 'approved', 'rejected'];
     if (!allowed.includes(status)) {
@@ -128,7 +142,10 @@ export class DocumentsService {
         `Ya convertido a factura: ${doc.convertedToInvoiceId}`,
       );
     }
-    const { invoiceNumber } = await this.seriesService.getNextNumber(seriesId, sellerNif);
+    const { invoiceNumber } = await this.seriesService.getNextNumber(
+      seriesId,
+      sellerNif,
+    );
     const createDto: CreateInvoiceDto = {
       invoiceNumber,
       invoiceDate: doc.issueDate.toISOString().split('T')[0],
@@ -137,7 +154,9 @@ export class DocumentsService {
       buyerID: doc.buyerNif,
       buyerName: doc.buyerName,
       buyerCountry: doc.buyerCountry ?? 'ES',
-      text: doc.description ?? `Factura desde ${doc.documentType} ${doc.documentNumber}`,
+      text:
+        doc.description ??
+        `Factura desde ${doc.documentType} ${doc.documentNumber}`,
       taxItems: doc.taxItems.map((t) => ({
         impuesto: t.impuesto,
         taxRate: t.tipoImpositivo,
@@ -166,7 +185,9 @@ export class DocumentsService {
   async remove(id: string): Promise<void> {
     const doc = await this.findOne(id);
     if (doc.status === 'converted') {
-      throw new BadRequestException('No se puede eliminar un documento ya convertido a factura');
+      throw new BadRequestException(
+        'No se puede eliminar un documento ya convertido a factura',
+      );
     }
     await this.docRepo.delete(id);
   }

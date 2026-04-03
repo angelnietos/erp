@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { CancelInvoiceDto } from '../dto/cancel-invoice.dto';
-import { TaxItemDto } from '../dto/tax-item.dto';
-import { BlockchainRecord } from '../blockchain/blockchain.service';
 import {
+  CreateInvoiceDto,
+  CancelInvoiceDto,
+  TaxItemDto,
   TipoFactura,
   ClaveRegimen,
   CalificacionOperacion,
-} from '../dto/tipo-factura.enum';
+} from '@josanz-erp/verifactu-api';
+import { BlockchainRecord } from '../blockchain/blockchain.service';
 
 /**
  * XML Builder Service - Generates XML for AEAT SOAP requests

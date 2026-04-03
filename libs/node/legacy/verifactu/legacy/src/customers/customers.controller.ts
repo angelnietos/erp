@@ -17,7 +17,10 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CustomersService } from './customers.service';
-import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
+import {
+  CreateCustomerDto,
+  UpdateCustomerDto,
+} from '@josanz-erp/verifactu-api';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('customers')

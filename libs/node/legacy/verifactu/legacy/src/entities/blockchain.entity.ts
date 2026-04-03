@@ -1,5 +1,4 @@
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
-import { CancelInvoiceDto } from '../dto/cancel-invoice.dto';
+import { CreateInvoiceDto, CancelInvoiceDto } from '@josanz-erp/verifactu-api';
 
 /**
  * Blockchain Record Entity

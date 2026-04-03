@@ -5,8 +5,8 @@ import {
   CalificacionOperacion,
   TipoRectificativa,
   MotivoAnulacion,
-} from '../dto/tipo-factura.enum';
-import { TaxItemDto } from '../dto/tax-item.dto';
+  TaxItemDto,
+} from '@josanz-erp/verifactu-api';
 
 /**
  * Invoice Entity
