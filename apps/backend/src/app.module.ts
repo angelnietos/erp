@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { SharedInfrastructureModule, TenantGuard } from '@josanz-erp/shared-infrastructure';
+import {
+  SharedInfrastructureModule,
+  TenantGuard,
+} from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
@@ -12,7 +15,6 @@ import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
 import { APP_GUARD } from '@nestjs/core';
 
-
 @Module({
   imports: [
     // Load .env globally
@@ -22,8 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
       middleware: {
         mount: true,
         setup: (cls, req) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const tenantId = (req as any).headers['x-tenant-id'] as string;
+          const tenantId = req.headers['x-tenant-id'] as string;
           if (tenantId) {
             cls.set('tenantId', tenantId);
           }
