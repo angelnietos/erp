@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UiButtonComponent } from '../button/button.component';
 import { UiCardComponent } from '../card/card.component';
 
+
 @Component({
   selector: 'ui-josanz-detail-placeholder',
   standalone: true,
