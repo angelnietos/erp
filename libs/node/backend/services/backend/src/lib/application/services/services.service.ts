@@ -124,27 +124,32 @@ export class ServicesService {
   }
 
   async getServicesList(tenantId: string, type?: string): Promise<any[]> {
-    const where: any = { tenantId };
-    if (type) {
-      where.type = type;
-    }
+    // Mock data for now - TODO: implement Prisma service model
+    const mockServices = [
+      {
+        id: '1',
+        name: 'Servicio de Streaming Básico',
+        description: 'Transmisión en vivo básica',
+        type: 'STREAMING',
+        basePrice: 500,
+        hourlyRate: 50,
+        configuration: {},
+        isActive: true,
+        createdAt: '2024-01-01',
+      },
+      {
+        id: '2',
+        name: 'Producción Audio/Video Completa',
+        description: 'Producción completa de eventos',
+        type: 'PRODUCCIÓN',
+        basePrice: 2000,
+        hourlyRate: 150,
+        configuration: {},
+        isActive: true,
+        createdAt: '2024-01-02',
+      },
+    ];
 
-    const services = await this.prisma.service.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return services.map((s: any) => ({
-      id: s.id,
-      name: s.name,
-      description: s.description,
-      type: s.type,
-      basePrice: s.basePrice,
-      hourlyRate: s.hourlyRate,
-      configuration: s.configuration,
-      isActive: s.isActive,
-      createdAt: s.createdAt.toISOString().split('T')[0],
-      updatedAt: s.updatedAt?.toISOString().split('T')[0],
-    }));
+    return mockServices.filter((s) => !type || s.type === type);
   }
 }
