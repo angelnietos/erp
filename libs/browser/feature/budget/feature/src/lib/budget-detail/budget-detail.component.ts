@@ -435,6 +435,7 @@ export class BudgetDetailComponent implements OnInit {
       queryParams: { budgetId: this.budget()?.id },
     });
   }
+  
   createInvoice() {
     this.router.navigate(['/billing'], {
       queryParams: { budgetId: this.budget()?.id },
