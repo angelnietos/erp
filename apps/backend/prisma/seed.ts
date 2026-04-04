@@ -126,7 +126,9 @@ async function main() {
   }
 
   await prisma.verifactuSeries.upsert({
-    where: { uq_verifactu_series_tenant_code: { tenantId: tenant.id, code: 'A' } },
+    where: {
+      uq_verifactu_series_tenant_code: { tenantId: tenant.id, code: 'A' },
+    },
     update: {},
     create: {
       tenantId: tenant.id,
@@ -136,7 +138,12 @@ async function main() {
   });
 
   await prisma.verifactuCustomer.upsert({
-    where: { uq_verifactu_customer_tenant_taxid: { tenantId: tenant.id, taxId: 'B12345678' } },
+    where: {
+      uq_verifactu_customer_tenant_taxid: {
+        tenantId: tenant.id,
+        taxId: 'B12345678',
+      },
+    },
     update: {},
     create: {
       tenantId: tenant.id,
@@ -155,7 +162,8 @@ async function main() {
         tenantId: tenant.id,
         name: 'Eventos Global S.L.',
         sector: 'Entertainment',
-        description: 'Contacto: Ana López · ana@eventosglobal.es · +34 611 222 333 · C/ Serrano 45, Madrid',
+        description:
+          'Contacto: Ana López · ana@eventosglobal.es · +34 611 222 333 · C/ Serrano 45, Madrid',
       },
     }),
     prisma.client.create({
@@ -163,7 +171,8 @@ async function main() {
         tenantId: tenant.id,
         name: 'Audiovisuales Madrid',
         sector: 'Production',
-        description: 'Contacto: Carlos Ruiz · produccion@audiomadrid.es · +34 622 333 444 · Polígono Vallecas',
+        description:
+          'Contacto: Carlos Ruiz · produccion@audiomadrid.es · +34 622 333 444 · Polígono Vallecas',
       },
     }),
     prisma.client.create({
@@ -171,7 +180,8 @@ async function main() {
         tenantId: tenant.id,
         name: 'Congresos S.A.',
         sector: 'Corporate',
-        description: 'Contacto: María Santos · msantos@congresos.es · +34 633 444 555 · IFEMA Norte',
+        description:
+          'Contacto: María Santos · msantos@congresos.es · +34 633 444 555 · IFEMA Norte',
       },
     }),
     prisma.client.create({
@@ -179,7 +189,8 @@ async function main() {
         tenantId: tenant.id,
         name: 'Teatro Lírica Producciones',
         sector: 'Entertainment',
-        description: 'Contacto: Pedro Vega · pedro@lirica.es · +34 644 555 666 · Gran Vía 88, Madrid',
+        description:
+          'Contacto: Pedro Vega · pedro@lirica.es · +34 644 555 666 · Gran Vía 88, Madrid',
       },
     }),
   ]);
@@ -187,7 +198,12 @@ async function main() {
   const productDefs = [
     { name: 'Proyector Láser 4K', price: 1500, stock: 10, sku: 'PRJ-4K-001' },
     { name: 'Pantalla LED 100"', price: 800, stock: 5, sku: 'LED-100-001' },
-    { name: 'Set de Sonido Premium', price: 600, stock: 15, sku: 'SND-PRM-001' },
+    {
+      name: 'Set de Sonido Premium',
+      price: 600,
+      stock: 15,
+      sku: 'SND-PRM-001',
+    },
     { name: 'Lote de Cableado HDMI', price: 50, stock: 50, sku: 'CBL-HDMI-50' },
   ];
 
@@ -240,8 +256,18 @@ async function main() {
       total: 2300,
       items: {
         create: [
-          { productId: insertedProducts[0].id, quantity: 1, price: 1500, tax: 21 },
-          { productId: insertedProducts[1].id, quantity: 1, price: 800, tax: 21 },
+          {
+            productId: insertedProducts[0].id,
+            quantity: 1,
+            price: 1500,
+            tax: 21,
+          },
+          {
+            productId: insertedProducts[1].id,
+            quantity: 1,
+            price: 800,
+            tax: 21,
+          },
         ],
       },
     },
@@ -256,7 +282,14 @@ async function main() {
       status: 'APPROVED',
       total: 1200,
       items: {
-        create: [{ productId: insertedProducts[2].id, quantity: 2, price: 600, tax: 21 }],
+        create: [
+          {
+            productId: insertedProducts[2].id,
+            quantity: 2,
+            price: 600,
+            tax: 21,
+          },
+        ],
       },
     },
   });
@@ -270,7 +303,14 @@ async function main() {
       status: 'DRAFT',
       total: 450,
       items: {
-        create: [{ productId: insertedProducts[3].id, quantity: 9, price: 50, tax: 21 }],
+        create: [
+          {
+            productId: insertedProducts[3].id,
+            quantity: 9,
+            price: 50,
+            tax: 21,
+          },
+        ],
       },
     },
   });
@@ -349,8 +389,14 @@ async function main() {
     data: {
       invoiceId: invoice1.id,
       tenantId: tenant.id,
-      requestPayload: { invoiceId: invoice1.id, demo: true } as Prisma.InputJsonValue,
-      responsePayload: { ok: true, status: 'ACCEPTED' } as Prisma.InputJsonValue,
+      requestPayload: {
+        invoiceId: invoice1.id,
+        demo: true,
+      } as Prisma.InputJsonValue,
+      responsePayload: {
+        ok: true,
+        status: 'ACCEPTED',
+      } as Prisma.InputJsonValue,
       status: 'SUCCESS',
     },
   });
@@ -459,6 +505,133 @@ async function main() {
       },
     },
   });
+
+  // Más alquileres para tener más datos en el listado
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[0].id,
+      reference: 'EXP-2026-0005',
+      startDate: new Date('2026-07-15'),
+      endDate: new Date('2026-07-20'),
+      status: 'ACTIVE',
+      pickupLocation: 'Almacén Central',
+      dropoffLocation: 'Centro de Convenciones',
+      totalPrice: 2850,
+      notes: 'Feria tecnológica — stand completo',
+      rentalItems: {
+        create: [
+          { productId: insertedProducts[0].id, quantity: 1 },
+          { productId: insertedProducts[1].id, quantity: 1 },
+          { productId: insertedProducts[2].id, quantity: 1 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[1].id,
+      reference: 'EXP-2026-0006',
+      startDate: new Date('2026-08-01'),
+      endDate: new Date('2026-08-05'),
+      status: 'DRAFT',
+      pickupLocation: 'Almacén Central',
+      dropoffLocation: 'Estadio Municipal',
+      totalPrice: 1650,
+      notes: 'Concierto verano — sonido + iluminación',
+      rentalItems: {
+        create: [
+          { productId: insertedProducts[2].id, quantity: 2 },
+          { productId: insertedProducts[3].id, quantity: 15 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[2].id,
+      reference: 'EXP-2026-0007',
+      startDate: new Date('2026-02-10'),
+      endDate: new Date('2026-02-12'),
+      status: 'COMPLETED',
+      pickupLocation: 'Almacén Central',
+      dropoffLocation: 'Hotel AC',
+      totalPrice: 1200,
+      notes: 'Presentación corporativa',
+      rentalItems: {
+        create: [
+          { productId: insertedProducts[0].id, quantity: 1 },
+          { productId: insertedProducts[1].id, quantity: 1 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[0].id,
+      reference: 'EXP-2026-0008',
+      startDate: new Date('2026-09-20'),
+      endDate: new Date('2026-09-25'),
+      status: 'ACTIVE',
+      pickupLocation: 'Almacén Central',
+      dropoffLocation: 'Palacio de Congresos',
+      totalPrice: 4200,
+      notes: 'Congreso internacional — equipamiento completo',
+      rentalItems: {
+        create: [
+          { productId: insertedProducts[0].id, quantity: 2 },
+          { productId: insertedProducts[1].id, quantity: 2 },
+          { productId: insertedProducts[2].id, quantity: 3 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[1].id,
+      reference: 'EXP-2026-0009',
+      startDate: new Date('2026-10-01'),
+      endDate: new Date('2026-10-03'),
+      status: 'DRAFT',
+      pickupLocation: 'Almacén Central',
+      dropoffLocation: 'Teatro Real',
+      totalPrice: 1950,
+      notes: 'Obra teatral — iluminación escénica',
+      rentalItems: {
+        create: [
+          { productId: insertedProducts[1].id, quantity: 2 },
+          { productId: insertedProducts[3].id, quantity: 20 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[3].id,
+      reference: 'EXP-2026-0010',
+      startDate: new Date('2026-11-15'),
+      endDate: new Date('2026-11-16'),
+      status: 'ACTIVE',
+      pickupLocation: 'Almacén Central',
+      dropoffLocation: 'Auditorio Nacional',
+      totalPrice: 2400,
+      notes: 'Concierto sinfónico — refuerzo de sonido',
+      rentalItems: {
+        create: [{ productId: insertedProducts[2].id, quantity: 4 }],
+      },
+    },
+  });
+
   console.log('- Created rentals + rental items');
 
   await prisma.vehicle.create({
