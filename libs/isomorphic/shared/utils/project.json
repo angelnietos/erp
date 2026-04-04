@@ -6,10 +6,9 @@
   "tags": ["scope:shared", "type:utils"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/isomorphic/shared/utils",
         "main": "libs/isomorphic/shared/utils/src/index.ts",
         "tsConfig": "libs/isomorphic/shared/utils/tsconfig.lib.json",
         "assets": ["libs/isomorphic/shared/utils/*.md"]

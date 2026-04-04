@@ -9,7 +9,7 @@
   ],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "@nx/rollup:rollup",
       "outputs": [
         "{options.outputPath}"
       ],

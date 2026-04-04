@@ -7,8 +7,8 @@
   "tags": ["scope:rentals", "type:backend"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/node/backend/rentals/backend",
         "main": "libs/node/backend/rentals/backend/src/index.ts",

@@ -6,8 +6,8 @@
   "tags": ["scope:identity", "type:core"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/identity/core",
         "main": "libs/identity/core/src/index.ts",

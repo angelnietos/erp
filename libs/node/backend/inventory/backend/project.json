@@ -6,8 +6,8 @@
   "tags": ["scope:inventory", "type:backend"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/node/backend/inventory/backend",
         "main": "libs/node/backend/inventory/backend/src/index.ts",

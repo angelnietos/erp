@@ -6,8 +6,8 @@
   "tags": ["scope:budget", "type:backend"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/node/backend/budget/backend",
         "main": "libs/node/backend/budget/backend/src/index.ts",

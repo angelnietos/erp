@@ -6,8 +6,8 @@
   "tags": ["scope:inventory", "type:core"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/isomorphic/core/inventory/core",
         "main": "libs/isomorphic/core/inventory/core/src/index.ts",

@@ -7,8 +7,8 @@
   "tags": ["scope:fleet", "type:backend"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/node/backend/fleet/backend",
         "main": "libs/node/backend/fleet/backend/src/index.ts",

@@ -6,6 +6,14 @@
   "projectType": "library",
   "tags": ["scope:identity", "type:data-access"],
   "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "main": "libs/browser/data-access/identity/data-access/src/index.ts",
+        "tsConfig": "libs/browser/data-access/identity/data-access/tsconfig.lib.json"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],

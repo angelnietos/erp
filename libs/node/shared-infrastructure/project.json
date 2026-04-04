@@ -6,8 +6,8 @@
   "implicitDependencies": ["shared-data-access"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/shared-infrastructure",
         "tsConfig": "libs/shared-infrastructure/tsconfig.lib.json",

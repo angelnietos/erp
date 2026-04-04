@@ -6,8 +6,8 @@
   "tags": ["scope:shared", "type:data-access"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/shared/data-access",
         "main": "libs/shared/data-access/src/index.ts",

@@ -6,8 +6,8 @@
   "tags": ["scope:rentals", "type:core"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/isomorphic/core/rentals/core",
         "main": "libs/isomorphic/core/rentals/core/src/index.ts",

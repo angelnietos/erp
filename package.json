@@ -5,6 +5,7 @@
   "scripts": {
     "kill:node": "taskkill /IM node.exe /F",
     "kill:backend": "for /f \"tokens=5\" %a in ('netstat -aon ^| find \":3100\" ^| find \"LISTENING\"') do taskkill /PID %a /F",
+    "kill:inspector": "for /f \"tokens=5\" %a in ('netstat -aon ^| find \":9229\" ^| find \"LISTENING\"') do taskkill /PID %a /F",
     "prisma": "npx prisma studio --port 5555",
     "dev:backend": "nx serve backend",
     "dev:frontend": "nx serve frontend",

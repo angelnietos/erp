@@ -6,10 +6,9 @@
   "tags": ["scope:shared", "type:config"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/shared/config",
         "main": "libs/shared/config/src/index.ts",
         "tsConfig": "libs/shared/config/tsconfig.lib.json",
         "assets": ["libs/shared/config/*.md"]
