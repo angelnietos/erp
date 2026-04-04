@@ -3,7 +3,7 @@ import {
   AeatClientPort,
   AeatSubmissionRequest,
   AeatSubmissionResponse,
-} from '../../../../../../../isomorphic/core/verifactu/core/src/index';
+} from '@josanz-erp/verifactu-core';
 
 @Injectable()
 export class MockAeatClient implements AeatClientPort {
