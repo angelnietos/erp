@@ -201,7 +201,9 @@
       ],
       "@josanz-erp/settings-shell": [
         "libs/browser/shell/settings/shell/src/index.ts"
-      ]
+      ],
+      "@josanz-erp/events-backend": ["libs/node/backend/src/index.ts"],
+      "@josanz-erp/feature": ["libs/browser/feature/events/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

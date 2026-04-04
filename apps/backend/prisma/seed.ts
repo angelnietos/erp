@@ -162,8 +162,7 @@ async function main() {
         tenantId: tenant.id,
         name: 'Eventos Global S.L.',
         sector: 'Entertainment',
-        description:
-          'Contacto: Ana López · ana@eventosglobal.es · +34 611 222 333 · C/ Serrano 45, Madrid',
+        description: `Contacto: Ana López · ana@eventosglobal.es · +34 611 222 333 · C/ Serrano 45, Madrid`,
       },
     }),
     prisma.client.create({
@@ -171,8 +170,7 @@ async function main() {
         tenantId: tenant.id,
         name: 'Audiovisuales Madrid',
         sector: 'Production',
-        description:
-          'Contacto: Carlos Ruiz · produccion@audiomadrid.es · +34 622 333 444 · Polígono Vallecas',
+        description: `Contacto: Carlos Ruiz · produccion@audiomadrid.es · +34 622 333 444 · Polígono Vallecas`,
       },
     }),
     prisma.client.create({
@@ -180,8 +178,7 @@ async function main() {
         tenantId: tenant.id,
         name: 'Congresos S.A.',
         sector: 'Corporate',
-        description:
-          'Contacto: María Santos · msantos@congresos.es · +34 633 444 555 · IFEMA Norte',
+        description: `Contacto: María Santos · msantos@congresos.es · +34 633 444 555 · IFEMA Norte`,
       },
     }),
     prisma.client.create({
@@ -189,8 +186,7 @@ async function main() {
         tenantId: tenant.id,
         name: 'Teatro Lírica Producciones',
         sector: 'Entertainment',
-        description:
-          'Contacto: Pedro Vega · pedro@lirica.es · +34 644 555 666 · Gran Vía 88, Madrid',
+        description: `Contacto: Pedro Vega · pedro@lirica.es · +34 644 555 666 · Gran Vía 88, Madrid`,
       },
     }),
   ]);
@@ -634,45 +630,203 @@ async function main() {
 
   console.log('- Created rentals + rental items');
 
-  await prisma.vehicle.create({
-    data: {
-      tenantId: tenant.id,
-      name: 'Mercedes Sprinter L2',
-      plate: '4521KMX',
-      type: 'van',
-      capacity: 1200,
-      status: 'available',
-      location: 'Madrid — Nave A',
-      nextMaintenance: new Date('2026-09-15'),
-    },
-  });
-
-  await prisma.vehicle.create({
-    data: {
-      tenantId: tenant.id,
-      name: 'Iveco Daily Furgón',
-      plate: '8834LMN',
-      type: 'truck',
-      capacity: 3500,
-      status: 'in_use',
-      location: 'En ruta — Valencia',
-      nextMaintenance: new Date('2026-07-01'),
-    },
-  });
-
-  await prisma.vehicle.create({
-    data: {
-      tenantId: tenant.id,
-      name: 'Ford Transit Custom',
-      plate: '2910JRB',
-      type: 'van',
-      capacity: 900,
-      status: 'maintenance',
-      location: 'Taller autorizado',
-      nextMaintenance: new Date('2026-04-05'),
-    },
-  });
+  const vehicles = await prisma.$transaction([
+    prisma.vehicle.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Mercedes Sprinter L2',
+        plate: '4521KMX',
+        type: 'van',
+        capacity: 1200,
+        status: 'available',
+        location: 'Madrid — Nave A',
+        nextMaintenance: new Date('2026-09-15'),
+      },
+    }),
+    prisma.vehicle.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Iveco Daily Furgón',
+        plate: '8834LMN',
+        type: 'truck',
+        capacity: 3500,
+        status: 'in_use',
+        location: 'En ruta — Valencia',
+        nextMaintenance: new Date('2026-07-01'),
+      },
+    }),
+    prisma.vehicle.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Ford Transit Custom',
+        plate: '2910JRB',
+        type: 'van',
+        capacity: 900,
+        status: 'maintenance',
+        location: 'Taller autorizado',
+        nextMaintenance: new Date('2026-04-05'),
+      },
+    }),
+  ]);
   console.log('- Created vehicles');
+
+  // Seed categories
+  const categories = await prisma.$transaction([
+    prisma.category.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Audio/Video',
+        type: 'PRODUCT',
+        description: 'Equipos de audio y video',
+      },
+    }),
+    prisma.category.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Sonido',
+        type: 'PRODUCT',
+        description: 'Equipos de sonido',
+      },
+    }),
+    prisma.category.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Personal',
+        type: 'SERVICE',
+        description: 'Servicios de personal técnico',
+      },
+    }),
+    prisma.category.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Transporte',
+        type: 'SERVICE',
+        description: 'Servicios de transporte',
+      },
+    }),
+  ]);
+  console.log('- Created categories');
+
+  // Seed technicians
+  const technicians = await prisma.$transaction([
+    prisma.technician.create({
+      data: {
+        tenantId: tenant.id,
+        userId: admin.id,
+        hourlyRate: 50,
+        skills: ['Audio', 'Video'],
+      },
+    }),
+  ]);
+  console.log('- Created technicians');
+
+  // Seed drivers
+  const drivers = await prisma.$transaction([
+    prisma.driver.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Carlos Ruiz',
+        licenseNumber: '123456789',
+        licenseType: 'C',
+      },
+    }),
+    prisma.driver.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Ana López',
+        licenseNumber: '987654321',
+        licenseType: 'B',
+      },
+    }),
+  ]);
+  console.log('- Created drivers');
+
+  // Update vehicles with drivers
+  await prisma.vehicle.update({
+    where: { id: vehicles[0].id },
+    data: { driverId: drivers[0].id },
+  });
+  await prisma.vehicle.update({
+    where: { id: vehicles[1].id },
+    data: { driverId: drivers[1].id },
+  });
+  console.log('- Assigned drivers to vehicles');
+
+  // Seed events
+  const events = await prisma.$transaction([
+    prisma.event.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Concierto Verano 2026',
+        clientId: clients[0].id,
+        startDate: new Date('2026-07-15T20:00:00Z'),
+        endDate: new Date('2026-07-15T23:00:00Z'),
+        summary: 'Concierto al aire libre con equipo completo',
+        location: 'Parque del Retiro, Madrid',
+        status: 'COMPLETED',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Congreso Empresarial',
+        clientId: clients[2].id,
+        startDate: new Date('2026-09-10T09:00:00Z'),
+        endDate: new Date('2026-09-12T18:00:00Z'),
+        summary: 'Congreso con presentaciones y eventos sociales',
+        location: 'Palacio de Congresos, Madrid',
+        status: 'PLANNED',
+      },
+    }),
+  ]);
+  console.log('- Created events');
+
+  // Assign technicians to events
+  await prisma.eventTechnician.create({
+    data: {
+      eventId: events[0].id,
+      technicianId: technicians[0].id,
+    },
+  });
+  console.log('- Assigned technicians to events');
+
+  // Seed projects
+  const projects = await prisma.$transaction([
+    prisma.project.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Proyecto Verano Musical',
+        description: 'Serie de conciertos de verano',
+        startDate: new Date('2026-06-01'),
+        endDate: new Date('2026-08-31'),
+        clientId: clients[0].id,
+      },
+    }),
+  ]);
+  console.log('- Created projects');
+
+  // Link events to projects
+  await prisma.projectEvent.create({
+    data: {
+      projectId: projects[0].id,
+      eventId: events[0].id,
+    },
+  });
+  console.log('- Linked events to projects');
+
+  // Seed damage reports
+  await prisma.damageReport.create({
+    data: {
+      tenantId: tenant.id,
+      productId: insertedProducts[0].id,
+      reportedBy: admin.id,
+      place: 'Almacén Central',
+      description: 'Daño en la carcasa durante el transporte',
+      status: 'REPORTED',
+      repairCost: 150,
+    },
+  });
+  console.log('- Created damage reports');
 
   await prisma.outboxEvent.create({
     data: {

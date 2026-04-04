@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClsModule } from 'nestjs-cls';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { EventsBackendModule } from '@josanz-erp/events-backend';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AppService } from './app.service';
         },
       },
     }),
+    EventsBackendModule,
   ],
   controllers: [AppController],
   providers: [AppService],
