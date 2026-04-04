@@ -7,7 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
-       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/shared-infrastructure",
         "tsConfig": "libs/shared-infrastructure/tsconfig.lib.json",
@@ -15,8 +15,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": ["libs/shared-infrastructure/**/*.ts"]
       }

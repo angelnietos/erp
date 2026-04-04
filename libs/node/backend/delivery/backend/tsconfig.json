@@ -5,6 +5,7 @@
     "declarationMap": true,
     "types": ["node", "jest"],
     "module": "commonjs",
+    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
