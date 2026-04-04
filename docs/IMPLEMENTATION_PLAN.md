@@ -18,6 +18,17 @@ El sistema ERP actual tiene implementadas las siguientes funcionalidades princip
 
 Las funcionalidades faltantes se detallan a continuación, organizadas por módulos:
 
+## ✅ Proyectos
+
+- ✅ Listado de proyectos
+- ✅ Crear nuevo proyecto
+- ✅ Detalle de proyecto con historial
+- ✅ Vinculación con eventos y clientes
+- ✅ Funcionalidad de duplicar proyectos
+- ✅ Estados: activo, completado, cancelado
+- ✅ API CRUD completa
+- ✅ Domain entities y servicios
+
 ## 🏠 Inicio/Dashboard
 
 ### Funcionalidades
@@ -260,7 +271,7 @@ Las funcionalidades faltantes se detallan a continuación, organizadas por módu
 
 ### Fase 1 (Crítico)
 
-1. Proyectos
+1. ✅ Proyectos (completado)
 2. Servicios
 3. Reportes básicos
 4. Trazabilidad básica
