@@ -1,0 +1,33 @@
+{
+  "name": "projects-core",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/isomorphic/core/projects/core/src",
+  "projectType": "library",
+  "tags": ["scope:projects", "type:core"],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/core/projects/core",
+        "main": "libs/isomorphic/core/projects/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/projects/core/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/isomorphic/core/projects/core/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/isomorphic/core/projects/core/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/projects/core"]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@josanz-erp/projects-backend",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "dependencies": {
+    "@josanz-erp/projects-core": "workspace:*",
+    "@josanz-erp/shared-infrastructure": "workspace:*",
+    "@josanz-erp/shared-model": "workspace:*"
+  }
+}

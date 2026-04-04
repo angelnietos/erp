@@ -9,9 +9,10 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
+        "outputPath": "dist/libs/isomorphic/shared/model",
         "main": "libs/isomorphic/shared/model/src/index.ts",
         "tsConfig": "libs/isomorphic/shared/model/tsconfig.lib.json",
-        "assets": ["libs/isomorphic/shared/model/*.md"]
+        "assets": []
       }
     },
     "test": {
