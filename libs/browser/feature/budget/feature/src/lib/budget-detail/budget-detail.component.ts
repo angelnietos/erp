@@ -100,7 +100,7 @@ import { Budget } from '@josanz-erp/budget-api';
           </ui-josanz-stat-card>
           <ui-josanz-stat-card
             label="Vencimiento Oferta"
-            [value]="formatDate(budget()?.validUntil)"
+            [value]="formatDate(budget()?.endDate)"
             icon="calendar-clock"
           >
           </ui-josanz-stat-card>
