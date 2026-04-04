@@ -8,15 +8,7 @@
     "emitDecoratorMetadata": true,
     "target": "es2021",
     "moduleResolution": "node",
-    "baseUrl": "../../",
-    "paths": {
-      "@josanz-erp/verifactu-core": [
-        "../../libs/isomorphic/core/verifactu/core/src/index.ts"
-      ],
-      "@josanz-erp/verifactu-adapters": [
-        "../../libs/node/adapters/verifactu/adapters/src/index.ts"
-      ]
-    }
+    "baseUrl": "../../"
   },
   "include": ["src/**/*.ts"],
   "exclude": [

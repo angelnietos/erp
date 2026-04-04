@@ -7,12 +7,15 @@
   "implicitDependencies": ["verifactu-core"],
   "targets": {
     "build": {
-      "executor": "@nx/angular:package",
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "executor": "@nx/js:tsc",
+      "dependsOn": ["^build"],
+      "outputs": ["{options.outputPath}"],
       "options": {
-        "tsConfig": "libs/node/adapters/verifactu/adapters/tsconfig.lib.json"
-      },
-      "dependsOn": ["^build"]
+        "outputPath": "dist/libs/verifactu/adapters",
+        "main": "libs/node/adapters/verifactu/adapters/src/index.ts",
+        "tsConfig": "libs/node/adapters/verifactu/adapters/tsconfig.lib.json",
+        "assets": []
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
