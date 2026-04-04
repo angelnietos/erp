@@ -1,33 +1,33 @@
 {
   "name": "identity-core",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/identity/core/src",
+  "sourceRoot": "libs/isomorphic/core/identity/core/src",
   "projectType": "library",
   "tags": ["scope:identity", "type:core"],
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
-       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/identity/core",
-        "main": "libs/identity/core/src/index.ts",
-        "tsConfig": "libs/identity/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/identity/core",
+        "main": "libs/isomorphic/core/identity/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/identity/core/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/identity/core/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/identity/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/identity/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/identity/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/identity/core"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/identity/core"]
     }
   }
 }

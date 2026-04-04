@@ -7,7 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
-       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/node/backend/inventory/backend",
         "main": "libs/node/backend/inventory/backend/src/index.ts",
@@ -18,7 +18,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/inventory/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/inventory/backend/**/*.ts"]
       }
     },
     "test": {
@@ -27,8 +27,9 @@
         "jestConfig": "libs/node/backend/inventory/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/inventory/backend"]
+      "outputs": [
+        "{workspaceRoot}/coverage/libs/node/backend/inventory/backend"
+      ]
     }
   }
 }
-

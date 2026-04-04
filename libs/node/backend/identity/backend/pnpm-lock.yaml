@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@josanz-erp/identity-api':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/api/identity/api
+      '@josanz-erp/identity-core':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/core/identity/core
+      '@josanz-erp/shared-infrastructure':
+        specifier: workspace:*
+        version: link:../../../shared-infrastructure
+      '@josanz-erp/shared-model':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/shared/model

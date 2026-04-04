@@ -5,7 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "types": ["node"],
-    "module": "commonjs"
+    "module": "esnext"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "test-setup.ts"]

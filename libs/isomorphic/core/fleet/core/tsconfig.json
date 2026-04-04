@@ -1,10 +1,9 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../../../../../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2021",
     "declaration": true,
-    "inlineSources": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",

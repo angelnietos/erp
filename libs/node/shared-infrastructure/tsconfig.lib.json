@@ -5,8 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "types": ["node"],
-    "module": "commonjs",
-    "rootDir": "src"
+    "module": "commonjs"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]

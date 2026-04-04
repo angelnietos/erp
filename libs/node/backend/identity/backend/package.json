@@ -1,0 +1,11 @@
+{
+  "name": "@josanz-erp/identity-backend",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "dependencies": {
+    "@josanz-erp/identity-api": "workspace:*",
+    "@josanz-erp/identity-core": "workspace:*",
+    "@josanz-erp/shared-infrastructure": "workspace:*",
+    "@josanz-erp/shared-model": "workspace:*"
+  }
+}

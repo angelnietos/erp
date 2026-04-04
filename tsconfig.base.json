@@ -203,7 +203,11 @@
         "libs/browser/shell/settings/shell/src/index.ts"
       ],
       "@josanz-erp/events-backend": ["libs/node/backend/src/index.ts"],
-      "@josanz-erp/feature": ["libs/browser/feature/events/src/index.ts"]
+      "@josanz-erp/feature": ["libs/browser/feature/events/src/index.ts"],
+      "@josanz-erp/users-data-access": [
+        "libs/browser/data-access/src/index.ts"
+      ],
+      "@josanz-erp/users-feature": ["libs/browser/feature/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,7 +1,7 @@
 {
   "name": "shared-infrastructure",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared-infrastructure/src",
+  "sourceRoot": "libs/node/shared-infrastructure/src",
   "projectType": "library",
   "implicitDependencies": ["shared-data-access"],
   "targets": {
@@ -9,22 +9,22 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/shared-infrastructure",
-        "tsConfig": "libs/shared-infrastructure/tsconfig.lib.json",
-        "main": "libs/shared-infrastructure/src/index.ts"
+        "outputPath": "dist/libs/node/shared-infrastructure",
+        "tsConfig": "libs/node/shared-infrastructure/tsconfig.lib.json",
+        "main": "libs/node/shared-infrastructure/src/index.ts"
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/shared-infrastructure/**/*.ts"]
+        "lintFilePatterns": ["libs/node/shared-infrastructure/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/coverage/libs/node/shared-infrastructure"],
       "options": {
-        "jestConfig": "libs/shared-infrastructure/jest.config.ts",
+        "jestConfig": "libs/node/shared-infrastructure/jest.config.ts",
         "passWithNoTests": true
       }
     }

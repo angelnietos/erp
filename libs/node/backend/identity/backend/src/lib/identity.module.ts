@@ -5,7 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { type StringValue } from 'ms';
 import { AuthController } from './presentation/controllers/auth.controller';
+import { UsersController } from './presentation/controllers/users.controller';
 import { AuthService } from './application/services/auth.service';
+import { UsersService } from './application/services/users.service';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
@@ -27,7 +29,8 @@ export class IdentityModule {
         JwtModule.registerAsync({
           inject: [ConfigService],
           useFactory: (config: ConfigService) => {
-            const expiresIn = (config.get<string>('JWT_EXPIRES') ?? '24h') as StringValue;
+            const expiresIn = (config.get<string>('JWT_EXPIRES') ??
+              '24h') as StringValue;
             return {
               secret: config.get<string>('JWT_SECRET') ?? 'default_secret',
               signOptions: { expiresIn },
@@ -35,9 +38,10 @@ export class IdentityModule {
           },
         }),
       ],
-      controllers: [AuthController],
+      controllers: [AuthController, UsersController],
       providers: [
         AuthService,
+        UsersService,
         JwtStrategy,
         {
           provide: USER_REPOSITORY,
@@ -52,4 +56,3 @@ export class IdentityModule {
     };
   }
 }
-

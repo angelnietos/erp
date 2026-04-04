@@ -7,7 +7,7 @@
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
-       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/isomorphic/core/rentals/core",
         "main": "libs/isomorphic/core/rentals/core/src/index.ts",
@@ -18,7 +18,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/rentals/core/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/rentals/core/**/*.ts"]
       }
     },
     "test": {
@@ -27,8 +27,7 @@
         "jestConfig": "libs/isomorphic/core/rentals/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/rentals/core"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/rentals/core"]
     }
   }
 }
-

@@ -2,5 +2,7 @@
   "name": "@josanz-erp/verifactu-core",
   "version": "0.0.1",
   "private": true,
-  "type": "commonjs"
+  "type": "commonjs",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts"
 }

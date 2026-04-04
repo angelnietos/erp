@@ -8,7 +8,7 @@
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
-       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "outputPath": "dist/libs/node/backend/rentals/backend",
         "main": "libs/node/backend/rentals/backend/src/index.ts",
@@ -19,7 +19,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/rentals/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/rentals/backend/**/*.ts"]
       }
     },
     "test": {
@@ -28,8 +28,7 @@
         "jestConfig": "libs/node/backend/rentals/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/rentals/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/rentals/backend"]
     }
   }
 }
-

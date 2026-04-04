@@ -534,6 +534,7 @@ model User {
   firstName String?    @map("first_name")
   lastName  String?    @map("last_name")
   isActive  Boolean    @default(true) @map("is_active")
+  category  String?    @map("category")
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime?  @map("updated_at")
   roles     UserRole[]

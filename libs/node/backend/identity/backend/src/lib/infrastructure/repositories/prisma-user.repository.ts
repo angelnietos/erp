@@ -33,7 +33,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return this.requireTenantId();
   }
 
-  async findByEmail(email: string, tenantIdParam?: string): Promise<User | null> {
+  async findByEmail(
+    email: string,
+    tenantIdParam?: string,
+  ): Promise<User | null> {
     const tenantId = this.resolveTenantId(tenantIdParam);
     const data = await this.prisma.user.findUnique({
       where: { tenantId_email: { tenantId, email } },
@@ -54,6 +57,16 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return this.mapToDomain(data);
   }
 
+  async findAll(tenantIdParam?: string): Promise<User[]> {
+    const tenantId = this.resolveTenantId(tenantIdParam);
+    const data = await this.prisma.user.findMany({
+      where: { tenantId },
+      include: { roles: { include: { role: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return data.map(this.mapToDomain);
+  }
+
   async save(user: User): Promise<void> {
     const tenantId = this.resolveTenantId();
     await this.prisma.user.upsert({
@@ -64,6 +77,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         firstName: user.firstName,
         lastName: user.lastName,
         isActive: user.isActive,
+        category: user.category,
+        updatedAt: new Date(),
       },
       create: {
         id: user.id.value,
@@ -73,6 +88,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         firstName: user.firstName,
         lastName: user.lastName,
         isActive: user.isActive,
+        category: user.category,
         createdAt: user.createdAt,
       },
     });
@@ -89,6 +105,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
       firstName: data.firstName,
       lastName: data.lastName,
       isActive: data.isActive,
+      category: data.category,
       roles: (data.roles || []).map((r) => r.role.name),
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,

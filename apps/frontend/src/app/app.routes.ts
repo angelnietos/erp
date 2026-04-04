@@ -12,7 +12,8 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'auth',
-    loadChildren: () => import('@josanz-erp/identity-shell').then(m => m.identityRoutes),
+    loadChildren: () =>
+      import('@josanz-erp/identity-shell').then((m) => m.identityRoutes),
   },
   {
     path: '',
@@ -25,53 +26,71 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'clients',
-        loadChildren: () => import('@josanz-erp/clients-shell').then((m) => m.clientsShellRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/clients-shell').then((m) => m.clientsShellRoutes),
         canActivate: [pluginGuard('clients')],
       },
       {
         path: 'budgets',
-        loadChildren: () => import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
         canActivate: [pluginGuard('budgets')],
       },
       {
         path: 'inventory',
-        loadChildren: () => import('@josanz-erp/inventory-shell').then((m) => m.inventoryShellRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/inventory-shell').then(
+            (m) => m.inventoryShellRoutes,
+          ),
         canActivate: [pluginGuard('inventory')],
       },
       {
         path: 'delivery',
-        loadChildren: () => import('@josanz-erp/delivery-shell').then((m) => m.deliveryShellRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/delivery-shell').then(
+            (m) => m.deliveryShellRoutes,
+          ),
         canActivate: [pluginGuard('delivery')],
       },
       {
         path: 'fleet',
-        loadChildren: () => import('@josanz-erp/fleet-shell').then((m) => m.fleetShellRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/fleet-shell').then((m) => m.fleetShellRoutes),
         canActivate: [pluginGuard('fleet')],
       },
       {
         path: 'billing',
-        loadChildren: () => import('@josanz-erp/billing-shell').then((m) => m.billingShellRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/billing-shell').then((m) => m.billingShellRoutes),
         canActivate: [pluginGuard('billing')],
       },
       {
         path: 'rentals',
-        loadChildren: () => import('@josanz-erp/rentals-shell').then((m) => m.rentalsShellRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/rentals-shell').then((m) => m.rentalsShellRoutes),
         canActivate: [pluginGuard('rentals')],
       },
       {
         path: 'verifactu',
-        loadChildren: () => import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
         canActivate: [pluginGuard('verifactu')],
       },
       {
         path: 'settings',
-        loadChildren: () => import('@josanz-erp/settings-shell').then((m) => m.settingsRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/settings-shell').then((m) => m.settingsRoutes),
+      },
+      {
+        path: 'users',
+        loadChildren: () =>
+          import('@josanz-erp/identity-shell').then((m) => m.usersRoutes),
       },
       {
         path: 'not-found',
         component: NotFoundComponent,
       },
-    ]
+    ],
   },
   {
     path: '**',

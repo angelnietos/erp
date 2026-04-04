@@ -7,13 +7,14 @@ export interface UserProps {
   lastName?: string;
   isActive: boolean;
   roles: string[];
+  category?: string;
   createdAt: Date;
   updatedAt?: Date;
 }
 
 export class User extends AggregateRoot {
   readonly id: EntityId;
-  private props: UserProps;
+  private readonly props: UserProps;
 
   private constructor(id: EntityId, props: UserProps) {
     super();
@@ -34,9 +35,14 @@ export class User extends AggregateRoot {
     return new User(new EntityId(id), props);
   }
 
-  updateProfile(firstName?: string, lastName?: string): void {
+  updateProfile(
+    firstName?: string,
+    lastName?: string,
+    category?: string,
+  ): void {
     this.props.firstName = firstName;
     this.props.lastName = lastName;
+    this.props.category = category;
     this.props.updatedAt = new Date();
   }
 
@@ -45,12 +51,31 @@ export class User extends AggregateRoot {
     this.props.updatedAt = new Date();
   }
 
-  get email(): string { return this.props.email; }
-  get passwordHash(): string { return this.props.passwordHash; }
-  get firstName(): string | undefined { return this.props.firstName; }
-  get lastName(): string | undefined { return this.props.lastName; }
-  get isActive(): boolean { return this.props.isActive; }
-  get roles(): string[] { return this.props.roles; }
-  get createdAt(): Date { return this.props.createdAt; }
+  get email(): string {
+    return this.props.email;
+  }
+  get passwordHash(): string {
+    return this.props.passwordHash;
+  }
+  get firstName(): string | undefined {
+    return this.props.firstName;
+  }
+  get lastName(): string | undefined {
+    return this.props.lastName;
+  }
+  get isActive(): boolean {
+    return this.props.isActive;
+  }
+  get roles(): string[] {
+    return this.props.roles;
+  }
+  get category(): string | undefined {
+    return this.props.category;
+  }
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+  get updatedAt(): Date | undefined {
+    return this.props.updatedAt;
+  }
 }
-
