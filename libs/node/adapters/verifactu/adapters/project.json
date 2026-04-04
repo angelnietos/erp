@@ -4,6 +4,7 @@
   "sourceRoot": "libs/node/adapters/verifactu/adapters/src",
   "projectType": "library",
   "tags": ["scope:verifactu", "type:adapters"],
+  "implicitDependencies": ["verifactu-core"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",

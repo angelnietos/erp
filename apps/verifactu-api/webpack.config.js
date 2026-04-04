@@ -9,6 +9,18 @@ module.exports = {
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     }),
   },
+  resolve: {
+    alias: {
+      '@josanz-erp/verifactu-core': join(
+        __dirname,
+        '../../libs/isomorphic/core/verifactu/core/src/index.ts',
+      ),
+      '@josanz-erp/verifactu-adapters': join(
+        __dirname,
+        '../../libs/node/adapters/verifactu/adapters/src/index.ts',
+      ),
+    },
+  },
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

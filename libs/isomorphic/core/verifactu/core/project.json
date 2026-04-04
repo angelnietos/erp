@@ -6,13 +6,10 @@
   "tags": ["scope:verifactu", "type:core"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/verifactu/core",
-        "main": "libs/verifactu/core/src/index.ts",
-        "tsConfig": "libs/verifactu/core/tsconfig.lib.json",
-        "assets": []
+        "tsConfig": "libs/isomorphic/core/verifactu/core/tsconfig.lib.json"
       }
     },
     "lint": {

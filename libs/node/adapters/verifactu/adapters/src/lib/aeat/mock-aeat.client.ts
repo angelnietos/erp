@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { AeatClientPort, AeatSubmissionRequest, AeatSubmissionResponse } from '@josanz-erp/verifactu-core';
+import {
+  AeatClientPort,
+  AeatSubmissionRequest,
+  AeatSubmissionResponse,
+} from '../../../../../../../isomorphic/core/verifactu/core/src/index';
 
 @Injectable()
 export class MockAeatClient implements AeatClientPort {
-  async submitRecord(request: AeatSubmissionRequest): Promise<AeatSubmissionResponse> {
+  async submitRecord(
+    request: AeatSubmissionRequest,
+  ): Promise<AeatSubmissionResponse> {
     return {
       accepted: true,
       aeatReference: `AEAT-${request.invoiceId.slice(0, 8).toUpperCase()}`,
@@ -15,4 +21,3 @@ export class MockAeatClient implements AeatClientPort {
     };
   }
 }
-
