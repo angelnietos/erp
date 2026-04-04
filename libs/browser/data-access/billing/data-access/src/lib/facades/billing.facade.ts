@@ -1,5 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Invoice, InvoiceService } from '../services/invoice.service';
+import { BudgetService } from '@josanz-erp/budget-data-access';
+import { Budget } from '@josanz-erp/budget-api';
+import { VerifactuService } from '@josanz-erp/verifactu-data-access';
+import { getStoredTenantId } from '@josanz-erp/identity-data-access';
 
 export interface BillingTabs {
   id: string;
@@ -10,6 +14,8 @@ export interface BillingTabs {
 @Injectable({ providedIn: 'root' })
 export class BillingFacade {
   private readonly service = inject(InvoiceService);
+  private readonly budgetService = inject(BudgetService);
+  private readonly verifactuService = inject(VerifactuService);
 
   /** Full list from API; tabs and mutations keep this in sync. */
   private readonly _allInvoices = signal<Invoice[]>([]);
@@ -17,6 +23,8 @@ export class BillingFacade {
   private readonly _error = signal<string | null>(null);
   private readonly _activeTab = signal<string>('all');
   private readonly _searchTerm = signal<string>('');
+
+  private readonly _budgets = signal<Budget[]>([]);
 
   /** Rows shown in the table (tab + local search). */
   readonly invoices = computed<Invoice[]>(() => {
@@ -30,7 +38,7 @@ export class BillingFacade {
       list = list.filter(
         (i) =>
           i.invoiceNumber.toLowerCase().includes(s) ||
-          (i.clientName || '').toLowerCase().includes(s)
+          (i.clientName || '').toLowerCase().includes(s),
       );
     }
     return list;
@@ -40,14 +48,27 @@ export class BillingFacade {
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly activeTab = this._activeTab.asReadonly();
+  readonly budgets = this._budgets.asReadonly();
 
   readonly tabs = computed<BillingTabs[]>(() => {
     const invoices = this._allInvoices();
     return [
       { id: 'all', label: 'Todas', badge: invoices.length },
-      { id: 'pending', label: 'Pendientes', badge: invoices.filter((i) => i.status === 'pending').length },
-      { id: 'paid', label: 'Pagadas', badge: invoices.filter((i) => i.status === 'paid').length },
-      { id: 'cancelled', label: 'Canceladas', badge: invoices.filter((i) => i.status === 'cancelled').length },
+      {
+        id: 'pending',
+        label: 'Pendientes',
+        badge: invoices.filter((i) => i.status === 'pending').length,
+      },
+      {
+        id: 'paid',
+        label: 'Pagadas',
+        badge: invoices.filter((i) => i.status === 'paid').length,
+      },
+      {
+        id: 'cancelled',
+        label: 'Canceladas',
+        badge: invoices.filter((i) => i.status === 'cancelled').length,
+      },
     ];
   });
 
@@ -84,7 +105,9 @@ export class BillingFacade {
   updateInvoice(id: string, updates: Partial<Invoice>): void {
     this.service.updateInvoice(id, updates).subscribe({
       next: (updatedItem) =>
-        this._allInvoices.update((items) => items.map((i) => (i.id === id ? updatedItem : i))),
+        this._allInvoices.update((items) =>
+          items.map((i) => (i.id === id ? updatedItem : i)),
+        ),
     });
   }
 
@@ -101,14 +124,61 @@ export class BillingFacade {
   sendInvoice(id: string): void {
     this.service.sendInvoice(id).subscribe({
       next: (updatedItem) =>
-        this._allInvoices.update((items) => items.map((i) => (i.id === id ? updatedItem : i))),
+        this._allInvoices.update((items) =>
+          items.map((i) => (i.id === id ? updatedItem : i)),
+        ),
     });
   }
 
   markAsPaid(id: string): void {
     this.service.markAsPaid(id).subscribe({
       next: (updatedItem) =>
-        this._allInvoices.update((items) => items.map((i) => (i.id === id ? updatedItem : i))),
+        this._allInvoices.update((items) =>
+          items.map((i) => (i.id === id ? updatedItem : i)),
+        ),
+    });
+  }
+
+  loadBudgets(): void {
+    this.budgetService.getBudgets().subscribe({
+      next: (budgets) => {
+        this._budgets.set(budgets);
+      },
+      error: (error) => {
+        console.error('Error loading budgets:', error);
+      },
+    });
+  }
+
+  submitToVerifactu(invoiceId: string): void {
+    const tenantId = getStoredTenantId();
+    if (!tenantId) return;
+    this.verifactuService.submitInvoiceDirect(invoiceId, tenantId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.loadInvoices();
+        } else {
+          this.updateInvoice(invoiceId, { verifactuStatus: 'error' });
+        }
+      },
+      error: () => {
+        this.updateInvoice(invoiceId, { verifactuStatus: 'error' });
+      },
+    });
+  }
+
+  cancelInvoice(invoiceId: string): void {
+    const tenantId = getStoredTenantId();
+    if (!tenantId) return;
+    this.verifactuService.cancelInvoice(invoiceId, tenantId).subscribe({
+      next: (ok) => {
+        if (ok) {
+          this.updateInvoice(invoiceId, {
+            status: 'cancelled',
+            verifactuStatus: 'error',
+          });
+        }
+      },
     });
   }
 }
