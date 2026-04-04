@@ -2,5 +2,8 @@
   "name": "@josanz-erp/verifactu-adapters",
   "version": "0.0.1",
   "private": true,
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "@josanz-erp/verifactu-core": "workspace:*"
+  }
 }

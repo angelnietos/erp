@@ -1,35 +1,25 @@
 {
   "name": "verifactu-adapters",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/adapters/verifactu/adapters/src",
   "projectType": "library",
   "tags": ["scope:verifactu", "type:adapters"],
-  "implicitDependencies": ["verifactu-core"],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "dependsOn": ["^build"],
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/verifactu/adapters",
-        "main": "libs/node/adapters/verifactu/adapters/src/index.ts",
-        "tsConfig": "libs/node/adapters/verifactu/adapters/tsconfig.lib.json",
-        "assets": []
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/verifactu/adapters/**/*.ts"]
+        "lintFilePatterns": ["libs/node/adapters/verifactu/adapters/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/verifactu/adapters/jest.config.cts",
+        "jestConfig": "libs/node/adapters/verifactu/adapters/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/verifactu/adapters"]
+      "outputs": [
+        "{workspaceRoot}/coverage/libs/node/adapters/verifactu/adapters"
+      ]
     }
   }
 }
