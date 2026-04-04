@@ -792,7 +792,7 @@ export class BillingListComponent implements OnInit {
     }
   }
 
-  getVerifactuVariant(status?: string): 'success' | 'warning' | 'error' | 'default' {
+  getVerifactuVariant(status: string | undefined): string {
     switch (status) {
       case 'sent':
         return 'success';
@@ -805,7 +805,7 @@ export class BillingListComponent implements OnInit {
     }
   }
 
-  getVerifactuLabel(status?: string): string {
+  getVerifactuLabel(status: string | undefined): string {
     switch (status) {
       case 'sent':
         return 'Enviada';
@@ -840,98 +840,4 @@ export class BillingListComponent implements OnInit {
       .filter((i) => i.status === 'pending')
       .reduce((acc, inv) => acc + (inv.total || 0), 0),
   );
-  }
-}
-  }
-
-  formatDate(date: string): string {
-    return date ? new Date(date).toLocaleDateString('es-ES') : '-';
-  }
-
-  formatCurrencyEu(amount: number | undefined): string {
-    return amount != null
-      ? new Intl.NumberFormat('es-ES', {
-          style: 'currency',
-          currency: 'EUR',
-        }).format(amount)
-      : '-';
-  }
-
-  totalInvoiced = computed(() =>
-    this.allInvoices().reduce((acc, inv) => acc + (inv.total || 0), 0),
-  );
-  totalPending = computed(() =>
-    this.allInvoices()
-      .filter((i) => i.status === 'pending')
-      .reduce((acc, inv) => acc + (inv.total || 0), 0),
-  );
-
-  getVerifactuVariant(
-    status: string,
-  ): 'success' | 'warning' | 'error' | 'default' {
-    switch (status) {
-      case 'sent':
-        return 'success';
-      case 'pending':
-        return 'warning';
-      case 'error':
-        return 'error';
-      default:
-        return 'default';
-    }
-  }
-
-  getVerifactuLabel(status: string): string {
-    switch (status) {
-      case 'sent':
-        return 'Enviada';
-      case 'pending':
-        return 'Pendiente';
-      case 'error':
-        return 'Error';
-      default:
-        return status;
-    }
-  }
-
-  formatDate(date: string): string {
-    return date ? new Date(date).toLocaleDateString('es-ES') : '-';
-  }
-
-  formatCurrencyEu(amount: number | undefined): string {
-    return amount != null
-      ? new Intl.NumberFormat('es-ES', {
-          style: 'currency',
-          currency: 'EUR',
-        }).format(amount)
-      : '-';
-  }
-}
-  }
-
-  getVerifactuLabel(status: string): string {
-    switch (status) {
-      case 'sent':
-        return 'Enviada';
-      case 'pending':
-        return 'Pendiente';
-      case 'error':
-        return 'Error';
-      default:
-        return status;
-    }
-  }
-
-  formatDate(date: string): string {
-    return date ? new Date(date).toLocaleDateString('es-ES') : '-';
-  }
-
-  formatCurrencyEu(amount: number | undefined): string {
-    return amount != null
-      ? new Intl.NumberFormat('es-ES', {
-          style: 'currency',
-          currency: 'EUR',
-        }).format(amount)
-      : '-';
-  }
 }
