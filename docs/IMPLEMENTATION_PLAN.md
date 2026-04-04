@@ -29,6 +29,15 @@ Las funcionalidades faltantes se detallan a continuación, organizadas por módu
 - ✅ API CRUD completa
 - ✅ Domain entities y servicios
 
+## ✅ Servicios
+
+- ✅ Catálogo de servicios con tipos: STREAMING, PRODUCCIÓN, LED, TRANSPORTE, PERSONAL TÉCNICO, VIDEO TÉCNICO
+- ✅ Precios y configuraciones por servicio
+- ✅ Gestión de servicios activos/inactivos
+- ✅ API CRUD completa
+- ✅ Domain entities y servicios
+- ✅ Frontend con listado y detalle de servicios
+
 ## 🏠 Inicio/Dashboard
 
 ### Funcionalidades
@@ -272,7 +281,7 @@ Las funcionalidades faltantes se detallan a continuación, organizadas por módu
 ### Fase 1 (Crítico)
 
 1. ✅ Proyectos (completado)
-2. Servicios
+2. ✅ Servicios (completado)
 3. Reportes básicos
 4. Trazabilidad básica
 
