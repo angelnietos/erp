@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@josanz-erp/services-api':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/api/services/api
       '@josanz-erp/services-core':
         specifier: workspace:*
         version: link:../../../../isomorphic/core/services/core

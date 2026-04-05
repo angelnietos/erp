@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "type": "commonjs",
   "dependencies": {
+    "@josanz-erp/services-api": "workspace:*",
     "@josanz-erp/services-core": "workspace:*",
     "@josanz-erp/shared-infrastructure": "workspace:*",
     "@josanz-erp/shared-model": "workspace:*"
