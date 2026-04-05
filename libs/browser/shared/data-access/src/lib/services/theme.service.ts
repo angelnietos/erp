@@ -1,5 +1,4 @@
-import { Injectable, signal, effect, computed, inject } from '@angular/core';
-import { PluginStore } from '../store/plugin.store';
+import { Injectable, signal, effect, computed } from '@angular/core';
 
 /** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
 export type Theme =
@@ -27,7 +26,17 @@ export type Theme =
   | 'classic-dark'
   | 'nordic'
   | 'latte'
-  | 'forest-dark';
+  | 'forest-dark'
+  | 'assassin-creed'
+  | 'rainbow_six'
+  | 'zelda-legend'
+  | 'mario-world'
+  | 'animal-crossing'
+  | 'gta-san-andreas'
+  | 'red-dead'
+  | 'celeste-mountain'
+  | 'hades-underworld'
+  | 'hollow-knight';
 
 function hexToRgbTriplet(hex: string): string {
   const normalized = hex.replace('#', '').trim();
@@ -202,7 +211,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#f43f5e',
     info: '#f43f5e',
-    uiVariant: 'glass'
+    uiVariant: 'glass',
   },
   slate: {
     name: 'Technical-Slate',
@@ -242,7 +251,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#71717a',
-    uiVariant: 'neumorphic'
+    uiVariant: 'neumorphic',
   },
   neutral: {
     name: 'Raw-Metal',
@@ -262,7 +271,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#737373',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   cyan: {
     name: 'Arctic-Pulse',
@@ -282,7 +291,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#06b6d4',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   teal: {
     name: 'Abyss-Teal',
@@ -302,7 +311,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#14b8a6',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   amber: {
     name: 'Forge-Amber',
@@ -322,7 +331,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#f59e0b',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   indigo: {
     name: 'Nebula-Indigo',
@@ -342,7 +351,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#6366f1',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   lime: {
     name: 'Acid-Lime',
@@ -362,7 +371,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#84cc16',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   violet: {
     name: 'Ultra-Violet',
@@ -382,7 +391,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#7c3aed',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   crimson: {
     name: 'Crimson-Code',
@@ -402,7 +411,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#e11d48',
-    uiVariant: 'minimal'
+    uiVariant: 'minimal',
   },
   mint: {
     name: 'Mint-Signal',
@@ -422,7 +431,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#34d399',
-    uiVariant: 'glass'
+    uiVariant: 'glass',
   },
   coral: {
     name: 'Coral-Neon',
@@ -442,7 +451,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#fb7185',
-    uiVariant: 'glass'
+    uiVariant: 'glass',
   },
   gold: {
     name: 'Vinewood Gold',
@@ -462,7 +471,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#f5c518',
-    uiVariant: 'glass'
+    uiVariant: 'glass',
   },
   'corporate-light': {
     name: 'Corporate Light',
@@ -482,7 +491,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#dc2626',
     info: '#0284c7',
-    uiVariant: 'solid'
+    uiVariant: 'solid',
   },
   'classic-dark': {
     name: 'Classic Dark',
@@ -502,7 +511,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#3b82f6',
-    uiVariant: 'solid'
+    uiVariant: 'solid',
   },
   nordic: {
     name: 'Nordic Frost',
@@ -522,7 +531,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#ebcb8b',
     danger: '#bf616a',
     info: '#5e81ac',
-    uiVariant: 'flat'
+    uiVariant: 'flat',
   },
   latte: {
     name: 'Vanilla Latte',
@@ -542,7 +551,7 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#c2410c',
     danger: '#b91c1c',
     info: '#0369a1',
-    uiVariant: 'flat'
+    uiVariant: 'flat',
   },
   'forest-dark': {
     name: 'Deep Forest',
@@ -562,34 +571,314 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     warning: '#eab308',
     danger: '#ef4444',
     info: '#3b82f6',
-    uiVariant: 'flat'
-  }
+    uiVariant: 'flat',
+  },
+  'assassin-creed': {
+    name: "Assassin's Creed",
+    primary: '#8B4513',
+    secondary: '#2F1B14',
+    background: '#0A0A0A',
+    surface: '#1A1410',
+    text: '#F5F5DC',
+    textMuted: '#D2B48C',
+    border: '#654321',
+    brand: '#8B4513',
+    brandGlow: 'rgba(139, 69, 19, 0.4)',
+    bgSecondary: '#14100E',
+    bgTertiary: '#1E1612',
+    bgStyle: 'aurora',
+    success: '#228B22',
+    warning: '#DAA520',
+    danger: '#B22222',
+    info: '#4682B4',
+    uiVariant: 'glass',
+  },
+  rainbow_six: {
+    name: 'Rainbow Six',
+    primary: '#FF6B35',
+    secondary: '#1E3A8A',
+    background: '#0F0F23',
+    surface: '#1A1A2E',
+    text: '#F8F9FA',
+    textMuted: '#ADB5BD',
+    border: '#FF6B35',
+    brand: '#FF6B35',
+    brandGlow: 'rgba(255, 107, 53, 0.5)',
+    bgSecondary: '#16213E',
+    bgTertiary: '#0F3460',
+    bgStyle: 'grid',
+    success: '#20C997',
+    warning: '#FFC107',
+    danger: '#DC3545',
+    info: '#17A2B8',
+    uiVariant: 'glass',
+  },
+  'zelda-legend': {
+    name: 'Legend of Zelda',
+    primary: '#00FF00',
+    secondary: '#FFD700',
+    background: '#000000',
+    surface: '#1A1A1A',
+    text: '#FFFFFF',
+    textMuted: '#CCCCCC',
+    border: '#00FF00',
+    brand: '#00FF00',
+    brandGlow: 'rgba(0, 255, 0, 0.5)',
+    bgSecondary: '#0A0A0A',
+    bgTertiary: '#2A2A2A',
+    bgStyle: 'aurora',
+    success: '#00FF00',
+    warning: '#FFD700',
+    danger: '#FF0000',
+    info: '#00FFFF',
+    uiVariant: 'glass',
+  },
+  'mario-world': {
+    name: 'Mario World',
+    primary: '#FF0000',
+    secondary: '#0000FF',
+    background: '#87CEEB',
+    surface: '#FFFFFF',
+    text: '#000000',
+    textMuted: '#666666',
+    border: '#FF0000',
+    brand: '#FF0000',
+    brandGlow: 'rgba(255, 0, 0, 0.5)',
+    bgSecondary: '#B0E0E6',
+    bgTertiary: '#F0FFFF',
+    bgStyle: 'bokeh',
+    success: '#228B22',
+    warning: '#FFA500',
+    danger: '#DC143C',
+    info: '#4169E1',
+    uiVariant: 'solid',
+  },
+  'animal-crossing': {
+    name: 'Animal Crossing',
+    primary: '#228B22',
+    secondary: '#FFF8DC',
+    background: '#98FB98',
+    surface: '#FFFFFF',
+    text: '#000000',
+    textMuted: '#8FBC8F',
+    border: '#228B22',
+    brand: '#228B22',
+    brandGlow: 'rgba(34, 139, 34, 0.5)',
+    bgSecondary: '#F5F5DC',
+    bgTertiary: '#FFFFF0',
+    bgStyle: 'spot',
+    success: '#228B22',
+    warning: '#FFD700',
+    danger: '#B22222',
+    info: '#4682B4',
+    uiVariant: 'flat',
+  },
+  'gta-san-andreas': {
+    name: 'GTA San Andreas',
+    primary: '#FFD700',
+    secondary: '#FF4500',
+    background: '#000000',
+    surface: '#2F2F2F',
+    text: '#FFFFFF',
+    textMuted: '#CCCCCC',
+    border: '#FFD700',
+    brand: '#FFD700',
+    brandGlow: 'rgba(255, 215, 0, 0.5)',
+    bgSecondary: '#1A1A1A',
+    bgTertiary: '#3A3A3A',
+    bgStyle: 'grid',
+    success: '#32CD32',
+    warning: '#FFD700',
+    danger: '#FF4500',
+    info: '#1E90FF',
+    uiVariant: 'glass',
+  },
+  'red-dead': {
+    name: 'Red Dead Redemption',
+    primary: '#8B4513',
+    secondary: '#F4A460',
+    background: '#2F1B14',
+    surface: '#8B4513',
+    text: '#FFFFFF',
+    textMuted: '#D2B48C',
+    border: '#8B4513',
+    brand: '#8B4513',
+    brandGlow: 'rgba(139, 69, 19, 0.5)',
+    bgSecondary: '#654321',
+    bgTertiary: '#A0522D',
+    bgStyle: 'aurora',
+    success: '#228B22',
+    warning: '#DAA520',
+    danger: '#B22222',
+    info: '#4682B4',
+    uiVariant: 'glass',
+  },
+  'celeste-mountain': {
+    name: 'Celeste Mountain',
+    primary: '#87CEEB',
+    secondary: '#FFFFFF',
+    background: '#B0E0E6',
+    surface: '#F0FFFF',
+    text: '#000000',
+    textMuted: '#708090',
+    border: '#87CEEB',
+    brand: '#87CEEB',
+    brandGlow: 'rgba(135, 206, 235, 0.5)',
+    bgSecondary: '#E0FFFF',
+    bgTertiary: '#FFFFF0',
+    bgStyle: 'bokeh',
+    success: '#228B22',
+    warning: '#FFD700',
+    danger: '#DC143C',
+    info: '#4169E1',
+    uiVariant: 'solid',
+  },
+  'hades-underworld': {
+    name: 'Hades Underworld',
+    primary: '#DC143C',
+    secondary: '#FFD700',
+    background: '#000000',
+    surface: '#2F1B14',
+    text: '#FFFFFF',
+    textMuted: '#D2B48C',
+    border: '#DC143C',
+    brand: '#DC143C',
+    brandGlow: 'rgba(220, 20, 60, 0.5)',
+    bgSecondary: '#1A0000',
+    bgTertiary: '#3A0000',
+    bgStyle: 'nebula',
+    success: '#228B22',
+    warning: '#FFD700',
+    danger: '#DC143C',
+    info: '#4682B4',
+    uiVariant: 'glass',
+  },
+  'hollow-knight': {
+    name: 'Hollow Knight',
+    primary: '#FFFFFF',
+    secondary: '#000000',
+    background: '#2F1B14',
+    surface: '#8B4513',
+    text: '#FFFFFF',
+    textMuted: '#D2B48C',
+    border: '#FFFFFF',
+    brand: '#FFFFFF',
+    brandGlow: 'rgba(255, 255, 255, 0.5)',
+    bgSecondary: '#654321',
+    bgTertiary: '#A0522D',
+    bgStyle: 'matrix',
+    success: '#228B22',
+    warning: '#DAA520',
+    danger: '#B22222',
+    info: '#4682B4',
+    uiVariant: 'glass',
+  },
 };
+
+/** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
+export interface ThemeMenuSection {
+  id: string;
+  label: string;
+  keys: Theme[];
+}
+
+const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
+  {
+    id: 'palette',
+    label: 'Paleta ERP',
+    keys: [
+      'light',
+      'dark',
+      'blue',
+      'green',
+      'purple',
+      'orange',
+      'rose',
+      'slate',
+      'zinc',
+      'neutral',
+      'cyan',
+      'teal',
+      'amber',
+      'indigo',
+      'lime',
+      'violet',
+      'crimson',
+      'mint',
+      'coral',
+      'gold',
+    ],
+  },
+  {
+    id: 'corporate',
+    label: 'Corporativo y ambiente',
+    keys: [
+      'corporate-light',
+      'classic-dark',
+      'nordic',
+      'latte',
+      'forest-dark',
+    ],
+  },
+  {
+    id: 'gaming',
+    label: 'Inspiración videojuegos',
+    keys: [
+      'assassin-creed',
+      'rainbow_six',
+      'zelda-legend',
+      'mario-world',
+      'animal-crossing',
+      'gta-san-andreas',
+      'red-dead',
+      'celeste-mountain',
+      'hades-underworld',
+      'hollow-knight',
+    ],
+  },
+];
+
+function buildThemeMenuSections(): ThemeMenuSection[] {
+  const used = new Set<Theme>();
+  const sections: ThemeMenuSection[] = THEME_MENU_SECTIONS_BASE.map((s) => {
+    for (const k of s.keys) {
+      used.add(k);
+    }
+    return { id: s.id, label: s.label, keys: [...s.keys] };
+  });
+  const missing = (Object.keys(THEMES) as Theme[]).filter((k) => !used.has(k));
+  if (missing.length > 0) {
+    sections.push({ id: 'other', label: 'Otros', keys: missing });
+  }
+  return sections;
+}
+
+const THEME_MENU_SECTIONS = buildThemeMenuSections();
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
-  private readonly pluginStore = inject(PluginStore);
-  
-  readonly currentTheme = signal<Theme>(this.getStoredTheme() || 'dark');
-  readonly currentThemeData = computed(() => this.themes[this.currentTheme()]);
+  readonly currentTheme = signal<Theme>('light');
+  readonly currentThemeData = computed(() => THEMES[this.currentTheme()]);
   readonly themes = THEMES;
+  readonly themeMenuSections = THEME_MENU_SECTIONS;
+  private readonly isHighPerf = signal<boolean>(false);
 
   constructor() {
-    this.applyTheme(this.currentTheme());
-    
-    // Theme effect
+    const stored = this.getStoredTheme();
+    const initialTheme = stored || 'light';
+    this.currentTheme.set(initialTheme);
+    this.applyTheme(initialTheme);
+
     effect(() => {
       const theme = this.currentTheme();
       this.applyTheme(theme);
       this.storeTheme(theme);
     });
 
-    // Performance mode effect
     effect(() => {
-      const isHighPerf = this.pluginStore.highPerformanceMode();
-      this.applyPerformanceMode(isHighPerf);
+      this.applyPerformanceMode(this.isHighPerf());
     });
   }
 
@@ -601,17 +890,20 @@ export class ThemeService {
     const config = THEMES[theme];
     const root = document.documentElement;
     const variant = config.uiVariant || 'glass';
-    
+
     // Core legacy tokens
     root.style.setProperty('--theme-primary', config.primary);
-    root.style.setProperty('--theme-primary-rgb', hexToRgbTriplet(config.primary));
+    root.style.setProperty(
+      '--theme-primary-rgb',
+      hexToRgbTriplet(config.primary),
+    );
     root.style.setProperty('--theme-secondary', config.secondary);
     root.style.setProperty('--theme-background', config.background);
     root.style.setProperty('--theme-surface', config.surface);
     root.style.setProperty('--theme-text', config.text);
     root.style.setProperty('--theme-text-muted', config.textMuted);
     root.style.setProperty('--theme-border', config.border);
-    
+
     // Cyber-Luxe tokens
     root.style.setProperty('--brand', config.brand);
     root.style.setProperty('--brand-glow', config.brandGlow);
@@ -626,7 +918,7 @@ export class ThemeService {
     const brandRgb = hexToRgbTriplet(config.brand);
     root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.12)`);
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
-    
+
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-ui-variant', variant);
 
@@ -637,7 +929,6 @@ export class ThemeService {
     // inline CSS variables from :root / documentElement).
     this.applyStructuralTokens(root, variant, config);
   }
-  
 
   /**
    * Pushes per-variant structural tokens directly via style.setProperty() so
@@ -645,20 +936,42 @@ export class ThemeService {
    * Angular components. Stylesheet-level html[data-ui-variant] rules are
    * overridden by inline style declarations, so we must set them in JS too.
    */
-  private applyStructuralTokens(root: HTMLElement, variant: string, config: ThemeConfig): void {
+  private applyStructuralTokens(
+    root: HTMLElement,
+    variant: string,
+    config: ThemeConfig,
+  ): void {
     // Reset all structural tokens first
     const structuralTokens = [
-      '--radius-md', '--radius-lg', '--radius-xl',
-      '--shadow-md', '--shadow-lg', '--shadow-inset-shine',
-      '--border-vibrant', '--variant-blur',
+      '--radius-md',
+      '--radius-lg',
+      '--radius-xl',
+      '--shadow-md',
+      '--shadow-lg',
+      '--shadow-inset-shine',
+      '--border-vibrant',
+      '--variant-blur',
       // Component-level token overrides
-      '--card-bg', '--card-border', '--card-border-width', '--card-shadow',
-      '--input-bg', '--input-border', '--input-radius', '--input-shadow',
-      '--modal-bg', '--modal-border', '--modal-border-width', '--modal-radius', '--modal-shadow',
-      '--badge-radius', '--badge-border-width',
-      '--btn-radius', '--btn-shadow', '--btn-border-width',
+      '--card-bg',
+      '--card-border',
+      '--card-border-width',
+      '--card-shadow',
+      '--input-bg',
+      '--input-border',
+      '--input-radius',
+      '--input-shadow',
+      '--modal-bg',
+      '--modal-border',
+      '--modal-border-width',
+      '--modal-radius',
+      '--modal-shadow',
+      '--badge-radius',
+      '--badge-border-width',
+      '--btn-radius',
+      '--btn-shadow',
+      '--btn-border-width',
     ];
-    structuralTokens.forEach(t => root.style.removeProperty(t));
+    structuralTokens.forEach((t) => root.style.removeProperty(t));
 
     switch (variant) {
       case 'glass':
@@ -666,22 +979,43 @@ export class ThemeService {
         root.style.setProperty('--radius-lg', '16px');
         root.style.setProperty('--radius-md', '10px');
         root.style.setProperty('--radius-xl', '24px');
-        root.style.setProperty('--border-vibrant', `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`);
-        root.style.setProperty('--shadow-inset-shine', 'inset 0 1px 0 rgba(255,255,255,0.08)');
+        root.style.setProperty(
+          '--border-vibrant',
+          `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`,
+        );
+        root.style.setProperty(
+          '--shadow-inset-shine',
+          'inset 0 1px 0 rgba(255,255,255,0.08)',
+        );
         root.style.setProperty('--shadow-md', '0 8px 32px rgba(0,0,0,0.4)');
         // Card
-        root.style.setProperty('--card-bg', `color-mix(in srgb, ${config.surface} 70%, transparent)`);
-        root.style.setProperty('--card-border', `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`);
+        root.style.setProperty(
+          '--card-bg',
+          `color-mix(in srgb, ${config.surface} 70%, transparent)`,
+        );
+        root.style.setProperty(
+          '--card-border',
+          `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`,
+        );
         root.style.setProperty('--card-shadow', '0 8px 32px rgba(0,0,0,0.4)');
         // Input
-        root.style.setProperty('--input-bg', `color-mix(in srgb, ${config.surface} 50%, transparent)`);
+        root.style.setProperty(
+          '--input-bg',
+          `color-mix(in srgb, ${config.surface} 50%, transparent)`,
+        );
         root.style.setProperty('--input-radius', '10px');
         // Modal
         root.style.setProperty('--modal-radius', '24px');
-        root.style.setProperty('--modal-bg', `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`);
+        root.style.setProperty(
+          '--modal-bg',
+          `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`,
+        );
         // Button
         root.style.setProperty('--btn-radius', '10px');
-        root.style.setProperty('--btn-shadow', `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`);
+        root.style.setProperty(
+          '--btn-shadow',
+          `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
+        );
         break;
 
       case 'solid':
@@ -699,7 +1033,10 @@ export class ThemeService {
         // Input
         root.style.setProperty('--input-bg', config.bgTertiary);
         root.style.setProperty('--input-radius', '6px');
-        root.style.setProperty('--input-shadow', 'inset 0 1px 3px rgba(0,0,0,0.2)');
+        root.style.setProperty(
+          '--input-shadow',
+          'inset 0 1px 3px rgba(0,0,0,0.2)',
+        );
         // Modal
         root.style.setProperty('--modal-radius', '10px');
         root.style.setProperty('--modal-bg', config.bgSecondary);
@@ -746,25 +1083,40 @@ export class ThemeService {
         root.style.setProperty('--radius-xl', '28px');
         root.style.setProperty('--border-vibrant', 'transparent');
         root.style.setProperty('--shadow-inset-shine', 'none');
-        root.style.setProperty('--shadow-md', `-6px -6px 14px rgba(255,255,255,0.025), 6px 6px 14px rgba(0,0,0,0.55)`);
+        root.style.setProperty(
+          '--shadow-md',
+          `-6px -6px 14px rgba(255,255,255,0.025), 6px 6px 14px rgba(0,0,0,0.55)`,
+        );
         // Card — uses bg-primary so the depth effect is visible
         root.style.setProperty('--card-bg', config.background);
         root.style.setProperty('--card-border', 'transparent');
         root.style.setProperty('--card-border-width', '0px');
-        root.style.setProperty('--card-shadow', `-8px -8px 16px rgba(255,255,255,0.02), 8px 8px 16px rgba(0,0,0,0.6)`);
+        root.style.setProperty(
+          '--card-shadow',
+          `-8px -8px 16px rgba(255,255,255,0.02), 8px 8px 16px rgba(0,0,0,0.6)`,
+        );
         // Input
         root.style.setProperty('--input-bg', config.background);
         root.style.setProperty('--input-border', 'transparent');
         root.style.setProperty('--input-radius', '14px');
-        root.style.setProperty('--input-shadow', `inset -4px -4px 8px rgba(255,255,255,0.02), inset 4px 4px 8px rgba(0,0,0,0.5)`);
+        root.style.setProperty(
+          '--input-shadow',
+          `inset -4px -4px 8px rgba(255,255,255,0.02), inset 4px 4px 8px rgba(0,0,0,0.5)`,
+        );
         // Modal
         root.style.setProperty('--modal-radius', '28px');
         root.style.setProperty('--modal-bg', config.background);
         root.style.setProperty('--modal-border-width', '0px');
-        root.style.setProperty('--modal-shadow', `-12px -12px 30px rgba(255,255,255,0.02), 12px 12px 30px rgba(0,0,0,0.65)`);
+        root.style.setProperty(
+          '--modal-shadow',
+          `-12px -12px 30px rgba(255,255,255,0.02), 12px 12px 30px rgba(0,0,0,0.65)`,
+        );
         // Button
         root.style.setProperty('--btn-radius', '14px');
-        root.style.setProperty('--btn-shadow', `-4px -4px 10px rgba(255,255,255,0.02), 4px 4px 10px rgba(0,0,0,0.5)`);
+        root.style.setProperty(
+          '--btn-shadow',
+          `-4px -4px 10px rgba(255,255,255,0.02), 4px 4px 10px rgba(0,0,0,0.5)`,
+        );
         root.style.setProperty('--btn-border-width', '0px');
         // Badge
         root.style.setProperty('--badge-radius', '8px');

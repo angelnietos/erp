@@ -80,33 +80,50 @@ interface EventFilter {
       class="page-container animate-fade-in"
       [class.perf-optimized]="pluginStore.highPerformanceMode()"
     >
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
-      >
-        <div class="header-breadcrumb">
-          <h1
-            class="page-title text-uppercase glow-text"
-            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
-          >
-            Sistema de Eventos
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >GESTIÓN Y PLANIFICACIÓN</span
+      <div class="hero-section">
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-gradient-overlay"></div>
+        <header
+          class="page-header"
+          [style.border-bottom-color]="currentTheme().primary + '33'"
+        >
+          <div class="header-breadcrumb">
+            <div class="hero-glow-effect"></div>
+            <h1
+              class="page-title text-uppercase glow-text"
+              [style.text-shadow]="
+                '0 0 30px ' +
+                currentTheme().primary +
+                '66, 0 0 60px ' +
+                currentTheme().primary +
+                '33'
+              "
             >
-            <span class="separator">/</span>
-            <span>EVENTOS CORPORATIVOS</span>
+              <span class="title-icon">🎯</span>
+              Sistema de Eventos
+            </h1>
+            <div class="breadcrumb">
+              <span class="active" [style.color]="currentTheme().primary"
+                ><span class="breadcrumb-icon">⚡</span>GESTIÓN Y
+                PLANIFICACIÓN</span
+              >
+              <span class="separator">/</span>
+              <span
+                ><span class="breadcrumb-icon">🎪</span>EVENTOS
+                CORPORATIVOS</span
+              >
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
-      <div class="stats-row">
+      <div class="stats-row gaming-stats">
         <ui-josanz-stat-card
           label="Total Eventos"
           [value]="events().length.toString()"
           icon="calendar"
           [accent]="true"
+          class="stat-card-animated"
         >
         </ui-josanz-stat-card>
         <ui-josanz-stat-card
@@ -114,12 +131,14 @@ interface EventFilter {
           [value]="activeEventsCount().toString()"
           icon="activity"
           [trend]="15"
+          class="stat-card-animated"
         >
         </ui-josanz-stat-card>
         <ui-josanz-stat-card
           label="Próximo Evento"
           [value]="nextEventDays().toString() + ' días'"
           icon="clock"
+          class="stat-card-animated"
         >
         </ui-josanz-stat-card>
         <ui-josanz-stat-card
@@ -127,21 +146,27 @@ interface EventFilter {
           [value]="totalAttendees().toString()"
           icon="users"
           [trend]="8"
+          class="stat-card-animated"
         >
         </ui-josanz-stat-card>
       </div>
 
       <div class="events-content">
         <!-- Filters -->
-        <ui-josanz-card class="filters-card">
+        <ui-josanz-card class="filters-card gaming-card">
           <div class="filters-header">
-            <h2>Filtros de Búsqueda Avanzada</h2>
+            <div class="filters-title-section">
+              <span class="filters-icon">🔍</span>
+              <h2>Filtros de Búsqueda Avanzada</h2>
+            </div>
             <ui-josanz-button
               variant="ghost"
               size="sm"
               icon="filter"
               (click)="clearFilters()"
+              class="clear-filters-btn"
             >
+              <span class="btn-icon">🗑️</span>
               Limpiar
             </ui-josanz-button>
           </div>
@@ -203,22 +228,27 @@ interface EventFilter {
         </ui-josanz-card>
 
         <!-- Events List -->
-        <ui-josanz-card class="events-card">
+        <ui-josanz-card class="events-card gaming-card">
           <div class="events-header">
-            <h2>Eventos Planificados</h2>
-            <span class="events-count"
-              >{{ filteredEvents().length }} eventos encontrados</span
+            <div class="events-title-section">
+              <span class="events-icon">📋</span>
+              <h2>Eventos Planificados</h2>
+            </div>
+            <span class="events-count gaming-badge"
+              >{{ filteredEvents().length }}
+              <span class="count-icon">🎯</span> eventos encontrados</span
             >
           </div>
 
           <div class="events-list">
             @for (event of paginatedEvents(); track event.id) {
               <div
-                class="event-item"
+                class="event-item gaming-event-item"
                 [class.expanded]="expandedEvent() === event.id"
+                [class]="getEventStatusClass(event.status)"
               >
                 <div
-                  class="event-summary"
+                  class="event-summary gaming-summary"
                   (click)="toggleEventExpansion(event.id)"
                   (keydown.enter)="toggleEventExpansion(event.id)"
                   (keydown.space)="
@@ -226,11 +256,15 @@ interface EventFilter {
                   "
                   tabindex="0"
                 >
-                  <div class="event-icon">
+                  <div
+                    class="event-icon gaming-icon"
+                    [class]="getEventTypeClass(event.type)"
+                  >
                     <lucide-icon
                       [img]="getEventIcon(event.type)"
                       size="20"
                     ></lucide-icon>
+                    <div class="icon-glow"></div>
                   </div>
 
                   <div class="event-info">
@@ -313,13 +347,15 @@ interface EventFilter {
                       </div>
                     </div>
 
-                    <div class="event-actions">
+                    <div class="event-actions gaming-actions">
                       <ui-josanz-button
                         variant="ghost"
                         size="sm"
                         [routerLink]="['/events', event.id]"
                         (click)="$event.stopPropagation()"
+                        class="action-btn view-btn"
                       >
+                        <span class="action-icon">👁️</span>
                         <lucide-icon [img]="EyeIcon" size="14"></lucide-icon>
                         Ver Detalles
                       </ui-josanz-button>
@@ -328,16 +364,19 @@ interface EventFilter {
                         size="sm"
                         [routerLink]="['/events', event.id, 'edit']"
                         (click)="$event.stopPropagation()"
+                        class="action-btn edit-btn"
                       >
+                        <span class="action-icon">✏️</span>
                         <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
                         Editar
                       </ui-josanz-button>
                       <ui-josanz-button
                         variant="ghost"
                         size="sm"
-                        class="danger"
+                        class="danger action-btn delete-btn"
                         (click)="$event.stopPropagation()"
                       >
+                        <span class="action-icon">🗑️</span>
                         <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
                         Eliminar
                       </ui-josanz-button>
@@ -399,77 +438,270 @@ interface EventFilter {
         padding: 0;
         max-width: 100%;
         margin: 0 auto;
+        position: relative;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 3rem;
+      }
+
+      .hero-bg-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+          radial-gradient(
+            circle at 20% 80%,
+            rgba(var(--primary-rgb), 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(var(--primary-rgb), 0.08) 0%,
+            transparent 50%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(var(--primary-rgb), 0.05) 0%,
+            transparent 100%
+          );
+        animation: float 20s ease-in-out infinite;
+      }
+
+      .hero-gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(var(--primary-rgb), 0.1) 0%,
+          rgba(var(--primary-rgb), 0.05) 50%,
+          transparent 100%
+        );
+      }
+
+      .hero-glow-effect {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        right: -50%;
+        bottom: -50%;
+        background: radial-gradient(
+          circle,
+          rgba(var(--primary-rgb), 0.1) 0%,
+          transparent 70%
+        );
+        animation: pulse-glow 4s ease-in-out infinite alternate;
+        pointer-events: none;
       }
 
       .page-header {
+        position: relative;
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
         margin-bottom: 2rem;
-        padding-bottom: 1rem;
+        padding: 3rem 0 2rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        z-index: 2;
       }
 
       .header-breadcrumb {
         flex: 1;
+        position: relative;
+      }
+
+      .title-icon {
+        display: inline-block;
+        margin-right: 0.5rem;
+        animation: bounce-in 1s ease-out;
       }
 
       .page-title {
         margin: 0 0 0.5rem 0;
-        font-size: 2.5rem;
-        font-weight: 700;
-        letter-spacing: 0.025em;
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        background: linear-gradient(
+          135deg,
+          var(--text-primary),
+          var(--primary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: slide-up 0.8s ease-out;
       }
 
       .breadcrumb {
         display: flex;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
+        gap: 12px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
         color: var(--text-muted);
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
+        text-transform: uppercase;
+        animation: fade-in-up 1.2s ease-out;
+      }
+
+      .breadcrumb-icon {
+        margin-right: 0.25rem;
       }
 
       .separator {
-        opacity: 0.5;
+        opacity: 0.6;
+        font-weight: 400;
       }
 
       .stats-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .gaming-stats {
+        position: relative;
+      }
+
+      .gaming-stats::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: linear-gradient(
+          135deg,
+          rgba(var(--primary-rgb), 0.1),
+          rgba(var(--primary-rgb), 0.05),
+          transparent
+        );
+        border-radius: 1rem;
+        z-index: -1;
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
+      .stat-card-animated {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: card-enter 0.6s ease-out both;
+      }
+
+      .stat-card-animated:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .stat-card-animated:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .stat-card-animated:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .stat-card-animated:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      .stat-card-animated:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(var(--primary-rgb), 0.3);
       }
 
       .events-content {
         display: flex;
         flex-direction: column;
-        gap: 2rem;
+        gap: 2.5rem;
+      }
+
+      .filters-card,
+      .events-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .gaming-card {
+        background: linear-gradient(
+          135deg,
+          rgba(var(--surface), 0.95) 0%,
+          rgba(var(--surface), 0.9) 100%
+        );
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(var(--primary-rgb), 0.2);
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .gaming-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--primary),
+          var(--accent),
+          var(--primary)
+        );
+        animation: gradient-shift 3s ease-in-out infinite;
       }
 
       .filters-card {
-        padding: 1.5rem;
+        padding: 2rem;
       }
 
       .filters-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .filters-title-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .filters-icon {
+        font-size: 1.5rem;
+        animation: bounce-in 1s ease-out;
       }
 
       .filters-header h2 {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .clear-filters-btn {
+        transition: all 0.3s ease;
+      }
+
+      .clear-filters-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.3);
+      }
+
+      .btn-icon {
+        margin-right: 0.25rem;
       }
 
       .filters-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
         align-items: end;
       }
 
@@ -477,63 +709,179 @@ interface EventFilter {
         display: flex;
         gap: 1rem;
         justify-content: flex-end;
+        margin-top: 1rem;
       }
 
       .events-card {
-        padding: 1.5rem;
+        padding: 2rem;
       }
 
       .events-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .events-title-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .events-icon {
+        font-size: 1.5rem;
+        animation: bounce-in 1.2s ease-out;
       }
 
       .events-header h2 {
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
 
       .events-count {
         color: var(--text-secondary);
         font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .gaming-badge {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .count-icon {
+        margin-left: 0.25rem;
       }
 
       .events-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1rem;
       }
 
       .event-item {
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 0.5rem;
+        border-radius: 1rem;
         background: rgba(255, 255, 255, 0.05);
         overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        animation: slide-in-left 0.6s ease-out both;
+      }
+
+      .gaming-event-item {
+        backdrop-filter: blur(10px);
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .gaming-event-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--primary),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .gaming-event-item:hover::before {
+        opacity: 1;
+      }
+
+      .gaming-event-item:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.3),
+          0 0 30px rgba(var(--primary-rgb), 0.2);
+        border-color: rgba(var(--primary-rgb), 0.3);
       }
 
       .event-summary {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+        gap: 1.5rem;
+        padding: 1.5rem;
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
       }
 
-      .event-summary:hover {
-        background: rgba(255, 255, 255, 0.1);
+      .gaming-summary {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.02) 0%,
+          rgba(255, 255, 255, 0.01) 100%
+        );
+      }
+
+      .gaming-summary:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(var(--primary-rgb), 0.1) 0%,
+          rgba(var(--primary-rgb), 0.05) 100%
+        );
+        transform: translateX(4px);
       }
 
       .event-icon {
-        padding: 0.5rem;
+        position: relative;
+        padding: 0.75rem;
         background: rgba(var(--primary-rgb), 0.1);
-        border-radius: 0.375rem;
+        border-radius: 0.75rem;
         color: var(--primary);
         flex-shrink: 0;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+      }
+
+      .gaming-icon {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .gaming-icon:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.4);
+      }
+
+      .icon-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        right: -50%;
+        bottom: -50%;
+        background: radial-gradient(
+          circle,
+          rgba(var(--primary-rgb), 0.3) 0%,
+          transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      .gaming-icon:hover .icon-glow {
+        opacity: 1;
+        animation: pulse-glow 1s ease-in-out infinite alternate;
       }
 
       .event-info {
@@ -631,11 +979,71 @@ interface EventFilter {
 
       .event-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
         justify-content: flex-end;
-        padding-top: 1rem;
+        padding-top: 1.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 1rem;
+        margin-top: 1.5rem;
+        position: relative;
+      }
+
+      .gaming-actions {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.1) 0%,
+          rgba(0, 0, 0, 0.05) 100%
+        );
+        padding: 1.5rem;
+        margin: 1.5rem -1.5rem -1.5rem -1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .action-btn {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .action-btn:hover::before {
+        left: 100%;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .view-btn:hover {
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+      }
+
+      .edit-btn:hover {
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+      }
+
+      .delete-btn:hover {
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+      }
+
+      .action-icon {
+        margin-right: 0.25rem;
+        font-size: 0.875rem;
       }
 
       .no-events {
@@ -677,9 +1085,196 @@ interface EventFilter {
         font-family: var(--font-main);
       }
 
+      /* Animations */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-10px) rotate(1deg);
+        }
+      }
+
+      @keyframes pulse-glow {
+        0% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0.8;
+          transform: scale(1.1);
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.5;
+        }
+      }
+
+      @keyframes gradient-shift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      @keyframes bounce-in {
+        0% {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        70% {
+          transform: scale(0.9);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slide-up {
+        0% {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fade-in-up {
+        0% {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes card-enter {
+        0% {
+          transform: translateY(20px) scale(0.95);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slide-in-left {
+        0% {
+          transform: translateX(-30px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Status-based styling */
+      .status-active {
+        border-left: 4px solid var(--success);
+      }
+
+      .status-active::after {
+        content: '';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--success);
+        animation: pulse 2s infinite;
+      }
+
+      .status-completed {
+        border-left: 4px solid var(--info);
+        opacity: 0.8;
+      }
+
+      .status-cancelled {
+        border-left: 4px solid var(--danger);
+        opacity: 0.7;
+      }
+
+      .status-draft {
+        border-left: 4px solid var(--warning);
+        background: rgba(var(--warning-rgb), 0.05);
+      }
+
+      /* Type-based icon colors */
+      .type-conference .event-icon {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+      }
+
+      .type-workshop .event-icon {
+        background: linear-gradient(135deg, #10b981, #047857);
+      }
+
+      .type-meeting .event-icon {
+        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      }
+
+      .type-social .event-icon {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+      }
+
+      .type-presentation .event-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+      }
+
+      .type-other .event-icon {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
       @media (max-width: 768px) {
-        .filters-grid {
+        .hero-section {
+          margin-bottom: 2rem;
+        }
+
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .filters-grid,
+        .stats-row {
           grid-template-columns: 1fr;
+        }
+
+        .filters-card,
+        .events-card {
+          padding: 1.5rem;
         }
 
         .event-primary {
@@ -701,6 +1296,16 @@ interface EventFilter {
         .pagination {
           flex-direction: column;
           gap: 0.5rem;
+        }
+
+        .gaming-actions {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .action-btn {
+          width: 100%;
+          justify-content: center;
         }
       }
     `,
@@ -1018,5 +1623,24 @@ export class EventsListComponent implements OnInit {
       default:
         return status;
     }
+  }
+
+  getEventStatusClass(status: string): string {
+    switch (status) {
+      case 'active':
+        return 'status-active';
+      case 'completed':
+        return 'status-completed';
+      case 'cancelled':
+        return 'status-cancelled';
+      case 'draft':
+        return 'status-draft';
+      default:
+        return '';
+    }
+  }
+
+  getEventTypeClass(type: string): string {
+    return `type-${type}`;
   }
 }

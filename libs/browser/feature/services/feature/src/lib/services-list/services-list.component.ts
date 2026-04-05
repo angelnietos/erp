@@ -292,6 +292,7 @@ export class ServicesListComponent implements OnInit {
   }
 
   onRowClick(service: Service) {
+    void service;
     // Navigate to detail - implement when table supports rowClick
   }
 
@@ -312,7 +313,17 @@ export class ServicesListComponent implements OnInit {
   }
 
   getTypeVariant(type: string): 'filled' | 'outline' | 'ghost' {
-    return 'filled';
+    switch (type) {
+      case 'STREAMING':
+      case 'PRODUCCIÓN':
+      case 'LED':
+      case 'TRANSPORTE':
+      case 'PERSONAL_TÉCNICO':
+      case 'VIDEO_TÉCNICO':
+        return 'filled';
+      default:
+        return 'outline';
+    }
   }
 
   getTypeColor(type: string): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' {

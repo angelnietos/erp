@@ -57,16 +57,24 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
                 <lucide-icon [name]="currentTheme() === 'dark' ? 'moon' : 'sun'" size="20"></lucide-icon>
               </button>
               @if (showThemeMenu()) {
-                <div class="theme-menu">
-                  @for (themeKey of themeKeys; track themeKey) {
-                    <button 
-                      class="theme-option" 
-                      [class.active]="currentTheme() === themeKey"
-                      (click)="setTheme(themeKey)"
-                    >
-                      <span class="theme-color" [style.background]="themeService.themes[themeKey].primary"></span>
-                      {{ themeService.themes[themeKey].name }}
-                    </button>
+                <div class="theme-menu" role="listbox" aria-label="Elegir tema visual">
+                  @for (section of themeService.themeMenuSections; track section.id) {
+                    <div class="theme-section" role="group" [attr.aria-label]="section.label">
+                      <div class="theme-section-label">{{ section.label }}</div>
+                      @for (themeKey of section.keys; track themeKey) {
+                        <button
+                          type="button"
+                          class="theme-option"
+                          role="option"
+                          [attr.aria-selected]="currentTheme() === themeKey"
+                          [class.active]="currentTheme() === themeKey"
+                          (click)="setTheme(themeKey)"
+                        >
+                          <span class="theme-color" [style.background]="themeService.themes[themeKey].primary"></span>
+                          <span class="theme-option-name">{{ themeService.themes[themeKey].name }}</span>
+                        </button>
+                      }
+                    </div>
                   }
                 </div>
               }
@@ -318,11 +326,57 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
       backdrop-filter: blur(10px);
       border: 1px solid var(--border-soft);
       border-radius: 8px;
-      padding: 10px;
-      min-width: 180px;
+      padding: 6px 4px 8px;
+      min-width: 220px;
+      max-width: min(92vw, 280px);
+      max-height: min(calc(100vh - 5.5rem), 26rem);
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--text-muted) 50%, transparent) transparent;
+      -webkit-overflow-scrolling: touch;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       z-index: 200;
       animation: menuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .theme-menu::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .theme-menu::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--text-muted) 45%, transparent);
+      border-radius: 10px;
+    }
+
+    .theme-menu::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .theme-section:not(:first-child) {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .theme-section-label {
+      padding: 6px 12px 4px;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      opacity: 0.9;
+    }
+
+    .theme-option-name {
+      flex: 1;
+      min-width: 0;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
     @keyframes menuFadeIn {
@@ -333,9 +387,9 @@ import { CrmBackgroundComponent } from './crm-background/crm-background.componen
     .theme-option {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: transparent;
       border: none;
       border-radius: 6px;
@@ -522,7 +576,6 @@ export class AppLayoutComponent {
   readonly themeService = inject(ThemeService);
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
-  readonly themeKeys = Object.keys(this.themeService.themes) as Theme[];
   showThemeMenu = signal(false);
 
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
