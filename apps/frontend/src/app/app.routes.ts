@@ -1,7 +1,6 @@
 import { Route } from '@angular/router';
 import { MainAppShellComponent } from './main-app-shell.component';
 import { NotFoundComponent } from './not-found.component';
-import { DashboardComponent } from '@josanz-erp/shared-ui-shell';
 import { pluginGuard } from '@josanz-erp/shared-data-access';
 
 export const appRoutes: Route[] = [
@@ -21,7 +20,10 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: 'dashboard',
-        component: DashboardComponent,
+        loadChildren: () =>
+          import('@josanz-erp/dashboard-shell').then(
+            (m) => m.dashboardShellRoutes,
+          ),
         canActivate: [pluginGuard('dashboard')],
       },
       {
@@ -85,6 +87,42 @@ export const appRoutes: Route[] = [
         path: 'users',
         loadChildren: () =>
           import('@josanz-erp/identity-shell').then((m) => m.usersRoutes),
+      },
+      {
+        path: 'projects',
+        loadChildren: () =>
+          import('@josanz-erp/projects-shell').then(
+            (m) => m.projectsShellRoutes,
+          ),
+        canActivate: [pluginGuard('projects')],
+      },
+      {
+        path: 'services',
+        loadChildren: () =>
+          import('@josanz-erp/services-shell').then(
+            (m) => m.servicesShellRoutes,
+          ),
+        canActivate: [pluginGuard('services')],
+      },
+      {
+        path: 'reports',
+        loadChildren: () =>
+          import('@josanz-erp/reports-shell').then((m) => m.reportsShellRoutes),
+        canActivate: [pluginGuard('reports')],
+      },
+      {
+        path: 'audit',
+        loadChildren: () =>
+          import('@josanz-erp/audit-shell').then((m) => m.auditShellRoutes),
+        canActivate: [pluginGuard('audit')],
+      },
+      {
+        path: 'receipts',
+        loadChildren: () =>
+          import('@josanz-erp/receipts-shell').then(
+            (m) => m.receiptsShellRoutes,
+          ),
+        canActivate: [pluginGuard('receipts')],
       },
       {
         path: 'not-found',

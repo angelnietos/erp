@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@josanz-erp/receipts-api':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/api/receipts/api
+      '@josanz-erp/receipts-core':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/core/receipts/core
+      '@josanz-erp/shared-infrastructure':
+        specifier: workspace:*
+        version: link:../../../shared-infrastructure
+      '@josanz-erp/shared-model':
+        specifier: workspace:*
+        version: link:../../../../isomorphic/shared/model

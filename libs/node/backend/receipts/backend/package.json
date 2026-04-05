@@ -1,0 +1,11 @@
+{
+  "name": "@josanz-erp/receipts-backend",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "dependencies": {
+    "@josanz-erp/receipts-api": "workspace:*",
+    "@josanz-erp/receipts-core": "workspace:*",
+    "@josanz-erp/shared-infrastructure": "workspace:*",
+    "@josanz-erp/shared-model": "workspace:*"
+  }
+}

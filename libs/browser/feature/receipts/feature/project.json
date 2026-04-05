@@ -1,10 +1,10 @@
 {
-  "name": "services-feature",
+  "name": "receipts-feature",
   "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/browser/feature/services/feature/src",
+  "sourceRoot": "libs/browser/feature/receipts/feature/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["scope:services", "type:feature"],
+  "tags": ["scope:receipts", "type:feature"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
