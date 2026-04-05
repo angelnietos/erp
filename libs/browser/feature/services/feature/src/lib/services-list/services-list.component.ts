@@ -148,18 +148,14 @@ export interface Service {
   styles: [
     `
     .page-container {
-      padding: 1.5rem;
-      max-width: 1400px;
+      padding: 0;
+      max-width: 100%;
       margin: 0 auto;
-      min-height: 100vh;
     }
 
     .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .header-breadcrumb {
@@ -174,12 +170,8 @@ export interface Service {
     }
 
     .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      opacity: 0.8;
+      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
     }
 
     .separator {
@@ -191,17 +183,12 @@ export interface Service {
       gap: 1rem;
     }
 
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+    .stats-row { 
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; 
     }
 
-    .filters-bar {
-      margin-bottom: 1.5rem;
-      padding: 1.25rem;
-      border-radius: 0.75rem;
+    .filters-bar { 
+      display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; border-radius: 12px;
     }
 
     .table-card {
@@ -222,11 +209,9 @@ export interface Service {
       text-transform: uppercase;
     }
 
-    .glow-text {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .glow-text { 
+      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
+      letter-spacing: 0.05em; font-family: var(--font-main);
     }
 
     .flex-1 {

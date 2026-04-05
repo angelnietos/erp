@@ -318,7 +318,7 @@ export class SidebarComponent {
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
     { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
     { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
-    { id: 'reports', label: 'Reportes', icon: 'bar-chart', route: '/reports' },
+    { id: 'reports', label: 'Reportes', icon: 'pie-chart', route: '/reports' },
     { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },
     { id: 'inventory', label: 'Inventario', icon: 'package', route: '/inventory' },
     { id: 'budgets', label: 'Presupuestos', icon: 'receipt', route: '/budgets' },
