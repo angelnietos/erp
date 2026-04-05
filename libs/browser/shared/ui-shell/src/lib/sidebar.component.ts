@@ -1,7 +1,7 @@
 import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, LayoutDashboard, Users, Wrench, PieChart, ShieldCheck, Package, Receipt, Truck, Car, Key, History, FileCheck, ChevronRight, ChevronLeft } from 'lucide-angular';
 import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
