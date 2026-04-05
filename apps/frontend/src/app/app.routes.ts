@@ -115,6 +115,18 @@ export const appRoutes: Route[] = [
           import('@josanz-erp/identity-shell').then((m) => m.usersRoutes),
       },
       {
+        path: 'clients',
+        loadChildren: () =>
+          import('@josanz-erp/clients-shell').then((m) => m.clientsShellRoutes),
+        canActivate: [pluginGuard('clients')],
+      },
+      {
+        path: 'rentals',
+        loadChildren: () =>
+          import('@josanz-erp/rentals-shell').then((m) => m.rentalsShellRoutes),
+        canActivate: [pluginGuard('rentals')],
+      },
+      {
         path: 'not-found',
         component: NotFoundComponent,
       },
