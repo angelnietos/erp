@@ -1,12 +1,12 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   Plus,
   Search,
-  PencilLine,
+  Edit,
   Trash2,
   Copy,
 } from 'lucide-angular';
@@ -35,6 +35,7 @@ export interface Project {
   standalone: true,
   imports: [
     CommonModule,
+    DatePipe,
     RouterModule,
     FormsModule,
     UiTableComponent,
@@ -50,19 +51,19 @@ export interface Project {
     >
       <header
         class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
+        [style.border-bottom-color]="currentThemeData().primary + '33'"
       >
         <div class="header-breadcrumb">
           <h1
             class="page-title text-uppercase glow-text"
             [style.text-shadow]="
-              '0 0 20px ' + currentTheme().primary + '44'
+              '0 0 20px ' + currentThemeData().primary + '44'
             "
           >
             Proyectos
           </h1>
           <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
+            <span class="active" [style.color]="currentThemeData().primary"
               >GESTIÓN OPERATIVA</span
             >
             <span class="separator">/</span>
@@ -95,33 +96,66 @@ export interface Project {
         [class.neon-glow]="!pluginStore.highPerformanceMode()"
       >
         <ui-josanz-table [data]="projects()" [columns]="columns">
-          <ng-template #actionsTemplate let-project>
-            <div class="action-buttons">
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                icon="edit"
-                [routerLink]="['/projects', project.id]"
-              >
-                Editar
-              </ui-josanz-button>
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                icon="copy"
-                (click)="onDuplicate(project)"
-              >
-                Duplicar
-              </ui-josanz-button>
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                icon="trash-2"
-                (click)="onDelete(project)"
-              >
-                Eliminar
-              </ui-josanz-button>
-            </div>
+          <ng-template #cellTemplate let-project let-key="key">
+            @switch (key) {
+              @case ('name') {
+                <a
+                  [routerLink]="['/projects', project.id]"
+                  class="project-link"
+                  [style.color]="currentThemeData().primary"
+                >
+                  {{ project.name }}
+                </a>
+              }
+              @case ('status') {
+                <span
+                  class="status-badge"
+                  [class]="'status-' + project.status.toLowerCase()"
+                >
+                  {{ project.status }}
+                </span>
+              }
+              @case ('startDate') {
+                {{ project.startDate | date: 'dd/MM/yyyy' }}
+              }
+              @case ('endDate') {
+                {{ project.endDate | date: 'dd/MM/yyyy' }}
+              }
+              @case ('createdAt') {
+                {{ project.createdAt | date: 'dd/MM/yyyy' }}
+              }
+              @case ('actions') {
+                <div class="action-buttons">
+                  <ui-josanz-button
+                    variant="ghost"
+                    size="sm"
+                    icon="edit"
+                    [routerLink]="['/projects', project.id]"
+                  >
+                    Editar
+                  </ui-josanz-button>
+                  <ui-josanz-button
+                    variant="ghost"
+                    size="sm"
+                    icon="copy"
+                    (click)="onDuplicate(project)"
+                  >
+                    Duplicar
+                  </ui-josanz-button>
+                  <ui-josanz-button
+                    variant="ghost"
+                    size="sm"
+                    icon="trash-2"
+                    (click)="onDelete(project)"
+                  >
+                    Eliminar
+                  </ui-josanz-button>
+                </div>
+              }
+              @default {
+                {{ project[key] }}
+              }
+            }
           </ng-template>
         </ui-josanz-table>
       </ui-josanz-card>
@@ -212,6 +246,44 @@ export interface Project {
         max-width: 28rem;
       }
 
+      .project-link {
+        color: var(--brand);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+      }
+
+      .project-link:hover {
+        text-decoration: underline;
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+      }
+
+      .status-completed {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+      }
+
+      .status-cancelled {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+
       @media (max-width: 1024px) {
         .page-header {
           flex-direction: column;
@@ -225,14 +297,14 @@ export interface Project {
 export class ProjectsListComponent implements OnInit {
   readonly Plus = Plus;
   readonly Search = Search;
-  readonly PencilLine = PencilLine;
+  readonly Edit = Edit;
   readonly Trash2 = Trash2;
   readonly Copy = Copy;
 
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
-  currentTheme = this.themeService.currentThemeData;
+  currentThemeData = this.themeService.currentThemeData;
   projects = signal<Project[]>([]);
 
   loading = signal(false);
