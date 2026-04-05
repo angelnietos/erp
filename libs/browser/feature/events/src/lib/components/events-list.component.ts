@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   Calendar,
@@ -13,14 +13,21 @@ import {
   Trash2,
   Users,
   MapPin,
+  Eye,
+  History,
+  TrendingUp,
+  Activity,
+  Clock,
 } from 'lucide-angular';
 import {
   UiCardComponent,
   UiButtonComponent,
   UiBadgeComponent,
   UiInputComponent,
+  UiSelectComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 interface Event {
   id: string;
@@ -29,8 +36,27 @@ interface Event {
   date: string;
   time: string;
   location: string;
-  status: 'active' | 'completed' | 'cancelled';
+  status: 'active' | 'completed' | 'cancelled' | 'draft';
   attendees: number;
+  capacity: number;
+  type:
+    | 'conference'
+    | 'workshop'
+    | 'meeting'
+    | 'social'
+    | 'presentation'
+    | 'other';
+  organizer: string;
+  cost: number;
+  createdAt: string;
+}
+
+interface EventFilter {
+  search: string;
+  status: string;
+  type: string;
+  dateFrom: string;
+  dateTo: string;
 }
 
 @Component({
@@ -40,14 +66,20 @@ interface Event {
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
+    FormsModule,
     UiCardComponent,
     UiButtonComponent,
     UiBadgeComponent,
     UiInputComponent,
+    UiSelectComponent,
+    UiStatCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <div
+      class="page-container animate-fade-in"
+      [class.perf-optimized]="pluginStore.highPerformanceMode()"
+    >
       <header
         class="page-header"
         [style.border-bottom-color]="currentTheme().primary + '33'"
@@ -57,130 +89,308 @@ interface Event {
             class="page-title text-uppercase glow-text"
             [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
           >
-            Eventos
+            Sistema de Eventos
           </h1>
           <div class="breadcrumb">
             <span class="active" [style.color]="currentTheme().primary"
-              >GESTIÓN</span
+              >GESTIÓN Y PLANIFICACIÓN</span
             >
             <span class="separator">/</span>
-            <span>EVENTOS</span>
+            <span>EVENTOS CORPORATIVOS</span>
           </div>
-        </div>
-        <div class="header-actions">
-          <ui-josanz-button
-            variant="primary"
-            [routerLink]="['/events/new']"
-            class="create-button"
-          >
-            <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-            Nuevo Evento
-          </ui-josanz-button>
         </div>
       </header>
 
-      <!-- Search and Filters -->
-      <div class="filters-section">
-        <ui-josanz-card>
-          <div class="filters-content">
-            <div class="search-box">
-              <ui-josanz-input
-                placeholder="Buscar eventos..."
-                [formControl]="searchControl"
-              >
-                <lucide-icon
-                  [img]="SearchIcon"
-                  size="16"
-                  slot="prefix"
-                ></lucide-icon>
-              </ui-josanz-input>
-            </div>
-            <div class="filter-buttons">
-              <ui-josanz-button variant="ghost" size="sm">
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                Filtros
-              </ui-josanz-button>
-            </div>
+      <div class="stats-row">
+        <ui-josanz-stat-card
+          label="Total Eventos"
+          [value]="events().length.toString()"
+          icon="calendar"
+          [accent]="true"
+        >
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card
+          label="Eventos Activos"
+          [value]="activeEventsCount().toString()"
+          icon="activity"
+          [trend]="15"
+        >
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card
+          label="Próximo Evento"
+          [value]="nextEventDays().toString() + ' días'"
+          icon="clock"
+        >
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card
+          label="Asistentes Totales"
+          [value]="totalAttendees().toString()"
+          icon="users"
+          [trend]="8"
+        >
+        </ui-josanz-stat-card>
+      </div>
+
+      <div class="events-content">
+        <!-- Filters -->
+        <ui-josanz-card class="filters-card">
+          <div class="filters-header">
+            <h2>Filtros de Búsqueda Avanzada</h2>
+            <ui-josanz-button
+              variant="ghost"
+              size="sm"
+              icon="filter"
+              (click)="clearFilters()"
+            >
+              Limpiar
+            </ui-josanz-button>
           </div>
-        </ui-josanz-card>
-      </div>
 
-      <!-- Events Grid -->
-      <div class="events-grid">
-        @for (event of filteredEvents(); track event.id) {
-          <ui-josanz-card
-            class="event-card"
-            [routerLink]="['/events', event.id]"
-          >
-            <div class="event-header">
-              <div class="event-info">
-                <h3 class="event-title">{{ event.title }}</h3>
-                <p class="event-description">{{ event.description }}</p>
-              </div>
-              <div class="event-status">
-                <ui-josanz-badge [variant]="getStatusVariant(event.status)">
-                  {{ getStatusText(event.status) }}
-                </ui-josanz-badge>
-              </div>
-            </div>
+          <div class="filters-grid">
+            <ui-josanz-input
+              label="Buscar"
+              [(ngModel)]="filters.search"
+              name="search"
+              placeholder="Título, descripción, organizador..."
+              icon="search"
+            />
 
-            <div class="event-details">
-              <div class="event-detail">
-                <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-                <span>{{ event.date }} - {{ event.time }}</span>
-              </div>
-              <div class="event-detail">
-                <lucide-icon [img]="UsersIcon" size="16"></lucide-icon>
-                <span>{{ event.attendees }} asistentes</span>
-              </div>
-              @if (event.location) {
-                <div class="event-detail">
-                  <lucide-icon [img]="MapPinIcon" size="16"></lucide-icon>
-                  <span>{{ event.location }}</span>
-                </div>
-              }
-            </div>
+            <ui-josanz-select
+              label="Estado"
+              [(ngModel)]="filters.status"
+              name="status"
+              [options]="statusOptions"
+            />
 
-            <div class="event-actions">
+            <ui-josanz-select
+              label="Tipo"
+              [(ngModel)]="filters.type"
+              name="type"
+              [options]="typeOptions"
+            />
+
+            <ui-josanz-input
+              label="Fecha Desde"
+              type="date"
+              [(ngModel)]="filters.dateFrom"
+              name="dateFrom"
+            />
+
+            <ui-josanz-input
+              label="Fecha Hasta"
+              type="date"
+              [(ngModel)]="filters.dateTo"
+              name="dateTo"
+            />
+
+            <div class="filter-actions">
               <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                [routerLink]="['/events', event.id, 'edit']"
-                (click)="$event.stopPropagation()"
+                variant="primary"
+                icon="search"
+                (click)="applyFilters()"
               >
-                <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
+                Aplicar Filtros
               </ui-josanz-button>
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                class="danger"
-                (click)="$event.stopPropagation()"
-              >
-                <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
-              </ui-josanz-button>
-            </div>
-          </ui-josanz-card>
-        }
-      </div>
-
-      @if (filteredEvents().length === 0) {
-        <div class="empty-state">
-          <ui-josanz-card>
-            <div class="empty-content">
-              <lucide-icon [img]="CalendarIcon" size="48"></lucide-icon>
-              <h3>No hay eventos</h3>
-              <p>No se encontraron eventos que coincidan con tu búsqueda.</p>
               <ui-josanz-button
                 variant="primary"
                 [routerLink]="['/events/new']"
               >
                 <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-                Crear primer evento
+                Nuevo Evento
               </ui-josanz-button>
             </div>
-          </ui-josanz-card>
-        </div>
-      }
+          </div>
+        </ui-josanz-card>
+
+        <!-- Events List -->
+        <ui-josanz-card class="events-card">
+          <div class="events-header">
+            <h2>Eventos Planificados</h2>
+            <span class="events-count"
+              >{{ filteredEvents().length }} eventos encontrados</span
+            >
+          </div>
+
+          <div class="events-list">
+            @for (event of paginatedEvents(); track event.id) {
+              <div
+                class="event-item"
+                [class.expanded]="expandedEvent() === event.id"
+              >
+                <div
+                  class="event-summary"
+                  (click)="toggleEventExpansion(event.id)"
+                  (keydown.enter)="toggleEventExpansion(event.id)"
+                  (keydown.space)="
+                    toggleEventExpansion(event.id); $event.preventDefault()
+                  "
+                  tabindex="0"
+                >
+                  <div class="event-icon">
+                    <lucide-icon
+                      [img]="getEventIcon(event.type)"
+                      size="20"
+                    ></lucide-icon>
+                  </div>
+
+                  <div class="event-info">
+                    <div class="event-primary">
+                      <span class="event-title">{{ event.title }}</span>
+                      <span class="event-type">{{
+                        getTypeText(event.type)
+                      }}</span>
+                      <span class="event-organizer">
+                        @if (event.organizer) {
+                          por {{ event.organizer }}
+                        }
+                      </span>
+                    </div>
+                    <div class="event-meta">
+                      <span class="event-date">
+                        <lucide-icon
+                          [img]="CalendarIcon"
+                          size="14"
+                        ></lucide-icon>
+                        {{ formatDate(event.date) }} - {{ event.time }}
+                      </span>
+                      <span class="event-attendees">
+                        <lucide-icon [img]="UsersIcon" size="14"></lucide-icon>
+                        {{ event.attendees }}/{{ event.capacity }} asistentes
+                      </span>
+                      <ui-josanz-badge
+                        [variant]="getStatusVariant(event.status)"
+                      >
+                        {{ getStatusText(event.status) }}
+                      </ui-josanz-badge>
+                    </div>
+                  </div>
+
+                  <div class="event-toggle">
+                    <lucide-icon
+                      [img]="HistoryIcon"
+                      size="16"
+                      [class.rotated]="expandedEvent() === event.id"
+                    ></lucide-icon>
+                  </div>
+                </div>
+
+                @if (expandedEvent() === event.id) {
+                  <div class="event-details">
+                    @if (event.description) {
+                      <div class="details-section">
+                        <h4>Descripción</h4>
+                        <p>{{ event.description }}</p>
+                      </div>
+                    }
+
+                    <div class="details-section">
+                      <h4>Información del Evento</h4>
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <span class="detail-label">Ubicación:</span>
+                          <span class="detail-value">{{
+                            event.location || 'No especificada'
+                          }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Costo:</span>
+                          <span class="detail-value">{{
+                            event.cost ? '€' + event.cost : 'Gratuito'
+                          }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Capacidad:</span>
+                          <span class="detail-value">{{
+                            event.capacity || 'Sin límite'
+                          }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Creado:</span>
+                          <span class="detail-value">{{
+                            formatCreatedDate(event.createdAt)
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="event-actions">
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        [routerLink]="['/events', event.id]"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <lucide-icon [img]="EyeIcon" size="14"></lucide-icon>
+                        Ver Detalles
+                      </ui-josanz-button>
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        [routerLink]="['/events', event.id, 'edit']"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
+                        Editar
+                      </ui-josanz-button>
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        class="danger"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
+                        Eliminar
+                      </ui-josanz-button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (paginatedEvents().length === 0) {
+              <div class="no-events">
+                <lucide-icon [img]="CalendarIcon" size="48"></lucide-icon>
+                <h3>No se encontraron eventos</h3>
+                <p>No hay eventos que coincidan con los filtros aplicados.</p>
+                <ui-josanz-button
+                  variant="primary"
+                  [routerLink]="['/events/new']"
+                >
+                  <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+                  Crear Nuevo Evento
+                </ui-josanz-button>
+              </div>
+            }
+          </div>
+
+          <!-- Pagination -->
+          @if (totalPages() > 1) {
+            <div class="pagination">
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                [disabled]="currentPage() === 1"
+                (click)="goToPage(currentPage() - 1)"
+              >
+                Anterior
+              </ui-josanz-button>
+
+              <span class="page-info">
+                Página {{ currentPage() }} de {{ totalPages() }}
+              </span>
+
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                [disabled]="currentPage() === totalPages()"
+                (click)="goToPage(currentPage() + 1)"
+              >
+                Siguiente
+              </ui-josanz-button>
+            </div>
+          }
+        </ui-josanz-card>
+      </div>
     </div>
   `,
   styles: [
@@ -211,15 +421,6 @@ interface Event {
         letter-spacing: 0.025em;
       }
 
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
-      }
-
       .breadcrumb {
         display: flex;
         gap: 8px;
@@ -230,155 +431,276 @@ interface Event {
         margin-top: 0.5rem;
       }
 
-      .breadcrumb .active {
-        color: var(--primary);
-      }
-
-      .breadcrumb .separator {
+      .separator {
         opacity: 0.5;
       }
 
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .create-button {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .filters-section {
-        margin-bottom: 2rem;
-      }
-
-      .filters-content {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .search-box {
-        flex: 1;
-        max-width: 400px;
-      }
-
-      .events-grid {
+      .stats-row {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
       }
 
-      .event-card {
-        cursor: pointer;
-        transition: all 0.2s ease;
+      .events-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .filters-card {
         padding: 1.5rem;
       }
 
-      .event-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-
-      .event-header {
+      .filters-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .filters-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+
+      .events-card {
+        padding: 1.5rem;
+      }
+
+      .events-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .events-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .events-count {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+      }
+
+      .events-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .event-item {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+      }
+
+      .event-summary {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .event-summary:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .event-icon {
+        padding: 0.5rem;
+        background: rgba(var(--primary-rgb), 0.1);
+        border-radius: 0.375rem;
+        color: var(--primary);
+        flex-shrink: 0;
       }
 
       .event-info {
         flex: 1;
       }
 
-      .event-title {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #fff;
-      }
-
-      .event-description {
-        margin: 0;
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .event-details {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-      }
-
-      .event-detail {
+      .event-primary {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.5rem;
+      }
+
+      .event-title {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .event-type {
+        color: var(--accent);
+        font-weight: 500;
         font-size: 0.875rem;
-        color: var(--text-muted);
+      }
+
+      .event-organizer {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-style: italic;
+      }
+
+      .event-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .event-date,
+      .event-attendees {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+      }
+
+      .event-toggle {
+        transition: transform 0.2s;
+      }
+
+      .event-toggle .rotated {
+        transform: rotate(180deg);
+      }
+
+      .event-details {
+        padding: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .details-section {
+        margin-bottom: 1rem;
+      }
+
+      .details-section h4 {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .detail-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .detail-value {
+        font-size: 0.875rem;
+        color: var(--text-primary);
       }
 
       .event-actions {
         display: flex;
         gap: 0.5rem;
         justify-content: flex-end;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1rem;
       }
 
-      .event-actions button.danger:hover {
-        background-color: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-      }
-
-      .empty-state {
+      .no-events {
         text-align: center;
-        margin-top: 4rem;
+        padding: 3rem;
+        color: var(--text-secondary);
       }
 
-      .empty-content {
-        padding: 3rem;
+      .no-events h3 {
+        margin: 1rem 0 0 0;
+        font-size: 1.125rem;
+      }
+
+      .pagination {
         display: flex;
-        flex-direction: column;
+        justify-content: center;
         align-items: center;
         gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      .empty-content h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
+      .page-info {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+      }
+
+      .text-uppercase {
+        text-transform: uppercase;
+      }
+
+      .glow-text {
+        font-size: 1.6rem;
+        font-weight: 800;
         color: #fff;
-      }
-
-      .empty-content p {
         margin: 0;
-        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        font-family: var(--font-main);
       }
 
       @media (max-width: 768px) {
-        .events-grid {
+        .filters-grid {
           grid-template-columns: 1fr;
         }
 
-        .page-header {
+        .event-primary {
           flex-direction: column;
           align-items: flex-start;
-          gap: 1rem;
+          gap: 0.25rem;
         }
 
-        .filters-content {
+        .event-meta {
           flex-direction: column;
-          align-items: stretch;
+          align-items: flex-start;
+          gap: 0.5rem;
         }
 
-        .search-box {
-          max-width: none;
+        .details-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .pagination {
+          flex-direction: column;
+          gap: 0.5rem;
         }
       }
     `,
@@ -386,6 +708,7 @@ interface Event {
 })
 export class EventsListComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
+  public readonly pluginStore = inject(PluginStore);
 
   currentTheme = this.themeService.currentThemeData;
   readonly CalendarIcon = Calendar;
@@ -397,8 +720,68 @@ export class EventsListComponent implements OnInit {
   readonly Trash2Icon = Trash2;
   readonly UsersIcon = Users;
   readonly MapPinIcon = MapPin;
+  readonly HistoryIcon = History;
+  readonly TrendingUpIcon = TrendingUp;
+  readonly ActivityIcon = Activity;
+  readonly ClockIcon = Clock;
+  readonly SettingsIcon = 'settings';
+  readonly PartyPopperIcon = 'party-popper';
+  readonly PresentationIcon = 'presentation';
+  readonly EyeIcon = Eye;
 
-  searchControl = new FormControl('');
+  expandedEvent = signal<string | null>(null);
+  currentPage = signal(1);
+  pageSize = 10;
+
+  filters: EventFilter = {
+    search: '',
+    status: '',
+    type: '',
+    dateFrom: '',
+    dateTo: '',
+  };
+
+  statusOptions = [
+    { label: 'Todos los estados', value: '' },
+    { label: 'Activo', value: 'active' },
+    { label: 'Completado', value: 'completed' },
+    { label: 'Cancelado', value: 'cancelled' },
+    { label: 'Borrador', value: 'draft' },
+  ];
+
+  typeOptions = [
+    { label: 'Todos los tipos', value: '' },
+    { label: 'Conferencia', value: 'conference' },
+    { label: 'Taller', value: 'workshop' },
+    { label: 'Reunión', value: 'meeting' },
+    { label: 'Evento Social', value: 'social' },
+    { label: 'Presentación', value: 'presentation' },
+    { label: 'Otro', value: 'other' },
+  ];
+
+  activeEventsCount = computed(() => {
+    return this.events().filter((event) => event.status === 'active').length;
+  });
+
+  nextEventDays = computed(() => {
+    const today = new Date();
+    const futureEvents = this.events()
+      .filter(
+        (event) => new Date(event.date) >= today && event.status === 'active',
+      )
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    if (futureEvents.length === 0) return 0;
+
+    const nextEvent = futureEvents[0];
+    const diffTime = new Date(nextEvent.date).getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  });
+
+  totalAttendees = computed(() => {
+    return this.events().reduce((total, event) => total + event.attendees, 0);
+  });
 
   events = signal<Event[]>([
     {
@@ -410,6 +793,11 @@ export class EventsListComponent implements OnInit {
       location: 'Sala de Conferencias Principal',
       status: 'active',
       attendees: 150,
+      capacity: 200,
+      type: 'conference',
+      organizer: 'María González',
+      cost: 0,
+      createdAt: '2024-03-01T09:00:00Z',
     },
     {
       id: '2',
@@ -421,6 +809,11 @@ export class EventsListComponent implements OnInit {
       location: 'Sala de Formación',
       status: 'active',
       attendees: 25,
+      capacity: 30,
+      type: 'workshop',
+      organizer: 'Carlos Rodríguez',
+      cost: 50,
+      createdAt: '2024-03-05T14:20:00Z',
     },
     {
       id: '3',
@@ -431,6 +824,42 @@ export class EventsListComponent implements OnInit {
       location: 'Auditorio Principal',
       status: 'completed',
       attendees: 200,
+      capacity: 250,
+      type: 'presentation',
+      organizer: 'Ana López',
+      cost: 0,
+      createdAt: '2024-02-15T11:30:00Z',
+    },
+    {
+      id: '4',
+      title: 'Reunión Trimestral de Equipo',
+      description:
+        'Revisión de objetivos y planificación del próximo trimestre',
+      date: '2024-04-10',
+      time: '09:00',
+      location: 'Sala de Juntas Ejecutiva',
+      status: 'active',
+      attendees: 12,
+      capacity: 15,
+      type: 'meeting',
+      organizer: 'Director General',
+      cost: 0,
+      createdAt: '2024-03-20T16:45:00Z',
+    },
+    {
+      id: '5',
+      title: 'Cena de Navidad Corporativa',
+      description: 'Evento social de fin de año para empleados y familias',
+      date: '2024-12-20',
+      time: '20:00',
+      location: 'Hotel Gran Palacio',
+      status: 'draft',
+      attendees: 0,
+      capacity: 150,
+      type: 'social',
+      organizer: 'RRHH',
+      cost: 75,
+      createdAt: '2024-03-10T10:15:00Z',
     },
   ]);
 
@@ -439,20 +868,130 @@ export class EventsListComponent implements OnInit {
   ngOnInit() {
     // Set initial filtered events
     this.filteredEvents.set(this.events());
+  }
 
-    // Subscribe to search control changes
-    this.searchControl.valueChanges.subscribe((searchTerm) => {
-      if (searchTerm) {
-        const filtered = this.events().filter(
-          (event) =>
-            event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            event.description.toLowerCase().includes(searchTerm.toLowerCase()),
-        );
-        this.filteredEvents.set(filtered);
-      } else {
-        this.filteredEvents.set(this.events());
-      }
+  applyFilters() {
+    let filtered = [...this.events()];
+
+    if (this.filters.search) {
+      const searchTerm = this.filters.search.toLowerCase();
+      filtered = filtered.filter(
+        (event) =>
+          event.title.toLowerCase().includes(searchTerm) ||
+          event.description.toLowerCase().includes(searchTerm) ||
+          event.organizer?.toLowerCase().includes(searchTerm) ||
+          event.location.toLowerCase().includes(searchTerm),
+      );
+    }
+
+    if (this.filters.status) {
+      filtered = filtered.filter(
+        (event) => event.status === this.filters.status,
+      );
+    }
+
+    if (this.filters.type) {
+      filtered = filtered.filter((event) => event.type === this.filters.type);
+    }
+
+    if (this.filters.dateFrom) {
+      const fromDate = new Date(this.filters.dateFrom);
+      filtered = filtered.filter((event) => new Date(event.date) >= fromDate);
+    }
+
+    if (this.filters.dateTo) {
+      const toDate = new Date(this.filters.dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((event) => new Date(event.date) <= toDate);
+    }
+
+    // Sort by date (most recent first)
+    filtered.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+
+    this.filteredEvents.set(filtered);
+    this.currentPage.set(1);
+  }
+
+  clearFilters() {
+    this.filters = {
+      search: '',
+      status: '',
+      type: '',
+      dateFrom: '',
+      dateTo: '',
+    };
+    this.applyFilters();
+  }
+
+  toggleEventExpansion(eventId: string) {
+    this.expandedEvent.set(this.expandedEvent() === eventId ? null : eventId);
+  }
+
+  getEventIcon(type: string) {
+    switch (type) {
+      case 'conference':
+        return this.UsersIcon;
+      case 'workshop':
+        return this.UsersIcon;
+      case 'meeting':
+        return this.CalendarIcon;
+      case 'social':
+        return this.UsersIcon;
+      case 'presentation':
+        return this.UsersIcon;
+      default:
+        return this.CalendarIcon;
+    }
+  }
+
+  getTypeText(type: string): string {
+    const texts: Record<string, string> = {
+      conference: 'Conferencia',
+      workshop: 'Taller',
+      meeting: 'Reunión',
+      social: 'Social',
+      presentation: 'Presentación',
+      other: 'Otro',
+    };
+    return texts[type] || type;
+  }
+
+  formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
     });
+  }
+
+  formatCreatedDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  get paginatedEvents() {
+    return () => {
+      const start = (this.currentPage() - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredEvents().slice(start, end);
+    };
+  }
+
+  get totalPages() {
+    return () => Math.ceil(this.filteredEvents().length / this.pageSize);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
   }
 
   getStatusVariant(status: string) {

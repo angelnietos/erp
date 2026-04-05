@@ -116,6 +116,8 @@ import {
   SlidersHorizontal,
   CreditCard,
   LineChart,
+  PartyPopper,
+  Presentation,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -235,6 +237,8 @@ export const appConfig: ApplicationConfig = {
         SlidersHorizontal,
         CreditCard,
         LineChart,
+        PartyPopper,
+        Presentation,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
