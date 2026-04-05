@@ -36,9 +36,13 @@ interface ProjectForm {
     <div class="page-container">
       <header class="page-header">
         <div class="header-actions">
-          <lib-ui-button variant="ghost" [icon]="ArrowLeft" (click)="goBack()">
+          <ui-josanz-button
+            variant="ghost"
+            icon="arrow-left"
+            (click)="goBack()"
+          >
             Volver
-          </lib-ui-button>
+          </ui-josanz-button>
         </div>
         <div class="header-content">
           <h1 class="page-title">
@@ -46,56 +50,56 @@ interface ProjectForm {
           </h1>
         </div>
         <div class="header-actions">
-          <lib-ui-button variant="secondary" [icon]="X" (click)="goBack()">
+          <ui-josanz-button variant="secondary" icon="x" (click)="goBack()">
             Cancelar
-          </lib-ui-button>
-          <lib-ui-button variant="primary" [icon]="Save" (click)="save()">
+          </ui-josanz-button>
+          <ui-josanz-button variant="primary" icon="save" (click)="save()">
             Guardar
-          </lib-ui-button>
+          </ui-josanz-button>
         </div>
       </header>
 
       <div class="content-section">
-        <lib-ui-card>
+        <ui-josanz-card>
           <div class="form-grid">
-            <lib-ui-input
+            <ui-josanz-input
               label="Nombre del Proyecto"
               [(ngModel)]="form.name"
               placeholder="Ingrese el nombre del proyecto"
               required
             >
-            </lib-ui-input>
+            </ui-josanz-input>
 
-            <lib-ui-textarea
+            <ui-josanz-textarea
               label="Descripción"
               [(ngModel)]="form.description"
               placeholder="Descripción del proyecto"
-              rows="4"
+              [rows]="4"
             >
-            </lib-ui-textarea>
+            </ui-josanz-textarea>
 
-            <lib-ui-input
+            <ui-josanz-input
               label="Fecha de Inicio"
               type="date"
               [(ngModel)]="form.startDate"
             >
-            </lib-ui-input>
+            </ui-josanz-input>
 
-            <lib-ui-input
+            <ui-josanz-input
               label="Fecha de Fin"
               type="date"
               [(ngModel)]="form.endDate"
             >
-            </lib-ui-input>
+            </ui-josanz-input>
 
-            <lib-ui-select
+            <ui-josanz-select
               label="Cliente"
               [(ngModel)]="form.clientId"
               [options]="clientOptions"
             >
-            </lib-ui-select>
+            </ui-josanz-select>
           </div>
-        </lib-ui-card>
+        </ui-josanz-card>
       </div>
     </div>
   `,
@@ -142,9 +146,9 @@ interface ProjectForm {
   ],
 })
 export class ProjectsDetailComponent implements OnInit {
-  private readonly ArrowLeft = ArrowLeft;
-  private readonly Save = Save;
-  private readonly X = X;
+  readonly ArrowLeft = ArrowLeft;
+  readonly Save = Save;
+  readonly X = X;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);

@@ -4,6 +4,7 @@ import {
   ReceiptsRepositoryPort,
   Receipt,
 } from '@josanz-erp/receipts-core';
+import { PaymentMethod } from '@josanz-erp/receipts-api';
 import { EntityId } from '@josanz-erp/shared-model';
 import { CreateReceiptDto, UpdateReceiptDto } from '../dtos/create-receipt.dto';
 import {
@@ -25,8 +26,8 @@ export class ReceiptsService {
       tenantId: new EntityId(dto.tenantId),
       invoiceId: new EntityId(dto.invoiceId),
       amount: dto.amount,
-      dueDate: dto.dueDate,
-      paymentMethod: dto.paymentMethod,
+      dueDate: new Date(dto.dueDate),
+      paymentMethod: dto.paymentMethod as PaymentMethod,
       notes: dto.notes,
     });
 
@@ -43,11 +44,11 @@ export class ReceiptsService {
   }
 
   async findAll(tenantId: string, status?: string): Promise<Receipt[]> {
-    return await this.receiptsRepository.findAll(new EntityId(tenantId), status as any);
+    return await this.receiptsRepository.findByTenantId(new EntityId(tenantId), status as any);
   }
 
   async findActive(tenantId: string): Promise<Receipt[]> {
-    return await this.receiptsRepository.findActive(new EntityId(tenantId));
+    return await this.receiptsRepository.findByTenantId(new EntityId(tenantId), 'PENDING');
   }
 
   async update(id: string, dto: UpdateReceiptDto): Promise<Receipt> {
@@ -62,7 +63,7 @@ export class ReceiptsService {
 
     if (dto.status !== undefined) {
       if (dto.status === 'PAID' && dto.paymentMethod && dto.paymentDate) {
-        receipt.markAsPaid(dto.paymentMethod, dto.paymentDate);
+        receipt.markAsPaid(dto.paymentMethod as PaymentMethod, new Date(dto.paymentDate));
       } else if (dto.status === 'OVERDUE') {
         receipt.markAsOverdue();
       } else if (dto.status === 'CANCELLED') {

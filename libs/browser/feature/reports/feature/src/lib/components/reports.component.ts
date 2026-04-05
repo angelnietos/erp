@@ -8,8 +8,6 @@ import {
   Calendar,
   Users,
   TrendingUp,
-  Download,
-  Filter,
 } from 'lucide-angular';
 import {
   UiCardComponent,
@@ -22,7 +20,7 @@ interface ReportType {
   id: string;
   name: string;
   description: string;
-  icon: any;
+  icon: typeof FileText;
   category:
     | 'events'
     | 'equipment'
@@ -38,6 +36,15 @@ interface ReportFilter {
   clientId?: string;
   status?: string;
   type?: string;
+}
+
+interface Report {
+  id: string;
+  type: string;
+  title: string;
+  generatedAt: string;
+  dateRange: string;
+  filters: ReportFilter;
 }
 
 @Component({
@@ -67,134 +74,140 @@ interface ReportFilter {
       <div class="reports-content">
         <!-- Report Types Grid -->
         <div class="report-types-grid">
-          <lib-ui-card
-            *ngFor="let reportType of reportTypes()"
-            class="report-type-card"
-            (click)="selectReportType(reportType)"
-          >
-            <div class="report-type-content">
-              <div class="report-icon">
-                <lucide-icon [img]="reportType.icon" size="32"></lucide-icon>
+          @for (reportType of reportTypes(); track reportType.id) {
+            <ui-josanz-card
+              class="report-type-card"
+              (click)="selectReportType(reportType)"
+            >
+              <div class="report-type-content">
+                <div class="report-icon">
+                  <lucide-icon [img]="reportType.icon" size="32"></lucide-icon>
+                </div>
+                <div class="report-info">
+                  <h3 class="report-name">{{ reportType.name }}</h3>
+                  <p class="report-description">{{ reportType.description }}</p>
+                  <span class="report-category">{{
+                    getCategoryName(reportType.category)
+                  }}</span>
+                </div>
               </div>
-              <div class="report-info">
-                <h3 class="report-name">{{ reportType.name }}</h3>
-                <p class="report-description">{{ reportType.description }}</p>
-                <span class="report-category">{{
-                  getCategoryName(reportType.category)
-                }}</span>
-              </div>
-            </div>
-          </lib-ui-card>
+            </ui-josanz-card>
+          }
         </div>
 
         <!-- Report Generation Form -->
-        <div *ngIf="selectedReportType()" class="report-form-section">
-          <lib-ui-card>
-            <div class="form-header">
-              <h2>Generar Reporte: {{ selectedReportType()?.name }}</h2>
-              <p>Configura los filtros y genera tu reporte</p>
-            </div>
+        @if (selectedReportType()) {
+          <div class="report-form-section">
+            <ui-josanz-card>
+              <div class="form-header">
+                <h2>Generar Reporte: {{ selectedReportType()?.name }}</h2>
+                <p>Configura los filtros y genera tu reporte</p>
+              </div>
 
-            <form class="report-form" (ngSubmit)="generateReport()">
-              <div class="form-grid">
-                <lib-ui-input
-                  label="Fecha Desde"
-                  type="date"
-                  [(ngModel)]="filters.dateFrom"
-                  name="dateFrom"
-                  required
-                />
+              <form class="report-form" (ngSubmit)="generateReport()">
+                <div class="form-grid">
+                  <ui-josanz-input
+                    label="Fecha Desde"
+                    type="date"
+                    [(ngModel)]="filters.dateFrom"
+                    name="dateFrom"
+                    required
+                  />
 
-                <lib-ui-input
-                  label="Fecha Hasta"
-                  type="date"
-                  [(ngModel)]="filters.dateTo"
-                  name="dateTo"
-                  required
-                />
+                  <ui-josanz-input
+                    label="Fecha Hasta"
+                    type="date"
+                    [(ngModel)]="filters.dateTo"
+                    name="dateTo"
+                    required
+                  />
 
-                <lib-ui-select
-                  *ngIf="
+                  @if (
                     selectedReportType()?.category === 'events' ||
                     selectedReportType()?.category === 'projects'
-                  "
-                  label="Estado"
-                  [(ngModel)]="filters.status"
-                  name="status"
-                  [options]="statusOptions"
-                />
+                  ) {
+                    <ui-josanz-select
+                      label="Estado"
+                      [(ngModel)]="filters.status"
+                      name="status"
+                      [options]="statusOptions"
+                    />
+                  }
 
-                <lib-ui-input
-                  *ngIf="selectedReportType()?.category === 'events'"
-                  label="ID Cliente (opcional)"
-                  [(ngModel)]="filters.clientId"
-                  name="clientId"
-                  placeholder="Buscar por cliente específico"
-                />
-              </div>
+                  @if (selectedReportType()?.category === 'events') {
+                    <ui-josanz-input
+                      label="ID Cliente (opcional)"
+                      [(ngModel)]="filters.clientId"
+                      name="clientId"
+                      placeholder="Buscar por cliente específico"
+                    />
+                  }
+                </div>
 
-              <div class="form-actions">
-                <lib-ui-button
-                  type="button"
-                  variant="secondary"
-                  [icon]="Filter"
-                  (click)="clearFilters()"
-                >
-                  Limpiar Filtros
-                </lib-ui-button>
-                <lib-ui-button
-                  type="submit"
-                  variant="primary"
-                  [icon]="Download"
-                  [disabled]="generating()"
-                >
-                  {{ generating() ? 'Generando...' : 'Generar Reporte' }}
-                </lib-ui-button>
-              </div>
-            </form>
-          </lib-ui-card>
-        </div>
+                <div class="form-actions">
+                  <ui-josanz-button
+                    type="button"
+                    variant="secondary"
+                    icon="sliders-horizontal"
+                    (click)="clearFilters()"
+                  >
+                    Limpiar Filtros
+                  </ui-josanz-button>
+                  <ui-josanz-button
+                    type="submit"
+                    variant="primary"
+                    icon="download"
+                    [disabled]="generating()"
+                  >
+                    {{ generating() ? 'Generando...' : 'Generar Reporte' }}
+                  </ui-josanz-button>
+                </div>
+              </form>
+            </ui-josanz-card>
+          </div>
+        }
 
         <!-- Generated Reports List -->
-        <div *ngIf="generatedReports().length > 0" class="reports-list-section">
-          <lib-ui-card>
-            <div class="section-header">
-              <h2>Reportes Generados</h2>
-            </div>
-            <div class="reports-list">
-              <div
-                *ngFor="let report of generatedReports()"
-                class="report-item"
-              >
-                <div class="report-item-content">
-                  <div class="report-icon">
-                    <lucide-icon
-                      [img]="getReportTypeIcon(report.type)"
-                      size="20"
-                    ></lucide-icon>
-                  </div>
-                  <div class="report-details">
-                    <h4 class="report-title">{{ report.title }}</h4>
-                    <p class="report-meta">
-                      Generado: {{ report.generatedAt }} | Filtros:
-                      {{ report.dateRange }}
-                    </p>
-                  </div>
-                </div>
-                <div class="report-actions">
-                  <lib-ui-button
-                    variant="ghost"
-                    size="sm"
-                    (click)="downloadReport(report)"
-                  >
-                    <lucide-icon [img]="Download" size="16"></lucide-icon>
-                    Descargar
-                  </lib-ui-button>
-                </div>
+        @if (generatedReports().length > 0) {
+          <div class="reports-list-section">
+            <ui-josanz-card>
+              <div class="section-header">
+                <h2>Reportes Generados</h2>
               </div>
-            </div>
-          </lib-ui-card>
-        </div>
+              <div class="reports-list">
+                @for (report of generatedReports(); track report.id) {
+                  <div class="report-item">
+                    <div class="report-item-content">
+                      <div class="report-icon">
+                        <lucide-icon
+                          [img]="getReportTypeIcon(report.type)"
+                          size="20"
+                        ></lucide-icon>
+                      </div>
+                      <div class="report-details">
+                        <h4 class="report-title">{{ report.title }}</h4>
+                        <p class="report-meta">
+                          Generado: {{ report.generatedAt }} | Filtros:
+                          {{ report.dateRange }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="report-actions">
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        (click)="downloadReport(report)"
+                      >
+                        <lucide-icon [name]="'download'" size="16"></lucide-icon>
+                        Descargar
+                      </ui-josanz-button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </ui-josanz-card>
+          </div>
+        }
       </div>
     </div>
   `,
@@ -406,8 +419,6 @@ export class ReportsComponent implements OnInit {
   private readonly Calendar = Calendar;
   private readonly Users = Users;
   private readonly TrendingUp = TrendingUp;
-  private readonly Download = Download;
-  private readonly Filter = Filter;
 
   selectedReportType = signal<ReportType | null>(null);
   generating = signal(false);
@@ -469,7 +480,7 @@ export class ReportsComponent implements OnInit {
     },
   ]);
 
-  generatedReports = signal<any[]>([]);
+  generatedReports = signal<Report[]>([]);
 
   ngOnInit() {
     // Set default date range (last 30 days)
@@ -519,7 +530,7 @@ export class ReportsComponent implements OnInit {
 
       const newReport = {
         id: Date.now().toString(),
-        type: this.selectedReportType()?.id,
+        type: this.selectedReportType()?.id || 'unknown',
         title: `${this.selectedReportType()?.name} - ${this.filters.dateFrom} a ${this.filters.dateTo}`,
         generatedAt: new Date().toLocaleString('es-ES'),
         dateRange: `${this.filters.dateFrom} - ${this.filters.dateTo}`,
@@ -539,7 +550,7 @@ export class ReportsComponent implements OnInit {
     return reportType?.icon || this.FileText;
   }
 
-  downloadReport(report: any) {
+  downloadReport(report: Report) {
     // Simulate download
     console.log('Downloading report:', report);
     // In a real implementation, this would trigger a file download

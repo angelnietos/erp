@@ -5,6 +5,20 @@
   "prefix": "app",
   "sourceRoot": "apps/frontend/src",
   "tags": ["scope:frontend", "type:app"],
+  "implicitDependencies": [
+    "dashboard-shell",
+    "projects-feature",
+    "services-feature",
+    "reports-feature",
+    "audit-feature",
+    "receipts-feature",
+    "dashboard-feature",
+    "projects-shell",
+    "services-shell",
+    "reports-shell",
+    "audit-shell",
+    "receipts-shell"
+  ],
   "targets": {
     "build": {
       "executor": "@angular/build:application",

@@ -49,23 +49,23 @@ interface Receipt {
           </p>
         </div>
         <div class="header-actions">
-          <lib-ui-button variant="primary"> Nuevo Recibo </lib-ui-button>
+          <ui-josanz-button variant="primary"> Nuevo Recibo </ui-josanz-button>
         </div>
       </header>
 
       <div class="receipts-content">
-        <lib-ui-card class="filters-card">
+        <ui-josanz-card class="filters-card">
           <div class="filters-grid">
-            <lib-ui-select
+            <ui-josanz-select
               label="Estado"
               [(ngModel)]="statusFilter"
               name="status"
               [options]="statusOptions"
             />
           </div>
-        </lib-ui-card>
+        </ui-josanz-card>
 
-        <lib-ui-card>
+        <ui-josanz-card>
           <div class="receipts-list">
             <div
               *ngFor="let receipt of filteredReceipts()"
@@ -84,9 +84,9 @@ interface Receipt {
                   <span class="receipt-id"
                     >Factura #{{ receipt.invoiceId }}</span
                   >
-                  <lib-ui-badge [variant]="getStatusVariant(receipt.status)">
+                  <ui-josanz-badge [variant]="getStatusVariant(receipt.status)">
                     {{ getStatusText(receipt.status) }}
-                  </lib-ui-badge>
+                  </ui-josanz-badge>
                 </div>
                 <div class="receipt-details">
                   <span class="receipt-amount"
@@ -107,20 +107,20 @@ interface Receipt {
               </div>
 
               <div class="receipt-actions">
-                <lib-ui-button variant="ghost" size="sm">
+                <ui-josanz-button variant="ghost" size="sm">
                   Ver Detalles
-                </lib-ui-button>
-                <lib-ui-button
+                </ui-josanz-button>
+                <ui-josanz-button
                   *ngIf="receipt.status === 'PENDING'"
                   variant="success"
                   size="sm"
                 >
                   Marcar Pagado
-                </lib-ui-button>
+                </ui-josanz-button>
               </div>
             </div>
           </div>
-        </lib-ui-card>
+        </ui-josanz-card>
       </div>
     </div>
   `,

@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ArrowLeft, Save, X } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiInputComponent,
@@ -36,9 +36,13 @@ interface ServiceForm {
     <div class="page-container">
       <header class="page-header">
         <div class="header-actions">
-          <lib-ui-button variant="ghost" [icon]="ArrowLeft" (click)="goBack()">
+          <ui-josanz-button
+            variant="ghost"
+            icon="arrow-left"
+            (click)="goBack()"
+          >
             Volver
-          </lib-ui-button>
+          </ui-josanz-button>
         </div>
         <div class="header-content">
           <h1 class="page-title">
@@ -46,32 +50,32 @@ interface ServiceForm {
           </h1>
         </div>
         <div class="header-actions">
-          <lib-ui-button variant="secondary" [icon]="X" (click)="goBack()">
+          <ui-josanz-button variant="secondary" icon="x" (click)="goBack()">
             Cancelar
-          </lib-ui-button>
-          <lib-ui-button variant="primary" [icon]="Save" (click)="onSave()">
+          </ui-josanz-button>
+          <ui-josanz-button variant="primary" icon="save" (click)="onSave()">
             Guardar
-          </lib-ui-button>
+          </ui-josanz-button>
         </div>
       </header>
 
       <div class="content-section">
-        <lib-ui-card>
+        <ui-josanz-card>
           <form class="form-grid">
-            <lib-ui-input
+            <ui-josanz-input
               label="Nombre"
               [(ngModel)]="form.name"
               name="name"
               required
             />
 
-            <lib-ui-textarea
+            <ui-josanz-textarea
               label="Descripción"
               [(ngModel)]="form.description"
               name="description"
             />
 
-            <lib-ui-select
+            <ui-josanz-select
               label="Tipo de Servicio"
               [(ngModel)]="form.type"
               name="type"
@@ -79,7 +83,7 @@ interface ServiceForm {
               required
             />
 
-            <lib-ui-input
+            <ui-josanz-input
               label="Precio Base (€)"
               type="number"
               [(ngModel)]="form.basePrice"
@@ -87,14 +91,14 @@ interface ServiceForm {
               required
             />
 
-            <lib-ui-input
+            <ui-josanz-input
               label="Tarifa Horaria (€)"
               type="number"
               [(ngModel)]="form.hourlyRate"
               name="hourlyRate"
             />
           </form>
-        </lib-ui-card>
+        </ui-josanz-card>
       </div>
     </div>
   `,
@@ -134,16 +138,13 @@ interface ServiceForm {
         grid-template-columns: 1fr 1fr;
       }
 
-      .form-grid lib-ui-textarea {
+      .form-grid ui-josanz-textarea {
         grid-column: 1 / -1;
       }
     `,
   ],
 })
 export class ServicesDetailComponent implements OnInit {
-  private readonly ArrowLeft = ArrowLeft;
-  private readonly Save = Save;
-  private readonly X = X;
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

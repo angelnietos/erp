@@ -68,7 +68,7 @@ interface QuickAction {
 
       <!-- Metrics Cards -->
       <div class="metrics-grid">
-        <lib-ui-card *ngFor="let metric of metrics()" class="metric-card">
+        <ui-josanz-card *ngFor="let metric of metrics()" class="metric-card">
           <div class="metric-content">
             <div class="metric-icon">
               <lucide-icon [img]="metric.icon" size="24"></lucide-icon>
@@ -81,18 +81,18 @@ interface QuickAction {
               </span>
             </div>
           </div>
-        </lib-ui-card>
+        </ui-josanz-card>
       </div>
 
       <div class="dashboard-content">
         <!-- Recent Activities -->
         <div class="activities-section">
-          <lib-ui-card>
+          <ui-josanz-card>
             <div class="section-header">
               <h2 class="section-title">Actividad Reciente</h2>
-              <lib-ui-button variant="ghost" size="sm">
+              <ui-josanz-button variant="ghost" size="sm">
                 Ver todo
-              </lib-ui-button>
+              </ui-josanz-button>
             </div>
             <div class="activities-list">
               <div
@@ -113,23 +113,25 @@ interface QuickAction {
                   }}</span>
                 </div>
                 <div class="activity-status" *ngIf="activity.status">
-                  <lib-ui-badge [variant]="getStatusVariant(activity.status)">
+                  <ui-josanz-badge
+                    [variant]="getStatusVariant(activity.status)"
+                  >
                     {{ activity.status }}
-                  </lib-ui-badge>
+                  </ui-josanz-badge>
                 </div>
               </div>
             </div>
-          </lib-ui-card>
+          </ui-josanz-card>
         </div>
 
         <!-- Quick Actions -->
         <div class="actions-section">
-          <lib-ui-card>
+          <ui-josanz-card>
             <div class="section-header">
               <h2 class="section-title">Acciones Rápidas</h2>
             </div>
             <div class="actions-grid">
-              <lib-ui-button
+              <ui-josanz-button
                 *ngFor="let action of quickActions()"
                 [variant]="action.color"
                 [routerLink]="action.route"
@@ -144,9 +146,9 @@ interface QuickAction {
                     }}</span>
                   </div>
                 </div>
-              </lib-ui-button>
+              </ui-josanz-button>
             </div>
-          </lib-ui-card>
+          </ui-josanz-card>
         </div>
       </div>
     </div>

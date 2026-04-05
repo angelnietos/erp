@@ -5,7 +5,7 @@ import {
   Project,
 } from '@josanz-erp/projects-core';
 import { EntityId } from '@josanz-erp/shared-model';
-import { CreateProjectDto, UpdateProjectDto } from './dtos/create-project.dto';
+import { CreateProjectDto, UpdateProjectDto } from '../dtos/create-project.dto';
 import {
   OutboxService,
   PrismaService,

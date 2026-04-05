@@ -4,17 +4,11 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
-  Plus,
-  Search,
-  Edit,
-  Trash2,
 } from 'lucide-angular';
 import {
   UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
-  UiBadgeComponent,
-  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 export interface Service {
@@ -44,8 +38,6 @@ export interface Service {
     UiTableComponent,
     UiButtonComponent,
     UiSearchComponent,
-    UiBadgeComponent,
-    UiLoaderComponent,
     LucideAngularModule,
   ],
   template: `
@@ -56,53 +48,48 @@ export interface Service {
           <p class="page-subtitle">Gestión de catálogo de servicios</p>
         </div>
         <div class="header-actions">
-          <lib-ui-button
+          <ui-josanz-button
             variant="primary"
-            [icon]="Plus"
+            icon="plus"
             routerLink="/services/new"
           >
             Nuevo Servicio
-          </lib-ui-button>
+          </ui-josanz-button>
         </div>
       </header>
 
       <div class="content-section">
         <div class="filters-section">
-          <lib-ui-search
+          <ui-josanz-search
             placeholder="Buscar servicios..."
             (searchChange)="onSearchChange($event)"
           >
-          </lib-ui-search>
+          </ui-josanz-search>
         </div>
 
         <div class="table-section">
-          <lib-ui-table
-            [data]="services()"
-            [columns]="columns"
-            [loading]="loading()"
-            (rowClick)="onRowClick($event)"
-          >
+          <ui-josanz-table [data]="services()" [columns]="columns">
             <ng-template #actionsTemplate let-service>
               <div class="action-buttons">
-                <lib-ui-button
+                <ui-josanz-button
                   variant="ghost"
                   size="sm"
-                  [icon]="Edit"
+                  icon="edit"
                   [routerLink]="['/services', service.id]"
                 >
                   Editar
-                </lib-ui-button>
-                <lib-ui-button
+                </ui-josanz-button>
+                <ui-josanz-button
                   variant="ghost"
                   size="sm"
-                  [icon]="Trash2"
+                  icon="trash-2"
                   (click)="onDelete(service)"
                 >
                   Eliminar
-                </lib-ui-button>
+                </ui-josanz-button>
               </div>
             </ng-template>
-          </lib-ui-table>
+          </ui-josanz-table>
         </div>
       </div>
     </div>
@@ -159,24 +146,19 @@ export interface Service {
   ],
 })
 export class ServicesListComponent implements OnInit {
-  private readonly Plus = Plus;
-  private readonly Search = Search;
-  private readonly Edit = Edit;
-  private readonly Trash2 = Trash2;
-
   services = signal<Service[]>([]);
   loading = signal(false);
   searchTerm = signal('');
 
   columns = [
-    { key: 'name', label: 'Nombre', sortable: true },
-    { key: 'description', label: 'Descripción', sortable: false },
-    { key: 'type', label: 'Tipo', sortable: true },
-    { key: 'basePrice', label: 'Precio Base', sortable: true },
-    { key: 'hourlyRate', label: 'Tarifa Horaria', sortable: true },
-    { key: 'isActive', label: 'Activo', sortable: true },
-    { key: 'createdAt', label: 'Creado', sortable: true },
-    { key: 'actions', label: 'Acciones', template: 'actionsTemplate' },
+    { key: 'name', header: 'Nombre' },
+    { key: 'description', header: 'Descripción' },
+    { key: 'type', header: 'Tipo' },
+    { key: 'basePrice', header: 'Precio Base' },
+    { key: 'hourlyRate', header: 'Tarifa Horaria' },
+    { key: 'isActive', header: 'Activo' },
+    { key: 'createdAt', header: 'Creado' },
+    { key: 'actions', header: 'Acciones' },
   ];
 
   ngOnInit() {
@@ -189,7 +171,7 @@ export class ServicesListComponent implements OnInit {
   }
 
   onRowClick(service: Service) {
-    // Navigate to detail
+    // Navigate to detail - implement when table supports rowClick
   }
 
   onDelete(service: Service) {

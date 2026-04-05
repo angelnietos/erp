@@ -81,50 +81,50 @@ interface AuditFilter {
 
       <div class="audit-content">
         <!-- Filters -->
-        <lib-ui-card class="filters-card">
+        <ui-josanz-card class="filters-card">
           <div class="filters-header">
             <h2>Filtros de Búsqueda</h2>
-            <lib-ui-button
+            <ui-josanz-button
               variant="ghost"
               size="sm"
-              [icon]="Filter"
+              icon="filter"
               (click)="clearFilters()"
             >
               Limpiar
-            </lib-ui-button>
+            </ui-josanz-button>
           </div>
 
           <div class="filters-grid">
-            <lib-ui-input
+            <ui-josanz-input
               label="Usuario"
               [(ngModel)]="filters.userId"
               name="userId"
               placeholder="Buscar por usuario"
-              [icon]="User"
+              icon="user"
             />
 
-            <lib-ui-select
+            <ui-josanz-select
               label="Acción"
               [(ngModel)]="filters.action"
               name="action"
               [options]="actionOptions"
             />
 
-            <lib-ui-select
+            <ui-josanz-select
               label="Entidad"
               [(ngModel)]="filters.entity"
               name="entity"
               [options]="entityOptions"
             />
 
-            <lib-ui-input
+            <ui-josanz-input
               label="Fecha Desde"
               type="date"
               [(ngModel)]="filters.dateFrom"
               name="dateFrom"
             />
 
-            <lib-ui-input
+            <ui-josanz-input
               label="Fecha Hasta"
               type="date"
               [(ngModel)]="filters.dateTo"
@@ -132,19 +132,19 @@ interface AuditFilter {
             />
 
             <div class="filter-actions">
-              <lib-ui-button
+              <ui-josanz-button
                 variant="primary"
-                [icon]="Search"
+                icon="search"
                 (click)="applyFilters()"
               >
                 Buscar
-              </lib-ui-button>
+              </ui-josanz-button>
             </div>
           </div>
-        </lib-ui-card>
+        </ui-josanz-card>
 
         <!-- Audit Logs -->
-        <lib-ui-card class="logs-card">
+        <ui-josanz-card class="logs-card">
           <div class="logs-header">
             <h2>Historial de Actividades</h2>
             <span class="logs-count"
@@ -184,9 +184,9 @@ interface AuditFilter {
                       <lucide-icon [img]="Clock" size="14"></lucide-icon>
                       {{ formatTimestamp(log.timestamp) }}
                     </span>
-                    <lib-ui-badge [variant]="getActionVariant(log.action)">
+                    <ui-josanz-badge [variant]="getActionVariant(log.action)">
                       {{ log.action }}
-                    </lib-ui-badge>
+                    </ui-josanz-badge>
                   </div>
                 </div>
 
@@ -207,7 +207,7 @@ interface AuditFilter {
 
                 <div
                   class="details-section"
-                  *ngIf="log.changes && Object.keys(log.changes).length > 0"
+                  *ngIf="log.changes && hasChanges(log.changes)"
                 >
                   <h4>Cambios Realizados</h4>
                   <div class="changes-list">
@@ -233,29 +233,29 @@ interface AuditFilter {
 
           <!-- Pagination -->
           <div class="pagination" *ngIf="totalPages() > 1">
-            <lib-ui-button
+            <ui-josanz-button
               variant="ghost"
               size="sm"
               [disabled]="currentPage() === 1"
               (click)="goToPage(currentPage() - 1)"
             >
               Anterior
-            </lib-ui-button>
+            </ui-josanz-button>
 
             <span class="page-info">
               Página {{ currentPage() }} de {{ totalPages() }}
             </span>
 
-            <lib-ui-button
+            <ui-josanz-button
               variant="ghost"
               size="sm"
               [disabled]="currentPage() === totalPages()"
               (click)="goToPage(currentPage() + 1)"
             >
               Siguiente
-            </lib-ui-button>
+            </ui-josanz-button>
           </div>
-        </lib-ui-card>
+        </ui-josanz-card>
       </div>
     </div>
   `,
@@ -536,15 +536,15 @@ interface AuditFilter {
   ],
 })
 export class AuditTrailComponent implements OnInit {
-  private readonly History = History;
-  private readonly User = User;
-  private readonly Calendar = Calendar;
-  private readonly FileText = FileText;
-  private readonly Users = Users;
-  private readonly TrendingUp = TrendingUp;
-  private readonly Search = Search;
-  private readonly Filter = Filter;
-  private readonly Clock = Clock;
+  readonly History = History;
+  readonly User = User;
+  readonly Calendar = Calendar;
+  readonly FileText = FileText;
+  readonly Users = Users;
+  readonly TrendingUp = TrendingUp;
+  readonly Search = Search;
+  readonly Filter = Filter;
+  readonly Clock = Clock;
 
   expandedLog = signal<string | null>(null);
   currentPage = signal(1);
@@ -787,6 +787,10 @@ export class AuditTrailComponent implements OnInit {
         minute: '2-digit',
       });
     }
+  }
+
+  hasChanges(changes: Record<string, { old: any; new: any }>): boolean {
+    return Object.keys(changes).length > 0;
   }
 
   getChangesArray(

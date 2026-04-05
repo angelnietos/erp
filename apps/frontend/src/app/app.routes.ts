@@ -21,16 +21,48 @@ export const appRoutes: Route[] = [
       {
         path: 'dashboard',
         loadChildren: () =>
-          import('@josanz-erp/dashboard-shell').then(
-            (m) => m.dashboardShellRoutes,
+          import('@josanz-erp/dashboard-feature').then(
+            (m) => m.dashboardFeatureRoutes,
           ),
         canActivate: [pluginGuard('dashboard')],
       },
       {
-        path: 'clients',
+        path: 'projects',
         loadChildren: () =>
-          import('@josanz-erp/clients-shell').then((m) => m.clientsShellRoutes),
-        canActivate: [pluginGuard('clients')],
+          import('@josanz-erp/projects-feature').then(
+            (m) => m.projectsFeatureRoutes,
+          ),
+        canActivate: [pluginGuard('projects')],
+      },
+      {
+        path: 'services',
+        loadChildren: () =>
+          import('@josanz-erp/services-feature').then(
+            (m) => m.servicesFeatureRoutes,
+          ),
+        canActivate: [pluginGuard('services')],
+      },
+      {
+        path: 'reports',
+        loadChildren: () =>
+          import('@josanz-erp/reports-feature').then(
+            (m) => m.reportsFeatureRoutes,
+          ),
+        canActivate: [pluginGuard('reports')],
+      },
+      {
+        path: 'audit',
+        loadChildren: () =>
+          import('@josanz-erp/audit-feature').then((m) => m.auditFeatureRoutes),
+        canActivate: [pluginGuard('audit')],
+      },
+      {
+        path: 'receipts',
+        loadChildren: () =>
+          import('@josanz-erp/receipts-feature').then(
+            (m) => m.receiptsFeatureRoutes,
+          ),
+        canActivate: [pluginGuard('receipts')],
       },
       {
         path: 'budgets',
@@ -67,12 +99,6 @@ export const appRoutes: Route[] = [
         canActivate: [pluginGuard('billing')],
       },
       {
-        path: 'rentals',
-        loadChildren: () =>
-          import('@josanz-erp/rentals-shell').then((m) => m.rentalsShellRoutes),
-        canActivate: [pluginGuard('rentals')],
-      },
-      {
         path: 'verifactu',
         loadChildren: () =>
           import('@josanz-erp/verifactu-shell').then((m) => m.verifactuRoutes),
@@ -87,42 +113,6 @@ export const appRoutes: Route[] = [
         path: 'users',
         loadChildren: () =>
           import('@josanz-erp/identity-shell').then((m) => m.usersRoutes),
-      },
-      {
-        path: 'projects',
-        loadChildren: () =>
-          import('@josanz-erp/projects-shell').then(
-            (m) => m.projectsShellRoutes,
-          ),
-        canActivate: [pluginGuard('projects')],
-      },
-      {
-        path: 'services',
-        loadChildren: () =>
-          import('@josanz-erp/services-shell').then(
-            (m) => m.servicesShellRoutes,
-          ),
-        canActivate: [pluginGuard('services')],
-      },
-      {
-        path: 'reports',
-        loadChildren: () =>
-          import('@josanz-erp/reports-shell').then((m) => m.reportsShellRoutes),
-        canActivate: [pluginGuard('reports')],
-      },
-      {
-        path: 'audit',
-        loadChildren: () =>
-          import('@josanz-erp/audit-shell').then((m) => m.auditShellRoutes),
-        canActivate: [pluginGuard('audit')],
-      },
-      {
-        path: 'receipts',
-        loadChildren: () =>
-          import('@josanz-erp/receipts-shell').then(
-            (m) => m.receiptsShellRoutes,
-          ),
-        canActivate: [pluginGuard('receipts')],
       },
       {
         path: 'not-found',

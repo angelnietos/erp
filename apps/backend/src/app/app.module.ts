@@ -3,6 +3,9 @@ import { ClsModule } from 'nestjs-cls';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsBackendModule } from '@josanz-erp/events-backend';
+import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
+import { ServicesBackendModule } from '@josanz-erp/services-backend';
+import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { EventsBackendModule } from '@josanz-erp/events-backend';
       },
     }),
     EventsBackendModule,
+    ProjectsBackendModule,
+    ServicesBackendModule,
+    ReceiptsBackendModule,
   ],
   controllers: [AppController],
   providers: [AppService],

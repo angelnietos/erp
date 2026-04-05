@@ -167,6 +167,15 @@
       "@josanz-erp/verifactu-core": [
         "libs/isomorphic/core/verifactu/core/src/index.ts"
       ],
+      "@josanz-erp/projects-core": [
+        "libs/isomorphic/core/projects/core/src/index.ts"
+      ],
+      "@josanz-erp/services-core": [
+        "libs/isomorphic/core/services/core/src/index.ts"
+      ],
+      "@josanz-erp/receipts-core": [
+        "libs/isomorphic/core/receipts/core/src/index.ts"
+      ],
       "@josanz-erp/verifactu-adapters": [
         "libs/node/adapters/verifactu/adapters/src/index.ts"
       ],
@@ -202,7 +211,52 @@
       "@josanz-erp/settings-shell": [
         "libs/browser/shell/settings/shell/src/index.ts"
       ],
+      "@josanz-erp/dashboard-shell": [
+        "libs/browser/shell/dashboard/shell/src/index.ts"
+      ],
+      "@josanz-erp/dashboard-feature": [
+        "libs/browser/feature/dashboard/feature/src/index.ts"
+      ],
+      "@josanz-erp/projects-shell": [
+        "libs/browser/shell/projects/shell/src/index.ts"
+      ],
+      "@josanz-erp/projects-feature": [
+        "libs/browser/feature/projects/feature/src/index.ts"
+      ],
+      "@josanz-erp/services-shell": [
+        "libs/browser/shell/services/shell/src/index.ts"
+      ],
+      "@josanz-erp/services-feature": [
+        "libs/browser/feature/services/feature/src/index.ts"
+      ],
+      "@josanz-erp/reports-shell": [
+        "libs/browser/shell/reports/shell/src/index.ts"
+      ],
+      "@josanz-erp/reports-feature": [
+        "libs/browser/feature/reports/feature/src/index.ts"
+      ],
+      "@josanz-erp/audit-shell": [
+        "libs/browser/shell/audit/shell/src/index.ts"
+      ],
+      "@josanz-erp/audit-feature": [
+        "libs/browser/feature/audit/feature/src/index.ts"
+      ],
+      "@josanz-erp/receipts-shell": [
+        "libs/browser/shell/receipts/shell/src/index.ts"
+      ],
+      "@josanz-erp/receipts-feature": [
+        "libs/browser/feature/receipts/feature/src/index.ts"
+      ],
       "@josanz-erp/events-backend": ["libs/node/backend/src/index.ts"],
+      "@josanz-erp/projects-backend": [
+        "libs/node/backend/projects/backend/src/index.ts"
+      ],
+      "@josanz-erp/services-backend": [
+        "libs/node/backend/services/backend/src/index.ts"
+      ],
+      "@josanz-erp/receipts-backend": [
+        "libs/node/backend/receipts/backend/src/index.ts"
+      ],
       "@josanz-erp/feature": ["libs/browser/feature/events/src/index.ts"],
       "@josanz-erp/users-data-access": [
         "libs/browser/data-access/src/index.ts"

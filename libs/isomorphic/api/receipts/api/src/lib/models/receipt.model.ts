@@ -16,6 +16,7 @@ export interface Receipt {
 }
 
 export interface CreateReceiptDTO {
+  tenantId: string;
   invoiceId: string;
   amount: number;
   dueDate: string;

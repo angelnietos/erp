@@ -14,8 +14,6 @@ import {
   UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
-  UiBadgeComponent,
-  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 export interface Project {
@@ -40,8 +38,6 @@ export interface Project {
     UiTableComponent,
     UiButtonComponent,
     UiSearchComponent,
-    UiBadgeComponent,
-    UiLoaderComponent,
     LucideAngularModule,
   ],
   template: `
@@ -52,61 +48,56 @@ export interface Project {
           <p class="page-subtitle">Gestión de proyectos y eventos</p>
         </div>
         <div class="header-actions">
-          <lib-ui-button
+          <ui-josanz-button
             variant="primary"
-            [icon]="Plus"
+            icon="plus"
             routerLink="/projects/new"
           >
             Nuevo Proyecto
-          </lib-ui-button>
+          </ui-josanz-button>
         </div>
       </header>
 
       <div class="content-section">
         <div class="filters-section">
-          <lib-ui-search
+          <ui-josanz-search
             placeholder="Buscar proyectos..."
             (searchChange)="onSearchChange($event)"
           >
-          </lib-ui-search>
+          </ui-josanz-search>
         </div>
 
         <div class="table-section">
-          <lib-ui-table
-            [data]="projects()"
-            [columns]="columns"
-            [loading]="loading()"
-            (rowClick)="onRowClick($event)"
-          >
+          <ui-josanz-table [data]="projects()" [columns]="columns">
             <ng-template #actionsTemplate let-project>
               <div class="action-buttons">
-                <lib-ui-button
+                <ui-josanz-button
                   variant="ghost"
                   size="sm"
-                  [icon]="Edit"
+                  icon="edit"
                   [routerLink]="['/projects', project.id]"
                 >
                   Editar
-                </lib-ui-button>
-                <lib-ui-button
+                </ui-josanz-button>
+                <ui-josanz-button
                   variant="ghost"
                   size="sm"
-                  [icon]="Copy"
+                  icon="copy"
                   (click)="onDuplicate(project)"
                 >
                   Duplicar
-                </lib-ui-button>
-                <lib-ui-button
+                </ui-josanz-button>
+                <ui-josanz-button
                   variant="ghost"
                   size="sm"
-                  [icon]="Trash2"
+                  icon="trash-2"
                   (click)="onDelete(project)"
                 >
                   Eliminar
-                </lib-ui-button>
+                </ui-josanz-button>
               </div>
             </ng-template>
-          </lib-ui-table>
+          </ui-josanz-table>
         </div>
       </div>
     </div>
@@ -163,25 +154,25 @@ export interface Project {
   ],
 })
 export class ProjectsListComponent implements OnInit {
-  private readonly Plus = Plus;
-  private readonly Search = Search;
-  private readonly Edit = Edit;
-  private readonly Trash2 = Trash2;
-  private readonly Copy = Copy;
+  readonly Plus = Plus;
+  readonly Search = Search;
+  readonly Edit = Edit;
+  readonly Trash2 = Trash2;
+  readonly Copy = Copy;
 
   projects = signal<Project[]>([]);
   loading = signal(false);
   searchTerm = signal('');
 
   columns = [
-    { key: 'name', label: 'Nombre', sortable: true },
-    { key: 'description', label: 'Descripción', sortable: false },
-    { key: 'clientName', label: 'Cliente', sortable: true },
-    { key: 'status', label: 'Estado', sortable: true },
-    { key: 'startDate', label: 'Fecha Inicio', sortable: true },
-    { key: 'endDate', label: 'Fecha Fin', sortable: true },
-    { key: 'createdAt', label: 'Creado', sortable: true },
-    { key: 'actions', label: 'Acciones', template: 'actionsTemplate' },
+    { key: 'name', header: 'Nombre' },
+    { key: 'description', header: 'Descripción' },
+    { key: 'clientName', header: 'Cliente' },
+    { key: 'status', header: 'Estado' },
+    { key: 'startDate', header: 'Fecha Inicio' },
+    { key: 'endDate', header: 'Fecha Fin' },
+    { key: 'createdAt', header: 'Creado' },
+    { key: 'actions', header: 'Acciones' },
   ];
 
   ngOnInit() {
@@ -194,7 +185,7 @@ export class ProjectsListComponent implements OnInit {
   }
 
   onRowClick(project: Project) {
-    // Navigate to detail
+    // Navigate to detail - implement when table supports rowClick
   }
 
   onDuplicate(project: Project) {

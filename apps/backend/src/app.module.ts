@@ -13,10 +13,13 @@ import { RentalsModule } from '@josanz-erp/rentals-backend';
 import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
-import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
-import { ServicesBackendModule } from '@josanz-erp/services-backend';
-import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
+// import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
+// import { ServicesBackendModule } from '@josanz-erp/services-backend';
+// import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
 import { APP_GUARD } from '@nestjs/core';
+import { ProjectsModule } from './projects/projects.module';
+import { ServicesModule } from './services/services.module';
+import { ReceiptsModule } from './receipts/receipts.module';
 
 @Module({
   imports: [
@@ -45,9 +48,9 @@ import { APP_GUARD } from '@nestjs/core';
     DeliveryModule.forRoot(),
     BillingModule.forRoot(),
     FleetModule.forRoot(),
-    ProjectsBackendModule,
-    ServicesBackendModule,
-    ReceiptsBackendModule,
+    ProjectsModule,
+    ServicesModule,
+    ReceiptsModule,
   ],
   providers: [
     {

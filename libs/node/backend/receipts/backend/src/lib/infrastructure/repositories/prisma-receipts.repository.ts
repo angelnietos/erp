@@ -3,8 +3,8 @@ import { ClsService } from 'nestjs-cls';
 import {
   ReceiptsRepositoryPort,
   Receipt,
-  PaymentStatus,
 } from '@josanz-erp/receipts-core';
+import { PaymentStatus } from '@josanz-erp/receipts-api';
 import { EntityId } from '@josanz-erp/shared-model';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';
 
