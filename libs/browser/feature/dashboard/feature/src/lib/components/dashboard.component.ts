@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
@@ -17,6 +17,7 @@ import {
   UiButtonComponent,
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 interface MetricCard {
   title: string;
@@ -55,14 +56,20 @@ interface QuickAction {
     LucideAngularModule,
   ],
   template: `
-    <div class="dashboard-container">
-      <header class="dashboard-header">
-        <div class="header-content">
-          <h1 class="dashboard-title">Dashboard</h1>
-          <p class="dashboard-subtitle">Resumen general del sistema</p>
+    <div class="page-container animate-fade-in">
+      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+        <div class="header-breadcrumb">
+          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+            Dashboard
+          </h1>
+          <div class="breadcrumb">
+            <span class="active" [style.color]="currentTheme().primary">PANEL DE CONTROL</span>
+            <span class="separator">/</span>
+            <span>RESUMEN GENERAL</span>
+          </div>
         </div>
-        <div class="header-date">
-          {{ currentDate() }}
+        <div class="header-actions">
+          <span class="header-date" [style.color]="currentTheme().primary">{{ currentDate() }}</span>
         </div>
       </header>
 
@@ -155,37 +162,54 @@ interface QuickAction {
   `,
   styles: [
     `
-      .dashboard-container {
-        padding: 1.5rem;
-        max-width: 1400px;
+      .page-container {
+        padding: 0;
+        max-width: 100%;
         margin: 0 auto;
       }
 
-      .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+      .page-header {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
       }
 
-      .dashboard-title {
-        margin: 0;
+      .header-breadcrumb {
+        flex: 1;
+      }
+
+      .page-title {
+        margin: 0 0 0.5rem 0;
         font-size: 2.5rem;
         font-weight: 700;
-        color: #111827;
+        letter-spacing: 0.025em;
       }
 
-      .dashboard-subtitle {
-        margin: 0.5rem 0 0 0;
-        color: #6b7280;
-        font-size: 1.125rem;
+      .glow-text { 
+        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
+        letter-spacing: 0.05em; font-family: var(--font-main);
+      }
+
+      .breadcrumb {
+        display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
+        letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
+      }
+
+      .breadcrumb .active {
+        color: var(--primary);
+      }
+
+      .breadcrumb .separator {
+        opacity: 0.5;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
       }
 
       .header-date {
-        color: #6b7280;
         font-weight: 500;
+        font-size: 0.875rem;
       }
 
       .metrics-grid {
@@ -207,23 +231,23 @@ interface QuickAction {
 
       .metric-icon {
         padding: 0.75rem;
-        background: #f3f4f6;
+        background: rgba(var(--primary-rgb), 0.1);
         border-radius: 0.5rem;
-        color: #374151;
+        color: var(--primary);
       }
 
       .metric-info h3 {
         margin: 0 0 0.25rem 0;
         font-size: 0.875rem;
         font-weight: 500;
-        color: #6b7280;
+        color: var(--text-muted);
       }
 
       .metric-value {
         margin: 0 0 0.5rem 0;
         font-size: 2rem;
         font-weight: 700;
-        color: #111827;
+        color: #fff;
       }
 
       .metric-change {
@@ -232,15 +256,15 @@ interface QuickAction {
       }
 
       .metric-change.positive {
-        color: #059669;
+        color: #10b981;
       }
 
       .metric-change.negative {
-        color: #dc2626;
+        color: #ef4444;
       }
 
       .metric-change.neutral {
-        color: #6b7280;
+        color: var(--text-muted);
       }
 
       .dashboard-content {
@@ -260,7 +284,7 @@ interface QuickAction {
         margin: 0;
         font-size: 1.25rem;
         font-weight: 600;
-        color: #111827;
+        color: #fff;
       }
 
       .activities-list {
@@ -274,16 +298,16 @@ interface QuickAction {
         align-items: flex-start;
         gap: 1rem;
         padding: 1rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.05);
         border-radius: 0.5rem;
-        background: #f9fafb;
+        background: rgba(255,255,255,0.02);
       }
 
       .activity-icon {
         padding: 0.5rem;
-        background: white;
+        background: rgba(var(--primary-rgb), 0.1);
         border-radius: 0.375rem;
-        color: #6b7280;
+        color: var(--primary);
       }
 
       .activity-content {
@@ -294,18 +318,18 @@ interface QuickAction {
         margin: 0 0 0.25rem 0;
         font-size: 0.875rem;
         font-weight: 500;
-        color: #111827;
+        color: #fff;
       }
 
       .activity-description {
         margin: 0 0 0.5rem 0;
         font-size: 0.75rem;
-        color: #6b7280;
+        color: var(--text-muted);
       }
 
       .activity-timestamp {
         font-size: 0.75rem;
-        color: #9ca3af;
+        color: var(--text-muted);
       }
 
       .actions-grid {
@@ -357,6 +381,9 @@ interface QuickAction {
   ],
 })
 export class DashboardComponent implements OnInit {
+  public readonly themeService = inject(ThemeService);
+
+  currentTheme = this.themeService.currentThemeData;
   private readonly TrendingUp = TrendingUp;
   private readonly Users = Users;
   private readonly Calendar = Calendar;
