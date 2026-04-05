@@ -37,23 +37,23 @@ export const appRoutes: Route[] = [
       {
         path: 'services',
         loadChildren: () =>
-          import('@josanz-erp/services-feature').then(
-            (m) => m.servicesFeatureRoutes,
+          import('@josanz-erp/services-shell').then(
+            (m) => m.servicesShellRoutes,
           ),
         canActivate: [pluginGuard('services')],
       },
       {
         path: 'reports',
         loadChildren: () =>
-          import('@josanz-erp/reports-feature').then(
-            (m) => m.reportsFeatureRoutes,
+          import('@josanz-erp/reports-shell').then(
+            (m) => m.reportsShellRoutes,
           ),
         canActivate: [pluginGuard('reports')],
       },
       {
         path: 'audit',
         loadChildren: () =>
-          import('@josanz-erp/audit-feature').then((m) => m.auditFeatureRoutes),
+          import('@josanz-erp/audit-shell').then((m) => m.auditShellRoutes),
         canActivate: [pluginGuard('audit')],
       },
       {
