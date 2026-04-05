@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +14,9 @@ import {
   UiButtonComponent,
   UiSelectComponent,
   UiInputComponent,
+  UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 interface ReportType {
   id: string;
@@ -61,13 +63,17 @@ interface Report {
     LucideAngularModule,
   ],
   template: `
-    <div class="reports-container">
-      <header class="reports-header">
-        <div class="header-content">
-          <h1 class="reports-title">Reportes</h1>
-          <p class="reports-subtitle">
-            Genera informes y estadísticas del sistema
-          </p>
+    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+        <div class="header-breadcrumb">
+          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+            Sistema de Reportes
+          </h1>
+          <div class="breadcrumb">
+            <span class="active" [style.color]="currentTheme().primary">ANÁLISIS Y REPORTING</span>
+            <span class="separator">/</span>
+            <span>INFORMES EJECUTIVOS</span>
+          </div>
         </div>
       </header>
 
@@ -213,208 +219,238 @@ interface Report {
   `,
   styles: [
     `
-      .reports-container {
-        padding: 1.5rem;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+    .page-container {
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
 
-      .reports-header {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-      }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+    }
 
-      .reports-title {
-        margin: 0;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #111827;
-      }
+    .header-breadcrumb {
+      flex: 1;
+    }
 
-      .reports-subtitle {
-        margin: 0.5rem 0 0 0;
-        color: #6b7280;
-        font-size: 1.125rem;
-      }
+    .page-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 0.025em;
+    }
 
-      .reports-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
 
+    .separator {
+      opacity: 0.5;
+    }
+
+    .reports-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .report-types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .report-type-card {
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .report-type-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .report-type-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .report-icon {
+      padding: 0.75rem;
+      background: rgba(var(--primary-rgb), 0.1);
+      border-radius: 0.5rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .report-info h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .report-description {
+      margin: 0 0 0.75rem 0;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    .report-category {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .report-form-section {
+      margin-top: 1rem;
+    }
+
+    .form-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-header h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-header p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    .report-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .reports-list-section {
+      margin-top: 1rem;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .reports-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .report-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .report-item-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .report-details h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .report-meta {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .report-actions {
+      flex-shrink: 0;
+    }
+
+    .text-uppercase {
+      text-transform: uppercase;
+    }
+
+    .glow-text {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: 768px) {
       .report-types-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .report-type-card {
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 2px solid transparent;
-      }
-
-      .report-type-card:hover {
-        border-color: #3b82f6;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      .report-type-content {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 1.5rem;
-      }
-
-      .report-icon {
-        padding: 0.75rem;
-        background: #f3f4f6;
-        border-radius: 0.5rem;
-        color: #374151;
-        flex-shrink: 0;
-      }
-
-      .report-info h3 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .report-description {
-        margin: 0 0 0.75rem 0;
-        color: #6b7280;
-        font-size: 0.875rem;
-        line-height: 1.4;
-      }
-
-      .report-category {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: #eff6ff;
-        color: #1d4ed8;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        text-transform: uppercase;
-      }
-
-      .report-form-section {
-        margin-top: 1rem;
-      }
-
-      .form-header {
-        margin-bottom: 1.5rem;
-      }
-
-      .form-header h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .form-header p {
-        margin: 0;
-        color: #6b7280;
-      }
-
-      .report-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-      }
-
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-      }
-
-      .reports-list-section {
-        margin-top: 1rem;
-      }
-
-      .section-header h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .reports-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        grid-template-columns: 1fr;
       }
 
       .report-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        background: #f9fafb;
-      }
-
-      .report-item-content {
-        display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 1rem;
       }
 
-      .report-details h4 {
-        margin: 0 0 0.25rem 0;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #111827;
-      }
-
-      .report-meta {
-        margin: 0;
-        font-size: 0.875rem;
-        color: #6b7280;
-      }
-
       .report-actions {
-        flex-shrink: 0;
+        align-self: stretch;
       }
 
-      @media (max-width: 768px) {
-        .report-types-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .report-item {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-
-        .report-actions {
-          align-self: stretch;
-        }
-
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
+      .form-grid {
+        grid-template-columns: 1fr;
       }
-    `,
+    }
+  `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsComponent implements OnInit {
+  public readonly themeService = inject(ThemeService);
+  public readonly pluginStore = inject(PluginStore);
+
+  currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;
   private readonly Calendar = Calendar;
   private readonly Users = Users;

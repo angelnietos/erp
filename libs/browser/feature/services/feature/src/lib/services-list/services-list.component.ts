@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,11 @@ import {
   UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
+  UiCardComponent,
+  UiStatCardComponent,
+  UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 export interface Service {
   id: string;
@@ -38,114 +42,219 @@ export interface Service {
     UiTableComponent,
     UiButtonComponent,
     UiSearchComponent,
+    UiCardComponent,
+    UiStatCardComponent,
+    UiBadgeComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <div class="header-content">
-          <h1 class="page-title">Servicios</h1>
-          <p class="page-subtitle">Gestión de catálogo de servicios</p>
+    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+        <div class="header-breadcrumb">
+          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+            Catálogo de Servicios
+          </h1>
+          <div class="breadcrumb">
+            <span class="active" [style.color]="currentTheme().primary">GESTIÓN OPERATIVA</span>
+            <span class="separator">/</span>
+            <span>SERVICIOS Y PRODUCTOS</span>
+          </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button
-            variant="primary"
-            icon="plus"
-            routerLink="/services/new"
-          >
-            Nuevo Servicio
+          <ui-josanz-button variant="glass" size="md" routerLink="/services/new" icon="plus">
+            NUEVO SERVICIO
           </ui-josanz-button>
         </div>
       </header>
 
-      <div class="content-section">
-        <div class="filters-section">
-          <ui-josanz-search
-            placeholder="Buscar servicios..."
-            (searchChange)="onSearchChange($event)"
-          >
-          </ui-josanz-search>
-        </div>
-
-        <div class="table-section">
-          <ui-josanz-table [data]="services()" [columns]="columns">
-            <ng-template #actionsTemplate let-service>
-              <div class="action-buttons">
-                <ui-josanz-button
-                  variant="ghost"
-                  size="sm"
-                  icon="edit"
-                  [routerLink]="['/services', service.id]"
-                >
-                  Editar
-                </ui-josanz-button>
-                <ui-josanz-button
-                  variant="ghost"
-                  size="sm"
-                  icon="trash-2"
-                  (click)="onDelete(service)"
-                >
-                  Eliminar
-                </ui-josanz-button>
-              </div>
-            </ng-template>
-          </ui-josanz-table>
-        </div>
+      <div class="stats-row">
+        <ui-josanz-stat-card 
+          label="Total Servicios" 
+          [value]="services().length.toString()" 
+          icon="wrench" 
+          [accent]="true">
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card 
+          label="Servicios Activos" 
+          [value]="activeServicesCount().toString()" 
+          icon="check-circle" 
+          [trend]="15">
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card 
+          label="Tipos de Servicio" 
+          [value]="serviceTypesCount().toString()" 
+          icon="layers">
+        </ui-josanz-stat-card>
       </div>
+
+      <div class="filters-bar ui-glass-panel">
+        <ui-josanz-search 
+          variant="filled"
+          placeholder="BUSCAR SERVICIOS POR NOMBRE O TIPO..." 
+          (searchChange)="onSearchChange($event)"
+          class="flex-1 max-w-md"
+        ></ui-josanz-search>
+      </div>
+
+      <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+        <ui-josanz-table [data]="services()" [columns]="columns">
+          <ng-template #cellTemplate let-service let-key="key">
+            @switch (key) {
+              @case ('type') {
+                <ui-josanz-badge [variant]="getTypeVariant(service.type)" [color]="getTypeColor(service.type)">
+                  {{ service.type }}
+                </ui-josanz-badge>
+              }
+              @case ('isActive') {
+                <ui-josanz-badge [variant]="service.isActive ? 'filled' : 'outline'" [color]="service.isActive ? 'success' : 'default'">
+                  {{ service.isActive ? 'ACTIVO' : 'INACTIVO' }}
+                </ui-josanz-badge>
+              }
+              @case ('basePrice') {
+                <span class="price-text">{{ service.basePrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+              }
+              @case ('hourlyRate') {
+                <span class="price-text">{{ service.hourlyRate ? (service.hourlyRate | currency:'EUR':'symbol':'1.2-2') : '-' }}</span>
+              }
+              @default {
+                {{ service[key] }}
+              }
+            }
+          </ng-template>
+          <ng-template #actionsTemplate let-service>
+            <div class="action-buttons">
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                icon="edit"
+                [routerLink]="['/services', service.id]"
+              >
+                Editar
+              </ui-josanz-button>
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                icon="trash-2"
+                (click)="onDelete(service)"
+              >
+                Eliminar
+              </ui-josanz-button>
+            </div>
+          </ng-template>
+        </ui-josanz-table>
+      </ui-josanz-card>
     </div>
   `,
   styles: [
     `
-      .page-container {
-        padding: 1.5rem;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+    .page-container {
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
 
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+    }
+
+    .header-breadcrumb {
+      flex: 1;
+    }
+
+    .page-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 0.025em;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .separator {
+      opacity: 0.5;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .filters-bar {
+      margin-bottom: 1.5rem;
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+    }
+
+    .table-card {
+      overflow: hidden;
+    }
+
+    .price-text {
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .text-uppercase {
+      text-transform: uppercase;
+    }
+
+    .glow-text {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .flex-1 {
+      flex: 1;
+    }
+
+    .max-w-md {
+      max-width: 28rem;
+    }
+
+    @media (max-width: 1024px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
       .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        flex-direction: column;
+        gap: 1rem;
       }
-
-      .header-content h1 {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .header-content p {
-        margin: 0.5rem 0 0 0;
-        color: #6b7280;
-      }
-
-      .content-section {
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-      }
-
-      .filters-section {
-        padding: 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
-      }
-
-      .table-section {
-        padding: 1.5rem;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-      }
-    `,
+    }
+  `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ServicesListComponent implements OnInit {
+  public readonly themeService = inject(ThemeService);
+  public readonly pluginStore = inject(PluginStore);
+
+  currentTheme = this.themeService.currentThemeData;
   services = signal<Service[]>([]);
   loading = signal(false);
   searchTerm = signal('');
@@ -156,10 +265,13 @@ export class ServicesListComponent implements OnInit {
     { key: 'type', header: 'Tipo' },
     { key: 'basePrice', header: 'Precio Base' },
     { key: 'hourlyRate', header: 'Tarifa Horaria' },
-    { key: 'isActive', header: 'Activo' },
+    { key: 'isActive', header: 'Estado' },
     { key: 'createdAt', header: 'Creado' },
     { key: 'actions', header: 'Acciones' },
   ];
+
+  activeServicesCount = computed(() => this.services().filter(s => s.isActive).length);
+  serviceTypesCount = computed(() => new Set(this.services().map(s => s.type)).size);
 
   ngOnInit() {
     this.loadServices();
@@ -177,6 +289,22 @@ export class ServicesListComponent implements OnInit {
   onDelete(service: Service) {
     // Implement delete logic
     console.log('Delete service:', service);
+  }
+
+  getTypeVariant(type: string): 'filled' | 'outline' | 'ghost' {
+    return 'filled';
+  }
+
+  getTypeColor(type: string): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' {
+    switch (type) {
+      case 'STREAMING': return 'primary';
+      case 'PRODUCCIÓN': return 'success';
+      case 'LED': return 'warning';
+      case 'TRANSPORTE': return 'info';
+      case 'PERSONAL_TÉCNICO': return 'danger';
+      case 'VIDEO_TÉCNICO': return 'info';
+      default: return 'default';
+    }
   }
 
   private loadServices() {

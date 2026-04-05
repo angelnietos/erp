@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -10,7 +10,6 @@ import {
   Users,
   TrendingUp,
   Search,
-  Filter,
   Clock,
 } from 'lucide-angular';
 import {
@@ -19,7 +18,9 @@ import {
   UiInputComponent,
   UiSelectComponent,
   UiBadgeComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 interface AuditLog {
   id: string;
@@ -66,18 +67,43 @@ interface AuditFilter {
     UiInputComponent,
     UiSelectComponent,
     UiBadgeComponent,
+    UiStatCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="audit-container">
-      <header class="audit-header">
-        <div class="header-content">
-          <h1 class="audit-title">Trazabilidad y Auditoría</h1>
-          <p class="audit-subtitle">
-            Historial completo de actividades del sistema
-          </p>
+    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+        <div class="header-breadcrumb">
+          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+            Sistema de Auditoría
+          </h1>
+          <div class="breadcrumb">
+            <span class="active" [style.color]="currentTheme().primary">SEGURIDAD Y CONTROL</span>
+            <span class="separator">/</span>
+            <span>TRAZABILIDAD COMPLETA</span>
+          </div>
         </div>
       </header>
+
+      <div class="stats-row">
+        <ui-josanz-stat-card 
+          label="Total Registros" 
+          [value]="auditLogs().length.toString()" 
+          icon="history" 
+          [accent]="true">
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card 
+          label="Acciones Hoy" 
+          [value]="todayActionsCount().toString()" 
+          icon="activity" 
+          [trend]="8">
+        </ui-josanz-stat-card>
+        <ui-josanz-stat-card 
+          label="Usuarios Activos" 
+          [value]="activeUsersCount().toString()" 
+          icon="users">
+        </ui-josanz-stat-card>
+      </div>
 
       <div class="audit-content">
         <!-- Filters -->
@@ -261,281 +287,325 @@ interface AuditFilter {
   `,
   styles: [
     `
-      .audit-container {
-        padding: 1.5rem;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
+    .page-container {
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
 
-      .audit-header {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-      }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+    }
 
-      .audit-title {
-        margin: 0;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #111827;
-      }
+    .header-breadcrumb {
+      flex: 1;
+    }
 
-      .audit-subtitle {
-        margin: 0.5rem 0 0 0;
-        color: #6b7280;
-        font-size: 1.125rem;
-      }
+    .page-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 0.025em;
+    }
 
-      .audit-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0.8;
+    }
 
-      .filters-card {
-        padding: 1.5rem;
-      }
+    .separator {
+      opacity: 0.5;
+    }
 
-      .filters-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
 
-      .filters-header h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #111827;
-      }
+    .audit-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
 
+    .filters-card {
+      padding: 1.5rem;
+    }
+
+    .filters-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .filters-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .logs-card {
+      padding: 1.5rem;
+    }
+
+    .logs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .logs-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .logs-count {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .logs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .log-item {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+
+    .log-summary {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .log-summary:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .log-icon {
+      padding: 0.5rem;
+      background: rgba(var(--primary-rgb), 0.1);
+      border-radius: 0.375rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .log-info {
+      flex: 1;
+    }
+
+    .log-primary {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+
+    .log-user {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .log-action {
+      color: var(--text-secondary);
+    }
+
+    .log-entity {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .log-entity-name {
+      color: var(--success);
+      font-style: italic;
+    }
+
+    .log-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .log-timestamp {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .log-toggle {
+      transition: transform 0.2s;
+    }
+
+    .log-toggle .rotated {
+      transform: rotate(180deg);
+    }
+
+    .log-details {
+      padding: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .details-section {
+      margin-bottom: 1rem;
+    }
+
+    .details-section h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .changes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .change-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 0.25rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+    }
+
+    .change-field {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .change-old {
+      color: var(--danger);
+      text-decoration: line-through;
+    }
+
+    .change-arrow {
+      color: var(--text-secondary);
+    }
+
+    .change-new {
+      color: var(--success);
+    }
+
+    .no-logs {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+
+    .no-logs p {
+      margin: 1rem 0 0 0;
+      font-size: 1.125rem;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .page-info {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .text-uppercase {
+      text-transform: uppercase;
+    }
+
+    .glow-text {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: 768px) {
       .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        align-items: end;
-      }
-
-      .filter-actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .logs-card {
-        padding: 1.5rem;
-      }
-
-      .logs-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      .logs-header h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .logs-count {
-        color: #6b7280;
-        font-size: 0.875rem;
-      }
-
-      .logs-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .log-item {
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        background: white;
-        overflow: hidden;
-      }
-
-      .log-summary {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-
-      .log-summary:hover {
-        background: #f9fafb;
-      }
-
-      .log-icon {
-        padding: 0.5rem;
-        background: #f3f4f6;
-        border-radius: 0.375rem;
-        color: #374151;
-        flex-shrink: 0;
-      }
-
-      .log-info {
-        flex: 1;
+        grid-template-columns: 1fr;
       }
 
       .log-primary {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.5rem;
-      }
-
-      .log-user {
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .log-action {
-        color: #6b7280;
-      }
-
-      .log-entity {
-        color: #374151;
-        font-weight: 500;
-      }
-
-      .log-entity-name {
-        color: #059669;
-        font-style: italic;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
       }
 
       .log-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .log-timestamp {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        color: #6b7280;
-        font-size: 0.875rem;
-      }
-
-      .log-toggle {
-        transition: transform 0.2s;
-      }
-
-      .log-toggle .rotated {
-        transform: rotate(180deg);
-      }
-
-      .log-details {
-        padding: 1rem;
-        border-top: 1px solid #e5e7eb;
-        background: #f9fafb;
-      }
-
-      .details-section {
-        margin-bottom: 1rem;
-      }
-
-      .details-section h4 {
-        margin: 0 0 0.5rem 0;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-      }
-
-      .changes-list {
-        display: flex;
         flex-direction: column;
+        align-items: flex-start;
         gap: 0.5rem;
-      }
-
-      .change-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem;
-        background: white;
-        border-radius: 0.25rem;
-        font-family: monospace;
-        font-size: 0.875rem;
-      }
-
-      .change-field {
-        font-weight: 600;
-        color: #374151;
-      }
-
-      .change-old {
-        color: #dc2626;
-        text-decoration: line-through;
-      }
-
-      .change-arrow {
-        color: #6b7280;
-      }
-
-      .change-new {
-        color: #059669;
-      }
-
-      .no-logs {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
-      }
-
-      .no-logs p {
-        margin: 1rem 0 0 0;
-        font-size: 1.125rem;
       }
 
       .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
+        flex-direction: column;
+        gap: 0.5rem;
       }
-
-      .page-info {
-        color: #6b7280;
-        font-size: 0.875rem;
-      }
-
-      @media (max-width: 768px) {
-        .filters-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .log-primary {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.25rem;
-        }
-
-        .log-meta {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-        }
-
-        .pagination {
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-      }
-    `,
+    }
+  `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditTrailComponent implements OnInit {
+  public readonly themeService = inject(ThemeService);
+  public readonly pluginStore = inject(PluginStore);
+
+  currentTheme = this.themeService.currentThemeData;
+
+  todayActionsCount = computed(() => {
+    const today = new Date().toDateString();
+    return this.auditLogs().filter(log => new Date(log.timestamp).toDateString() === today).length;
+  });
+
+  activeUsersCount = computed(() => new Set(this.auditLogs().map(log => log.userName)).size);
   readonly History = History;
   readonly User = User;
   readonly Calendar = Calendar;
@@ -543,7 +613,6 @@ export class AuditTrailComponent implements OnInit {
   readonly Users = Users;
   readonly TrendingUp = TrendingUp;
   readonly Search = Search;
-  readonly Filter = Filter;
   readonly Clock = Clock;
 
   expandedLog = signal<string | null>(null);
