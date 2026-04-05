@@ -1,7 +1,7 @@
 import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, LayoutDashboard, Users, Wrench, PieChart, ShieldCheck, Package, Receipt, Truck, Car, Key, History, FileCheck, ChevronRight, ChevronLeft } from 'lucide-angular';
+import { LucideAngularModule, LayoutDashboard, Users, Wrench, PieChart, ShieldCheck, Package, Receipt, Truck, Car, Key, History, FileCheck, ChevronRight, ChevronLeft, Folder, Calendar } from 'lucide-angular';
 import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
@@ -317,6 +317,8 @@ export class SidebarComponent {
   private readonly navItems: NavMenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', route: '/' },
     { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
+    { id: 'projects', label: 'Proyectos', icon: 'folder', route: '/projects' },
+    { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events' },
     { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
     { id: 'reports', label: 'Reportes', icon: 'pie-chart', route: '/reports' },
     { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },

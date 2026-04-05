@@ -35,6 +35,14 @@ export const appRoutes: Route[] = [
         canActivate: [pluginGuard('projects')],
       },
       {
+        path: 'events',
+        loadChildren: () =>
+          import('@josanz-erp/events-shell').then(
+            (m) => m.eventsShellRoutes,
+          ),
+        canActivate: [pluginGuard('events')],
+      },
+      {
         path: 'services',
         loadChildren: () =>
           import('@josanz-erp/services-shell').then(

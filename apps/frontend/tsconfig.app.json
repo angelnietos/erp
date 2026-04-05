@@ -39,6 +39,12 @@
       "@josanz-erp/projects-feature": [
         "libs/browser/feature/projects/feature/src/index.ts"
       ],
+      "@josanz-erp/events-shell": [
+        "libs/browser/shell/events/shell/src/index.ts"
+      ],
+      "@josanz-erp/events-feature": [
+        "libs/browser/feature/events/src/index.ts"
+      ],
       "@josanz-erp/services-shell": [
         "libs/browser/shell/services/shell/src/index.ts"
       ],

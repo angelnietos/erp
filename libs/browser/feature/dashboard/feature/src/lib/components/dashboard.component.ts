@@ -57,38 +57,50 @@ interface QuickAction {
   ],
   template: `
     <div class="page-container animate-fade-in">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+      <header
+        class="page-header"
+        [style.border-bottom-color]="currentTheme().primary + '33'"
+      >
         <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+          <h1
+            class="page-title text-uppercase glow-text"
+            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
+          >
             Dashboard
           </h1>
           <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">PANEL DE CONTROL</span>
+            <span class="active" [style.color]="currentTheme().primary"
+              >PANEL DE CONTROL</span
+            >
             <span class="separator">/</span>
             <span>RESUMEN GENERAL</span>
           </div>
         </div>
         <div class="header-actions">
-          <span class="header-date" [style.color]="currentTheme().primary">{{ currentDate() }}</span>
+          <span class="header-date" [style.color]="currentTheme().primary">{{
+            currentDate()
+          }}</span>
         </div>
       </header>
 
       <!-- Metrics Cards -->
       <div class="metrics-grid">
-        <ui-josanz-card *ngFor="let metric of metrics()" class="metric-card">
-          <div class="metric-content">
-            <div class="metric-icon">
-              <lucide-icon [img]="metric.icon" size="24"></lucide-icon>
+        @for (metric of metrics(); track metric.title) {
+          <ui-josanz-card class="metric-card">
+            <div class="metric-content">
+              <div class="metric-icon">
+                <lucide-icon [img]="metric.icon" size="24"></lucide-icon>
+              </div>
+              <div class="metric-info">
+                <h3 class="metric-title">{{ metric.title }}</h3>
+                <p class="metric-value">{{ metric.value }}</p>
+                <span class="metric-change" [class]="metric.changeType">
+                  {{ metric.change }}
+                </span>
+              </div>
             </div>
-            <div class="metric-info">
-              <h3 class="metric-title">{{ metric.title }}</h3>
-              <p class="metric-value">{{ metric.value }}</p>
-              <span class="metric-change" [class]="metric.changeType">
-                {{ metric.change }}
-              </span>
-            </div>
-          </div>
-        </ui-josanz-card>
+          </ui-josanz-card>
+        }
       </div>
 
       <div class="dashboard-content">
@@ -102,31 +114,34 @@ interface QuickAction {
               </ui-josanz-button>
             </div>
             <div class="activities-list">
-              <div
-                *ngFor="let activity of recentActivities()"
-                class="activity-item"
-              >
-                <div class="activity-icon">
-                  <lucide-icon
-                    [img]="getActivityIcon(activity.type)"
-                    size="16"
-                  ></lucide-icon>
+              @for (activity of recentActivities(); track activity.id) {
+                <div class="activity-item">
+                  <div class="activity-icon">
+                    <lucide-icon
+                      [img]="getActivityIcon(activity.type)"
+                      size="16"
+                    ></lucide-icon>
+                  </div>
+                  <div class="activity-content">
+                    <h4 class="activity-title">{{ activity.title }}</h4>
+                    <p class="activity-description">
+                      {{ activity.description }}
+                    </p>
+                    <span class="activity-timestamp">{{
+                      activity.timestamp
+                    }}</span>
+                  </div>
+                  @if (activity.status) {
+                    <div class="activity-status">
+                      <ui-josanz-badge
+                        [variant]="getStatusVariant(activity.status)"
+                      >
+                        {{ activity.status }}
+                      </ui-josanz-badge>
+                    </div>
+                  }
                 </div>
-                <div class="activity-content">
-                  <h4 class="activity-title">{{ activity.title }}</h4>
-                  <p class="activity-description">{{ activity.description }}</p>
-                  <span class="activity-timestamp">{{
-                    activity.timestamp
-                  }}</span>
-                </div>
-                <div class="activity-status" *ngIf="activity.status">
-                  <ui-josanz-badge
-                    [variant]="getStatusVariant(activity.status)"
-                  >
-                    {{ activity.status }}
-                  </ui-josanz-badge>
-                </div>
-              </div>
+              }
             </div>
           </ui-josanz-card>
         </div>
@@ -138,22 +153,23 @@ interface QuickAction {
               <h2 class="section-title">Acciones Rápidas</h2>
             </div>
             <div class="actions-grid">
-              <ui-josanz-button
-                *ngFor="let action of quickActions()"
-                [variant]="action.color"
-                [routerLink]="action.route"
-                class="action-button"
-              >
-                <div class="action-content">
-                  <lucide-icon [img]="action.icon" size="20"></lucide-icon>
-                  <div class="action-text">
-                    <span class="action-title">{{ action.title }}</span>
-                    <span class="action-description">{{
-                      action.description
-                    }}</span>
+              @for (action of quickActions(); track action.title) {
+                <ui-josanz-button
+                  [variant]="action.color"
+                  [routerLink]="action.route"
+                  class="action-button"
+                >
+                  <div class="action-content">
+                    <lucide-icon [img]="action.icon" size="20"></lucide-icon>
+                    <div class="action-text">
+                      <span class="action-title">{{ action.title }}</span>
+                      <span class="action-description">{{
+                        action.description
+                      }}</span>
+                    </div>
                   </div>
-                </div>
-              </ui-josanz-button>
+                </ui-josanz-button>
+              }
             </div>
           </ui-josanz-card>
         </div>
@@ -169,8 +185,12 @@ interface QuickAction {
       }
 
       .page-header {
-        display: flex; justify-content: space-between; align-items: flex-end;
-        margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       .header-breadcrumb {
@@ -184,14 +204,23 @@ interface QuickAction {
         letter-spacing: 0.025em;
       }
 
-      .glow-text { 
-        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-        letter-spacing: 0.05em; font-family: var(--font-main);
+      .glow-text {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+        letter-spacing: 0.05em;
+        font-family: var(--font-main);
       }
 
       .breadcrumb {
-        display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-        letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
+        display: flex;
+        gap: 8px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
       }
 
       .breadcrumb .active {
@@ -298,9 +327,9 @@ interface QuickAction {
         align-items: flex-start;
         gap: 1rem;
         padding: 1rem;
-        border: 1px solid rgba(255,255,255,0.05);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 0.5rem;
-        background: rgba(255,255,255,0.02);
+        background: rgba(255, 255, 255, 0.02);
       }
 
       .activity-icon {

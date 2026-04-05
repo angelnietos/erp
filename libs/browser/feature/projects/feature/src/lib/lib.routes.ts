@@ -9,6 +9,13 @@ export const projectsFeatureRoutes: Route[] = [
       ),
   },
   {
+    path: 'new',
+    loadComponent: () =>
+      import('./projects-detail/projects-detail.component').then(
+        (m) => m.ProjectsDetailComponent,
+      ),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('./projects-detail/projects-detail.component').then(

@@ -247,6 +247,9 @@
       "@josanz-erp/receipts-feature": [
         "libs/browser/feature/receipts/feature/src/index.ts"
       ],
+      "@josanz-erp/events-feature": [
+        "libs/browser/feature/events/src/index.ts"
+      ],
       "@josanz-erp/events-backend": ["libs/node/backend/src/index.ts"],
       "@josanz-erp/projects-backend": [
         "libs/node/backend/projects/backend/src/index.ts"
@@ -261,7 +264,10 @@
       "@josanz-erp/users-data-access": [
         "libs/browser/data-access/src/index.ts"
       ],
-      "@josanz-erp/users-feature": ["libs/browser/feature/src/index.ts"]
+      "@josanz-erp/users-feature": ["libs/browser/feature/src/index.ts"],
+      "@josanz-erp/events-shell": [
+        "libs/browser/shell/events/shell/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]
