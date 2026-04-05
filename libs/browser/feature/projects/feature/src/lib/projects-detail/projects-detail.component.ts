@@ -178,11 +178,15 @@ export class ProjectsDetailComponent implements OnInit {
   readonly ArrowLeft = ArrowLeft;
   readonly Save = Save;
   readonly X = X;
-  readonly pluginStore = inject(PluginStore);
-  readonly currentTheme = inject(ThemeService).currentTheme;
+
+  public readonly themeService = inject(ThemeService);
+  public readonly pluginStore = inject(PluginStore);
+
+  currentTheme = this.themeService.currentThemeData;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+
 
   isNew = false;
   projectId: string | null = null;

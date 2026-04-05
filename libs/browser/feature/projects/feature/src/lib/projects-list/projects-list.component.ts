@@ -6,7 +6,7 @@ import {
   LucideAngularModule,
   Plus,
   Search,
-  Edit,
+  PencilLine,
   Trash2,
   Copy,
 } from 'lucide-angular';
@@ -50,19 +50,19 @@ export interface Project {
     >
       <header
         class="page-header"
-        [style.border-bottom-color]="currentThemeData().primary + '33'"
+        [style.border-bottom-color]="currentTheme().primary + '33'"
       >
         <div class="header-breadcrumb">
           <h1
             class="page-title text-uppercase glow-text"
             [style.text-shadow]="
-              '0 0 20px ' + currentThemeData().primary + '44'
+              '0 0 20px ' + currentTheme().primary + '44'
             "
           >
             Proyectos
           </h1>
           <div class="breadcrumb">
-            <span class="active" [style.color]="currentThemeData().primary"
+            <span class="active" [style.color]="currentTheme().primary"
               >GESTIÓN OPERATIVA</span
             >
             <span class="separator">/</span>
@@ -225,14 +225,16 @@ export interface Project {
 export class ProjectsListComponent implements OnInit {
   readonly Plus = Plus;
   readonly Search = Search;
-  readonly Edit = Edit;
+  readonly PencilLine = PencilLine;
   readonly Trash2 = Trash2;
   readonly Copy = Copy;
 
-  readonly pluginStore = inject(PluginStore);
-  readonly currentThemeData = inject(ThemeService).currentThemeData;
+  public readonly themeService = inject(ThemeService);
+  public readonly pluginStore = inject(PluginStore);
 
+  currentTheme = this.themeService.currentThemeData;
   projects = signal<Project[]>([]);
+
   loading = signal(false);
   searchTerm = signal('');
 
@@ -282,6 +284,83 @@ export class ProjectsListComponent implements OnInit {
         endDate: '2024-12-31',
         clientName: 'Cliente Demo',
         createdAt: '2024-01-01',
+      },
+      {
+        id: '2',
+        name: 'Sistema de Gestión de Inventario',
+        description:
+          'Desarrollo de un sistema completo para la gestión de inventario y stock',
+        status: 'ACTIVE',
+        startDate: '2024-02-15',
+        endDate: '2024-08-15',
+        clientName: 'Empresa Logística S.A.',
+        createdAt: '2024-02-15',
+      },
+      {
+        id: '3',
+        name: 'Aplicación Móvil de Pedidos',
+        description:
+          'App móvil para gestionar pedidos y entregas en tiempo real',
+        status: 'COMPLETED',
+        startDate: '2023-09-01',
+        endDate: '2024-03-31',
+        clientName: 'Restaurante El Buen Sabor',
+        createdAt: '2023-09-01',
+      },
+      {
+        id: '4',
+        name: 'Portal Web Corporativo',
+        description:
+          'Rediseño y desarrollo del portal web corporativo con CMS integrado',
+        status: 'ACTIVE',
+        startDate: '2024-03-01',
+        endDate: '2024-09-30',
+        clientName: 'Constructora Moderna Ltd.',
+        createdAt: '2024-03-01',
+      },
+      {
+        id: '5',
+        name: 'Sistema de Facturación Electrónica',
+        description:
+          'Implementación de sistema de facturación electrónica conforme a la normativa vigente',
+        status: 'CANCELLED',
+        startDate: '2024-01-10',
+        endDate: '2024-06-10',
+        clientName: 'Consultoría Fiscal ABC',
+        createdAt: '2024-01-10',
+      },
+      {
+        id: '6',
+        name: 'Dashboard de Analytics',
+        description:
+          'Desarrollo de dashboard interactivo para análisis de datos de ventas',
+        status: 'ACTIVE',
+        startDate: '2024-04-01',
+        endDate: '2024-07-31',
+        clientName: 'Tienda Online Fashion',
+        createdAt: '2024-04-01',
+      },
+      {
+        id: '7',
+        name: 'API de Integración ERP',
+        description:
+          'Desarrollo de APIs REST para integración con sistemas ERP externos',
+        status: 'ACTIVE',
+        startDate: '2024-05-01',
+        endDate: '2024-11-30',
+        clientName: 'Industria Manufacturera XYZ',
+        createdAt: '2024-05-01',
+      },
+      {
+        id: '8',
+        name: 'Plataforma E-Learning',
+        description:
+          'Plataforma completa de aprendizaje en línea con cursos interactivos',
+        status: 'COMPLETED',
+        startDate: '2023-11-01',
+        endDate: '2024-04-30',
+        clientName: 'Instituto Educativo Nacional',
+        createdAt: '2023-11-01',
       },
     ]);
   }

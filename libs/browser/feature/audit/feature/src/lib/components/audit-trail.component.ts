@@ -45,7 +45,7 @@ interface AuditLog {
   entityName?: string;
   timestamp: string;
   details?: string;
-  changes?: Record<string, { old: any; new: any }>;
+  changes?: Record<string, { old: unknown; new: unknown }>;
 }
 
 interface AuditFilter {
@@ -179,108 +179,117 @@ interface AuditFilter {
           </div>
 
           <div class="logs-list">
-            <div
-              *ngFor="let log of paginatedLogs()"
-              class="log-item"
-              [class.expanded]="expandedLog() === log.id"
-            >
-              <div class="log-summary" (click)="toggleLogExpansion(log.id)">
-                <div class="log-icon">
-                  <lucide-icon
-                    [img]="getActionIcon(log.action)"
-                    size="20"
-                  ></lucide-icon>
-                </div>
-
-                <div class="log-info">
-                  <div class="log-primary">
-                    <span class="log-user">{{ log.userName }}</span>
-                    <span class="log-action">{{
-                      getActionText(log.action)
-                    }}</span>
-                    <span class="log-entity">{{
-                      getEntityText(log.entity)
-                    }}</span>
-                    <span class="log-entity-name" *ngIf="log.entityName"
-                      >"{{ log.entityName }}"</span
-                    >
+            @for (log of paginatedLogs(); track log.id) {
+              <div
+                class="log-item"
+                [class.expanded]="expandedLog() === log.id"
+              >
+                <div class="log-summary" (click)="toggleLogExpansion(log.id)" (keydown.enter)="toggleLogExpansion(log.id)" (keydown.space)="toggleLogExpansion(log.id); $event.preventDefault()" tabindex="0">
+                  <div class="log-icon">
+                    <lucide-icon
+                      [img]="getActionIcon(log.action)"
+                      size="20"
+                    ></lucide-icon>
                   </div>
-                  <div class="log-meta">
-                    <span class="log-timestamp">
-                      <lucide-icon [img]="Clock" size="14"></lucide-icon>
-                      {{ formatTimestamp(log.timestamp) }}
-                    </span>
-                    <ui-josanz-badge [variant]="getActionVariant(log.action)">
-                      {{ log.action }}
-                    </ui-josanz-badge>
-                  </div>
-                </div>
 
-                <div class="log-toggle">
-                  <lucide-icon
-                    [img]="History"
-                    size="16"
-                    [class.rotated]="expandedLog() === log.id"
-                  ></lucide-icon>
-                </div>
-              </div>
-
-              <div class="log-details" *ngIf="expandedLog() === log.id">
-                <div class="details-section" *ngIf="log.details">
-                  <h4>Detalles</h4>
-                  <p>{{ log.details }}</p>
-                </div>
-
-                <div
-                  class="details-section"
-                  *ngIf="log.changes && hasChanges(log.changes)"
-                >
-                  <h4>Cambios Realizados</h4>
-                  <div class="changes-list">
-                    <div
-                      *ngFor="let change of getChangesArray(log.changes)"
-                      class="change-item"
-                    >
-                      <span class="change-field">{{ change.field }}:</span>
-                      <span class="change-old">{{ change.old }}</span>
-                      <span class="change-arrow">→</span>
-                      <span class="change-new">{{ change.new }}</span>
+                  <div class="log-info">
+                    <div class="log-primary">
+                      <span class="log-user">{{ log.userName }}</span>
+                      <span class="log-action">{{
+                        getActionText(log.action)
+                      }}</span>
+                      <span class="log-entity">{{
+                        getEntityText(log.entity)
+                      }}</span>
+                      @if (log.entityName) {
+                        <span class="log-entity-name"
+                          >"{{ log.entityName }}"</span
+                        >
+                      }
+                    </div>
+                    <div class="log-meta">
+                      <span class="log-timestamp">
+                        <lucide-icon [img]="Clock" size="14"></lucide-icon>
+                        {{ formatTimestamp(log.timestamp) }}
+                      </span>
+                      <ui-josanz-badge [variant]="getActionVariant(log.action)">
+                        {{ log.action }}
+                      </ui-josanz-badge>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <div *ngIf="paginatedLogs().length === 0" class="no-logs">
-              <lucide-icon [img]="History" size="48"></lucide-icon>
-              <p>No se encontraron registros de auditoría</p>
-            </div>
+                  <div class="log-toggle">
+                    <lucide-icon
+                      [img]="History"
+                      size="16"
+                      [class.rotated]="expandedLog() === log.id"
+                    ></lucide-icon>
+                  </div>
+                </div>
+
+                @if (expandedLog() === log.id) {
+                  <div class="log-details">
+                    @if (log.details) {
+                      <div class="details-section">
+                        <h4>Detalles</h4>
+                        <p>{{ log.details }}</p>
+                      </div>
+                    }
+
+                    @if (log.changes && hasChanges(log.changes)) {
+                      <div class="details-section">
+                        <h4>Cambios Realizados</h4>
+                        <div class="changes-list">
+                          @for (change of getChangesArray(log.changes); track change.field) {
+                            <div class="change-item">
+                              <span class="change-field">{{ change.field }}:</span>
+                              <span class="change-old">{{ change.old }}</span>
+                              <span class="change-arrow">→</span>
+                              <span class="change-new">{{ change.new }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (paginatedLogs().length === 0) {
+              <div class="no-logs">
+                <lucide-icon [img]="History" size="48"></lucide-icon>
+                <p>No se encontraron registros de auditoría</p>
+              </div>
+            }
           </div>
 
           <!-- Pagination -->
-          <div class="pagination" *ngIf="totalPages() > 1">
-            <ui-josanz-button
-              variant="ghost"
-              size="sm"
-              [disabled]="currentPage() === 1"
-              (click)="goToPage(currentPage() - 1)"
-            >
-              Anterior
-            </ui-josanz-button>
+          @if (totalPages() > 1) {
+            <div class="pagination">
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                [disabled]="currentPage() === 1"
+                (click)="goToPage(currentPage() - 1)"
+              >
+                Anterior
+              </ui-josanz-button>
 
-            <span class="page-info">
-              Página {{ currentPage() }} de {{ totalPages() }}
-            </span>
+              <span class="page-info">
+                Página {{ currentPage() }} de {{ totalPages() }}
+              </span>
 
-            <ui-josanz-button
-              variant="ghost"
-              size="sm"
-              [disabled]="currentPage() === totalPages()"
-              (click)="goToPage(currentPage() + 1)"
-            >
-              Siguiente
-            </ui-josanz-button>
-          </div>
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                [disabled]="currentPage() === totalPages()"
+                (click)="goToPage(currentPage() + 1)"
+              >
+                Siguiente
+              </ui-josanz-button>
+            </div>
+          }
         </ui-josanz-card>
       </div>
     </div>
@@ -712,7 +721,7 @@ export class AuditTrailComponent implements OnInit {
 
     if (this.filters.userId) {
       filtered = filtered.filter((log) =>
-        log.userName.toLowerCase().includes(this.filters.userId!.toLowerCase()),
+        log.userName.toLowerCase().includes(this.filters.userId?.toLowerCase() || ''),
       );
     }
 
@@ -848,13 +857,13 @@ export class AuditTrailComponent implements OnInit {
     }
   }
 
-  hasChanges(changes: Record<string, { old: any; new: any }>): boolean {
+  hasChanges(changes: Record<string, { old: unknown; new: unknown }>): boolean {
     return Object.keys(changes).length > 0;
   }
 
   getChangesArray(
-    changes: Record<string, { old: any; new: any }>,
-  ): Array<{ field: string; old: any; new: any }> {
+    changes: Record<string, { old: unknown; new: unknown }>,
+  ): Array<{ field: string; old: unknown; new: unknown }> {
     return Object.entries(changes).map(([field, values]) => ({
       field,
       old: values.old,
