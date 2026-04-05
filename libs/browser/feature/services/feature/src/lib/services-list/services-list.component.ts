@@ -12,6 +12,7 @@ import {
   UiCardComponent,
   UiStatCardComponent,
   UiBadgeComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
@@ -45,6 +46,7 @@ export interface Service {
     UiCardComponent,
     UiStatCardComponent,
     UiBadgeComponent,
+    UiLoaderComponent,
     LucideAngularModule,
   ],
   template: `
@@ -96,53 +98,51 @@ export interface Service {
         ></ui-josanz-search>
       </div>
 
-      <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-        <ui-josanz-table [data]="services()" [columns]="columns">
-          <ng-template #cellTemplate let-service let-key="key">
-            @switch (key) {
-              @case ('type') {
-                <ui-josanz-badge [variant]="getTypeVariant(service.type)" [color]="getTypeColor(service.type)">
-                  {{ service.type }}
-                </ui-josanz-badge>
+      @if (isLoading()) {
+        <div class="loader-container">
+          <ui-josanz-loader message="CARGANDO CATÁLOGO DE SERVICIOS..."></ui-josanz-loader>
+        </div>
+      } @else {
+        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-josanz-table [columns]="columns" [data]="services()" variant="default">
+            <ng-template #cellTemplate let-service let-key="key">
+              @switch (key) {
+                @case ('name') {
+                  <a [routerLink]="['/services', service.id]" class="service-link" [style.color]="currentTheme().primary">
+                    {{ service.name | uppercase }}
+                  </a>
+                }
+                @case ('type') {
+                  <ui-josanz-badge [variant]="getTypeVariant(service.type)" [color]="getTypeColor(service.type)">
+                    {{ service.type }}
+                  </ui-josanz-badge>
+                }
+                @case ('isActive') {
+                  <ui-josanz-badge [variant]="service.isActive ? 'filled' : 'outline'" [color]="service.isActive ? 'success' : 'default'">
+                    {{ service.isActive ? 'ACTIVO' : 'INACTIVO' }}
+                  </ui-josanz-badge>
+                }
+                @case ('basePrice') {
+                  <span class="price-text">{{ service.basePrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+                }
+                @case ('hourlyRate') {
+                  <span class="price-text">{{ service.hourlyRate ? (service.hourlyRate | currency:'EUR':'symbol':'1.2-2') : '-' }}</span>
+                }
+                @case ('actions') {
+                  <div class="row-actions">
+                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/services', service.id]"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editService(service)"></ui-josanz-button>
+                    <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(service)" [style.color]="currentTheme().danger"></ui-josanz-button>
+                  </div>
+                }
+                @default {
+                  {{ service[key] }}
+                }
               }
-              @case ('isActive') {
-                <ui-josanz-badge [variant]="service.isActive ? 'filled' : 'outline'" [color]="service.isActive ? 'success' : 'default'">
-                  {{ service.isActive ? 'ACTIVO' : 'INACTIVO' }}
-                </ui-josanz-badge>
-              }
-              @case ('basePrice') {
-                <span class="price-text">{{ service.basePrice | currency:'EUR':'symbol':'1.2-2' }}</span>
-              }
-              @case ('hourlyRate') {
-                <span class="price-text">{{ service.hourlyRate ? (service.hourlyRate | currency:'EUR':'symbol':'1.2-2') : '-' }}</span>
-              }
-              @default {
-                {{ service[key] }}
-              }
-            }
-          </ng-template>
-          <ng-template #actionsTemplate let-service>
-            <div class="action-buttons">
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                icon="edit"
-                [routerLink]="['/services', service.id]"
-              >
-                Editar
-              </ui-josanz-button>
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                icon="trash-2"
-                (click)="onDelete(service)"
-              >
-                Eliminar
-              </ui-josanz-button>
-            </div>
-          </ng-template>
-        </ui-josanz-table>
-      </ui-josanz-card>
+            </ng-template>
+          </ui-josanz-table>
+        </ui-josanz-card>
+      }
     </div>
   `,
   styles: [
@@ -237,6 +237,30 @@ export interface Service {
       max-width: 28rem;
     }
 
+    .service-link {
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .service-link:hover {
+      opacity: 0.8;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .loader-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 0.75rem;
+    }
+
     @media (max-width: 1024px) {
       .stats-row {
         grid-template-columns: 1fr;
@@ -256,7 +280,7 @@ export class ServicesListComponent implements OnInit {
 
   currentTheme = this.themeService.currentThemeData;
   services = signal<Service[]>([]);
-  loading = signal(false);
+  isLoading = signal(false);
   searchTerm = signal('');
 
   columns = [
@@ -291,6 +315,17 @@ export class ServicesListComponent implements OnInit {
     console.log('Delete service:', service);
   }
 
+  editService(service: Service) {
+    // Implement edit logic
+    console.log('Edit service:', service);
+  }
+
+  confirmDelete(service: Service) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el servicio ${service.name}?`)) {
+      this.onDelete(service);
+    }
+  }
+
   getTypeVariant(type: string): 'filled' | 'outline' | 'ghost' {
     return 'filled';
   }
@@ -308,28 +343,32 @@ export class ServicesListComponent implements OnInit {
   }
 
   private loadServices() {
-    // Mock data for now
-    this.services.set([
-      {
-        id: '1',
-        name: 'Servicio de Streaming Básico',
-        description: 'Transmisión en vivo básica',
-        type: 'STREAMING',
-        basePrice: 500,
-        hourlyRate: 50,
-        isActive: true,
-        createdAt: '2024-01-01',
-      },
-      {
-        id: '2',
-        name: 'Producción Audio/Video Completa',
-        description: 'Producción completa de eventos',
-        type: 'PRODUCCIÓN',
-        basePrice: 2000,
-        hourlyRate: 150,
-        isActive: true,
-        createdAt: '2024-01-02',
-      },
-    ]);
+    this.isLoading.set(true);
+    // Simulate loading
+    setTimeout(() => {
+      this.services.set([
+        {
+          id: '1',
+          name: 'Servicio de Streaming Básico',
+          description: 'Transmisión en vivo básica',
+          type: 'STREAMING',
+          basePrice: 500,
+          hourlyRate: 50,
+          isActive: true,
+          createdAt: '2024-01-01',
+        },
+        {
+          id: '2',
+          name: 'Producción Audio/Video Completa',
+          description: 'Producción completa de eventos',
+          type: 'PRODUCCIÓN',
+          basePrice: 2000,
+          hourlyRate: 150,
+          isActive: true,
+          createdAt: '2024-01-02',
+        },
+      ]);
+      this.isLoading.set(false);
+    }, 1000);
   }
 }
