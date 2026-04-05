@@ -29,8 +29,8 @@ export const appRoutes: Route[] = [
       {
         path: 'projects',
         loadChildren: () =>
-          import('@josanz-erp/projects-feature').then(
-            (m) => m.projectsFeatureRoutes,
+          import('@josanz-erp/projects-shell').then(
+            (m) => m.projectsShellRoutes,
           ),
         canActivate: [pluginGuard('projects')],
       },

@@ -10,6 +10,7 @@ import {
   UiSelectComponent,
   UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 interface ProjectForm {
   name: string;
@@ -33,8 +34,8 @@ interface ProjectForm {
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container">
-      <header class="page-header">
+    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
         <div class="header-actions">
           <ui-josanz-button
             variant="ghost"
@@ -44,10 +45,15 @@ interface ProjectForm {
             Volver
           </ui-josanz-button>
         </div>
-        <div class="header-content">
-          <h1 class="page-title">
+        <div class="header-breadcrumb">
+          <h1 class="page-title text-uppercase glow-text">
             {{ isNew ? 'Nuevo Proyecto' : 'Editar Proyecto' }}
           </h1>
+          <div class="breadcrumb">
+            <span class="active" [style.color]="currentTheme().primary">GESTIÓN OPERATIVA</span>
+            <span class="separator">/</span>
+            <span>PROYECTOS</span>
+          </div>
         </div>
         <div class="header-actions">
           <ui-josanz-button variant="secondary" icon="x" (click)="goBack()">
@@ -60,7 +66,7 @@ interface ProjectForm {
       </header>
 
       <div class="content-section">
-        <ui-josanz-card>
+        <ui-josanz-card variant="glass">
           <div class="form-grid">
             <ui-josanz-input
               label="Nombre del Proyecto"
@@ -106,25 +112,43 @@ interface ProjectForm {
   styles: [
     `
       .page-container {
-        padding: 1.5rem;
-        max-width: 800px;
+        padding: 0;
+        max-width: 100%;
         margin: 0 auto;
       }
 
       .page-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end;
         margin-bottom: 2rem;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
-      .header-content h1 {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 600;
-        color: #111827;
+      .header-breadcrumb {
+        flex: 1;
+      }
+
+      .page-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 2.25rem;
+        font-weight: 700;
+        letter-spacing: 0.025em;
+      }
+
+      .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+      }
+
+      .separator {
+        opacity: 0.5;
       }
 
       .header-actions {
@@ -133,14 +157,19 @@ interface ProjectForm {
       }
 
       .content-section {
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        background: transparent;
       }
 
       .form-grid {
         display: grid;
         gap: 1.5rem;
+      }
+
+      .glow-text {
+        text-transform: uppercase;
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin: 0;
       }
     `,
   ],
@@ -149,6 +178,8 @@ export class ProjectsDetailComponent implements OnInit {
   readonly ArrowLeft = ArrowLeft;
   readonly Save = Save;
   readonly X = X;
+  readonly pluginStore = inject(PluginStore);
+  readonly currentTheme = inject(ThemeService).currentTheme;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);

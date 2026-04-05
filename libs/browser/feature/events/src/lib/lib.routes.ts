@@ -4,22 +4,22 @@ export const eventsFeatureRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./feature/feature').then(
-        (m) => m.Feature,
+      import('./components/events-list.component').then(
+        (m) => m.EventsListComponent,
       ),
   },
   {
     path: 'new',
     loadComponent: () =>
-      import('./feature/feature').then(
-        (m) => m.Feature,
+      import('./components/new-event.component').then(
+        (m) => m.NewEventComponent,
       ),
   },
   {
     path: ':id',
     loadComponent: () =>
-      import('./feature/feature').then(
-        (m) => m.Feature,
+      import('./components/events-list.component').then(
+        (m) => m.EventsListComponent,
       ),
   },
 ];
