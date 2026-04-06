@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { ReceiptsApiService } from '@josanz-erp/shared-data-access';
 import {
   LucideAngularModule,
   FileText,
@@ -299,6 +300,7 @@ interface Receipt {
 })
 export class ReceiptsListComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly receiptsApi = inject(ReceiptsApiService);
   private readonly FileText = FileText;
   private readonly AlertTriangle = AlertTriangle;
   private readonly CheckCircle = CheckCircle;
@@ -350,7 +352,28 @@ export class ReceiptsListComponent implements OnInit {
   filteredReceipts = signal<Receipt[]>([]);
 
   ngOnInit() {
-    this.applyFilters();
+    this.receiptsApi.list().subscribe((rows) => {
+      if (rows.length > 0) {
+        this.receipts.set(
+          rows.map((r) => ({
+            id: r.id,
+            invoiceId: r.invoiceId,
+            amount: r.amount,
+            status: r.status,
+            dueDate: r.dueDate.includes('T')
+              ? r.dueDate
+              : `${r.dueDate}T12:00:00.000Z`,
+            paymentDate: r.paymentDate
+              ? r.paymentDate.includes('T')
+                ? r.paymentDate
+                : `${r.paymentDate}T12:00:00.000Z`
+              : undefined,
+            paymentMethod: r.paymentMethod,
+          })),
+        );
+      }
+      this.applyFilters();
+    });
   }
 
   applyFilters() {
@@ -424,18 +447,25 @@ export class ReceiptsListComponent implements OnInit {
   }
 
   markAsPaid(receipt: Receipt): void {
-    this.receipts.update((list) =>
-      list.map((r) =>
-        r.id === receipt.id
-          ? {
-              ...r,
-              status: 'PAID',
-              paymentDate: new Date().toISOString(),
-              paymentMethod: r.paymentMethod ?? 'BANK_TRANSFER',
-            }
-          : r,
-      ),
-    );
-    this.applyFilters();
+    this.receiptsApi
+      .markPaid(receipt.id, {
+        paymentMethod: 'BANK_TRANSFER',
+        paymentDate: new Date().toISOString(),
+      })
+      .subscribe(() => {
+        this.receipts.update((list) =>
+          list.map((r) =>
+            r.id === receipt.id
+              ? {
+                  ...r,
+                  status: 'PAID' as const,
+                  paymentDate: new Date().toISOString(),
+                  paymentMethod: r.paymentMethod ?? 'BANK_TRANSFER',
+                }
+              : r,
+          ),
+        );
+        this.applyFilters();
+      });
   }
 }

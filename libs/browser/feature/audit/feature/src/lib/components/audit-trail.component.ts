@@ -20,7 +20,11 @@ import {
   UiBadgeComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import {
+  DomainEventsApiService,
+  ThemeService,
+  PluginStore,
+} from '@josanz-erp/shared-data-access';
 
 interface AuditLog {
   id: string;
@@ -596,6 +600,7 @@ interface AuditFilter {
 export class AuditTrailComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly domainEventsApi = inject(DomainEventsApiService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -646,8 +651,7 @@ export class AuditTrailComponent implements OnInit {
     { label: 'Equipo', value: 'EQUIPMENT' },
   ];
 
-  // Mock data for demonstration
-  auditLogs = signal<AuditLog[]>([
+  private readonly seedAuditLogs: AuditLog[] = [
     {
       id: '1',
       userName: 'Admin User',
@@ -700,7 +704,9 @@ export class AuditTrailComponent implements OnInit {
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
       details: 'Exportación de facturas a PDF',
     },
-  ]);
+  ];
+
+  auditLogs = signal<AuditLog[]>([...this.seedAuditLogs]);
 
   filteredLogs = signal<AuditLog[]>([]);
 
@@ -714,6 +720,20 @@ export class AuditTrailComponent implements OnInit {
     this.filters.dateTo = today.toISOString().split('T')[0];
 
     this.applyFilters();
+    this.domainEventsApi.list(150).subscribe((events) => {
+      const fromDomain: AuditLog[] = events.map((e) => ({
+        id: `de-${e.id}`,
+        userName: 'Evento de dominio',
+        action: 'UPDATE',
+        entity: 'PROJECT',
+        entityName: `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`,
+        timestamp: e.occurredAt,
+        details: e.eventType,
+        changes: { payload: { old: null, new: e.payload } },
+      }));
+      this.auditLogs.set([...fromDomain, ...this.seedAuditLogs]);
+      this.applyFilters();
+    });
   }
 
   applyFilters() {

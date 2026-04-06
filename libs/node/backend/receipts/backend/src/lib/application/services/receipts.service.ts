@@ -102,29 +102,20 @@ export class ReceiptsService {
     await this.receiptsRepository.delete(new EntityId(id));
   }
 
-  async getReceiptsList(tenantId: string, status?: string): Promise<any[]> {
-    // Mock data for now - TODO: implement Prisma receipt model
-    const mockReceipts = [
-      {
-        id: '1',
-        invoiceId: '001',
-        amount: 500.00,
-        status: 'PENDING',
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        createdAt: new Date().toISOString().split('T')[0],
-      },
-      {
-        id: '2',
-        invoiceId: '002',
-        amount: 1200.50,
-        status: 'PAID',
-        paymentMethod: 'BANK_TRANSFER',
-        dueDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        paymentDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      },
-    ];
-
-    return mockReceipts.filter(r => !status || r.status === status);
+  async getReceiptsList(tenantId: string, status?: string): Promise<unknown[]> {
+    if (!tenantId) {
+      return [];
+    }
+    const list = await this.findAll(tenantId, status);
+    return list.map((receipt) => ({
+      id: receipt.id.value,
+      invoiceId: receipt.invoiceId.value,
+      amount: receipt.amount,
+      status: receipt.status,
+      dueDate: receipt.dueDate.toISOString().split('T')[0],
+      paymentDate: receipt.paymentDate?.toISOString().split('T')[0],
+      paymentMethod: receipt.paymentMethod,
+      createdAt: receipt.createdAt.toISOString().split('T')[0],
+    }));
   }
 }

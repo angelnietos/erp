@@ -17,6 +17,7 @@ import {
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { escapeHtml, openPrintableDocument } from '@josanz-erp/shared-utils';
 
 interface ReportType {
   id: string;
@@ -202,10 +203,24 @@ interface Report {
                       <ui-josanz-button
                         variant="ghost"
                         size="sm"
-                        (clicked)="downloadReport(report)"
+                        (clicked)="downloadReportJson(report)"
                       >
                         <lucide-icon [name]="'download'" size="16"></lucide-icon>
-                        Descargar
+                        JSON
+                      </ui-josanz-button>
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        (clicked)="downloadReportCsv(report)"
+                      >
+                        Excel (CSV)
+                      </ui-josanz-button>
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        (clicked)="downloadReportPdf(report)"
+                      >
+                        PDF
                       </ui-josanz-button>
                     </div>
                   </div>
@@ -576,7 +591,7 @@ export class ReportsComponent implements OnInit {
     return reportType?.icon || this.FileText;
   }
 
-  downloadReport(report: Report) {
+  downloadReportJson(report: Report) {
     const body = {
       id: report.id,
       tipo: report.type,
@@ -596,5 +611,43 @@ export class ReportsComponent implements OnInit {
     a.rel = 'noopener';
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  downloadReportCsv(report: Report) {
+    const rows = [
+      ['id', 'tipo', 'titulo', 'generadoEn', 'rangoFechas'],
+      [
+        report.id,
+        report.type,
+        report.title,
+        report.generatedAt,
+        report.dateRange,
+      ],
+    ];
+    const esc = (c: string) => `"${String(c).replace(/"/g, '""')}"`;
+    const csv = '\uFEFF' + rows.map((r) => r.map(esc).join(';')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `josanz-reporte-${report.id}.csv`;
+    a.rel = 'noopener';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  downloadReportPdf(report: Report) {
+    const f = report.filters;
+    const filtrosHtml = escapeHtml(JSON.stringify(f, null, 2));
+    const body = `
+      <h1>Informe ejecutivo</h1>
+      <p><strong>Título:</strong> ${escapeHtml(report.title)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(report.type)}</p>
+      <p><strong>Generado:</strong> ${escapeHtml(report.generatedAt)}</p>
+      <p><strong>Rango:</strong> ${escapeHtml(report.dateRange)}</p>
+      <h2>Filtros</h2>
+      <pre>${filtrosHtml}</pre>
+    `;
+    openPrintableDocument(`Reporte ${report.id}`, body);
   }
 }

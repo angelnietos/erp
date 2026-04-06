@@ -17,7 +17,10 @@ import {
   UiButtonComponent,
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService } from '@josanz-erp/shared-data-access';
+import {
+  DashboardAnalyticsService,
+  ThemeService,
+} from '@josanz-erp/shared-data-access';
 
 interface MetricCard {
   title: string;
@@ -1246,6 +1249,7 @@ interface QuickAction {
 export class DashboardComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+  private readonly analyticsApi = inject(DashboardAnalyticsService);
 
   currentTheme = this.themeService.currentThemeData;
   private readonly TrendingUp = TrendingUp;
@@ -1363,7 +1367,6 @@ export class DashboardComponent implements OnInit {
   ]);
 
   ngOnInit() {
-    // Load dashboard data
     this.loadDashboardData();
   }
 
@@ -1471,6 +1474,51 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadDashboardData() {
-    // Reservado: cargar KPIs desde API (Fase 3)
+    this.analyticsApi.getSummary().subscribe((dto) => {
+      if (!dto) {
+        return;
+      }
+      const m = dto.metrics;
+      const t = dto.trends;
+      const fmtMoney = (n: number) =>
+        '€' +
+        n.toLocaleString('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      this.metrics.set([
+        {
+          title: 'Ingresos Totales',
+          value: fmtMoney(m.totalRevenue),
+          change: `+${t.revenueChangePercent}% vs mes anterior`,
+          changeType: 'positive',
+          icon: this.DollarSign,
+        },
+        {
+          title: 'Proyectos Activos',
+          value: String(m.activeProjects),
+          change: `+${t.projectsDelta} este mes`,
+          changeType: 'positive',
+          icon: this.Calendar,
+        },
+        {
+          title: 'Clientes Totales',
+          value: String(m.totalClients),
+          change: `+${t.clientsDelta} esta semana`,
+          changeType: 'positive',
+          icon: this.Users,
+        },
+        {
+          title: 'Eventos Completados',
+          value: String(m.completedEvents),
+          change:
+            t.eventsNote === 'stable'
+              ? 'Sin cambios'
+              : `Tendencia: ${t.eventsNote}`,
+          changeType: 'neutral',
+          icon: this.Activity,
+        },
+      ]);
+    });
   }
 }

@@ -6,7 +6,6 @@ import {
   Post,
   Patch,
   Delete,
-  UseGuards,
   Query,
   Req,
 } from '@nestjs/common';
@@ -16,10 +15,9 @@ import {
   CreateReceiptDto,
   UpdateReceiptDto,
 } from '../../application/dtos/create-receipt.dto';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 
+/** Tenant vía `x-tenant-id` (TenantGuard global). JWT opcional en despliegues con auth completa. */
 @Controller('receipts')
-@UseGuards(JwtAuthGuard)
 export class ReceiptsController {
   constructor(private readonly receiptsService: ReceiptsService) {}
 
