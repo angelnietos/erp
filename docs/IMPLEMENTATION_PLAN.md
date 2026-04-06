@@ -2,6 +2,8 @@
 
 Este documento describe el **estado real** del producto y lo que **sigue pendiente** (mejoras continuas). Las secciones históricas al final conservan el detalle por módulo.
 
+**Backlog consolidado (pendientes generales, ops, seguridad, Fase 5+):** [BACKLOG.md](./BACKLOG.md).
+
 ## Estado resumido
 
 | Área | Estado | Notas |
