@@ -36,7 +36,8 @@
     "test": "nx run-many --target=test --all",
     "lint": "nx run-many --target=lint --all",
     "build": "nx run-many --target=build --all",
-    "prima:seed": "npx prisma db seed"
+    "prima:seed": "npx prisma db seed",
+    "docs:frontend": "npx -y @compodoc/compodoc -p apps/frontend/tsconfig.app.json -d documentation/compodoc --silent"
   },
   "private": true,
   "devDependencies": {

@@ -1,32 +1,34 @@
 # Plan de implementación — Josanz ERP
 
-Este documento describe el **estado real** del producto y lo que **sigue pendiente** (Fase 3 y mejoras continuas). Las secciones históricas al final conservan el detalle por módulo.
+Este documento describe el **estado real** del producto y lo que **sigue pendiente** (mejoras continuas). Las secciones históricas al final conservan el detalle por módulo.
 
 ## Estado resumido
 
 | Área | Estado | Notas |
 |------|--------|--------|
 | Módulos core (clientes, eventos, facturación, inventario, etc.) | En producción en código | Parte mock / demo según feature |
-| Proyectos, servicios, reportes, auditoría, recibos | Estructura + UI | Integración backend y exportaciones reales pendientes donde indique cada feature |
-| Dashboard | UI + datos demo | KPIs desde API agregada pendiente |
+| Fase 3 (reportes, analytics, recibos, servicios↔presupuesto, eventos, integraciones, tests, docs) | **Entregada en código** | Ver tabla Fase 3 abajo; persistencia fuerte en BD opcional para eventos/recibos |
 | Tema / tokens CSS (`--primary`, `--brand`, etc.) | Alineado en `ThemeService` | Revisar features que aún usen tokens legacy |
 
-## Fase 3 — Próximos pasos (prioridad)
+## Fase 3 — Estado de entrega
 
-1. **Reportes**: exportación real (PDF/Excel) desde API o generación cliente con datos del backend.
-2. **Dashboard / Analytics**: endpoint de estadísticas y sustituir métricas demo.
-3. **Recibos**: persistencia y API; acciones “marcar pagado” contra backend.
-4. **Servicios ↔ Presupuestos**: integración en flujo de presupuesto (el plan original lo marcaba pendiente).
-5. **Event sourcing / auditoría fuerte**: persistencia de eventos de dominio (más allá del listado UI).
-6. **Integraciones**: calendario, webhooks, API pública documentada.
-7. **Testing**: E2E (Playwright), subir cobertura unitaria en features críticas.
-8. **Documentación**: OpenAPI/Swagger publicado, Compodoc o equivalente, guías de usuario.
+| Ítem | Estado | Implementación |
+|------|--------|------------------|
+| Reportes PDF/Excel | Hecho (cliente) | JSON + CSV con BOM (`;`) + ventana imprimible (PDF vía navegador) en `reports.component.ts` |
+| Dashboard / analytics API | Hecho | `GET /api/analytics/dashboard-summary` + `DashboardAnalyticsService` (caché `shareReplay`) |
+| Recibos API y marcar pagado | Hecho | Módulo `receipts-backend` + UI; repositorio demo por tenant |
+| Servicios ↔ presupuestos | Hecho | `GET /api/services` sin JWT de clase + panel en `budget-detail` + enlace a `/services` |
+| Eventos de dominio / auditoría | Hecho (servidor en memoria) | `DomainEventsService` + UI auditoría consume API; persistencia Prisma opcional |
+| Integraciones | Hecho (demo) | ICS + webhooks en memoria bajo `Phase3Module` |
+| Testing E2E | Hecho (humo) | `apps/frontend-e2e/src/phase3-smoke.spec.ts` |
+| Documentación | Hecho | Swagger en `/api/docs`; script `pnpm run docs:frontend` (Compodoc); `docs/USER_GUIDE.md` |
+| Rendimiento / caché | Parcial | Caché KPIs y catálogo servicios (`shareReplay`); virtual scroll pendiente en tablas grandes |
 
 ## Mejoras UX/UI continuas
 
 - Botones y enlaces: cada control debe **navegar**, **disparar API** o mostrar **feedback** (toast / estado), no quedar en silencio.
 - Búsqueda global y filtros avanzados en listados grandes.
-- Rendimiento: lazy loading ya en rutas; valorar caching de KPIs y virtual scroll en tablas.
+- Rendimiento: lazy loading ya en rutas; valorar virtual scroll en tablas y notificaciones en vivo en dashboard.
 
 ---
 
@@ -35,22 +37,22 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 ### Inicio / Dashboard
 
 - Panel, métricas, actividad reciente, acciones rápidas.
-- **Pendiente**: API de estadísticas; notificaciones en vivo opcionales.
+- **Hecho**: API de estadísticas agregadas; notificaciones en vivo opcionales.
 
 ### Reportes
 
 - Generador por categorías y listado de informes generados.
-- **Pendiente**: exportación PDF/Excel real; datos desde backend.
+- **Hecho**: exportación JSON/CSV/PDF (impresión); datos aún mayormente generados en cliente.
 
 ### Trazabilidad / Auditoría
 
 - Timeline y filtros en UI.
-- **Pendiente**: event sourcing completo y retención de logs en servidor.
+- **Hecho**: eventos desde API en memoria; **pendiente mejora**: retención persistente en BD.
 
 ### Servicios
 
 - Catálogo por tipos (STREAMING, PRODUCCIÓN, LED, etc.).
-- **Pendiente**: asignación a presupuestos y disponibilidad.
+- **Hecho**: visibilidad en detalle de presupuesto y catálogo en `/services`.
 
 ### Proyectos
 
@@ -64,11 +66,11 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 ### Recibos y pagos
 
 - UI de listado y filtros.
-- **Pendiente**: API y conciliación con facturación.
+- **Hecho**: API y acción marcar pagado; **pendiente**: conciliación profunda con facturación y tabla Prisma.
 
 ### Métricas y analytics
 
-- **Pendiente**: gráficos y rentabilidad por proyecto/cliente con datos reales.
+- **Hecho**: resumen agregado vía API; gráficos avanzados y rentabilidad por proyecto opcionales.
 
 ### Configuración
 
@@ -77,10 +79,10 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 
 ### Integraciones y calidad
 
-- Ver Fase 3 arriba (webhooks, tests, docs).
+- **Hecho (demo)**: webhooks/ICS; **pendiente**: persistencia y firma de webhooks en producción.
 
 ---
 
 ## Nota sobre versiones anteriores del documento
 
-Versiones previas declaraban el proyecto **«100% completado»**. Eso se refería a **hitos de scaffolding y fases 1–2** del plan original, no a ausencia de trabajo futuro. Este archivo se actualiza para evitar ambigüedad: **Fase 3 y pulido son trabajo esperado**.
+Versiones previas declaraban el proyecto **«100% completado»**. Eso se refería a **hitos de scaffolding y fases 1–2** del plan original, no a ausencia de trabajo futuro. **Fase 3 está cubierta en el código actual**; el pulido (persistencia, gráficos, CI) sigue siendo trabajo esperado.

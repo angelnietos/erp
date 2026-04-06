@@ -1,19 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Patch,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { JwtAuthGuard } from '../shared/infrastructure/guards/jwt-auth.guard';
+import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+/** Catálogo accesible con x-tenant-id (TenantGuard global); sin JWT para alinear con analytics/demo. */
+@ApiTags('services')
 @Controller('services')
-@UseGuards(JwtAuthGuard)
 export class ServicesController {
   @Get()
+  @ApiOperation({ summary: 'Listado del catálogo de servicios (demo)' })
   async findAll() {
     // Mock data for now
     return [

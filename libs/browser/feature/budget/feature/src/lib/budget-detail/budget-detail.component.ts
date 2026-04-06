@@ -15,7 +15,12 @@ import {
   UiTableComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  ServicesCatalogApiService,
+  ServiceCatalogItemDto,
+} from '@josanz-erp/shared-data-access';
 import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
 import { BudgetService } from '@josanz-erp/budget-data-access';
 import { Budget } from '@josanz-erp/budget-api';
@@ -134,6 +139,39 @@ import { Budget } from '@josanz-erp/budget-api';
           </ui-josanz-card>
 
           <div class="sidebar-info">
+            <ui-josanz-card variant="glass" title="Servicios para presupuestar">
+              <p class="catalog-hint">
+                Referencia el catálogo tipificado al redactar líneas; precios orientativos.
+              </p>
+              @if (servicesLoading()) {
+                <ui-josanz-loader
+                  message="Cargando catálogo..."
+                ></ui-josanz-loader>
+              } @else if (catalogServices().length === 0) {
+                <p class="catalog-empty">Sin datos de catálogo (revisa API o tenant).</p>
+              } @else {
+                <ul class="service-mini-list">
+                  @for (s of catalogServices(); track s.id) {
+                    <li class="service-mini-row">
+                      <span class="service-name">{{ s.name }}</span>
+                      <span class="service-type">{{ s.type }}</span>
+                      <span class="font-mono service-price">{{
+                        formatCurrencyEu(s.basePrice)
+                      }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+              <ui-josanz-button
+                variant="glass"
+                size="sm"
+                class="full-width catalog-link"
+                routerLink="/services"
+              >
+                Abrir catálogo completo
+              </ui-josanz-button>
+            </ui-josanz-card>
+
             <ui-josanz-card variant="glass" title="Información Logística">
               <div class="info-list">
                 <div class="info-item">
@@ -292,6 +330,54 @@ import { Budget } from '@josanz-erp/budget-api';
       .full-width {
         width: 100%;
       }
+
+      .catalog-hint {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        margin: 0 0 0.75rem;
+        line-height: 1.4;
+      }
+      .catalog-empty {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        margin: 0 0 0.75rem;
+      }
+      .service-mini-list {
+        list-style: none;
+        margin: 0 0 0.75rem;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .service-mini-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0.5rem;
+        align-items: center;
+        font-size: 0.6rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .service-name {
+        font-weight: 700;
+        color: #fff;
+      }
+      .service-type {
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.5rem;
+        letter-spacing: 0.06em;
+      }
+      .service-price {
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .catalog-link {
+        margin-top: 0.25rem;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -302,10 +388,13 @@ export class BudgetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly budgetService = inject(BudgetService);
+  private readonly servicesCatalog = inject(ServicesCatalogApiService);
 
   currentTheme = this.themeService.currentThemeData;
   budget = signal<Budget | null>(null);
   isLoading = signal(true);
+  catalogServices = signal<ServiceCatalogItemDto[]>([]);
+  servicesLoading = signal(true);
 
   itemColumns = [
     { key: 'productId', header: 'Producto ID' },
@@ -316,10 +405,25 @@ export class BudgetDetailComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.loadCatalog();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadBudget(id);
     }
+  }
+
+  loadCatalog() {
+    this.servicesLoading.set(true);
+    this.servicesCatalog.list().subscribe({
+      next: (rows) => {
+        this.catalogServices.set(rows.filter((s) => s.isActive !== false));
+        this.servicesLoading.set(false);
+      },
+      error: () => {
+        this.catalogServices.set([]);
+        this.servicesLoading.set(false);
+      },
+    });
   }
 
   loadBudget(id: string) {

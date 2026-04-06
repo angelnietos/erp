@@ -46,3 +46,6 @@ Thumbs.db
 .angular
 
 .nx/polygraph
+
+# Compodoc (generado con npm run docs:frontend)
+/documentation/compodoc
