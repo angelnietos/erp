@@ -9,6 +9,7 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 | [USER_GUIDE.md](./USER_GUIDE.md) | Uso, E2E, migraciones |
 | [PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_UX_THEMING_BROWSER.md) | Rediseño `libs/browser`, theming profundo (forma + color) y acciones |
 | [LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md](./LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md) | Libro blanco: arquitectura hexagonal, Nx, escalabilidad, plugins |
+| [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md) | Por qué Angular frente a React/Vue en un ERP; ventajas y matices |
 
 ---
 

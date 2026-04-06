@@ -6,6 +6,8 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 
 **Arquitectura y escalabilidad (visión de sistema):** [LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md](./LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md).
 
+**Elección de framework frontend:** [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md).
+
 ## Estado resumido
 
 | Área | Estado | Notas |

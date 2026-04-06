@@ -15,6 +15,7 @@ Este libro blanco **complementa y actualiza** la visión general del producto fr
 | [BACKLOG.md](./BACKLOG.md) | Deuda y mejoras continuas |
 | [PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_UX_THEMING_BROWSER.md) | Estrategia front y theming |
 | [USER_GUIDE.md](./USER_GUIDE.md) | Uso y entornos |
+| [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md) | Elección de Angular vs otros frameworks (contexto ERP) |
 
 ---
 
