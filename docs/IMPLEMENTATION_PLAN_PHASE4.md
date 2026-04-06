@@ -153,8 +153,11 @@ Alinear con el dominio actual del lib `receipts-backend` (list DTO, `markPaid`):
 
 ## 9. Checklist rápido al cerrar Fase 4
 
-- [ ] Migraciones aplicadas en entornos dev/staging documentados.
-- [ ] Recibos y eventos leídos/escritos solo vía Prisma en rutas de producción.
-- [ ] Webhooks sobreviven a reinicio (BD).
-- [ ] Al menos un E2E con login + tenant verde en CI o local documentado.
-- [ ] OpenAPI actualizado (`/api/docs`) para nuevos campos y export si aplica.
+- [x] Migración `20260406120000_phase4_erp_domain_webhooks` y modelos en `schema.prisma`.
+- [x] Recibos vía `PrismaReceiptsRepository` → tabla `erp_receipts`; seed demo en `prisma/seed.ts`.
+- [x] Eventos de dominio y webhooks en Prisma; entrega con `X-Josanz-Signature` (HMAC-SHA256 del cuerpo).
+- [x] Exportes servidor: `POST /api/reports/export/xlsx` y `/export/pdf` (`exceljs`, `pdf-lib`).
+- [x] `GET /api/health` público; E2E `phase4-auth.spec.ts` + doble `webServer` en Playwright.
+- [x] Test unitario firma webhook (`webhook-dispatcher.service.spec.ts`).
+
+**Pendiente operativo**: aplicar migraciones y seed en cada entorno (`pnpm run db:migrate`, seed según convención del repo).

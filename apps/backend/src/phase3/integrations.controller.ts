@@ -1,22 +1,12 @@
 import { Body, Controller, Get, Header, Post, Req } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { DomainEventsService } from './domain-events.service';
-
-interface WebhookRegistration {
-  id: string;
-  url: string;
-  events: string[];
-  secret: string;
-  createdAt: string;
-}
+import { IntegrationWebhooksService } from './integration-webhooks.service';
 
 @ApiTags('integrations')
 @Controller('integrations')
 export class IntegrationsController {
-  private static hooks: WebhookRegistration[] = [];
-
-  constructor(private readonly domainEvents: DomainEventsService) {}
+  constructor(private readonly webhooks: IntegrationWebhooksService) {}
 
   @Get('calendar/feed.ics')
   @Header('Content-Type', 'text/calendar; charset=utf-8')
@@ -42,7 +32,7 @@ export class IntegrationsController {
   }
 
   @Post('webhooks')
-  @ApiOperation({ summary: 'Registrar webhook saliente (stub)' })
+  @ApiOperation({ summary: 'Registrar webhook saliente (persistido en BD)' })
   @ApiBody({
     schema: {
       example: { url: 'https://example.com/hook', events: ['invoice.paid'] },
@@ -55,26 +45,15 @@ export class IntegrationsController {
     const tenantId =
       (req.headers['x-tenant-id'] as string) ||
       '00000000-0000-0000-0000-000000000000';
-    const reg: WebhookRegistration = {
-      id: `wh_${Date.now()}`,
-      url: body.url,
-      events: body.events?.length ? body.events : ['*'],
-      secret: `sec_${Math.random().toString(36).slice(2)}`,
-      createdAt: new Date().toISOString(),
-    };
-    IntegrationsController.hooks.push(reg);
-    this.domainEvents.append(tenantId, {
-      eventType: 'WebhookRegistered',
-      aggregateType: 'Integration',
-      aggregateId: reg.id,
-      payload: { url: reg.url, events: reg.events },
-    });
-    return { ...reg, tenantId };
+    return this.webhooks.register(tenantId, body);
   }
 
   @Get('webhooks')
-  @ApiOperation({ summary: 'Listar webhooks registrados (memoria)' })
-  listWebhooks() {
-    return IntegrationsController.hooks;
+  @ApiOperation({ summary: 'Listar webhooks del tenant actual' })
+  async listWebhooks(@Req() req: Request) {
+    const tenantId =
+      (req.headers['x-tenant-id'] as string) ||
+      '00000000-0000-0000-0000-000000000000';
+    return this.webhooks.listForTenant(tenantId);
   }
 }

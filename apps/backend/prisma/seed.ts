@@ -18,6 +18,11 @@ const prisma = new PrismaClient({
 
 /** Removes demo rows for this tenant so `prisma db seed` is idempotent. */
 async function clearTenantDemoData(tenantId: string) {
+  await prisma.integrationWebhookDelivery.deleteMany({ where: { tenantId } });
+  await prisma.integrationWebhook.deleteMany({ where: { tenantId } });
+  await prisma.domainEventRecord.deleteMany({ where: { tenantId } });
+  await prisma.erpReceipt.deleteMany({ where: { tenantId } });
+
   await prisma.verifactuQueueItem.deleteMany({ where: { tenantId } });
   await prisma.verifactuLog.deleteMany({ where: { tenantId } });
 
@@ -858,6 +863,47 @@ async function main() {
     },
   });
   console.log('- Created audit log');
+
+  const day = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  await prisma.erpReceipt.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        invoiceId: '001',
+        amount: 500,
+        status: 'PENDING',
+        dueDate: new Date(now + 7 * day),
+      },
+      {
+        tenantId: tenant.id,
+        invoiceId: '002',
+        amount: 1200.5,
+        status: 'PAID',
+        paymentMethod: 'BANK_TRANSFER',
+        paymentDate: new Date(now - 3 * day),
+        dueDate: new Date(now - 7 * day),
+        createdAt: new Date(now - 10 * day),
+      },
+      {
+        tenantId: tenant.id,
+        invoiceId: '003',
+        amount: 750.25,
+        status: 'OVERDUE',
+        dueDate: new Date(now - 5 * day),
+        createdAt: new Date(now - 14 * day),
+      },
+      {
+        tenantId: tenant.id,
+        invoiceId: '004',
+        amount: 300,
+        status: 'CANCELLED',
+        dueDate: new Date(now + 14 * day),
+        createdAt: new Date(now - 20 * day),
+      },
+    ],
+  });
+  console.log('- Seeded erp_receipts (demo)');
 
   console.log('✅ Database seeded successfully!');
 }

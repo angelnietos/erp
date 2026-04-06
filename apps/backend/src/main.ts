@@ -37,7 +37,7 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Josanz ERP API')
     .setDescription(
-      'OpenAPI — Fase 3: analytics, integraciones, eventos de dominio y módulos de negocio.',
+      'OpenAPI — Fase 4: persistencia (recibos, eventos, webhooks), exportes informe y salud API.',
     )
     .setVersion('3.0.0')
     .addBearerAuth()

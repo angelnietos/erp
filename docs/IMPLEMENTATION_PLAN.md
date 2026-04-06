@@ -7,7 +7,8 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 | Área | Estado | Notas |
 |------|--------|--------|
 | Módulos core (clientes, eventos, facturación, inventario, etc.) | En producción en código | Parte mock / demo según feature |
-| Fase 3 (reportes, analytics, recibos, servicios↔presupuesto, eventos, integraciones, tests, docs) | **Entregada en código** | Ver tabla Fase 3 abajo; persistencia fuerte en BD opcional para eventos/recibos |
+| Fase 3 (reportes, analytics, recibos, servicios↔presupuesto, eventos, integraciones, tests, docs) | **Entregada en código** | Ver tabla Fase 3 abajo |
+| Fase 4 (Prisma recibos/eventos/webhooks, export API, E2E auth) | **Entregada en código** | Ver `docs/IMPLEMENTATION_PLAN_PHASE4.md` y migración `20260406120000_phase4_erp_domain_webhooks` |
 | Tema / tokens CSS (`--primary`, `--brand`, etc.) | Alineado en `ThemeService` | Revisar features que aún usen tokens legacy |
 
 ## Fase 3 — Estado de entrega

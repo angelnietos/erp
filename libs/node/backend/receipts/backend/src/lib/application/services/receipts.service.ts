@@ -89,6 +89,10 @@ export class ReceiptsService {
       throw new NotFoundException('Receipt not found');
     }
 
+    if (receipt.status === 'PAID') {
+      return receipt;
+    }
+
     receipt.markAsPaid(paymentMethod as any, paymentDate);
     await this.prisma.$transaction(async (tx) => {
       await this.receiptsRepository.save(receipt);

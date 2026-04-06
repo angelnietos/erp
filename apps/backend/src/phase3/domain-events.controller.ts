@@ -9,15 +9,24 @@ export class DomainEventsController {
   constructor(private readonly events: DomainEventsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar eventos de dominio recientes (memoria)' })
-  list(@Req() req: Request, @Query('limit') limit?: string) {
-    const tenantId = (req.headers['x-tenant-id'] as string) || '00000000-0000-0000-0000-000000000000';
-    const n = Math.min(500, Math.max(1, parseInt(limit || '100', 10) || 100));
-    return this.events.list(tenantId, n);
+  @ApiOperation({
+    summary: 'Listar eventos de dominio (Prisma, paginado con limit/skip)',
+  })
+  async list(
+    @Req() req: Request,
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+  ) {
+    const tenantId =
+      (req.headers['x-tenant-id'] as string) ||
+      '00000000-0000-0000-0000-000000000000';
+    const n = Math.min(500, Math.max(1, parseInt(limit || '50', 10) || 50));
+    const s = Math.max(0, parseInt(skip || '0', 10) || 0);
+    return this.events.list(tenantId, n, s);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Registrar evento de dominio (append-only)' })
+  @ApiOperation({ summary: 'Registrar evento de dominio (append-only, Prisma)' })
   @ApiBody({
     schema: {
       example: {
@@ -38,7 +47,9 @@ export class DomainEventsController {
       payload?: Record<string, unknown>;
     },
   ) {
-    const tenantId = (req.headers['x-tenant-id'] as string) || '00000000-0000-0000-0000-000000000000';
+    const tenantId =
+      (req.headers['x-tenant-id'] as string) ||
+      '00000000-0000-0000-0000-000000000000';
     return this.events.append(tenantId, {
       eventType: body.eventType,
       aggregateType: body.aggregateType,

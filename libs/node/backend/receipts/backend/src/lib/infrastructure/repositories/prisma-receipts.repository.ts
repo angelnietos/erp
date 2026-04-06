@@ -1,128 +1,148 @@
 import { Injectable } from '@nestjs/common';
 import { ReceiptsRepositoryPort, Receipt } from '@josanz-erp/receipts-core';
-import { PaymentStatus } from '@josanz-erp/receipts-api';
+import { PaymentMethod, PaymentStatus } from '@josanz-erp/receipts-api';
 import { EntityId } from '@josanz-erp/shared-model';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
 
-/**
- * Repositorio en memoria multi-tenant (Fase 3).
- * Sustituible por tabla Prisma `Receipt` sin cambiar la API de aplicación.
- */
+/** Alineado con el modelo Prisma `ErpReceipt` (tabla `erp_receipts`). */
+interface ErpReceiptRow {
+  id: string;
+  tenantId: string;
+  invoiceId: string;
+  amount: number;
+  status: string;
+  paymentMethod: string | null;
+  paymentDate: Date | null;
+  dueDate: Date;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Subconjunto del delegado Prisma `erpReceipt` (evita desfase de tipos entre libs y generate). */
+interface ErpReceiptDelegate {
+  findFirst(args: object): Promise<ErpReceiptRow | null>;
+  findMany(args: object): Promise<ErpReceiptRow[]>;
+  upsert(args: object): Promise<ErpReceiptRow>;
+  deleteMany(args: object): Promise<unknown>;
+}
+
 @Injectable()
 export class PrismaReceiptsRepository implements ReceiptsRepositoryPort {
-  private readonly receipts: Receipt[] = [];
+  constructor(private readonly prisma: PrismaService) {}
 
-  private ensureSeed(tenantId: EntityId): void {
-    if (this.receipts.some((r) => r.tenantId.value === tenantId.value)) {
-      return;
-    }
-    const t = tenantId.value;
-    this.receipts.push(
-      Receipt.reconstitute(`${t}:r1`, {
-        tenantId,
-        invoiceId: new EntityId('001'),
-        amount: 500.0,
-        status: 'PENDING',
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-      }),
-      Receipt.reconstitute(`${t}:r2`, {
-        tenantId,
-        invoiceId: new EntityId('002'),
-        amount: 1200.5,
-        status: 'PAID',
-        paymentMethod: 'BANK_TRANSFER',
-        dueDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        paymentDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      }),
-      Receipt.reconstitute(`${t}:r3`, {
-        tenantId,
-        invoiceId: new EntityId('003'),
-        amount: 750.25,
-        status: 'OVERDUE',
-        dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      }),
-      Receipt.reconstitute(`${t}:r4`, {
-        tenantId,
-        invoiceId: new EntityId('004'),
-        amount: 300.0,
-        status: 'CANCELLED',
-        dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-      }),
-    );
+  private erp(): ErpReceiptDelegate {
+    return (this.prisma as unknown as { erpReceipt: ErpReceiptDelegate })
+      .erpReceipt;
+  }
+
+  private toEntity(row: ErpReceiptRow): Receipt {
+    return Receipt.reconstitute(row.id, {
+      tenantId: new EntityId(row.tenantId),
+      invoiceId: new EntityId(row.invoiceId),
+      amount: row.amount,
+      status: row.status as PaymentStatus,
+      paymentMethod: row.paymentMethod as PaymentMethod | undefined,
+      paymentDate: row.paymentDate ?? undefined,
+      dueDate: row.dueDate,
+      notes: row.notes ?? undefined,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt ?? undefined,
+    });
   }
 
   async findById(id: EntityId): Promise<Receipt | null> {
-    return this.receipts.find((r) => r.id.value === id.value) ?? null;
+    const row = await this.erp().findFirst({
+      where: { id: id.value },
+    });
+    return row ? this.toEntity(row) : null;
   }
 
   async findByInvoiceId(invoiceId: EntityId): Promise<Receipt[]> {
-    return this.receipts.filter((r) => r.invoiceId.value === invoiceId.value);
+    const rows = await this.erp().findMany({
+      where: { invoiceId: invoiceId.value },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.toEntity(r));
   }
 
   async findByTenantId(
     tenantId: EntityId,
     status?: PaymentStatus,
   ): Promise<Receipt[]> {
-    this.ensureSeed(tenantId);
-    return this.receipts.filter(
-      (r) =>
-        r.tenantId.value === tenantId.value &&
-        (!status || r.status === status),
-    );
+    const rows = await this.erp().findMany({
+      where: {
+        tenantId: tenantId.value,
+        ...(status ? { status } : {}),
+      },
+      orderBy: { dueDate: 'asc' },
+    });
+    return rows.map((r) => this.toEntity(r));
   }
 
-  async findActive(tenantId: EntityId, status?: PaymentStatus): Promise<Receipt[]> {
-    this.ensureSeed(tenantId);
-    return this.receipts.filter(
-      (r) =>
-        r.tenantId.value === tenantId.value &&
-        r.status !== 'CANCELLED' &&
-        (!status || r.status === status),
-    );
+  async findActive(
+    tenantId: EntityId,
+    status?: PaymentStatus,
+  ): Promise<Receipt[]> {
+    const rows = await this.erp().findMany({
+      where: {
+        tenantId: tenantId.value,
+        status: { not: 'CANCELLED' },
+        ...(status ? { status } : {}),
+      },
+      orderBy: { dueDate: 'asc' },
+    });
+    return rows.map((r) => this.toEntity(r));
   }
 
   async findOverdue(tenantId: EntityId): Promise<Receipt[]> {
-    this.ensureSeed(tenantId);
     const now = new Date();
-    return this.receipts.filter(
-      (r) =>
-        r.tenantId.value === tenantId.value &&
-        r.status === 'PENDING' &&
-        r.dueDate < now,
-    );
+    const rows = await this.erp().findMany({
+      where: {
+        tenantId: tenantId.value,
+        status: 'PENDING',
+        dueDate: { lt: now },
+      },
+      orderBy: { dueDate: 'asc' },
+    });
+    return rows.map((r) => this.toEntity(r));
   }
 
   async findDueSoon(tenantId: EntityId, days: number): Promise<Receipt[]> {
-    this.ensureSeed(tenantId);
     const now = new Date();
-    const futureDate = new Date();
-    futureDate.setDate(now.getDate() + days);
-    return this.receipts.filter(
-      (r) =>
-        r.tenantId.value === tenantId.value &&
-        r.status === 'PENDING' &&
-        r.dueDate >= now &&
-        r.dueDate <= futureDate,
-    );
+    const future = new Date();
+    future.setDate(now.getDate() + days);
+    const rows = await this.erp().findMany({
+      where: {
+        tenantId: tenantId.value,
+        status: 'PENDING',
+        dueDate: { gte: now, lte: future },
+      },
+      orderBy: { dueDate: 'asc' },
+    });
+    return rows.map((r) => this.toEntity(r));
   }
 
   async save(receipt: Receipt): Promise<void> {
-    this.ensureSeed(receipt.tenantId);
-    const i = this.receipts.findIndex((r) => r.id.value === receipt.id.value);
-    if (i >= 0) {
-      this.receipts[i] = receipt;
-    } else {
-      this.receipts.push(receipt);
-    }
+    const tid = receipt.tenantId.value;
+    const data = {
+      tenantId: tid,
+      invoiceId: receipt.invoiceId.value,
+      amount: receipt.amount,
+      status: receipt.status,
+      paymentMethod: receipt.paymentMethod ?? null,
+      paymentDate: receipt.paymentDate ?? null,
+      dueDate: receipt.dueDate,
+      notes: receipt.notes ?? null,
+    };
+    await this.erp().upsert({
+      where: { id: receipt.id.value },
+      create: { id: receipt.id.value, ...data },
+      update: { ...data },
+    });
   }
 
   async delete(id: EntityId): Promise<void> {
-    const i = this.receipts.findIndex((r) => r.id.value === id.value);
-    if (i >= 0) {
-      this.receipts.splice(i, 1);
-    }
+    await this.erp().deleteMany({ where: { id: id.value } });
   }
 }

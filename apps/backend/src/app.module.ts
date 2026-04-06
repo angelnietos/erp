@@ -19,6 +19,8 @@ import { ProjectsModule } from './projects/projects.module';
 import { ServicesModule } from './services/services.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { Phase3Module } from './phase3/phase3.module';
+import { HealthModule } from './health/health.module';
+import { ReportsExportModule } from './reports-export/reports-export.module';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { Phase3Module } from './phase3/phase3.module';
     ReceiptsBackendModule,
     AnalyticsModule,
     Phase3Module,
+    HealthModule,
+    ReportsExportModule,
   ],
   providers: [
     {

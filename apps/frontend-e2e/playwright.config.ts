@@ -21,13 +21,26 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npx nx run frontend:serve',
-    url: 'http://localhost:4200',
-    reuseExistingServer: true,
-    cwd: workspaceRoot,
-  },
+  /**
+   * Fase 4: API + SPA. Requiere `DATABASE_URL` y migraciones aplicadas para login/recibos.
+   * Puedes arrancar backend/frontend a mano y reutilizar servidores con `reuseExistingServer`.
+   */
+  webServer: [
+    {
+      command: 'pnpm exec nx run backend:serve',
+      url: 'http://127.0.0.1:3000/api/health',
+      reuseExistingServer: true,
+      cwd: workspaceRoot,
+      timeout: 180_000,
+    },
+    {
+      command: 'pnpm exec nx run frontend:serve',
+      url: 'http://127.0.0.1:4200',
+      reuseExistingServer: true,
+      cwd: workspaceRoot,
+      timeout: 180_000,
+    },
+  ],
   projects: [
     {
       name: 'chromium',
