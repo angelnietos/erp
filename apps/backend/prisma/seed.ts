@@ -54,8 +54,15 @@ async function clearTenantDemoData(tenantId: string) {
     where: { product: { tenantId } },
   });
   await prisma.inventory.deleteMany({ where: { product: { tenantId } } });
+  await prisma.damageReport.deleteMany({ where: { tenantId } });
   await prisma.product.deleteMany({ where: { tenantId } });
   await prisma.vehicle.deleteMany({ where: { tenantId } });
+  await prisma.projectEvent.deleteMany({ where: { project: { tenantId } } });
+  await prisma.eventTechnician.deleteMany({ where: { event: { tenantId } } });
+  await prisma.event.deleteMany({ where: { tenantId } });
+  await prisma.project.deleteMany({ where: { tenantId } });
+  await prisma.technician.deleteMany({ where: { tenantId } });
+  await prisma.driver.deleteMany({ where: { tenantId } });
   await prisma.client.deleteMany({ where: { tenantId } });
 
   await prisma.outboxEvent.deleteMany({});
