@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma, type Product } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomUUID } from 'crypto';
@@ -12,9 +12,52 @@ if (!connectionString) {
   throw new Error('Missing DATABASE_URL environment variable');
 }
 
+/** Fila para `erpReceipt.createMany` cuando el namespace `Prisma` no exporta aún el input generado. */
+type ErpReceiptSeedRow = {
+  tenantId: string;
+  invoiceId: string;
+  amount: number;
+  status?: string;
+  paymentMethod?: string | null;
+  paymentDate?: Date | null;
+  dueDate: Date;
+  createdAt?: Date;
+};
+
+/**
+ * Con `PrismaPg`, TS infiere `PrismaClient<..., LogLevel, DefaultArgs>` sin los delegados
+ * de modelos Fase 4 en algunos entornos. Intersección explícita (no basta `as PrismaClient`).
+ */
+type PrismaWithPhase4 = PrismaClient & {
+  integrationWebhookDelivery: {
+    deleteMany(args: {
+      where: { tenantId: string };
+    }): Prisma.PrismaPromise<Prisma.BatchPayload>;
+  };
+  integrationWebhook: {
+    deleteMany(args: {
+      where: { tenantId: string };
+    }): Prisma.PrismaPromise<Prisma.BatchPayload>;
+  };
+  domainEventRecord: {
+    deleteMany(args: {
+      where: { tenantId: string };
+    }): Prisma.PrismaPromise<Prisma.BatchPayload>;
+  };
+  erpReceipt: {
+    deleteMany(args: {
+      where: { tenantId: string };
+    }): Prisma.PrismaPromise<Prisma.BatchPayload>;
+    createMany(args: {
+      data: ErpReceiptSeedRow | ErpReceiptSeedRow[];
+      skipDuplicates?: boolean;
+    }): Prisma.PrismaPromise<Prisma.BatchPayload>;
+  };
+};
+
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
-});
+}) as unknown as PrismaWithPhase4;
 
 /** Removes demo rows for this tenant so `prisma db seed` is idempotent. */
 async function clearTenantDemoData(tenantId: string) {
@@ -215,7 +258,7 @@ async function main() {
     { name: 'Lote de Cableado HDMI', price: 50, stock: 50, sku: 'CBL-HDMI-50' },
   ];
 
-  const insertedProducts = [];
+  const insertedProducts: Product[] = [];
   for (const p of productDefs) {
     const product = await prisma.product.create({
       data: {
@@ -302,7 +345,7 @@ async function main() {
     },
   });
 
-  const budgetDraft = await prisma.budget.create({
+  await prisma.budget.create({
     data: {
       tenantId: tenant.id,
       clientId: clients[2].id,
@@ -683,7 +726,7 @@ async function main() {
   console.log('- Created vehicles');
 
   // Seed categories
-  const categories = await prisma.$transaction([
+  await prisma.$transaction([
     prisma.category.create({
       data: {
         tenantId: tenant.id,
