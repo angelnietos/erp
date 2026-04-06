@@ -1,6 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import {
   LucideAngularModule,
   FileText,
@@ -33,6 +34,7 @@ interface Receipt {
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     UiCardComponent,
     UiButtonComponent,
     UiSelectComponent,
@@ -49,7 +51,9 @@ interface Receipt {
           </p>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="primary"> Nuevo Recibo </ui-josanz-button>
+          <ui-josanz-button variant="primary" (clicked)="newReceipt()">
+            Nuevo Recibo
+          </ui-josanz-button>
         </div>
       </header>
 
@@ -61,6 +65,7 @@ interface Receipt {
               [(ngModel)]="statusFilter"
               name="status"
               [options]="statusOptions"
+              (ngModelChange)="applyFilters()"
             />
           </div>
         </ui-josanz-card>
@@ -107,13 +112,18 @@ interface Receipt {
               </div>
 
               <div class="receipt-actions">
-                <ui-josanz-button variant="ghost" size="sm">
+                <ui-josanz-button
+                  variant="ghost"
+                  size="sm"
+                  (clicked)="goToBilling(receipt)"
+                >
                   Ver Detalles
                 </ui-josanz-button>
                 <ui-josanz-button
                   *ngIf="receipt.status === 'PENDING'"
                   variant="success"
                   size="sm"
+                  (clicked)="markAsPaid(receipt)"
                 >
                   Marcar Pagado
                 </ui-josanz-button>
@@ -288,12 +298,13 @@ interface Receipt {
   ],
 })
 export class ReceiptsListComponent implements OnInit {
+  private readonly router = inject(Router);
   private readonly FileText = FileText;
   private readonly AlertTriangle = AlertTriangle;
   private readonly CheckCircle = CheckCircle;
   private readonly XCircle = XCircle;
 
-  statusFilter = signal('');
+  statusFilter = '';
 
   statusOptions = [
     { label: 'Todos los estados', value: '' },
@@ -345,9 +356,9 @@ export class ReceiptsListComponent implements OnInit {
   applyFilters() {
     let filtered = [...this.receipts()];
 
-    if (this.statusFilter()) {
+    if (this.statusFilter) {
       filtered = filtered.filter(
-        (receipt) => receipt.status === this.statusFilter(),
+        (receipt) => receipt.status === this.statusFilter,
       );
     }
 
@@ -400,5 +411,31 @@ export class ReceiptsListComponent implements OnInit {
       month: 'short',
       year: 'numeric',
     });
+  }
+
+  newReceipt(): void {
+    void this.router.navigateByUrl('/billing');
+  }
+
+  goToBilling(receipt: Receipt): void {
+    void this.router.navigate(['/billing'], {
+      queryParams: { invoice: receipt.invoiceId },
+    });
+  }
+
+  markAsPaid(receipt: Receipt): void {
+    this.receipts.update((list) =>
+      list.map((r) =>
+        r.id === receipt.id
+          ? {
+              ...r,
+              status: 'PAID',
+              paymentDate: new Date().toISOString(),
+              paymentMethod: r.paymentMethod ?? 'BANK_TRANSFER',
+            }
+          : r,
+      ),
+    );
+    this.applyFilters();
   }
 }

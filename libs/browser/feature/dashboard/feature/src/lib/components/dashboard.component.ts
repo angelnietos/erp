@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   LucideAngularModule,
   TrendingUp,
@@ -97,7 +97,14 @@ interface QuickAction {
       <!-- Metrics Cards -->
       <div class="metrics-grid gaming-metrics">
         @for (metric of metrics(); track metric.title) {
-          <ui-josanz-card class="metric-card gaming-metric-card">
+          <ui-josanz-card
+            class="metric-card gaming-metric-card metric-card--clickable"
+            (click)="onMetricNavigate(metric)"
+            (keydown.enter)="onMetricNavigate(metric)"
+            tabindex="0"
+            role="link"
+            [attr.aria-label]="'Ir a ' + metric.title"
+          >
             <div class="metric-content">
               <div class="metric-icon gaming-icon">
                 <lucide-icon [img]="metric.icon" size="28"></lucide-icon>
@@ -131,7 +138,12 @@ interface QuickAction {
                 <span class="section-icon">📈</span>
                 <h2 class="section-title">Actividad Reciente</h2>
               </div>
-              <ui-josanz-button variant="ghost" size="sm" class="view-all-btn">
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                class="view-all-btn"
+                (clicked)="goToAuditTrail()"
+              >
                 <span class="btn-icon">👁️</span>
                 Ver todo
               </ui-josanz-button>
@@ -139,8 +151,13 @@ interface QuickAction {
             <div class="activities-list">
               @for (activity of recentActivities(); track activity.id) {
                 <div
-                  class="activity-item gaming-activity-item"
+                  class="activity-item gaming-activity-item activity-item--clickable"
                   [class]="getActivityTypeClass(activity.type)"
+                  role="button"
+                  tabindex="0"
+                  (click)="goToActivity(activity.type)"
+                  (keydown.enter)="goToActivity(activity.type)"
+                  [attr.aria-label]="'Abrir ' + activity.title"
                 >
                   <div class="activity-icon gaming-activity-icon">
                     <lucide-icon
@@ -191,9 +208,9 @@ interface QuickAction {
               @for (action of quickActions(); track action.title) {
                 <ui-josanz-button
                   [variant]="action.color"
-                  [routerLink]="action.route"
                   class="action-button gaming-action-btn"
                   [class]="getActionClass(action.color)"
+                  (clicked)="goToRoute($event, action.route)"
                 >
                   <div class="action-content">
                     <div class="action-icon-wrapper">
@@ -450,6 +467,24 @@ interface QuickAction {
         position: relative;
         overflow: hidden;
         animation: metric-enter 0.8s ease-out both;
+      }
+
+      .metric-card--clickable {
+        cursor: pointer;
+      }
+
+      .metric-card--clickable:focus-visible {
+        outline: 2px solid var(--ring-focus, var(--brand));
+        outline-offset: 3px;
+      }
+
+      .activity-item--clickable {
+        cursor: pointer;
+      }
+
+      .activity-item--clickable:focus-visible {
+        outline: 2px solid var(--ring-focus, var(--brand));
+        outline-offset: 2px;
       }
 
       .gaming-metric-card {
@@ -1210,6 +1245,7 @@ interface QuickAction {
 })
 export class DashboardComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
+  private readonly router = inject(Router);
 
   currentTheme = this.themeService.currentThemeData;
   private readonly TrendingUp = TrendingUp;
@@ -1314,7 +1350,7 @@ export class DashboardComponent implements OnInit {
       title: 'Generar Factura',
       description: 'Crear factura nueva',
       icon: this.FileText,
-      route: '/billing/new',
+      route: '/billing',
       color: 'success',
     },
     {
@@ -1391,8 +1427,50 @@ export class DashboardComponent implements OnInit {
     return `action-${color}`;
   }
 
+  goToAuditTrail(): void {
+    void this.router.navigateByUrl('/audit');
+  }
+
+  goToActivity(
+    type: RecentActivity['type'],
+  ): void {
+    const routes: Record<RecentActivity['type'], string> = {
+      project: '/projects',
+      event: '/events',
+      invoice: '/billing',
+      client: '/clients',
+    };
+    void this.router.navigateByUrl(routes[type] ?? '/dashboard');
+  }
+
+  goToRoute(ev: Event, path: string): void {
+    ev.preventDefault();
+    ev.stopPropagation();
+    void this.router.navigateByUrl(path);
+  }
+
+  onMetricNavigate(metric: MetricCard): void {
+    const t = metric.title.toLowerCase();
+    if (t.includes('ingreso')) {
+      void this.router.navigateByUrl('/billing');
+      return;
+    }
+    if (t.includes('proyecto')) {
+      void this.router.navigateByUrl('/projects');
+      return;
+    }
+    if (t.includes('cliente')) {
+      void this.router.navigateByUrl('/clients');
+      return;
+    }
+    if (t.includes('evento')) {
+      void this.router.navigateByUrl('/events');
+      return;
+    }
+    void this.router.navigateByUrl('/dashboard');
+  }
+
   private loadDashboardData() {
-    // TODO: Load real data from services
-    console.log('Loading dashboard data...');
+    // Reservado: cargar KPIs desde API (Fase 3)
   }
 }

@@ -202,7 +202,7 @@ interface Report {
                       <ui-josanz-button
                         variant="ghost"
                         size="sm"
-                        (click)="downloadReport(report)"
+                        (clicked)="downloadReport(report)"
                       >
                         <lucide-icon [name]="'download'" size="16"></lucide-icon>
                         Descargar
@@ -577,8 +577,24 @@ export class ReportsComponent implements OnInit {
   }
 
   downloadReport(report: Report) {
-    // Simulate download
-    console.log('Downloading report:', report);
-    // In a real implementation, this would trigger a file download
+    const body = {
+      id: report.id,
+      tipo: report.type,
+      titulo: report.title,
+      generadoEn: report.generatedAt,
+      rangoFechas: report.dateRange,
+      filtros: report.filters,
+    };
+    const json = JSON.stringify(body, null, 2);
+    const blob = new Blob([json], {
+      type: 'application/json;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `josanz-reporte-${report.id}.json`;
+    a.rel = 'noopener';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
