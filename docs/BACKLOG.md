@@ -3,6 +3,7 @@
 Documento vivo con **lo que falta o conviene hacer** a nivel producto, operaciones y calidad técnica. No sustituye los planes por fase; enlázalos para contexto.
 
 | Documento | Uso |
+
 |-----------|-----|
 | [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | Estado por módulo y mejoras UX continuas |
 | [IMPLEMENTATION_PLAN_PHASE4.md](./IMPLEMENTATION_PLAN_PHASE4.md) | Detalle de Fase 4 (gran parte ya implementada) |
