@@ -35,7 +35,7 @@ Salida por defecto en `documentation/compodoc` (carpeta ignorada por git).
 Humo básico (dashboard, reportes, redirección):
 
 ```bash
-pnpm exec nx run frontend-e2e:e2e
+pnpm exec playwright test --config=apps/frontend-e2e/playwright.config.ts --project=chromium
 ```
 
 Asegúrate de que el servidor de desarrollo del frontend esté disponible o deja que Playwright lo arranque según `playwright.config.ts`.
