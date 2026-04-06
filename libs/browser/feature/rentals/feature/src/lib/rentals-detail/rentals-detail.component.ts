@@ -112,14 +112,14 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                       <li class="annex-item">
                         <span class="annex-title">{{ a.title }}</span>
                         @if (a.description) {
-                          <p class="annex-desc">{{ a.description }}</p>
+                          <p class="annex-desc text-friendly">{{ a.description }}</p>
                         }
                         <span class="annex-date">{{ formatDate(a.createdAt) }}</span>
                       </li>
                     }
                   </ul>
                 } @else {
-                  <p class="annex-empty">No hay anexos. Usa «Añadir anexo» en el panel lateral.</p>
+                  <p class="annex-empty text-friendly">No hay anexos. Usa «Añadir anexo» en el panel lateral.</p>
                 }
               </ui-josanz-card>
 
@@ -197,7 +197,7 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
       >
         @if (rental(); as r) {
           <div class="sig-modal-body">
-            <p class="muted">Gestiona el flujo de firma electrónica del contrato. El email sirve como referencia para el envío al firmante.</p>
+            <p class="muted text-friendly">Gestiona el flujo de firma electrónica del contrato. El email sirve como referencia para el envío al firmante.</p>
             <ui-josanz-input label="Email del firmante" [(ngModel)]="signatureEmail" placeholder="firma@cliente.com"></ui-josanz-input>
           </div>
         }

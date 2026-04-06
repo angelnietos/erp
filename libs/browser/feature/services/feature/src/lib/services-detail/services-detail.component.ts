@@ -33,7 +33,7 @@ interface ServiceForm {
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container">
+    <div class="page-container page-container--skip-horizontal-inset">
       <header class="page-header">
         <div class="header-actions">
           <ui-josanz-button

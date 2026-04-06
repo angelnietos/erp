@@ -20,8 +20,8 @@ interface PluginDescriptor {
     <div class="page-container">
       <div class="page-header">
         <div class="header-content">
-          <h1 class="glow-text">Configuración del Sistema</h1>
-          <p class="subtitle">Gestión de plugins, parámetros fiscales y preferencias de plataforma</p>
+          <h1 class="glow-text">Configuraci?n del Sistema</h1>
+          <p class="subtitle text-friendly">Gesti?n de plugins, par?metros fiscales y preferencias de plataforma</p>
         </div>
       </div>
 
@@ -30,7 +30,7 @@ interface PluginDescriptor {
         <section class="settings-section">
           <div class="section-header">
             <lucide-icon name="puzzle" size="18"></lucide-icon>
-            <h2>Gestión de Plugins & Verticales</h2>
+            <h2>Gesti?n de Plugins & Verticales</h2>
           </div>
           
           <div class="plugin-cards">
@@ -42,7 +42,7 @@ interface PluginDescriptor {
                   </div>
                   <div class="plugin-text">
                     <h3>{{ plugin.name }}</h3>
-                    <p>{{ plugin.description }}</p>
+                    <p class="text-friendly">{{ plugin.description }}</p>
                   </div>
                 </div>
                 
@@ -72,8 +72,8 @@ interface PluginDescriptor {
           <ui-josanz-card variant="glass" class="prefs-card">
             <div class="pref-item">
               <div class="pref-info">
-                <span>Sincronización en tiempo real</span>
-                <p>Habilita la actualización automática de sockets</p>
+                <span>Sincronizaci?n en tiempo real</span>
+                <p class="text-friendly">Habilita la actualizaci?n autom?tica de sockets</p>
               </div>
               <div 
                 class="pref-toggle" 
@@ -88,7 +88,7 @@ interface PluginDescriptor {
             <div class="pref-item">
               <div class="pref-info">
                 <span class="premium-label" [style.color]="premiumExperience() ? 'var(--brand)' : '#fff'">Experiencia Premium (LUXE Mode)</span>
-                <p>Habilita trazado de rayos simulado, glassmorphism avanzado y efectos cinemáticos</p>
+                <p class="text-friendly">Habilita trazado de rayos simulado, glassmorphism avanzado y efectos cinematogr?ficos</p>
               </div>
               <div 
                 class="pref-toggle premium-toggle" 
@@ -298,10 +298,10 @@ export class SettingsFeatureComponent {
 
   readonly plugins: PluginDescriptor[] = [
     { id: 'inventory', name: 'Inventario Pro', description: 'Control de stock y trazabilidad de material.', icon: 'package', category: 'core' },
-    { id: 'budgets', name: 'Presupuestos', description: 'Gestor de cotizaciones cinematográficas.', icon: 'receipt', category: 'core' },
-    { id: 'fleet', name: 'Gestión de Flota', icon: 'car', description: 'Control de vehículos y transportes de producción.', category: 'vertical' },
+    { id: 'budgets', name: 'Presupuestos', description: 'Gestor de cotizaciones cinematogr?ficas.', icon: 'receipt', category: 'core' },
+    { id: 'fleet', name: 'Gesti?n de Flota', icon: 'car', description: 'Control de veh?culos y transportes de producci?n.', category: 'vertical' },
     { id: 'rentals', name: 'Alquileres', icon: 'key', description: 'Sistema de reservas y devoluciones.', category: 'vertical' },
-    { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integración mandatoria con la AEAT.', category: 'vertical' },
+    { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integraci?n mandatoria con la AEAT.', category: 'vertical' },
   ];
 
   isPluginEnabled(id: string) {

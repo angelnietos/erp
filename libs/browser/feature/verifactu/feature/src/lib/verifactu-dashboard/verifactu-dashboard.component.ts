@@ -160,9 +160,9 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       (closed)="closeDetailModal()"
     >
       @if (store.loading() && !store.selectedInvoice()) {
-        <p class="detail-loading">Cargando detalle…</p>
+        <p class="detail-loading text-friendly">Cargando detalle…</p>
       } @else if (store.error() && !store.selectedInvoice()) {
-        <p class="detail-error">{{ store.error() }}</p>
+        <p class="detail-error text-friendly">{{ store.error() }}</p>
       } @else if (store.selectedInvoice(); as inv) {
         <div class="detail-grid">
           <div class="detail-block">

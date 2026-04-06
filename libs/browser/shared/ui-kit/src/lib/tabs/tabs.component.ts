@@ -34,47 +34,67 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
   styles: [`
     :host { display: block; min-width: 0; }
 
-    .tabs { 
-      display: flex; 
-      gap: 4px; 
-      padding: 4px; 
-      border-radius: var(--radius-md); 
-      background: var(--bg-tertiary);
+    .tabs {
+      display: flex;
+      gap: 5px;
+      padding: 5px;
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--bg-tertiary) 92%, var(--brand) 3%);
       border: 1px solid var(--border-soft);
       width: fit-content;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     .tab-item {
-      display: flex; 
-      align-items: center; 
-      gap: 6px; 
-      padding: 0.45rem 0.75rem;
-      background: transparent; 
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.5rem 0.85rem;
+      background: transparent;
       border: none;
-      border-radius: var(--radius-sm);
-      font-size: 0.58rem; 
-      font-weight: 700; 
+      border-radius: var(--radius-md);
+      font-size: 0.62rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      cursor: pointer; 
-      transition: var(--transition-base);
+      letter-spacing: 0.055em;
+      line-height: 1.35;
+      cursor: pointer;
+      transition:
+        color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.28s ease,
+        transform 0.25s ease,
+        box-shadow 0.28s ease;
       color: var(--text-secondary);
-      font-family: var(--font-display);
+      font-family: var(--font-main);
       position: relative;
       overflow: hidden;
     }
 
     .tab-item:hover {
       color: #fff;
-      background: rgba(255, 255, 255, 0.03);
+      background: color-mix(in srgb, #fff 6%, transparent);
+    }
+
+    .tab-item:focus-visible {
+      outline: 2px solid var(--ring-focus);
+      outline-offset: 2px;
     }
 
     .tab-item.active {
       color: #fff;
-      background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 90%, #fff) 0%, var(--brand) 100%);
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--brand) 88%, #fff) 0%,
+        var(--brand) 100%
+      );
       box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.2) inset,
-        0 8px 28px -8px var(--brand-glow);
+        0 1px 0 rgba(255, 255, 255, 0.22) inset,
+        0 10px 32px -10px var(--brand-glow);
+      transform: translateY(-1px);
+    }
+
+    .tab-item:active:not(.active) {
+      transform: scale(0.98);
     }
 
     .tab-label { position: relative; z-index: 10; }

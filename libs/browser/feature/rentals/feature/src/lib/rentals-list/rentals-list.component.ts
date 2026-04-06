@@ -221,10 +221,10 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
     >
       @if (rentalForSignature(); as rs) {
         <div class="sig-flow">
-          <p class="sig-intro">
+          <p class="sig-intro text-friendly">
             Expediente <strong>#{{ rs.id.slice(0, 8) | uppercase }}</strong> · {{ rs.clientName }}
           </p>
-          <p class="sig-status">
+          <p class="sig-status text-friendly">
             Estado actual:
             <strong>{{ getSignatureLabel(rs.signatureStatus) }}</strong>
           </p>

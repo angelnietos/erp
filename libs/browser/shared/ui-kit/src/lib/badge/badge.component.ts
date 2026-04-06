@@ -29,17 +29,23 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       font-size: 0.6rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.07em;
       font-family: var(--font-display);
       border: var(--badge-border-width, 1px) solid var(--badge-border, transparent);
       white-space: nowrap;
-      transition: all var(--transition-base, 0.3s ease);
+      transition:
+        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.25s ease,
+        background 0.25s ease;
       background: var(--badge-bg, transparent);
       color: var(--badge-color, var(--text-primary));
       box-shadow: var(--badge-shadow, none);
     }
     
-    .badge:hover { transform: scale(1.05); }
+    .badge:hover {
+      transform: scale(1.04) translateY(-1px);
+      box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--badge-color, var(--brand)) 35%, transparent);
+    }
 
     .dot {
       width: 6px;

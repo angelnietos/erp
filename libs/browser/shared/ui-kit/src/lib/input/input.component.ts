@@ -164,9 +164,11 @@ export type InputVariant = string;
 
     /* FOCUS STATES */
     input:focus {
-      background: color-mix(in srgb, var(--input-bg) 95%, #fff); 
+      background: color-mix(in srgb, var(--input-bg) 92%, #fff);
       border-color: var(--input-focus);
-      box-shadow: 0 0 24px var(--input-glow), inset 0 0 0 1px var(--input-focus);
+      box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--input-focus) 22%, transparent),
+        0 12px 28px -8px var(--input-glow);
     }
 
     input:focus-visible {
@@ -185,7 +187,11 @@ export type InputVariant = string;
       border-color: var(--input-focus);
     }
     
-    input::placeholder { color: var(--text-muted); opacity: 0.5; }
+    input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.62;
+      font-weight: 500;
+    }
     
     .has-icon input { padding-left: 2.75rem; }
     .field-icon { 

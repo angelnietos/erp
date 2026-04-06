@@ -79,13 +79,13 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
     .loader-danger .spinner { border-top-color: var(--danger); border-right-color: var(--danger); }
     .loader-danger .message { color: var(--danger); }
 
-    .message { 
-      font-size: 0.58rem; 
-      font-weight: 700; 
-      text-transform: uppercase; 
-      letter-spacing: 0.08em;
-      margin: 0; 
-      color: var(--text-muted);
+    .message {
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin: 0;
+      color: var(--text-secondary);
       animation: pulse 1.5s ease-in-out infinite;
       font-family: var(--font-main);
     }

@@ -64,7 +64,7 @@ export interface DeliveryDetailView {
     UiTableComponent,
   ],
   template: `
-    <div class="page-container">
+    <div class="page-container page-container--skip-horizontal-inset">
       @if (isLoading()) {
         <ui-josanz-loader message="Cargando albarán..."></ui-josanz-loader>
       } @else if (delivery(); as d) {
@@ -141,20 +141,20 @@ export interface DeliveryDetailView {
                 />
               }
               @if (sigImageBroken() && d.signatureImageSrc) {
-                <p class="signature-fallback">No se pudo cargar la imagen de firma.</p>
+                <p class="signature-fallback text-friendly">No se pudo cargar la imagen de firma.</p>
               }
               @if (d.signatureText) {
-                <p class="signature-text">Conformidad registrada: {{ d.signatureText }}</p>
+                <p class="signature-text text-friendly">Conformidad registrada: {{ d.signatureText }}</p>
               }
               @if (!d.signatureImageSrc && !d.signatureText) {
-                <p class="signature-muted">No hay texto ni imagen de firma guardados para este albarán.</p>
+                <p class="signature-muted text-friendly">No hay texto ni imagen de firma guardados para este albarán.</p>
               }
               <span class="signature-name">{{ d.recipientName }}</span>
             </div>
           </ui-josanz-card>
         }
       } @else {
-        <p class="not-found">No se encontró el albarán.</p>
+        <p class="not-found text-friendly">No se encontró el albarán.</p>
         <button type="button" class="back-btn" routerLink="/delivery">Volver al listado</button>
       }
     </div>

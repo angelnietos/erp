@@ -118,10 +118,15 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         width: 248px;
         min-width: 248px;
         height: 100%;
-        background: rgba(10, 10, 10, 0.85);
+        background: linear-gradient(
+          165deg,
+          color-mix(in srgb, var(--bg-primary, #050608) 92%, var(--brand) 5%) 0%,
+          rgba(10, 10, 12, 0.92) 48%,
+          rgba(8, 8, 10, 0.94) 100%
+        );
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
         display: flex;
         flex-direction: column;
         transition:
@@ -202,11 +207,15 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .logo-text {
-        font-weight: 900;
-        font-size: 1.1rem;
-        letter-spacing: 0.2em;
-        font-family: 'Outfit', sans-serif;
-        background: linear-gradient(to right, #fff, var(--text-muted));
+        font-weight: 800;
+        font-size: 1.05rem;
+        letter-spacing: 0.18em;
+        font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
+        background: linear-gradient(
+          to right,
+          #fff,
+          color-mix(in srgb, var(--brand) 35%, var(--text-muted))
+        );
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -263,7 +272,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         display: flex;
         align-items: center;
         padding: 10px 14px;
-        border-radius: 10px;
+        border-radius: 12px;
         text-decoration: none;
         color: var(--text-muted);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -282,10 +291,11 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .nav-link:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: color-mix(in srgb, #fff 6%, transparent);
         color: #fff;
-        border-color: rgba(255, 255, 255, 0.05);
-        transform: translateX(4px);
+        border-color: color-mix(in srgb, var(--brand) 18%, rgba(255, 255, 255, 0.06));
+        transform: translateX(5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       }
 
       .collapsed .nav-link:hover {

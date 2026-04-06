@@ -897,6 +897,10 @@ export class ThemeService {
       '--theme-primary-rgb',
       hexToRgbTriplet(config.primary),
     );
+    /* Alias tokens used by feature UIs (dashboard, events, etc.) */
+    root.style.setProperty('--primary', config.primary);
+    root.style.setProperty('--primary-rgb', hexToRgbTriplet(config.primary));
+    root.style.setProperty('--accent-rgb', hexToRgbTriplet(config.secondary));
     root.style.setProperty('--theme-secondary', config.secondary);
     root.style.setProperty('--theme-background', config.background);
     root.style.setProperty('--theme-surface', config.surface);
@@ -906,6 +910,7 @@ export class ThemeService {
 
     // Cyber-Luxe tokens
     root.style.setProperty('--brand', config.brand);
+    root.style.setProperty('--brand-rgb', hexToRgbTriplet(config.brand));
     root.style.setProperty('--brand-glow', config.brandGlow);
     root.style.setProperty('--bg-primary', config.background);
     root.style.setProperty('--bg-secondary', config.bgSecondary);

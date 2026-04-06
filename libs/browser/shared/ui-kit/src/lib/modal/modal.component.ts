@@ -20,11 +20,14 @@ export type ModalVariant = string;
         aria-modal="true"
         role="dialog"
       >
-        <div 
-          class="modal-content" 
-          [class]="'modal-shape-' + shape" 
-          [class]="'modal-color-' + color" 
-          [class.modal-auto-overrides]="shape === 'auto'"
+        <div
+          [class]="
+            'modal-content modal-shape-' +
+            shape +
+            ' modal-color-' +
+            color +
+            (shape === 'auto' ? ' modal-auto-overrides' : '')
+          "
           (click)="$event.stopPropagation()"
           (keydown)="$event.stopPropagation()"
           tabindex="0"
@@ -33,7 +36,7 @@ export type ModalVariant = string;
             <h3>{{ title }}</h3>
             <button class="close-btn" (click)="onClose()" aria-label="Close modal">×</button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body text-friendly">
             <ng-content></ng-content>
           </div>
           @if (showFooter) {
@@ -166,30 +169,63 @@ export type ModalVariant = string;
       border-bottom: 1px solid var(--border-soft);
     }
 
-    .modal-header h3 { 
-      margin: 0; 
-      font-size: 1.15rem; 
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.05rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.1em;
       color: var(--modal-header-color);
       font-family: var(--font-display);
     }
 
     .close-btn {
-      background: none; border: none; font-size: 2rem;
-      cursor: pointer; padding: 0; line-height: 1;
-      color: var(--text-muted); transition: all 0.3s ease;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      font-size: 1.35rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      color: var(--text-secondary);
+      transition:
+        color 0.25s ease,
+        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.25s ease,
+        border-color 0.25s ease;
     }
-    
-    .close-btn:hover { color: var(--brand); transform: rotate(90deg); }
 
-    .modal-body { padding: 2rem; max-height: 60vh; overflow-y: auto; }
+    .close-btn:hover {
+      color: var(--brand);
+      background: color-mix(in srgb, var(--brand) 14%, transparent);
+      border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+      transform: rotate(90deg) scale(1.05);
+    }
 
-    .modal-footer { 
-      padding: 1.5rem 2rem; display: flex; gap: 1rem; 
-      justify-content: flex-end; 
-      background: color-mix(in srgb, var(--bg-primary) 60%, transparent);
+    .close-btn:focus-visible {
+      outline: 2px solid var(--ring-focus);
+      outline-offset: 2px;
+    }
+
+    .modal-body {
+      padding: 1.75rem 2rem;
+      max-height: min(60vh, 32rem);
+      overflow-y: auto;
+      font-size: 0.92rem;
+    }
+
+    .modal-footer {
+      padding: 1.25rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
       border-top: 1px solid var(--border-soft);
     }
 

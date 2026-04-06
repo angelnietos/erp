@@ -15,20 +15,22 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
   `,
   styles: [`
     .alert {
-      padding: 1.25rem 1.5rem;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      margin-bottom: 2rem;
+      padding: 1.1rem 1.35rem;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      margin-bottom: 1.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
       animation: alertSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid transparent;
-      font-weight: 700;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       font-family: var(--font-display);
+      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.06));
     }
 
     @keyframes alertSlideIn {

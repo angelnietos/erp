@@ -70,9 +70,11 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     }
 
     select:focus {
-      border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 0 1px var(--brand-border-soft, transparent), 0 0 28px var(--brand-glow);
+      border-color: color-mix(in srgb, var(--brand) 70%, var(--border-soft));
+      background: color-mix(in srgb, var(--bg-secondary) 90%, var(--brand) 3%);
+      box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--brand-glow) 38%, transparent),
+        0 10px 26px -10px var(--brand-glow);
     }
 
     select:focus-visible {

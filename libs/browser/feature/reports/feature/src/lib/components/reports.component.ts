@@ -91,7 +91,7 @@ interface Report {
                 </div>
                 <div class="report-info">
                   <h3 class="report-name">{{ reportType.name }}</h3>
-                  <p class="report-description">{{ reportType.description }}</p>
+                  <p class="report-description text-friendly">{{ reportType.description }}</p>
                   <span class="report-category">{{
                     getCategoryName(reportType.category)
                   }}</span>
@@ -107,7 +107,7 @@ interface Report {
             <ui-josanz-card>
               <div class="form-header">
                 <h2>Generar Reporte: {{ selectedReportType()?.name }}</h2>
-                <p>Configura los filtros y genera tu reporte</p>
+                <p class="text-friendly">Configura los filtros y genera tu reporte</p>
               </div>
 
               <form class="report-form" (ngSubmit)="generateReport()">
@@ -192,7 +192,7 @@ interface Report {
                       </div>
                       <div class="report-details">
                         <h4 class="report-title">{{ report.title }}</h4>
-                        <p class="report-meta">
+                        <p class="report-meta text-friendly">
                           Generado: {{ report.generatedAt }} | Filtros:
                           {{ report.dateRange }}
                         </p>

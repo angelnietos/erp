@@ -46,11 +46,33 @@ export type CardVariant = string;
       background: var(--card-bg, var(--surface, #1a1a24));
       border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft, #333));
       box-shadow: var(--card-shadow, var(--shadow-md)), var(--shadow-inset-shine, none);
-      transition: all var(--transition-base, 0.3s ease);
+      transition:
+        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.35s ease;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       position: relative;
+      isolation: isolate;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--brand) 45%, transparent),
+        color-mix(in srgb, #fff 25%, transparent),
+        color-mix(in srgb, var(--brand) 35%, transparent),
+        transparent
+      );
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 1;
     }
 
     /* shape-auto: picks up all tokens from ThemeService */
@@ -145,9 +167,15 @@ export type CardVariant = string;
 
     .hover-effect { cursor: pointer; }
     .hover-effect:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      --card-border: var(--brand);
+      transform: translateY(-5px);
+      box-shadow:
+        0 24px 48px rgba(0, 0, 0, 0.38),
+        0 0 36px -12px var(--brand-glow, rgba(255, 255, 255, 0.08));
+      --card-border: color-mix(in srgb, var(--brand) 55%, var(--border-soft));
+    }
+
+    .hover-effect::before {
+      opacity: 0.9;
     }
   `],
 })

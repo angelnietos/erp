@@ -129,7 +129,7 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
             </ui-josanz-card>
 
             <ui-josanz-card variant="glass" title="Historial de Movimientos">
-              <p class="empty-text">
+              <p class="empty-text text-friendly">
                 No hay movimientos operativos registrados en las últimas 24h.
               </p>
             </ui-josanz-card>

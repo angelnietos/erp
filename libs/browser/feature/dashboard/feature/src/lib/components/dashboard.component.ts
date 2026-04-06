@@ -66,16 +66,7 @@ interface QuickAction {
         >
           <div class="header-breadcrumb">
             <div class="hero-glow-effect"></div>
-            <h1
-              class="page-title text-uppercase glow-text"
-              [style.text-shadow]="
-                '0 0 30px ' +
-                currentTheme().primary +
-                '66, 0 0 60px ' +
-                currentTheme().primary +
-                '33'
-              "
-            >
+            <h1 class="page-title text-uppercase">
               <span class="title-icon">🎮</span>
               Dashboard
             </h1>
@@ -160,7 +151,7 @@ interface QuickAction {
                   </div>
                   <div class="activity-content">
                     <h4 class="activity-title">{{ activity.title }}</h4>
-                    <p class="activity-description">
+                    <p class="activity-description text-friendly">
                       {{ activity.description }}
                     </p>
                     <span class="activity-timestamp gaming-timestamp">{{
@@ -211,7 +202,7 @@ interface QuickAction {
                     </div>
                     <div class="action-text">
                       <span class="action-title">{{ action.title }}</span>
-                      <span class="action-description">{{
+                      <span class="action-description text-friendly">{{
                         action.description
                       }}</span>
                     </div>
@@ -335,28 +326,25 @@ interface QuickAction {
       }
 
       .page-title {
+        position: relative;
+        z-index: 1;
         margin: 0 0 0.5rem 0;
-        font-size: 3rem;
-        font-weight: 900;
-        letter-spacing: 0.05em;
+        font-size: clamp(1.75rem, 4vw, 3rem);
+        font-weight: 800;
+        font-family: var(--font-display);
+        letter-spacing: 0.04em;
+        line-height: 1.15;
+        text-shadow: none;
+        -webkit-font-smoothing: antialiased;
         background: linear-gradient(
           135deg,
-          var(--text-primary),
-          var(--primary)
+          var(--text-primary) 0%,
+          color-mix(in srgb, var(--primary) 88%, #fff) 100%
         );
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         animation: slide-up 0.8s ease-out;
-      }
-
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
       }
 
       .header-actions {
@@ -571,7 +559,7 @@ interface QuickAction {
         background: linear-gradient(
           135deg,
           var(--text-primary),
-          var(--primary)
+          var(--primary, var(--brand))
         );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -811,9 +799,7 @@ interface QuickAction {
 
       .activity-description {
         margin: 0 0 0.5rem 0;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        line-height: 1.4;
+        font-size: 0.84rem;
       }
 
       .activity-timestamp {
@@ -951,9 +937,9 @@ interface QuickAction {
       }
 
       .action-description {
-        font-size: 0.75rem;
-        opacity: 0.8;
-        font-weight: 400;
+        font-size: 0.8rem;
+        opacity: 0.92;
+        max-width: 36ch;
       }
 
       .action-bg-effect {

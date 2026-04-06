@@ -42,53 +42,83 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
     </div>
   `,
   styles: [`
-    .pagination { 
-      display: flex; 
-      gap: 8px; 
-      justify-content: center; 
+    .pagination {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
       align-items: center;
-      padding: 0.5rem 0.25rem; 
+      padding: 0.65rem 0.35rem;
       width: 100%;
+      flex-wrap: wrap;
     }
 
-    .pages-group { display: flex; gap: 6px; }
+    .pages-group {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
     .page-btn {
-      height: 1.75rem;
-      min-width: 1.75rem;
-      padding: 0 0.5rem;
+      min-height: 2.1rem;
+      min-width: 2.1rem;
+      padding: 0 0.65rem;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-md);
       color: var(--text-secondary);
-      font-size: 0.58rem;
+      font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.055em;
+      line-height: 1.3;
       cursor: pointer;
-      transition: var(--transition-base);
+      transition:
+        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.28s ease;
       font-family: var(--font-main);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     .page-btn:not(:disabled):hover {
-      background: var(--surface-hover);
+      background: color-mix(in srgb, var(--surface-hover, var(--bg-secondary)) 88%, var(--brand) 6%);
       color: #fff;
-      border-color: var(--brand);
+      border-color: color-mix(in srgb, var(--brand) 45%, var(--border-soft));
       transform: translateY(-2px);
+      box-shadow: 0 8px 22px -10px var(--brand-glow);
+    }
+
+    .page-btn:not(:disabled):active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    .page-btn:focus-visible {
+      outline: 2px solid var(--ring-focus);
+      outline-offset: 2px;
     }
 
     .page-btn.active {
       background: var(--brand);
       border-color: var(--brand);
       color: #fff;
-      box-shadow: 0 4px 15px -5px var(--brand-glow);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.15) inset,
+        0 6px 22px -6px var(--brand-glow);
     }
 
-    .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .page-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
 
     .nav-btn { font-size: 0.52rem; letter-spacing: 0.05em; }
     .nav-btn lucide-icon { width: 1.1rem; height: 1.1rem; }
@@ -97,9 +127,9 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
     .pagination-minimal .pages-group { display: none; }
     
     .pagination-glass .page-btn {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: color-mix(in srgb, var(--surface, rgba(255, 255, 255, 0.04)) 70%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
   `],
 })

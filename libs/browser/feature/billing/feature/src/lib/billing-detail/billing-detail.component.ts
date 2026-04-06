@@ -28,7 +28,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
     UiButtonComponent,
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
+    <div class="page-container page-container--skip-horizontal-inset animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
         <ui-josanz-loader message="Sincronizando registros fiscales con AEAT..."></ui-josanz-loader>
       } @else if (invoice(); as inv) {
@@ -124,7 +124,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                  <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28"></lucide-icon>
                  <div class="vf-text">
                    <h4 class="text-uppercase">{{ getVerifactuLabel(inv.verifactuStatus) }}</h4>
-                   <p>Certificación VeriFactu cumplimentada bajo normativa 2026/02/AEAT.</p>
+                   <p class="text-friendly">Certificación VeriFactu cumplimentada bajo normativa 2026/02/AEAT.</p>
                  </div>
                </div>
                @if (inv.verifactuStatus === 'sent') {
@@ -136,7 +136,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
             </ui-josanz-card>
 
             <ui-josanz-card variant="glass" title="Notas del Expediente">
-               <p class="notes-text">{{ inv.notes || 'No hay notas adicionales para este documento fiscal.' }}</p>
+               <p class="notes-text text-friendly">{{ inv.notes || 'No hay notas adicionales para este documento fiscal.' }}</p>
             </ui-josanz-card>
           </aside>
         </div>
@@ -151,7 +151,13 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
     </div>
   `,
   styles: [`
-    .page-container { display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: clamp(1rem, 2.5vw, 1.75rem) clamp(1rem, 2.5vw, 2rem) 2rem;
+      box-sizing: border-box;
+    }
     
     .back-btn {
       background: none; border: none; color: var(--text-muted); 

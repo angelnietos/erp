@@ -40,11 +40,15 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      gap: 12px;
-      transition: all var(--transition-base, 0.3s cubic-bezier(0.16, 1, 0.3, 1));
+      gap: 10px;
+      transition:
+        transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.28s ease,
+        border-color 0.28s ease;
       font-family: var(--font-display, inherit);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.09em;
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
@@ -89,9 +93,14 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       border-radius: var(--btn-radius, var(--radius-md, 8px));
     }
     .btn-shape-auto:hover:not(:disabled) {
-      filter: brightness(1.15);
+      filter: brightness(1.12) saturate(1.05);
       transform: translateY(-2px);
       box-shadow: var(--btn-shadow, 0 8px 25px -5px var(--btn-glow));
+    }
+
+    .btn-shape-auto:active:not(:disabled) {
+      transform: translateY(0) scale(0.98);
+      filter: brightness(1.05);
     }
 
     .btn-shape-solid {
@@ -100,6 +109,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       box-shadow: 0 4px 10px -2px var(--btn-glow);
     }
     .btn-shape-solid:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 15px -4px var(--btn-glow); }
+    .btn-shape-solid:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 
     .btn-shape-glass {
       background: color-mix(in srgb, var(--btn-bg) 15%, transparent);
@@ -109,6 +119,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       box-shadow: 0 4px 15px -5px rgba(0,0,0,0.3);
     }
     .btn-shape-glass:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-bg) 35%, transparent); border-color: var(--btn-bg); color: #fff; transform: translateY(-2px); }
+    .btn-shape-glass:active:not(:disabled) { transform: translateY(0) scale(0.99); }
 
     .btn-shape-outline {
       background: transparent; color: var(--btn-bg);

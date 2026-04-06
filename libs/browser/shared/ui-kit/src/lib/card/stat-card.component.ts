@@ -35,19 +35,37 @@ import { LucideAngularModule } from 'lucide-angular';
       position: relative;
       overflow: hidden;
       cursor: pointer;
+      transition:
+        transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md, 0 12px 32px rgba(0, 0, 0, 0.35)),
+        0 0 36px -14px var(--brand-glow);
     }
 
     .stat-icon-wrapper {
       width: 2.65rem;
       height: 2.65rem;
-      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
+      background: linear-gradient(
+        145deg,
+        var(--brand-surface, color-mix(in srgb, var(--brand) 18%, transparent)),
+        color-mix(in srgb, var(--brand) 8%, rgba(255, 255, 255, 0.04))
+      );
       border: 1px solid var(--brand-border-soft, color-mix(in srgb, var(--brand) 32%, transparent));
       border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--brand);
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.08));
+      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.1));
+      transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .stat-card:hover .stat-icon-wrapper {
+      transform: scale(1.06) rotate(-4deg);
     }
 
     .stat-content { display: flex; flex-direction: column; gap: 0.25rem; }

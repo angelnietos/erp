@@ -45,13 +45,16 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     </div>
   `,
   styles: [`
-    .table-container { 
-      width: 100%; 
-      overflow-x: auto; 
-      border-radius: var(--radius-lg); 
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius-lg);
       background: var(--bg-secondary);
       border: 1px solid var(--border-soft);
-      box-shadow: var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.22)), var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
+      box-shadow:
+        var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.22)),
+        var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.05)),
+        0 0 40px -20px var(--brand-ambient, transparent);
     }
 
     table { 
@@ -90,12 +93,12 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     .table-row { transition: var(--transition-base); position: relative; }
 
     .table-row:hover td {
-      background: color-mix(in srgb, var(--brand) 4%, var(--bg-tertiary));
+      background: color-mix(in srgb, var(--brand) 6%, var(--bg-tertiary));
       color: var(--text-primary);
     }
 
     .table-row:hover td:first-child {
-      box-shadow: inset 4px 0 0 var(--brand);
+      box-shadow: inset 3px 0 0 var(--brand);
     }
 
     .table-row:last-child td { border-bottom: none; }
@@ -112,17 +115,24 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     }
 
     .empty-cell { padding: 0; }
-    .empty-state { 
+    .empty-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2.5rem 1.5rem;
-      color: var(--text-muted); 
-      font-size: 0.62rem;
+      gap: 0.35rem;
+      padding: 2.75rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.65rem;
     }
-    
-    .empty-state span { font-size: 0.8rem; letter-spacing: 0.2em; opacity: 0.6; }
+
+    .empty-state span {
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      opacity: 0.72;
+      font-family: var(--font-display);
+    }
   `],
 })
 export class UiTableComponent {

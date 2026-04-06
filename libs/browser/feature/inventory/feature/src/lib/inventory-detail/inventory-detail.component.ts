@@ -83,7 +83,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
           </ui-josanz-card>
 
           <ui-josanz-card variant="glass" title="Descripción del Producto">
-             <p class="description-text">{{ product()?.description || 'Sin descripción técnica disponible.' }}</p>
+             <p class="description-text text-friendly">{{ product()?.description || 'Sin descripción técnica disponible.' }}</p>
           </ui-josanz-card>
         </div>
       } @else {

@@ -44,7 +44,7 @@ interface Receipt {
       <header class="receipts-header">
         <div class="header-content">
           <h1 class="receipts-title">Recibos y Pagos</h1>
-          <p class="receipts-subtitle">
+          <p class="receipts-subtitle text-friendly">
             Gestión de pagos pendientes y realizados
           </p>
         </div>
