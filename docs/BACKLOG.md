@@ -8,6 +8,7 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 | [IMPLEMENTATION_PLAN_PHASE4.md](./IMPLEMENTATION_PLAN_PHASE4.md) | Detalle de Fase 4 (gran parte ya implementada) |
 | [USER_GUIDE.md](./USER_GUIDE.md) | Uso, E2E, migraciones |
 | [PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_UX_THEMING_BROWSER.md) | Rediseño `libs/browser`, theming profundo (forma + color) y acciones |
+| [LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md](./LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md) | Libro blanco: arquitectura hexagonal, Nx, escalabilidad, plugins |
 
 ---
 

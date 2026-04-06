@@ -4,6 +4,8 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 
 **Backlog consolidado (pendientes generales, ops, seguridad, Fase 5+):** [BACKLOG.md](./BACKLOG.md).
 
+**Arquitectura y escalabilidad (visión de sistema):** [LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md](./LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md).
+
 ## Estado resumido
 
 | Área | Estado | Notas |
