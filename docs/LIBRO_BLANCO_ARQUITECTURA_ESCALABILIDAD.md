@@ -6,17 +6,6 @@
 
 Este libro blanco **complementa y actualiza** la visión general del producto frente a borradores anteriores: incorpora la estructura **real** del repositorio (`libs/isomorphic`, `libs/node`, `libs/browser`, `apps/*`), los mecanismos ya presentes (multi-tenant, Verifactu, outbox, plugins UI) y enlaza con planes operativos.
 
-**Documentos relacionados**
-
-| Documento | Relación |
-|-----------|----------|
-| [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | Estado funcional por módulo |
-| [IMPLEMENTATION_PLAN_PHASE4.md](./IMPLEMENTATION_PLAN_PHASE4.md) | Persistencia y Fase 4 |
-| [BACKLOG.md](./BACKLOG.md) | Deuda y mejoras continuas |
-| [PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_UX_THEMING_BROWSER.md) | Estrategia front y theming |
-| [USER_GUIDE.md](./USER_GUIDE.md) | Uso y entornos |
-| [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md) | Elección de Angular vs otros frameworks (contexto ERP) |
-
 ---
 
 ## Tabla de contenidos
