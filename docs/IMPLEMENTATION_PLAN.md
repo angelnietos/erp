@@ -8,6 +8,8 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 
 **Elección de framework frontend:** [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md).
 
+**Presentación a la organización (valor y riesgos):** [ARQUITECTURA_PRESENTACION_EMPRESA.md](./ARQUITECTURA_PRESENTACION_EMPRESA.md).
+
 ## Estado resumido
 
 | Área | Estado | Notas |

@@ -16,6 +16,7 @@ Este libro blanco **complementa y actualiza** la visión general del producto: i
 | [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md) | Elección de frontend y riesgos |
 | [PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_UX_THEMING_BROWSER.md) | Theming y capa browser |
 | [USER_GUIDE.md](./USER_GUIDE.md) | Uso, entornos, E2E |
+| [ARQUITECTURA_PRESENTACION_EMPRESA.md](./ARQUITECTURA_PRESENTACION_EMPRESA.md) | Presentación a dirección: valor, riesgos y mitigaciones |
 
 ---
 
