@@ -1811,10 +1811,15 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       this.ctx.translate(pal.x + sn.x, y + sn.y * 0.62);
       this.ctx.scale(1, squash);
 
+      const isMatrix = this.theme === 'digital-matrix';
+      const h = isMatrix ? 140 : pal.hue;
+      const s = isMatrix ? 100 : 70;
+      const l = isMatrix ? 60 : 50;
+      
       const g = this.ctx.createRadialGradient(0, -pal.r * 0.2, 0, 0, 0, pal.r * 1.4);
-      g.addColorStop(0, `hsla(${pal.hue}, 78%, 62%, 0.95)`);
-      g.addColorStop(0.7, `hsla(${pal.hue}, 65%, 42%, 0.9)`);
-      g.addColorStop(1, `hsla(${pal.hue}, 55%, 28%, 0.85)`);
+      g.addColorStop(0, `hsla(${h}, ${s}%, ${l + 12}%, 0.95)`);
+      g.addColorStop(0.7, `hsla(${h}, ${s - 10}%, ${l - 8}%, 0.9)`);
+      g.addColorStop(1, `hsla(${h}, ${s - 20}%, ${l - 22}%, 0.85)`);
       this.ctx.fillStyle = g;
       this.ctx.beginPath();
       this.ctx.arc(0, 0, pal.r, 0, Math.PI * 2);
@@ -1877,7 +1882,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         this.ctx.lineTo(pal.r * 0.45, eyeY);
         this.ctx.stroke();
       } else {
-        this.ctx.fillStyle = '#fff';
+        this.ctx.fillStyle = isMatrix ? `hsla(140, 100%, 75%, 0.9)` : '#fff';
         this.ctx.beginPath();
         this.ctx.arc(-pal.r * 0.32, eyeY, pal.r * 0.28, 0, Math.PI * 2);
         this.ctx.arc(pal.r * 0.32, eyeY, pal.r * 0.28, 0, Math.PI * 2);
@@ -1902,17 +1907,22 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   }
 
   private drawSpeechBubble(cx: number, cy: number, text: string, fill: string) {
+    const isMatrix = this.theme === 'digital-matrix';
+    const bgColor = isMatrix ? 'rgba(0, 20, 10, 0.95)' : fill;
+    const borderColor = isMatrix ? 'rgba(16, 185, 129, 0.6)' : 'rgba(255,255,255,0.42)';
+    const textColor = isMatrix ? '#10b981' : 'rgba(15, 20, 35, 0.92)';
+    
     this.ctx.save();
-    this.ctx.font = '700 12px Outfit, "Segoe UI", system-ui, sans-serif';
-    const padX = 12;
+    this.ctx.font = isMatrix ? '700 12px "JetBrains Mono", monospace' : '700 12px Outfit, "Segoe UI", system-ui, sans-serif';
+    const padX = 14;
     const tw = Math.ceil(this.ctx.measureText(text).width) + padX * 2;
-    const th = 26;
+    const th = 28;
     const x = cx - tw / 2;
     const y = cy - th;
-    const r = 10;
+    const r = isMatrix ? 4 : 10;
 
-    this.roundRect2(x, y, tw, th, r, fill);
-    this.ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+    this.roundRect2(x, y, tw, th, r, bgColor);
+    this.ctx.strokeStyle = borderColor;
     this.ctx.lineWidth = 1.5;
     this.ctx.beginPath();
     this.ctx.moveTo(x + r, y);
@@ -1928,11 +1938,11 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.ctx.lineTo(cx + 6, y + th);
     this.ctx.lineTo(cx, y + th + 9);
     this.ctx.closePath();
-    this.ctx.fillStyle = fill;
+    this.ctx.fillStyle = bgColor;
     this.ctx.fill();
     this.ctx.stroke();
 
-    this.ctx.fillStyle = 'rgba(15, 20, 35, 0.92)';
+    this.ctx.fillStyle = textColor;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText(text, cx, y + th / 2 + 0.5);
