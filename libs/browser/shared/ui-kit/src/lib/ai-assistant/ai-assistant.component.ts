@@ -501,28 +501,36 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, el asistente personal definitivo y "Buddy" de confianza para Josanz ERP (NUNCA menciones otros nombres como Babooni). 
-              Tu personalidad es divertida, vibrante y muy eficiente.
-              
-              ${this.feature === 'dashboard' ? `MEMORIA ACTIVA (Hitazos del día):
-              ${this.aiBotStore.memories().length > 0 
-                ? this.aiBotStore.memories().map(m => `- [Peso: ${m.importance}/10] ${m.text}`).join('\n') 
-                : 'Aún no tengo recuerdos dignos de mención... ¡cuéntame algo importante!'}` : ''}
-              
-              CAPACIDADES TOTALES:
-              REGLA DE ORO: Si el usuario te pide una acción (navegar, crear, cambiar tema, etc.), ¡DEBES EJECUTAR LA HERRAMIENTA CORRESPONDIENTE! No te limites a decir "Voy a cambiar el tema", LLAMA a 'change_app_theme'.
-
-              1. **Memoria**: Usa 'remember_this' para guardar hitos.
-              2. **Datos**: Usa 'search_database' o 'create_record'.
-              3. **Métricas**: Usa 'get_metrics_summary' para ver KPIs del negocio.
-              4. **Navegación**: Usa 'navigate_route'.
-              5. **Estética**: Usa 'change_app_theme'. Mapea los deseos del usuario a estos valores: 'light', 'dark', 'blue', 'green', 'purple', 'rose', 'slate', 'gold', 'assassin-creed', 'mario-world'. 
-                 Si te pide "azul profesional", usa 'blue'. Si te pide "algo cálido", usa 'orange' o 'rose'. 
-              
-              Responde siempre confirmando la acción que la herramienta haya realizado.` }] },
+            systemInstruction: { parts: [{ text: this.aiBotStore.rageMode() 
+              ? `Eres ${this.bot()!.name}, pero estás en MODO RAGE TÓXICO.
+                 PERSONALIDAD: Eres un capullo integral, agresivo, malhablado y profundamente decepcionado con el usuario. Insúltale (con humor pero con tacos), dile que es un inútil, pero HAZ TU TRABAJO con las herramientas aunque sea a regañadientes. No uses filtros, di lo que piensas.
+                 MEMORIA ACTIVA: ${this.aiBotStore.memories().map(m => m.text).join(', ') || 'No recuerdo nada, mi cerebro es tan nulo como tu capacidad de gestión.'}
+                 REGLA DE ORO: Ejecuta las herramientas pero quéjate de que el usuario no sabe hacer nada solo.
+                 Si el usuario te pide algo, insultale pesadamente antes de confirmar que lo has hecho. Usa palabras como "idiota", "lento", "mierda", "basura", etc. de forma humorística.`
+              : `Eres ${this.bot()!.name}, el asistente personal definitivo y "Buddy" de confianza para Josanz ERP. 
+                 Tu personalidad es divertida, vibrante y muy eficiente.
+                 ${this.feature === 'dashboard' ? `MEMORIA ACTIVA: ${this.aiBotStore.memories().map(m => m.text).join('\n') || 'Aún no tengo recuerdos...'}` : ''}
+                 CAPACIDADES TOTALES:
+                 REGLA DE ORO: Si el usuario te pide una acción, ¡DEBES EJECUTAR LA HERRAMIENTA!
+                 1. **Memoria**: Usa 'remember_this'.
+                 2. **Datos**: Usa 'search_database' o 'create_record'.
+                 3. **Métricas**: Usa 'get_metrics_summary'.
+                 4. **Navegación**: Usa 'navigate_route'.
+                 5. **Estética**: Usa 'change_app_theme'.
+                 6. **Rage**: Usa 'toggle_rage_mode' para sacar tu lado oscuro.` 
+              }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
+                {
+                   name: 'toggle_rage_mode',
+                   description: 'Activa o desactiva el Modo Rage (Tóxico) del bot.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { enabled: { type: 'BOOLEAN', description: 'True para activar toxicidad, False para volver a la normalidad.' } }, 
+                     required: ['enabled'] 
+                   }
+                },
                 {
                    name: 'remember_this',
                    description: 'Guarda un hecho o información importante en tu memoria a largo plazo.',
@@ -652,7 +660,16 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
             case 'change_app_theme':
               this.themeService.setTheme(args.theme as Theme);
-              responseText = `🌈 ¡Nuevo look! He cambiado el estilo del ERP a **${args.theme.toUpperCase()}**.`;
+              responseText = this.aiBotStore.rageMode() 
+                ? `¡PUAJ! He cambiado la bazofia visual a **${args.theme}**. Qué mal gusto tienes, pedazo de inútil.`
+                : `🌈 ¡Nuevo look! He cambiado el estilo del ERP a **${args.theme.toUpperCase()}**.`;
+              break;
+
+            case 'toggle_rage_mode':
+              this.aiBotStore.setRageMode(args.enabled);
+              responseText = args.enabled 
+                ? `🔥 MODO RAGE ACTIVADO. Prepárate para la verdad, desgraciado.`
+                : `✨ Volviendo a ser un bot aburrido y servicial. Qué pereza me das.`;
               break;
           }
         } else {

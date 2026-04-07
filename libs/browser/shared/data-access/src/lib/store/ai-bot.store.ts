@@ -169,6 +169,11 @@ export class AIBotStore {
     this._messageBus.set({ feature, text, timestamp: Date.now() });
   }
 
+  // Rage Mode
+  private readonly _rageMode = signal<boolean>(false);
+  readonly rageMode = this._rageMode.asReadonly();
+  setRageMode(enabled: boolean) { this._rageMode.set(enabled); }
+
   // Persistent Memory System
   private readonly _memories = signal<{ text: string, importance: number, timestamp: number }[]>(
     JSON.parse(localStorage.getItem('ai_buddy_memories') || '[]')
