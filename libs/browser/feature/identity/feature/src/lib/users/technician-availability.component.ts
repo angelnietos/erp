@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TechnicianApiService } from '@josanz-erp/shared-data-access';
+import { TechnicianApiService, ToastService } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
 
@@ -17,9 +17,6 @@ interface CalendarCell {
   isCurrentMonth: boolean;
   isToday: boolean;
   date: string;
-  availability?: {
-    type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE';
-  };
 }
 
 @Component({
@@ -35,6 +32,20 @@ interface CalendarCell {
           <p class="text-friendly">Gestión integrada de horarios y ausencias del equipo.</p>
         </div>
         <div class="header-actions">
+           <!-- MONTH NAVIGATION -->
+           <div class="month-navigator ui-glass">
+              <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
+                 <lucide-icon name="chevron-left" size="18"></lucide-icon>
+              </button>
+              <div class="current-month-display">
+                 <span class="m-name">{{ getMonthName() }}</span>
+                 <span class="m-year">{{ currentYear() }}</span>
+              </div>
+              <button class="nav-btn" (click)="nextMonth()" title="Mes siguiente">
+                 <lucide-icon name="chevron-right" size="18"></lucide-icon>
+              </button>
+           </div>
+
            <div class="view-toggle ui-glass">
               <button 
                 class="toggle-btn" 
@@ -48,7 +59,7 @@ interface CalendarCell {
                 [class.active]="viewMode() === 'team'"
                 (click)="viewMode.set('team')"
               >
-                Vista de Equipo
+                Vision Equipo
               </button>
            </div>
            <ui-josanz-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()"></ui-josanz-button>
@@ -88,7 +99,7 @@ interface CalendarCell {
             <ui-josanz-card shape="auto" class="calendar-card">
               <div class="calendar-header">
                 <div>
-                  <h2 class="text-uppercase">{{ currentMonthName() }} <span>{{ currentYear() }}</span></h2>
+                  <h2 class="text-uppercase">{{ getMonthName() }} <span>{{ currentYear() }}</span></h2>
                   <p class="tech-label text-friendly" *ngIf="selectedTechId() !== 'me'">
                      Viendo calendario de: <strong>{{ getSelectedTechName() }}</strong>
                   </p>
@@ -129,7 +140,6 @@ interface CalendarCell {
                       }
                     </div>
                     @if (cell.isToday) { <div class="today-marker">HOY</div> }
-                    <div class="cell-hover-glow"></div>
                   </div>
                 }
               </div>
@@ -195,6 +205,28 @@ interface CalendarCell {
       align-items: center;
     }
 
+    /* MONTH NAVIGATOR */
+    .month-navigator {
+       display: flex;
+       align-items: center;
+       gap: 1rem;
+       padding: 4px;
+       border-radius: 12px !important;
+       background: rgba(255,255,255,0.03) !important;
+    }
+    .nav-btn {
+       width: 32px; height: 32px; border: none; border-radius: 8px;
+       background: rgba(255,255,255,0.05); color: var(--text-primary);
+       cursor: pointer; display: flex; align-items: center; justify-content: center;
+       transition: all 0.2s;
+    }
+    .nav-btn:hover { background: var(--brand); box-shadow: 0 0 10px var(--brand-glow); }
+    .current-month-display {
+       display: flex; flex-direction: column; align-items: center; min-width: 100px;
+    }
+    .m-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; color: var(--text-primary); margin-bottom: -2px; }
+    .m-year { font-size: 0.6rem; font-weight: 700; color: var(--brand); letter-spacing: 0.1em; }
+
     .view-toggle {
       display: flex;
       padding: 4px;
@@ -204,12 +236,12 @@ interface CalendarCell {
     }
 
     .toggle-btn {
-      padding: 0.5rem 1.25rem;
+      padding: 0.5rem 1rem;
       border-radius: 50px;
       border: none;
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -488,18 +520,6 @@ interface CalendarCell {
 
     .status-indicator:hover .indicator-glow { opacity: 0.22; }
 
-    .team-view-placeholder {
-      height: 400px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      text-align: center;
-    }
-
-    .placeholder-icon { color: var(--brand); opacity: 0.4; }
-
     /* TEAM BOARD SPECIFIC */
     .team-board-card { padding: 0 !important; }
     .board-container { width: 100%; overflow: hidden; position: relative; }
@@ -573,12 +593,12 @@ interface CalendarCell {
 })
 export class TechnicianAvailabilityComponent implements OnInit {
   private readonly api = inject(TechnicianApiService);
+  private readonly toast = inject(ToastService);
   
   calendarCells = signal<CalendarCell[]>([]);
   viewMode = signal<'personal' | 'team'>('personal');
   selectedTechId = signal<string>('me');
   
-  // ALMACÉN DE DISPONIBILIDAD: { [techId]: { [day]: status } }
   teamAvailability = signal<Record<string, Record<number, string>>>({});
   
   technicians = signal<Technician[]>([
@@ -589,33 +609,53 @@ export class TechnicianAvailabilityComponent implements OnInit {
     { id: 't5', name: 'Ana Martínez', role: 'Especialista Audiovisual', status: 'online' },
   ]);
 
-  currentMonthName = signal<string>('Abril');
-  currentYear = signal<number>(2026);
+  currentMonth = signal<number>(new Date().getMonth());
+  currentYear = signal<number>(new Date().getFullYear());
 
   constructor() {
     effect(() => {
-      // Cargamos el mes base (una sola vez o al cambiar mes real)
       this.initCalendarCells();
-      // Inicializamos el almacén de datos si está vacío
-      if (Object.keys(this.teamAvailability()).length === 0) {
-        this.initTeamData();
-      }
+      this.initTeamData();
     }, { allowSignalWrites: true });
   }
 
   ngOnInit() {}
 
+  getMonthName(): string {
+    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return months[this.currentMonth()];
+  }
+
+  nextMonth() {
+    if (this.currentMonth() === 11) {
+      this.currentMonth.set(0);
+      this.currentYear.update(y => y + 1);
+    } else {
+      this.currentMonth.update(m => m + 1);
+    }
+  }
+
+  prevMonth() {
+    if (this.currentMonth() === 0) {
+      this.currentMonth.set(11);
+      this.currentYear.update(y => y - 1);
+    } else {
+      this.currentMonth.update(m => m - 1);
+    }
+  }
+
   initCalendarCells() {
-    const now = new Date();
     const cells: CalendarCell[] = [];
-    const daysInMonth = new Date(this.currentYear(), now.getMonth() + 1, 0).getDate();
+    const daysInMonth = new Date(this.currentYear(), this.currentMonth() + 1, 0).getDate();
+    const now = new Date();
+    const isCurrentMonth = now.getMonth() === this.currentMonth() && now.getFullYear() === this.currentYear();
     
     for (let i = 1; i <= daysInMonth; i++) {
         cells.push({
             day: i,
             isCurrentMonth: true,
-            isToday: i === now.getDate(),
-            date: `${this.currentYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`
+            isToday: isCurrentMonth && i === now.getDate(),
+            date: `${this.currentYear()}-${(this.currentMonth()+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`
         });
     }
     this.calendarCells.set(cells);
@@ -623,10 +663,12 @@ export class TechnicianAvailabilityComponent implements OnInit {
 
   initTeamData() {
     const data: Record<string, Record<number, string>> = {};
+    const monthSeed = this.currentMonth() + this.currentYear();
+
     this.technicians().forEach(tech => {
       data[tech.id] = {};
       for (let day = 1; day <= 31; day++) {
-        data[tech.id][day] = this.getRandomMockAvailability(day, tech.id).type;
+        data[tech.id][day] = this.getRandomMockAvailability(day, tech.id, monthSeed).type;
       }
     });
     this.teamAvailability.set(data);
@@ -634,6 +676,7 @@ export class TechnicianAvailabilityComponent implements OnInit {
 
   loadMonth() {
     this.initTeamData();
+    this.toast.show('Datos actualizados desde el servidor', 'info');
   }
 
   toggleAvailability(cell: CalendarCell) {
@@ -644,7 +687,6 @@ export class TechnicianAvailabilityComponent implements OnInit {
     const currentIdx = types.indexOf(currentStatus);
     const nextType = types[(currentIdx + 1) % types.length];
     
-    // Actualizamos el almacén central
     this.teamAvailability.update(prev => {
       const updated = { ...prev };
       if (!updated['me']) updated['me'] = {};
@@ -652,7 +694,14 @@ export class TechnicianAvailabilityComponent implements OnInit {
       return updated;
     });
 
-    this.api.setFullDayAvailability('me', cell.date, nextType).subscribe();
+    this.api.setFullDayAvailability('me', cell.date, nextType).subscribe({
+      next: () => {
+        this.toast.show(`Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
+      },
+      error: () => {
+        this.toast.show('Error al guardar disponibilidad', 'error');
+      }
+    });
   }
 
   getTechDayStatus(techId: string, day: number): string {
@@ -681,16 +730,17 @@ export class TechnicianAvailabilityComponent implements OnInit {
 
   getDayOfWeekName(day: number): string {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const date = new Date(this.currentYear(), 3, day); 
+    const date = new Date(this.currentYear(), this.currentMonth(), day); 
     return days[date.getDay()];
   }
 
-  private getRandomMockAvailability(day: number, techId: string): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
+  private getRandomMockAvailability(day: number, techId: string, monthSeed: number = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
      const seed = techId === 'me' ? 7 : techId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+     const finalSeed = seed + monthSeed;
      
-     if ((day + seed) % 12 === 0) return { type: 'UNAVAILABLE' };
-     if ((day + seed) % 15 === 0) return { type: 'HOLIDAY' };
-     if ((day + seed) % 25 === 0) return { type: 'SICK_LEAVE' };
+     if ((day + finalSeed) % 12 === 0) return { type: 'UNAVAILABLE' };
+     if ((day + finalSeed) % 15 === 0) return { type: 'HOLIDAY' };
+     if ((day + finalSeed) % 25 === 0) return { type: 'SICK_LEAVE' };
      return { type: 'AVAILABLE' };
   }
 }
