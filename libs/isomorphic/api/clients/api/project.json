@@ -1,0 +1,37 @@
+{
+  "name": "clients-api",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/isomorphic/api/clients/api/src",
+  "projectType": "library",
+  "tags": [
+    "scope:clients",
+    "type:api"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/api/clients/api",
+        "main": "libs/isomorphic/api/clients/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/clients/api/tsconfig.lib.json",
+        "assets": [
+          "libs/isomorphic/api/clients/api/*.md"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/isomorphic/api/clients/api/jest.config.cts"
+      }
+    }
+  }
+}
+
+

@@ -1,0 +1,37 @@
+{
+  "name": "fleet-api",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/isomorphic/api/fleet/api/src",
+  "projectType": "library",
+  "tags": [
+    "scope:fleet",
+    "type:api"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/api/fleet/api",
+        "main": "libs/isomorphic/api/fleet/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/fleet/api/tsconfig.lib.json",
+        "assets": [
+          "libs/fleet/api/*.md"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/isomorphic/api/fleet/api/jest.config.cts"
+      }
+    }
+  }
+}
+
+

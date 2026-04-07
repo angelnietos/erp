@@ -1,0 +1,33 @@
+{
+  "name": "receipts-core",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/isomorphic/core/receipts/core/src",
+  "projectType": "library",
+  "tags": ["scope:receipts", "type:core"],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/core/receipts/core",
+        "main": "libs/isomorphic/core/receipts/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/receipts/core/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/isomorphic/core/receipts/core/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/isomorphic/core/receipts/core/jest.config.cts",
+        "passWithNoTests": true
+      },
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/receipts/core"]
+    }
+  }
+}

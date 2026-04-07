@@ -1,0 +1,26 @@
+{
+  "name": "shared-model",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/isomorphic/shared/model/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:model"],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/shared/model",
+        "main": "libs/isomorphic/shared/model/src/index.ts",
+        "tsConfig": "libs/isomorphic/shared/model/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/isomorphic/shared/model/jest.config.cts"
+      }
+    }
+  }
+}
