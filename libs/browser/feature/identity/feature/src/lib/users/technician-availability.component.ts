@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TechnicianApiService } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
@@ -87,11 +87,16 @@ interface CalendarCell {
           @if (viewMode() === 'personal') {
             <ui-josanz-card shape="auto" class="calendar-card">
               <div class="calendar-header">
-                <h2>{{ currentMonthName() }} <span>{{ currentYear() }}</span></h2>
+                <div>
+                  <h2 class="text-uppercase">{{ currentMonthName() }} <span>{{ currentYear() }}</span></h2>
+                  <p class="tech-label text-friendly" *ngIf="selectedTechId() !== 'me'">
+                     Viendo calendario de: <strong>{{ getSelectedTechName() }}</strong>
+                  </p>
+                </div>
                 <div class="calendar-legend">
-                  <div class="legend-item"><span class="dot AVAILABLE"></span><span>Disponible</span></div>
-                  <div class="legend-item"><span class="dot UNAVAILABLE"></span><span>No disp.</span></div>
-                  <div class="legend-item"><span class="dot HOLIDAY"></span><span>Vacaciones</span></div>
+                  <div class="legend-item"><span class="dot AVAILABLE"></span><span>Disp.</span></div>
+                  <div class="legend-item"><span class="dot UNAVAILABLE"></span><span>No D.</span></div>
+                  <div class="legend-item"><span class="dot HOLIDAY"></span><span>Vacac.</span></div>
                 </div>
               </div>
               
@@ -112,12 +117,18 @@ interface CalendarCell {
                     
                     <div class="cell-body">
                       @if (cell.availability) {
-                         <div class="status-indicator" [class]="cell.availability.type" (click)="toggleAvailability(cell)">
+                         <div 
+                            class="status-indicator" 
+                            [class]="cell.availability.type" 
+                            [class.editable]="selectedTechId() === 'me'"
+                            (click)="toggleAvailability(cell)"
+                         >
                             <div class="indicator-glow"></div>
                             <span class="indicator-label">{{ getShortLabel(cell.availability.type) }}</span>
                          </div>
                       }
                     </div>
+                    @if (cell.isToday) { <div class="today-marker">HOY</div> }
                     <div class="cell-hover-glow"></div>
                   </div>
                 }
@@ -221,7 +232,7 @@ interface CalendarCell {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 0.75rem;
+      padding: 1rem;
       border-radius: var(--radius-md);
       cursor: pointer;
       background: rgba(255,255,255,0.02);
@@ -236,35 +247,37 @@ interface CalendarCell {
     .tech-item.selected {
       background: var(--brand-ambient);
       border-color: var(--brand-border-soft);
-      transform: translateX(5px);
+      transform: translateX(8px);
+      box-shadow: 0 0 20px -10px var(--brand-glow);
     }
 
     .tech-avatar {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       position: relative;
       color: #fff;
       text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
     }
 
     .status-dot {
       position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 10px;
-      height: 10px;
+      bottom: 0px;
+      right: 0px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       border: 2px solid var(--bg-primary);
     }
 
-    .status-dot.online { background: var(--success); }
-    .status-dot.away { background: var(--warning); }
+    .status-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-dot.away { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
     .status-dot.offline { background: var(--text-muted); }
 
     .tech-info {
@@ -272,47 +285,59 @@ interface CalendarCell {
       flex-direction: column;
     }
 
-    .tech-name { font-weight: 700; font-size: 0.85rem; color: var(--text-primary); }
-    .tech-role { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+    .tech-name { font-weight: 700; font-size: 0.9rem; color: var(--text-primary); }
+    .tech-role { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
     .main-content {
       flex: 1;
     }
 
     .calendar-card {
-      padding: 2rem !important;
+      padding: 0 !important;
+      overflow: hidden;
     }
 
     .calendar-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
+      align-items: flex-start;
+      padding: 2rem 2.5rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
     }
 
     .calendar-header h2 {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       font-family: var(--font-display);
-      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: -0.02em;
     }
 
     .calendar-header h2 span {
-      color: var(--brand);
-      opacity: 0.8;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-glow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-left: 0.5rem;
     }
+
+    .tech-label {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .tech-label strong { color: var(--text-primary); }
 
     .calendar-legend {
       display: flex;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.65rem;
+      font-weight: 800;
       text-transform: uppercase;
       color: var(--text-muted);
     }
@@ -325,7 +350,8 @@ interface CalendarCell {
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 1rem;
+      padding: 0 1.5rem 2rem 1.5rem;
+      gap: 0.75rem;
     }
 
     .day-header {
@@ -334,15 +360,14 @@ interface CalendarCell {
       font-weight: 900;
       text-transform: uppercase;
       color: var(--text-muted);
-      letter-spacing: 0.1em;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid rgba(255,255,255,0.05);
+      letter-spacing: 0.15em;
+      padding-bottom: 1rem;
     }
 
     .calendar-cell {
-      min-height: 110px;
-      background: rgba(255,255,255,0.015);
-      border: 1px solid rgba(255,255,255,0.04);
+      min-height: 100px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
       border-radius: var(--radius-md);
       padding: 0.75rem;
       display: flex;
@@ -353,15 +378,29 @@ interface CalendarCell {
     }
 
     .calendar-cell:hover {
-      background: rgba(255,255,255,0.04);
-      border-color: rgba(255,255,255,0.1);
-      transform: translateY(-4px);
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     }
 
-    .calendar-cell.other-month { opacity: 0.2; }
+    .calendar-cell.other-month { opacity: 0.15; }
     .calendar-cell.today {
+      border: 1px solid var(--brand);
       background: var(--brand-ambient-strong);
-      border-color: var(--brand);
+    }
+
+    .today-marker {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--brand);
+      color: #000;
+      font-size: 0.5rem;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 0 10px var(--brand-glow);
     }
 
     .cell-day {
@@ -371,7 +410,7 @@ interface CalendarCell {
       color: var(--text-muted);
     }
 
-    .today .cell-day { color: var(--text-primary); }
+    .today .cell-day { color: #fff; }
 
     .cell-body {
       flex: 1;
@@ -383,22 +422,24 @@ interface CalendarCell {
     .status-indicator {
       position: relative;
       width: 100%;
-      height: 32px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
-      cursor: pointer;
+      border-radius: 6px;
+      cursor: default;
       transition: all 0.3s;
     }
 
-    .status-indicator:hover { transform: scale(1.05); }
+    .status-indicator.editable { cursor: pointer; }
+    .status-indicator.editable:hover { transform: scale(1.08); }
 
     .indicator-label {
       font-size: 0.55rem;
-      font-weight: 900;
+      font-weight: 800;
       text-transform: uppercase;
       z-index: 2;
+      letter-spacing: 0.05em;
     }
 
     .AVAILABLE { color: var(--success); }
@@ -409,12 +450,13 @@ interface CalendarCell {
     .indicator-glow {
       position: absolute;
       inset: 0;
-      border-radius: 4px;
+      border-radius: 6px;
       background: currentColor;
-      opacity: 0.12;
+      opacity: 0.1;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .status-indicator:hover .indicator-glow { opacity: 0.25; }
+    .status-indicator:hover .indicator-glow { opacity: 0.22; }
 
     .team-view-placeholder {
       height: 400px;
@@ -447,11 +489,18 @@ export class TechnicianAvailabilityComponent implements OnInit {
   currentMonthName = signal<string>('Abril');
   currentYear = signal<number>(2026);
 
-  ngOnInit() {
-    this.loadMonth();
+  constructor() {
+    effect(() => {
+      const techId = this.selectedTechId();
+      this.loadMonth(techId);
+    });
   }
 
-  loadMonth() {
+  ngOnInit() {
+    this.loadMonth(this.selectedTechId());
+  }
+
+  loadMonth(techId: string = 'me') {
     const now = new Date();
     const cells: CalendarCell[] = [];
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -462,7 +511,7 @@ export class TechnicianAvailabilityComponent implements OnInit {
             isCurrentMonth: true,
             isToday: i === now.getDate(),
             date: `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`,
-            availability: this.getRandomMockAvailability(i)
+            availability: this.getRandomMockAvailability(i, techId)
         });
     }
     this.calendarCells.set(cells);
@@ -479,12 +528,16 @@ export class TechnicianAvailabilityComponent implements OnInit {
     this.api.setFullDayAvailability('me', cell.date, nextType).subscribe();
   }
 
+  getSelectedTechName(): string {
+    return this.technicians().find(t => t.id === this.selectedTechId())?.name || '';
+  }
+
   getShortLabel(type: string): string {
     const labels: Record<string, string> = {
       AVAILABLE: 'DISPONIBLE',
       UNAVAILABLE: 'NO DISP.',
       HOLIDAY: 'VACACIONES',
-      SICK_LEAVE: 'BAJA/INCID.'
+      SICK_LEAVE: 'INCIDENCIA'
     };
     return labels[type] || type;
   }
@@ -495,10 +548,12 @@ export class TechnicianAvailabilityComponent implements OnInit {
     return colors[hash % colors.length];
   }
 
-  private getRandomMockAvailability(day: number): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
-     if (day % 12 === 0) return { type: 'UNAVAILABLE' };
-     if (day % 15 === 0) return { type: 'HOLIDAY' };
-     if (day % 25 === 0) return { type: 'SICK_LEAVE' };
+  private getRandomMockAvailability(day: number, techId: string): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
+     const seed = techId === 'me' ? 7 : techId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+     
+     if ((day + seed) % 12 === 0) return { type: 'UNAVAILABLE' };
+     if ((day + seed) % 15 === 0) return { type: 'HOLIDAY' };
+     if ((day + seed) % 25 === 0) return { type: 'SICK_LEAVE' };
      return { type: 'AVAILABLE' };
   }
 }
