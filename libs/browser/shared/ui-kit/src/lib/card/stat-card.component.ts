@@ -27,63 +27,115 @@ import { LucideAngularModule } from 'lucide-angular';
   `,
   styles: [`
     .stat-card {
-      padding: 1rem 1.15rem;
+      padding: 1.25rem 1.5rem;
       border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.25rem;
       position: relative;
       overflow: hidden;
       cursor: pointer;
       transition:
-        transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        transform 0.4s var(--ease-out-expo),
+        box-shadow 0.4s var(--ease-out-expo),
+        background 0.4s var(--ease-out-expo);
+      background: var(--card-bg);
+      border: var(--card-border-width, 1px) solid var(--card-border);
+      box-shadow: var(--card-shadow), var(--shadow-inset-shine);
     }
 
     .stat-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md, 0 12px 32px rgba(0, 0, 0, 0.35)),
-        0 0 36px -14px var(--brand-glow);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg), 0 0 40px -10px var(--brand-glow);
     }
 
     .stat-icon-wrapper {
-      width: 2.65rem;
-      height: 2.65rem;
+      width: 3.25rem;
+      height: 3.25rem;
       background: linear-gradient(
         145deg,
-        var(--brand-surface, color-mix(in srgb, var(--brand) 18%, transparent)),
-        color-mix(in srgb, var(--brand) 8%, rgba(255, 255, 255, 0.04))
+        var(--brand-surface),
+        rgba(255, 255, 255, 0.04)
       );
-      border: 1px solid var(--brand-border-soft, color-mix(in srgb, var(--brand) 32%, transparent));
+      border: 1px solid var(--brand-border-soft);
       border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--brand);
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.1));
-      transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-inset-shine);
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .stat-card:hover .stat-icon-wrapper {
-      transform: scale(1.06) rotate(-4deg);
+      transform: scale(1.1) rotate(-8deg);
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 0 20px var(--brand-glow);
     }
 
-    .stat-content { display: flex; flex-direction: column; gap: 0.25rem; }
-    
-    .stat-label { font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; }
-    
-    .stat-value-row { display: flex; align-items: baseline; gap: 0.75rem; }
-    
-    .stat-value { font-size: 1.35rem; font-weight: 800; margin: 0; font-family: var(--font-main); letter-spacing: -0.02em; }
-    
-    .stat-trend { font-size: 0.75rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
-    .stat-trend.up { background: rgba(0, 210, 138, 0.1); color: var(--success); }
-    .stat-trend.down { background: rgba(255, 75, 75, 0.1); color: var(--danger); }
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      flex: 1;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-family: var(--font-display);
+    }
+
+    .stat-value-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 900;
+      margin: 0;
+      font-family: var(--font-display);
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .stat-trend {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .stat-trend.up {
+      background: rgba(var(--success-rgb, 0, 242, 173), 0.1);
+      color: var(--success);
+      border: 1px solid rgba(var(--success-rgb, 0, 242, 173), 0.2);
+    }
+
+    .stat-trend.down {
+      background: rgba(var(--danger-rgb, 255, 94, 108), 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(var(--danger-rgb, 255, 94, 108), 0.2);
+    }
 
     .accent-line {
       position: absolute;
-      top: 0; left: 0; right: 0; height: 3px;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: var(--brand);
+      box-shadow: 0 0 10px var(--brand-glow);
     }
   `],
 })

@@ -66,44 +66,64 @@ interface ProjectForm {
       </header>
 
       <div class="content-section">
-        <ui-josanz-card variant="glass">
-          <div class="form-grid">
-            <ui-josanz-input
-              label="Nombre del Proyecto"
-              [(ngModel)]="form.name"
-              placeholder="Ingrese el nombre del proyecto"
-              required
-            >
-            </ui-josanz-input>
+        <ui-josanz-card shape="auto" class="form-card">
+          <div class="card-section">
+            <div class="section-info">
+              <h3 class="section-title">Información General</h3>
+              <p class="section-desc">Detalles básicos para identificar y describir el proyecto.</p>
+            </div>
+            <div class="form-grid">
+              <ui-josanz-input
+                label="Nombre del Proyecto"
+                [(ngModel)]="form.name"
+                placeholder="Ej: Revestimiento Fachada Josanz"
+                icon="briefcase"
+                required
+              >
+              </ui-josanz-input>
+  
+              <ui-josanz-textarea
+                label="Descripción Detallada"
+                [(ngModel)]="form.description"
+                placeholder="Describe los objetivos y alcance del proyecto..."
+                [rows]="4"
+              >
+              </ui-josanz-textarea>
+            </div>
+          </div>
 
-            <ui-josanz-textarea
-              label="Descripción"
-              [(ngModel)]="form.description"
-              placeholder="Descripción del proyecto"
-              [rows]="4"
-            >
-            </ui-josanz-textarea>
+          <div class="section-divider"></div>
 
-            <ui-josanz-input
-              label="Fecha de Inicio"
-              type="date"
-              [(ngModel)]="form.startDate"
-            >
-            </ui-josanz-input>
-
-            <ui-josanz-input
-              label="Fecha de Fin"
-              type="date"
-              [(ngModel)]="form.endDate"
-            >
-            </ui-josanz-input>
-
-            <ui-josanz-select
-              label="Cliente"
-              [(ngModel)]="form.clientId"
-              [options]="clientOptions"
-            >
-            </ui-josanz-select>
+          <div class="card-section">
+            <div class="section-info">
+              <h3 class="section-title">Planificación y Cliente</h3>
+              <p class="section-desc">Define los plazos temporales y el cliente asignado.</p>
+            </div>
+            <div class="form-grid grid-2">
+              <ui-josanz-input
+                label="Fecha de Inicio"
+                type="date"
+                icon="calendar"
+                [(ngModel)]="form.startDate"
+              >
+              </ui-josanz-input>
+  
+              <ui-josanz-input
+                label="Fecha de Fin Estimada"
+                type="date"
+                icon="calendar"
+                [(ngModel)]="form.endDate"
+              >
+              </ui-josanz-input>
+  
+              <ui-josanz-select
+                label="Cliente Asociado"
+                icon="users"
+                [(ngModel)]="form.clientId"
+                [options]="clientOptions"
+              >
+              </ui-josanz-select>
+            </div>
           </div>
         </ui-josanz-card>
       </div>
@@ -120,10 +140,11 @@ interface ProjectForm {
       .page-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding: 2rem 0 1.5rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
       }
 
       .header-breadcrumb {
@@ -132,19 +153,24 @@ interface ProjectForm {
 
       .page-title {
         margin: 0 0 0.5rem 0;
-        font-size: 2.25rem;
-        font-weight: 700;
-        letter-spacing: 0.025em;
+        font-size: 1.75rem;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        font-family: var(--font-display);
+        background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
       }
 
       .breadcrumb {
         display: flex;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
+        gap: 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
         color: var(--text-muted);
         margin-top: 0.5rem;
+        text-transform: uppercase;
       }
 
       .separator {
@@ -153,23 +179,65 @@ interface ProjectForm {
 
       .header-actions {
         display: flex;
+        gap: 0.75rem;
+      }
+
+      .form-card {
+        padding: 0;
+      }
+
+      .card-section {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 3rem;
+      }
+
+      .section-info {
+        display: flex;
+        flex-direction: column;
         gap: 0.5rem;
       }
 
-      .content-section {
-        background: transparent;
+      .section-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .section-desc {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-soft), transparent);
+        opacity: 0.5;
       }
 
       .form-grid {
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: 1.5rem;
       }
 
-      .glow-text {
-        text-transform: uppercase;
-        font-size: 1.6rem;
-        font-weight: 800;
-        margin: 0;
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      @media (max-width: 992px) {
+        .card-section {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
       }
     `,
   ],
@@ -225,10 +293,11 @@ export class ProjectsDetailComponent implements OnInit {
   }
 
   private loadProject(id: string) {
-    // Mock data for now
+    // Mock data for now using the ID
+    console.log('Loading project:', id);
     this.form = {
-      name: 'Proyecto Demo',
-      description: 'Descripción del proyecto demo',
+      name: `Proyecto ${id}`,
+      description: 'Descripción del proyecto cargado desde el sistema.',
       startDate: '2024-01-01',
       endDate: '2024-12-31',
       clientId: 'client-1',

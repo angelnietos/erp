@@ -25,6 +25,7 @@ import {
   UiCardComponent,
   UiButtonComponent,
   UiBadgeComponent,
+  UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
@@ -38,7 +39,7 @@ interface MetricCard {
   value: string;
   change: string;
   changeType: 'positive' | 'negative' | 'neutral';
-  icon: any;
+  icon: any; // Lucide icon reference
 }
 
 interface RecentActivity {
@@ -53,7 +54,7 @@ interface RecentActivity {
 interface QuickAction {
   title: string;
   description: string;
-  icon: any;
+  icon: any; // Lucide icon reference
   route: string;
   color: 'primary' | 'secondary' | 'success' | 'warning';
 }
@@ -67,6 +68,7 @@ interface QuickAction {
     UiCardComponent,
     UiButtonComponent,
     UiBadgeComponent,
+    UiStatCardComponent,
     LucideAngularModule,
   ],
   template: `
@@ -109,37 +111,16 @@ interface QuickAction {
       </div>
 
       <!-- Metrics Cards -->
-      <div class="metrics-grid gaming-metrics">
+      <div class="metrics-grid">
         @for (metric of metrics(); track metric.title) {
-          <ui-josanz-card
-            class="metric-card gaming-metric-card metric-card--clickable"
+          <ui-josanz-stat-card
+            [label]="metric.title"
+            [value]="metric.value"
+            [icon]="metric.icon"
+            [trend]="parsePercentage(metric.change)"
+            [accent]="metric.changeType === 'positive'"
             (click)="onMetricNavigate(metric)"
-            (keydown.enter)="onMetricNavigate(metric)"
-            tabindex="0"
-            role="link"
-            [attr.aria-label]="'Ir a ' + metric.title"
-          >
-            <div class="metric-content">
-              <div class="metric-icon gaming-icon">
-                <lucide-icon [img]="metric.icon" size="28"></lucide-icon>
-                <div class="icon-glow"></div>
-              </div>
-              <div class="metric-info">
-                <h3 class="metric-title">{{ metric.title }}</h3>
-                <p class="metric-value gaming-value">{{ metric.value }}</p>
-                <span
-                  class="metric-change gaming-change"
-                  [class]="metric.changeType"
-                >
-                  <span class="change-icon">{{
-                    getChangeIcon(metric.changeType)
-                  }}</span>
-                  {{ metric.change }}
-                </span>
-              </div>
-            </div>
-            <div class="metric-bg-effect"></div>
-          </ui-josanz-card>
+          ></ui-josanz-stat-card>
         }
       </div>
 
@@ -496,8 +477,8 @@ interface QuickAction {
 
       .metrics-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 3rem;
         position: relative;
       }
@@ -1628,6 +1609,11 @@ export class DashboardComponent implements OnInit {
       return;
     }
     void this.router.navigateByUrl('/dashboard');
+  }
+
+  parsePercentage(change: string): number {
+    const matched = change.match(/([+-]?\d+(\.\d+)?)/);
+    return matched ? parseFloat(matched[1]) : 0;
   }
 
   private applyDashboardDto(dto: DashboardSummaryDto | null) {

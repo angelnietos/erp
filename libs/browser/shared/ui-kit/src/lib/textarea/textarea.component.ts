@@ -33,30 +33,33 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     </div>
   `,
   styles: [`
-    .textarea-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .textarea-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
     .label {
-      font-size: 0.75rem;
-      font-weight: 700;
+      font-size: 0.65rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-secondary);
-      margin-left: 2px;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-left: 12px;
+      font-family: var(--font-display);
     }
 
-    /* Base Textarea Styles */
     textarea {
       width: 100%;
-      padding: 12px 16px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      background: var(--input-bg, var(--bg-tertiary));
+      border: 1px solid var(--input-border, var(--border-soft));
+      border-radius: var(--input-radius, var(--radius-md));
       color: var(--text-primary);
-      font-size: 0.9rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s var(--ease-out-expo);
       outline: none;
       font-family: var(--font-main);
       resize: vertical;
-      min-height: 100px;
+      min-height: 120px;
+      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
+      box-sizing: border-box;
     }
 
     textarea::placeholder {
@@ -65,79 +68,34 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     }
 
     textarea:focus {
+      background: color-mix(in srgb, var(--input-bg, var(--bg-tertiary)) 92%, #fff);
       border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent),
+        0 12px 28px -8px var(--brand-glow);
     }
 
-    /* Variants */
-    .textarea-default {
-      background: var(--bg-tertiary);
-      border-color: var(--border-vibrant);
-    }
-
-    .textarea-filled {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: transparent;
-    }
-
-    .textarea-outlined {
-      background: transparent;
-      border: 2px solid var(--border-vibrant);
-    }
-
-    .textarea-ghost {
-      background: transparent;
-      border: 1px solid transparent;
-    }
-    .textarea-ghost:focus {
-      background: rgba(255, 255, 255, 0.03);
-      border-color: var(--brand);
-    }
-
-    .textarea-dark {
-      background: #000;
-      border-color: #222;
-    }
-
-    .textarea-error {
-      border-color: var(--danger) !important;
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .textarea-error:focus {
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
-    }
-
-    .textarea-success {
-      border-color: var(--success);
-    }
-
-    /* Additional variants */
-    .textarea-rounded {
-      border-radius: 20px;
-      padding: 1rem 1.5rem;
+    /* Variants mapping to tokens */
+    .textarea-glass {
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --input-border: var(--border-vibrant);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
 
     .textarea-minimal {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid var(--border-soft);
-      border-radius: 0;
+      --input-bg: transparent;
+      --input-border: transparent;
+      --input-radius: 0;
+      --input-shadow: none;
+      border-bottom: 2px solid var(--border-soft) !important;
+      padding-left: 0; padding-right: 0;
     }
 
-    .textarea-soft {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .textarea-error {
+      --input-border: var(--danger);
+      background: rgba(239, 68, 68, 0.05);
     }
 
-    .textarea-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    textarea.error { border-color: var(--danger) !important; }
     textarea:disabled {
       opacity: 0.4;
       cursor: not-allowed;
@@ -145,14 +103,16 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     }
     
     .hint {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      margin-top: 4px;
+      margin-left: 4px;
+      font-weight: 500;
     }
 
     .hint.error {
-      color: #f87171;
-      font-weight: 500;
+      color: var(--danger);
+      font-weight: 600;
     }
   `],
 })
