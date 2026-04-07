@@ -1489,6 +1489,7 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
   }
 
   onSearchChange(term: string) {
+    this.filters.search = term;
     this.masterFilter.search(term);
     this.applyFilters();
   }
