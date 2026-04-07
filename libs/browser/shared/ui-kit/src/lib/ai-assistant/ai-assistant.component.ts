@@ -145,6 +145,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     }
 
     .chat-header {
+      flex-shrink: 0;
       padding: 1.5rem;
       background: rgba(255,255,255,0.05);
       display: flex;
@@ -193,6 +194,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
     .chat-messages {
       flex: 1;
+      min-height: 0; /* CRITICO PARA QUE EL SCROLL FUNCIONE Y NO EMPUJE EL INPUT */
       overflow-y: auto;
       padding: 1.5rem;
       display: flex;
@@ -243,6 +245,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     }
 
     .chat-input-area {
+      flex-shrink: 0;
       padding: 1.5rem;
       border-top: 1px solid var(--border-soft);
       display: flex;
