@@ -581,7 +581,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                      properties: { 
                        theme: { 
                          type: 'STRING', 
-                         description: 'El tema a aplicar. Ejemplos populares: light, dark, blue, green, purple, slate, coral, gold, assassin-creed, zelda-legend, mario-world, hollow-knight, nordic.' 
+                         description: 'El identificador exacto del tema. Mapea la petición del usuario a uno de estos: light, dark, blue, green, purple, orange, rose, slate, zinc, neutral, cyan, teal, amber, indigo, lime, violet, crimson, mint, coral, gold, corporate-light, classic-dark, nordic, latte, forest-dark, assassin-creed, rainbow_six, zelda-legend, mario-world, animal-crossing, gta-san-andreas, red-dead, celeste-mountain, hades-underworld, hollow-knight, pearl, sky-day, rose-quartz, sage, lavender, sunrise.' 
                        } 
                      }, 
                      required: ['theme'] 
