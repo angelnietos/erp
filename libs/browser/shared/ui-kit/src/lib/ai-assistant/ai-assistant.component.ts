@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, inject, signal, computed, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
@@ -321,7 +321,7 @@ export class UIAIChatComponent {
   aiBotStore = inject(AIBotStore);
   masterFilterService = inject(MasterFilterService);
   router = inject(Router);
-  cdr = inject(ChangeDetectorRef);
+  ngZone = inject(NgZone);
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
@@ -344,39 +344,38 @@ export class UIAIChatComponent {
       this.recognition.lang = 'es-ES';
 
       this.recognition.onstart = () => {
-        this.isListening.set(true);
-        this.cdr.detectChanges();
+        this.ngZone.run(() => this.isListening.set(true));
       };
       
       this.recognition.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
+        this.ngZone.run(() => {
+          let interimTranscript = '';
+          let finalTranscript = '';
 
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
           }
-        }
-        
-        if (finalTranscript) {
-          this.currentInput = finalTranscript;
-          this.cdr.detectChanges();
-          this.sendMessage(); // auto send
-        } else {
-          this.currentInput = interimTranscript;
-          this.cdr.detectChanges();
-        }
+          
+          if (finalTranscript) {
+            this.currentInput = this.currentInput ? this.currentInput + ' ' + finalTranscript : finalTranscript;
+            this.sendMessage(); // auto send
+          } else {
+            // Provide live feedback without resetting what was already typed
+            const previousInput = this.currentInput.replace(interimTranscript, '');
+            this.currentInput = previousInput ? previousInput + ' ' + interimTranscript : interimTranscript;
+          }
+        });
       };
 
       this.recognition.onerror = () => {
-        this.isListening.set(false);
-        this.cdr.detectChanges();
+        this.ngZone.run(() => this.isListening.set(false));
       };
       this.recognition.onend = () => {
-        this.isListening.set(false);
-        this.cdr.detectChanges();
+        this.ngZone.run(() => this.isListening.set(false));
       };
     }
   }
