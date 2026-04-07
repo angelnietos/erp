@@ -291,10 +291,14 @@ interface PluginDescriptor {
                     <ui-josanz-card variant="glass" class="buddy-options-card">
                       <div class="card-header-with-toggle">
                         <h3>Apariencia Standard</h3>
-                        <div class="toggle-wrapper rage-toggle" [class.active]="aiBotStore.rageMode()" (click)="aiBotStore.setRageMode(!aiBotStore.rageMode())">
-                          <lucide-icon name="zap" size="14"></lucide-icon>
-                          <span>MODO RAGE</span>
-                          <div class="toggle-handle"></div>
+                        <div class="rage-toggle" [class.active]="aiBotStore.rageMode()" (click)="aiBotStore.setRageMode(!aiBotStore.rageMode())">
+                          <div class="toggle-label">
+                            <lucide-icon name="zap" size="14"></lucide-icon>
+                            <span>MODO RAGE</span>
+                          </div>
+                          <div class="switch-pill">
+                            <div class="switch-handle"></div>
+                          </div>
                         </div>
                       </div>
 
@@ -899,41 +903,80 @@ interface PluginDescriptor {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
     }
 
     .rage-toggle {
-      background: rgba(220, 38, 38, 0.1);
-      border: 1px solid rgba(220, 38, 38, 0.2);
-      padding: 0.5rem 1rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px solid rgba(220, 38, 38, 0.3);
+      padding: 0.6rem 1.2rem;
       border-radius: 99px;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
       cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      user-select: none;
+      min-width: 160px;
+      justify-content: space-between;
+    }
+    
+    .rage-toggle:hover {
+      border-color: rgba(220, 38, 38, 0.6);
+      background: rgba(220, 38, 38, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .rage-toggle.active {
+      background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
+      box-shadow: 0 0 25px rgba(220, 38, 38, 0.5), inset 0 0 10px rgba(255,255,255,0.2);
+      border-color: #f87171;
+    }
+
+    .rage-toggle .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rage-toggle span { 
+      font-size: 0.75rem; 
+      font-weight: 800; 
+      color: #ef4444; 
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .rage-toggle.active span { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
+    .rage-toggle .switch-pill {
+      width: 32px;
+      height: 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 99px;
+      position: relative;
+    }
+    .rage-toggle.active .switch-pill { background: rgba(0,0,0,0.3); }
+
+    .rage-toggle .switch-handle {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border-radius: 50%;
       transition: all 0.3s ease;
     }
-    .rage-toggle.active {
-      background: #dc2626;
-      box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
-      border-color: #ef4444;
-    }
-    .rage-toggle span { 
-      font-size: 0.7rem; 
-      font-weight: 900; 
-      color: #ef4444; 
-      letter-spacing: 0.05em;
-    }
-    .rage-toggle.active span { color: #fff; }
-    .rage-toggle lucide-icon { color: #ef4444; }
-    .rage-toggle.active lucide-icon { color: #fff; }
+    .rage-toggle.active .switch-handle { left: 19px; background: #fff; }
 
-    .standard-options { transition: all 0.4s ease; }
+    .standard-options { transition: all 0.5s ease; }
     .standard-options.dimmed {
-      opacity: 0.3;
+      opacity: 0.25;
       pointer-events: none;
-      filter: grayscale(0.8) blur(1px);
-      transform: scale(0.98);
+      filter: grayscale(1) blur(2px);
+      transform: scale(0.97);
     }
 
     .rage-text { 
