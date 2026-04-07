@@ -49,9 +49,14 @@ import { firstValueFrom } from 'rxjs';
                 <p>Tu asistente de {{ bot()!.feature }}</p>
               </div>
             </div>
-            <button class="close-btn" (click)="isOpen.set(false)">
-              <lucide-icon name="x" size="18"></lucide-icon>
-            </button>
+            <div class="window-actions">
+              <button class="action-btn minimize" (click)="minimize()" title="Minimizar">
+                <lucide-icon name="minus" size="18"></lucide-icon>
+              </button>
+              <button class="action-btn close" (click)="closeSession()" title="Finalizar Sesión">
+                <lucide-icon name="x" size="18"></lucide-icon>
+              </button>
+            </div>
           </div>
 
           <div class="chat-messages">
@@ -217,16 +222,33 @@ import { firstValueFrom } from 'rxjs';
     .chat-header h4 { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 800; }
     .chat-header p { margin: 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 
-    .close-btn {
+    .window-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .action-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
       cursor: pointer;
       padding: 0.5rem;
-      transition: color 0.3s;
+      border-radius: 6px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .close-btn:hover { color: var(--danger); }
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .action-btn.close:hover {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
 
     .chat-messages {
       flex: 1;
@@ -366,6 +388,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   readonly isOpen = signal(false);
   readonly messages = signal<{id: string, text: string, role: 'user' | 'bot'}[]>([]);
   currentInput = '';
+  
+  minimize() {
+    this.isOpen.set(false);
+  }
+
+  closeSession() {
+    this.isOpen.set(false);
+    this.messages.set([]);
+  }
   
   isListening = signal(false);
   private recognition: any;
