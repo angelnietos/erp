@@ -36,13 +36,13 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
 
     .tabs {
       display: flex;
-      gap: 5px;
-      padding: 5px;
-      border-radius: var(--radius-lg);
-      background: color-mix(in srgb, var(--bg-tertiary) 92%, var(--brand) 3%);
+      gap: 4px;
+      padding: 4px;
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--surface) 80%, var(--brand) 3%);
       border: 1px solid var(--border-soft);
       width: fit-content;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow-sm);
     }
 
     .tab-item {
@@ -71,8 +71,8 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
     }
 
     .tab-item:hover {
-      color: #fff;
-      background: color-mix(in srgb, #fff 6%, transparent);
+      color: var(--text-primary);
+      background: color-mix(in srgb, var(--brand) 8%, var(--surface));
     }
 
     .tab-item:focus-visible {
@@ -89,7 +89,7 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
       );
       box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.22) inset,
-        0 10px 32px -10px var(--brand-glow);
+        0 8px 24px -8px var(--brand-glow);
       transform: translateY(-1px);
     }
 
@@ -132,9 +132,9 @@ export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordere
       box-shadow: none !important;
     }
 
-    .tabs-underline .tab-item:hover { color: #fff; }
+    .tabs-underline .tab-item:hover { color: var(--text-primary); }
 
-    .tabs-underline .tab-item.active { color: var(--brand); }
+    .tabs-underline .tab-item.active { color: var(--brand); background: transparent !important; }
 
     .tabs-underline .active-indicator {
       position: absolute;

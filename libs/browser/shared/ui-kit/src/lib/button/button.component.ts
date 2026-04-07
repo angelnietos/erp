@@ -81,7 +81,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-color-secondary { --btn-bg: var(--secondary, #64748b); --btn-border: var(--secondary, #64748b); --btn-text: #fff; --btn-glow: rgba(100, 116, 139, 0.4); }
     .btn-color-info { --btn-bg: var(--info, #3b82f6); --btn-border: var(--info, #3b82f6); --btn-text: #fff; --btn-glow: rgba(59, 130, 246, 0.4); }
     .btn-color-app { --btn-bg: var(--theme-primary, var(--brand, #4338ca)); --btn-border: var(--theme-primary, var(--brand, #4338ca)); --btn-text: #fff; --btn-glow: var(--brand-glow, rgba(67, 56, 202, 0.4)); }
-    .btn-color-default { --btn-bg: var(--bg-tertiary, #1a1a1a); --btn-border: var(--border-soft, #333); --btn-text: var(--text-primary, #fff); --btn-glow: rgba(0,0,0,0.2); }
+    .btn-color-default { --btn-bg: var(--surface); --btn-border: var(--border-soft); --btn-text: var(--text-primary); --btn-glow: rgba(0,0,0,0.1); }
 
     /* EXPLICIT STRUCTURAL SHAPES */
     .btn-shape-auto {
@@ -113,12 +113,12 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     .btn-shape-glass {
       background: color-mix(in srgb, var(--btn-bg) 15%, transparent);
-      color: var(--text-primary, #fff);
+      color: var(--text-primary);
       border: 1px solid color-mix(in srgb, var(--btn-bg) 40%, transparent);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 4px 15px -5px rgba(0,0,0,0.3);
+      box-shadow: var(--shadow-sm);
     }
-    .btn-shape-glass:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-bg) 35%, transparent); border-color: var(--btn-bg); color: #fff; transform: translateY(-2px); }
+    .btn-shape-glass:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-bg) 28%, var(--surface)); border-color: var(--btn-bg); color: var(--text-primary); transform: translateY(-2px); }
     .btn-shape-glass:active:not(:disabled) { transform: translateY(0) scale(0.99); }
 
     .btn-shape-outline {

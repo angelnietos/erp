@@ -26,6 +26,9 @@ import { LucideAngularModule } from 'lucide-angular';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+    }
     .stat-card {
       padding: 1.125rem 1.375rem;
       border-radius: var(--radius-lg);

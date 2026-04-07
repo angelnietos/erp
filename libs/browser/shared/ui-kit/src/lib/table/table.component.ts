@@ -93,7 +93,10 @@ export type TableVariant = 'default' | 'striped' | 'glass';
   `,
   styles: [
     `
-    .table-container {
+      :host {
+        display: block;
+      }
+      .table-container {
         width: 100%;
         overflow-x: auto;
         border-radius: var(--radius-lg);

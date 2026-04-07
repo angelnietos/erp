@@ -56,7 +56,7 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     }
 
     /* THEMATIC COLOR TOKENS */
-    .badge-color-default { --badge-bg: var(--bg-tertiary); --badge-color: var(--text-secondary); --badge-border: var(--border-soft); }
+    .badge-color-default { --badge-bg: var(--surface); --badge-color: var(--text-secondary); --badge-border: var(--border-soft); }
     .badge-color-primary { --badge-bg: var(--brand-ambient-strong, color-mix(in srgb, var(--brand) 15%, transparent)); --badge-color: var(--brand); --badge-border: color-mix(in srgb, var(--brand) 30%, transparent); }
     .badge-color-success { --badge-bg: rgba(16, 185, 129, 0.12); --badge-color: var(--success); --badge-border: rgba(16, 185, 129, 0.25); }
     .badge-color-warning { --badge-bg: rgba(245, 158, 11, 0.12); --badge-color: var(--warning); --badge-border: rgba(245, 158, 11, 0.25); }
@@ -86,7 +86,7 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     }
 
     .badge-shape-glass {
-      --badge-bg: color-mix(in srgb, var(--badge-color) 15%, rgba(0,0,0,0.3));
+      --badge-bg: color-mix(in srgb, var(--badge-color) 14%, var(--surface));
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       --badge-border: color-mix(in srgb, var(--badge-color) 40%, transparent);
     }

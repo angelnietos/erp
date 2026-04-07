@@ -40,6 +40,10 @@ export type CardVariant = string;
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+    }
+    
     .card {
       /* Structural tokens injected via JS in ThemeService.applyStructuralTokens() */
       border-radius: var(--card-radius, var(--radius-lg, 12px));

@@ -32,24 +32,24 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       position: relative;
       display: flex;
       align-items: center;
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
       transition:
         border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
         background 0.3s ease,
         box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      background: var(--bg-tertiary);
+      background: var(--surface);
       border: 1px solid var(--border-soft);
       overflow: hidden;
       width: 100%;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-sm);
     }
 
     .search-wrapper.focused {
       border-color: color-mix(in srgb, var(--brand) 65%, var(--border-soft));
-      background: color-mix(in srgb, var(--bg-secondary) 88%, var(--brand) 4%);
+      background: var(--surface);
       box-shadow:
         0 0 0 3px color-mix(in srgb, var(--brand-glow) 40%, transparent),
-        0 12px 32px -12px var(--brand-glow);
+        0 8px 24px -8px var(--brand-glow);
     }
 
     .search-icon { 
@@ -92,8 +92,8 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     .clear-btn {
       position: absolute; 
       right: 0.75rem; 
-      background: rgba(255, 255, 255, 0.05); 
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: color-mix(in srgb, var(--border-soft) 60%, transparent);
+      border: 1px solid var(--border-soft);
       border-radius: 50%;
       width: 1.5rem;
       height: 1.5rem;
@@ -116,7 +116,10 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     .clear-btn lucide-icon { width: 0.8rem; height: 0.8rem; }
 
     /* Variants */
-    .search-filled { background: var(--bg-secondary); border-color: transparent; }
+    .search-filled { 
+      background: var(--surface);
+      border-color: var(--border-soft);
+    }
     
     .search-glass {
       background: var(--surface);
