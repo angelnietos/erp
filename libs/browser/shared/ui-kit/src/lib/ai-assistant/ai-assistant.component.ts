@@ -89,14 +89,23 @@ import { firstValueFrom } from 'rxjs';
   styles: [`
     .ai-assistant-wrapper {
       position: fixed;
-      bottom: 2rem;
-      right: 2rem;
+      bottom: 1.5rem;
+      right: 1.5rem;
       z-index: 10000;
-      transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.4s var(--ease-out-expo);
+      opacity: 0.75;
+      transform: scale(0.85);
+      filter: saturate(0.9);
+    }
+
+    .ai-assistant-wrapper:hover {
+      opacity: 1;
+      transform: scale(1);
+      filter: saturate(1);
     }
 
     .ai-assistant-wrapper:not(.feature-dashboard) {
-      right: 9rem;
+      right: 7rem; /* Compact offset - more space for content */
     }
 
     .feature-dashboard .assistant-trigger {
