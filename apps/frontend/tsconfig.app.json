@@ -183,7 +183,7 @@
         "libs/isomorphic/core/verifactu/core/src/index.ts"
       ],
       "@josanz-erp/verifactu-adapters": [
-        "libs/node/adapters/verifactu/src/index.ts"
+        "libs/node/adapters/verifactu/adapters/src/index.ts"
       ],
       "@josanz-erp/verifactu-api": [
         "libs/isomorphic/api/verifactu/api/src/index.ts"

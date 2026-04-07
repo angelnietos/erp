@@ -23,7 +23,7 @@ import {
 } from '@josanz-erp/shared-data-access';
 import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
 import { BudgetService } from '@josanz-erp/budget-data-access';
-import { Budget } from '@josanz-erp/budget-api';
+import { Budget, BudgetItem } from '@josanz-erp/budget-api';
 
 @Component({
   selector: 'lib-budget-detail',
@@ -485,7 +485,7 @@ export class BudgetDetailComponent implements OnInit {
     if (!b) return;
     const rows = b.items
       .map(
-        (it) =>
+        (it: BudgetItem) =>
           `<tr><td>${escapeHtml(it.productId)}</td><td>${it.quantity}</td><td>${escapeHtml(
             this.formatCurrencyEu(it.price),
           )}</td><td>${it.discount}%</td><td>${it.tax}%</td></tr>`,

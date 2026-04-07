@@ -10,6 +10,7 @@
   "targets": {
     "build": {
       "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/backend"],
       "options": {
         "command": "webpack-cli build",
         "args": [
@@ -36,7 +37,7 @@
         "{workspaceRoot}/dist/apps/backend/package-lock.json"
       ],
       "options": {
-        "buildTarget": "build"
+        "buildTarget": "backend:build"
       }
     },
     "copy-workspace-modules": {
@@ -49,7 +50,8 @@
       ],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
-        "buildTarget": "build"
+        "buildTarget": "backend:build",
+        "outputPath": "dist/apps/backend"
       }
     },
     "prune": {

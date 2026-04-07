@@ -1,6 +1,6 @@
 {
   "name": "shared-infrastructure",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/shared-infrastructure/src",
   "projectType": "library",
   "implicitDependencies": ["shared-data-access"],

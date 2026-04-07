@@ -14,6 +14,7 @@
     "backend:dev:full": "npm run services:up && dotenv -o -e apps/backend/.env -- nx serve backend",
     "backend:dev:3001": "set PORT=3001&& npm run backend:dev:full",
     "backend:build:prod": "nx run backend:build:production",
+    "backend:copy-workspace-modules": "nx run backend:copy-workspace-modules --outputPath=dist/apps/backend",
     "backend:start:prod": "dotenv -o -e apps/backend/.env -- node dist/apps/backend/main.js",
     "backend:prod": "npm run services:up && npm run backend:build:prod && npm run backend:start:prod",
     "backend:prod:3001": "set PORT=3001&& npm run backend:prod",

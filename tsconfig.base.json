@@ -22,7 +22,9 @@
         "libs/shared/config/src/index.ts"
       ],
       "@josanz-erp/shared-events": ["libs/shared/events/src/index.ts"],
-      "@josanz-erp/shared-model": ["libs/shared/model/src/index.ts"],
+      "@josanz-erp/shared-model": [
+        "libs/isomorphic/shared/model/src/index.ts"
+      ],
       "@josanz-erp/shared-data-access": [
         "libs/shared/data-access/src/index.ts"
       ],
@@ -59,7 +61,7 @@
         "libs/isomorphic/api/billing/api/src/index.ts"
       ],
       "@josanz-erp/billing-backend": [
-        "libs/billing/backend/src/index.ts"
+        "libs/node/backend/billing/backend/src/index.ts"
       ],
       "@josanz-erp/fleet-api": ["libs/isomorphic/api/fleet/api/src/index.ts"],
       "@josanz-erp/clients-data-access": [
@@ -72,7 +74,7 @@
         "libs/clients/shell/src/index.ts"
       ],
       "@josanz-erp/clients-backend": [
-        "libs/clients/backend/src/index.ts"
+        "libs/node/backend/clients/backend/src/index.ts"
       ],
       "@josanz-erp/inventory-data-access": [
         "libs/inventory/data-access/src/index.ts"
@@ -126,55 +128,67 @@
         "libs/budget/shell/src/index.ts"
       ],
       "@josanz-erp/budget-backend": [
-        "libs/budget/backend/src/index.ts"
+        "libs/node/backend/budget/backend/src/index.ts"
       ],
       "@josanz-erp/budget-core": [
-        "libs/budget/domain/src/index.ts"
+        "libs/isomorphic/core/budget/core/src/index.ts"
       ],
       "@josanz-erp/clients-core": [
-        "libs/clients/domain/src/index.ts"
+        "libs/isomorphic/core/clients/core/src/index.ts"
       ],
       "@josanz-erp/delivery-core": [
-        "libs/delivery/domain/src/index.ts"
+        "libs/isomorphic/core/delivery/core/src/index.ts"
       ],
       "@josanz-erp/delivery-backend": [
-        "libs/delivery/backend/src/index.ts"
+        "libs/node/backend/delivery/backend/src/index.ts"
       ],
       "@josanz-erp/fleet-core": [
-        "libs/fleet/domain/src/index.ts"
+        "libs/isomorphic/core/fleet/core/src/index.ts"
       ],
       "@josanz-erp/fleet-backend": [
-        "libs/fleet/backend/src/index.ts"
+        "libs/node/backend/fleet/backend/src/index.ts"
       ],
       "@josanz-erp/inventory-core": [
-        "libs/inventory/domain/src/index.ts"
+        "libs/isomorphic/core/inventory/core/src/index.ts"
       ],
       "@josanz-erp/inventory-backend": [
-        "libs/inventory/backend/src/index.ts"
+        "libs/node/backend/inventory/backend/src/index.ts"
       ],
       "@josanz-erp/identity-core": [
-        "libs/identity/domain/src/index.ts"
+        "libs/isomorphic/core/identity/core/src/index.ts"
       ],
       "@josanz-erp/identity-backend": [
-        "libs/identity/backend/src/index.ts"
+        "libs/node/backend/identity/backend/src/index.ts"
       ],
       "@josanz-erp/rentals-core": [
-        "libs/rentals/domain/src/index.ts"
+        "libs/isomorphic/core/rentals/core/src/index.ts"
       ],
       "@josanz-erp/rentals-backend": [
-        "libs/rentals/backend/src/index.ts"
+        "libs/node/backend/rentals/backend/src/index.ts"
+      ],
+      "@josanz-erp/receipts-backend": [
+        "libs/node/backend/receipts/backend/src/index.ts"
+      ],
+      "@josanz-erp/projects-backend": [
+        "libs/node/backend/projects/backend/src/index.ts"
+      ],
+      "@josanz-erp/services-backend": [
+        "libs/node/backend/services/backend/src/index.ts"
       ],
       "@josanz-erp/verifactu-core": [
-        "libs/verifactu/domain/src/index.ts"
+        "libs/isomorphic/core/verifactu/core/src/index.ts"
       ],
       "@josanz-erp/projects-core": [
-        "libs/projects/domain/src/index.ts"
+        "libs/isomorphic/core/projects/core/src/index.ts"
       ],
       "@josanz-erp/services-core": [
-        "libs/services/domain/src/index.ts"
+        "libs/isomorphic/core/services/core/src/index.ts"
       ],
       "@josanz-erp/receipts-core": [
-        "libs/receipts/domain/src/index.ts"
+        "libs/isomorphic/core/receipts/core/src/index.ts"
+      ],
+      "@josanz-erp/receipts-api": [
+        "libs/isomorphic/api/receipts/api/src/index.ts"
       ],
       "@josanz-erp/verifactu-adapters": [
         "libs/node/adapters/verifactu/adapters/src/index.ts"

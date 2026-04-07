@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { map, type Observable } from 'rxjs';
 import { VerifactuApi } from '@josanz-erp/verifactu-api';
-import {
+import type {
 	EnqueueInvoiceResponse,
 	VerifactuEnqueueRequest,
 	VerifactuRecord,
@@ -11,7 +11,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class VerifactuService {
-	constructor(private api: VerifactuApi) {}
+	private readonly api = inject(VerifactuApi);
 
 	// Submit invoice to VeriFactu queue
 	submitInvoice(payload: VerifactuEnqueueRequest): Observable<EnqueueInvoiceResponse> {
