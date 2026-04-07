@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TechnicianApiService, TechnicianAvailability } from '@josanz-erp/shared-data-access';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, RotateCw } from 'lucide-angular';
 
 interface CalendarCell {
   day: number;
@@ -17,6 +17,9 @@ interface CalendarCell {
   selector: 'josanz-technician-availability',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
+  providers: [
+    { provide: 'LucideIcons', useValue: { RotateCw } }
+  ],
   template: `
     <div class="availability-container animate-fade-in">
       <div class="header">
@@ -50,9 +53,9 @@ interface CalendarCell {
             <div 
               *ngIf="cell.availability" 
               class="status-badge"
-              [class]="'status-' + (cell.availability?.type || 'AVAILABLE')"
+              [class]="'status-' + (cell.availability.type || 'AVAILABLE')"
             >
-              {{ getLabel(cell.availability?.type || 'AVAILABLE') }}
+              {{ getLabel(cell.availability.type || 'AVAILABLE') }}
             </div>
             
             <button 
