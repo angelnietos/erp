@@ -147,19 +147,71 @@ interface IAMascot {
                         }
                       </div>
 
-                      <div class="bot-actions">
+                      <div class="bot-actions-row">
                         <ui-josanz-button 
                           [variant]="bot.status === 'active' ? 'outline' : 'filled'" 
-                          fullWidth="true"
+                          size="sm"
                           (click)="toggleMascotStatus(bot.id)"
                         >
-                          {{ bot.status === 'active' ? 'Gestionar Skills' : 'Activar Asistente (SaaS)' }}
+                          {{ bot.status === 'active' ? 'CANCELAR SaaS' : 'ACTIVAR (SaaS)' }}
                         </ui-josanz-button>
+                        
+                        @if (bot.status === 'active') {
+                          <ui-josanz-button 
+                            variant="filled" 
+                            size="sm"
+                            (click)="managingBotId.set(bot.id)"
+                          >
+                            GESTIONAR SKILLS
+                          </ui-josanz-button>
+                        }
                       </div>
                     </div>
                   </ui-josanz-card>
                 }
               </div>
+
+              <!-- Skill Management Modal/Panel -->
+              @if (managingBotId(); as mId) {
+                @if (getBotById(mId); as mBot) {
+                  <div class="skills-overlay animate-fade-in" (click)="managingBotId.set(null)">
+                    <ui-josanz-card variant="glass" class="skills-panel animate-slide-up" (click)="$event.stopPropagation()">
+                      <div class="panel-header">
+                        <div class="header-bot">
+                          <ui-josanz-mascot [type]="mBot.mascotType" [color]="mBot.color" [personality]="mBot.personality" size="sm"></ui-josanz-mascot>
+                          <div>
+                            <h3>Centro de Habilidades: {{ mBot.name }}</h3>
+                            <p>Configura el comportamiento de tu asistente</p>
+                          </div>
+                        </div>
+                        <button class="close-btn" (click)="managingBotId.set(null)">
+                          <lucide-icon name="x" size="20"></lucide-icon>
+                        </button>
+                      </div>
+
+                      <div class="skills-config-list">
+                        @for (skill of mBot.skills; track skill) {
+                          <div class="skill-config-item">
+                            <div class="skill-info">
+                              <span class="skill-name">{{ skill }}</span>
+                              <p class="skill-desc">Habilita esta capacidad avanzada de IA para el módulo.</p>
+                            </div>
+                            <div class="toggle-wrapper" [class.active]="isSkillActive(mId, skill)" (click)="toggleSkill(mId, skill)">
+                              <div class="toggle-handle"></div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="panel-footer">
+                        <ui-josanz-button variant="filled" fullWidth="true" (click)="managingBotId.set(null)">
+                          GUARDAR CONFIGURACIÓN
+                        </ui-josanz-button>
+                      </div>
+                    </ui-josanz-card>
+                  </div>
+                }
+              }
             </section>
           }
 
@@ -380,13 +432,85 @@ interface IAMascot {
       flex: 1;
     }
 
-    .plugin-footer {
+    .bot-actions-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: auto;
+    }
+
+    .bot-actions-row ui-josanz-button { flex: 1; }
+
+    /* Skills Overlay */
+    .skills-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .skills-panel {
+      width: 100%;
+      max-width: 500px;
+      padding: 2rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+
+    .header-bot {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .header-bot ui-josanz-mascot { width: 60px; height: 60px; }
+    .header-bot h3 { margin: 0; color: #fff; font-size: 1.1rem; }
+    .header-bot p { margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.8rem; }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .close-btn:hover { color: #fff; }
+
+    .skills-config-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .skill-config-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-top: 1px solid var(--border-soft);
-      padding-top: 1.25rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
     }
+
+    .skill-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: block; }
+    .skill-desc { font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0; }
+
+    .panel-footer { border-top: 1px solid var(--border-soft); padding-top: 2rem; }
 
     .ai-grid {
       display: grid;
@@ -531,6 +655,10 @@ export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
 
   readonly activeTab = signal<'plugins' | 'ai' | 'preferences'>('plugins');
+  readonly managingBotId = signal<string | null>(null);
+
+  // Map of botId -> set of active skill names
+  private readonly _activeSkills = signal<Record<string, string[]>>({});
 
   // Expose signals explicitly for better template inference
   public readonly realtimeSync = this._pluginStore.realtimeSync;
@@ -546,7 +674,7 @@ export class SettingsFeatureComponent {
     { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integración mandatoria con la AEAT.', category: 'vertical' },
   ];
 
-  readonly mascotBots = signal<IAMascot[]>([
+  readonly mascotBots = signal<any[]>([
     { 
       id: 'inv-bot', 
       name: 'Stocky-Bot', 
@@ -555,7 +683,12 @@ export class SettingsFeatureComponent {
       skills: ['Predicción de Stock', 'Auto-Aprovisionamiento', 'Alertas de Caducidad'], 
       status: 'active', 
       color: '#10b981',
-      mascotType: 'inventory'
+      secondaryColor: '#059669',
+      mascotType: 'inventory',
+      personality: 'worker',
+      bodyShape: 'round',
+      eyesType: 'dots',
+      mouthType: 'o'
     },
     { 
       id: 'bud-bot', 
@@ -565,7 +698,12 @@ export class SettingsFeatureComponent {
       skills: ['Optimización de Márgenes', 'Detección de Costes Ocultos'], 
       status: 'inactive', 
       color: '#34d399',
-      mascotType: 'budget'
+      secondaryColor: '#065f46',
+      mascotType: 'budget',
+      personality: 'happy',
+      bodyShape: 'capsule',
+      eyesType: 'joy',
+      mouthType: 'smile'
     },
     { 
       id: 'proj-bot', 
@@ -575,7 +713,12 @@ export class SettingsFeatureComponent {
       skills: ['Timeline AI', 'Resource Balancing'], 
       status: 'active', 
       color: '#06b6d4',
-      mascotType: 'projects'
+      secondaryColor: '#0891b2',
+      mascotType: 'projects',
+      personality: 'tech',
+      bodyShape: 'square',
+      eyesType: 'shades',
+      mouthType: 'line'
     },
     { 
       id: 'cli-bot', 
@@ -585,7 +728,12 @@ export class SettingsFeatureComponent {
       skills: ['Sentiment Analysis', 'Lead Scoring'], 
       status: 'active', 
       color: '#8b5cf6',
-      mascotType: 'clients'
+      secondaryColor: '#6d28d9',
+      mascotType: 'clients',
+      personality: 'mystic',
+      bodyShape: 'round',
+      eyesType: 'dots',
+      mouthType: 'smile'
     },
     { 
       id: 'fleet-bot', 
@@ -595,7 +743,12 @@ export class SettingsFeatureComponent {
       skills: ['Route Optimization', 'Predictive Maintenance'], 
       status: 'inactive', 
       color: '#f59e0b',
-      mascotType: 'fleet'
+      secondaryColor: '#d97706',
+      mascotType: 'fleet',
+      personality: 'explorer',
+      bodyShape: 'capsule',
+      eyesType: 'shades',
+      mouthType: 'o'
     },
     { 
       id: 'rent-bot', 
@@ -605,7 +758,12 @@ export class SettingsFeatureComponent {
       skills: ['Conflict Detection', 'Auto-Reservation'], 
       status: 'active', 
       color: '#3b82f6',
-      mascotType: 'rentals'
+      secondaryColor: '#1d4ed8',
+      mascotType: 'rentals',
+      personality: 'ninja',
+      bodyShape: 'square',
+      eyesType: 'dots',
+      mouthType: 'line'
     },
     { 
       id: 'audit-bot', 
@@ -615,7 +773,12 @@ export class SettingsFeatureComponent {
       skills: ['Anomaly Detection', 'Risk Assessment'], 
       status: 'active', 
       color: '#ef4444',
-      mascotType: 'audit'
+      secondaryColor: '#b91c1c',
+      mascotType: 'audit',
+      personality: 'tech',
+      bodyShape: 'round',
+      eyesType: 'shades',
+      mouthType: 'o'
     },
     { 
       id: 'verifactu-bot', 
@@ -625,9 +788,37 @@ export class SettingsFeatureComponent {
       skills: ['Fiscal Validation', 'Auto-Reporting'], 
       status: 'inactive', 
       color: '#f43f5e',
-      mascotType: 'universal'
+      secondaryColor: '#9f1239',
+      mascotType: 'universal',
+      personality: 'queen',
+      bodyShape: 'capsule',
+      eyesType: 'joy',
+      mouthType: 'smile'
     }
   ]);
+
+  getBotById(id: string) {
+    return this.mascotBots().find(b => b.id === id);
+  }
+
+  isSkillActive(botId: string, skill: string) {
+    const skills = this._activeSkills()[botId] || [];
+    return skills.includes(skill);
+  }
+
+  toggleSkill(botId: string, skill: string) {
+    this._activeSkills.update(current => {
+      const botSkills = current[botId] || [];
+      const isCurrentlyActive = botSkills.includes(skill);
+      
+      return {
+        ...current,
+        [botId]: isCurrentlyActive 
+          ? botSkills.filter(s => s !== skill) 
+          : [...botSkills, skill]
+      };
+    });
+  }
 
   isPluginEnabled(id: string) {
     return this.enabledPlugins().includes(id);

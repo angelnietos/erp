@@ -3,46 +3,62 @@ import { CommonModule } from '@angular/common';
 
 export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'fleet' | 'rentals' | 'audit' | 'universal';
 
+export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explorer' | 'ninja' | 'queen';
+
 @Component({
   selector: 'ui-josanz-mascot',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="mascot-container" [class]="'type-' + type" [style.--mascot-color]="color">
+    <div class="mascot-container" [class]="'personality-' + personality" [style.--mascot-color]="color" [style.--mascot-secondary]="secondaryColor">
       <div class="mascot-body-wrapper">
         <!-- Floating Glow -->
         <div class="mascot-glow"></div>
         
-        <!-- Main Body -->
-        <div class="mascot-body">
-          <!-- Digital Eyes -->
-          <div class="eyes-container">
-            <div class="eye left">
-              <div class="pupil"></div>
-            </div>
-            <div class="eye right">
-              <div class="pupil"></div>
-            </div>
-          </div>
-          
-          <!-- Accessory based on type -->
-          <div class="accessory" [ngSwitch]="type">
-            <div *ngSwitchCase="'inventory'" class="acc-box"></div>
-            <div *ngSwitchCase="'budget'" class="acc-calc"></div>
-            <div *ngSwitchCase="'clients'" class="acc-heart"></div>
-            <div *ngSwitchCase="'projects'" class="acc-clapper"></div>
-            <div *ngSwitchCase="'fleet'" class="acc-wheel"></div>
-            <div *ngSwitchCase="'rentals'" class="acc-key"></div>
-            <div *ngSwitchCase="'audit'" class="acc-glass"></div>
-          </div>
-          
-          <!-- Mouth / Screen -->
-          <div class="screen-light"></div>
+        <!-- Ears / Horns -->
+        <div class="ears-container" *ngIf="personality !== 'tech'">
+          <div class="ear left"></div>
+          <div class="ear right"></div>
+        </div>
+
+        <!-- Antenna for Tech -->
+        <div class="antenna" *ngIf="personality === 'tech' || personality === 'worker'">
+          <div class="antenna-pole"></div>
+          <div class="antenna-tip"></div>
         </div>
         
-        <!-- Arms / Connectors -->
-        <div class="arm left"></div>
-        <div class="arm right"></div>
+        <!-- Main Body -->
+        <div class="mascot-body" [class]="bodyShape">
+          <!-- Digital Eyes -->
+          <div class="eyes-container">
+            <div class="eye left" [class]="eyesType">
+              <div class="pupil"></div>
+            </div>
+            <div class="eye right" [class]="eyesType">
+              <div class="pupil"></div>
+            </div>
+          </div>
+          
+          <!-- Mouth -->
+          <div class="mouth" [class]="mouthType"></div>
+
+          <!-- Accessory based on type (Icon / Symbol) -->
+          <div class="accessory-overlay" [ngSwitch]="type">
+            <div *ngSwitchCase="'inventory'" class="acc-symbol">📦</div>
+            <div *ngSwitchCase="'budget'" class="acc-symbol">💰</div>
+            <div *ngSwitchCase="'clients'" class="acc-symbol">🤝</div>
+            <div *ngSwitchCase="'projects'" class="acc-symbol">🎬</div>
+            <div *ngSwitchCase="'fleet'" class="acc-symbol">🚚</div>
+            <div *ngSwitchCase="'rentals'" class="acc-symbol">🔑</div>
+            <div *ngSwitchCase="'audit'" class="acc-symbol">🕵️</div>
+          </div>
+        </div>
+        
+        <!-- Arms / Wings -->
+        <div class="limbs-container">
+          <div class="limb left"></div>
+          <div class="limb right"></div>
+        </div>
         
         <!-- Base / Hover Effect -->
         <div class="mascot-shadow"></div>
@@ -62,13 +78,13 @@ export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'flee
       display: flex;
       align-items: center;
       justify-content: center;
-      perspective: 1000px;
+      perspective: 1200px;
     }
 
     .mascot-body-wrapper {
       position: relative;
-      width: 100px;
-      height: 100px;
+      width: 90px;
+      height: 90px;
       transform-style: preserve-3d;
       animation: float 4s ease-in-out infinite;
     }
@@ -78,11 +94,11 @@ export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'flee
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 120%;
-      height: 120%;
-      background: radial-gradient(circle, var(--mascot-color, #10b981) 0%, transparent 70%);
-      opacity: 0.2;
-      filter: blur(20px);
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(circle, var(--mascot-color, #10b981) 0%, transparent 75%);
+      opacity: 0.25;
+      filter: blur(25px);
       border-radius: 50%;
     }
 
@@ -90,106 +106,178 @@ export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'flee
       position: relative;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border-radius: 24px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: linear-gradient(145deg, var(--mascot-color) 0%, var(--mascot-secondary, #1e293b) 100%);
       box-shadow: 
-        inset 0 0 20px rgba(0,0,0,0.5),
+        inset 0 4px 10px rgba(255,255,255,0.4),
+        inset 0 -4px 15px rgba(0,0,0,0.4),
         0 10px 30px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      z-index: 2;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
+    /* Shapes */
+    .mascot-body.round { border-radius: 50%; }
+    .mascot-body.square { border-radius: 20px; }
+    .mascot-body.capsule { border-radius: 40px 40px 20px 20px; }
+    .mascot-body.tri { clip-path: polygon(50% 0%, 100% 100%, 0% 100%); border-radius: 0; }
+
+    /* Ears */
+    .ears-container {
+      position: absolute;
+      top: -15px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 5px;
+    }
+
+    .ear {
+      width: 25px;
+      height: 35px;
+      background: var(--mascot-color);
+      border-radius: 50% 50% 10px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .ear.left { transform: rotate(-15deg); }
+    .ear.right { transform: rotate(15deg); }
+
+    .personality-mystic .ear {
+      height: 50px;
+      width: 15px;
+      border-radius: 100px 100px 0 0;
+      transform-origin: bottom;
+      animation: earWiggle 5s infinite;
+    }
+
+    /* Antenna */
+    .antenna {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .antenna-pole { width: 4px; height: 20px; background: rgba(255, 255, 255, 0.3); }
+    .antenna-tip { 
+      width: 10px; height: 10px; background: var(--mascot-color); border-radius: 50%; 
+      box-shadow: 0 0 10px var(--mascot-color);
+      animation: pulse 1s infinite alternate;
+    }
+
+    /* Eyes */
     .eyes-container {
       display: flex;
-      gap: 15px;
-      margin-top: -10px;
+      gap: 12px;
+      margin-top: -15px;
     }
 
     .eye {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       background: #000;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
     }
+
+    .eye.joy { height: 10px; border-radius: 10px 10px 0 0; }
+    .eye.shades { width: 24px; height: 14px; border-radius: 4px; }
 
     .pupil {
       width: 8px;
       height: 8px;
-      background: var(--mascot-color, #10b981);
+      background: #fff;
       border-radius: 50%;
-      box-shadow: 0 0 10px var(--mascot-color);
-      animation: blink 5s infinite;
+      box-shadow: 0 0 10px #fff;
+      animation: blink 4s infinite;
     }
 
-    .screen-light {
+    /* Mouth */
+    .mouth {
+      width: 20px;
+      height: 10px;
+      border-bottom: 3px solid rgba(0,0,0,0.4);
+      border-radius: 50%;
+      margin-top: 10px;
+    }
+
+    .mouth.smile { border-bottom: 3px solid #fff; }
+    .mouth.o { width: 10px; height: 10px; border: 3px solid #fff; border-radius: 50%; }
+
+    .accessory-overlay {
       position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 20%;
-      background: linear-gradient(to top, var(--mascot-color, #10b981) 0%, transparent 100%);
-      opacity: 0.1;
+      bottom: 10px;
+      font-size: 1.2rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
     }
 
-    .accessory {
-      margin-top: 15px;
-      width: 30px;
-      height: 30px;
+    /* Limbs */
+    .limbs-container {
+      position: absolute;
+      top: 50%;
+      width: 130%;
+      left: -15%;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      z-index: 1;
     }
 
-    /* Accessory Visuals */
-    .acc-box { width: 20px; height: 16px; border: 2px solid var(--mascot-color); border-radius: 2px; }
-    .acc-calc { width: 18px; height: 22px; background: rgba(255,255,255,0.1); border-radius: 3px; position: relative; }
-    .acc-calc::before { content: ''; position: absolute; top: 3px; left: 3px; right: 3px; height: 5px; background: var(--mascot-color); opacity: 0.5; }
-    
-    .arm {
-      position: absolute;
-      top: 40%;
-      width: 15px;
-      height: 40px;
-      background: #1e293b;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .limb {
+      width: 20px;
+      height: 20px;
+      background: var(--mascot-color);
+      border-radius: 50%;
+      box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2);
     }
-
-    .arm.left { left: -10px; transform: rotate(-10deg); }
-    .arm.right { right: -10px; transform: rotate(10deg); }
 
     .mascot-shadow {
       position: absolute;
-      bottom: -40px;
-      left: 10%;
-      width: 80%;
-      height: 20px;
-      background: rgba(0,0,0,0.4);
-      filter: blur(8px);
+      bottom: -35px;
+      left: 15%;
+      width: 70%;
+      height: 15px;
+      background: rgba(0,0,0,0.5);
+      filter: blur(10px);
       border-radius: 50%;
-      animation: shadow 4s ease-in-out infinite;
+      animation: shadowMove 4s ease-in-out infinite;
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0) rotateX(5deg); }
-      50% { transform: translateY(-15px) rotateX(10deg); }
+      0%, 100% { transform: translateY(0) rotateX(5deg) rotateY(0deg); }
+      50% { transform: translateY(-20px) rotateX(10deg) rotateY(5deg); }
     }
 
-    @keyframes shadow {
-      0%, 100% { transform: scale(1); opacity: 0.4; }
-      50% { transform: scale(0.85); opacity: 0.2; }
+    @keyframes earWiggle {
+      0%, 90%, 100% { transform: rotate(0); }
+      92% { transform: rotate(-20deg); }
+      95% { transform: rotate(20deg); }
+      98% { transform: rotate(-20deg); }
+    }
+
+    @keyframes shadowMove {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(0.8); opacity: 0.2; }
     }
 
     @keyframes blink {
-      0%, 95%, 100% { transform: scaleY(1); }
-      97.5% { transform: scaleY(0); }
+      0%, 96%, 100% { transform: scaleY(1); }
+      98% { transform: scaleY(0.1); }
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.5); opacity: 0.6; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -197,4 +285,9 @@ export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'flee
 export class UIMascotComponent {
   @Input() type: MascotType = 'universal';
   @Input() color: string = '#10b981';
+  @Input() secondaryColor: string = '#065f46';
+  @Input() personality: MascotPersonality = 'happy';
+  @Input() bodyShape: 'round' | 'square' | 'capsule' | 'tri' = 'round';
+  @Input() eyesType: 'dots' | 'joy' | 'shades' = 'dots';
+  @Input() mouthType: 'smile' | 'line' | 'o' = 'line';
 }
