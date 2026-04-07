@@ -390,43 +390,58 @@ interface IAMascot {
 
     .ai-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
       gap: 1.5rem;
       width: 100%;
+      padding-bottom: 2rem;
     }
 
     .ai-bot-card {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 1.5rem;
-      padding: 1.5rem;
-      align-items: start;
-      min-height: 280px;
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      padding: 1.75rem;
+      align-items: flex-start;
+      transition: transform 0.3s ease;
+    }
+
+    .ai-bot-card:hover {
+      transform: translateY(-5px);
     }
 
     .bot-visual {
-      height: 140px;
-      width: 140px;
+      flex-shrink: 0;
+      width: 120px;
+      height: 120px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+      background: rgba(255, 255, 255, 0.03);
       border-radius: 20px;
-      overflow: hidden;
+      position: relative;
     }
 
-    .bot-info h3 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #fff;
-      margin: 0;
+    .bot-info {
+      flex: 1;
+      min-width: 0; /* Prevents text from forcing parent width */
     }
 
     .bot-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
+      gap: 1rem;
       margin-bottom: 0.25rem;
+    }
+
+    .bot-info h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .bot-feature {
