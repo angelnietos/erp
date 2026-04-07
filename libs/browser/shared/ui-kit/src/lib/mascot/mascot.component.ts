@@ -41,23 +41,24 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
           
           <!-- Mouth -->
           <div class="mouth" [class]="mouthType"></div>
-
-          <!-- Accessory based on type (Icon / Symbol) -->
-          <div class="accessory-overlay" [ngSwitch]="type">
-            <div *ngSwitchCase="'inventory'" class="acc-symbol">📦</div>
-            <div *ngSwitchCase="'budget'" class="acc-symbol">💰</div>
-            <div *ngSwitchCase="'clients'" class="acc-symbol">🤝</div>
-            <div *ngSwitchCase="'projects'" class="acc-symbol">🎬</div>
-            <div *ngSwitchCase="'fleet'" class="acc-symbol">🚚</div>
-            <div *ngSwitchCase="'rentals'" class="acc-symbol">🔑</div>
-            <div *ngSwitchCase="'audit'" class="acc-symbol">🕵️</div>
-          </div>
         </div>
         
-        <!-- Arms / Wings -->
+        <!-- Arms / Wings / Accessories -->
         <div class="limbs-container">
           <div class="limb left"></div>
-          <div class="limb right"></div>
+          <div class="limb right">
+            <!-- Accessory held by hand -->
+            <div class="accessory-hand" [ngSwitch]="type">
+              <span *ngSwitchCase="'inventory'" class="acc-symbol">📦</span>
+              <span *ngSwitchCase="'budget'" class="acc-symbol">💰</span>
+              <span *ngSwitchCase="'clients'" class="acc-symbol">🤝</span>
+              <span *ngSwitchCase="'projects'" class="acc-symbol">🎬</span>
+              <span *ngSwitchCase="'fleet'" class="acc-symbol">🚚</span>
+              <span *ngSwitchCase="'rentals'" class="acc-symbol">🔑</span>
+              <span *ngSwitchCase="'audit'" class="acc-symbol">🕵️</span>
+              <span *ngSwitchDefault class="acc-symbol">✨</span>
+            </div>
+          </div>
         </div>
         
         <!-- Base / Hover Effect -->
@@ -177,7 +178,7 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
     .eyes-container {
       display: flex;
       gap: 12px;
-      margin-top: -15px;
+      margin: 0;
     }
 
     .eye {
@@ -205,40 +206,46 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
 
     /* Mouth */
     .mouth {
-      width: 20px;
-      height: 10px;
-      border-bottom: 3px solid rgba(0,0,0,0.4);
+      width: 16px;
+      height: 8px;
+      border-bottom: 2px solid rgba(0,0,0,0.3);
       border-radius: 50%;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .mouth.smile { border-bottom: 3px solid #fff; }
     .mouth.o { width: 10px; height: 10px; border: 3px solid #fff; border-radius: 50%; }
 
-    .accessory-overlay {
-      position: absolute;
-      bottom: 10px;
-      font-size: 1.2rem;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    }
-
-    /* Limbs */
+    /* Accessories */
     .limbs-container {
       position: absolute;
       top: 50%;
-      width: 130%;
-      left: -15%;
+      width: 140%;
+      left: -20%;
       display: flex;
       justify-content: space-between;
       z-index: 1;
     }
 
     .limb {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       background: var(--mascot-color);
       border-radius: 50%;
       box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .accessory-hand {
+      position: absolute;
+      top: -15px;
+      right: -10px;
+      font-size: 1.5rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+      animation: handGrip 2s infinite alternate;
+      z-index: 10;
     }
 
     .mascot-shadow {
@@ -256,6 +263,11 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
     @keyframes float {
       0%, 100% { transform: translateY(0) rotateX(5deg) rotateY(0deg); }
       50% { transform: translateY(-20px) rotateX(10deg) rotateY(5deg); }
+    }
+
+    @keyframes handGrip {
+      from { transform: translateY(0) rotate(-5deg); }
+      to { transform: translateY(-5px) rotate(5deg); }
     }
 
     @keyframes earWiggle {
