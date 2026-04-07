@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, computed } from '@angular/core';
+import { Component, Input, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 @Component({
   selector: 'ui-josanz-ai-assistant',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, UiCardComponent, FormsModule, DragDropModule],
+  imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, FormsModule, DragDropModule],
   template: `
     <div class="ai-assistant-wrapper" *ngIf="bot() && bot()!.status === 'active'">
       <!-- Floating Mascot Bubble -->
@@ -65,6 +65,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
           </div>
 
           <div class="chat-input-area">
+            <button class="voice-btn" [class.recording]="isListening()" (click)="toggleSpeech()">
+               <lucide-icon [name]="isListening() ? 'mic-off' : 'mic'" size="18"></lucide-icon>
+            </button>
             <input 
               type="text" 
               placeholder="Escribe aquí tu consulta..." 
@@ -247,8 +250,33 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
       padding: 1.5rem;
       border-top: 1px solid var(--border-soft);
       display: flex;
+      align-items: center;
       gap: 1rem;
       background: rgba(0,0,0,0.2);
+    }
+
+    .voice-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+
+    .voice-btn:hover { background: rgba(255,255,255,0.1); }
+    .voice-btn.recording { background: var(--danger); border-color: var(--danger); animation: pulseRecord 1.5s infinite; }
+    
+    @keyframes pulseRecord {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     .chat-input-area input {
@@ -294,11 +322,78 @@ export class UIAIChatComponent {
   aiBotStore = inject(AIBotStore);
   masterFilterService = inject(MasterFilterService);
   router = inject(Router);
+  cdr = inject(ChangeDetectorRef);
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
   readonly messages = signal<{id: string, text: string, role: 'user' | 'bot'}[]>([]);
   currentInput = '';
+  
+  isListening = signal(false);
+  private recognition: any;
+
+  constructor() {
+    this.initSpeechRecognition();
+  }
+
+  private initSpeechRecognition() {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.interimResults = true;
+      this.recognition.lang = 'es-ES';
+
+      this.recognition.onstart = () => {
+        this.isListening.set(true);
+        this.cdr.detectChanges();
+      };
+      
+      this.recognition.onresult = (event: any) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          this.currentInput = finalTranscript;
+          this.cdr.detectChanges();
+          this.sendMessage(); // auto send
+        } else {
+          this.currentInput = interimTranscript;
+          this.cdr.detectChanges();
+        }
+      };
+
+      this.recognition.onerror = () => {
+        this.isListening.set(false);
+        this.cdr.detectChanges();
+      };
+      this.recognition.onend = () => {
+        this.isListening.set(false);
+        this.cdr.detectChanges();
+      };
+    }
+  }
+
+  toggleSpeech() {
+    if (!this.recognition) {
+       alert('Tu navegador no soporta reconocimiento de voz. Por favor, usa Google Chrome, Edge o Safari 14+.');
+       return;
+    }
+    if (this.isListening()) {
+      this.recognition.stop();
+    } else {
+      this.currentInput = '';
+      this.recognition.start();
+    }
+  }
 
   toggleChat() {
     this.isOpen.update(v => !v);
