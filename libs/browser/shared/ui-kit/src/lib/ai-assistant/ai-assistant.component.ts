@@ -324,16 +324,12 @@ export class UIAIChatComponent {
     try {
       let responseText = '';
       if (provider === 'gemini') {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            // 'gemini-pro' no soporta nativamente el objeto 'systemInstruction', así que lo inyectamos como contexto extra
-            contents: [
-              { role: 'user', parts: [{ text: `INSTRUCCIÓN DEL SISTEMA: Eres ${this.bot()!.name}, un asistente experto en ${this.bot()!.feature} para Josanz ERP. Hablas de forma concisa. FIN INSTRUCCIÓN.` }] },
-              { role: 'model', parts: [{ text: 'Comprendido. Actuaré según la instrucción del sistema.' }] },
-              { role: 'user', parts: [{ text: userInput }] }
-            ]
+            systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, un asistente experto en ${this.bot()!.feature} para Josanz ERP. Hablas de forma concisa.` }] },
+            contents: [{ parts: [{ text: userInput }] }]
           })
         });
 
