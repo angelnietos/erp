@@ -28,6 +28,9 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+    }
     .search-wrapper {
       position: relative;
       display: flex;

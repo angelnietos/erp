@@ -49,6 +49,9 @@ export type InputVariant = string;
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+    }
     .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
 
     .label {
