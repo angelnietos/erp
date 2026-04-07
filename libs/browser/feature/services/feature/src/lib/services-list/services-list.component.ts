@@ -13,6 +13,7 @@ import {
   UiStatCardComponent,
   UiBadgeComponent,
   UiLoaderComponent,
+  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -49,6 +50,7 @@ export interface Service {
     UiBadgeComponent,
     UiLoaderComponent,
     LucideAngularModule,
+    UIAIChatComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -145,6 +147,8 @@ export interface Service {
         </ui-josanz-card>
       }
     </div>
+
+    <ui-josanz-ai-assistant feature="services"></ui-josanz-ai-assistant>
   `,
   styles: [
     `
@@ -268,8 +272,6 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
   currentTheme = this.themeService.currentThemeData;
   services = signal<Service[]>([]);
   isLoading = signal(false);
-  searchTerm = signal('');
-
   columns = [
     { key: 'name', header: 'Nombre' },
     { key: 'description', header: 'Descripción' },
@@ -286,7 +288,7 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
 
   filteredServices = computed(() => {
     const list = this.services();
-    const t = this.searchTerm().trim().toLowerCase();
+    const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
     return list.filter(s => 
       s.name.toLowerCase().includes(t) || 
@@ -305,7 +307,6 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
   }
 
   onSearchChange(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
   }
 

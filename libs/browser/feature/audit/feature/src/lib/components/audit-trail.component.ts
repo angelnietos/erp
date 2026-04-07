@@ -579,11 +579,9 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   ];
 
   auditLogs = signal<AuditLog[]>([]);
-  searchTerm = signal('');
-
   filteredLogs = computed(() => {
     let filtered = [...this.auditLogs()];
-    const term = this.searchTerm().toLowerCase().trim();
+    const term = this.masterFilter.query().toLowerCase().trim();
 
     if (term) {
       filtered = filtered.filter(log => 
@@ -666,7 +664,6 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   }
 
   onSearch(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
   }
 

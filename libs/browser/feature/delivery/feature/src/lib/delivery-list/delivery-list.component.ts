@@ -15,6 +15,7 @@ import {
   UiInputComponent,
   UiTextareaComponent,
   UiStatCardComponent,
+  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -39,7 +40,8 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     UiInputComponent,
     UiTextareaComponent,
     UiStatCardComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    UIAIChatComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -168,6 +170,8 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
         </ui-josanz-button>
       </div>
     </ui-josanz-modal>
+
+    <ui-josanz-ai-assistant feature="delivery"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
@@ -247,11 +251,9 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
     budgetId: '', clientName: '', status: 'draft', deliveryDate: '', returnDate: '', itemsCount: 0, notes: ''
   };
 
-  searchTerm = signal('');
-
   filteredDeliveryNotes = computed(() => {
     const list = this.deliveryNotes();
-    const t = this.searchTerm().trim().toLowerCase();
+    const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
     return list.filter(d => 
       d.budgetId.toLowerCase().includes(t) || 
@@ -272,7 +274,6 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
   loadDeliveryNotes() { this.facade.loadDeliveryNotes(); }
 
   onSearch(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
     // Filtrado local vía computed
   }

@@ -17,6 +17,7 @@ import {
   UiSelectComponent,
   UiBadgeComponent,
   UiSearchComponent,
+  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -42,6 +43,7 @@ interface Receipt {
     UiBadgeComponent,
     UiSearchComponent,
     LucideAngularModule,
+    UIAIChatComponent,
   ],
   template: `
     <div class="receipts-container animate-fade-in">
@@ -78,68 +80,69 @@ interface Receipt {
         />
       </div>
 
-        <ui-josanz-card>
-          <div class="receipts-list">
-            <div
-              *ngFor="let receipt of filteredReceipts()"
-              class="receipt-item"
-              [class]="receipt.status.toLowerCase()"
-            >
-              <div class="receipt-icon">
-                <lucide-icon
-                  [img]="getStatusIcon(receipt.status)"
-                  size="20"
-                ></lucide-icon>
-              </div>
+      <ui-josanz-card>
+        <div class="receipts-list">
+          <div
+            *ngFor="let receipt of filteredReceipts()"
+            class="receipt-item"
+            [class]="receipt.status.toLowerCase()"
+          >
+            <div class="receipt-icon">
+              <lucide-icon
+                [img]="getStatusIcon(receipt.status)"
+                size="20"
+              ></lucide-icon>
+            </div>
 
-              <div class="receipt-info">
-                <div class="receipt-header">
-                  <span class="receipt-id"
-                    >Factura #{{ receipt.invoiceId }}</span
-                  >
-                  <ui-josanz-badge [variant]="getStatusVariant(receipt.status)">
-                    {{ getStatusText(receipt.status) }}
-                  </ui-josanz-badge>
-                </div>
-                <div class="receipt-details">
-                  <span class="receipt-amount"
-                    >€{{ receipt.amount.toFixed(2) }}</span
-                  >
-                  <span class="receipt-due"
-                    >Vence: {{ formatDate(receipt.dueDate) }}</span
-                  >
-                </div>
-                <div class="receipt-meta" *ngIf="receipt.paymentDate">
-                  <span class="receipt-paid"
-                    >Pagado: {{ formatDate(receipt.paymentDate) }}</span
-                  >
-                  <span class="receipt-method" *ngIf="receipt.paymentMethod">
-                    Método: {{ receipt.paymentMethod }}
-                  </span>
-                </div>
+            <div class="receipt-info">
+              <div class="receipt-header">
+                <span class="receipt-id"
+                  >Factura #{{ receipt.invoiceId }}</span
+                >
+                <ui-josanz-badge [variant]="getStatusVariant(receipt.status)">
+                  {{ getStatusText(receipt.status) }}
+                </ui-josanz-badge>
               </div>
-
-              <div class="receipt-actions">
-                <ui-josanz-button
-                  variant="ghost"
-                  size="sm"
-                  (clicked)="goToBilling(receipt)"
+              <div class="receipt-details">
+                <span class="receipt-amount"
+                  >€{{ receipt.amount.toFixed(2) }}</span
                 >
-                  Ver Detalles
-                </ui-josanz-button>
-                <ui-josanz-button
-                  *ngIf="receipt.status === 'PENDING'"
-                  variant="success"
-                  size="sm"
-                  (clicked)="markAsPaid(receipt)"
+                <span class="receipt-due"
+                  >Vence: {{ formatDate(receipt.dueDate) }}</span
                 >
-                  Marcar Pagado
-                </ui-josanz-button>
+              </div>
+              <div class="receipt-meta" *ngIf="receipt.paymentDate">
+                <span class="receipt-paid"
+                  >Pagado: {{ formatDate(receipt.paymentDate) }}</span
+                >
+                <span class="receipt-method" *ngIf="receipt.paymentMethod">
+                  Método: {{ receipt.paymentMethod }}
+                </span>
               </div>
             </div>
+
+            <div class="receipt-actions">
+              <ui-josanz-button
+                variant="ghost"
+                size="sm"
+                (clicked)="goToBilling(receipt)"
+              >
+                Ver Detalles
+              </ui-josanz-button>
+              <ui-josanz-button
+                *ngIf="receipt.status === 'PENDING'"
+                variant="success"
+                size="sm"
+                (clicked)="markAsPaid(receipt)"
+              >
+                Marcar Pagado
+              </ui-josanz-button>
+            </div>
           </div>
-        </ui-josanz-card>
-      </div>
+        </div>
+      </ui-josanz-card>
+
+      <ui-josanz-ai-assistant feature="receipts"></ui-josanz-ai-assistant>
     </div>
   `,
   styles: [
@@ -335,8 +338,6 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly XCircle = XCircle;
 
   statusFilter = '';
-  searchTerm = signal('');
-
   statusOptions = [
     { label: 'Todos los estados', value: '' },
     { label: 'Pendiente', value: 'PENDING' },
@@ -383,7 +384,7 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
     if (this.statusFilter) {
       list = list.filter(r => r.status === this.statusFilter);
     }
-    const t = this.searchTerm().trim().toLowerCase();
+    const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
     return list.filter(r => 
       r.invoiceId.toLowerCase().includes(t) || 
@@ -402,7 +403,6 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   onSearch(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
   }
 

@@ -494,7 +494,6 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   currentThemeData = this.themeService.currentThemeData;
 
   readonly allProjects = signal<Project[]>([]);
-  searchTerm = signal('');
   statusFilter = signal('');
 
   statusFilterOptions = [
@@ -510,7 +509,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
     if (st) {
       list = list.filter((p) => p.status === st);
     }
-    const term = this.searchTerm().trim().toLowerCase();
+    const term = this.masterFilter.query().trim().toLowerCase();
     if (term) {
       list = list.filter(
         (p) =>
@@ -540,7 +539,6 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
       if (text) {
-        this.searchTerm.set(text);
         this.masterFilter.search(text);
       }
     });
@@ -551,7 +549,6 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   onSearchChange(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
   }
 

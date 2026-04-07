@@ -314,11 +314,9 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
   isLoading = signal(true);
-  searchTerm = signal('');
-
   filteredUsers = computed(() => {
     const list = this.users();
-    const t = this.searchTerm().trim().toLowerCase();
+    const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
     return list.filter(u => 
       u.email.toLowerCase().includes(t) || 
@@ -338,7 +336,6 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   onSearch(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
   }
 

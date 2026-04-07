@@ -182,15 +182,13 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
   
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;
-  searchTerm = signal('');
-
   totalPipeline = computed(() => this.store.budgets().reduce((acc, b) => acc + (b.total || 0), 0));
   totalAccepted = computed(() => this.store.budgets().filter(b => b.status === 'ACCEPTED').reduce((acc, b) => acc + (b.total || 0), 0));
   pendingCount = computed(() => this.store.budgets().filter(b => b.status === 'DRAFT' || b.status === 'SENT').length);
 
   filteredBudgets = computed(() => {
     const list = this.store.budgets();
-    const t = this.searchTerm().toLowerCase().trim();
+    const t = this.masterFilter.query().toLowerCase().trim();
     if (!t) return list;
     return list.filter(b => 
       b.id.toLowerCase().includes(t) || 
@@ -208,7 +206,6 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
   }
 
   onSearch(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
   }
 
