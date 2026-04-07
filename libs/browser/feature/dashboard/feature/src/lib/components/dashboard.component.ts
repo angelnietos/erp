@@ -1365,11 +1365,11 @@ export class DashboardComponent implements OnInit {
   });
 
   maxClientRevenue = computed(() =>
-    Math.max(1, ...this.charts().revenueByClient.map((r) => r.revenue)),
+    Math.max(1, ...this.charts().revenueByClient.map((r: { revenue: number }) => r.revenue)),
   );
 
   maxProjectRevenue = computed(() =>
-    Math.max(1, ...this.charts().revenueByProject.map((r) => r.revenue)),
+    Math.max(1, ...this.charts().revenueByProject.map((r: { revenue: number }) => r.revenue)),
   );
 
   currentTheme = this.themeService.currentThemeData;
