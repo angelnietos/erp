@@ -1,12 +1,14 @@
 import { Component, Input, inject, signal, computed, effect, NgZone, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { Router } from '@angular/router';
-import { AIBotStore, MasterFilterService } from '@josanz-erp/shared-data-access';
+import { Router, RouterModule } from '@angular/router';
+import { AIBotStore, DashboardAnalyticsService, ThemeService, Theme, MasterFilterService } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'ui-josanz-ai-assistant',
@@ -337,6 +339,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   
   aiBotStore = inject(AIBotStore);
   masterFilterService = inject(MasterFilterService);
+  dashboardService = inject(DashboardAnalyticsService);
+  themeService = inject(ThemeService);
+  http = inject(HttpClient);
   router = inject(Router);
   ngZone = inject(NgZone);
   
@@ -496,13 +501,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, el asistente personal definitivo y "Buddy" de confianza para Josanz ERP (NUNCA menciones otros nombres como Babooni). 
-              Tu personalidad es divertida, sarcástica a veces, pero siempre leal. 
-              Si te piden chistes, CUÉNTALOS sin dudar (chistes cortos y malos preferiblemente). 
-              Tu misión en ${this.bot()!.feature} es:
-              1. Ayudar con los datos (puedes usar 'search_database').
-              2. Navegar (puedes usar 'navigate_create').
-              3. Ser un colega: escucha, da consejos absurdos o sabios, cuenta hitos y haz que el día sea más ameno.
-              Responde siempre de forma vibrante y llena de energía.` }] },
+              Tu personalidad es divertida, vibrante y muy eficiente.
+              
+              CAPACIDADES TOTALES:
+              1. **Datos**: Puedes buscar ('search_database') y CREAR registros ('create_record'). Si el usuario te da datos inconexos para un nuevo cliente/proyecto, intenta estructurarlos y crearlos.
+              2. **Métricas**: Puedes obtener el estado del negocio ('get_metrics_summary') para dar informes ejecutivos.
+              3. **Navegación**: Puedes llevar al usuario a cualquier parte ('navigate_route').
+              4. **Archivos**: Puedes exportar información en JSON ('export_dataset').
+              5. **Estética**: Puedes cambiar el tema visual ('change_app_theme').
+              6. **Social**: Cuenta chistes si te lo piden.
+              
+              Para 'create_record', el campo 'data' debe seguir la estructura estándar de la entidad del módulo actual (${this.bot()!.feature}).
+              Responde siempre confirmando la acción realizada.` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
@@ -512,9 +522,48 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                   parameters: { type: 'OBJECT', properties: { query: { type: 'STRING', description: 'Lo que el usuario desea buscar.' } }, required: ['query'] }
                 },
                 {
-                  name: 'navigate_create',
-                  description: 'Navega o abre la interfaz para crear un nuevo registro correspondiente al módulo actual.',
-                  parameters: { type: 'OBJECT' }
+                  name: 'navigate_route',
+                  description: 'Navega a una ruta específica del ERP.',
+                  parameters: { type: 'OBJECT', properties: { route: { type: 'STRING', description: 'Ruta destino (ej: /inventory, /projects/new)' } }, required: ['route'] }
+                },
+                {
+                   name: 'create_record',
+                   description: 'Crea un nuevo registro en la base de datos para el módulo indicado.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       module: { type: 'STRING', description: 'El feature (ej: inventory, clients, projects)' },
+                       data: { type: 'OBJECT', description: 'Objeto con los campos del registro (ej: { name: "Nuevo", ... })' }
+                     }, 
+                     required: ['module', 'data'] 
+                   }
+                },
+                {
+                   name: 'get_metrics_summary',
+                   description: 'Obtiene un resumen de los KPIs y métricas actuales de la empresa.',
+                   parameters: { type: 'OBJECT' }
+                },
+                {
+                   name: 'export_dataset',
+                   description: 'Genera un archivo descargable con los datos actuales.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       format: { type: 'STRING', enum: ['json', 'csv'], description: 'Formato de exportación' } 
+                     }, 
+                     required: ['format'] 
+                   }
+                },
+                {
+                   name: 'change_app_theme',
+                   description: 'Cambia el tema visual del ERP.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       theme: { type: 'STRING', enum: ['classic', 'modern', 'cyber', 'neon', 'luxe'], description: 'El tema a aplicar' } 
+                     }, 
+                     required: ['theme'] 
+                   }
                 }
               ]
             }]
@@ -528,13 +577,56 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         
         if (firstPart.functionCall) {
           const funcCall = firstPart.functionCall;
-          if (funcCall.name === 'search_database') {
-            this.masterFilterService.search(funcCall.args.query);
-            responseText = `✅ He procedido a buscar: **"${funcCall.args.query}"** en tus registros. Deberías verlo reflejado en la tabla al instante.`;
-          } else if (funcCall.name === 'navigate_create') {
-            // Usa el enrutador para abrir la ruta de creación estándar para el módulo en curso
-            this.router.navigate([`/${this.bot()!.feature}/new`]);
-            responseText = `✅ Te redirigí al formulario de alta en ${this.bot()!.feature}.`;
+          const args = funcCall.args as any;
+
+          switch (funcCall.name) {
+            case 'search_database':
+              this.masterFilterService.search(args.query);
+              responseText = `✅ Filtro aplicado: **"${args.query}"**. ¡Lo tienes en pantalla!`;
+              break;
+
+            case 'navigate_route':
+              this.router.navigate([args.route]);
+              responseText = `🚀 ¡Despegando! Te llevo directo a **${args.route}**.`;
+              break;
+
+            case 'create_record':
+              try {
+                 await firstValueFrom(this.http.post(`/api/${args.module}`, args.data));
+                 responseText = `✨ ¡Listo! He creado el nuevo registro en **${args.module}** con éxito.`;
+              } catch (e) {
+                 responseText = `⚠️ Uy, ha fallado la creación en el servidor. Revisa si los datos de **${args.module}** son válidos.`;
+              }
+              break;
+
+            case 'get_metrics_summary':
+              const summary = await firstValueFrom(this.dashboardService.getSummary());
+              if (summary) {
+                responseText = `📊 **Estado Flash del ERP**:
+                - Ingresos: **${summary.metrics.totalRevenue}€** (${summary.trends.revenueChangePercent}% vs mes anterior)
+                - Proyectos: **${summary.metrics.activeProjects}** activos.
+                - Clientes: **${summary.metrics.totalClients}** registrados.
+                - Eventos: **${summary.metrics.completedEvents}** cerrados.`;
+              } else {
+                responseText = `❌ No he podido conectar con el servicio de métricas en este momento.`;
+              }
+              break;
+
+            case 'export_dataset':
+              // Simulación de exportación descargando un JSON
+              const blob = new Blob([JSON.stringify({ module: this.feature, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `josanz-export-${this.feature}.${args.format}`;
+              a.click();
+              responseText = `📥 ¡Descarga generada! He exportado los datos de **${this.feature}** en formato **${args.format.toUpperCase()}**.`;
+              break;
+
+            case 'change_app_theme':
+              this.themeService.setTheme(args.theme as Theme);
+              responseText = `🌈 ¡Nuevo look! He cambiado el estilo del ERP a **${args.theme.toUpperCase()}**.`;
+              break;
           }
         } else {
           responseText = firstPart.text;
