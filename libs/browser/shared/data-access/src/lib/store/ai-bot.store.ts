@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 
 export interface AIBot {
   id: string;
@@ -21,8 +21,15 @@ export interface AIBot {
   providedIn: 'root'
 })
 export class AIBotStore {
-  readonly selectedProvider = signal<'gemini' | 'openai' | 'anthropic'>('gemini');
-  readonly providerApiKey = signal<string>('');
+  readonly selectedProvider = signal<'gemini' | 'openai' | 'anthropic'>((localStorage.getItem('ai_provider') as any) || 'gemini');
+  readonly providerApiKey = signal<string>(localStorage.getItem('ai_api_key') || '');
+
+  constructor() {
+    effect(() => {
+      localStorage.setItem('ai_provider', this.selectedProvider());
+      localStorage.setItem('ai_api_key', this.providerApiKey());
+    });
+  }
 
   private readonly _bots = signal<Record<string, AIBot>>({
     'inventory': { 
