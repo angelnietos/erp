@@ -12,8 +12,8 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "commonjs",
-    "moduleResolution": "node"
+    "module": "es2022",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts"]
 }
