@@ -1664,6 +1664,12 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.ctx.arc(bx + 71, by + 32, 9, 0, Math.PI * 2);
     this.ctx.fill();
 
+    const isMatrix = this.theme === 'digital-matrix';
+    if (isMatrix) {
+      this.ctx.shadowBlur = 15;
+      this.ctx.shadowColor = 'rgba(16, 185, 129, 0.4)';
+    }
+    
     // Feet
     this.ctx.fillStyle = cfg.mascot.feet;
     this.ctx.fillRect(bx + 16, by + bodyH - 6, 20, 26);

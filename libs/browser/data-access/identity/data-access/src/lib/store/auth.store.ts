@@ -5,7 +5,7 @@ import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { UserPayload } from '@josanz-erp/identity-api';
 import { Router } from '@angular/router';
-import { AuthStore as GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import { AuthStore as GlobalAuthStore, DomainEventsApiService } from '@josanz-erp/shared-data-access';
 
 export interface AuthState {
   user: UserPayload | null;
@@ -25,7 +25,7 @@ export const AuthStore = signalStore(
   withComputed(({ user }) => ({
     isAuthenticated: computed(() => !!user()),
   })),
-  withMethods((store, authService = inject(AuthService), router = inject(Router), globalAuthStore = inject(GlobalAuthStore)) => ({
+  withMethods((store, authService = inject(AuthService), router = inject(Router), globalAuthStore = inject(GlobalAuthStore), domainEventsApi = inject(DomainEventsApiService)) => ({
     login: rxMethod<{ email: string; password: string }>(
       pipe(
         tap(() => patchState(store, { loading: true, error: null })),
@@ -35,13 +35,19 @@ export const AuthStore = signalStore(
               authService.setToken(response.accessToken);
               authService.setTenantId(response.tenantId);
               patchState(store, { user: response.user, loading: false });
-              // Sync with global auth store
               globalAuthStore.setUser({
                 id: response.user.id,
                 email: response.user.email,
                 name: response.user.email,
                 tenantId: response.tenantId,
               });
+              // Register audit event
+              domainEventsApi.append({
+                eventType: 'LOGIN',
+                aggregateType: 'USER',
+                aggregateId: response.user.id,
+                payload: { email: response.user.email, name: response.user.email }
+              }).subscribe();
               router.navigate(['/budgets']);
             }),
             catchError((err) => {

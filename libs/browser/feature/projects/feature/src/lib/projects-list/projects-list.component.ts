@@ -31,7 +31,7 @@ import {
   UiCardComponent,
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService, DomainEventsApiService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 
 export interface Project {
@@ -485,6 +485,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly domainEventsApi = inject(DomainEventsApiService);
 
   currentThemeData = this.themeService.currentThemeData;
 
@@ -572,11 +573,27 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   onDuplicate(project: Project) {
-    console.log('Duplicate project:', project);
+    this.domainEventsApi.append({
+      eventType: 'COPY',
+      aggregateType: 'PROJECT',
+      aggregateId: project.id,
+      payload: { name: project.name }
+    }).subscribe(() => {
+      console.log('Project duplicated:', project.name);
+    });
   }
 
   onDelete(project: Project) {
-    console.log('Delete project:', project);
+    this.domainEventsApi.append({
+      eventType: 'DELETE',
+      aggregateType: 'PROJECT',
+      aggregateId: project.id,
+      payload: { name: project.name }
+    }).subscribe(() => {
+      console.log('Project deleted:', project.name);
+      // Remove from local list for immediate feedback
+      this.allProjects.update((list: Project[]) => list.filter((p: Project) => p.id !== project.id));
+    });
   }
 
   private loadProjects() {
