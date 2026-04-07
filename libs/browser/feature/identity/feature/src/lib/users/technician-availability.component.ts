@@ -135,12 +135,42 @@ interface CalendarCell {
               </div>
             </ui-josanz-card>
           } @else {
-            <div class="team-view-placeholder ui-glass">
-              <lucide-icon name="users" size="48" class="placeholder-icon"></lucide-icon>
-              <h3>Vista de Equipo en Desarrollo</h3>
-              <p>Aquí se mostrará un cuadrante de disponibilidad comparada para todo el equipo.</p>
-              <ui-josanz-button variant="app" (clicked)="viewMode.set('personal')">Volver a Mi Vista</ui-josanz-button>
-            </div>
+            <!-- TEAM BOARD VIEW -->
+            <ui-josanz-card shape="auto" class="team-board-card">
+              <div class="board-container">
+                <div class="board-header-sticky">
+                   <div class="tech-col-header">Técnico</div>
+                   <div class="days-scroll-area">
+                      @for (cell of calendarCells(); track cell.date) {
+                        <div class="day-col-header" [class.today]="cell.isToday">
+                          <span class="d-num">{{ cell.day }}</span>
+                          <span class="d-name">{{ getDayOfWeekName(cell.day) }}</span>
+                        </div>
+                      }
+                   </div>
+                </div>
+                
+                <div class="board-body">
+                   @for (tech of technicians(); track tech.id) {
+                     <div class="tech-row">
+                        <div class="tech-info-sticky">
+                           <div class="avatar-sm" [style.background]="getAvatarColor(tech.name)">{{ tech.name.substring(0,1) }}</div>
+                           <span class="name-sm">{{ tech.name }}</span>
+                        </div>
+                        <div class="cells-row">
+                           @for (cell of calendarCells(); track cell.date) {
+                              <div class="board-cell" [class.today]="cell.isToday">
+                                 @if (getTeamMemberAvailability(tech.id, cell.day)) {
+                                    <div class="mini-status" [class]="getTeamMemberAvailability(tech.id, cell.day)" title="{{ getShortLabel(getTeamMemberAvailability(tech.id, cell.day)) }}"></div>
+                                 }
+                              </div>
+                           }
+                        </div>
+                     </div>
+                   }
+                </div>
+              </div>
+            </ui-josanz-card>
           }
         </main>
       </div>
@@ -469,6 +499,76 @@ interface CalendarCell {
     }
 
     .placeholder-icon { color: var(--brand); opacity: 0.4; }
+
+    /* TEAM BOARD SPECIFIC */
+    .team-board-card { padding: 0 !important; }
+    .board-container { width: 100%; overflow: hidden; position: relative; }
+    
+    .board-header-sticky {
+      display: flex;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .tech-col-header {
+      width: 180px; flex-shrink: 0; padding: 1rem;
+      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-muted);
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .days-scroll-area {
+      display: flex; overflow-x: auto; flex-grow: 1;
+      scrollbar-width: thin; scrollbar-color: var(--brand) transparent;
+    }
+    
+    .day-col-header {
+      width: 48px; flex-shrink: 0; padding: 0.75rem 0;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      border-right: 1px solid rgba(255,255,255,0.04);
+    }
+    
+    .day-col-header.today { background: var(--brand-ambient); color: var(--brand); }
+    .d-num { font-size: 0.85rem; font-weight: 900; font-family: var(--font-display); }
+    .d-name { font-size: 0.5rem; font-weight: 800; opacity: 0.6; }
+    
+    .tech-row {
+      display: flex; border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.2s;
+    }
+    .tech-row:hover { background: rgba(255,255,255,0.02); }
+    
+    .tech-info-sticky {
+      width: 180px; flex-shrink: 0; padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.1);
+    }
+    
+    .avatar-sm {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 900; color: #fff;
+    }
+    .name-sm { font-size: 0.75rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .cells-row { display: flex; overflow-x: auto; flex-grow: 1; }
+    
+    .board-cell {
+      width: 48px; height: 48px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-right: 1px solid rgba(255,255,255,0.04);
+    }
+    .board-cell.today { background: rgba(255,255,255,0.02); }
+    
+    .mini-status {
+      width: 12px; height: 12px; border-radius: 50%;
+      box-shadow: 0 0 10px currentColor;
+    }
+    .mini-status.AVAILABLE { background: var(--success); color: var(--success); }
+    .mini-status.UNAVAILABLE { background: var(--danger); color: var(--danger); }
+    .mini-status.HOLIDAY { background: var(--info); color: var(--info); }
+    .mini-status.SICK_LEAVE { background: var(--warning); color: var(--warning); }
   `]
 })
 export class TechnicianAvailabilityComponent implements OnInit {
@@ -546,6 +646,17 @@ export class TechnicianAvailabilityComponent implements OnInit {
     const colors = ['#4338ca', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
     const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
+  }
+
+  getDayOfWeekName(day: number): string {
+    const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const date = new Date(this.currentYear(), 3, day); // Usando Abril (3) para el demo
+    return days[date.getDay()];
+  }
+
+  getTeamMemberAvailability(techId: string, day: number): string {
+    const availability = this.getRandomMockAvailability(day, techId);
+    return availability.type;
   }
 
   private getRandomMockAvailability(day: number, techId: string): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
