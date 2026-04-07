@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,8 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of, map } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
 @Component({
@@ -219,11 +220,12 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ClientsListComponent implements OnInit {
+export class ClientsListComponent implements OnInit, OnDestroy, FilterableService<Client> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(ClientsFacade);
   private readonly route = inject(ActivatedRoute);
+  private readonly masterFilter = inject(MasterFilterService);
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
 
   currentTheme = this.themeService.currentThemeData;
@@ -251,18 +253,36 @@ export class ClientsListComponent implements OnInit {
   activeSectorsCount = computed(() => new Set(this.clients().map(c => c.sector).filter(Boolean)).size);
 
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
       if (text) {
         this.facade.searchClients(text);
+        this.masterFilter.search(text);
       } else {
         this.loadClients();
       }
     });
   }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Client[]> {
+    const term = query.toLowerCase();
+    const matches = this.clients().filter(c => 
+      c.name.toLowerCase().includes(term) || 
+      (c.sector ?? '').toLowerCase().includes(term) || 
+      (c.contact ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
+  }
   loadClients() { this.facade.loadClients(); }
 
   onSearch(term: string) {
+    this.masterFilter.search(term);
     if (term.trim()) this.facade.searchClients(term);
     else this.facade.loadClients();
   }

@@ -65,7 +65,7 @@
       ],
       "@josanz-erp/fleet-api": ["libs/isomorphic/api/fleet/api/src/index.ts"],
       "@josanz-erp/clients-data-access": [
-        "libs/clients/data-access/src/index.ts"
+        "libs/browser/data-access/clients/data-access/src/index.ts"
       ],
       "@josanz-erp/clients-feature": [
         "libs/browser/feature/clients/feature/src/index.ts"
@@ -77,7 +77,7 @@
         "libs/node/backend/clients/backend/src/index.ts"
       ],
       "@josanz-erp/inventory-data-access": [
-        "libs/inventory/data-access/src/index.ts"
+        "libs/browser/data-access/inventory/data-access/src/index.ts"
       ],
       "@josanz-erp/inventory-feature": [
         "libs/browser/feature/inventory/feature/src/index.ts"

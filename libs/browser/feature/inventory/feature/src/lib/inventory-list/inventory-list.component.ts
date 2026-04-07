@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,8 @@ import {
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
 
 @Component({
@@ -283,11 +284,12 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InventoryListComponent implements OnInit {
+export class InventoryListComponent implements OnInit, OnDestroy, FilterableService<Product> {
   public readonly config = inject(INVENTORY_FEATURE_CONFIG);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(InventoryFacade);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -312,12 +314,32 @@ export class InventoryListComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.loadProducts();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Product[]> {
+    const term = query.toLowerCase();
+    const matches = this.allProducts().filter(p => 
+      p.name.toLowerCase().includes(term) || 
+      (p.sku ?? '').toLowerCase().includes(term) || 
+      (p.category ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
   }
 
   loadProducts() { this.facade.loadProducts(); }
   onTabChange(tabId: string) { this.facade.setTab(tabId); }
-  onSearch(term: string) { this.searchTerm = term; this.facade.searchProducts(term); }
+  onSearch(term: string) { 
+    this.searchTerm = term; 
+    this.masterFilter.search(term);
+    this.facade.searchProducts(term); 
+  }
   onPageChange(page: number) { this.currentPage.set(page); this.loadProducts(); }
 
   openCreateModal() {
@@ -404,6 +426,6 @@ export class InventoryListComponent implements OnInit {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
   }
 
-  totalValue = computed(() => this.allProducts().reduce((acc, p) => acc + (p.dailyRate * p.totalStock), 0));
-  criticalCount = computed(() => this.allProducts().filter(p => p.availableStock < (p.totalStock * 0.2)).length);
+  totalValue = computed(() => this.allProducts().reduce((acc: number, p: Product) => acc + (p.dailyRate * p.totalStock), 0));
+  criticalCount = computed(() => this.allProducts().filter((p: Product) => p.availableStock < (p.totalStock * 0.2)).length);
 }
