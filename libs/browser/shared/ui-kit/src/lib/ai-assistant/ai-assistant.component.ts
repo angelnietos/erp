@@ -102,21 +102,27 @@ import { firstValueFrom } from 'rxjs';
       bottom: 1.5rem;
       right: 1.5rem;
       z-index: 10000;
+      transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .ai-assistant-wrapper:not(.feature-dashboard) {
+      right: 11rem; /* Increased separation as requested */
+    }
+
+    .mascot-trigger {
+      cursor: pointer;
       transition: all 0.4s var(--ease-out-expo);
       opacity: 0.75;
       transform: scale(0.85);
       filter: saturate(0.9);
+      position: relative;
     }
 
-    .ai-assistant-wrapper:hover,
-    .ai-assistant-wrapper.is-open {
+    .mascot-trigger:hover,
+    .ai-assistant-wrapper.is-open .mascot-trigger {
       opacity: 1;
       transform: scale(1);
       filter: saturate(1);
-    }
-
-    .ai-assistant-wrapper:not(.feature-dashboard) {
-      right: 7rem; /* Compact offset - more space for content */
     }
 
     .feature-dashboard .assistant-trigger {
@@ -173,7 +179,7 @@ import { firstValueFrom } from 'rxjs';
       overflow: hidden;
       border-radius: 24px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-      background: rgba(15, 23, 42, 0.85) !important;
+      background: #0f172a !important; /* Solid background as requested */
       backdrop-filter: blur(25px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
