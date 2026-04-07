@@ -4,5 +4,6 @@ export * from './lib/services/dashboard-analytics.service';
 export * from './lib/services/receipts-api.service';
 export * from './lib/services/domain-events-api.service';
 export * from './lib/services/services-catalog-api.service';
+export * from './lib/services/technician-api.service';
 export * from './lib/store/plugin.store';
 export * from './lib/guards/plugin.guard';

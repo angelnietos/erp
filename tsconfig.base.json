@@ -14,21 +14,21 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@josanz-erp/shared-utils": ["libs/shared/utils/src/index.ts"],
+      "@josanz-erp/shared-utils": ["libs/browser/shared/utils/src/index.ts"],
       "@josanz-erp/shared-utils/node": [
-        "libs/shared/utils/src/node.ts"
+        "libs/browser/shared/utils/src/node.ts"
       ],
       "@josanz-erp/shared-config": [
-        "libs/shared/config/src/index.ts"
+        "libs/browser/shared/config/src/index.ts"
       ],
-      "@josanz-erp/shared-events": ["libs/shared/events/src/index.ts"],
+      "@josanz-erp/shared-events": ["libs/browser/shared/events/src/index.ts"],
       "@josanz-erp/shared-model": [
         "libs/isomorphic/shared/model/src/index.ts"
       ],
       "@josanz-erp/shared-data-access": [
-        "libs/shared/data-access/src/index.ts"
+        "libs/browser/shared/data-access/src/index.ts"
       ],
-      "@josanz-erp/shared-ui-kit": ["libs/shared/ui-kit/src/index.ts"],
+      "@josanz-erp/shared-ui-kit": ["libs/browser/shared/ui-kit/src/index.ts"],
       "@josanz-erp/identity-data-access": [
         "libs/browser/data-access/identity/data-access/src/index.ts"
       ],
@@ -207,12 +207,12 @@
       ],
       "@josanz-erp/auth-jwt": ["libs/node/auth/jwt/src/index.ts"],
       "@josanz-erp/shared-integrations-email": [
-        "libs/shared/integrations/email/src/index.ts"
+        "libs/browser/shared/integrations/email/src/index.ts"
       ],
       "@josanz-erp/shared-integrations-storage": [
-        "libs/shared/integrations/storage/src/index.ts"
+        "libs/browser/shared/integrations/storage/src/index.ts"
       ],
-      "@josanz-erp/shared-cqrs": ["libs/shared/cqrs/src/index.ts"],
+      "@josanz-erp/shared-cqrs": ["libs/browser/shared/cqrs/src/index.ts"],
       "@josanz-erp/shared-infrastructure": [
         "libs/node/shared-infrastructure/src/index.ts"
       ],

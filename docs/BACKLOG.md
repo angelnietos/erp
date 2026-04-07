@@ -26,7 +26,7 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 
 ## 2. Seguridad y multitenancy
 
-- [ ] **Validar tenant en BD**: `TenantGuard` comprueba presencia de `x-tenant-id`, no que el UUID exista en `tenants` (suplantación / typos).
+- [x] **Validar tenant en BD**: `TenantGuard` ya valida no solo la presencia sino la existencia real y estado `isActive` del UUID en la tabla `tenants`.
 - [x] **Secretos de webhooks**: hoy se persisten para poder firmar HMAC; se ha implementado **cifrado en reposo (AES-256-GCM)**; no devolver `secret` en `GET /api/integrations/webhooks` en producción (solo al registrar).
 - [ ] **JWT de forma consistente**: varios controladores sin `JwtAuthGuard` por comodidad demo; definir política por entorno (dev vs prod).
 - [ ] **CORS y orígenes** en producción vía `CORS_ORIGIN` (no solo `localhost:4200`).

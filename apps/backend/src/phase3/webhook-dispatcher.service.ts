@@ -14,18 +14,41 @@ export class WebhookDispatcherService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Entrega en segundo plano (no bloquea la petición HTTP del evento).
-   * Cabecera: `X-Josanz-Signature: sha256=<hex>` sobre el cuerpo JSON UTF-8.
+   * Encola los webhooks correspondientes a un evento de dominio.
+   * El worker (WebhookQueueWorker) se encargarÃ¡ de la entrega real.
    */
-  dispatchForDomainEvent(record: DomainEventRecord): void {
-    setImmediate(() => {
-      this.deliver(record).catch((err) =>
-        this.logger.warn(`Webhook dispatch failed: ${String(err)}`),
-      );
+  async dispatchForDomainEvent(record: DomainEventRecord): Promise<void> {
+    const hooks = await this.prisma.integrationWebhook.findMany({
+      where: { tenantId: record.tenantId, isActive: true },
     });
+    
+    if (hooks.length === 0) return;
+
+    const queueItems = hooks
+      .filter(h => {
+        const types = h.eventTypes as unknown as string[];
+        const list = Array.isArray(types) ? types : ['*'];
+        return list.includes('*') || list.includes(record.eventType);
+      })
+      .map(h => ({
+        webhookId: h.id,
+        tenantId: record.tenantId,
+        domainEventId: record.id,
+        status: 'PENDING',
+        retries: 0,
+        maxRetries: 5,
+        nextRetryAt: new Date(), // En este momento se encola para su proceso inmediato
+      }));
+
+    if (queueItems.length > 0) {
+      await this.prisma.integrationWebhookQueueItem.createMany({
+        data: queueItems,
+      });
+      this.logger.log(`Enqueued ${queueItems.length} webhooks for event ${record.id}`);
+    }
   }
 
-  private async deliver(record: DomainEventRecord): Promise<void> {
+  public async deliver(record: DomainEventRecord): Promise<void> {
     const hooks = await this.prisma.integrationWebhook.findMany({
       where: { tenantId: record.tenantId, isActive: true },
     });

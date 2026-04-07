@@ -20,6 +20,7 @@ import {
   Folder,
   Calendar,
   FileText,
+  Clock,
 } from 'lucide-angular';
 import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
@@ -398,6 +399,12 @@ export class SidebarComponent {
       route: '/projects',
     },
     { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events' },
+    {
+      id: 'availability',
+      label: 'Disponibilidad',
+      icon: 'clock',
+      route: '/users/availability',
+    },
     { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
     { id: 'reports', label: 'Reportes', icon: 'pie-chart', route: '/reports' },
     { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },

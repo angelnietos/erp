@@ -6,5 +6,10 @@ export const usersRoutes: Routes = [
     loadComponent: () =>
       import('@josanz-erp/identity-feature').then((m) => m.UsersListComponent),
   },
+  {
+    path: 'availability',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.TechnicianAvailabilityComponent),
+  },
 ];
 
