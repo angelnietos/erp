@@ -36,20 +36,17 @@ export class AiCoreService {
   private async processGemini(apiKey: string, prompt: string, systemInstruction?: string): Promise<string> {
     try {
       const payload: Record<string, unknown> = {
-        contents: []
+        contents: [{ parts: [{ text: prompt }] }]
       };
 
-      const contents = [];
       if (systemInstruction) {
-        contents.push({ role: 'user', parts: [{ text: `INSTRUCCIÓN DEL SISTEMA: ${systemInstruction} \n\nFIN INSTRUCCIÓN.` }] });
-        contents.push({ role: 'model', parts: [{ text: 'Comprendido.' }] });
+        payload['systemInstruction'] = {
+          parts: [{ text: systemInstruction }]
+        };
       }
-      contents.push({ role: 'user', parts: [{ text: prompt }] });
-      
-      payload['contents'] = contents;
 
       // Utilizamos fetch nativo (Node 18+) para interoperabilidad out-of-the-box sin engordar bundle
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
