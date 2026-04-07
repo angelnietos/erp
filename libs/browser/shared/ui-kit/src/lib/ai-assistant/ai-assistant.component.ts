@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { AIBotStore, MasterFilterService } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
-import { UiCardComponent } from '../card/card.component';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
