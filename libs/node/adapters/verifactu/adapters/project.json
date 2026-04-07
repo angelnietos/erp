@@ -1,6 +1,6 @@
 {
   "name": "verifactu-adapters",
-  "$schema": "file:///C:/Users/amuni/Desktop/josanz-proyect/josanz-erp/node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/adapters/verifactu/adapters/src",
   "projectType": "library",
   "tags": ["scope:verifactu", "type:adapters"],
