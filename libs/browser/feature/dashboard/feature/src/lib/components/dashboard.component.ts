@@ -40,7 +40,7 @@ interface MetricCard {
   value: string;
   change: string;
   changeType: 'positive' | 'negative' | 'neutral';
-  icon: any; // Lucide icon reference
+  icon: string; // Lucide icon reference
 }
 
 interface RecentActivity {
@@ -55,7 +55,7 @@ interface RecentActivity {
 interface QuickAction {
   title: string;
   description: string;
-  icon: any; // Lucide icon reference
+  icon: string; // Lucide icon reference
   route: string;
   color: 'primary' | 'secondary' | 'success' | 'warning';
 }
@@ -1400,28 +1400,28 @@ export class DashboardComponent implements OnInit {
       value: '€45,231.89',
       change: '+20.1% vs mes anterior',
       changeType: 'positive',
-      icon: this.DollarSign,
+      icon: 'dollar-sign',
     },
     {
       title: 'Proyectos Activos',
       value: '12',
       change: '+2 este mes',
       changeType: 'positive',
-      icon: this.Calendar,
+      icon: 'calendar',
     },
     {
       title: 'Clientes Totales',
       value: '573',
       change: '+5 esta semana',
       changeType: 'positive',
-      icon: this.Users,
+      icon: 'users',
     },
     {
       title: 'Eventos Completados',
       value: '89',
       change: 'Sin cambios',
       changeType: 'neutral',
-      icon: this.Activity,
+      icon: 'activity',
     },
   ]);
 
@@ -1463,28 +1463,28 @@ export class DashboardComponent implements OnInit {
     {
       title: 'Nuevo Proyecto',
       description: 'Crear un proyecto nuevo',
-      icon: this.Plus,
+      icon: 'plus',
       route: '/projects/new',
       color: 'primary',
     },
     {
       title: 'Nuevo Evento',
       description: 'Programar un evento',
-      icon: this.Calendar,
+      icon: 'calendar',
       route: '/events/new',
       color: 'secondary',
     },
     {
       title: 'Generar Factura',
       description: 'Crear factura nueva',
-      icon: this.FileText,
+      icon: 'file-text',
       route: '/billing',
       color: 'success',
     },
     {
       title: 'Configuración',
       description: 'Ajustes del sistema',
-      icon: this.Settings,
+      icon: 'settings',
       route: '/settings',
       color: 'warning',
     },
@@ -1646,21 +1646,21 @@ export class DashboardComponent implements OnInit {
         value: fmtMoney(m.totalRevenue),
         change: `+${t.revenueChangePercent}% vs mes anterior`,
         changeType: 'positive',
-        icon: this.DollarSign,
+        icon: 'dollar-sign',
       },
       {
         title: 'Proyectos Activos',
         value: String(m.activeProjects),
         change: `+${t.projectsDelta} este mes`,
         changeType: 'positive',
-        icon: this.Calendar,
+        icon: 'calendar',
       },
       {
         title: 'Clientes Totales',
         value: String(m.totalClients),
         change: `+${t.clientsDelta} esta semana`,
         changeType: 'positive',
-        icon: this.Users,
+        icon: 'users',
       },
       {
         title: 'Eventos Completados',
@@ -1670,7 +1670,7 @@ export class DashboardComponent implements OnInit {
             ? 'Sin cambios'
             : `Tendencia: ${t.eventsNote}`,
         changeType: 'neutral',
-        icon: this.Activity,
+        icon: 'activity',
       },
     ]);
   }
