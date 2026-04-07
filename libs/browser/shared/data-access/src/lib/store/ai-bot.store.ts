@@ -79,6 +79,30 @@ export class AIBotStore {
       description: 'Asegura cumplimiento legal en facturación.',
       skills: ['Fiscal Validation', 'Auto-Reporting', 'Error Rectifier', 'Audit-Ready Export', 'Reg-Tech Sync', 'Electronic Seal Guard'],
       activeSkills: [], status: 'inactive', color: '#f43f5e', secondaryColor: '#9f1239', mascotType: 'universal', personality: 'queen', bodyShape: 'capsule', eyesType: 'joy', mouthType: 'smile'
+    },
+    'billing': {
+      id: 'bill-bot', name: 'Factu-Bot', feature: 'billing',
+      description: 'Gestiona facturas y cumplimiento fiscal con IA.',
+      skills: ['Invoice Generator', 'Verifactu Guard', 'Tax Optimization', 'Late Payment Alert', 'Client Risk Score', 'PDF Auto-Export'],
+      activeSkills: ['Invoice Generator', 'Verifactu Guard'], status: 'active', color: '#f59e0b', secondaryColor: '#b45309', mascotType: 'inventory', personality: 'tech', bodyShape: 'square', eyesType: 'shades', mouthType: 'line'
+    },
+    'delivery': {
+      id: 'delivery-bot', name: 'Logis-Bot', feature: 'delivery',
+      description: 'Coordina entregas y albaranes logísticos.',
+      skills: ['Route Optimizer', 'ETA Predictor', 'Signature Validator', 'Return Manager', 'Fleet Sync', 'Incident Alerter'],
+      activeSkills: ['Route Optimizer', 'ETA Predictor'], status: 'active', color: '#10b981', secondaryColor: '#065f46', mascotType: 'fleet', personality: 'explorer', bodyShape: 'capsule', eyesType: 'dots', mouthType: 'smile'
+    },
+    'services': {
+      id: 'services-bot', name: 'Craft-Bot', feature: 'services',
+      description: 'Analiza el catálogo de servicios y sugiere optimizaciones.',
+      skills: ['Pricing Optimizer', 'Bundle Suggester', 'Demand Analyzer', 'Seasonal Advisor', 'Margin Guard', 'Competitor Radar'],
+      activeSkills: ['Pricing Optimizer'], status: 'active', color: '#8b5cf6', secondaryColor: '#6d28d9', mascotType: 'projects', personality: 'happy', bodyShape: 'round', eyesType: 'joy', mouthType: 'smile'
+    },
+    'receipts': {
+      id: 'receipts-bot', name: 'Pay-Bot', feature: 'receipts',
+      description: 'Controla cobros pendientes y alerta de impagos.',
+      skills: ['Payment Tracker', 'Overdue Alerter', 'Payment Method Optimizer', 'Cash Flow Forecast', 'Dunning Automator', 'Reconciliation AI'],
+      activeSkills: ['Payment Tracker', 'Overdue Alerter'], status: 'active', color: '#06b6d4', secondaryColor: '#0891b2', mascotType: 'clients', personality: 'worker', bodyShape: 'round', eyesType: 'dots', mouthType: 'o'
     }
   });
 
