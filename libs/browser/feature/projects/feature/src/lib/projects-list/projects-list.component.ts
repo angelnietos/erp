@@ -30,6 +30,7 @@ import {
   UiSearchComponent,
   UiCardComponent,
   UiSelectComponent,
+  UIAIChatComponent
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService, DomainEventsApiService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -60,6 +61,7 @@ export interface Project {
     UiCardComponent,
     UiSelectComponent,
     LucideAngularModule,
+    UIAIChatComponent
   ],
   providers: [
     { provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }
@@ -224,6 +226,8 @@ export interface Project {
         </ui-josanz-table>
       </ui-josanz-card>
     </div>
+
+    <ui-josanz-ai-assistant feature="projects"></ui-josanz-ai-assistant>
   `,
   styles: [
     `

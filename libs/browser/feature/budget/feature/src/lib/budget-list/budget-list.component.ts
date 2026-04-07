@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiStatCardComponent, UiSearchComponent } from '@josanz-erp/shared-ui-kit';
+import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiStatCardComponent, UiSearchComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -21,7 +21,8 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiBadgeComponent, 
     UiStatCardComponent,
     UiSearchComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    UIAIChatComponent
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -112,6 +113,8 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         </footer>
       </ui-josanz-card>
     </div>
+
+    <ui-josanz-ai-assistant feature="budgets"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
