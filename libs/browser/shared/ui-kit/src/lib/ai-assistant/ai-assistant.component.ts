@@ -581,7 +581,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                      properties: { 
                        theme: { 
                          type: 'STRING', 
-                         description: 'El identificador exacto del tema. Mapea la petición del usuario a uno de estos: light, dark, blue, green, purple, orange, rose, slate, zinc, neutral, cyan, teal, amber, indigo, lime, violet, crimson, mint, coral, gold, corporate-light, classic-dark, nordic, latte, forest-dark, assassin-creed, rainbow_six, zelda-legend, mario-world, animal-crossing, gta-san-andreas, red-dead, celeste-mountain, hades-underworld, hollow-knight, pearl, sky-day, rose-quartz, sage, lavender, sunrise.' 
+                         description: 'El identificador exacto del tema. Mapea la petición del usuario a uno de estos: light, dark, blue, green, purple, orange, rose, slate, zinc, neutral, cyan, teal, amber, indigo, lime, violet, crimson, mint, coral, gold, corporate-light, classic-dark, nordic, latte, forest-dark, assassin-creed, rainbow_six, zelda-legend, mario-world, animal-crossing, gta-san-andreas, red-dead, celeste-mountain, hades-underworld, hollow-knight, pearl, sky-day, rose-quartz, sage, lavender, sunrise, cyberpunk-2077, matrix-reloaded, vaporwave-80s, elden-ring, bloodborne-dark, sekiro-shadow, starfield-space, god-of-war, doom-slayer, fallout-pipboy, skyrim-rim, witcher-wild, league-legends, valorant-spike, overwatch-pulse, minecraft-block, fortnite-storm, cyber-neon-pink, onyx-premium, platinum-luxe.' 
                        } 
                      }, 
                      required: ['theme'] 
