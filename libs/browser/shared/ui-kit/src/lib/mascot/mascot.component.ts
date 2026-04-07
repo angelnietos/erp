@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'fleet' | 'rentals' | 'audit' | 'universal';
+export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'fleet' | 'rentals' | 'audit' | 'dashboard' | 'universal';
 
 export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explorer' | 'ninja' | 'queen';
 
@@ -61,6 +61,7 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
               <span *ngSwitchCase="'fleet'" class="acc-symbol">🛵</span>
               <span *ngSwitchCase="'rentals'" class="acc-symbol">🗝️</span>
               <span *ngSwitchCase="'audit'" class="acc-symbol">🛡️</span>
+              <span *ngSwitchCase="'dashboard'" class="acc-symbol">🦆</span>
               <span *ngSwitchDefault class="acc-symbol">✨</span>
             </div>
           </div>
@@ -275,6 +276,7 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
 
     .mouth.smile { border-bottom: 4px solid #111; width: 16px; }
     .mouth.o { width: 12px; height: 12px; border: 4px solid #111; border-radius: 50%; background: rgba(0,0,0,0.1); }
+    .mouth.beak { width: 22px; height: 14px; border-radius: 10px 10px 18px 18px; background: #f59e0b; border-bottom: 3px solid #b45309; margin-top: 6px; }
 
     /* Floating Hands/Limbs */
     .limbs-container {

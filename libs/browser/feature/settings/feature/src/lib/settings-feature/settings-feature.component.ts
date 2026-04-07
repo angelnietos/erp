@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu } from 'lucide-angular';
+import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu, Smile } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
 import { FormsModule } from '@angular/forms';
@@ -43,6 +43,14 @@ interface PluginDescriptor {
             >
               <lucide-icon name="bot" size="18"></lucide-icon>
               <span>Asistentes de IA</span>
+            </button>
+            <button 
+              class="nav-item buddy-nav-item" 
+              [class.active]="activeTab() === 'buddy'"
+              (click)="activeTab.set('buddy')"
+            >
+              <lucide-icon name="smile" size="18"></lucide-icon>
+              <span>Buddy (Compañero)</span>
             </button>
             <button 
               class="nav-item" 
@@ -240,6 +248,107 @@ interface PluginDescriptor {
                     </ui-josanz-card>
                   </div>
                 }
+              }
+            </section>
+          }
+
+          @if (activeTab() === 'buddy') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Customización de Buddy</h2>
+                <p>Configura tu pato de confianza al estilo GunBound</p>
+              </div>
+
+              @if (aiBotStore.getBotByFeature('dashboard'); as buddy) {
+                <div class="buddy-customizer">
+                  <div class="buddy-visual-col">
+                    <ui-josanz-card variant="glass" class="buddy-preview-card">
+                      <div class="preview-glow"></div>
+                      <ui-josanz-mascot 
+                        [type]="buddy.mascotType" 
+                        [color]="buddy.color" 
+                        [personality]="buddy.personality" 
+                        [bodyShape]="buddy.bodyShape" 
+                        [eyesType]="buddy.eyesType" 
+                        [mouthType]="buddy.mouthType">
+                      </ui-josanz-mascot>
+                    </ui-josanz-card>
+                  </div>
+
+                  <div class="buddy-config-col">
+                    <ui-josanz-card variant="glass" class="buddy-options-card">
+                      <h3>Apariencia</h3>
+                      <div class="form-group mb-4">
+                        <label class="form-label">Color Principal</label>
+                        <div class="color-picker-grid">
+                          @for (c of [{m: '#facc15', s: '#ca8a04', n: 'Pato Clásico'}, {m: '#f43f5e', s: '#9f1239', n: 'Cereza'}, {m: '#10b981', s: '#059669', n: 'Hulk'}, {m: '#8b5cf6', s: '#6d28d9', n: 'Místico'}, {m: '#3b82f6', s: '#1d4ed8', n: 'Aqua'}, {m: '#1e293b', s: '#0f172a', n: 'Stealth'}]; track c.n) {
+                            <div class="color-swatch-item" 
+                                 [class.active]="buddy.color === c.m"
+                                 (click)="aiBotStore.updateBotSkin('dashboard', { color: c.m, secondaryColor: c.s })">
+                              <div class="color-swatch" [style.background]="c.m"></div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="form-group mb-4">
+                        <ui-josanz-select
+                          label="Forma del Cuerpo"
+                          [options]="[
+                            { value: 'capsule', label: 'Cápsula Plana' },
+                            { value: 'round', label: 'Esfera Gordita' },
+                            { value: 'square', label: 'Cubo Bloque' },
+                            { value: 'tri', label: 'Triángulo Puntiagudo' }
+                          ]"
+                          [ngModel]="buddy.bodyShape"
+                          (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { bodyShape: $event })"
+                        ></ui-josanz-select>
+                      </div>
+
+                      <div class="form-group mb-4">
+                        <ui-josanz-select
+                          label="Ojos"
+                          [options]="[
+                            { value: 'joy', label: 'Feliz / Kawaii' },
+                            { value: 'dots', label: 'Puntos Simples' },
+                            { value: 'shades', label: 'Gafas de Sol' }
+                          ]"
+                          [ngModel]="buddy.eyesType"
+                          (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { eyesType: $event })"
+                        ></ui-josanz-select>
+                      </div>
+
+                      <div class="form-group">
+                        <ui-josanz-select
+                          label="Accesorio Extra"
+                          [options]="[
+                            { value: 'happy', label: 'Aura Brillante' },
+                            { value: 'tech', label: 'Antena de Robot' },
+                            { value: 'mystic', label: 'Orejas Mágicas' },
+                            { value: 'ninja', label: 'Nada (Stealth)' }
+                          ]"
+                          [ngModel]="buddy.personality"
+                          (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { personality: $event })"
+                        ></ui-josanz-select>
+                      </div>
+
+                    </ui-josanz-card>
+
+                    <ui-josanz-card variant="glass" class="buddy-skills-card mt-6">
+                      <h3>Habilidades de Confianza</h3>
+                      <div class="skills-config-list mt-4">
+                        @for (skill of buddy.skills; track skill) {
+                          <div class="skill-config-item">
+                            <span class="skill-name">{{ skill }}</span>
+                            <div class="toggle-wrapper" [class.active]="isSkillActive('dashboard', skill)" (click)="aiBotStore.toggleSkill('dashboard', skill)">
+                              <div class="toggle-handle"></div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </ui-josanz-card>
+                  </div>
+                </div>
               }
             </section>
           }
@@ -673,9 +782,101 @@ interface PluginDescriptor {
 
     .premium-text { color: #facc15 !important; }
 
+    /* Buddy Customizer */
+    .buddy-customizer {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .buddy-preview-card {
+      position: relative;
+      height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 50%, rgba(var(--brand-rgb), 0.1), transparent);
+      overflow: hidden;
+    }
+
+    .preview-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      background: var(--brand);
+      opacity: 0.15;
+      filter: blur(40px);
+      border-radius: 50%;
+    }
+
+    .buddy-preview-card ui-josanz-mascot {
+      width: 180px;
+      height: 180px;
+      transform: scale(1.5);
+    }
+
+    .buddy-options-card {
+      padding: 1.5rem;
+    }
+
+    .buddy-options-card h3, .buddy-skills-card h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 0 1.5rem 0;
+      color: #fff;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .color-picker-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .color-swatch-item {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      padding: 3px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .color-swatch-item.active {
+      border-color: #fff;
+      transform: scale(1.1);
+    }
+
+    .color-swatch {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .buddy-skills-card {
+      padding: 1.5rem;
+    }
+
     @media (max-width: 1200px) {
       .ai-bot-card { grid-template-columns: 1fr; }
       .bot-visual { height: 160px; }
+      .buddy-customizer { grid-template-columns: 1fr; }
+      .buddy-preview-card { height: 250px; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -684,7 +885,7 @@ export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
 
-  readonly activeTab = signal<'plugins' | 'ai' | 'preferences'>('plugins');
+  readonly activeTab = signal<'plugins' | 'ai' | 'buddy' | 'preferences'>('buddy');
   readonly managingBotId = signal<string | null>(null);
 
   // Expose signals explicitly for better template inference

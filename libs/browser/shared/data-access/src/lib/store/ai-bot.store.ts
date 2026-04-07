@@ -103,6 +103,12 @@ export class AIBotStore {
       description: 'Controla cobros pendientes y alerta de impagos.',
       skills: ['Payment Tracker', 'Overdue Alerter', 'Payment Method Optimizer', 'Cash Flow Forecast', 'Dunning Automator', 'Reconciliation AI'],
       activeSkills: ['Payment Tracker', 'Overdue Alerter'], status: 'active', color: '#06b6d4', secondaryColor: '#0891b2', mascotType: 'clients', personality: 'worker', bodyShape: 'round', eyesType: 'dots', mouthType: 'o'
+    },
+    'dashboard': {
+      id: 'buddy-bot', name: 'Buddy-Bot', feature: 'dashboard',
+      description: 'Tu mejor amigo y pato de confianza. Memoriza hitos, da consejos y te escucha.',
+      skills: ['Joke Teller', 'Milestone Memory', 'Daily Advice', 'Active Listener', 'Mental Tracker', 'Duck Noises'],
+      activeSkills: ['Joke Teller', 'Milestone Memory', 'Active Listener'], status: 'active', color: '#facc15', secondaryColor: '#ca8a04', mascotType: 'dashboard', personality: 'happy', bodyShape: 'capsule', eyesType: 'joy', mouthType: 'beak'
     }
   });
 
@@ -142,5 +148,16 @@ export class AIBotStore {
   isSkillActive(feature: string, skill: string): boolean {
     const bot = this._bots()[feature];
     return bot?.activeSkills.includes(skill) || false;
+  }
+
+  updateBotSkin(feature: string, updates: Partial<AIBot>) {
+    this._bots.update(current => {
+      const bot = current[feature];
+      if (!bot) return current;
+      return {
+        ...current,
+        [feature]: { ...bot, ...updates }
+      };
+    });
   }
 }
