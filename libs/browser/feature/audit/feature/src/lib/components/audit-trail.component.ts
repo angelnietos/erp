@@ -49,6 +49,7 @@ interface AuditLog {
     | 'CREATE'
     | 'UPDATE'
     | 'DELETE'
+    | 'COPY'
     | 'LOGIN'
     | 'LOGOUT'
     | 'EXPORT'
@@ -571,7 +572,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     },
   ];
 
-  auditLogs = signal<AuditLog[]>([...this.seedAuditLogs]);
+  auditLogs = signal<AuditLog[]>([]);
   searchTerm = signal('');
 
   filteredLogs = computed(() => {
@@ -628,17 +629,29 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     this.filters.dateTo = today.toISOString().split('T')[0];
 
     this.domainEventsApi.list(150).subscribe((events) => {
-      const fromDomain: AuditLog[] = events.map((e) => ({
-        id: `de-${e.id}`,
-        userName: 'Evento de dominio',
-        action: 'UPDATE',
-        entity: 'PROJECT',
-        entityName: `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`,
-        timestamp: e.occurredAt,
-        details: e.eventType,
-        changes: { payload: { old: null, new: e.payload } },
-      }));
-      this.auditLogs.set([...fromDomain, ...this.seedAuditLogs]);
+      const fromDomain: AuditLog[] = events.map((e) => {
+        const payload = e.payload as any;
+        const userName = payload?.name || payload?.userName || payload?.email || 'Sistema';
+        const entityName = payload?.name || payload?.email || `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`;
+        
+        return {
+          id: `de-${e.id}`,
+          userName: userName,
+          action: (e.eventType as any) || 'UPDATE',
+          entity: (e.aggregateType as any) || 'PROJECT',
+          entityName: entityName,
+          timestamp: e.occurredAt,
+          details: e.eventType,
+          changes: payload?.changes || { payload: { old: null, new: e.payload } },
+        };
+      });
+      
+      // Use real data if available, otherwise show seeds to avoid empty screen
+      if (fromDomain.length > 0) {
+        this.auditLogs.set(fromDomain);
+      } else {
+        this.auditLogs.set([...this.seedAuditLogs]);
+      }
     });
   }
 
