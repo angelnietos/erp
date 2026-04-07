@@ -578,7 +578,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    parameters: { 
                      type: 'OBJECT', 
                      properties: { 
-                       theme: { type: 'STRING', enum: ['classic', 'modern', 'cyber', 'neon', 'luxe'], description: 'El tema a aplicar' } 
+                       theme: { 
+                         type: 'STRING', 
+                         description: 'El tema a aplicar. Ejemplos populares: light, dark, blue, green, purple, slate, coral, gold, assassin-creed, zelda-legend, mario-world, hollow-knight, nordic.' 
+                       } 
                      }, 
                      required: ['theme'] 
                    }
