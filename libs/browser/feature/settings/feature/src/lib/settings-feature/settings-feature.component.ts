@@ -128,7 +128,7 @@ interface PluginDescriptor {
                     <ui-josanz-select
                       label="Proveedor de IA Base"
                       [options]="[
-                        { value: 'gemini', label: 'Google Gemini 1.5 Pro (Recomendado)' },
+                        { value: 'gemini', label: 'Google Gemini 2.5 Flash (Recomendado)' },
                         { value: 'openai', label: 'OpenAI GPT-4o' },
                         { value: 'anthropic', label: 'Anthropic Claude 3.5' }
                       ]"
