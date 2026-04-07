@@ -251,12 +251,9 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
   formData: Partial<Client> = {
     name: '', description: '', sector: '', contact: '', email: '', phone: '', address: ''
   };
-
-  searchTerm = signal('');
-
   filteredClients = computed(() => {
     const list = this.clients();
-    const t = this.searchTerm().trim().toLowerCase();
+    const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
     return list.filter(c => 
       c.name.toLowerCase().includes(t) || 
@@ -280,7 +277,6 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
       if (text) {
-        this.searchTerm.set(text);
         this.masterFilter.search(text);
       }
       this.loadClients();
@@ -304,9 +300,8 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
   loadClients() { this.facade.loadClients(); }
 
   onSearch(term: string) {
-    this.searchTerm.set(term);
     this.masterFilter.search(term);
-    // Siguiendo el patrón de alta reactividad, filtramos localmente vía filteredClients()
+    // Siguiendo el patrón de alta reactividad, filtramos localmente vía filteredClients() a través del masterFilter
   }
 
   onPageChange(page: number) { this.currentPage.set(page); this.loadClients(); }
