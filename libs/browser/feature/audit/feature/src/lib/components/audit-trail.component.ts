@@ -208,6 +208,8 @@ interface AuditLog {
     <ui-josanz-ai-assistant feature="audit"></ui-josanz-ai-assistant>
   `,
   styles: [`
+    .page-container { padding: 0 100px 0 0; max-width: 100%; margin: 0 auto; }
+
     .audit-content {
       display: flex;
       flex-direction: column;

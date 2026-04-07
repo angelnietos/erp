@@ -225,7 +225,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     <ui-josanz-ai-assistant feature="inventory"></ui-josanz-ai-assistant>
   `,
   styles: [`
-    .page-container { padding: 0 100px 0 0; max-width: 100%; margin: 0 auto; }
+    .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;
