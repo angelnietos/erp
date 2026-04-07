@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu } from 'lucide-angular';
-import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
 import { FormsModule } from '@angular/forms';
 
@@ -16,7 +16,7 @@ interface PluginDescriptor {
 @Component({
   selector: 'lib-settings-feature',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent],
   template: `
     <div class="page-container animate-fade-in">
       <div class="settings-layout">
@@ -124,24 +124,28 @@ interface PluginDescriptor {
                 </div>
                 
                 <div class="config-body">
-                  <div class="form-group">
-                    <label>Proveedor de IA Base</label>
-                    <select [ngModel]="aiBotStore.selectedProvider()" (ngModelChange)="aiBotStore.selectedProvider.set($event)">
-                      <option value="gemini">Google Gemini 1.5 Pro (Recomendado)</option>
-                      <option value="openai">OpenAI GPT-4o</option>
-                      <option value="anthropic">Anthropic Claude 3.5</option>
-                    </select>
+                  <div class="form-group mb-4">
+                    <ui-josanz-select
+                      label="Proveedor de IA Base"
+                      [options]="[
+                        { value: 'gemini', label: 'Google Gemini 1.5 Pro (Recomendado)' },
+                        { value: 'openai', label: 'OpenAI GPT-4o' },
+                        { value: 'anthropic', label: 'Anthropic Claude 3.5' }
+                      ]"
+                      [ngModel]="aiBotStore.selectedProvider()"
+                      (ngModelChange)="aiBotStore.selectedProvider.set($event)"
+                    ></ui-josanz-select>
                   </div>
                   
                   <div class="form-group">
-                    <label>Clave de Autenticación API (Token)</label>
-                    <input 
-                      type="password" 
-                      placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)" 
+                    <ui-josanz-input
+                      label="Clave de Autenticación API (Token)"
+                      type="password"
+                      placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
+                      hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
                       [ngModel]="aiBotStore.providerApiKey()"
                       (ngModelChange)="aiBotStore.providerApiKey.set($event)"
-                    />
-                    <p class="helper-text">Este token se utiliza de forma segura para orquestar los agentes dentro del ERP.</p>
+                    ></ui-josanz-input>
                   </div>
                 </div>
               </ui-josanz-card>
