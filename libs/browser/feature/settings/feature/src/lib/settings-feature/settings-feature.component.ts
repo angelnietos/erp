@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2 } from 'lucide-angular';
+import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
-import { PluginStore } from '@josanz-erp/shared-data-access';
+import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
 
 interface PluginDescriptor {
   id: string;
@@ -10,17 +10,6 @@ interface PluginDescriptor {
   description: string;
   icon: string;
   category: 'core' | 'vertical' | 'experimental';
-}
-
-interface IAMascot {
-  id: string;
-  name: string;
-  feature: string;
-  description: string;
-  skills: string[];
-  status: 'active' | 'inactive';
-  color: string;
-  mascotType: any;
 }
 
 @Component({
@@ -122,10 +111,10 @@ interface IAMascot {
               </div>
 
               <div class="ai-grid">
-                @for (bot of mascotBots(); track bot.id) {
+                @for (bot of aiBotStore.bots(); track bot.id) {
                   <ui-josanz-card variant="glass" class="ai-bot-card" [class.inactive]="bot.status === 'inactive'">
                     <div class="bot-visual">
-                      <ui-josanz-mascot [type]="bot.mascotType" [color]="bot.color"></ui-josanz-mascot>
+                      <ui-josanz-mascot [type]="bot.mascotType" [color]="bot.color" [personality]="bot.personality" [bodyShape]="bot.bodyShape" [eyesType]="bot.eyesType" [mouthType]="bot.mouthType"></ui-josanz-mascot>
                     </div>
                     
                     <div class="bot-info">
@@ -139,7 +128,7 @@ interface IAMascot {
                       <p class="bot-desc">{{ bot.description }}</p>
                       
                       <div class="skills-list">
-                        @for (skill of bot.skills; track skill) {
+                        @for (skill of bot.activeSkills; track skill) {
                           <div class="skill-tag">
                             <lucide-icon name="check-circle-2" size="12"></lucide-icon>
                             <span>{{ skill }}</span>
@@ -151,7 +140,7 @@ interface IAMascot {
                         <ui-josanz-button 
                           [variant]="bot.status === 'active' ? 'outline' : 'filled'" 
                           size="sm"
-                          (click)="toggleMascotStatus(bot.id)"
+                          (click)="aiBotStore.toggleBotStatus(bot.feature)"
                         >
                           {{ bot.status === 'active' ? 'CANCELAR SaaS' : 'ACTIVAR (SaaS)' }}
                         </ui-josanz-button>
@@ -160,7 +149,7 @@ interface IAMascot {
                           <ui-josanz-button 
                             variant="filled" 
                             size="sm"
-                            (click)="managingBotId.set(bot.id)"
+                            (click)="managingBotId.set(bot.feature)"
                           >
                             GESTIONAR SKILLS
                           </ui-josanz-button>
@@ -173,7 +162,7 @@ interface IAMascot {
 
               <!-- Skill Management Modal/Panel -->
               @if (managingBotId(); as mId) {
-                @if (getBotById(mId); as mBot) {
+                @if (aiBotStore.getBotByFeature(mId); as mBot) {
                   <div class="skills-overlay animate-fade-in" (click)="managingBotId.set(null)">
                     <ui-josanz-card variant="glass" class="skills-panel animate-slide-up" (click)="$event.stopPropagation()">
                       <div class="panel-header">
@@ -196,7 +185,7 @@ interface IAMascot {
                               <span class="skill-name">{{ skill }}</span>
                               <p class="skill-desc">Habilita esta capacidad avanzada de IA para el módulo.</p>
                             </div>
-                            <div class="toggle-wrapper" [class.active]="isSkillActive(mId, skill)" (click)="toggleSkill(mId, skill)">
+                            <div class="toggle-wrapper" [class.active]="isSkillActive(mId, skill)" (click)="aiBotStore.toggleSkill(mId, skill)">
                               <div class="toggle-handle"></div>
                             </div>
                           </div>
@@ -653,12 +642,10 @@ interface IAMascot {
 })
 export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
+  public readonly aiBotStore = inject(AIBotStore);
 
   readonly activeTab = signal<'plugins' | 'ai' | 'preferences'>('plugins');
   readonly managingBotId = signal<string | null>(null);
-
-  // Map of botId -> set of active skill names
-  private readonly _activeSkills = signal<Record<string, string[]>>({});
 
   // Expose signals explicitly for better template inference
   public readonly realtimeSync = this._pluginStore.realtimeSync;
@@ -674,150 +661,9 @@ export class SettingsFeatureComponent {
     { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integración mandatoria con la AEAT.', category: 'vertical' },
   ];
 
-  readonly mascotBots = signal<any[]>([
-    { 
-      id: 'inv-bot', 
-      name: 'Stocky-Bot', 
-      feature: 'Logística & Inventario', 
-      description: 'Analiza tendencias de consumo de material y predice faltas de stock en plató.', 
-      skills: ['Predicción de Stock', 'Auto-Aprovisionamiento', 'Alertas de Caducidad', 'Optimización de Espacio', 'Trazabilidad RFID', 'Auditoría de Daños'], 
-      status: 'active', 
-      color: '#10b981',
-      secondaryColor: '#059669',
-      mascotType: 'inventory',
-      personality: 'worker',
-      bodyShape: 'round',
-      eyesType: 'dots',
-      mouthType: 'o'
-    },
-    { 
-      id: 'bud-bot', 
-      name: 'Cali-Bot', 
-      feature: 'Finanzas & Presupuestos', 
-      description: 'Calcula márgenes de beneficio en tiempo real y sugiere ajustes por inflación.', 
-      skills: ['Optimización de Márgenes', 'Detección de Costes Ocultos', 'Proyección Fiscal', 'Análisis Comparativo', 'Sugerencia de Up-selling', 'Validación de Divisas'], 
-      status: 'inactive', 
-      color: '#34d399',
-      secondaryColor: '#065f46',
-      mascotType: 'budget',
-      personality: 'happy',
-      bodyShape: 'capsule',
-      eyesType: 'joy',
-      mouthType: 'smile'
-    },
-    { 
-      id: 'proj-bot', 
-      name: 'Direct-Bot', 
-      feature: 'Producción & Proyectos', 
-      description: 'Coordina los horarios de técnicos y sugiere el mejor flujo de trabajo por escena.', 
-      skills: ['Timeline AI', 'Resource Balancing', 'Scene Optimizer', 'Crew Mood Sync', 'Weather Impact Radar', 'Smart Call-Sheet'], 
-      status: 'active', 
-      color: '#06b6d4',
-      secondaryColor: '#0891b2',
-      mascotType: 'projects',
-      personality: 'tech',
-      bodyShape: 'square',
-      eyesType: 'shades',
-      mouthType: 'line'
-    },
-    { 
-      id: 'cli-bot', 
-      name: 'Social-Bot', 
-      feature: 'Clientes & CRM', 
-      description: 'Analiza el sentimiento de los clientes y sugiere momentos clave para contactar.', 
-      skills: ['Sentiment Analysis', 'Lead Scoring', 'Churn Predictor', 'Auto-FollowUp', 'Network Expansion', 'Voice Tone Advisor'], 
-      status: 'active', 
-      color: '#8b5cf6',
-      secondaryColor: '#6d28d9',
-      mascotType: 'clients',
-      personality: 'mystic',
-      bodyShape: 'round',
-      eyesType: 'dots',
-      mouthType: 'smile'
-    },
-    { 
-      id: 'fleet-bot', 
-      name: 'Drive-Bot', 
-      feature: 'Flota & Vehículos', 
-      description: 'Optimiza rutas de transporte y predice mantenimientos preventivos del motor.', 
-      skills: ['Route Optimization', 'Predictive Maintenance', 'Fuel Efficiency AI', 'Driver Habits Monitor', 'Load Balancing', 'Parking Finder'], 
-      status: 'inactive', 
-      color: '#f59e0b',
-      secondaryColor: '#d97706',
-      mascotType: 'fleet',
-      personality: 'explorer',
-      bodyShape: 'capsule',
-      eyesType: 'shades',
-      mouthType: 'o'
-    },
-    { 
-      id: 'rent-bot', 
-      name: 'Key-Bot', 
-      feature: 'Alquileres', 
-      description: 'Gestiona la disponibilidad de equipos y bloquea reservas conflictivas.', 
-      skills: ['Conflict Detection', 'Auto-Reservation', 'Price Surge Guard', 'Smart Late-Return Hub', 'Insurance Advisor', 'Bundle Recommender'], 
-      status: 'active', 
-      color: '#3b82f6',
-      secondaryColor: '#1d4ed8',
-      mascotType: 'rentals',
-      personality: 'ninja',
-      bodyShape: 'square',
-      eyesType: 'dots',
-      mouthType: 'line'
-    },
-    { 
-      id: 'audit-bot', 
-      name: 'Scout-Bot', 
-      feature: 'Auditoría & Seguridad', 
-      description: 'Detecta anomalías en los logs de acceso y previene acciones no autorizadas.', 
-      skills: ['Anomaly Detection', 'Risk Assessment', 'Breach Prevention', 'Compliance Guard', 'Audit Trail Summary', 'Integrity Scanner'], 
-      status: 'active', 
-      color: '#ef4444',
-      secondaryColor: '#b91c1c',
-      mascotType: 'audit',
-      personality: 'tech',
-      bodyShape: 'round',
-      eyesType: 'shades',
-      mouthType: 'o'
-    },
-    { 
-      id: 'verifactu-bot', 
-      name: 'Tax-Bot', 
-      feature: 'VeriFactu Compliance', 
-      description: 'Asegura que cada factura enviada cumpla con los requisitos legales de la AEAT.', 
-      skills: ['Fiscal Validation', 'Auto-Reporting', 'Error Rectifier', 'Audit-Ready Export', 'Reg-Tech Sync', 'Electronic Seal Guard'], 
-      status: 'inactive', 
-      color: '#f43f5e',
-      secondaryColor: '#9f1239',
-      mascotType: 'universal',
-      personality: 'queen',
-      bodyShape: 'capsule',
-      eyesType: 'joy',
-      mouthType: 'smile'
-    }
-  ]);
-
-  getBotById(id: string) {
-    return this.mascotBots().find(b => b.id === id);
-  }
-
   isSkillActive(botId: string, skill: string) {
-    const skills = this._activeSkills()[botId] || [];
-    return skills.includes(skill);
-  }
-
-  toggleSkill(botId: string, skill: string) {
-    this._activeSkills.update(current => {
-      const botSkills = current[botId] || [];
-      const isCurrentlyActive = botSkills.includes(skill);
-      
-      return {
-        ...current,
-        [botId]: isCurrentlyActive 
-          ? botSkills.filter(s => s !== skill) 
-          : [...botSkills, skill]
-      };
-    });
+    const bot = this.aiBotStore.getBotByFeature(botId);
+    return bot?.activeSkills.includes(skill) || false;
   }
 
   isPluginEnabled(id: string) {
@@ -834,11 +680,5 @@ export class SettingsFeatureComponent {
 
   togglePremium() {
     this._pluginStore.togglePerformance();
-  }
-
-  toggleMascotStatus(id: string) {
-    this.mascotBots.update(bots => bots.map(b => 
-      b.id === id ? { ...b, status: b.status === 'active' ? 'inactive' : 'active' } : b
-    ));
   }
 }

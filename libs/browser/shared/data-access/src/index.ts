@@ -8,8 +8,9 @@ export * from './lib/store/notification-feed.store';
 export * from './lib/services/receipts-api.service';
 export * from './lib/services/domain-events-api.service';
 export * from './lib/services/services-catalog-api.service';
-export * from './lib/services/technician-api.service';
 export * from './lib/store/plugin.store';
 export * from './lib/guards/plugin.guard';
 export * from './lib/services/dashboard-analytics.service';
-export * from './lib/services/dashboard-analytics.service';
+
+export { AIBotStore } from './lib/store/ai-bot.store';
+export type { AIBot } from './lib/store/ai-bot.store';
