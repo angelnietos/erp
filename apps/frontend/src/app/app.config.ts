@@ -253,6 +253,7 @@ export const appConfig: ApplicationConfig = {
         CheckCircle2,
         Cpu,
         GripVertical,
+        Mic,
         MicOff,
         Smile,
       }),
