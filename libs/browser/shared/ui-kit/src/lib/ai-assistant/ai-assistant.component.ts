@@ -1,7 +1,8 @@
 import { Component, Input, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { AIBotStore } from '@josanz-erp/shared-data-access';
+import { Router } from '@angular/router';
+import { AIBotStore, MasterFilterService } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { UiCardComponent } from '../card/card.component';
@@ -290,6 +291,8 @@ export class UIAIChatComponent {
   @Input() feature!: string;
   
   aiBotStore = inject(AIBotStore);
+  masterFilterService = inject(MasterFilterService);
+  router = inject(Router);
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
@@ -328,14 +331,43 @@ export class UIAIChatComponent {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, un asistente experto en ${this.bot()!.feature} para Josanz ERP. Hablas de forma concisa.` }] },
-            contents: [{ parts: [{ text: userInput }] }]
+            systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, un asistente experto en ${this.bot()!.feature} para Josanz ERP. Puedes ejecutar acciones en la UI: filtra datos si te lo piden, o navega a la creación de registros si quieren crear algo. Hablas de forma amigable y muy concisa.` }] },
+            contents: [{ parts: [{ text: userInput }] }],
+            tools: [{
+              functionDeclarations: [
+                {
+                  name: 'search_database',
+                  description: 'Filtra y busca información en la tabla o base de datos actual.',
+                  parameters: { type: 'OBJECT', properties: { query: { type: 'STRING', description: 'Lo que el usuario desea buscar.' } }, required: ['query'] }
+                },
+                {
+                  name: 'navigate_create',
+                  description: 'Navega o abre la interfaz para crear un nuevo registro correspondiente al módulo actual.',
+                  parameters: { type: 'OBJECT' }
+                }
+              ]
+            }]
           })
         });
 
         if (!res.ok) throw new Error('Falló comunicación Gemini');
         const data = await res.json();
-        responseText = data.candidates[0].content.parts[0].text;
+        
+        const firstPart = data.candidates[0].content.parts[0];
+        
+        if (firstPart.functionCall) {
+          const funcCall = firstPart.functionCall;
+          if (funcCall.name === 'search_database') {
+            this.masterFilterService.search(funcCall.args.query);
+            responseText = `✅ He procedido a buscar: **"${funcCall.args.query}"** en tus registros. Deberías verlo reflejado en la tabla al instante.`;
+          } else if (funcCall.name === 'navigate_create') {
+            // Usa el enrutador para abrir la ruta de creación estándar para el módulo en curso
+            this.router.navigate([`/${this.bot()!.feature}/new`]);
+            responseText = `✅ Te redirigí al formulario de alta en ${this.bot()!.feature}.`;
+          }
+        } else {
+          responseText = firstPart.text;
+        }
       } else {
         responseText = `La inferencia con ${provider} está en formato stub. Por favor selecciona Google Gemini en la configuración.`;
       }
