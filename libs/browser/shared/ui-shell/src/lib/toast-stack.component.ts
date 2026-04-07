@@ -1,6 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  X,
+} from 'lucide-angular';
 import { ToastService } from '@josanz-erp/shared-data-access';
 
 @Component({
@@ -12,11 +18,11 @@ import { ToastService } from '@josanz-erp/shared-data-access';
       @for (t of toast.toasts(); track t.id) {
         <div class="toast" [class]="t.variant" role="status">
           @if (t.variant === 'success') {
-            <lucide-icon name="check-circle" size="18" class="toast-icon" />
+            <lucide-icon [img]="IconCheck" size="18" class="toast-icon" />
           } @else if (t.variant === 'error') {
-            <lucide-icon name="alert-circle" size="18" class="toast-icon" />
+            <lucide-icon [img]="IconAlert" size="18" class="toast-icon" />
           } @else {
-            <lucide-icon name="info" size="18" class="toast-icon" />
+            <lucide-icon [img]="IconInfo" size="18" class="toast-icon" />
           }
           <span class="toast-msg">{{ t.message }}</span>
           <button
@@ -25,7 +31,7 @@ import { ToastService } from '@josanz-erp/shared-data-access';
             (click)="toast.dismiss(t.id)"
             aria-label="Cerrar"
           >
-            <lucide-icon name="x" size="16" />
+            <lucide-icon [img]="IconX" size="16" />
           </button>
         </div>
       }
@@ -117,4 +123,8 @@ import { ToastService } from '@josanz-erp/shared-data-access';
 })
 export class ToastStackComponent {
   readonly toast = inject(ToastService);
+  readonly IconCheck = CheckCircle;
+  readonly IconAlert = AlertCircle;
+  readonly IconInfo = Info;
+  readonly IconX = X;
 }

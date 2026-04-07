@@ -1,4 +1,11 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  inject,
+  ChangeDetectionStrategy,
+  NgZone,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -231,14 +238,16 @@ interface Report {
                       <ui-josanz-button
                         variant="ghost"
                         size="sm"
-                        (clicked)="downloadServerXlsx(report)"
+                        [disabled]="serverExportBusy()"
+                        (clicked)="downloadServerXlsx(report, $event)"
                       >
                         Excel (API)
                       </ui-josanz-button>
                       <ui-josanz-button
                         variant="ghost"
                         size="sm"
-                        (clicked)="downloadServerPdf(report)"
+                        [disabled]="serverExportBusy()"
+                        (clicked)="downloadServerPdf(report, $event)"
                       >
                         PDF (API)
                       </ui-josanz-button>
@@ -476,6 +485,7 @@ export class ReportsComponent implements OnInit {
   public readonly pluginStore = inject(PluginStore);
   private readonly http = inject(HttpClient);
   private readonly toast = inject(ToastService);
+  private readonly ngZone = inject(NgZone);
 
   currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;
@@ -489,7 +499,12 @@ export class ReportsComponent implements OnInit {
   filters: ReportFilter = {
     dateFrom: '',
     dateTo: '',
+    status: '',
+    clientId: '',
   };
+
+  /** Evita clics repetidos en exportes API (blob + Zone). */
+  serverExportBusy = signal(false);
 
   statusOptions = [
     { label: 'Todos', value: '' },
@@ -579,6 +594,21 @@ export class ReportsComponent implements OnInit {
     this.filters = {
       dateFrom: thirtyDaysAgo.toISOString().split('T')[0],
       dateTo: today.toISOString().split('T')[0],
+      status: '',
+      clientId: '',
+    };
+  }
+
+  private normalizeFilters(): ReportFilter {
+    const f = this.filters;
+    const client = f.clientId?.trim();
+    const status = f.status?.trim();
+    return {
+      dateFrom: f.dateFrom,
+      dateTo: f.dateTo,
+      ...(status ? { status } : {}),
+      ...(client ? { clientId: client } : {}),
+      ...(f.type?.trim() ? { type: f.type.trim() } : {}),
     };
   }
 
@@ -597,7 +627,7 @@ export class ReportsComponent implements OnInit {
         title: `${this.selectedReportType()?.name} - ${this.filters.dateFrom} a ${this.filters.dateTo}`,
         generatedAt: new Date().toLocaleString('es-ES'),
         dateRange: `${this.filters.dateFrom} - ${this.filters.dateTo}`,
-        filters: { ...this.filters },
+        filters: this.normalizeFilters(),
       };
 
       this.generatedReports.update((reports) => [newReport, ...reports]);
@@ -678,16 +708,26 @@ export class ReportsComponent implements OnInit {
   }
 
   private triggerBlobDownload(blob: Blob, filename: string) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.rel = 'noopener';
-    a.click();
-    URL.revokeObjectURL(url);
+    this.ngZone.runOutsideAngular(() => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.setTimeout(() => URL.revokeObjectURL(url), 2500);
+    });
   }
 
-  async downloadServerXlsx(report: Report) {
+  async downloadServerXlsx(report: Report, ev?: Event) {
+    ev?.stopPropagation?.();
+    if (this.serverExportBusy()) {
+      return;
+    }
+    this.serverExportBusy.set(true);
     const f = report.filters;
     const headers = ['Campo', 'Valor'];
     const rows: (string | number | null)[][] = [
@@ -716,10 +756,17 @@ export class ReportsComponent implements OnInit {
         'No se pudo generar el Excel en el servidor. Comprueba sesión, tenant y API.',
         'error',
       );
+    } finally {
+      this.serverExportBusy.set(false);
     }
   }
 
-  async downloadServerPdf(report: Report) {
+  async downloadServerPdf(report: Report, ev?: Event) {
+    ev?.stopPropagation?.();
+    if (this.serverExportBusy()) {
+      return;
+    }
+    this.serverExportBusy.set(true);
     const f = report.filters;
     const lines: string[] = [];
     const sections = [
@@ -775,6 +822,8 @@ export class ReportsComponent implements OnInit {
         'No se pudo generar el PDF en el servidor. Comprueba sesión, tenant y API.',
         'error',
       );
+    } finally {
+      this.serverExportBusy.set(false);
     }
   }
 }
