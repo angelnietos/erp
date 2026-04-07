@@ -30,8 +30,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
       <!-- Chat Window -->
       <div class="chat-window-container" *ngIf="isOpen()" cdkDrag cdkDragBoundary=".page-container" (click)="$event.stopPropagation()">
-        <ui-josanz-card variant="glass" class="chat-window animate-slide-up">
-          <div class="chat-layout-wrapper">
+        <div class="chat-window animate-slide-up">
           <div class="chat-header" cdkDragHandle [style.border-bottom-color]="bot()!.color">
             <div class="bot-status-info">
               <lucide-icon name="grip-vertical" size="14" class="drag-handle-icon"></lucide-icon>
@@ -76,8 +75,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
               <lucide-icon name="send" size="16"></lucide-icon>
             </ui-josanz-button>
           </div>
-          </div>
-        </ui-josanz-card>
+        </div>
       </div>
     </div>
   `,
