@@ -609,14 +609,12 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       this.drawNebulaStyle(w, h);
     }
     
-    // Draw characters and logos only if NOT in matrix theme (performance optimization)
-    if (cfg.style !== 'matrix') {
-      this.drawGearSilhouettes(w, h);
-      this.drawTinyPals(w, h);
-      this.drawMascot(w, h);
-      this.drawMascotSidekick(w, h);
-      this.drawCrewSpeech(w, h);
-    }
+    // Draw characters and logos
+    this.drawGearSilhouettes(w, h);
+    this.drawTinyPals(w, h);
+    this.drawMascot(w, h);
+    this.drawMascotSidekick(w, h);
+    this.drawCrewSpeech(w, h);
     
     this.drawForegroundGlow(w, h);
 
