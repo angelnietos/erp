@@ -100,8 +100,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     }
 
     .feature-dashboard .chat-window-container {
-       right: auto;
-       left: 0;
+       right: 100%;
+       left: auto;
+       margin-right: 1rem;
+       bottom: 0; /* Align with mascot bottom */
     }
 
     .assistant-trigger {
