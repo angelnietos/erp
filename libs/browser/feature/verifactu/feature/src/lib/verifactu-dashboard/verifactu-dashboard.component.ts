@@ -10,6 +10,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
+  UiBadgeComponent,
+  UiButtonComponent,
+  UiCardComponent,
+  UiModalComponent,
   UiStatCardComponent,
   UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
