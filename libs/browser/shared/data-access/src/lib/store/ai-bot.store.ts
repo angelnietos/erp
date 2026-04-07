@@ -160,4 +160,12 @@ export class AIBotStore {
       };
     });
   }
+
+  // Communication Bus
+  private readonly _messageBus = signal<{ feature: string, text: string, timestamp: number } | null>(null);
+  readonly latestMessage = this._messageBus.asReadonly();
+
+  broadcastMessage(feature: string, text: string) {
+    this._messageBus.set({ feature, text, timestamp: Date.now() });
+  }
 }

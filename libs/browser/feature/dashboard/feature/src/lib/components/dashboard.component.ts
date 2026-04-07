@@ -277,7 +277,6 @@ interface QuickAction {
         </div>
       </div>
     </div>
-    <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
   `,
   styles: [
     `

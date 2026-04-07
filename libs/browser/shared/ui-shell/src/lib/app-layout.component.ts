@@ -8,11 +8,22 @@ import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
 import { ToastStackComponent } from './toast-stack.component';
+import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
 @Component({
   selector: 'josanz-app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent, CommandPaletteComponent, CrmBackgroundComponent, ToastStackComponent],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    LucideAngularModule, 
+    SidebarComponent, 
+    NotificationDrawerComponent, 
+    CommandPaletteComponent, 
+    CrmBackgroundComponent, 
+    ToastStackComponent,
+    UIAIChatComponent
+  ],
   template: `
     <josanz-crm-background></josanz-crm-background>
     <josanz-toast-stack />
@@ -126,6 +137,9 @@ import { ToastStackComponent } from './toast-stack.component';
             <router-outlet></router-outlet>
           </div>
         </main>
+        
+        <!-- Global AI Buddy (Dashboard Bot) -->
+        <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
       </div>
     </div>
   `,

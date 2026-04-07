@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, computed, NgZone, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, inject, signal, computed, effect, NgZone, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, FormsModule, DragDropModule],
   template: `
-    <div class="ai-assistant-wrapper" *ngIf="bot() && bot()!.status === 'active'">
+    <div class="ai-assistant-wrapper" [class]="'feature-' + feature" *ngIf="bot() && bot()!.status === 'active'">
       <!-- Floating Mascot Bubble -->
       <div class="assistant-trigger" [class.open]="isOpen()" (click)="toggleChat()">
         <ui-josanz-mascot 
@@ -86,7 +86,22 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
       position: fixed;
       bottom: 2rem;
       right: 2rem;
-      z-index: 10000; /* Higher than sidebar/header */
+      z-index: 10000;
+      transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Offset for Buddy-Bot to avoid overlapping */
+    .feature-dashboard {
+      right: 9rem;
+    }
+
+    .feature-dashboard .assistant-trigger {
+       transform: scale(0.9);
+    }
+
+    .feature-dashboard .chat-window-container {
+       right: auto;
+       left: 0;
     }
 
     .assistant-trigger {
@@ -335,6 +350,35 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.initSpeechRecognition();
+    
+    // Cross-Bot Communication Logic
+    effect(() => {
+      const latest = this.aiBotStore.latestMessage();
+      if (latest && latest.feature !== this.feature) {
+        this.onBotHeardMessage(latest.feature, latest.text);
+      }
+    });
+  }
+
+  private onBotHeardMessage(sourceFeature: string, text: string) {
+    const isBuddy = this.feature === 'dashboard';
+    const sourceName = this.aiBotStore.getBotByFeature(sourceFeature)?.name || 'Colega';
+    
+    setTimeout(() => {
+      if (isBuddy && text.length > 20) {
+         this.messages.update(m => [...m, { 
+           id: Date.now().toString(), 
+           text: `(Psst! Acabo de oír a ${sourceName} hablar de ${sourceFeature}... ¡Espero que no se haya olvidado de mis chistes!)`, 
+           role: 'bot' 
+         }]);
+      } else if (!isBuddy && sourceFeature === 'dashboard' && (text.includes('chiste') || text.includes('Buddy'))) {
+         this.messages.update(m => [...m, { 
+           id: Date.now().toString(), 
+           text: `Ugh, el ${sourceName} y su cháchara... Sigamos con lo nuestro mejor.`, 
+           role: 'bot' 
+         }]);
+      }
+    }, 2000);
   }
 
   ngOnInit() {
@@ -425,6 +469,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.messages.update(m => [...m, { id: Date.now().toString(), text: userInput, role: 'user' }]);
     this.currentInput = '';
     this.scrollToBottom();
+
+    // Broadcast message to the bus
+    this.aiBotStore.broadcastMessage(this.feature, userInput);
 
     const provider = this.aiBotStore.selectedProvider();
     const apiKey = this.aiBotStore.providerApiKey();
