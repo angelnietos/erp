@@ -87,42 +87,31 @@ export type InputVariant = string;
 
     .input-shape-solid {
       --input-bg: var(--bg-secondary);
-      --input-border: var(--border-soft);
-      --input-radius: 6px;
-      --input-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      --input-border: var(--brand);
+      --input-radius: 0px;
+      --input-shadow: 4px 4px 0px rgba(0,0,0,0.5);
     }
 
     .input-shape-glass {
-      --input-bg: color-mix(in srgb, var(--surface) 50%, transparent);
+      --input-bg: rgba(255, 255, 255, 0.05);
       --input-border: var(--border-vibrant);
-    }
-
-    .input-shape-outline {
-      --input-bg: transparent;
-      --input-border: var(--text-muted);
-      --input-radius: 8px;
-      --input-shadow: none;
+      --input-radius: var(--radius-md);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
 
     .input-shape-flat {
-      --input-bg: var(--bg-tertiary);
-      --input-border: transparent;
-      --input-radius: 4px;
+      --input-bg: var(--bg-secondary);
+      --input-border: var(--text-primary);
+      --input-radius: 0px;
       --input-shadow: none;
+      border-width: 2px;
     }
 
     .input-shape-neumorphic {
       --input-bg: var(--bg-primary);
       --input-border: transparent;
-      --input-radius: 16px;
-      --input-shadow: inset -4px -4px 8px rgba(255,255,255,0.02), inset 4px 4px 8px rgba(0,0,0,0.5);
-    }
-
-    .input-shape-underline {
-      --input-bg: transparent;
-      --input-border: transparent;
-      --input-radius: 0;
-      --input-shadow: none;
+      --input-radius: 30px;
+      --input-shadow: inset -4px -4px 10px rgba(255,255,255,0.02), inset 4px 4px 10px rgba(0,0,0,0.4);
     }
 
     .input-shape-minimal {
@@ -130,6 +119,7 @@ export type InputVariant = string;
       --input-border: transparent;
       --input-radius: 0;
       --input-shadow: none;
+      border-bottom: 2px solid var(--border-soft) !important;
     }
 
     .input-shape-rounded {

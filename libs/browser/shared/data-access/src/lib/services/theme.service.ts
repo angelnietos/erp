@@ -1108,46 +1108,43 @@ export class ThemeService {
         root.style.setProperty('--variant-blur', '0px');
         root.style.setProperty('--radius-lg', '20px');
         root.style.setProperty('--radius-md', '14px');
-        root.style.setProperty('--radius-xl', '28px');
+        root.style.setProperty('--radius-lg', '40px');
+        root.style.setProperty('--radius-md', '24px');
+        root.style.setProperty('--radius-xl', '60px');
         root.style.setProperty('--border-vibrant', 'transparent');
         root.style.setProperty('--shadow-inset-shine', 'none');
         root.style.setProperty(
           '--shadow-md',
-          `-6px -6px 14px rgba(255,255,255,0.025), 6px 6px 14px rgba(0,0,0,0.55)`,
+          '-8px -8px 20px rgba(255,255,255,0.03), 8px 8px 20px rgba(0,0,0,0.5)'
         );
-        // Card — uses bg-primary so the depth effect is visible
+        root.style.setProperty(
+          '--shadow-lg',
+          '-12px -12px 30px rgba(255,255,255,0.03), 12px 12px 30px rgba(0,0,0,0.6)'
+        );
+        // Card
         root.style.setProperty('--card-bg', config.background);
         root.style.setProperty('--card-border', 'transparent');
         root.style.setProperty('--card-border-width', '0px');
-        root.style.setProperty(
-          '--card-shadow',
-          `-8px -8px 16px rgba(255,255,255,0.02), 8px 8px 16px rgba(0,0,0,0.6)`,
-        );
+        root.style.setProperty('--card-shadow', 'var(--shadow-md)');
         // Input
         root.style.setProperty('--input-bg', config.background);
         root.style.setProperty('--input-border', 'transparent');
-        root.style.setProperty('--input-radius', '14px');
+        root.style.setProperty('--input-radius', '30px');
         root.style.setProperty(
           '--input-shadow',
-          `inset -4px -4px 8px rgba(255,255,255,0.02), inset 4px 4px 8px rgba(0,0,0,0.5)`,
+          'inset -4px -4px 10px rgba(255,255,255,0.02), inset 4px 4px 10px rgba(0,0,0,0.4)'
         );
         // Modal
-        root.style.setProperty('--modal-radius', '28px');
+        root.style.setProperty('--modal-radius', '50px');
         root.style.setProperty('--modal-bg', config.background);
         root.style.setProperty('--modal-border-width', '0px');
-        root.style.setProperty(
-          '--modal-shadow',
-          `-12px -12px 30px rgba(255,255,255,0.02), 12px 12px 30px rgba(0,0,0,0.65)`,
-        );
+        root.style.setProperty('--modal-shadow', 'var(--shadow-lg)');
         // Button
-        root.style.setProperty('--btn-radius', '14px');
-        root.style.setProperty(
-          '--btn-shadow',
-          `-4px -4px 10px rgba(255,255,255,0.02), 4px 4px 10px rgba(0,0,0,0.5)`,
-        );
+        root.style.setProperty('--btn-radius', '30px');
+        root.style.setProperty('--btn-shadow', 'var(--shadow-md)');
         root.style.setProperty('--btn-border-width', '0px');
         // Badge
-        root.style.setProperty('--badge-radius', '8px');
+        root.style.setProperty('--badge-radius', '12px');
         break;
 
       case 'minimal':
@@ -1164,20 +1161,23 @@ export class ThemeService {
         root.style.setProperty('--card-border', config.border);
         root.style.setProperty('--card-border-width', '0px');
         root.style.setProperty('--card-shadow', 'none');
+        root.style.setProperty('--card-border-bottom', '1px solid ' + config.border);
         // Input — underline-only
         root.style.setProperty('--input-bg', 'transparent');
         root.style.setProperty('--input-border', 'transparent');
+        root.style.setProperty('--input-border-bottom', '2px solid ' + config.border);
         root.style.setProperty('--input-radius', '0px');
         root.style.setProperty('--input-shadow', 'none');
         // Modal
         root.style.setProperty('--modal-radius', '0px');
         root.style.setProperty('--modal-bg', config.background);
         root.style.setProperty('--modal-border-width', '0px');
-        root.style.setProperty('--modal-shadow', '0 20px 60px rgba(0,0,0,0.5)');
+        root.style.setProperty('--modal-shadow', '0 40px 100px rgba(0,0,0,0.6)');
         // Button
         root.style.setProperty('--btn-radius', '0px');
         root.style.setProperty('--btn-shadow', 'none');
         root.style.setProperty('--btn-border-width', '0px');
+        root.style.setProperty('--btn-border-bottom', '2px solid transparent');
         // Badge
         root.style.setProperty('--badge-radius', '0px');
         break;

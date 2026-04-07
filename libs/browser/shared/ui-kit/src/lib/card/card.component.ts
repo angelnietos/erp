@@ -92,48 +92,49 @@ export type CardVariant = string;
     .card-color-warning { --card-bg: rgba(245, 158, 11, 0.1); --card-border: rgba(245, 158, 11, 0.3); }
     .card-color-info { --card-bg: rgba(59, 130, 246, 0.1); --card-border: rgba(59, 130, 246, 0.3); }
 
-    /* STRUCTURAL SHAPES overrides */
+    /* STRUCTURAL SHAPES overrides - Cleaned up to use global tokens preferred by ThemeService */
     .card-shape-auto {
-      /* Automatically morphs with the theme (inheriting variables natively) */
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      border: var(--card-border-width) solid var(--card-border);
+      box-shadow: var(--card-shadow), var(--shadow-inset-shine);
     }
     
     .card-shape-solid {
-      --card-bg: var(--bg-secondary);
-      --card-border: var(--border-soft);
-      --card-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      --card-bg: var(--bg-tertiary);
+      --card-border: var(--brand);
+      --card-radius: 0px;
+      --card-border-width: 2px;
+      --card-shadow: 4px 4px 0px rgba(0,0,0,0.6);
     }
+
     .card-shape-glass {
-      --card-bg: color-mix(in srgb, var(--surface) 80%, transparent);
-      backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+      --card-bg: var(--surface);
+      backdrop-filter: blur(var(--variant-blur)); -webkit-backdrop-filter: blur(var(--variant-blur));
       --card-border: var(--border-vibrant);
     }
+
     .card-shape-flat {
-      --card-bg: var(--bg-tertiary);
-      --card-border-width: 0px;
+      --card-bg: var(--bg-secondary);
+      --card-border: var(--text-primary);
+      --card-border-width: 3px;
+      --card-radius: 0px;
       --card-shadow: none;
     }
-    .card-shape-outline {
-      --card-bg: transparent;
-      --card-border-width: 2px;
-      --card-border: var(--border-soft);
-      --card-shadow: none;
-    }
+
     .card-shape-neumorphic {
       --card-bg: var(--bg-primary);
       --card-border-width: 0px;
-      --card-shadow: -8px -8px 16px rgba(255,255,255,0.02), 8px 8px 16px rgba(0,0,0,0.6);
-      border-radius: 20px;
+      --card-shadow: var(--shadow-md);
+      --card-radius: 40px;
     }
+
     .card-shape-minimal {
       --card-bg: transparent;
       --card-border-width: 0px;
       --card-shadow: none;
-      border-radius: 0px;
-      border-bottom: 1px solid var(--border-soft);
-    }
-    .card-shape-gradient {
-      --card-bg: linear-gradient(135deg, var(--bg-secondary), color-mix(in srgb, var(--brand) 10%, transparent));
-      --card-border: color-mix(in srgb, var(--brand) 20%, transparent);
+      --card-radius: 0px;
+      border-bottom: 2px solid var(--border-soft) !important;
     }
 
     .card-header {
