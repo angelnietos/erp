@@ -16,7 +16,12 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, FormsModule, DragDropModule],
   template: `
-    <div class="ai-assistant-wrapper" [class]="'feature-' + feature" *ngIf="bot() && bot()!.status === 'active'">
+    <div 
+      class="ai-assistant-wrapper" 
+      [class]="'feature-' + feature" 
+      [class.is-open]="isOpen()"
+      *ngIf="bot() && bot()!.status === 'active'"
+    >
       <!-- Floating Mascot Bubble -->
       <div class="mascot-trigger" [class.open]="isOpen()" (click)="toggleChat()">
         <ui-josanz-mascot 
@@ -98,7 +103,8 @@ import { firstValueFrom } from 'rxjs';
       filter: saturate(0.9);
     }
 
-    .ai-assistant-wrapper:hover {
+    .ai-assistant-wrapper:hover,
+    .ai-assistant-wrapper.is-open {
       opacity: 1;
       transform: scale(1);
       filter: saturate(1);
