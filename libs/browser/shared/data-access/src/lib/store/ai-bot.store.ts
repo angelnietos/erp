@@ -109,6 +109,18 @@ export class AIBotStore {
       description: 'Tu mejor amigo y pato de confianza. Memoriza hitos, da consejos y te escucha.',
       skills: ['Joke Teller', 'Milestone Memory', 'Daily Advice', 'Active Listener', 'Mental Tracker', 'Duck Noises'],
       activeSkills: ['Joke Teller', 'Milestone Memory', 'Active Listener'], status: 'active', color: '#facc15', secondaryColor: '#ca8a04', mascotType: 'dashboard', personality: 'happy', bodyShape: 'capsule', eyesType: 'joy', mouthType: 'beak'
+    },
+    'events': { 
+      id: 'evt-bot', name: 'Party-Bot', feature: 'events',
+      description: 'Organiza la logística de eventos y fiestas.',
+      skills: ['Guest Optimization', 'A/V Checklist', 'Catering AI', 'Social Sync', 'Mood Lighting Advisor', 'Budget Party Guard'],
+      activeSkills: ['Guest Optimization'], status: 'active', color: '#f472b6', secondaryColor: '#db2777', mascotType: 'universal', personality: 'happy', bodyShape: 'round', eyesType: 'joy', mouthType: 'smile'
+    },
+    'reports': { 
+      id: 'rep-bot', name: 'Data-Bot', feature: 'reports',
+      description: 'Analiza datos complejos y genera insights.',
+      skills: ['Trend Spotter', 'Anomaly Detective', 'Executive Summary AI', 'Chart Wizard', 'Predictive Modeling', 'Data Cleaning Bot'],
+      activeSkills: ['Trend Spotter'], status: 'active', color: '#6366f1', secondaryColor: '#4338ca', mascotType: 'inventory', personality: 'worker', bodyShape: 'square', eyesType: 'dots', mouthType: 'line'
     }
   });
 

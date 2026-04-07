@@ -14,7 +14,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@josanz-erp/shared-utils": ["libs/browser/shared/utils/src/index.ts"],
+      "@josanz-erp/shared-utils": ["libs/isomorphic/shared/utils/src/index.ts"],
       "@josanz-erp/shared-utils/node": [
         "libs/browser/shared/utils/src/node.ts"
       ],

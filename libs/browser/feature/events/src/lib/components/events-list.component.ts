@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   Calendar,
@@ -26,6 +26,7 @@ import {
   UiInputComponent,
   UiSelectComponent,
   UiStatCardComponent,
+  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
@@ -76,6 +77,7 @@ interface EventFilter {
     UiSelectComponent,
     UiStatCardComponent,
     LucideAngularModule,
+    UIAIChatComponent,
   ],
   template: `
     <div
@@ -426,6 +428,7 @@ interface EventFilter {
           }
         </ui-josanz-card>
       </div>
+      <ui-josanz-ai-assistant [feature]="'events'"></ui-josanz-ai-assistant>
     </div>
   `,
   styles: [
