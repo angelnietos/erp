@@ -116,15 +116,15 @@ interface CalendarCell {
                     </div>
                     
                     <div class="cell-body">
-                      @if (cell.availability) {
+                      @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
                          <div 
                             class="status-indicator" 
-                            [class]="cell.availability.type" 
+                            [class]="status" 
                             [class.editable]="selectedTechId() === 'me'"
                             (click)="toggleAvailability(cell)"
                          >
                             <div class="indicator-glow"></div>
-                            <span class="indicator-label">{{ getShortLabel(cell.availability.type) }}</span>
+                            <span class="indicator-label">{{ getShortLabel(status) }}</span>
                          </div>
                       }
                     </div>
@@ -160,8 +160,8 @@ interface CalendarCell {
                         <div class="cells-row">
                            @for (cell of calendarCells(); track cell.date) {
                               <div class="board-cell" [class.today]="cell.isToday">
-                                 @if (getTeamMemberAvailability(tech.id, cell.day)) {
-                                    <div class="mini-status" [class]="getTeamMemberAvailability(tech.id, cell.day)" title="{{ getShortLabel(getTeamMemberAvailability(tech.id, cell.day)) }}"></div>
+                                 @if (getTechDayStatus(tech.id, cell.day); as status) {
+                                    <div class="mini-status" [class]="status" title="{{ getShortLabel(status) }}"></div>
                                  }
                               </div>
                            }
@@ -578,6 +578,9 @@ export class TechnicianAvailabilityComponent implements OnInit {
   viewMode = signal<'personal' | 'team'>('personal');
   selectedTechId = signal<string>('me');
   
+  // ALMACÉN DE DISPONIBILIDAD: { [techId]: { [day]: status } }
+  teamAvailability = signal<Record<string, Record<number, string>>>({});
+  
   technicians = signal<Technician[]>([
     { id: 'me', name: 'Antonio Munias', role: 'Administrador', status: 'online' },
     { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior', status: 'away' },
@@ -591,41 +594,69 @@ export class TechnicianAvailabilityComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const techId = this.selectedTechId();
-      this.loadMonth(techId);
-    });
+      // Cargamos el mes base (una sola vez o al cambiar mes real)
+      this.initCalendarCells();
+      // Inicializamos el almacén de datos si está vacío
+      if (Object.keys(this.teamAvailability()).length === 0) {
+        this.initTeamData();
+      }
+    }, { allowSignalWrites: true });
   }
 
-  ngOnInit() {
-    this.loadMonth(this.selectedTechId());
-  }
+  ngOnInit() {}
 
-  loadMonth(techId: string = 'me') {
+  initCalendarCells() {
     const now = new Date();
     const cells: CalendarCell[] = [];
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysInMonth = new Date(this.currentYear(), now.getMonth() + 1, 0).getDate();
     
     for (let i = 1; i <= daysInMonth; i++) {
         cells.push({
             day: i,
             isCurrentMonth: true,
             isToday: i === now.getDate(),
-            date: `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`,
-            availability: this.getRandomMockAvailability(i, techId)
+            date: `${this.currentYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`
         });
     }
     this.calendarCells.set(cells);
   }
 
+  initTeamData() {
+    const data: Record<string, Record<number, string>> = {};
+    this.technicians().forEach(tech => {
+      data[tech.id] = {};
+      for (let day = 1; day <= 31; day++) {
+        data[tech.id][day] = this.getRandomMockAvailability(day, tech.id).type;
+      }
+    });
+    this.teamAvailability.set(data);
+  }
+
+  loadMonth() {
+    this.initTeamData();
+  }
+
   toggleAvailability(cell: CalendarCell) {
     if (this.selectedTechId() !== 'me') return;
 
-    const types: ('AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE')[] = ['AVAILABLE', 'UNAVAILABLE', 'HOLIDAY', 'SICK_LEAVE'];
-    const currentIdx = types.indexOf(cell.availability?.type || 'AVAILABLE');
+    const types: string[] = ['AVAILABLE', 'UNAVAILABLE', 'HOLIDAY', 'SICK_LEAVE'];
+    const currentStatus = this.getTechDayStatus('me', cell.day);
+    const currentIdx = types.indexOf(currentStatus);
     const nextType = types[(currentIdx + 1) % types.length];
     
-    cell.availability = { type: nextType };
+    // Actualizamos el almacén central
+    this.teamAvailability.update(prev => {
+      const updated = { ...prev };
+      if (!updated['me']) updated['me'] = {};
+      updated['me'][cell.day] = nextType;
+      return updated;
+    });
+
     this.api.setFullDayAvailability('me', cell.date, nextType).subscribe();
+  }
+
+  getTechDayStatus(techId: string, day: number): string {
+    return this.teamAvailability()[techId]?.[day] || 'AVAILABLE';
   }
 
   getSelectedTechName(): string {
@@ -650,13 +681,8 @@ export class TechnicianAvailabilityComponent implements OnInit {
 
   getDayOfWeekName(day: number): string {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const date = new Date(this.currentYear(), 3, day); // Usando Abril (3) para el demo
+    const date = new Date(this.currentYear(), 3, day); 
     return days[date.getDay()];
-  }
-
-  getTeamMemberAvailability(techId: string, day: number): string {
-    const availability = this.getRandomMockAvailability(day, techId);
-    return availability.type;
   }
 
   private getRandomMockAvailability(day: number, techId: string): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
