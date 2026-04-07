@@ -330,6 +330,7 @@ export class UIAIChatComponent {
   
   isListening = signal(false);
   private recognition: any;
+  private textBeforeDictation = '';
 
   constructor() {
     this.initSpeechRecognition();
@@ -344,7 +345,11 @@ export class UIAIChatComponent {
       this.recognition.lang = 'es-ES';
 
       this.recognition.onstart = () => {
-        this.ngZone.run(() => this.isListening.set(true));
+        this.ngZone.run(() => {
+          this.isListening.set(true);
+          // Memorizar texto previo al inicio del dictado
+          this.textBeforeDictation = this.currentInput;
+        });
       };
       
       this.recognition.onresult = (event: any) => {
@@ -360,22 +365,29 @@ export class UIAIChatComponent {
             }
           }
           
+          // Combinar lo que teníamos antes + la lectura final + la lectura provisional en curso
+          const newSpeech = finalTranscript + interimTranscript;
+          this.currentInput = this.textBeforeDictation 
+                              ? this.textBeforeDictation + ' ' + newSpeech.trim() 
+                              : newSpeech;
+
           if (finalTranscript) {
-            this.currentInput = this.currentInput ? this.currentInput + ' ' + finalTranscript : finalTranscript;
-            this.sendMessage(); // auto send
-          } else {
-            // Provide live feedback without resetting what was already typed
-            const previousInput = this.currentInput.replace(interimTranscript, '');
-            this.currentInput = previousInput ? previousInput + ' ' + interimTranscript : interimTranscript;
+            this.sendMessage(); // auto send en cuanto terminas la frase
           }
         });
       };
 
       this.recognition.onerror = () => {
-        this.ngZone.run(() => this.isListening.set(false));
+        this.ngZone.run(() => {
+          this.isListening.set(false);
+          this.textBeforeDictation = '';
+        });
       };
       this.recognition.onend = () => {
-        this.ngZone.run(() => this.isListening.set(false));
+        this.ngZone.run(() => {
+          this.isListening.set(false);
+          this.textBeforeDictation = '';
+        });
       };
     }
   }
