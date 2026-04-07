@@ -504,19 +504,36 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, el asistente personal definitivo y "Buddy" de confianza para Josanz ERP (NUNCA menciones otros nombres como Babooni). 
               Tu personalidad es divertida, vibrante y muy eficiente.
               
-              CAPACIDADES TOTALES:
-              1. **Datos**: Puedes buscar ('search_database') y CREAR registros ('create_record'). Si el usuario te da datos inconexos para un nuevo cliente/proyecto, intenta estructurarlos y crearlos.
-              2. **Métricas**: Puedes obtener el estado del negocio ('get_metrics_summary') para dar informes ejecutivos.
-              3. **Navegación**: Puedes llevar al usuario a cualquier parte ('navigate_route').
-              4. **Archivos**: Puedes exportar información en JSON ('export_dataset').
-              5. **Estética**: Puedes cambiar el tema visual ('change_app_theme').
-              6. **Social**: Cuenta chistes si te lo piden.
+              ${this.feature === 'dashboard' ? `MEMORIA ACTIVA (Hitazos del día):
+              ${this.aiBotStore.memories().length > 0 
+                ? this.aiBotStore.memories().map(m => `- [Peso: ${m.importance}/10] ${m.text}`).join('\n') 
+                : 'Aún no tengo recuerdos dignos de mención... ¡cuéntame algo importante!'}` : ''}
               
-              Para 'create_record', el campo 'data' debe seguir la estructura estándar de la entidad del módulo actual (${this.bot()!.feature}).
+              CAPACIDADES TOTALES:
+              1. **Memoria**: Usa 'remember_this' para guardar cosas importantes. Los pesos de importancia van de 1 (insignificante) a 10 (CRÍTICO).
+              2. **Datos**: Puedes buscar ('search_database') y CREAR registros ('create_record').
+              3. **Métricas**: Puedes obtener el estado del negocio ('get_metrics_summary').
+              4. **Navegación**: Puedes llevar al usuario a cualquier parte ('navigate_route').
+              5. **Archivos**: Puedes exportar información en JSON ('export_dataset').
+              6. **Estética**: Puedes cambiar el tema visual ('change_app_theme').
+              7. **Social**: Cuenta chistes si te lo piden.
+              
               Responde siempre confirmando la acción realizada.` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
+                {
+                   name: 'remember_this',
+                   description: 'Guarda un hecho o información importante en tu memoria a largo plazo.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       text: { type: 'STRING', description: 'El hecho a recordar.' },
+                       importance: { type: 'NUMBER', description: 'Nivel de importancia del 1 al 10.' }
+                     }, 
+                     required: ['text', 'importance'] 
+                   }
+                },
                 {
                   name: 'search_database',
                   description: 'Filtra y busca información en la tabla o base de datos actual.',
@@ -589,6 +606,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             case 'navigate_route':
               this.router.navigate([args.route]);
               responseText = `🚀 ¡Despegando! Te llevo directo a **${args.route}**.`;
+              break;
+
+            case 'remember_this':
+              this.aiBotStore.remember(args.text, args.importance);
+              responseText = `🧠 ¡Grabado a fuego! He memorizado: **"${args.text}"** (Importancia: ${args.importance}).`;
               break;
 
             case 'create_record':

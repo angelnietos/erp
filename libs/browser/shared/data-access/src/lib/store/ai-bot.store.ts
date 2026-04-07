@@ -168,4 +168,24 @@ export class AIBotStore {
   broadcastMessage(feature: string, text: string) {
     this._messageBus.set({ feature, text, timestamp: Date.now() });
   }
+
+  // Persistent Memory System
+  private readonly _memories = signal<{ text: string, importance: number, timestamp: number }[]>(
+    JSON.parse(localStorage.getItem('ai_buddy_memories') || '[]')
+  );
+  readonly memories = this._memories.asReadonly();
+
+  remember(text: string, importance: number = 5) {
+    this._memories.update(current => {
+      const updated = [...current, { text, importance, timestamp: Date.now() }];
+      // Keep only top 100 memories, priority to higher importance
+      const limited = updated.sort((a, b) => b.importance - a.importance).slice(0, 100);
+      localStorage.setItem('ai_buddy_memories', JSON.stringify(limited));
+      return limited;
+    });
+  }
+
+  getMemoriesByImportance(minWeight: number = 0) {
+    return this.memories().filter(m => m.importance >= minWeight);
+  }
 }
