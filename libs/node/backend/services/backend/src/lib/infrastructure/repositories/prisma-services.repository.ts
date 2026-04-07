@@ -3,86 +3,84 @@ import { ClsService } from 'nestjs-cls';
 import { ServicesRepositoryPort, Service } from '@josanz-erp/services-core';
 import { ServiceType } from '@josanz-erp/services-api';
 import { EntityId } from '@josanz-erp/shared-model';
-import { TenantContext } from '@josanz-erp/shared-infrastructure';
+import { TenantContext, PrismaService } from '@josanz-erp/shared-infrastructure';
 
 @Injectable()
 export class PrismaServicesRepository implements ServicesRepositoryPort {
-  // Mock in-memory storage for now - TODO: implement Prisma service model
-  private services: Service[] = [];
+  constructor(
+    private readonly cls: ClsService<TenantContext>,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  constructor(private readonly cls: ClsService<TenantContext>) {
-    // Initialize with mock data
-    this.initializeMockData();
-  }
-
-  private getTenantId(): string {
-    const tenantId = this.cls.get('tenantId');
-    if (!tenantId) {
-      throw new Error('Tenant ID is not set in the request context');
-    }
-    return tenantId;
-  }
-
-  private initializeMockData(): void {
-    // Mock data for development
-    const tenantId = new EntityId('mock-tenant-id');
-    this.services = [
-      Service.reconstitute('1', {
-        tenantId,
-        name: 'Servicio de Streaming Básico',
-        description: 'Transmisión en vivo básica',
-        type: 'STREAMING',
-        basePrice: 500,
-        hourlyRate: 50,
-        configuration: {},
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-      }),
-      Service.reconstitute('2', {
-        tenantId,
-        name: 'Producción Audio/Video Completa',
-        description: 'Producción completa de eventos',
-        type: 'PRODUCCIÓN',
-        basePrice: 2000,
-        hourlyRate: 150,
-        configuration: {},
-        isActive: true,
-        createdAt: new Date('2024-01-02'),
-      }),
-    ];
+  private toEntity(row: any): Service {
+    return Service.reconstitute(row.id, {
+      tenantId: new EntityId(row.tenantId),
+      name: row.name,
+      description: row.description || '',
+      type: (row.type || 'STREAMING') as ServiceType,
+      basePrice: row.price || 0,
+      hourlyRate: row.dailyRate || 0,
+      configuration: {}, // Product doesn't have configuration JSON yet, but we use defaults
+      isActive: true, // Product doesn't have isActive yet, but conceptually it is
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt || undefined,
+    });
   }
 
   async findById(id: EntityId): Promise<Service | null> {
-    return this.services.find((s) => s.id.value === id.value) || null;
+    const row = await this.prisma.product.findUnique({
+      where: { id: id.value },
+      include: { categoryRef: true },
+    });
+    if (!row || row.categoryRef?.type !== 'SERVICE') {
+      return null;
+    }
+    return this.toEntity(row);
   }
 
   async findAll(tenantId: EntityId, type?: ServiceType): Promise<Service[]> {
-    return this.services.filter(
-      (s) => s.tenantId.value === tenantId.value && (!type || s.type === type),
-    );
+    const rows = await this.prisma.product.findMany({
+      where: {
+        tenantId: tenantId.value,
+        categoryRef: { type: 'SERVICE' },
+        ...(type ? { type } : {}),
+      },
+      include: { categoryRef: true },
+    });
+    return rows.map((r) => this.toEntity(r));
   }
 
   async findActive(tenantId: EntityId, type?: ServiceType): Promise<Service[]> {
-    return this.services.filter(
-      (s) =>
-        s.tenantId.value === tenantId.value &&
-        s.isActive &&
-        (!type || s.type === type),
-    );
+    // Current product model doesn't have an isActive field, so we return all visible to tenant
+    return this.findAll(tenantId, type);
   }
 
   async save(service: Service): Promise<void> {
-    const existingIndex = this.services.findIndex(
-      (s) => s.id.value === service.id.value,
-    );
-    if (existingIndex >= 0) {
-      this.services[existingIndex] = service;
-    } else {
-      this.services.push(service);
-    }
+    // Conceptually a service is a product in a category of type SERVICE.
+    // If saving a new service, we'd need to ensure it has a category.
+    // This is partial as Product model doesn't have configuration or isActive.
+    const data = {
+      tenantId: service.tenantId.value,
+      name: service.name,
+      description: service.description,
+      type: service.type,
+      price: service.basePrice,
+      dailyRate: service.hourlyRate,
+    };
+
+    await this.prisma.product.upsert({
+      where: { id: service.id.value },
+      create: {
+        id: service.id.value,
+        ...data,
+      },
+      update: {
+        ...data,
+      },
+    });
   }
 
   async delete(id: EntityId): Promise<void> {
-    this.services = this.services.filter((s) => s.id.value !== id.value);
+    await this.prisma.product.deleteMany({ where: { id: id.value } });
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import { PrismaService, encrypt } from '@josanz-erp/shared-infrastructure';
 import { Prisma } from '@prisma/client';
 import { DomainEventsService } from './domain-events.service';
 import { WebhookDispatcherService } from './webhook-dispatcher.service';
@@ -23,12 +23,13 @@ export class IntegrationWebhooksService {
     tenantId: string;
   }> {
     const secret = WebhookDispatcherService.generateSecret();
+    const encryptedSecret = encrypt(secret);
     const eventTypes = (body.events?.length ? body.events : ['*']) as string[];
     const row = await this.prisma.integrationWebhook.create({
       data: {
         tenantId,
         url: body.url,
-        secret,
+        secret: encryptedSecret,
         eventTypes: eventTypes as unknown as Prisma.InputJsonValue,
         isActive: true,
       },
@@ -45,7 +46,7 @@ export class IntegrationWebhooksService {
       id: row.id,
       url: row.url,
       events: eventTypes,
-      secret: row.secret,
+      secret, // We return the original secret only once during registration
       createdAt: row.createdAt.toISOString(),
       tenantId,
     };
@@ -62,8 +63,20 @@ export class IntegrationWebhooksService {
       url: r.url,
       events: r.eventTypes as unknown as string[],
       isActive: r.isActive,
-      secret: r.secret,
+      // secret is NOT returned in listings for security (Fase 4 requirement)
       createdAt: r.createdAt.toISOString(),
     }));
+  }
+
+  async rotateSecret(tenantId: string, webhookId: string): Promise<{ secret: string }> {
+    const secret = WebhookDispatcherService.generateSecret();
+    const encryptedSecret = encrypt(secret);
+    
+    await this.prisma.integrationWebhook.update({
+      where: { id: webhookId, tenantId },
+      data: { secret: encryptedSecret }
+    });
+
+    return { secret };
   }
 }

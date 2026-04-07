@@ -861,20 +861,27 @@ const THEME_MENU_SECTIONS = buildThemeMenuSections();
 export class ThemeService {
   readonly currentTheme = signal<Theme>('light');
   readonly currentThemeData = computed(() => THEMES[this.currentTheme()]);
+  readonly currentVariant = signal<string>('glass');
   readonly themes = THEMES;
   readonly themeMenuSections = THEME_MENU_SECTIONS;
   private readonly isHighPerf = signal<boolean>(false);
 
   constructor() {
     const stored = this.getStoredTheme();
+    const storedVariant = this.getStoredVariant();
     const initialTheme = stored || 'light';
+    const initialVariant = storedVariant || THEMES[initialTheme].uiVariant || 'glass';
+    
     this.currentTheme.set(initialTheme);
-    this.applyTheme(initialTheme);
+    this.currentVariant.set(initialVariant);
+    this.applyTheme(initialTheme, initialVariant);
 
     effect(() => {
       const theme = this.currentTheme();
-      this.applyTheme(theme);
+      const variant = this.currentVariant();
+      this.applyTheme(theme, variant);
       this.storeTheme(theme);
+      this.storeVariant(variant);
     });
 
     effect(() => {
@@ -886,10 +893,13 @@ export class ThemeService {
     this.currentTheme.set(theme);
   }
 
-  private applyTheme(theme: Theme) {
+  setVariant(variant: 'glass' | 'solid' | 'flat' | 'neumorphic' | 'minimal') {
+    this.currentVariant.set(variant);
+  }
+
+  private applyTheme(theme: Theme, variant: string) {
     const config = THEMES[theme];
     const root = document.documentElement;
-    const variant = config.uiVariant || 'glass';
 
     // Core legacy tokens
     root.style.setProperty('--theme-primary', config.primary);

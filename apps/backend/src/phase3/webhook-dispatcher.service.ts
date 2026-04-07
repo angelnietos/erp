@@ -1,6 +1,6 @@
 import { createHmac, randomBytes } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import { PrismaService, decrypt } from '@josanz-erp/shared-infrastructure';
 import type { DomainEventRecord } from '@prisma/client';
 
 export function signWebhookPayload(secret: string, body: string): string {
@@ -49,7 +49,8 @@ export class WebhookDispatcherService {
         continue;
       }
 
-      const sig = signWebhookPayload(h.secret, body);
+      const decryptedSecret = decrypt(h.secret);
+      const sig = signWebhookPayload(decryptedSecret, body);
       try {
         const res = await fetch(h.url, {
           method: 'POST',

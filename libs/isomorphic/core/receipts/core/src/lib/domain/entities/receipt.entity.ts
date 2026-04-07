@@ -5,6 +5,7 @@ export interface ReceiptProps {
   tenantId: EntityId;
   invoiceId: EntityId;
   amount: number;
+  currency: string;
   status: PaymentStatus;
   paymentMethod?: PaymentMethod;
   paymentDate?: Date;
@@ -24,10 +25,11 @@ export class Receipt extends AggregateRoot {
     this.props = props;
   }
 
-  static create(props: Omit<ReceiptProps, 'createdAt' | 'status'>): Receipt {
+  static create(props: Omit<ReceiptProps, 'createdAt' | 'status' | 'currency'> & { currency?: string }): Receipt {
     const id = new EntityId();
     return new Receipt(id, {
       ...props,
+      currency: props.currency || 'EUR',
       status: 'PENDING',
       createdAt: new Date(),
     });
@@ -93,6 +95,10 @@ export class Receipt extends AggregateRoot {
 
   get amount(): number {
     return this.props.amount;
+  }
+
+  get currency(): string {
+    return this.props.currency;
   }
 
   get status(): PaymentStatus {

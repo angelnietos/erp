@@ -10,6 +10,7 @@ interface ErpReceiptRow {
   tenantId: string;
   invoiceId: string;
   amount: number;
+  currency: string;
   status: string;
   paymentMethod: string | null;
   paymentDate: Date | null;
@@ -41,6 +42,7 @@ export class PrismaReceiptsRepository implements ReceiptsRepositoryPort {
       tenantId: new EntityId(row.tenantId),
       invoiceId: new EntityId(row.invoiceId),
       amount: row.amount,
+      currency: row.currency,
       status: row.status as PaymentStatus,
       paymentMethod: row.paymentMethod as PaymentMethod | undefined,
       paymentDate: row.paymentDate ?? undefined,
@@ -129,6 +131,7 @@ export class PrismaReceiptsRepository implements ReceiptsRepositoryPort {
       tenantId: tid,
       invoiceId: receipt.invoiceId.value,
       amount: receipt.amount,
+      currency: receipt.currency,
       status: receipt.status,
       paymentMethod: receipt.paymentMethod ?? null,
       paymentDate: receipt.paymentDate ?? null,

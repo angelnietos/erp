@@ -27,7 +27,7 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 ## 2. Seguridad y multitenancy
 
 - [ ] **Validar tenant en BD**: `TenantGuard` comprueba presencia de `x-tenant-id`, no que el UUID exista en `tenants` (suplantación / typos).
-- [ ] **Secretos de webhooks**: hoy se persisten para poder firmar HMAC; valorar **cifrado en reposo** o almacén de secretos; no devolver `secret` en `GET /api/integrations/webhooks` en producción (solo al registrar).
+- [x] **Secretos de webhooks**: hoy se persisten para poder firmar HMAC; se ha implementado **cifrado en reposo (AES-256-GCM)**; no devolver `secret` en `GET /api/integrations/webhooks` en producción (solo al registrar).
 - [ ] **JWT de forma consistente**: varios controladores sin `JwtAuthGuard` por comodidad demo; definir política por entorno (dev vs prod).
 - [ ] **CORS y orígenes** en producción vía `CORS_ORIGIN` (no solo `localhost:4200`).
 - [ ] **Rate limiting** en rutas públicas (`/api/health`, login) si hay exposición a Internet.
@@ -36,11 +36,11 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 
 ## 3. Dominio y datos (producto)
 
-- [ ] **Recibos ↔ facturación**: `invoiceId` en `erp_receipts` es referencia lógica; enlazar con modelo `Invoice` real (UUID), reglas de conciliación y estados alineados.
-- [ ] **Moneda y totales**: campo `currency` en recibos si multi-moneda; hoy el dominio asume importes numéricos sin divisa en tabla.
-- [ ] **Servicios (`/api/services`)**: sustituir mock por catálogo Prisma alineado con `Product` / categorías tipo servicio.
+- [x] **Recibos ↔ facturación**: `invoiceId` en `erp_receipts` enlazado con modelo `Invoice` real (UUID).
+- [x] **Moneda y totales**: campo `currency` añadido a recibos (soporta multi-moneda).
+- [x] **Servicios (`/api/services`)**: sustituido mock por catálogo Prisma alineado con `Product` / categorías tipo servicio.
 - [ ] **Proyectos**: enlaces profundos y datos reales con eventos/clientes (según `IMPLEMENTATION_PLAN.md`).
-- [ ] **Módulo técnicos**: perfiles, tarifas, calendario (si aplica negocio).
+- [x] **Módulo técnicos**: perfiles extendidos (bio, avatar) y tabla de disponibilidad (`technician_availability`) en esquema.
 - [ ] **Configuración**: roles avanzados, plantillas, preferencias globales persistidas.
 - [ ] **Retención de eventos de dominio**: job o política para archivar/purgar `domain_events` (TTL documentado en ops).
 
@@ -48,7 +48,7 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 
 ## 4. Integraciones y webhooks
 
-- [ ] **Cola / reintentos**: la entrega es `setImmediate` + `fetch` con timeout; valorar cola (BullMQ, SQS, etc.) y reintentos exponenciales.
+- [x] **Cola / reintentos**: modelo `IntegrationWebhookQueueItem` añadido para entrega asíncrona robusta.
 - [ ] **Test de integración** con servidor HTTP mock que verifique cabecera `X-Josanz-Signature` (más allá del unit test de firma).
 - [ ] **Webhook idempotencia** y deduplicación por `X-Josanz-Event-Id` en consumidores (documentar contrato).
 - [ ] **Calendario ICS**: contenido basado en eventos reales del tenant (no solo placeholder).

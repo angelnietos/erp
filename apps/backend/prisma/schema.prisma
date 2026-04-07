@@ -203,6 +203,7 @@ model Invoice {
   tenant          Tenant?              @relation(fields: [tenantId], references: [id])
   verifactuLogs   VerifactuLog[]
   queueItems      VerifactuQueueItem[]
+  erpReceipts     ErpReceipt[]
 
   @@map("invoices")
 }
@@ -252,7 +253,9 @@ model Tenant {
   erpReceipts                  ErpReceipt[]
   domainEventRecords           DomainEventRecord[]
   integrationWebhooks          IntegrationWebhook[]
+  technicianAvailability       TechnicianAvailability[]
   integrationWebhookDeliveries IntegrationWebhookDelivery[]
+  integrationWebhookQueue      IntegrationWebhookQueueItem[]
 
   @@map("tenants")
 }
@@ -443,18 +446,36 @@ model Event {
 }
 
 model Technician {
-  id         String            @id @default(uuid()) @db.Uuid
-  tenantId   String            @map("tenant_id") @db.Uuid
-  userId     String            @unique @map("user_id") @db.Uuid
-  hourlyRate Float             @map("hourly_rate")
-  skills     String[]
-  status     String            @default("ACTIVE")
-  user       User              @relation(fields: [userId], references: [id])
-  tenant     Tenant            @relation(fields: [tenantId], references: [id])
-  events     EventTechnician[]
-  createdAt  DateTime          @default(now()) @map("created_at")
+  id                    String                   @id @default(uuid()) @db.Uuid
+  tenantId              String                   @map("tenant_id") @db.Uuid
+  userId                String                   @unique @map("user_id") @db.Uuid
+  bio                   String?                  @db.Text
+  avatarUrl             String?                  @map("avatar_url")
+  hourlyRate            Float                    @map("hourly_rate")
+  skills                String[]
+  status                String                   @default("ACTIVE")
+  user                  User                     @relation(fields: [userId], references: [id])
+  tenant                Tenant                   @relation(fields: [tenantId], references: [id])
+  events                EventTechnician[]
+  availability          TechnicianAvailability[]
+  createdAt             DateTime                 @default(now()) @map("created_at")
 
   @@map("technicians")
+}
+
+model TechnicianAvailability {
+  id           String     @id @default(uuid()) @db.Uuid
+  technicianId String     @map("technician_id") @db.Uuid
+  tenantId     String     @map("tenant_id") @db.Uuid
+  startDate    DateTime   @map("start_date")
+  endDate      DateTime   @map("end_date")
+  type         String     @default("AVAILABLE") // AVAILABLE, BUSY, HOLIDAY, SICK
+  notes        String?
+  technician   Technician @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+
+  @@index([technicianId, startDate, endDate], map: "idx_technician_availability_lookup")
+  @@map("technician_availability")
 }
 
 model EventTechnician {
@@ -575,8 +596,9 @@ model UserRole {
 model ErpReceipt {
   id            String    @id @default(uuid()) @db.Uuid
   tenantId      String    @map("tenant_id") @db.Uuid
-  invoiceId     String    @map("invoice_id")
+  invoiceId     String    @map("invoice_id") @db.Uuid
   amount        Float
+  currency      String    @default("EUR")
   status        String    @default("PENDING")
   paymentMethod String?   @map("payment_method")
   paymentDate   DateTime? @map("payment_date")
@@ -585,9 +607,11 @@ model ErpReceipt {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  invoice       Invoice   @relation(fields: [invoiceId], references: [id])
 
   @@index([tenantId, status], map: "idx_erp_receipts_tenant_status")
   @@index([tenantId, dueDate], map: "idx_erp_receipts_tenant_due")
+  @@index([invoiceId], map: "idx_erp_receipts_invoice")
   @@map("erp_receipts")
 }
 
@@ -602,6 +626,7 @@ model DomainEventRecord {
   createdAt         DateTime                     @default(now()) @map("created_at")
   tenant            Tenant                       @relation(fields: [tenantId], references: [id])
   webhookDeliveries IntegrationWebhookDelivery[]
+  webhookQueueItems IntegrationWebhookQueueItem[]
 
   @@index([tenantId, createdAt(sort: Desc)], map: "idx_domain_events_tenant_created")
   @@map("domain_events")
@@ -618,6 +643,7 @@ model IntegrationWebhook {
   updatedAt  DateTime                     @updatedAt @map("updated_at")
   tenant     Tenant                       @relation(fields: [tenantId], references: [id])
   deliveries IntegrationWebhookDelivery[]
+  queueItems IntegrationWebhookQueueItem[]
 
   @@index([tenantId], map: "idx_integration_webhooks_tenant")
   @@map("integration_webhooks")
@@ -639,6 +665,26 @@ model IntegrationWebhookDelivery {
 
   @@index([tenantId, createdAt(sort: Desc)], map: "idx_webhook_deliveries_tenant_created")
   @@map("integration_webhook_deliveries")
+}
+
+model IntegrationWebhookQueueItem {
+  id           String             @id @default(uuid()) @db.Uuid
+  webhookId    String             @map("webhook_id") @db.Uuid
+  tenantId     String             @map("tenant_id") @db.Uuid
+  domainEventId String             @map("domain_event_id") @db.Uuid
+  status       String             @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  retries      Int                @default(0)
+  maxRetries   Int                @default(5) @map("max_retries")
+  nextRetryAt  DateTime?          @map("next_retry_at")
+  lastError    String?            @map("last_error") @db.Text
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  webhook      IntegrationWebhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  domainEvent  DomainEventRecord  @relation(fields: [domainEventId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextRetryAt], map: "idx_webhook_queue_status_retry")
+  @@map("integration_webhook_queue")
 }
 
 enum ReferenceType {

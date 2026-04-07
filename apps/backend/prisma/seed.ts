@@ -920,14 +920,14 @@ async function main() {
     data: [
       {
         tenantId: tenant.id,
-        invoiceId: '001',
+        invoiceId: invoice1.id,
         amount: 500,
         status: 'PENDING',
         dueDate: new Date(now + 7 * day),
       },
       {
         tenantId: tenant.id,
-        invoiceId: '002',
+        invoiceId: invoice2.id,
         amount: 1200.5,
         status: 'PAID',
         paymentMethod: 'BANK_TRANSFER',
@@ -937,7 +937,7 @@ async function main() {
       },
       {
         tenantId: tenant.id,
-        invoiceId: '003',
+        invoiceId: invoice1.id, // Reused for demo
         amount: 750.25,
         status: 'OVERDUE',
         dueDate: new Date(now - 5 * day),
@@ -945,7 +945,7 @@ async function main() {
       },
       {
         tenantId: tenant.id,
-        invoiceId: '004',
+        invoiceId: invoice2.id, // Reused for demo
         amount: 300,
         status: 'CANCELLED',
         dueDate: new Date(now + 14 * day),

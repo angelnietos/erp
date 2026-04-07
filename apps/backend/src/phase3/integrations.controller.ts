@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Header, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Header, Post, Patch, Param, Req } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { IntegrationWebhooksService } from './integration-webhooks.service';
@@ -55,5 +55,17 @@ export class IntegrationsController {
       (req.headers['x-tenant-id'] as string) ||
       '00000000-0000-0000-0000-000000000000';
     return this.webhooks.listForTenant(tenantId);
+  }
+
+  @Patch('webhooks/:id/rotate-secret')
+  @ApiOperation({ summary: 'Rotar el secreto de un webhook' })
+  async rotateWebhookSecret(
+    @Req() req: Request,
+    @Param('id') id: string
+  ) {
+    const tenantId =
+      (req.headers['x-tenant-id'] as string) ||
+      '00000000-0000-0000-0000-000000000000';
+    return this.webhooks.rotateSecret(tenantId, id);
   }
 }

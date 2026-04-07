@@ -115,6 +115,7 @@ export class ReceiptsService {
       id: receipt.id.value,
       invoiceId: receipt.invoiceId.value,
       amount: receipt.amount,
+      currency: receipt.currency,
       status: receipt.status,
       dueDate: receipt.dueDate.toISOString().split('T')[0],
       paymentDate: receipt.paymentDate?.toISOString().split('T')[0],
