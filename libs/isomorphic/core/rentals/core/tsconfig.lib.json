@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../../../../../dist/out-tsc",
+    "declaration": true,
+    "declarationMap": true,
+    "types": ["node"],
+    "module": "commonjs",
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "test-setup.ts"]
+}
+
+
+

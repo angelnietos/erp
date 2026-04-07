@@ -1,0 +1,30 @@
+{
+  "name": "identity-feature",
+  "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/feature/identity/feature/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [
+    "scope:identity",
+    "type:feature"
+  ],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/browser/feature/identity/feature/jest.config.cts",
+        "tsConfig": "libs/browser/feature/identity/feature/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+
+
+
+

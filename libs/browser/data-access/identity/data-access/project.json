@@ -1,0 +1,33 @@
+{
+  "name": "data-access",
+  "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/data-access/identity/data-access/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:identity", "type:data-access"],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "main": "libs/browser/data-access/identity/data-access/src/index.ts",
+        "tsConfig": "libs/browser/data-access/identity/data-access/tsconfig.lib.json"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/browser/data-access/identity/data-access/jest.config.cts",
+        "tsConfig": "libs/browser/data-access/identity/data-access/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+
+
+
+

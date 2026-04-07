@@ -28,10 +28,10 @@
       ],
       "@josanz-erp/shared-ui-kit": ["libs/shared/ui-kit/src/index.ts"],
       "@josanz-erp/identity-data-access": [
-        "libs/identity/data-access/src/index.ts"
+        "libs/browser/data-access/identity/data-access/src/index.ts"
       ],
       "@josanz-erp/identity-feature": [
-        "libs/identity/feature/src/index.ts"
+        "libs/browser/feature/identity/feature/src/index.ts"
       ],
       "@josanz-erp/identity-shell": [
         "libs/identity/shell/src/index.ts"
@@ -66,7 +66,7 @@
         "libs/clients/data-access/src/index.ts"
       ],
       "@josanz-erp/clients-feature": [
-        "libs/clients/feature/src/index.ts"
+        "libs/browser/feature/clients/feature/src/index.ts"
       ],
       "@josanz-erp/clients-shell": [
         "libs/clients/shell/src/index.ts"
@@ -78,7 +78,7 @@
         "libs/inventory/data-access/src/index.ts"
       ],
       "@josanz-erp/inventory-feature": [
-        "libs/inventory/feature/src/index.ts"
+        "libs/browser/feature/inventory/feature/src/index.ts"
       ],
       "@josanz-erp/inventory-shell": [
         "libs/inventory/shell/src/index.ts"
@@ -87,7 +87,7 @@
         "libs/rentals/data-access/src/index.ts"
       ],
       "@josanz-erp/rentals-feature": [
-        "libs/rentals/feature/src/index.ts"
+        "libs/browser/feature/rentals/feature/src/index.ts"
       ],
       "@josanz-erp/rentals-shell": [
         "libs/rentals/shell/src/index.ts"
@@ -96,7 +96,7 @@
         "libs/delivery/data-access/src/index.ts"
       ],
       "@josanz-erp/delivery-feature": [
-        "libs/delivery/feature/src/index.ts"
+        "libs/browser/feature/delivery/feature/src/index.ts"
       ],
       "@josanz-erp/delivery-shell": [
         "libs/delivery/shell/src/index.ts"
@@ -105,7 +105,7 @@
         "libs/billing/data-access/src/index.ts"
       ],
       "@josanz-erp/billing-feature": [
-        "libs/billing/feature/src/index.ts"
+        "libs/browser/feature/billing/feature/src/index.ts"
       ],
       "@josanz-erp/billing-shell": [
         "libs/billing/shell/src/index.ts"
@@ -114,13 +114,13 @@
         "libs/fleet/data-access/src/index.ts"
       ],
       "@josanz-erp/fleet-feature": [
-        "libs/fleet/feature/src/index.ts"
+        "libs/browser/feature/fleet/feature/src/index.ts"
       ],
       "@josanz-erp/fleet-shell": [
         "libs/fleet/shell/src/index.ts"
       ],
       "@josanz-erp/budget-feature": [
-        "libs/budget/feature/src/index.ts"
+        "libs/browser/feature/budget/feature/src/index.ts"
       ],
       "@josanz-erp/budget-shell": [
         "libs/budget/shell/src/index.ts"
@@ -186,7 +186,7 @@
         "libs/verifactu/data-access/src/index.ts"
       ],
       "@josanz-erp/verifactu-feature": [
-        "libs/verifactu/feature/src/index.ts"
+        "libs/browser/feature/verifactu/feature/src/index.ts"
       ],
       "@josanz-erp/verifactu-shell": [
         "libs/verifactu/shell/src/index.ts"
@@ -206,7 +206,7 @@
         "libs/shared/ui-shell/src/index.ts"
       ],
       "@josanz-erp/settings-feature": [
-        "libs/settings/feature/src/index.ts"
+        "libs/browser/feature/settings/feature/src/index.ts"
       ],
       "@josanz-erp/settings-shell": [
         "libs/settings/shell/src/index.ts"
@@ -215,37 +215,37 @@
         "libs/dashboard/shell/src/index.ts"
       ],
       "@josanz-erp/dashboard-feature": [
-        "libs/dashboard/feature/src/index.ts"
+        "libs/browser/feature/dashboard/feature/src/index.ts"
       ],
       "@josanz-erp/projects-shell": [
         "libs/projects/shell/src/index.ts"
       ],
       "@josanz-erp/projects-feature": [
-        "libs/projects/feature/src/index.ts"
+        "libs/browser/feature/projects/feature/src/index.ts"
       ],
       "@josanz-erp/services-shell": [
         "libs/services/shell/src/index.ts"
       ],
       "@josanz-erp/services-feature": [
-        "libs/services/feature/src/index.ts"
+        "libs/browser/feature/services/feature/src/index.ts"
       ],
       "@josanz-erp/reports-shell": [
         "libs/reports/shell/src/index.ts"
       ],
       "@josanz-erp/reports-feature": [
-        "libs/reports/feature/src/index.ts"
+        "libs/browser/feature/reports/feature/src/index.ts"
       ],
       "@josanz-erp/audit-shell": [
         "libs/audit/shell/src/index.ts"
       ],
       "@josanz-erp/audit-feature": [
-        "libs/audit/feature/src/index.ts"
+        "libs/browser/feature/audit/feature/src/index.ts"
       ],
       "@josanz-erp/receipts-shell": [
         "libs/receipts/shell/src/index.ts"
       ],
       "@josanz-erp/receipts-feature": [
-        "libs/receipts/feature/src/index.ts"
+        "libs/browser/feature/receipts/feature/src/index.ts"
       ],
       "@josanz-erp/events-shell": [
         "libs/events/shell/src/index.ts"
@@ -254,4 +254,6 @@
   },
   "exclude": ["node_modules", "tmp"]
 }
+
+
 
