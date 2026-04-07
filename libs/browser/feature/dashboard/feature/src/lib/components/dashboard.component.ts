@@ -26,7 +26,6 @@ import {
   UiButtonComponent,
   UiBadgeComponent,
   UiStatCardComponent,
-  UIAIChatComponent
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
@@ -71,7 +70,6 @@ interface QuickAction {
     UiBadgeComponent,
     UiStatCardComponent,
     LucideAngularModule,
-    UIAIChatComponent,
   ],
   template: `
     <div class="page-container animate-fade-in">
@@ -276,7 +274,6 @@ interface QuickAction {
           </ui-josanz-card>
         </div>
       </div>
-      <ui-josanz-ai-assistant [feature]="'dashboard'"></ui-josanz-ai-assistant>
     </div>
   `,
   styles: [

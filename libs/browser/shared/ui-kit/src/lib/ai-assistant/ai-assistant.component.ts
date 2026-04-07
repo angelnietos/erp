@@ -95,8 +95,7 @@ import { firstValueFrom } from 'rxjs';
       transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Offset for Buddy-Bot to avoid overlapping */
-    .feature-dashboard {
+    .ai-assistant-wrapper:not(.feature-dashboard) {
       right: 9rem;
     }
 
