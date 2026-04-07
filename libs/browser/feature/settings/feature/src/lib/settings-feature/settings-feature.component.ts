@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X } from 'lucide-angular';
+import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
+import { FormsModule } from '@angular/forms';
 
 interface PluginDescriptor {
   id: string;
@@ -15,7 +16,7 @@ interface PluginDescriptor {
 @Component({
   selector: 'lib-settings-feature',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent],
   template: `
     <div class="page-container animate-fade-in">
       <div class="settings-layout">
@@ -109,6 +110,41 @@ interface PluginDescriptor {
                 <h2>AI Assistant Hub</h2>
                 <p>Mascotas inteligentes con habilidades especializadas por módulo</p>
               </div>
+
+              <!-- NUEVO: Panel global de configuración del LLM -->
+              <ui-josanz-card variant="glass" class="ai-global-config-card mb-6">
+                <div class="config-header">
+                  <div class="config-title">
+                    <lucide-icon name="cpu" size="20"></lucide-icon>
+                    <h3>Motor de Inferencia (LLM)</h3>
+                  </div>
+                  <ui-josanz-badge [variant]="aiBotStore.providerApiKey() ? 'success' : 'warning'">
+                    {{ aiBotStore.providerApiKey() ? 'Conectado a la Nube' : 'Falta API Key' }}
+                  </ui-josanz-badge>
+                </div>
+                
+                <div class="config-body">
+                  <div class="form-group">
+                    <label>Proveedor de IA Base</label>
+                    <select [ngModel]="aiBotStore.selectedProvider()" (ngModelChange)="aiBotStore.selectedProvider.set($event)">
+                      <option value="gemini">Google Gemini 1.5 Pro (Recomendado)</option>
+                      <option value="openai">OpenAI GPT-4o</option>
+                      <option value="anthropic">Anthropic Claude 3.5</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label>Clave de Autenticación API (Token)</label>
+                    <input 
+                      type="password" 
+                      placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)" 
+                      [ngModel]="aiBotStore.providerApiKey()"
+                      (ngModelChange)="aiBotStore.providerApiKey.set($event)"
+                    />
+                    <p class="helper-text">Este token se utiliza de forma segura para orquestar los agentes dentro del ERP.</p>
+                  </div>
+                </div>
+              </ui-josanz-card>
 
               <div class="ai-grid">
                 @for (bot of aiBotStore.bots(); track bot.id) {

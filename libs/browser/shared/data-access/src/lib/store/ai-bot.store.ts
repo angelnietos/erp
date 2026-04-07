@@ -21,6 +21,9 @@ export interface AIBot {
   providedIn: 'root'
 })
 export class AIBotStore {
+  readonly selectedProvider = signal<'gemini' | 'openai' | 'anthropic'>('gemini');
+  readonly providerApiKey = signal<string>('');
+
   private readonly _bots = signal<Record<string, AIBot>>({
     'inventory': { 
       id: 'inv-bot', name: 'Stocky-Bot', feature: 'inventory', 
