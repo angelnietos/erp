@@ -1,10 +1,12 @@
-import { Component, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { BudgetStore } from '@josanz-erp/budget-data-access';
-import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiStatCardComponent } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiStatCardComponent, UiSearchComponent } from '@josanz-erp/shared-ui-kit';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
+import { BudgetStore } from '@josanz-erp/budget-data-access';
+import { Budget } from '@josanz-erp/budget-api';
 import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
 @Component({
@@ -18,6 +20,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiButtonComponent, 
     UiBadgeComponent, 
     UiStatCardComponent,
+    UiSearchComponent,
     LucideAngularModule
   ],
   template: `
@@ -60,8 +63,18 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         </ui-josanz-stat-card>
       </div>
 
+      <div class="navigation-bar ui-glass-panel">
+        <div class="nav-spacer"></div>
+        <ui-josanz-search 
+          variant="filled"
+          placeholder="BUSCAR ID O CLIENTE..." 
+          (searchChange)="onSearch($event)"
+          class="search-bar"
+        ></ui-josanz-search>
+      </div>
+
       <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-        <ui-josanz-table [columns]="columns" [data]="store.budgets()" variant="default">
+        <ui-josanz-table [columns]="columns" [data]="filteredBudgets()" variant="default">
           <ng-template #cellTemplate let-item let-key="key">
             @switch (key) {
               @case ('id') { 
@@ -140,28 +153,70 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
     .table-info { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; }
 
+    .navigation-bar { 
+      display: flex; justify-content: space-between; align-items: center; 
+      margin-bottom: 1.5rem; padding: 0.5rem 1rem; border-radius: 12px;
+      background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
+    }
+    .search-bar { width: 320px; }
+    .nav-spacer { flex: 1; }
+
     @media (max-width: 1024px) {
       .page-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .stats-row { grid-template-columns: 1fr; }
+      .search-bar { width: 100%; }
+      .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; padding: 1rem; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BudgetListComponent implements OnInit {
+export class BudgetListComponent implements OnInit, OnDestroy, FilterableService<Budget> {
   public readonly store = inject(BudgetStore);
   public readonly config = inject(BUDGET_FEATURE_CONFIG);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly masterFilter = inject(MasterFilterService);
   
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;
+  searchTerm = signal('');
 
   totalPipeline = computed(() => this.store.budgets().reduce((acc, b) => acc + (b.total || 0), 0));
   totalAccepted = computed(() => this.store.budgets().filter(b => b.status === 'ACCEPTED').reduce((acc, b) => acc + (b.total || 0), 0));
   pendingCount = computed(() => this.store.budgets().filter(b => b.status === 'DRAFT' || b.status === 'SENT').length);
 
+  filteredBudgets = computed(() => {
+    const list = this.store.budgets();
+    const t = this.searchTerm().toLowerCase().trim();
+    if (!t) return list;
+    return list.filter(b => 
+      b.id.toLowerCase().includes(t) || 
+      (b.clientId ?? '').toLowerCase().includes(t)
+    );
+  });
+
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.store.loadBudgets();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.masterFilter.search(term);
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Budget[]> {
+    const term = query.toLowerCase();
+    const matches = this.store.budgets().filter(b => 
+      b.id.toLowerCase().includes(term) || 
+      (b.clientId ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
   }
 
   formatCurrencyEu(amount: number | undefined): string {

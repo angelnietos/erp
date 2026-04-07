@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,8 @@ import {
   UiInputComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
 @Component({
@@ -256,10 +257,11 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FleetListComponent implements OnInit {
+export class FleetListComponent implements OnInit, OnDestroy, FilterableService<Vehicle> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly vehicleService = inject(VehicleService);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -297,7 +299,25 @@ export class FleetListComponent implements OnInit {
     type: 'van', status: 'available', insuranceExpiry: '', itvExpiry: ''
   };
 
-  ngOnInit() { this.loadVehicles(); }
+  ngOnInit() { 
+    this.masterFilter.registerProvider(this);
+    this.loadVehicles(); 
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Vehicle[]> {
+    const term = query.toLowerCase();
+    const matches = this.vehicles().filter(v => 
+      v.plate.toLowerCase().includes(term) || 
+      (v.brand ?? '').toLowerCase().includes(term) ||
+      (v.model ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
+  }
 
   loadVehicles() {
     this.isLoading.set(true);
@@ -322,7 +342,10 @@ export class FleetListComponent implements OnInit {
   }
 
   onTabChange(tabId: string) { this.activeTab.set(tabId); }
-  onSearch(term: string) { this.searchFilter.set(term); }
+  onSearch(term: string) { 
+    this.searchFilter.set(term); 
+    this.masterFilter.search(term);
+  }
   onPageChange(page: number) { this.currentPage.set(page); this.loadVehicles(); }
 
   openCreateModal() {

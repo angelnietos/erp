@@ -97,9 +97,9 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
           <ui-josanz-table
             [columns]="columns"
-            [data]="clients()"
+            [data]="filteredClients()"
             variant="default"
-            [virtualScroll]="clients().length > 24"
+            [virtualScroll]="filteredClients().length > 24"
           >
             <ng-template #cellTemplate let-client let-key="key">
               @switch (key) {
@@ -127,7 +127,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info uppercase">
-              {{ clients().length }} REGISTROS EN DIRECTORIO
+              {{ filteredClients().length }} REGISTROS EN DIRECTORIO
             </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
@@ -243,6 +243,20 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
     name: '', description: '', sector: '', contact: '', email: '', phone: '', address: ''
   };
 
+  searchTerm = signal('');
+
+  filteredClients = computed(() => {
+    const list = this.clients();
+    const t = this.searchTerm().trim().toLowerCase();
+    if (!t) return list;
+    return list.filter(c => 
+      c.name.toLowerCase().includes(t) || 
+      (c.sector ?? '').toLowerCase().includes(t) || 
+      (c.contact ?? '').toLowerCase().includes(t) ||
+      (c.email ?? '').toLowerCase().includes(t)
+    );
+  });
+
   newClientsCount = computed(() => {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
@@ -257,11 +271,10 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
       if (text) {
-        this.facade.searchClients(text);
+        this.searchTerm.set(text);
         this.masterFilter.search(text);
-      } else {
-        this.loadClients();
       }
+      this.loadClients();
     });
   }
 
@@ -282,9 +295,9 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
   loadClients() { this.facade.loadClients(); }
 
   onSearch(term: string) {
+    this.searchTerm.set(term);
     this.masterFilter.search(term);
-    if (term.trim()) this.facade.searchClients(term);
-    else this.facade.loadClients();
+    // Siguiendo el patrón de alta reactividad, filtramos localmente vía filteredClients()
   }
 
   onPageChange(page: number) { this.currentPage.set(page); this.loadClients(); }

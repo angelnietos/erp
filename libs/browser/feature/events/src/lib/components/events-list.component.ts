@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -28,7 +28,8 @@ import {
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 
 interface Event {
   id: string;
@@ -167,6 +168,7 @@ interface EventFilter {
             <ui-josanz-input
               label="Buscar"
               [(ngModel)]="filters.search"
+              (ngModelChange)="onSearchChange($event)"
               name="search"
               placeholder="Título, descripción, organizador..."
               icon="search"
@@ -1306,10 +1308,11 @@ interface EventFilter {
     `,
   ],
 })
-export class EventsListComponent implements OnInit {
+export class EventsListComponent implements OnInit, OnDestroy, FilterableService<Event> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
   readonly CalendarIcon = Calendar;
@@ -1360,31 +1363,34 @@ export class EventsListComponent implements OnInit {
     { label: 'Otro', value: 'other' },
   ];
 
-  activeEventsCount = computed(() => {
-    return this.events().filter((event) => event.status === 'active').length;
-  });
+  events = signal<Event[]>([]);
+  filteredEvents = signal<Event[]>([]);
+
+  activeEventsCount = computed(
+    () => this.events().filter((e) => e.status === 'active').length,
+  );
+
+  totalAttendees = computed(() =>
+    this.events().reduce((sum, e) => sum + e.attendees, 0),
+  );
 
   nextEventDays = computed(() => {
-    const today = new Date();
+    const now = new Date();
     const futureEvents = this.events()
       .filter(
-        (event) => new Date(event.date) >= today && event.status === 'active',
+        (event) => new Date(event.date) >= now && event.status === 'active',
       )
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     if (futureEvents.length === 0) return 0;
 
     const nextEvent = futureEvents[0];
-    const diffTime = new Date(nextEvent.date).getTime() - today.getTime();
+    const diffTime = new Date(nextEvent.date).getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return Math.max(0, diffDays);
   });
 
-  totalAttendees = computed(() => {
-    return this.events().reduce((total, event) => total + event.attendees, 0);
-  });
-
-  events = signal<Event[]>([
+  initialEvents: Event[] = [
     {
       id: '1',
       title: 'Evento Corporativo ABC',
@@ -1462,11 +1468,11 @@ export class EventsListComponent implements OnInit {
       cost: 75,
       createdAt: '2024-03-10T10:15:00Z',
     },
-  ]);
-
-  filteredEvents = signal<Event[]>([]);
+  ];
 
   ngOnInit() {
+    this.events.set(this.initialEvents);
+    this.masterFilter.registerProvider(this);
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('search')?.trim();
       if (text) {
@@ -1476,6 +1482,26 @@ export class EventsListComponent implements OnInit {
         this.filteredEvents.set(this.events());
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  onSearchChange(term: string) {
+    this.masterFilter.search(term);
+    this.applyFilters();
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Event[]> {
+    const term = query.toLowerCase();
+    const matches = this.events().filter(e => 
+      e.title.toLowerCase().includes(term) || 
+      (e.description ?? '').toLowerCase().includes(term) || 
+      (e.organizer ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
   }
 
   applyFilters() {

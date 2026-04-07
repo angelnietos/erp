@@ -42,7 +42,7 @@
         "libs/isomorphic/api/identity/api/src/index.ts"
       ],
       "@josanz-erp/budget-data-access": [
-        "libs/budget/data-access/src/index.ts"
+        "libs/browser/data-access/budget/data-access/src/index.ts"
       ],
       "@josanz-erp/budget-api": ["libs/isomorphic/api/budget/api/src/index.ts"],
       "@josanz-erp/clients-api": [
@@ -86,7 +86,7 @@
         "libs/inventory/shell/src/index.ts"
       ],
       "@josanz-erp/rentals-data-access": [
-        "libs/rentals/data-access/src/index.ts"
+        "libs/browser/data-access/rentals/data-access/src/index.ts"
       ],
       "@josanz-erp/rentals-feature": [
         "libs/browser/feature/rentals/feature/src/index.ts"
@@ -95,7 +95,7 @@
         "libs/rentals/shell/src/index.ts"
       ],
       "@josanz-erp/delivery-data-access": [
-        "libs/delivery/data-access/src/index.ts"
+        "libs/browser/data-access/delivery/data-access/src/index.ts"
       ],
       "@josanz-erp/delivery-feature": [
         "libs/browser/feature/delivery/feature/src/index.ts"
@@ -104,7 +104,7 @@
         "libs/delivery/shell/src/index.ts"
       ],
       "@josanz-erp/billing-data-access": [
-        "libs/billing/data-access/src/index.ts"
+        "libs/browser/data-access/billing/data-access/src/index.ts"
       ],
       "@josanz-erp/billing-feature": [
         "libs/browser/feature/billing/feature/src/index.ts"
@@ -113,7 +113,7 @@
         "libs/billing/shell/src/index.ts"
       ],
       "@josanz-erp/fleet-data-access": [
-        "libs/fleet/data-access/src/index.ts"
+        "libs/browser/data-access/fleet/data-access/src/index.ts"
       ],
       "@josanz-erp/fleet-feature": [
         "libs/browser/feature/fleet/feature/src/index.ts"
@@ -197,7 +197,7 @@
         "libs/isomorphic/api/verifactu/api/src/index.ts"
       ],
       "@josanz-erp/verifactu-data-access": [
-        "libs/verifactu/data-access/src/index.ts"
+        "libs/browser/data-access/verifactu/data-access/src/index.ts"
       ],
       "@josanz-erp/verifactu-feature": [
         "libs/browser/feature/verifactu/feature/src/index.ts"

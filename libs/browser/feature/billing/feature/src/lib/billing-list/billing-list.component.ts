@@ -5,6 +5,7 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -24,7 +25,8 @@ import {
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
 import { Budget } from '@josanz-erp/budget-api';
@@ -611,19 +613,20 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BillingListComponent implements OnInit {
+export class BillingListComponent implements OnInit, OnDestroy, FilterableService<Invoice> {
   public readonly config = inject(BILLING_FEATURE_CONFIG);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(BillingFacade);
-  readonly verifactuStore = inject(VerifactuStore);
+  private readonly masterFilter = inject(MasterFilterService);
+  readonly verifactuStore = inject<VerifactuStore>(VerifactuStore);
 
-  currentTheme = this.themeService.currentThemeData;
+    currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
   columns = this.config.defaultColumns;
 
   invoices = this.facade.invoices;
-  allInvoices = this.facade.allInvoices;
+  allInvoices = this.facade.allInvoices; // Signal or ReadonlySignal? In facade it's signal.asReadonly()
   isLoading = this.facade.isLoading;
   activeTab = this.facade.activeTab;
   budgets = this.facade.budgets;
@@ -657,7 +660,23 @@ export class BillingListComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.loadInvoices();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Invoice[]> {
+    const term = query.toLowerCase();
+    const matches = this.allInvoices().filter((inv: Invoice) => 
+      inv.invoiceNumber.toLowerCase().includes(term) || 
+      inv.clientName.toLowerCase().includes(term) ||
+      (inv.nif ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
   }
 
   loadInvoices() {
@@ -668,6 +687,7 @@ export class BillingListComponent implements OnInit {
   }
   onSearch(term: string) {
     this.searchTerm = term;
+    this.masterFilter.search(term);
     this.facade.searchInvoices(term);
   }
   onPageChange(page: number) {
@@ -762,18 +782,12 @@ export class BillingListComponent implements OnInit {
   getStatusVariant(
     status: string,
   ): 'success' | 'warning' | 'info' | 'error' | 'default' {
-    switch (status) {
-      case 'paid':
-        return 'success';
-      case 'pending':
-        return 'warning';
-      case 'sent':
-        return 'info';
-      case 'cancelled':
-        return 'error';
-      default:
-        return 'default';
-    }
+    const s = status.toLowerCase();
+    if (s === 'paid') return 'success';
+    if (s === 'pending') return 'warning';
+    if (s === 'sent') return 'info';
+    if (s === 'cancelled') return 'error';
+    return 'default';
   }
 
   getStatusLabel(status: string): string {

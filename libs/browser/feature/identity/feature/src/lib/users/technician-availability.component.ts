@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TechnicianApiService, ToastService } from '@josanz-erp/shared-data-access';
+import { TechnicianApiService, ToastService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiCardComponent, UiButtonComponent, UiBadgeComponent } from '@josanz-erp/shared-ui-kit';
+import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent } from '@josanz-erp/shared-ui-kit';
+import { Observable, of } from 'rxjs';
 
 interface Technician {
   id: string;
@@ -22,7 +23,7 @@ interface CalendarCell {
 @Component({
   selector: 'josanz-technician-availability',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent],
   template: `
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->
@@ -72,6 +73,13 @@ interface CalendarCell {
           <div class="sidebar-header">
             <h3>Técnicos</h3>
             <ui-josanz-badge variant="info">{{ technicians().length }}</ui-josanz-badge>
+          </div>
+          <div class="sidebar-search">
+            <ui-josanz-search 
+              variant="filled" 
+              placeholder="BUSCAR TÉCNICO..." 
+              (searchChange)="onSearch($event)"
+            ></ui-josanz-search>
           </div>
           <div class="technician-list">
             @for (tech of technicians(); track tech.id) {
@@ -591,9 +599,10 @@ interface CalendarCell {
     .mini-status.SICK_LEAVE { background: var(--warning); color: var(--warning); }
   `]
 })
-export class TechnicianAvailabilityComponent implements OnInit {
+export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, FilterableService<Technician> {
   private readonly api = inject(TechnicianApiService);
   private readonly toast = inject(ToastService);
+  private readonly masterFilter = inject(MasterFilterService);
   
   calendarCells = signal<CalendarCell[]>([]);
   viewMode = signal<'personal' | 'team'>('personal');
@@ -619,7 +628,37 @@ export class TechnicianAvailabilityComponent implements OnInit {
     }, { allowSignalWrites: true });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.masterFilter.registerProvider(this);
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  /** Lógica de filtrado para el MasterFilterService */
+  filter(query: string): Observable<Technician[]> {
+    const term = query.toLowerCase();
+    const matches = this.technicians().filter((t: Technician) => 
+      t.name.toLowerCase().includes(term) || 
+      t.role.toLowerCase().includes(term)
+    );
+    
+    // Si hay un match exacto o muy cercano, podríamos seleccionarlo automáticamente
+    if (matches.length > 0) {
+      // this.selectedTechId.set(matches[0].id); // Evitar efectos secundarios directos aquí si es posible
+    }
+    
+    return of(matches);
+  }
+
+  onSearch(term: string) {
+    this.masterFilter.search(term);
+    const match = this.technicians().find((t: Technician) => t.name.toLowerCase().includes(term.toLowerCase()));
+    if (match) {
+      this.selectedTechId.set(match.id);
+    }
+  }
 
   getMonthName(): string {
     const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -629,18 +668,18 @@ export class TechnicianAvailabilityComponent implements OnInit {
   nextMonth() {
     if (this.currentMonth() === 11) {
       this.currentMonth.set(0);
-      this.currentYear.update(y => y + 1);
+      this.currentYear.update((y: number) => y + 1);
     } else {
-      this.currentMonth.update(m => m + 1);
+      this.currentMonth.update((m: number) => m + 1);
     }
   }
 
   prevMonth() {
     if (this.currentMonth() === 0) {
       this.currentMonth.set(11);
-      this.currentYear.update(y => y - 1);
+      this.currentYear.update((y: number) => y - 1);
     } else {
-      this.currentMonth.update(m => m - 1);
+      this.currentMonth.update((m: number) => m - 1);
     }
   }
 
@@ -665,7 +704,7 @@ export class TechnicianAvailabilityComponent implements OnInit {
     const data: Record<string, Record<number, string>> = {};
     const monthSeed = this.currentMonth() + this.currentYear();
 
-    this.technicians().forEach(tech => {
+    this.technicians().forEach((tech: Technician) => {
       data[tech.id] = {};
       for (let day = 1; day <= 31; day++) {
         data[tech.id][day] = this.getRandomMockAvailability(day, tech.id, monthSeed).type;
@@ -687,7 +726,7 @@ export class TechnicianAvailabilityComponent implements OnInit {
     const currentIdx = types.indexOf(currentStatus);
     const nextType = types[(currentIdx + 1) % types.length];
     
-    this.teamAvailability.update(prev => {
+    this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
       const updated = { ...prev };
       if (!updated['me']) updated['me'] = {};
       updated['me'][cell.day] = nextType;
@@ -709,7 +748,7 @@ export class TechnicianAvailabilityComponent implements OnInit {
   }
 
   getSelectedTechName(): string {
-    return this.technicians().find(t => t.id === this.selectedTechId())?.name || '';
+    return this.technicians().find((t: Technician) => t.id === this.selectedTechId())?.name || '';
   }
 
   getShortLabel(type: string): string {

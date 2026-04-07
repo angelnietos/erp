@@ -7,6 +7,7 @@ export interface Invoice {
   invoiceNumber: string;
   budgetId: string;
   clientName: string;
+  nif?: string;
   status: 'draft' | 'pending' | 'sent' | 'paid' | 'cancelled';
   type: 'normal' | 'rectificative';
   total: number;
