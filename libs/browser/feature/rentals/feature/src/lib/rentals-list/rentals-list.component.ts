@@ -255,7 +255,7 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .modal-footer-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
     
-    .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
+    .page-container { padding: 0 100px 0 0; max-width: 100%; margin: 0 auto; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;

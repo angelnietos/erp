@@ -117,7 +117,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     <ui-josanz-ai-assistant feature="budgets"></ui-josanz-ai-assistant>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 100%; margin: 0 auto; }
+    .page-container { padding: 0 100px 0 0; max-width: 100%; margin: 0 auto; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;

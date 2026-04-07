@@ -232,7 +232,7 @@ export interface Project {
   styles: [
     `
       .page-container {
-        padding: 0;
+        padding: 0 100px 0 0;
         max-width: 100%;
         margin: 0 auto;
       }

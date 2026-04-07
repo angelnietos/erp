@@ -218,7 +218,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     <ui-josanz-ai-assistant feature="verifactu"></ui-josanz-ai-assistant>
   `,
 	styles: [`
-    .page-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    .page-container { padding: 0 100px 0 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;
