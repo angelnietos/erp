@@ -170,9 +170,23 @@ export class AIBotStore {
   }
 
   // Rage Mode
-  private readonly _rageMode = signal<boolean>(false);
+  private readonly _rageMode = signal<boolean>(localStorage.getItem('ai_rage_mode') === 'true');
   readonly rageMode = this._rageMode.asReadonly();
-  setRageMode(enabled: boolean) { this._rageMode.set(enabled); }
+  
+  private readonly _rageStyle = signal<'terror' | 'angry' | 'dark'>(
+    (localStorage.getItem('ai_rage_style') as any) || 'angry'
+  );
+  readonly rageStyle = this._rageStyle.asReadonly();
+
+  setRageMode(enabled: boolean) { 
+    this._rageMode.set(enabled); 
+    localStorage.setItem('ai_rage_mode', enabled.toString());
+  }
+
+  setRageStyle(style: 'terror' | 'angry' | 'dark') {
+    this._rageStyle.set(style);
+    localStorage.setItem('ai_rage_style', style);
+  }
 
   // Persistent Memory System
   private readonly _memories = signal<{ text: string, importance: number, timestamp: number }[]>(

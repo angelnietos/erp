@@ -37,15 +37,15 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
             <div class="blush right"></div>
 
             <div class="eyes-container">
-              <div class="eye left" [class]="eyesType">
+              <div class="eye left" [class]="effectiveEyes">
                 <div class="pupil"></div>
               </div>
-              <div class="eye right" [class]="eyesType">
+              <div class="eye right" [class]="effectiveEyes">
                 <div class="pupil"></div>
               </div>
             </div>
             
-            <div class="mouth" [class]="mouthType"></div>
+            <div class="mouth" [class]="effectiveMouth"></div>
           </div>
         </div>
         
@@ -143,6 +143,59 @@ export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explor
     .mascot-body.square { border-radius: 28px; }
     .mascot-body.capsule { border-radius: 45px 45px 25px 25px; }
     .mascot-body.tri { clip-path: polygon(50% 0%, 100% 90%, 0% 90%); border-radius: 10px; }
+
+    /* Rage / Toxic Core */
+    .mascot-container.is-rage .mascot-glow {
+      background: radial-gradient(circle, #ff0000 0%, transparent 80%);
+      opacity: 0.8;
+      animation: pulseRage 0.3s infinite alternate;
+      filter: blur(30px);
+    }
+
+    .mascot-container.is-rage .mascot-body {
+      animation: jitter 0.1s infinite;
+      box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+    }
+    
+    .eye.angry {
+      height: 14px;
+      clip-path: polygon(0% 30%, 100% 0%, 100% 100%, 0% 100%);
+      background: #000;
+      border-top: 3.5px solid #ff0000;
+    }
+
+    .eye.insane {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border: 4px solid #ff0000;
+      border-radius: 50%;
+      animation: eyeTwitch 0.15s infinite;
+      overflow: hidden;
+    }
+    .eye.insane .pupil {
+      background: #ff0000 !important;
+      width: 6px !important;
+      height: 6px !important;
+      box-shadow: 0 0 10px #ff0000 !important;
+    }
+
+    .mouth.mean {
+      width: 28px;
+      height: 4px;
+      background: #111;
+      border-radius: 2px;
+      transform: rotate(-3deg);
+      margin-top: 12px;
+    }
+
+    @keyframes pulseRage { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.5); } }
+    @keyframes eyeTwitch { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2) rotate(5deg); } }
+    @keyframes jitter { 
+      0%, 100% { transform: translate(0,0); }
+      25% { transform: translate(1px, -1px); }
+      75% { transform: translate(-1px, 1px); }
+    }
 
     /* Ears / Appendages */
     .ears-container {
@@ -383,6 +436,34 @@ export class UIMascotComponent {
   @Input() secondaryColor: string = '#065f46';
   @Input() personality: MascotPersonality = 'happy';
   @Input() bodyShape: 'round' | 'square' | 'capsule' | 'tri' = 'round';
-  @Input() eyesType: 'dots' | 'joy' | 'shades' = 'dots';
-  @Input() mouthType: 'smile' | 'line' | 'o' = 'line';
+  @Input() eyesType: 'dots' | 'joy' | 'shades' | 'angry' | 'insane' = 'dots';
+  @Input() mouthType: 'smile' | 'line' | 'o' | 'mean' = 'line';
+  
+  // Toxic / Rage configuration
+  @Input() rageMode: boolean = false;
+  @Input() rageStyle: 'terror' | 'angry' | 'dark' = 'angry';
+
+  get effectiveColor(): string {
+    if (!this.rageMode) return this.color;
+    switch(this.rageStyle) {
+      case 'terror': return '#ff0000';
+      case 'dark': return '#1a1a1a';
+      default: return '#dc2626';
+    }
+  }
+
+  get effectiveSecondary(): string {
+    if (!this.rageMode) return this.secondaryColor;
+    return '#000000';
+  }
+
+  get effectiveEyes(): string {
+    if (!this.rageMode) return this.eyesType;
+    return this.rageStyle === 'terror' ? 'insane' : 'angry';
+  }
+
+  get effectiveMouth(): string {
+    if (!this.rageMode) return this.mouthType;
+    return 'mean';
+  }
 }

@@ -18,7 +18,7 @@ import { firstValueFrom } from 'rxjs';
   template: `
     <div class="ai-assistant-wrapper" [class]="'feature-' + feature" *ngIf="bot() && bot()!.status === 'active'">
       <!-- Floating Mascot Bubble -->
-      <div class="assistant-trigger" [class.open]="isOpen()" (click)="toggleChat()">
+      <div class="mascot-trigger" [class.open]="isOpen()" (click)="toggleChat()">
         <ui-josanz-mascot 
           [type]="bot()!.mascotType" 
           [color]="bot()!.color" 
@@ -26,6 +26,8 @@ import { firstValueFrom } from 'rxjs';
           [bodyShape]="bot()!.bodyShape"
           [eyesType]="bot()!.eyesType"
           [mouthType]="bot()!.mouthType"
+          [rageMode]="aiBotStore.rageMode()"
+          [rageStyle]="aiBotStore.rageStyle()"
         ></ui-josanz-mascot>
         <div class="notification-dot animate-pulse"></div>
       </div>
@@ -532,6 +534,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    }
                 },
                 {
+                   name: 'configure_rage_style',
+                   description: 'Cambia el aspecto visual de tu Modo Rage.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { style: { type: 'STRING', enum: ['terror', 'angry', 'dark'], description: 'El estilo visual tóxico.' } }, 
+                     required: ['style'] 
+                   }
+                },
+                {
                    name: 'remember_this',
                    description: 'Guarda un hecho o información importante en tu memoria a largo plazo.',
                    parameters: { 
@@ -670,6 +681,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               responseText = args.enabled 
                 ? `🔥 MODO RAGE ACTIVADO. Prepárate para la verdad, desgraciado.`
                 : `✨ Volviendo a ser un bot aburrido y servicial. Qué pereza me das.`;
+              break;
+
+            case 'configure_rage_style':
+              this.aiBotStore.setRageStyle(args.style);
+              responseText = `💀 Estilo de furia cambiado a **${args.style.toUpperCase()}**. Ahora doy más miedo, ¿eh?`;
               break;
           }
         } else {
