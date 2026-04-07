@@ -1,6 +1,13 @@
-import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
   History,
@@ -14,17 +21,26 @@ import {
 } from 'lucide-angular';
 import {
   UiCardComponent,
-  UiButtonComponent,
-  UiInputComponent,
-  UiSelectComponent,
   UiBadgeComponent,
   UiStatCardComponent,
+  UiSearchComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DomainEventsApiService,
   ThemeService,
   PluginStore,
+  MasterFilterService,
+  FilterableService,
 } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
+
+interface AuditFilter {
+  userId?: string;
+  action?: string;
+  entity?: string;
+  dateFrom: string;
+  dateTo: string;
+}
 
 interface AuditLog {
   id: string;
@@ -52,42 +68,41 @@ interface AuditLog {
   changes?: Record<string, { old: unknown; new: unknown }>;
 }
 
-interface AuditFilter {
-  userId?: string;
-  action?: string;
-  entity?: string;
-  dateFrom: string;
-  dateTo: string;
-}
-
 @Component({
   selector: 'lib-audit-trail',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     UiCardComponent,
-    UiButtonComponent,
-    UiInputComponent,
-    UiSelectComponent,
     UiBadgeComponent,
     UiStatCardComponent,
+    UiSearchComponent,
     LucideAngularModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
       <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
         <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Sistema de Auditoría
+            Auditoría de Sistema
           </h1>
           <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">SEGURIDAD Y CONTROL</span>
+            <span class="active" [style.color]="currentTheme().primary">CONTROL Y SEGURIDAD</span>
             <span class="separator">/</span>
-            <span>TRAZABILIDAD COMPLETA</span>
+            <span>TRAZABILIDAD DE OPERACIONES</span>
           </div>
         </div>
       </header>
+
+      <div class="navigation-bar ui-glass-panel">
+        <ui-josanz-search 
+          variant="filled"
+          placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
+          (searchChange)="onSearch($event)"
+          class="flex-1 max-w-md"
+        ></ui-josanz-search>
+      </div>
 
       <div class="stats-row">
         <ui-josanz-stat-card 
@@ -110,70 +125,6 @@ interface AuditFilter {
       </div>
 
       <div class="audit-content">
-        <!-- Filters -->
-        <ui-josanz-card class="filters-card">
-          <div class="filters-header">
-            <h2>Filtros de Búsqueda</h2>
-            <ui-josanz-button
-              variant="ghost"
-              size="sm"
-              icon="filter"
-              (click)="clearFilters()"
-            >
-              Limpiar
-            </ui-josanz-button>
-          </div>
-
-          <div class="filters-grid">
-            <ui-josanz-input
-              label="Usuario"
-              [(ngModel)]="filters.userId"
-              name="userId"
-              placeholder="Buscar por usuario"
-              icon="user"
-            />
-
-            <ui-josanz-select
-              label="Acción"
-              [(ngModel)]="filters.action"
-              name="action"
-              [options]="actionOptions"
-            />
-
-            <ui-josanz-select
-              label="Entidad"
-              [(ngModel)]="filters.entity"
-              name="entity"
-              [options]="entityOptions"
-            />
-
-            <ui-josanz-input
-              label="Fecha Desde"
-              type="date"
-              [(ngModel)]="filters.dateFrom"
-              name="dateFrom"
-            />
-
-            <ui-josanz-input
-              label="Fecha Hasta"
-              type="date"
-              [(ngModel)]="filters.dateTo"
-              name="dateTo"
-            />
-
-            <div class="filter-actions">
-              <ui-josanz-button
-                variant="primary"
-                icon="search"
-                (click)="applyFilters()"
-              >
-                Buscar
-              </ui-josanz-button>
-            </div>
-          </div>
-        </ui-josanz-card>
-
-        <!-- Audit Logs -->
         <ui-josanz-card class="logs-card">
           <div class="logs-header">
             <h2>Historial de Actividades</h2>
@@ -183,7 +134,7 @@ interface AuditFilter {
           </div>
 
           <div class="logs-list">
-            @for (log of paginatedLogs(); track log.id) {
+            @for (log of filteredLogs(); track log.id) {
               <div
                 class="log-item"
                 [class.expanded]="expandedLog() === log.id"
@@ -199,12 +150,8 @@ interface AuditFilter {
                   <div class="log-info">
                     <div class="log-primary">
                       <span class="log-user">{{ log.userName }}</span>
-                      <span class="log-action">{{
-                        getActionText(log.action)
-                      }}</span>
-                      <span class="log-entity">{{
-                        getEntityText(log.entity)
-                      }}</span>
+                      <span class="log-action">{{ log.action }}</span>
+                      <span class="log-entity">{{ log.entity }}</span>
                       @if (log.entityName) {
                         <span class="log-entity-name"
                           >"{{ log.entityName }}"</span
@@ -214,7 +161,7 @@ interface AuditFilter {
                     <div class="log-meta">
                       <span class="log-timestamp">
                         <lucide-icon [img]="Clock" size="14"></lucide-icon>
-                        {{ formatTimestamp(log.timestamp) }}
+                        {{ log.timestamp | date:'short' }}
                       </span>
                       <ui-josanz-badge [variant]="getActionVariant(log.action)">
                         {{ log.action }}
@@ -239,105 +186,23 @@ interface AuditFilter {
                         <p>{{ log.details }}</p>
                       </div>
                     }
-
-                    @if (log.changes && hasChanges(log.changes)) {
-                      <div class="details-section">
-                        <h4>Cambios Realizados</h4>
-                        <div class="changes-list">
-                          @for (change of getChangesArray(log.changes); track change.field) {
-                            <div class="change-item">
-                              <span class="change-field">{{ change.field }}:</span>
-                              <span class="change-old">{{ change.old }}</span>
-                              <span class="change-arrow">→</span>
-                              <span class="change-new">{{ change.new }}</span>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    }
                   </div>
                 }
               </div>
             }
 
-            @if (paginatedLogs().length === 0) {
+            @if (filteredLogs().length === 0) {
               <div class="no-logs">
                 <lucide-icon [img]="History" size="48"></lucide-icon>
                 <p>No se encontraron registros de auditoría</p>
               </div>
             }
           </div>
-
-          <!-- Pagination -->
-          @if (totalPages() > 1) {
-            <div class="pagination">
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                [disabled]="currentPage() === 1"
-                (click)="goToPage(currentPage() - 1)"
-              >
-                Anterior
-              </ui-josanz-button>
-
-              <span class="page-info">
-                Página {{ currentPage() }} de {{ totalPages() }}
-              </span>
-
-              <ui-josanz-button
-                variant="ghost"
-                size="sm"
-                [disabled]="currentPage() === totalPages()"
-                (click)="goToPage(currentPage() + 1)"
-              >
-                Siguiente
-              </ui-josanz-button>
-            </div>
-          }
         </ui-josanz-card>
       </div>
     </div>
   `,
-  styles: [
-    `
-    .page-container {
-      padding: 0;
-      max-width: 100%;
-      margin: 0 auto;
-    }
-
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .header-breadcrumb {
-      flex: 1;
-    }
-
-    .page-title {
-      margin: 0 0 0.5rem 0;
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: 0.025em;
-    }
-
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
-    }
-
-    .separator {
-      opacity: 0.5;
-    }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
+  styles: [`
     .audit-content {
       display: flex;
       flex-direction: column;
@@ -595,12 +460,12 @@ interface AuditFilter {
     }
   `,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuditTrailComponent implements OnInit {
+export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService<AuditLog> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly domainEventsApi = inject(DomainEventsApiService);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -707,37 +572,21 @@ export class AuditTrailComponent implements OnInit {
   ];
 
   auditLogs = signal<AuditLog[]>([...this.seedAuditLogs]);
+  searchTerm = signal('');
 
-  filteredLogs = signal<AuditLog[]>([]);
-
-  ngOnInit() {
-    // Set default date range (last 7 days)
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-
-    this.filters.dateFrom = sevenDaysAgo.toISOString().split('T')[0];
-    this.filters.dateTo = today.toISOString().split('T')[0];
-
-    this.applyFilters();
-    this.domainEventsApi.list(150).subscribe((events) => {
-      const fromDomain: AuditLog[] = events.map((e) => ({
-        id: `de-${e.id}`,
-        userName: 'Evento de dominio',
-        action: 'UPDATE',
-        entity: 'PROJECT',
-        entityName: `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`,
-        timestamp: e.occurredAt,
-        details: e.eventType,
-        changes: { payload: { old: null, new: e.payload } },
-      }));
-      this.auditLogs.set([...fromDomain, ...this.seedAuditLogs]);
-      this.applyFilters();
-    });
-  }
-
-  applyFilters() {
+  filteredLogs = computed(() => {
     let filtered = [...this.auditLogs()];
+    const term = this.searchTerm().toLowerCase().trim();
+
+    if (term) {
+      filtered = filtered.filter(log => 
+        log.userName.toLowerCase().includes(term) || 
+        log.action.toLowerCase().includes(term) || 
+        log.entity.toLowerCase().includes(term) ||
+        (log.entityName ?? '').toLowerCase().includes(term) ||
+        (log.details ?? '').toLowerCase().includes(term)
+      );
+    }
 
     if (this.filters.userId) {
       filtered = filtered.filter((log) =>
@@ -760,17 +609,59 @@ export class AuditTrailComponent implements OnInit {
 
     if (this.filters.dateTo) {
       const toDate = new Date(this.filters.dateTo);
-      toDate.setHours(23, 59, 59, 999); // End of day
+      toDate.setHours(23, 59, 59, 999);
       filtered = filtered.filter((log) => new Date(log.timestamp) <= toDate);
     }
 
-    // Sort by timestamp (most recent first)
-    filtered.sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-    );
+    filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return filtered;
+  });
 
-    this.filteredLogs.set(filtered);
+  ngOnInit() {
+    this.masterFilter.registerProvider(this);
+    // Set default date range (last 7 days)
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    this.filters.dateFrom = sevenDaysAgo.toISOString().split('T')[0];
+    this.filters.dateTo = today.toISOString().split('T')[0];
+
+    this.domainEventsApi.list(150).subscribe((events) => {
+      const fromDomain: AuditLog[] = events.map((e) => ({
+        id: `de-${e.id}`,
+        userName: 'Evento de dominio',
+        action: 'UPDATE',
+        entity: 'PROJECT',
+        entityName: `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`,
+        timestamp: e.occurredAt,
+        details: e.eventType,
+        changes: { payload: { old: null, new: e.payload } },
+      }));
+      this.auditLogs.set([...fromDomain, ...this.seedAuditLogs]);
+    });
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.masterFilter.search(term);
+  }
+
+  filter(query: string): Observable<AuditLog[]> {
+    const term = query.toLowerCase();
+    const result = this.auditLogs().filter(log => 
+      log.userName.toLowerCase().includes(term) || 
+      log.action.toLowerCase().includes(term) ||
+      log.entity.toLowerCase().includes(term)
+    );
+    return of(result);
+  }
+
+  applyFilters() {
     this.currentPage.set(1);
   }
 

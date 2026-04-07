@@ -16,7 +16,8 @@ import {
   UiTextareaComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 
@@ -97,7 +98,7 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
         </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="deliveryNotes()" variant="default">
+          <ui-josanz-table [columns]="columns" [data]="filteredDeliveryNotes()" variant="default">
             <ng-template #cellTemplate let-delivery let-key="key">
               @switch (key) {
                 @case ('id') {
@@ -131,7 +132,7 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info uppercase">
-              {{ deliveryNotes().length }} ALBARANES DISPONIBLES
+              {{ filteredDeliveryNotes().length }} ALBARANES ENCONTRADOS
             </div>
             <ui-josanz-pagination 
               [currentPage]="currentPage()" 
@@ -224,11 +225,12 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeliveryListComponent implements OnInit {
+export class DeliveryListComponent implements OnInit, FilterableService<DeliveryNote> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(DeliveryFacade);
   public readonly config = inject(DELIVERY_FEATURE_CONFIG);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;
@@ -245,12 +247,43 @@ export class DeliveryListComponent implements OnInit {
     budgetId: '', clientName: '', status: 'draft', deliveryDate: '', returnDate: '', itemsCount: 0, notes: ''
   };
 
-  ngOnInit() { this.loadDeliveryNotes(); }
+  searchTerm = signal('');
+
+  filteredDeliveryNotes = computed(() => {
+    const list = this.deliveryNotes();
+    const t = this.searchTerm().trim().toLowerCase();
+    if (!t) return list;
+    return list.filter(d => 
+      d.budgetId.toLowerCase().includes(t) || 
+      (d.clientName ?? '').toLowerCase().includes(t) ||
+      (d.notes ?? '').toLowerCase().includes(t)
+    );
+  });
+
+  ngOnInit() {
+    this.masterFilter.registerProvider(this);
+    this.loadDeliveryNotes();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
   loadDeliveryNotes() { this.facade.loadDeliveryNotes(); }
 
   onSearch(term: string) {
-    if (term.trim()) this.facade.searchDeliveryNotes(term);
-    else this.facade.loadDeliveryNotes();
+    this.searchTerm.set(term);
+    this.masterFilter.search(term);
+    // Filtrado local vía computed
+  }
+
+  filter(query: string): Observable<DeliveryNote[]> {
+    const term = query.toLowerCase();
+    const matches = this.deliveryNotes().filter(d => 
+      d.budgetId.toLowerCase().includes(term) || 
+      (d.clientName ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
   }
 
   onPageChange(page: number) { this.currentPage.set(page); this.loadDeliveryNotes(); }

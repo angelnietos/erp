@@ -16,7 +16,8 @@ import {
   UiModalComponent,
   UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rentals-data-access';
 
 @Component({
@@ -309,12 +310,13 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RentalsListComponent implements OnInit {
+export class RentalsListComponent implements OnInit, FilterableService<Rental> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly rentalService = inject(RentalService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -355,10 +357,15 @@ export class RentalsListComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.loadRentals();
     if (this.route.snapshot.queryParamMap.get('openCreate')) {
       queueMicrotask(() => this.openCreateModal());
     }
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
   }
 
   loadRentals() {
@@ -384,7 +391,19 @@ export class RentalsListComponent implements OnInit {
   }
 
   onTabChange(id: string) { this.activeTab.set(id); }
-  onSearch(term: string) { this.searchFilter.set(term); }
+  onSearch(term: string) { 
+    this.searchFilter.set(term); 
+    this.masterFilter.search(term);
+  }
+
+  filter(query: string): Observable<Rental[]> {
+    const term = query.toLowerCase();
+    const result = this.rentals().filter(r => 
+      r.id.toLowerCase().includes(term) || 
+      (r.clientName ?? '').toLowerCase().includes(term)
+    );
+    return of(result);
+  }
   onPageChange(p: number) { this.currentPage.set(p); this.loadRentals(); }
 
   openCreateModal() {

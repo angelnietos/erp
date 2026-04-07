@@ -1,13 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ReceiptsApiService } from '@josanz-erp/shared-data-access';
+import { ReceiptsApiService, ThemeService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 import {
   LucideAngularModule,
   FileText,
-  Calendar,
-  DollarSign,
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -17,6 +16,7 @@ import {
   UiButtonComponent,
   UiSelectComponent,
   UiBadgeComponent,
+  UiSearchComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -40,36 +40,43 @@ interface Receipt {
     UiButtonComponent,
     UiSelectComponent,
     UiBadgeComponent,
+    UiSearchComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="receipts-container">
-      <header class="receipts-header">
+    <div class="receipts-container animate-fade-in">
+      <header class="receipts-header" [style.border-bottom-color]="currentTheme().primary + '33'">
         <div class="header-content">
-          <h1 class="receipts-title">Recibos y Pagos</h1>
+          <h1 class="receipts-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+            Recibos y Pagos
+          </h1>
           <p class="receipts-subtitle text-friendly">
             Gestión de pagos pendientes y realizados
           </p>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="primary" (clicked)="newReceipt()">
+          <ui-josanz-button variant="glass" size="md" (clicked)="newReceipt()" icon="plus">
             Nuevo Recibo
           </ui-josanz-button>
         </div>
       </header>
 
-      <div class="receipts-content">
-        <ui-josanz-card class="filters-card">
-          <div class="filters-grid">
-            <ui-josanz-select
-              label="Estado"
-              [(ngModel)]="statusFilter"
-              name="status"
-              [options]="statusOptions"
-              (ngModelChange)="applyFilters()"
-            />
-          </div>
-        </ui-josanz-card>
+      <div class="navigation-bar ui-glass-panel">
+        <ui-josanz-search 
+          variant="filled"
+          placeholder="BUSCAR RECIBO POR FACTURA O IMPORTE..." 
+          (searchChange)="onSearch($event)"
+          class="flex-1 max-w-md"
+        ></ui-josanz-search>
+        
+        <ui-josanz-select
+          label="Estado"
+          [(ngModel)]="statusFilter"
+          name="status"
+          [options]="statusOptions"
+          class="status-select"
+        />
+      </div>
 
         <ui-josanz-card>
           <div class="receipts-list">
@@ -161,9 +168,26 @@ interface Receipt {
 
       .receipts-subtitle {
         margin: 0.5rem 0 0 0;
-        color: #6b7280;
+        color: var(--text-secondary);
         font-size: 1.125rem;
       }
+
+      .navigation-bar { 
+        display: flex; justify-content: space-between; align-items: center; 
+        margin-bottom: 1.5rem; padding: 0.25rem 1rem; border-radius: 12px;
+        background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05); gap: 1rem;
+      }
+
+      .flex-1 { flex: 1; }
+      .max-w-md { max-width: 28rem; }
+      .status-select { width: 200px; }
+
+      .glow-text { 
+        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
+        letter-spacing: 0.05em; font-family: var(--font-main);
+      }
+      
+      .text-uppercase { text-transform: uppercase; }
 
       .receipts-content {
         display: flex;
@@ -298,15 +322,20 @@ interface Receipt {
     `,
   ],
 })
-export class ReceiptsListComponent implements OnInit {
+export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableService<Receipt> {
   private readonly router = inject(Router);
   private readonly receiptsApi = inject(ReceiptsApiService);
+  private readonly themeService = inject(ThemeService);
+  private readonly masterFilter = inject(MasterFilterService);
+
+  currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;
   private readonly AlertTriangle = AlertTriangle;
   private readonly CheckCircle = CheckCircle;
   private readonly XCircle = XCircle;
 
   statusFilter = '';
+  searchTerm = signal('');
 
   statusOptions = [
     { label: 'Todos los estados', value: '' },
@@ -349,9 +378,44 @@ export class ReceiptsListComponent implements OnInit {
     },
   ]);
 
-  filteredReceipts = signal<Receipt[]>([]);
+  filteredReceipts = computed(() => {
+    let list = this.receipts();
+    if (this.statusFilter) {
+      list = list.filter(r => r.status === this.statusFilter);
+    }
+    const t = this.searchTerm().trim().toLowerCase();
+    if (!t) return list;
+    return list.filter(r => 
+      r.invoiceId.toLowerCase().includes(t) || 
+      r.amount.toString().includes(t) ||
+      (r.paymentMethod ?? '').toLowerCase().includes(t)
+    );
+  });
 
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
+    this.loadReceipts();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.masterFilter.search(term);
+  }
+
+  filter(query: string): Observable<Receipt[]> {
+    const term = query.toLowerCase();
+    const result = this.receipts().filter(r => 
+      r.invoiceId.toLowerCase().includes(term) || 
+      r.amount.toString().includes(term)
+    );
+    return of(result);
+  }
+
+  private loadReceipts() {
     this.receiptsApi.list().subscribe((rows) => {
       if (rows.length > 0) {
         this.receipts.set(
@@ -372,20 +436,11 @@ export class ReceiptsListComponent implements OnInit {
           })),
         );
       }
-      this.applyFilters();
     });
   }
 
   applyFilters() {
-    let filtered = [...this.receipts()];
-
-    if (this.statusFilter) {
-      filtered = filtered.filter(
-        (receipt) => receipt.status === this.statusFilter,
-      );
-    }
-
-    this.filteredReceipts.set(filtered);
+    // No longer needed as we use computed, but keeping for compatibility if called
   }
 
   getStatusIcon(status: string) {

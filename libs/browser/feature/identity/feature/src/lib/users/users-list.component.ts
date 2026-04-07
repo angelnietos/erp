@@ -1,15 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
+import { UiButtonComponent, UiCardComponent, UiSearchComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { ThemeService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-users-list',
@@ -17,87 +13,94 @@ import { Observable } from 'rxjs';
   imports: [
     CommonModule,
     LucideAngularModule,
-    UiButtonComponent,
     UiCardComponent,
+    UiSearchComponent,
+    UiLoaderComponent,
+    UiButtonComponent,
   ],
   template: `
     <div class="page-container animate-slide-up">
-      <header class="page-header">
+      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
         <div class="header-main">
-          <h1 class="page-title text-uppercase">Directorio de Usuarios</h1>
+          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+            Directorio de Usuarios
+          </h1>
           <div class="breadcrumb">
-            <span class="active">GESTIÓN DE ACCESOS</span>
+            <span class="active" [style.color]="currentTheme().primary">GESTIÓN DE ACCESOS</span>
             <span class="separator">/</span>
             <span>IDENTIDAD Y ROLES</span>
           </div>
         </div>
-        <ui-josanz-button variant="primary" size="md" icon="user-plus">
-          NUEVO USUARIO
-        </ui-josanz-button>
+        <div class="header-actions">
+          <ui-josanz-button variant="glass" size="md" icon="user-plus">
+            NUEVO USUARIO
+          </ui-josanz-button>
+        </div>
       </header>
+
+      <div class="navigation-bar ui-glass-panel">
+        <ui-josanz-search 
+          variant="filled"
+          placeholder="BUSCAR USUARIO POR NOMBRE, EMAIL O ROL..." 
+          (searchChange)="onSearch($event)"
+          class="flex-1 max-w-md"
+        ></ui-josanz-search>
+      </div>
 
       <ui-josanz-card variant="glass" class="users-card">
         <div class="users-list">
           <div class="users-header">
             <h3>Usuarios del Sistema</h3>
             <span class="users-count"
-              >{{ (users$ | async)?.length || 0 }} usuarios</span
+              >{{ filteredUsers().length }} usuarios</span
             >
           </div>
 
-          <div
-            class="users-table"
-            *ngIf="users$ | async as users; else loading"
-          >
-            <div class="table-header">
-              <div class="col-email">Email</div>
-              <div class="col-name">Nombre</div>
-              <div class="col-category">Categoría</div>
-              <div class="col-roles">Roles</div>
-              <div class="col-status">Estado</div>
-              <div class="col-actions">Acciones</div>
+          @if (isLoading()) {
+            <div class="loading-state">
+              <ui-josanz-loader message="SINCRONIZANDO IDENTIDADES..."></ui-josanz-loader>
             </div>
+          } @else {
+            <div class="users-table">
+              <div class="table-header">
+                <div class="col-email">Email</div>
+                <div class="col-name">Nombre</div>
+                <div class="col-category">Categoría</div>
+                <div class="col-roles">Roles</div>
+                <div class="col-status">Estado</div>
+                <div class="col-actions">Acciones</div>
+              </div>
 
-            <div class="table-body">
-              <div class="table-row" *ngFor="let user of users">
-                <div class="col-email">{{ user.email }}</div>
-                <div class="col-name">
-                  {{ user.firstName || '' }} {{ user.lastName || '' }}
-                </div>
-                <div class="col-category">{{ user.category || '-' }}</div>
-                <div class="col-roles">
-                  <span class="role-badge" *ngFor="let role of user.roles">{{
-                    role
-                  }}</span>
-                </div>
-                <div class="col-status">
-                  <span
-                    class="status-badge"
-                    [class.active]="user.isActive"
-                    [class.inactive]="!user.isActive"
-                  >
-                    {{ user.isActive ? 'Activo' : 'Inactivo' }}
-                  </span>
-                </div>
-                <div class="col-actions">
-                  <ui-josanz-button variant="ghost" size="sm" icon="edit"
-                    >Editar</ui-josanz-button
-                  >
-                </div>
+              <div class="table-body">
+                @for (user of filteredUsers(); track user.id) {
+                  <div class="table-row">
+                    <div class="col-email">{{ user.email }}</div>
+                    <div class="col-name">
+                      {{ user.firstName || '' }} {{ user.lastName || '' }}
+                    </div>
+                    <div class="col-category">{{ user.category || '-' }}</div>
+                    <div class="col-roles">
+                      @for (role of user.roles; track role) {
+                        <span class="role-badge" [style.background]="currentTheme().primary">{{ role }}</span>
+                      }
+                    </div>
+                    <div class="col-status">
+                      <span
+                        class="status-badge"
+                        [class.active]="user.isActive"
+                        [class.inactive]="!user.isActive"
+                      >
+                        {{ user.isActive ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </div>
+                    <div class="col-actions">
+                      <ui-josanz-button variant="ghost" size="sm" icon="pencil">Editar</ui-josanz-button>
+                    </div>
+                  </div>
+                }
               </div>
             </div>
-          </div>
-
-          <ng-template #loading>
-            <div class="loading-state">
-              <lucide-icon
-                name="loader"
-                size="24"
-                class="animate-spin"
-              ></lucide-icon>
-              <span>Cargando usuarios...</span>
-            </div>
-          </ng-template>
+          }
         </div>
       </ui-josanz-card>
     </div>
@@ -142,6 +145,19 @@ import { Observable } from 'rxjs';
       }
       .breadcrumb .separator {
         opacity: 0.3;
+      }
+
+      .navigation-bar { 
+        display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; border-radius: 12px;
+        background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
+      }
+
+      .flex-1 { flex: 1; }
+      .max-w-md { max-width: 28rem; }
+
+      .glow-text { 
+        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
+        letter-spacing: 0.05em; font-family: var(--font-main);
       }
 
       .users-card {
@@ -290,15 +306,60 @@ import { Observable } from 'rxjs';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UsersListComponent implements OnInit {
+export class UsersListComponent implements OnInit, OnDestroy, FilterableService<User> {
   private readonly usersService = inject(UsersService);
-  users$!: Observable<User[]>;
+  private readonly themeService = inject(ThemeService);
+  private readonly masterFilter = inject(MasterFilterService);
+
+  currentTheme = this.themeService.currentThemeData;
+  users = signal<User[]>([]);
+  isLoading = signal(true);
+  searchTerm = signal('');
+
+  filteredUsers = computed(() => {
+    const list = this.users();
+    const t = this.searchTerm().trim().toLowerCase();
+    if (!t) return list;
+    return list.filter(u => 
+      u.email.toLowerCase().includes(t) || 
+      (u.firstName ?? '').toLowerCase().includes(t) || 
+      (u.lastName ?? '').toLowerCase().includes(t) ||
+      u.roles.some(r => r.toLowerCase().includes(t))
+    );
+  });
 
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.loadUsers();
   }
 
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.masterFilter.search(term);
+  }
+
+  filter(query: string): Observable<User[]> {
+    const term = query.toLowerCase();
+    const matches = this.users().filter(u => 
+      u.email.toLowerCase().includes(term) || 
+      (u.firstName ?? '').toLowerCase().includes(term) || 
+      (u.lastName ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
+  }
+
   private loadUsers() {
-    this.users$ = this.usersService.findAll();
+    this.isLoading.set(true);
+    this.usersService.findAll().subscribe({
+      next: (list) => {
+        this.users.set(list);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
+    });
   }
 }

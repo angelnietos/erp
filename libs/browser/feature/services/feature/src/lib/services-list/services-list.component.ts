@@ -14,7 +14,8 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 
 export interface Service {
   id: string;
@@ -104,7 +105,7 @@ export interface Service {
         </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="services()" variant="default">
+          <ui-josanz-table [columns]="columns" [data]="filteredServices()" variant="default">
             <ng-template #cellTemplate let-service let-key="key">
               @switch (key) {
                 @case ('name') {
@@ -259,9 +260,10 @@ export interface Service {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ServicesListComponent implements OnInit {
+export class ServicesListComponent implements OnInit, FilterableService<Service> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
   services = signal<Service[]>([]);
@@ -282,13 +284,38 @@ export class ServicesListComponent implements OnInit {
   activeServicesCount = computed(() => this.services().filter(s => s.isActive).length);
   serviceTypesCount = computed(() => new Set(this.services().map(s => s.type)).size);
 
+  filteredServices = computed(() => {
+    const list = this.services();
+    const t = this.searchTerm().trim().toLowerCase();
+    if (!t) return list;
+    return list.filter(s => 
+      s.name.toLowerCase().includes(t) || 
+      (s.description ?? '').toLowerCase().includes(t) || 
+      s.type.toLowerCase().includes(t)
+    );
+  });
+
   ngOnInit() {
+    this.masterFilter.registerProvider(this);
     this.loadServices();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
   }
 
   onSearchChange(term: string) {
     this.searchTerm.set(term);
-    this.loadServices();
+    this.masterFilter.search(term);
+  }
+
+  filter(query: string): Observable<Service[]> {
+    const term = query.toLowerCase();
+    const matches = this.services().filter(s => 
+      s.name.toLowerCase().includes(term) || 
+      (s.description ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
   }
 
   onRowClick(service: Service) {
@@ -338,33 +365,55 @@ export class ServicesListComponent implements OnInit {
     }
   }
 
+  private initialServices: Service[] = [
+    {
+      id: '1',
+      name: 'Servicio de Streaming Básico',
+      description: 'Transmisión en vivo básica',
+      type: 'STREAMING',
+      basePrice: 500,
+      hourlyRate: 50,
+      isActive: true,
+      createdAt: '2024-01-01',
+    },
+    {
+      id: '2',
+      name: 'Producción Audio/Video Completa',
+      description: 'Producción completa de eventos',
+      type: 'PRODUCCIÓN',
+      basePrice: 2000,
+      hourlyRate: 150,
+      isActive: true,
+      createdAt: '2024-01-02',
+    },
+    {
+      id: '3',
+      name: 'Pantalla LED 4x3m Exterior',
+      description: 'Instalación y soporte de pantalla LED P3.9',
+      type: 'LED',
+      basePrice: 1200,
+      hourlyRate: 0,
+      isActive: true,
+      createdAt: '2024-02-10',
+    },
+    {
+      id: '4',
+      name: 'Transporte Logístico Pesado',
+      description: 'Camión 12t para material audiovisual',
+      type: 'TRANSPORTE',
+      basePrice: 300,
+      hourlyRate: 40,
+      isActive: true,
+      createdAt: '2024-02-15',
+    },
+  ];
+
   private loadServices() {
     this.isLoading.set(true);
     // Simulate loading
     setTimeout(() => {
-      this.services.set([
-        {
-          id: '1',
-          name: 'Servicio de Streaming Básico',
-          description: 'Transmisión en vivo básica',
-          type: 'STREAMING',
-          basePrice: 500,
-          hourlyRate: 50,
-          isActive: true,
-          createdAt: '2024-01-01',
-        },
-        {
-          id: '2',
-          name: 'Producción Audio/Video Completa',
-          description: 'Producción completa de eventos',
-          type: 'PRODUCCIÓN',
-          basePrice: 2000,
-          hourlyRate: 150,
-          isActive: true,
-          createdAt: '2024-01-02',
-        },
-      ]);
+      this.services.set(this.initialServices);
       this.isLoading.set(false);
-    }, 1000);
+    }, 600);
   }
 }

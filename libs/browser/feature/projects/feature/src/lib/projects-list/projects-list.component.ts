@@ -567,7 +567,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
     this.statusFilter.set(value ?? '');
   }
 
-  onRowClick(_project: Project) {
+  onRowClick() {
     // Navigate to detail - implement when table supports rowClick
   }
 
