@@ -9,13 +9,9 @@ function isTenantUuid(value: string | null | undefined): boolean {
   return typeof value === 'string' && TENANT_UUID_RE.test(value.trim());
 }
 
-/** API origins that require the multi-tenant header (adjust if your backend URL differs). */
+/** Peticiones hacia la API del ERP (relativas o absolutas con `/api/`). */
 function shouldAttachTenantHeader(url: string): boolean {
-  return (
-    url.includes('localhost:3000') ||
-    url.includes('localhost:3110') ||
-    url.includes('/api/')
-  );
+  return url.includes('/api/');
 }
 
 export function getStoredTenantId(): string | null {

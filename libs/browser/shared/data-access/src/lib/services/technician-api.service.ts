@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '@josanz-erp/shared-data-access';
 import { Observable } from 'rxjs';
 
 export interface TechnicianAvailability {
@@ -16,7 +15,8 @@ export interface TechnicianAvailability {
 @Injectable({ providedIn: 'root' })
 export class TechnicianApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiOrigin}/api/technicians`;
+  /** Relativa; el interceptor de origen antepone `apiOrigin` en desarrollo. */
+  private readonly baseUrl = '/api/technicians';
 
   getAvailability(technicianId: string, startDate?: string, endDate?: string): Observable<TechnicianAvailability[]> {
     return this.http.get<TechnicianAvailability[]>(`${this.baseUrl}/${technicianId}/availability`, {

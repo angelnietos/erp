@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import {
   SharedInfrastructureModule,
   TenantGuard,
@@ -26,6 +27,7 @@ import { ReportsExportModule } from './reports-export/reports-export.module';
   imports: [
     // Load .env globally
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     ClsModule.forRoot({
       global: true,
       middleware: {

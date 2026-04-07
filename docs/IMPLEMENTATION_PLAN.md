@@ -27,8 +27,8 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 | Dashboard / analytics API | Hecho | `GET /api/analytics/dashboard-summary` + `DashboardAnalyticsService` (caché `shareReplay`) |
 | Recibos API y marcar pagado | Hecho | Módulo `receipts-backend` + UI; repositorio demo por tenant |
 | Servicios ↔ presupuestos | Hecho | `GET /api/services` sin JWT de clase + panel en `budget-detail` + enlace a `/services` |
-| Eventos de dominio / auditoría | Hecho (servidor en memoria) | `DomainEventsService` + UI auditoría consume API; persistencia Prisma opcional |
-| Integraciones | Hecho (demo) | ICS + webhooks en memoria bajo `Phase3Module` |
+| Eventos de dominio / auditoría | Hecho (Prisma) | `DomainEventsService` + tabla `domain_events`; retención opcional vía `DOMAIN_EVENTS_RETENTION_DAYS` |
+| Integraciones | Hecho (Prisma + cola) | Webhooks persistidos, firma HMAC, cola asíncrona; ICS desde eventos reales (`GET .../calendar/feed.ics`) |
 | Testing E2E | Hecho (humo) | `apps/frontend-e2e/src/phase3-smoke.spec.ts` |
 | Documentación | Hecho | Swagger en `/api/docs`; script `pnpm run docs:frontend` (Compodoc); `docs/USER_GUIDE.md` |
 | Rendimiento / caché | Parcial | Caché KPIs y catálogo servicios (`shareReplay`); virtual scroll pendiente en tablas grandes |
@@ -51,12 +51,12 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 ### Reportes
 
 - Generador por categorías y listado de informes generados.
-- **Hecho**: exportación JSON/CSV/PDF (impresión); datos aún mayormente generados en cliente.
+- **Hecho**: exportación JSON/CSV/PDF (impresión) + **export servidor** `POST /api/reports/export/xlsx|pdf` desde la UI de informes.
 
 ### Trazabilidad / Auditoría
 
 - Timeline y filtros en UI.
-- **Hecho**: eventos desde API en memoria; **pendiente mejora**: retención persistente en BD.
+- **Hecho**: eventos persistidos en Prisma (`domain_events`); job de retención configurable (ver `docs/RUNBOOK.md`).
 
 ### Servicios
 
@@ -66,11 +66,11 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 ### Proyectos
 
 - CRUD, estados, duplicación (según implementación actual en repo).
-- **Pendiente**: enlaces profundos con eventos/clientes si faltan datos reales.
+- **Parcial**: rutas `projects/:id` y `projects/new`; datos cruzados con eventos/clientes según evolución de API.
 
 ### Técnicos
 
-- **Pendiente**: módulo dedicado (perfiles, tarifas, calendario) si aplica al negocio.
+- **Hecho (base)**: esquema Prisma (`technicians`, `technician_availability`) y API/UI de disponibilidad; ampliar según negocio.
 
 ### Recibos y pagos
 
@@ -88,7 +88,7 @@ Este documento describe el **estado real** del producto y lo que **sigue pendien
 
 ### Integraciones y calidad
 
-- **Hecho (demo)**: webhooks/ICS; **pendiente**: persistencia y firma de webhooks en producción.
+- **Hecho**: webhooks persistidos, cifrado de secretos, cola y firma; ICS con eventos de tenant. Contrato: `docs/INTEGRATIONS_WEBHOOKS.md`.
 
 ---
 

@@ -1,26 +1,36 @@
 import { Body, Controller, Post, StreamableFile } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import ExcelJS from 'exceljs';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 export class ReportExportXlsxDto {
   @IsString()
+  @MaxLength(200)
   title!: string;
 
   @IsArray()
+  @ArrayMaxSize(64)
   @IsString({ each: true })
   headers!: string[];
 
   @IsArray()
+  @ArrayMaxSize(5000)
   rows!: (string | number | null)[][];
 }
 
 export class ReportExportPdfDto {
   @IsString()
+  @MaxLength(200)
   title!: string;
 
   @IsArray()
+  @ArrayMaxSize(200)
   @IsString({ each: true })
   lines!: string[];
 }

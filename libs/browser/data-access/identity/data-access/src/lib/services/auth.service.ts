@@ -29,8 +29,8 @@ export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  // TODO: Use environment variable for API URL
-  private readonly apiUrl = 'http://localhost:3000/api/auth';
+  /** Ruta relativa: `apiOriginInterceptor` antepone `environment.apiOrigin` si está definido. */
+  private readonly apiUrl = '/api/auth';
 
   login(
     email: string,

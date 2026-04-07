@@ -855,6 +855,19 @@ function buildThemeMenuSections(): ThemeMenuSection[] {
 
 const THEME_MENU_SECTIONS = buildThemeMenuSections();
 
+const UI_VARIANT_KEYS = [
+  'glass',
+  'solid',
+  'flat',
+  'neumorphic',
+  'minimal',
+] as const;
+type UiVariantKey = (typeof UI_VARIANT_KEYS)[number];
+
+function isUiVariantKey(v: string): v is UiVariantKey {
+  return (UI_VARIANT_KEYS as readonly string[]).includes(v);
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -1192,6 +1205,22 @@ export class ThemeService {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('theme') as Theme;
       if (stored && THEMES[stored]) {
+        return stored;
+      }
+    }
+    return null;
+  }
+
+  private storeVariant(variant: string) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('ui-variant', variant);
+    }
+  }
+
+  private getStoredVariant(): UiVariantKey | null {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('ui-variant');
+      if (stored && isUiVariantKey(stored)) {
         return stored;
       }
     }

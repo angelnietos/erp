@@ -11,6 +11,9 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 | [LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md](./LIBRO_BLANCO_ARQUITECTURA_ESCALABILIDAD.md) | Libro blanco: arquitectura hexagonal, Nx, escalabilidad, plugins |
 | [ARQUITECTURA_PRESENTACION_EMPRESA.md](./ARQUITECTURA_PRESENTACION_EMPRESA.md) | Presentación dirección: valor, riesgos y mitigaciones (tono ejecutivo) |
 | [POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md](./POR_QUE_ANGULAR_VS_OTROS_FRAMEWORKS.md) | Por qué Angular frente a React/Vue en un ERP; ventajas y matices |
+| [RUNBOOK.md](./RUNBOOK.md) | Despliegue: migraciones, seed, health, CORS, rate limits, retención |
+| [INTEGRATIONS_WEBHOOKS.md](./INTEGRATIONS_WEBHOOKS.md) | Contrato de webhooks (cabeceras, idempotencia recomendada, ICS) |
+| [adr/001-webhooks-async-and-secrets.md](./adr/001-webhooks-async-and-secrets.md) | ADR: cola asíncrona y secretos cifrados |
 
 ---
 
@@ -19,8 +22,8 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 - [ ] **Aplicar migraciones Prisma** tras `git pull`, incluida `20260406120000_phase4_erp_domain_webhooks` (`pnpm run db:migrate` o flujo del equipo).
 - [ ] **Resolver drift** si la BD local divergió del historial de migraciones (Prisma suele avisar con `migrate dev`); alinear o baseline según política del equipo.
 - [ ] **Ejecutar seed** cuando haga falta usuario demo (`admin@josanz.com` / `Admin123!`, tenant `josanz`) y datos `erp_receipts`.
-- [ ] **Variables de entorno**: documentar o ampliar `.env.example` del backend (p. ej. `DATABASE_URL`, `CORS_ORIGIN`, credenciales E2E si aplica).
-- [ ] **CI/CD**: pipeline que levante Postgres, migre, ejecute tests y E2E (Chromium como mínimo); hoy los E2E Fase 4 asumen backend + BD disponibles.
+- [x] **Variables de entorno**: `apps/backend/env.example` documenta `DATABASE_URL`, `CORS_ORIGIN`, rate limits, retención y nota de cifrado de webhooks.
+- [x] **CI/CD (sin tests)**: `.github/workflows/nx-affected-ci.yml` ejecuta `lint` y `build` afectados con `pnpm`. **Pendiente fase posterior**: Postgres en servicio, migraciones y E2E (ver §7).
 
 ---
 
@@ -29,8 +32,8 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 - [x] **Validar tenant en BD**: `TenantGuard` ya valida no solo la presencia sino la existencia real y estado `isActive` del UUID en la tabla `tenants`.
 - [x] **Secretos de webhooks**: hoy se persisten para poder firmar HMAC; se ha implementado **cifrado en reposo (AES-256-GCM)**; no devolver `secret` en `GET /api/integrations/webhooks` en producción (solo al registrar).
 - [ ] **JWT de forma consistente**: varios controladores sin `JwtAuthGuard` por comodidad demo; definir política por entorno (dev vs prod).
-- [ ] **CORS y orígenes** en producción vía `CORS_ORIGIN` (no solo `localhost:4200`).
-- [ ] **Rate limiting** en rutas públicas (`/api/health`, login) si hay exposición a Internet.
+- [x] **CORS y orígenes** vía `CORS_ORIGIN` (un origen o varios separados por coma).
+- [x] **Rate limiting** opcional en `/api/health` y `/api/auth/login` (`RATE_LIMIT_*_PER_MINUTE`, `0` = desactivado).
 
 ---
 
@@ -42,7 +45,7 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 - [ ] **Proyectos**: enlaces profundos y datos reales con eventos/clientes (según `IMPLEMENTATION_PLAN.md`).
 - [x] **Módulo técnicos**: perfiles extendidos (bio, avatar) y tabla de disponibilidad (`technician_availability`) en esquema.
 - [ ] **Configuración**: roles avanzados, plantillas, preferencias globales persistidas.
-- [ ] **Retención de eventos de dominio**: job o política para archivar/purgar `domain_events` (TTL documentado en ops).
+- [x] **Retención de eventos de dominio**: cron semanal + `DOMAIN_EVENTS_RETENTION_DAYS` (≤0 no purga); ver `RUNBOOK.md`.
 
 ---
 
@@ -50,15 +53,15 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 
 - [x] **Cola / reintentos**: modelo `IntegrationWebhookQueueItem` añadido para entrega asíncrona robusta.
 - [ ] **Test de integración** con servidor HTTP mock que verifique cabecera `X-Josanz-Signature` (más allá del unit test de firma).
-- [ ] **Webhook idempotencia** y deduplicación por `X-Josanz-Event-Id` en consumidores (documentar contrato).
-- [ ] **Calendario ICS**: contenido basado en eventos reales del tenant (no solo placeholder).
+- [x] **Contrato de idempotencia**: documentado para consumidores (`INTEGRATIONS_WEBHOOKS.md`); deduplicación en BD del lado Josanz queda como mejora futura si se exige.
+- [x] **Calendario ICS**: `GET .../calendar/feed.ics` genera ICS desde filas `Event` del tenant (hasta 500).
 
 ---
 
 ## 5. Reportes y analytics
 
-- [ ] **UI conectada a export servidor**: usar `POST /api/reports/export/xlsx` y `/export/pdf` desde el generador de informes además de export cliente.
-- [ ] **Informes desde datos reales**: filtros ejecutados contra API/Prisma con límites y paginación; validación de payload (tamaño máximo, 413/422 en OpenAPI).
+- [x] **UI conectada a export servidor**: botones Excel (API) / PDF (API) en el generador de informes (`POST /api/reports/export/xlsx` y `/pdf`).
+- [x] **Validación de payload export**: límites en DTOs (`class-validator`); ampliar datos reales/Prisma y documentación OpenAPI según prioridad.
 - [ ] **PDF rico**: plantillas HTML → PDF o diseño con `pdf-lib` más allá de texto plano.
 - [ ] **Dashboard**: gráficos, rentabilidad por proyecto/cliente, notificaciones en vivo (SSE/WebSocket) si hay prioridad.
 
@@ -72,11 +75,11 @@ Plan detallado de implementación: **[PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_U
 - [ ] **Búsqueda global y filtros** en listados grandes.
 - [ ] **Virtual scroll** en tablas pesadas.
 - [ ] **Presupuestos de bundle**: el build del frontend avisa de budgets superados (inicial y estilos de algunos componentes); reducir CSS in-component o subir límites con justificación.
-- [ ] **`AuthService`**: sustituir URL fija `http://localhost:3000/api/auth` por `environment.apiOrigin` (o equivalente) para staging/prod.
+- [x] **`AuthService` / tenant**: rutas relativas `/api/auth` e interceptor con `x-tenant-id` en URLs que incluyen `/api/`; `technician-api` usa `/api/technicians`.
 
 ---
 
-## 7. Testing y calidad
+## 7. Testing y calidad (fase posterior — no bloquea el backlog operativo)
 
 - [ ] **E2E en CI** con Postgres de servicio y migraciones automáticas.
 - [ ] **Cobertura unitaria** en servicios críticos (repositorios, `AnalyticsService`, reglas de dominio de recibos).
@@ -87,9 +90,9 @@ Plan detallado de implementación: **[PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_U
 
 ## 8. Documentación y DX
 
-- [ ] **Actualizar tabla Fase 3** en `IMPLEMENTATION_PLAN.md` (algunas filas siguen hablando de “memoria” pese a Fase 4 en Prisma) para evitar contradicciones.
-- [ ] **ADR** para decisiones grandes (webhooks síncronos vs cola, cifrado de secretos).
-- [ ] **Runbook** de despliegue: migraciones, seed, healthcheck `GET /api/health`, Swagger `/api/docs`.
+- [x] **Tabla Fase 3** en `IMPLEMENTATION_PLAN.md` alineada con Prisma, ICS real, retención y export servidor.
+- [x] **ADR** [001](./adr/001-webhooks-async-and-secrets.md) (cola + cifrado de secretos).
+- [x] **Runbook** [RUNBOOK.md](./RUNBOOK.md) (migraciones, seed, health, Swagger, CORS, rate limits).
 
 ---
 

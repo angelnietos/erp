@@ -6,6 +6,7 @@ import { IntegrationsController } from './integrations.controller';
 import { WebhookDispatcherService } from './webhook-dispatcher.service';
 import { IntegrationWebhooksService } from './integration-webhooks.service';
 import { WebhookQueueWorker } from './webhook-queue.worker';
+import { DomainEventsRetentionService } from './domain-events-retention.service';
 
 @Module({
   imports: [PrismaModule],
@@ -15,6 +16,7 @@ import { WebhookQueueWorker } from './webhook-queue.worker';
     DomainEventsService,
     IntegrationWebhooksService,
     WebhookQueueWorker,
+    DomainEventsRetentionService,
   ],
   exports: [DomainEventsService, IntegrationWebhooksService],
 })

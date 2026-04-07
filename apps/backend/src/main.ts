@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { config as loadEnv } from 'dotenv';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -9,15 +9,65 @@ import { AppModule } from './app.module';
 loadEnv({ path: 'apps/backend/.env' });
 loadEnv();
 
+function parseCorsOrigins(): string | string[] {
+  const raw = process.env.CORS_ORIGIN ?? 'http://localhost:4200';
+  const list = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return list.length <= 1 ? (list[0] ?? raw) : list;
+}
+
+function attachSlidingWindowRateLimit(
+  app: INestApplication,
+  path: string,
+  envKey: string,
+) {
+  const max = parseInt(process.env[envKey] ?? '0', 10);
+  if (!Number.isFinite(max) || max <= 0) {
+    return;
+  }
+  const expressApp = app.getHttpAdapter().getInstance();
+  const buckets = new Map<string, number[]>();
+  const windowMs = 60_000;
+  expressApp.use(path, (req, res, next) => {
+    const ip = (req.ip || req.socket?.remoteAddress || 'unknown') as string;
+    const now = Date.now();
+    const hits = (buckets.get(ip) ?? []).filter((t) => now - t < windowMs);
+    if (hits.length >= max) {
+      res.status(429).json({ status: 'error', message: 'Too many requests' });
+      return;
+    }
+    hits.push(now);
+    buckets.set(ip, hits);
+    next();
+  });
+}
+
+function attachPublicRateLimits(app: INestApplication) {
+  attachSlidingWindowRateLimit(
+    app,
+    '/api/health',
+    'RATE_LIMIT_HEALTH_PER_MINUTE',
+  );
+  attachSlidingWindowRateLimit(
+    app,
+    '/api/auth/login',
+    'RATE_LIMIT_LOGIN_PER_MINUTE',
+  );
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Security headers (ADR-009)
   app.use(helmet());
 
-  // CORS — restrict to authorized origins in production via env var
+  attachPublicRateLimits(app);
+
+  // CORS — uno o varios orígenes (coma) vía CORS_ORIGIN
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:4200',
+    origin: parseCorsOrigins(),
     credentials: true,
   });
 

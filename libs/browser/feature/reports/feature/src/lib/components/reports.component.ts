@@ -1,7 +1,9 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import {
   LucideAngularModule,
   FileText,
@@ -221,6 +223,20 @@ interface Report {
                         (clicked)="downloadReportPdf(report)"
                       >
                         PDF
+                      </ui-josanz-button>
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        (clicked)="downloadServerXlsx(report)"
+                      >
+                        Excel (API)
+                      </ui-josanz-button>
+                      <ui-josanz-button
+                        variant="ghost"
+                        size="sm"
+                        (clicked)="downloadServerPdf(report)"
+                      >
+                        PDF (API)
                       </ui-josanz-button>
                     </div>
                   </div>
@@ -454,6 +470,7 @@ interface Report {
 export class ReportsComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly http = inject(HttpClient);
 
   currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;
@@ -579,8 +596,10 @@ export class ReportsComponent implements OnInit {
       };
 
       this.generatedReports.update((reports) => [newReport, ...reports]);
-    } catch (error) {
-      console.error('Error generating report:', error);
+    } catch {
+      window.alert(
+        'No se pudo generar el informe. Revisa la consola o inténtalo de nuevo.',
+      );
     } finally {
       this.generating.set(false);
     }
@@ -649,5 +668,72 @@ export class ReportsComponent implements OnInit {
       <pre>${filtrosHtml}</pre>
     `;
     openPrintableDocument(`Reporte ${report.id}`, body);
+  }
+
+  private triggerBlobDownload(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async downloadServerXlsx(report: Report) {
+    const f = report.filters;
+    const headers = ['Campo', 'Valor'];
+    const rows: (string | number | null)[][] = [
+      ['id', report.id],
+      ['tipo', report.type],
+      ['titulo', report.title],
+      ['generadoEn', report.generatedAt],
+      ['rango', report.dateRange],
+      ['fechaDesde', f.dateFrom],
+      ['fechaHasta', f.dateTo],
+      ['estado', f.status ?? ''],
+      ['clienteId', f.clientId ?? ''],
+    ];
+    try {
+      const blob = await firstValueFrom(
+        this.http.post(
+          '/api/reports/export/xlsx',
+          { title: report.title.slice(0, 200), headers, rows },
+          { responseType: 'blob' },
+        ),
+      );
+      this.triggerBlobDownload(blob, `josanz-informe-${report.id}.xlsx`);
+    } catch {
+      window.alert(
+        'No se pudo generar el Excel en el servidor. Comprueba sesión, tenant y que el API esté disponible.',
+      );
+    }
+  }
+
+  async downloadServerPdf(report: Report) {
+    const f = report.filters;
+    const lines = [
+      `Título: ${report.title}`,
+      `Tipo: ${report.type}`,
+      `Generado: ${report.generatedAt}`,
+      `Rango: ${report.dateRange}`,
+      `Desde: ${f.dateFrom}  Hasta: ${f.dateTo}`,
+      f.status ? `Estado: ${f.status}` : '',
+      f.clientId ? `Cliente: ${f.clientId}` : '',
+    ].filter(Boolean);
+    try {
+      const blob = await firstValueFrom(
+        this.http.post(
+          '/api/reports/export/pdf',
+          { title: report.title.slice(0, 200), lines },
+          { responseType: 'blob' },
+        ),
+      );
+      this.triggerBlobDownload(blob, `josanz-informe-${report.id}.pdf`);
+    } catch {
+      window.alert(
+        'No se pudo generar el PDF en el servidor. Comprueba sesión, tenant y que el API esté disponible.',
+      );
+    }
   }
 }
