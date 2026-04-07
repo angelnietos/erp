@@ -1,0 +1,14 @@
+{
+  "name": "settings-shell",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/settings/shell/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:settings", "type:shell"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+

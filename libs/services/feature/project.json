@@ -1,0 +1,22 @@
+{
+  "name": "services-feature",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/services/feature/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:services", "type:feature"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/services/feature/jest.config.cts",
+        "tsConfig": "libs/services/feature/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+

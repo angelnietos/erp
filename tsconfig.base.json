@@ -14,33 +14,33 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@josanz-erp/shared-utils": ["libs/isomorphic/shared/utils/src/index.ts"],
+      "@josanz-erp/shared-utils": ["libs/shared/utils/src/index.ts"],
       "@josanz-erp/shared-utils/node": [
-        "libs/isomorphic/shared/utils/src/node.ts"
+        "libs/shared/utils/src/node.ts"
       ],
       "@josanz-erp/shared-config": [
-        "libs/isomorphic/shared/config/src/index.ts"
+        "libs/shared/config/src/index.ts"
       ],
-      "@josanz-erp/shared-events": ["libs/node/shared/events/src/index.ts"],
-      "@josanz-erp/shared-model": ["libs/isomorphic/shared/model/src/index.ts"],
+      "@josanz-erp/shared-events": ["libs/shared/events/src/index.ts"],
+      "@josanz-erp/shared-model": ["libs/shared/model/src/index.ts"],
       "@josanz-erp/shared-data-access": [
-        "libs/browser/shared/data-access/src/index.ts"
+        "libs/shared/data-access/src/index.ts"
       ],
-      "@josanz-erp/shared-ui-kit": ["libs/browser/shared/ui-kit/src/index.ts"],
+      "@josanz-erp/shared-ui-kit": ["libs/shared/ui-kit/src/index.ts"],
       "@josanz-erp/identity-data-access": [
-        "libs/browser/data-access/identity/data-access/src/index.ts"
+        "libs/identity/data-access/src/index.ts"
       ],
       "@josanz-erp/identity-feature": [
-        "libs/browser/feature/identity/feature/src/index.ts"
+        "libs/identity/feature/src/index.ts"
       ],
       "@josanz-erp/identity-shell": [
-        "libs/browser/shell/identity/shell/src/index.ts"
+        "libs/identity/shell/src/index.ts"
       ],
       "@josanz-erp/identity-api": [
         "libs/isomorphic/api/identity/api/src/index.ts"
       ],
       "@josanz-erp/budget-data-access": [
-        "libs/browser/data-access/budget/data-access/src/index.ts"
+        "libs/budget/data-access/src/index.ts"
       ],
       "@josanz-erp/budget-api": ["libs/isomorphic/api/budget/api/src/index.ts"],
       "@josanz-erp/clients-api": [
@@ -59,122 +59,122 @@
         "libs/isomorphic/api/billing/api/src/index.ts"
       ],
       "@josanz-erp/billing-backend": [
-        "libs/node/backend/billing/backend/src/index.ts"
+        "libs/billing/backend/src/index.ts"
       ],
       "@josanz-erp/fleet-api": ["libs/isomorphic/api/fleet/api/src/index.ts"],
       "@josanz-erp/clients-data-access": [
-        "libs/browser/data-access/clients/data-access/src/index.ts"
+        "libs/clients/data-access/src/index.ts"
       ],
       "@josanz-erp/clients-feature": [
-        "libs/browser/feature/clients/feature/src/index.ts"
+        "libs/clients/feature/src/index.ts"
       ],
       "@josanz-erp/clients-shell": [
-        "libs/browser/shell/clients/shell/src/index.ts"
+        "libs/clients/shell/src/index.ts"
       ],
       "@josanz-erp/clients-backend": [
-        "libs/node/backend/clients/backend/src/index.ts"
+        "libs/clients/backend/src/index.ts"
       ],
       "@josanz-erp/inventory-data-access": [
-        "libs/browser/data-access/inventory/data-access/src/index.ts"
+        "libs/inventory/data-access/src/index.ts"
       ],
       "@josanz-erp/inventory-feature": [
-        "libs/browser/feature/inventory/feature/src/index.ts"
+        "libs/inventory/feature/src/index.ts"
       ],
       "@josanz-erp/inventory-shell": [
-        "libs/browser/shell/inventory/shell/src/index.ts"
+        "libs/inventory/shell/src/index.ts"
       ],
       "@josanz-erp/rentals-data-access": [
-        "libs/browser/data-access/rentals/data-access/src/index.ts"
+        "libs/rentals/data-access/src/index.ts"
       ],
       "@josanz-erp/rentals-feature": [
-        "libs/browser/feature/rentals/feature/src/index.ts"
+        "libs/rentals/feature/src/index.ts"
       ],
       "@josanz-erp/rentals-shell": [
-        "libs/browser/shell/rentals/shell/src/index.ts"
+        "libs/rentals/shell/src/index.ts"
       ],
       "@josanz-erp/delivery-data-access": [
-        "libs/browser/data-access/delivery/data-access/src/index.ts"
+        "libs/delivery/data-access/src/index.ts"
       ],
       "@josanz-erp/delivery-feature": [
-        "libs/browser/feature/delivery/feature/src/index.ts"
+        "libs/delivery/feature/src/index.ts"
       ],
       "@josanz-erp/delivery-shell": [
-        "libs/browser/shell/delivery/shell/src/index.ts"
+        "libs/delivery/shell/src/index.ts"
       ],
       "@josanz-erp/billing-data-access": [
-        "libs/browser/data-access/billing/data-access/src/index.ts"
+        "libs/billing/data-access/src/index.ts"
       ],
       "@josanz-erp/billing-feature": [
-        "libs/browser/feature/billing/feature/src/index.ts"
+        "libs/billing/feature/src/index.ts"
       ],
       "@josanz-erp/billing-shell": [
-        "libs/browser/shell/billing/shell/src/index.ts"
+        "libs/billing/shell/src/index.ts"
       ],
       "@josanz-erp/fleet-data-access": [
-        "libs/browser/data-access/fleet/data-access/src/index.ts"
+        "libs/fleet/data-access/src/index.ts"
       ],
       "@josanz-erp/fleet-feature": [
-        "libs/browser/feature/fleet/feature/src/index.ts"
+        "libs/fleet/feature/src/index.ts"
       ],
       "@josanz-erp/fleet-shell": [
-        "libs/browser/shell/fleet/shell/src/index.ts"
+        "libs/fleet/shell/src/index.ts"
       ],
       "@josanz-erp/budget-feature": [
-        "libs/browser/feature/budget/feature/src/index.ts"
+        "libs/budget/feature/src/index.ts"
       ],
       "@josanz-erp/budget-shell": [
-        "libs/browser/shell/budget/shell/src/index.ts"
+        "libs/budget/shell/src/index.ts"
       ],
       "@josanz-erp/budget-backend": [
-        "libs/node/backend/budget/backend/src/index.ts"
+        "libs/budget/backend/src/index.ts"
       ],
       "@josanz-erp/budget-core": [
-        "libs/isomorphic/core/budget/core/src/index.ts"
+        "libs/budget/domain/src/index.ts"
       ],
       "@josanz-erp/clients-core": [
-        "libs/isomorphic/core/clients/core/src/index.ts"
+        "libs/clients/domain/src/index.ts"
       ],
       "@josanz-erp/delivery-core": [
-        "libs/isomorphic/core/delivery/core/src/index.ts"
+        "libs/delivery/domain/src/index.ts"
       ],
       "@josanz-erp/delivery-backend": [
-        "libs/node/backend/delivery/backend/src/index.ts"
+        "libs/delivery/backend/src/index.ts"
       ],
       "@josanz-erp/fleet-core": [
-        "libs/isomorphic/core/fleet/core/src/index.ts"
+        "libs/fleet/domain/src/index.ts"
       ],
       "@josanz-erp/fleet-backend": [
-        "libs/node/backend/fleet/backend/src/index.ts"
+        "libs/fleet/backend/src/index.ts"
       ],
       "@josanz-erp/inventory-core": [
-        "libs/isomorphic/core/inventory/core/src/index.ts"
+        "libs/inventory/domain/src/index.ts"
       ],
       "@josanz-erp/inventory-backend": [
-        "libs/node/backend/inventory/backend/src/index.ts"
+        "libs/inventory/backend/src/index.ts"
       ],
       "@josanz-erp/identity-core": [
-        "libs/isomorphic/core/identity/core/src/index.ts"
+        "libs/identity/domain/src/index.ts"
       ],
       "@josanz-erp/identity-backend": [
-        "libs/node/backend/identity/backend/src/index.ts"
+        "libs/identity/backend/src/index.ts"
       ],
       "@josanz-erp/rentals-core": [
-        "libs/isomorphic/core/rentals/core/src/index.ts"
+        "libs/rentals/domain/src/index.ts"
       ],
       "@josanz-erp/rentals-backend": [
-        "libs/node/backend/rentals/backend/src/index.ts"
+        "libs/rentals/backend/src/index.ts"
       ],
       "@josanz-erp/verifactu-core": [
-        "libs/isomorphic/core/verifactu/core/src/index.ts"
+        "libs/verifactu/domain/src/index.ts"
       ],
       "@josanz-erp/projects-core": [
-        "libs/isomorphic/core/projects/core/src/index.ts"
+        "libs/projects/domain/src/index.ts"
       ],
       "@josanz-erp/services-core": [
-        "libs/isomorphic/core/services/core/src/index.ts"
+        "libs/services/domain/src/index.ts"
       ],
       "@josanz-erp/receipts-core": [
-        "libs/isomorphic/core/receipts/core/src/index.ts"
+        "libs/receipts/domain/src/index.ts"
       ],
       "@josanz-erp/verifactu-adapters": [
         "libs/node/adapters/verifactu/adapters/src/index.ts"
@@ -183,92 +183,75 @@
         "libs/isomorphic/api/verifactu/api/src/index.ts"
       ],
       "@josanz-erp/verifactu-data-access": [
-        "libs/browser/data-access/verifactu/data-access/src/index.ts"
+        "libs/verifactu/data-access/src/index.ts"
       ],
       "@josanz-erp/verifactu-feature": [
-        "libs/browser/feature/verifactu/feature/src/index.ts"
+        "libs/verifactu/feature/src/index.ts"
       ],
       "@josanz-erp/verifactu-shell": [
-        "libs/browser/shell/verifactu/shell/src/index.ts"
+        "libs/verifactu/shell/src/index.ts"
       ],
       "@josanz-erp/auth-jwt": ["libs/node/auth/jwt/src/index.ts"],
       "@josanz-erp/shared-integrations-email": [
-        "libs/node/shared/integrations/email/src/index.ts"
+        "libs/shared/integrations/email/src/index.ts"
       ],
       "@josanz-erp/shared-integrations-storage": [
-        "libs/node/shared/integrations/storage/src/index.ts"
+        "libs/shared/integrations/storage/src/index.ts"
       ],
-      "@josanz-erp/shared-cqrs": ["libs/node/shared/cqrs/src/index.ts"],
+      "@josanz-erp/shared-cqrs": ["libs/shared/cqrs/src/index.ts"],
       "@josanz-erp/shared-infrastructure": [
         "libs/node/shared-infrastructure/src/index.ts"
       ],
       "@josanz-erp/shared-ui-shell": [
-        "libs/browser/shared/ui-shell/src/index.ts"
+        "libs/shared/ui-shell/src/index.ts"
       ],
       "@josanz-erp/settings-feature": [
-        "libs/browser/feature/settings/feature/src/index.ts"
+        "libs/settings/feature/src/index.ts"
       ],
       "@josanz-erp/settings-shell": [
-        "libs/browser/shell/settings/shell/src/index.ts"
+        "libs/settings/shell/src/index.ts"
       ],
       "@josanz-erp/dashboard-shell": [
-        "libs/browser/shell/dashboard/shell/src/index.ts"
+        "libs/dashboard/shell/src/index.ts"
       ],
       "@josanz-erp/dashboard-feature": [
-        "libs/browser/feature/dashboard/feature/src/index.ts"
+        "libs/dashboard/feature/src/index.ts"
       ],
       "@josanz-erp/projects-shell": [
-        "libs/browser/shell/projects/shell/src/index.ts"
+        "libs/projects/shell/src/index.ts"
       ],
       "@josanz-erp/projects-feature": [
-        "libs/browser/feature/projects/feature/src/index.ts"
+        "libs/projects/feature/src/index.ts"
       ],
       "@josanz-erp/services-shell": [
-        "libs/browser/shell/services/shell/src/index.ts"
+        "libs/services/shell/src/index.ts"
       ],
       "@josanz-erp/services-feature": [
-        "libs/browser/feature/services/feature/src/index.ts"
+        "libs/services/feature/src/index.ts"
       ],
       "@josanz-erp/reports-shell": [
-        "libs/browser/shell/reports/shell/src/index.ts"
+        "libs/reports/shell/src/index.ts"
       ],
       "@josanz-erp/reports-feature": [
-        "libs/browser/feature/reports/feature/src/index.ts"
+        "libs/reports/feature/src/index.ts"
       ],
       "@josanz-erp/audit-shell": [
-        "libs/browser/shell/audit/shell/src/index.ts"
+        "libs/audit/shell/src/index.ts"
       ],
       "@josanz-erp/audit-feature": [
-        "libs/browser/feature/audit/feature/src/index.ts"
+        "libs/audit/feature/src/index.ts"
       ],
       "@josanz-erp/receipts-shell": [
-        "libs/browser/shell/receipts/shell/src/index.ts"
+        "libs/receipts/shell/src/index.ts"
       ],
       "@josanz-erp/receipts-feature": [
-        "libs/browser/feature/receipts/feature/src/index.ts"
+        "libs/receipts/feature/src/index.ts"
       ],
-      "@josanz-erp/events-feature": [
-        "libs/browser/feature/events/src/index.ts"
-      ],
-      "@josanz-erp/events-backend": ["libs/node/backend/src/index.ts"],
-      "@josanz-erp/projects-backend": [
-        "libs/node/backend/projects/backend/src/index.ts"
-      ],
-      "@josanz-erp/services-backend": [
-        "libs/node/backend/services/backend/src/index.ts"
-      ],
-      "@josanz-erp/receipts-backend": [
-        "libs/node/backend/receipts/backend/src/index.ts"
-      ],
-      "@josanz-erp/feature": ["libs/browser/feature/events/src/index.ts"],
-      "@josanz-erp/users-data-access": [
-        "libs/browser/data-access/src/index.ts"
-      ],
-      "@josanz-erp/users-feature": ["libs/browser/feature/src/index.ts"],
       "@josanz-erp/events-shell": [
-        "libs/browser/shell/events/shell/src/index.ts"
+        "libs/events/shell/src/index.ts"
       ]
     }
   },
   "exclude": ["node_modules", "tmp"]
 }
+

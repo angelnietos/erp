@@ -1,0 +1,27 @@
+{
+  "name": "verifactu-feature",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/verifactu/feature/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [
+    "scope:verifactu",
+    "type:feature"
+  ],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/verifactu/feature/jest.config.cts",
+        "tsConfig": "libs/verifactu/feature/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
+
