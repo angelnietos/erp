@@ -3,16 +3,15 @@
 
   <div class="auth-card glass">
     <div class="auth-header">
-      <div class="logo-circle">
+      <div class="logo-circle animate-in stagger-1">
         <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
       </div>
-      <p class="brand-tag text-uppercase">Josanz Audiovisuales</p>
-      <h1>Acceso ERP</h1>
-      <!-- <p class="auth-sub">Plató listo. Entra al panel de producción.</p> -->
+      <p class="brand-tag text-uppercase animate-in stagger-2">Josanz Audiovisuales</p>
+      <h1 class="animate-in stagger-2">Acceso ERP</h1>
     </div>
 
     <!-- Theme Selector -->
-    <div class="theme-selector-container">
+    <div class="theme-selector-container animate-in stagger-3">
       <div class="theme-label">
         <lucide-icon [name]="icons.Palette" size="14"></lucide-icon>
         <span>Estilo de Fondo</span>
@@ -47,6 +46,7 @@
         icon="user"
         formControlName="email"
         [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
+        class="animate-in stagger-4"
       ></ui-josanz-input>
 
       <ui-josanz-input
@@ -57,6 +57,7 @@
         icon="lock"
         formControlName="password"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
+        class="animate-in stagger-4"
       ></ui-josanz-input>
 
       <ui-josanz-button 
@@ -64,12 +65,13 @@
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
         icon="arrow-right"
+        class="animate-in stagger-5"
       >
         Acceder
       </ui-josanz-button>
     </form>
 
-    <div class="auth-footer">
+    <div class="auth-footer animate-in stagger-5">
       <a href="javascript:void(0)">¿Olvidaste tu contraseña?</a>
     </div>
   </div>

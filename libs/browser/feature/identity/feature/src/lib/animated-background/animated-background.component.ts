@@ -333,18 +333,19 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.spotlights = [];
 
     if (cfg.style === 'matrix') {
-      const columns = Math.floor(w / 35); // Reduced density
-      const matrixChars = '0123456789ABCDEFHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲ';
+      const columns = Math.ceil(w / 28);
+      const matrixChars = '0123456789ABCDEFHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲ%$#@&*()_+|?><ΩΣΘΠΦΨ{}[]\\/';
       for (let i = 0; i < columns; i++) {
         this.matrixCodes.push({
-          x: i * 35,
-          y: Math.random() * h,
-          speed: 1.5 + Math.random() * 4,
-          chars: Array.from({ length: 10 + Math.floor(Math.random() * 15) }, () => 
+          x: i * 28,
+          y: Math.random() * -h,
+          speed: 1.5 + Math.random() * 6,
+          chars: Array.from({ length: 12 + Math.floor(Math.random() * 25) }, () => 
             matrixChars[Math.floor(Math.random() * matrixChars.length)]
           ),
-          opacity: 0.15 + Math.random() * 0.45,
-          size: 16 + Math.random() * 6,
+          opacity: 0.25 + Math.random() * 0.65,
+          size: 14 + Math.random() * 10,
+          shimmerCounter: Math.floor(Math.random() * 10),
         });
       }
     }
@@ -1012,34 +1013,57 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
 
   private drawMatrixStyle(w: number, h: number) {
     const cfg = this.getThemeConfig();
+    const matrixChars = '0123456789ABCDEFHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲ%$#@&*()_+|?><{}[]\\/ΩΣΘΠΦΨ';
     this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
     
     this.matrixCodes.forEach(code => {
       code.y += code.speed;
+      code.shimmerCounter++;
+
       if (code.y - (code.chars.length * code.size) > h) {
         code.y = -code.size;
-        code.speed = 1.5 + Math.random() * 4;
+        code.speed = 1.5 + Math.random() * 6;
       }
 
-      this.ctx.font = `${code.size}px "JetBrains Mono", monospace`;
+      // Shimmer: change random chars in the sequence
+      if (code.shimmerCounter % 2 === 0) {
+        const idx = Math.floor(Math.random() * code.chars.length);
+        code.chars[idx] = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+      }
+
+      this.ctx.font = `900 ${code.size}px "JetBrains Mono", "Courier New", monospace`;
       
       code.chars.forEach((char, i) => {
         const charY = code.y - (i * code.size);
-        if (charY < -20 || charY > h + 20) return;
+        if (charY < -code.size || charY > h + code.size) return;
 
-        const charRatio = 1 - (i / code.chars.length);
-        const charOpacity = code.opacity * charRatio;
+        const charRatio = i === 0 ? 1 : 1 - (i / code.chars.length);
+        const charOpacity = code.opacity * Math.pow(charRatio, 1.5);
         
         if (i === 0) {
-          this.ctx.fillStyle = `rgba(255, 255, 255, ${charOpacity * 2})`;
-          this.ctx.shadowBlur = 10;
-          this.ctx.shadowColor = `hsla(${cfg.sky[0]}, 100%, 70%, 1)`;
+          // Head character - Ultra-bright and shimmering head
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${charOpacity * 1.8})`;
+          this.ctx.shadowBlur = 15;
+          this.ctx.shadowColor = `hsla(${cfg.sky[0]}, 100%, 80%, 1)`;
+          const headChar = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+          this.ctx.fillText(headChar, code.x, charY);
         } else {
-          this.ctx.fillStyle = `hsla(${cfg.sky[0]}, 100%, 70%, ${charOpacity})`;
+          // Body characters
           this.ctx.shadowBlur = 0;
+          
+          // Slight color variation for depth
+          const depthHue = (cfg.sky[0] + (i % 2 === 0 ? 5 : -5)) % 360;
+          this.ctx.fillStyle = `hsla(${depthHue}, 100%, 75%, ${charOpacity})`;
+          
+          if (Math.random() < 0.008) {
+            this.ctx.fillStyle = '#fff';
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowColor = `hsla(${cfg.sky[0]}, 100%, 80%, 0.8)`;
+          }
+          
+          this.ctx.fillText(char, code.x, charY);
         }
-        
-        this.ctx.fillText(char, code.x, charY);
       });
     });
     this.ctx.shadowBlur = 0;
@@ -2129,6 +2153,7 @@ interface MatrixCode {
   chars: string[];
   opacity: number;
   size: number;
+  shimmerCounter: number;
 }
 
 interface SoundBar {
