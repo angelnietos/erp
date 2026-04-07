@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   signal,
   inject,
   computed,
@@ -30,7 +31,8 @@ import {
   UiCardComponent,
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
 
 export interface Project {
   id: string;
@@ -58,6 +60,9 @@ export interface Project {
     UiCardComponent,
     UiSelectComponent,
     LucideAngularModule,
+  ],
+  providers: [
+    { provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }
   ],
   template: `
     <div
@@ -463,7 +468,7 @@ export interface Project {
     `,
   ],
 })
-export class ProjectsListComponent implements OnInit {
+export class ProjectsListComponent implements OnInit, OnDestroy, FilterableService<Project> {
   readonly Plus = Plus;
   readonly Search = Search;
   readonly Edit = Edit;
@@ -479,6 +484,7 @@ export class ProjectsListComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
+  private readonly masterFilter = inject(MasterFilterService);
 
   currentThemeData = this.themeService.currentThemeData;
 
@@ -524,16 +530,37 @@ export class ProjectsListComponent implements OnInit {
 
   ngOnInit() {
     this.loadProjects();
+    this.masterFilter.registerProvider(this);
+    
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
       if (text) {
         this.searchTerm.set(text);
+        this.masterFilter.search(text);
       }
     });
   }
 
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
   onSearchChange(term: string) {
     this.searchTerm.set(term);
+    this.masterFilter.search(term);
+  }
+
+  /**
+   * Implementación del contrato FilterableService.
+   * El MasterFilterService llamará a este método cuando se busque globalmente.
+   */
+  filter(query: string): Observable<Project[]> {
+    const term = query.toLowerCase();
+    const result = this.allProjects().filter(p => 
+       p.name.toLowerCase().includes(term) || 
+       (p.description ?? '').toLowerCase().includes(term)
+    );
+    return of(result);
   }
 
   onStatusFilterChange(value: string) {

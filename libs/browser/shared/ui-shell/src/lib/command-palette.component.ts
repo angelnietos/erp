@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { UiSearchComponent } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, AuthStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, AuthStore, MasterFilterService } from '@josanz-erp/shared-data-access';
 
 export interface CommandItem {
   id: string;
@@ -37,12 +37,33 @@ export interface CommandItem {
         ></ui-josanz-search>
 
         <div class="results-area">
-          @if (filteredItems().length === 0) {
+          @if (filteredItems().length === 0 && contextResults().length === 0) {
             <div class="empty-state">
               <lucide-icon name="search-x" size="32" class="text-muted"></lucide-icon>
               <p class="text-uppercase text-muted">No se han encontrado resultados técnicos</p>
             </div>
           } @else {
+            @if (contextResults().length > 0) {
+               <div class="category-group">
+                 <div class="category-label text-uppercase">Resultados en este Módulo</div>
+                 @for (item of contextResults(); track item.id) {
+                    <div 
+                      class="command-item context-hit" 
+                      (click)="executeContextItem(item)"
+                      [class.active]="selectedId() === 'ctx-' + item.id"
+                    >
+                      <div class="item-icon ctx">
+                        <lucide-icon name="arrow-right-circle" size="18"></lucide-icon>
+                      </div>
+                      <div class="item-info">
+                        <span class="label text-uppercase">{{ item.name || item.label || 'Resultado' }}</span>
+                        <span class="desc">{{ item.description || 'Ver detalle en el módulo actual' }}</span>
+                      </div>
+                    </div>
+                 }
+               </div>
+            }
+
             @for (cat of categories(); track cat) {
               <div class="category-group">
                 <div class="category-label text-uppercase">{{ cat }}</div>
@@ -164,6 +185,9 @@ export class CommandPaletteComponent {
 
   private themeService = inject(ThemeService);
   private authStore = inject(AuthStore);
+  private masterFilter = inject(MasterFilterService);
+
+  contextResults = this.masterFilter.results;
 
   categories = computed(() => {
     const cats = new Set(this.filteredItems().map(i => i.category));
@@ -185,6 +209,8 @@ export class CommandPaletteComponent {
 
   onSearch(term: string) {
     const raw = term.trim();
+    this.masterFilter.search(raw);
+
     if (!raw) {
       this.filteredItems.set(this.allItems);
       if (this.filteredItems().length > 0) {
@@ -193,43 +219,21 @@ export class CommandPaletteComponent {
       return;
     }
     const t = raw.toLowerCase();
-    const q = encodeURIComponent(raw);
-    const globalHits: CommandItem[] = [
-      {
-        id: `g-clients-${raw}`,
-        label: `Clientes: "${raw}"`,
-        description: 'Abrir directorio con búsqueda aplicada',
-        icon: 'users',
-        category: 'Búsqueda global',
-        route: `/clients?q=${q}`,
-      },
-      {
-        id: `g-projects-${raw}`,
-        label: `Proyectos: "${raw}"`,
-        description: 'Abrir proyectos con filtro de texto',
-        icon: 'briefcase',
-        category: 'Búsqueda global',
-        route: `/projects?q=${q}`,
-      },
-      {
-        id: `g-events-${raw}`,
-        label: `Eventos: "${raw}"`,
-        description: 'Ir a eventos con término en filtros',
-        icon: 'calendar',
-        category: 'Búsqueda global',
-        route: `/events?search=${q}`,
-      },
-    ];
     const staticHits = this.allItems.filter(
       (i) =>
         i.label.toLowerCase().includes(t) ||
         i.description.toLowerCase().includes(t) ||
         i.category.toLowerCase().includes(t),
     );
-    this.filteredItems.set([...globalHits, ...staticHits]);
+    this.filteredItems.set(staticHits);
     if (this.filteredItems().length > 0) {
       this.selectedId.set(this.filteredItems()[0].id);
     }
+  }
+
+  executeContextItem(item: any) {
+    // Si tiene ruta específica en el objeto de negocio, la usamos, sino lógica dummy para el demo
+    this.closePalette.emit();
   }
 
   executeCommand(item: CommandItem) {
