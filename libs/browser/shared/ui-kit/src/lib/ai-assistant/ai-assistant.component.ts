@@ -6,11 +6,12 @@ import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { UiCardComponent } from '../card/card.component';
 import { FormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'ui-josanz-ai-assistant',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, UiCardComponent, FormsModule],
+  imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, UiCardComponent, FormsModule, DragDropModule],
   template: `
     <div class="ai-assistant-wrapper" *ngIf="bot() && bot()!.status === 'active'">
       <!-- Floating Mascot Bubble -->
@@ -27,10 +28,11 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <!-- Chat Window -->
-      <div class="chat-window-container" *ngIf="isOpen()" (click)="$event.stopPropagation()">
+      <div class="chat-window-container" *ngIf="isOpen()" cdkDrag cdkDragBoundary=".page-container" (click)="$event.stopPropagation()">
         <ui-josanz-card variant="glass" class="chat-window animate-slide-up">
-          <div class="chat-header" [style.border-bottom-color]="bot()!.color">
+          <div class="chat-header" cdkDragHandle [style.border-bottom-color]="bot()!.color">
             <div class="bot-status-info">
+              <lucide-icon name="grip-vertical" size="14" class="drag-handle-icon"></lucide-icon>
               <span class="status-indicator" [style.background]="bot()!.color"></span>
               <div>
                 <h4>{{ bot()!.name }}</h4>
@@ -81,7 +83,7 @@ import { FormsModule } from '@angular/forms';
       position: fixed;
       bottom: 2rem;
       right: 2rem;
-      z-index: 9999;
+      z-index: 10000; /* Higher than sidebar/header */
     }
 
     .assistant-trigger {
@@ -115,27 +117,41 @@ import { FormsModule } from '@angular/forms';
       position: absolute;
       bottom: 100px;
       right: 0;
-      width: 380px;
-      max-height: 500px;
+      width: 400px;
+      z-index: 10001;
     }
 
     .chat-window {
       padding: 0;
       display: flex;
       flex-direction: column;
-      height: 500px;
+      height: 550px;
       overflow: hidden;
       border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      background: rgba(15, 23, 42, 0.85) !important; /* Fixed opacity for visibility */
+      backdrop-filter: blur(25px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .chat-header {
-      padding: 1.25rem;
-      background: rgba(255,255,255,0.03);
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.05);
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid transparent;
+      cursor: grab;
+    }
+
+    .chat-header:active {
+      cursor: grabbing;
+    }
+
+    .drag-handle-icon {
+      color: var(--text-muted);
+      margin-right: 0.5rem;
+      opacity: 0.5;
     }
 
     .bot-status-info {
@@ -145,14 +161,14 @@ import { FormsModule } from '@angular/forms';
     }
 
     .status-indicator {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      box-shadow: 0 0 10px currentColor;
+      box-shadow: 0 0 15px currentColor;
     }
 
-    .chat-header h4 { margin: 0; font-size: 1rem; color: #fff; }
-    .chat-header p { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
+    .chat-header h4 { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 800; }
+    .chat-header p { margin: 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 
     .close-btn {
       background: transparent;
@@ -163,7 +179,7 @@ import { FormsModule } from '@angular/forms';
       transition: color 0.3s;
     }
 
-    .close-btn:hover { color: #fff; }
+    .close-btn:hover { color: var(--danger); }
 
     .chat-messages {
       flex: 1;
@@ -171,31 +187,34 @@ import { FormsModule } from '@angular/forms';
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1.5rem;
+      background: rgba(0,0,0,0.1);
     }
 
     .message {
-      max-width: 85%;
-      padding: 0.75rem 1rem;
-      border-radius: 16px;
-      font-size: 0.9rem;
-      line-height: 1.4;
+      max-width: 88%;
+      padding: 0.85rem 1.1rem;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      line-height: 1.5;
     }
 
     .bot-msg {
       align-self: flex-start;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.07);
       border: 1px solid rgba(255,255,255,0.05);
-      color: #dfdfdf;
+      color: #fafafa;
       border-bottom-left-radius: 4px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
 
     .user-msg {
       align-self: flex-end;
       background: var(--brand);
       color: #000;
-      font-weight: 500;
+      font-weight: 600;
       border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 15px rgba(var(--brand-rgb), 0.3);
     }
 
     .bot-skills-badges {
@@ -206,32 +225,53 @@ import { FormsModule } from '@angular/forms';
     }
 
     .skill-badge {
-      font-size: 0.7rem;
-      padding: 2px 8px;
+      font-size: 0.75rem;
+      padding: 3px 10px;
       border-radius: 100px;
-      font-weight: 700;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
     .chat-input-area {
-      padding: 1.25rem;
+      padding: 1.5rem;
       border-top: 1px solid var(--border-soft);
       display: flex;
-      gap: 0.75rem;
+      gap: 1rem;
+      background: rgba(0,0,0,0.2);
     }
 
     .chat-input-area input {
       flex: 1;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.05);
       border: 1px solid var(--border-soft);
-      border-radius: 12px;
-      padding: 0.5rem 1rem;
+      border-radius: 14px;
+      padding: 0.75rem 1.25rem;
       color: #fff;
-      font-size: 0.9rem;
+      font-size: 1rem;
       outline: none;
+      transition: border-color 0.3s, background 0.3s;
     }
 
     .chat-input-area input:focus {
       border-color: var(--brand);
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* CDK Drag Classes */
+    .cdk-drag-preview {
+      box-sizing: border-box;
+      border-radius: 24px;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    }
+
+    .cdk-drag-placeholder {
+      opacity: 0;
+    }
+
+    .cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
   `]
 })
