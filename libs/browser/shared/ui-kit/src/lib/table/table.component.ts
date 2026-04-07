@@ -111,7 +111,7 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         border-collapse: separate;
         border-spacing: 0;
         text-align: left;
-        min-width: 800px; /* Prevent squashing */
+        min-width: 1200px; /* Prevent squashing - ensuring horizontal scroll */
       }
 
       thead {
@@ -128,8 +128,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       th {
-        padding: 0.875rem 1.25rem;
-        font-size: 0.58rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.55rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.12em;
@@ -142,8 +142,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       td {
-        padding: 0.85rem 1.25rem;
-        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
         transition: var(--transition-fast);
@@ -179,12 +179,13 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       .virt-head {
         display: grid;
         align-items: center;
-        min-height: 48px;
+        min-height: 40px;
         background: var(--bg-tertiary);
         border-bottom: 1px solid var(--border-vibrant);
         position: sticky;
         top: 0;
         z-index: 10;
+        min-width: 1200px;
       }
 
       .virt-th {
@@ -206,9 +207,10 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       .virt-row {
         display: grid;
         align-items: stretch;
-        min-height: 56px;
+        min-height: 48px;
         border-bottom: 1px solid var(--border-soft);
         transition: var(--transition-base);
+        min-width: 1200px;
       }
 
       .virt-td {

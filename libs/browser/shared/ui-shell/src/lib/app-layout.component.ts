@@ -167,7 +167,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
     }
 
     .top-nav {
-      height: 56px;
+      height: 48px;
       background: rgba(10, 10, 10, 0.8);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -558,7 +558,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
     }
 
     .content {
-      padding: 0 16px 20px;
+      padding: 0 12px 12px;
       max-width: 100%;
       margin: 0 auto;
     }

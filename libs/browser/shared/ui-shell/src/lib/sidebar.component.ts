@@ -119,8 +119,8 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
          SIDEBAR — ALWAYS DARK, INDEPENDENT OF ACTIVE THEME
          ====================================================== */
       .sidebar-container {
-        width: 248px;
-        min-width: 248px;
+        width: 210px;
+        min-width: 210px;
         height: 100%;
         /* Hardcoded dark — never inherits the light theme bg */
         background: linear-gradient(
@@ -156,12 +156,12 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .sidebar-container.collapsed {
-        width: 68px;
-        min-width: 68px;
+        width: 56px;
+        min-width: 56px;
       }
 
       .header {
-        height: 64px;
+        height: 48px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -258,8 +258,8 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       .nav-link {
         display: flex;
         align-items: center;
-        padding: 9px 12px;
-        border-radius: 10px;
+        padding: 7px 10px;
+        border-radius: 8px;
         text-decoration: none;
         color: rgba(255, 255, 255, 0.5);
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
