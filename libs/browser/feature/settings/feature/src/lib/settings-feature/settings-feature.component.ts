@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu, Smile } from 'lucide-angular';
+import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu, Smile, Zap } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,17 @@ interface PluginDescriptor {
 @Component({
   selector: 'lib-settings-feature',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    LucideAngularModule, 
+    UiCardComponent, 
+    UiButtonComponent, 
+    UIMascotComponent, 
+    UiBadgeComponent, 
+    UiInputComponent, 
+    UiSelectComponent
+  ],
   template: `
     <div class="page-container animate-fade-in">
       <div class="settings-layout">
@@ -262,7 +272,7 @@ interface PluginDescriptor {
               @if (aiBotStore.getBotByFeature('dashboard'); as buddy) {
                 <div class="buddy-customizer">
                   <div class="buddy-visual-col">
-                    <ui-josanz-card variant="glass" class="buddy-preview-card">
+                    <ui-josanz-card variant="glass" class="buddy-preview-card" [class.is-rage-preview]="aiBotStore.rageMode()">
                       <div class="preview-glow"></div>
                       <ui-josanz-mascot 
                         [type]="buddy.mascotType" 
@@ -270,68 +280,84 @@ interface PluginDescriptor {
                         [personality]="buddy.personality" 
                         [bodyShape]="buddy.bodyShape" 
                         [eyesType]="buddy.eyesType" 
-                        [mouthType]="buddy.mouthType">
+                        [mouthType]="buddy.mouthType"
+                        [rageMode]="aiBotStore.rageMode()"
+                        [rageStyle]="aiBotStore.rageStyle()">
                       </ui-josanz-mascot>
                     </ui-josanz-card>
                   </div>
 
                   <div class="buddy-config-col">
                     <ui-josanz-card variant="glass" class="buddy-options-card">
-                      <h3>Apariencia</h3>
-                      <div class="form-group mb-4">
-                        <label class="form-label">Color Principal</label>
-                        <div class="color-picker-grid">
-                          @for (c of [{m: '#facc15', s: '#ca8a04', n: 'Pato Clásico'}, {m: '#f43f5e', s: '#9f1239', n: 'Cereza'}, {m: '#10b981', s: '#059669', n: 'Hulk'}, {m: '#8b5cf6', s: '#6d28d9', n: 'Místico'}, {m: '#3b82f6', s: '#1d4ed8', n: 'Aqua'}, {m: '#1e293b', s: '#0f172a', n: 'Stealth'}]; track c.n) {
-                            <div class="color-swatch-item" 
-                                 [class.active]="buddy.color === c.m"
-                                 (click)="aiBotStore.updateBotSkin('dashboard', { color: c.m, secondaryColor: c.s })">
-                              <div class="color-swatch" [style.background]="c.m"></div>
-                            </div>
-                          }
+                      <div class="card-header-with-toggle">
+                        <h3>Apariencia Standard</h3>
+                        <div class="toggle-wrapper rage-toggle" [class.active]="aiBotStore.rageMode()" (click)="aiBotStore.setRageMode(!aiBotStore.rageMode())">
+                          <lucide-icon name="zap" size="14"></lucide-icon>
+                          <span>MODO RAGE</span>
+                          <div class="toggle-handle"></div>
                         </div>
                       </div>
 
-                      <div class="form-group mb-4">
-                        <ui-josanz-select
-                          label="Forma del Cuerpo"
-                          [options]="[
-                            { value: 'capsule', label: 'Cápsula Plana' },
-                            { value: 'round', label: 'Esfera Gordita' },
-                            { value: 'square', label: 'Cubo Bloque' },
-                            { value: 'tri', label: 'Triángulo Puntiagudo' }
-                          ]"
-                          [ngModel]="buddy.bodyShape"
-                          (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { bodyShape: $event })"
-                        ></ui-josanz-select>
+                      <div class="standard-options" [class.dimmed]="aiBotStore.rageMode()">
+                        <div class="form-group mb-4">
+                          <label class="form-label">Color Principal</label>
+                          <div class="color-picker-grid">
+                            @for (c of [{m: '#facc15', s: '#ca8a04', n: 'Pato Clásico'}, {m: '#f43f5e', s: '#9f1239', n: 'Cereza'}, {m: '#10b981', s: '#059669', n: 'Hulk'}, {m: '#8b5cf6', s: '#6d28d9', n: 'Místico'}, {m: '#3b82f6', s: '#1d4ed8', n: 'Aqua'}, {m: '#1e293b', s: '#0f172a', n: 'Stealth'}]; track c.n) {
+                              <div class="color-swatch-item" 
+                                   [class.active]="buddy.color === c.m"
+                                   (click)="aiBotStore.updateBotSkin('dashboard', { color: c.m, secondaryColor: c.s })">
+                                <div class="color-swatch" [style.background]="c.m"></div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                          <ui-josanz-select
+                            label="Forma del Cuerpo"
+                            [options]="[
+                              { value: 'capsule', label: 'Cápsula Plana' },
+                              { value: 'round', label: 'Esfera Gordita' },
+                              { value: 'square', label: 'Cubo Bloque' },
+                              { value: 'tri', label: 'Triángulo Puntiagudo' }
+                            ]"
+                            [ngModel]="buddy.bodyShape"
+                            (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { bodyShape: $event })"
+                          ></ui-josanz-select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                          <ui-josanz-select
+                            label="Ojos"
+                            [options]="[
+                              { value: 'joy', label: 'Feliz / Kawaii' },
+                              { value: 'dots', label: 'Puntos Simples' },
+                              { value: 'shades', label: 'Gafas de Sol' }
+                            ]"
+                            [ngModel]="buddy.eyesType"
+                            (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { eyesType: $event })"
+                          ></ui-josanz-select>
+                        </div>
                       </div>
 
-                      <div class="form-group mb-4">
-                        <ui-josanz-select
-                          label="Ojos"
-                          [options]="[
-                            { value: 'joy', label: 'Feliz / Kawaii' },
-                            { value: 'dots', label: 'Puntos Simples' },
-                            { value: 'shades', label: 'Gafas de Sol' }
-                          ]"
-                          [ngModel]="buddy.eyesType"
-                          (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { eyesType: $event })"
-                        ></ui-josanz-select>
-                      </div>
-
-                      <div class="form-group">
-                        <ui-josanz-select
-                          label="Accesorio Extra"
-                          [options]="[
-                            { value: 'happy', label: 'Aura Brillante' },
-                            { value: 'tech', label: 'Antena de Robot' },
-                            { value: 'mystic', label: 'Orejas Mágicas' },
-                            { value: 'ninja', label: 'Nada (Stealth)' }
-                          ]"
-                          [ngModel]="buddy.personality"
-                          (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { personality: $event })"
-                        ></ui-josanz-select>
-                      </div>
-
+                      @if (aiBotStore.rageMode()) {
+                        <div class="rage-options animate-slide-up">
+                          <h3 class="rage-text">🔥 Configuración Tóxica</h3>
+                          <div class="form-group">
+                            <ui-josanz-select
+                              label="Nivel de Psicopatía"
+                              [options]="[
+                                { value: 'angry', label: 'Enfadado (Rojo)' },
+                                { value: 'terror', label: 'Terror Psicológico' },
+                                { value: 'dark', label: 'Vacío Oscuro' }
+                              ]"
+                              [ngModel]="aiBotStore.rageStyle()"
+                              (ngModelChange)="aiBotStore.setRageStyle($event)"
+                            ></ui-josanz-select>
+                          </div>
+                          <p class="rage-hint">Cuidado: Con este modo activo, Buddy no tendrá filtros y será grosero contigo.</p>
+                        </div>
+                      }
                     </ui-josanz-card>
 
                     <ui-josanz-card variant="glass" class="buddy-skills-card mt-6">
@@ -866,6 +892,70 @@ interface PluginDescriptor {
       height: 100%;
       border-radius: 50%;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Rage Mode Config Styles */
+    .card-header-with-toggle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .rage-toggle {
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .rage-toggle.active {
+      background: #dc2626;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+      border-color: #ef4444;
+    }
+    .rage-toggle span { 
+      font-size: 0.7rem; 
+      font-weight: 900; 
+      color: #ef4444; 
+      letter-spacing: 0.05em;
+    }
+    .rage-toggle.active span { color: #fff; }
+    .rage-toggle lucide-icon { color: #ef4444; }
+    .rage-toggle.active lucide-icon { color: #fff; }
+
+    .standard-options { transition: all 0.4s ease; }
+    .standard-options.dimmed {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: grayscale(0.8) blur(1px);
+      transform: scale(0.98);
+    }
+
+    .rage-text { 
+      color: #ef4444 !important; 
+      text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); 
+      margin: 1.5rem 0 1rem 0 !important;
+      font-family: 'Outfit', sans-serif;
+    }
+    .rage-hint { 
+      font-size: 0.75rem; 
+      color: #94a3b8; 
+      margin-top: 1.5rem; 
+      padding: 0.75rem;
+      background: rgba(0,0,0,0.2);
+      border-left: 3px solid #dc2626;
+      font-style: italic; 
+    }
+
+    .is-rage-preview {
+      border: 2px solid #dc2626 !important;
+      box-shadow: 0 0 40px rgba(220, 38, 38, 0.2), inset 0 0 20px rgba(220, 38, 38, 0.1) !important;
+      background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.2), transparent) !important;
     }
 
     .buddy-skills-card {
