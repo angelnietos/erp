@@ -388,27 +388,31 @@ interface IAMascot {
       padding-top: 1.25rem;
     }
 
-    /* AI Grid */
     .ai-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
       gap: 1.5rem;
+      width: 100%;
     }
 
     .ai-bot-card {
       display: grid;
-      grid-template-columns: 180px 1fr;
-      gap: 2rem;
+      grid-template-columns: 140px 1fr;
+      gap: 1.5rem;
       padding: 1.5rem;
+      align-items: start;
+      min-height: 280px;
     }
 
     .bot-visual {
-      height: 200px;
+      height: 140px;
+      width: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
       border-radius: 20px;
+      overflow: hidden;
     }
 
     .bot-info h3 {
@@ -557,6 +561,56 @@ export class SettingsFeatureComponent {
       status: 'active', 
       color: '#06b6d4',
       mascotType: 'projects'
+    },
+    { 
+      id: 'cli-bot', 
+      name: 'Social-Bot', 
+      feature: 'Clientes & CRM', 
+      description: 'Analiza el sentimiento de los clientes y sugiere momentos clave para contactar.', 
+      skills: ['Sentiment Analysis', 'Lead Scoring'], 
+      status: 'active', 
+      color: '#8b5cf6',
+      mascotType: 'clients'
+    },
+    { 
+      id: 'fleet-bot', 
+      name: 'Drive-Bot', 
+      feature: 'Flota & Vehículos', 
+      description: 'Optimiza rutas de transporte y predice mantenimientos preventivos del motor.', 
+      skills: ['Route Optimization', 'Predictive Maintenance'], 
+      status: 'inactive', 
+      color: '#f59e0b',
+      mascotType: 'fleet'
+    },
+    { 
+      id: 'rent-bot', 
+      name: 'Key-Bot', 
+      feature: 'Alquileres', 
+      description: 'Gestiona la disponibilidad de equipos y bloquea reservas conflictivas.', 
+      skills: ['Conflict Detection', 'Auto-Reservation'], 
+      status: 'active', 
+      color: '#3b82f6',
+      mascotType: 'rentals'
+    },
+    { 
+      id: 'audit-bot', 
+      name: 'Scout-Bot', 
+      feature: 'Auditoría & Seguridad', 
+      description: 'Detecta anomalías en los logs de acceso y previene acciones no autorizadas.', 
+      skills: ['Anomaly Detection', 'Risk Assessment'], 
+      status: 'active', 
+      color: '#ef4444',
+      mascotType: 'audit'
+    },
+    { 
+      id: 'verifactu-bot', 
+      name: 'Tax-Bot', 
+      feature: 'VeriFactu Compliance', 
+      description: 'Asegura que cada factura enviada cumpla con los requisitos legales de la AEAT.', 
+      skills: ['Fiscal Validation', 'Auto-Reporting'], 
+      status: 'inactive', 
+      color: '#f43f5e',
+      mascotType: 'universal'
     }
   ]);
 
