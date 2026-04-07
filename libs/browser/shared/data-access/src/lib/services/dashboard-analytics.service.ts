@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError, shareReplay } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 
 export interface DashboardSummaryDto {
   generatedAt: string;
@@ -18,27 +18,20 @@ export interface DashboardSummaryDto {
     clientsDelta: number;
     eventsNote: string;
   };
+  charts: {
+    revenueByClient: { clientId: string; name: string; revenue: number }[];
+    revenueByProject: { projectId: string; name: string; revenue: number }[];
+  };
 }
 
-/** KPIs desde backend con caché en caliente (shareReplay). */
+/** KPIs desde backend (sin caché HTTP: apto para refresco periódico en dashboard). */
 @Injectable({ providedIn: 'root' })
 export class DashboardAnalyticsService {
   private readonly http = inject(HttpClient);
-  private stream$: Observable<DashboardSummaryDto | null> | null = null;
 
   getSummary(): Observable<DashboardSummaryDto | null> {
-    if (!this.stream$) {
-      this.stream$ = this.http
-        .get<DashboardSummaryDto>('/api/analytics/dashboard-summary')
-        .pipe(
-          catchError(() => of(null)),
-          shareReplay({ bufferSize: 1, refCount: false }),
-        );
-    }
-    return this.stream$;
-  }
-
-  invalidateCache(): void {
-    this.stream$ = null;
+    return this.http
+      .get<DashboardSummaryDto>('/api/analytics/dashboard-summary')
+      .pipe(catchError(() => of(null)));
   }
 }

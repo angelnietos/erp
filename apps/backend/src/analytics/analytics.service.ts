@@ -1,6 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 
+export interface RevenueByClientRow {
+  clientId: string;
+  name: string;
+  revenue: number;
+}
+
+export interface RevenueByProjectRow {
+  projectId: string;
+  name: string;
+  revenue: number;
+}
+
 export interface DashboardSummaryDto {
   generatedAt: string;
   tenantId: string;
@@ -15,6 +27,10 @@ export interface DashboardSummaryDto {
     projectsDelta: number;
     clientsDelta: number;
     eventsNote: string;
+  };
+  charts: {
+    revenueByClient: RevenueByClientRow[];
+    revenueByProject: RevenueByProjectRow[];
   };
 }
 
@@ -40,6 +56,10 @@ export class AnalyticsService {
         clientsDelta: 5,
         eventsNote: 'stable',
       },
+      charts: {
+        revenueByClient: [],
+        revenueByProject: [],
+      },
     };
 
     try {
@@ -63,6 +83,13 @@ export class AnalyticsService {
         base.metrics.completedEvents =
           eventCount > 0 ? eventCount : base.metrics.completedEvents;
       }
+
+      const [byClient, byProject] = await Promise.all([
+        this.revenueByClient(tenantId),
+        this.revenueByProject(tenantId),
+      ]);
+      base.charts.revenueByClient = byClient;
+      base.charts.revenueByProject = byProject;
     } catch (e) {
       this.log.warn(
         `Prisma analytics fallback (DB unavailable or schema drift): ${(e as Error).message}`,
@@ -70,5 +97,82 @@ export class AnalyticsService {
     }
 
     return base;
+  }
+
+  private async revenueByClient(
+    tenantId: string,
+  ): Promise<RevenueByClientRow[]> {
+    const invoices = await this.prisma.invoice.findMany({
+      where: { tenantId, status: { notIn: ['DRAFT', 'CANCELLED'] } },
+      select: {
+        total: true,
+        budget: { select: { clientId: true, client: { select: { name: true } } } },
+      },
+    });
+    const map = new Map<string, { name: string; revenue: number }>();
+    for (const inv of invoices) {
+      const cid = inv.budget.clientId;
+      const name = inv.budget.client?.name ?? '—';
+      const cur = map.get(cid) ?? { name, revenue: 0 };
+      cur.revenue += inv.total;
+      map.set(cid, cur);
+    }
+    return [...map.entries()]
+      .map(([clientId, v]) => ({
+        clientId,
+        name: v.name,
+        revenue: Math.round(v.revenue * 100) / 100,
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+  }
+
+  private async revenueByProject(
+    tenantId: string,
+  ): Promise<RevenueByProjectRow[]> {
+    const [invoices, links] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where: { tenantId, status: { notIn: ['DRAFT', 'CANCELLED'] } },
+        select: { total: true, budget: { select: { eventId: true } } },
+      }),
+      this.prisma.projectEvent.findMany({
+        where: { project: { tenantId } },
+        select: {
+          eventId: true,
+          projectId: true,
+          project: { select: { name: true } },
+        },
+      }),
+    ]);
+
+    const eventToProjects = new Map<string, { id: string; name: string }[]>();
+    for (const row of links) {
+      const list = eventToProjects.get(row.eventId) ?? [];
+      list.push({ id: row.projectId, name: row.project.name });
+      eventToProjects.set(row.eventId, list);
+    }
+
+    const byProject = new Map<string, { name: string; revenue: number }>();
+    for (const inv of invoices) {
+      const eid = inv.budget.eventId;
+      if (!eid) continue;
+      const plist = eventToProjects.get(eid);
+      if (!plist?.length) continue;
+      const share = inv.total / plist.length;
+      for (const p of plist) {
+        const cur = byProject.get(p.id) ?? { name: p.name, revenue: 0 };
+        cur.revenue += share;
+        byProject.set(p.id, cur);
+      }
+    }
+
+    return [...byProject.entries()]
+      .map(([projectId, v]) => ({
+        projectId,
+        name: v.name,
+        revenue: Math.round(v.revenue * 100) / 100,
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
   }
 }

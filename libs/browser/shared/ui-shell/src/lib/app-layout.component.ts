@@ -7,13 +7,15 @@ import { ThemeService, Theme, AuthStore, PluginStore } from '@josanz-erp/shared-
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
+import { ToastStackComponent } from './toast-stack.component';
 
 @Component({
   selector: 'josanz-app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent, CommandPaletteComponent, CrmBackgroundComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, SidebarComponent, NotificationDrawerComponent, CommandPaletteComponent, CrmBackgroundComponent, ToastStackComponent],
   template: `
     <josanz-crm-background></josanz-crm-background>
+    <josanz-toast-stack />
     <div class="app-layout" style="position: relative; z-index: 1;">
       <!-- Sidebar -->
       <josanz-sidebar (logoutClick)="logoutClick.emit()"></josanz-sidebar>

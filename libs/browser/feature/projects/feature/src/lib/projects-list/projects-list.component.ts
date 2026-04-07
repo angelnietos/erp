@@ -1,6 +1,12 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  inject,
+  computed,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -10,11 +16,13 @@ import {
   Trash2,
   Copy,
 } from 'lucide-angular';
+import { take } from 'rxjs/operators';
 import {
   UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
   UiCardComponent,
+  UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
@@ -42,6 +50,7 @@ export interface Project {
     UiButtonComponent,
     UiSearchComponent,
     UiCardComponent,
+    UiSelectComponent,
     LucideAngularModule,
   ],
   template: `
@@ -88,6 +97,14 @@ export interface Project {
           (searchChange)="onSearchChange($event)"
           class="flex-1 max-w-md"
         ></ui-josanz-search>
+        <ui-josanz-select
+          label="Estado"
+          [options]="statusFilterOptions"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="onStatusFilterChange($event)"
+          name="projectStatus"
+          class="status-filter"
+        />
       </div>
 
       <ui-josanz-card
@@ -95,7 +112,11 @@ export interface Project {
         class="table-card"
         [class.neon-glow]="!pluginStore.highPerformanceMode()"
       >
-        <ui-josanz-table [data]="projects()" [columns]="columns">
+        <ui-josanz-table
+          [data]="filteredProjects()"
+          [columns]="columns"
+          [virtualScroll]="filteredProjects().length > 24"
+        >
           <ng-template #cellTemplate let-project let-key="key">
             @switch (key) {
               @case ('name') {
@@ -246,6 +267,10 @@ export interface Project {
         max-width: 28rem;
       }
 
+      .status-filter {
+        min-width: 200px;
+      }
+
       .project-link {
         color: var(--brand);
         text-decoration: none;
@@ -303,12 +328,38 @@ export class ProjectsListComponent implements OnInit {
 
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly route = inject(ActivatedRoute);
 
   currentThemeData = this.themeService.currentThemeData;
-  projects = signal<Project[]>([]);
 
-  loading = signal(false);
+  readonly allProjects = signal<Project[]>([]);
   searchTerm = signal('');
+  statusFilter = signal('');
+
+  statusFilterOptions = [
+    { label: 'Todos', value: '' },
+    { label: 'Activo', value: 'ACTIVE' },
+    { label: 'Completado', value: 'COMPLETED' },
+    { label: 'Cancelado', value: 'CANCELLED' },
+  ];
+
+  filteredProjects = computed(() => {
+    let list = [...this.allProjects()];
+    const st = this.statusFilter();
+    if (st) {
+      list = list.filter((p) => p.status === st);
+    }
+    const term = this.searchTerm().trim().toLowerCase();
+    if (term) {
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(term) ||
+          (p.description ?? '').toLowerCase().includes(term) ||
+          (p.clientName ?? '').toLowerCase().includes(term),
+      );
+    }
+    return list;
+  });
 
   columns = [
     { key: 'name', header: 'Nombre' },
@@ -323,30 +374,36 @@ export class ProjectsListComponent implements OnInit {
 
   ngOnInit() {
     this.loadProjects();
+    this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
+      const text = q.get('q')?.trim();
+      if (text) {
+        this.searchTerm.set(text);
+      }
+    });
   }
 
   onSearchChange(term: string) {
     this.searchTerm.set(term);
-    this.loadProjects();
   }
 
-  onRowClick(project: Project) {
+  onStatusFilterChange(value: string) {
+    this.statusFilter.set(value ?? '');
+  }
+
+  onRowClick(_project: Project) {
     // Navigate to detail - implement when table supports rowClick
   }
 
   onDuplicate(project: Project) {
-    // Implement duplicate logic
     console.log('Duplicate project:', project);
   }
 
   onDelete(project: Project) {
-    // Implement delete logic
     console.log('Delete project:', project);
   }
 
   private loadProjects() {
-    // Mock data for now
-    this.projects.set([
+    const base: Project[] = [
       {
         id: '1',
         name: 'Proyecto Demo 1',
@@ -434,6 +491,25 @@ export class ProjectsListComponent implements OnInit {
         clientName: 'Instituto Educativo Nacional',
         createdAt: '2023-11-01',
       },
-    ]);
+    ];
+    const extra: Project[] = Array.from({ length: 40 }, (_, i) => {
+      const n = i + 1;
+      const statuses: Project['status'][] = [
+        'ACTIVE',
+        'COMPLETED',
+        'CANCELLED',
+      ];
+      return {
+        id: `gen-${n}`,
+        name: `Proyecto operativo ${n}`,
+        description: `Línea de implantación y seguimiento ${n}`,
+        status: statuses[i % 3],
+        startDate: '2024-01-01',
+        endDate: '2025-12-31',
+        clientName: `Cliente ${(i % 12) + 1}`,
+        createdAt: '2024-06-01',
+      };
+    });
+    this.allProjects.set([...base, ...extra]);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -15,6 +15,7 @@ import {
   UiStatCardComponent,
   UiInputComponent
 } from '@josanz-erp/shared-ui-kit';
+import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -93,7 +94,12 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         </div>
       } @else {
         <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="clients()" variant="default">
+          <ui-josanz-table
+            [columns]="columns"
+            [data]="clients()"
+            variant="default"
+            [virtualScroll]="clients().length > 24"
+          >
             <ng-template #cellTemplate let-client let-key="key">
               @switch (key) {
                 @case ('name') {
@@ -217,6 +223,7 @@ export class ClientsListComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(ClientsFacade);
+  private readonly route = inject(ActivatedRoute);
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
 
   currentTheme = this.themeService.currentThemeData;
@@ -243,7 +250,16 @@ export class ClientsListComponent implements OnInit {
 
   activeSectorsCount = computed(() => new Set(this.clients().map(c => c.sector).filter(Boolean)).size);
 
-  ngOnInit() { this.loadClients(); }
+  ngOnInit() {
+    this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
+      const text = q.get('q')?.trim();
+      if (text) {
+        this.facade.searchClients(text);
+      } else {
+        this.loadClients();
+      }
+    });
+  }
   loadClients() { this.facade.loadClients(); }
 
   onSearch(term: string) {

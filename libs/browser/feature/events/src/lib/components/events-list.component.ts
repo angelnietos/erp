@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -27,6 +27,7 @@ import {
   UiSelectComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { take } from 'rxjs/operators';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 interface Event {
@@ -1308,6 +1309,7 @@ interface EventFilter {
 export class EventsListComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly route = inject(ActivatedRoute);
 
   currentTheme = this.themeService.currentThemeData;
   readonly CalendarIcon = Calendar;
@@ -1465,8 +1467,15 @@ export class EventsListComponent implements OnInit {
   filteredEvents = signal<Event[]>([]);
 
   ngOnInit() {
-    // Set initial filtered events
-    this.filteredEvents.set(this.events());
+    this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
+      const text = q.get('search')?.trim();
+      if (text) {
+        this.filters.search = text;
+        this.applyFilters();
+      } else {
+        this.filteredEvents.set(this.events());
+      }
+    });
   }
 
   applyFilters() {

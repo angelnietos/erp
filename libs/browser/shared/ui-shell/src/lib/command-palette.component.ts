@@ -184,16 +184,49 @@ export class CommandPaletteComponent {
   }
 
   onSearch(term: string) {
-    if (!term) {
+    const raw = term.trim();
+    if (!raw) {
       this.filteredItems.set(this.allItems);
+      if (this.filteredItems().length > 0) {
+        this.selectedId.set(this.filteredItems()[0].id);
+      }
       return;
     }
-    const t = term.toLowerCase();
-    this.filteredItems.set(this.allItems.filter(i => 
-      i.label.toLowerCase().includes(t) || 
-      i.description.toLowerCase().includes(t) ||
-      i.category.toLowerCase().includes(t)
-    ));
+    const t = raw.toLowerCase();
+    const q = encodeURIComponent(raw);
+    const globalHits: CommandItem[] = [
+      {
+        id: `g-clients-${raw}`,
+        label: `Clientes: "${raw}"`,
+        description: 'Abrir directorio con búsqueda aplicada',
+        icon: 'users',
+        category: 'Búsqueda global',
+        route: `/clients?q=${q}`,
+      },
+      {
+        id: `g-projects-${raw}`,
+        label: `Proyectos: "${raw}"`,
+        description: 'Abrir proyectos con filtro de texto',
+        icon: 'briefcase',
+        category: 'Búsqueda global',
+        route: `/projects?q=${q}`,
+      },
+      {
+        id: `g-events-${raw}`,
+        label: `Eventos: "${raw}"`,
+        description: 'Ir a eventos con término en filtros',
+        icon: 'calendar',
+        category: 'Búsqueda global',
+        route: `/events?search=${q}`,
+      },
+    ];
+    const staticHits = this.allItems.filter(
+      (i) =>
+        i.label.toLowerCase().includes(t) ||
+        i.description.toLowerCase().includes(t) ||
+        i.category.toLowerCase().includes(t),
+    );
+    this.filteredItems.set([...globalHits, ...staticHits]);
     if (this.filteredItems().length > 0) {
       this.selectedId.set(this.filteredItems()[0].id);
     }

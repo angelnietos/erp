@@ -144,6 +144,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             [columns]="columns"
             [data]="invoices()"
             variant="default"
+            [virtualScroll]="invoices().length > 24"
           >
             <ng-template #cellTemplate let-inv let-key="key">
               @switch (key) {

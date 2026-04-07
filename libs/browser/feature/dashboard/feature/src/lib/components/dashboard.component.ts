@@ -1,4 +1,13 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  inject,
+  computed,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval, switchMap, startWith } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -19,6 +28,8 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
+  DashboardSummaryDto,
+  NotificationFeedStore,
   ThemeService,
 } from '@josanz-erp/shared-data-access';
 
@@ -131,6 +142,54 @@ interface QuickAction {
           </ui-josanz-card>
         }
       </div>
+
+      @if (
+        charts().revenueByClient.length > 0 ||
+        charts().revenueByProject.length > 0
+      ) {
+        <div class="charts-section">
+          @if (charts().revenueByClient.length > 0) {
+            <ui-josanz-card class="chart-card">
+              <h3 class="chart-title">Facturación por cliente (top 10)</h3>
+              @for (row of charts().revenueByClient; track row.clientId) {
+                <div class="bar-line">
+                  <span class="bar-name">{{ row.name }}</span>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill"
+                      [style.width.%]="
+                        barWidth(row.revenue, maxClientRevenue())
+                      "
+                    ></div>
+                  </div>
+                  <span class="bar-eur">{{ formatEuro(row.revenue) }}</span>
+                </div>
+              }
+            </ui-josanz-card>
+          }
+          @if (charts().revenueByProject.length > 0) {
+            <ui-josanz-card class="chart-card">
+              <h3 class="chart-title">
+                Ingresos por proyecto (vía eventos vinculados)
+              </h3>
+              @for (row of charts().revenueByProject; track row.projectId) {
+                <div class="bar-line">
+                  <span class="bar-name">{{ row.name }}</span>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill bar-fill-accent"
+                      [style.width.%]="
+                        barWidth(row.revenue, maxProjectRevenue())
+                      "
+                    ></div>
+                  </div>
+                  <span class="bar-eur">{{ formatEuro(row.revenue) }}</span>
+                </div>
+              }
+            </ui-josanz-card>
+          }
+        </div>
+      }
 
       <div class="dashboard-content">
         <!-- Recent Activities -->
@@ -441,6 +500,71 @@ interface QuickAction {
         gap: 2rem;
         margin-bottom: 3rem;
         position: relative;
+      }
+
+      .charts-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .chart-card {
+        padding: 1.5rem 1.75rem;
+      }
+
+      .chart-title {
+        margin: 0 0 1rem 0;
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+      }
+
+      .bar-line {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) auto;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 0.65rem;
+      }
+
+      .bar-name {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .bar-track {
+        height: 10px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        background: linear-gradient(
+          90deg,
+          var(--primary),
+          var(--accent, var(--primary))
+        );
+        transition: width 0.4s ease;
+      }
+
+      .bar-fill-accent {
+        background: linear-gradient(90deg, #3b82f6, var(--primary));
+      }
+
+      .bar-eur {
+        font-size: 0.72rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        color: var(--text-primary);
       }
 
       .gaming-metrics {
@@ -1250,6 +1374,22 @@ export class DashboardComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
   private readonly analyticsApi = inject(DashboardAnalyticsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly notificationFeed = inject(NotificationFeedStore);
+  private firstDashboardPoll = true;
+
+  charts = signal<DashboardSummaryDto['charts']>({
+    revenueByClient: [],
+    revenueByProject: [],
+  });
+
+  maxClientRevenue = computed(() =>
+    Math.max(1, ...this.charts().revenueByClient.map((r) => r.revenue)),
+  );
+
+  maxProjectRevenue = computed(() =>
+    Math.max(1, ...this.charts().revenueByProject.map((r) => r.revenue)),
+  );
 
   currentTheme = this.themeService.currentThemeData;
   private readonly TrendingUp = TrendingUp;
@@ -1367,7 +1507,24 @@ export class DashboardComponent implements OnInit {
   ]);
 
   ngOnInit() {
-    this.loadDashboardData();
+    interval(45_000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.analyticsApi.getSummary()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((dto) => this.applyDashboardDto(dto));
+  }
+
+  barWidth(value: number, max: number): number {
+    return Math.min(100, Math.round((value / max) * 100));
+  }
+
+  formatEuro(n: number): string {
+    return `€${n.toLocaleString('es-ES', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })}`;
   }
 
   getActivityIcon(type: string) {
@@ -1473,52 +1630,59 @@ export class DashboardComponent implements OnInit {
     void this.router.navigateByUrl('/dashboard');
   }
 
-  private loadDashboardData() {
-    this.analyticsApi.getSummary().subscribe((dto) => {
-      if (!dto) {
-        return;
-      }
-      const m = dto.metrics;
-      const t = dto.trends;
-      const fmtMoney = (n: number) =>
-        '€' +
-        n.toLocaleString('es-ES', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-      this.metrics.set([
-        {
-          title: 'Ingresos Totales',
-          value: fmtMoney(m.totalRevenue),
-          change: `+${t.revenueChangePercent}% vs mes anterior`,
-          changeType: 'positive',
-          icon: this.DollarSign,
-        },
-        {
-          title: 'Proyectos Activos',
-          value: String(m.activeProjects),
-          change: `+${t.projectsDelta} este mes`,
-          changeType: 'positive',
-          icon: this.Calendar,
-        },
-        {
-          title: 'Clientes Totales',
-          value: String(m.totalClients),
-          change: `+${t.clientsDelta} esta semana`,
-          changeType: 'positive',
-          icon: this.Users,
-        },
-        {
-          title: 'Eventos Completados',
-          value: String(m.completedEvents),
-          change:
-            t.eventsNote === 'stable'
-              ? 'Sin cambios'
-              : `Tendencia: ${t.eventsNote}`,
-          changeType: 'neutral',
-          icon: this.Activity,
-        },
-      ]);
-    });
+  private applyDashboardDto(dto: DashboardSummaryDto | null) {
+    if (!dto) {
+      return;
+    }
+    if (!this.firstDashboardPoll) {
+      this.notificationFeed.pushDashboardKpiSync(dto.generatedAt);
+    }
+    this.firstDashboardPoll = false;
+
+    if (dto.charts) {
+      this.charts.set(dto.charts);
+    }
+
+    const m = dto.metrics;
+    const t = dto.trends;
+    const fmtMoney = (n: number) =>
+      '€' +
+      n.toLocaleString('es-ES', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    this.metrics.set([
+      {
+        title: 'Ingresos Totales',
+        value: fmtMoney(m.totalRevenue),
+        change: `+${t.revenueChangePercent}% vs mes anterior`,
+        changeType: 'positive',
+        icon: this.DollarSign,
+      },
+      {
+        title: 'Proyectos Activos',
+        value: String(m.activeProjects),
+        change: `+${t.projectsDelta} este mes`,
+        changeType: 'positive',
+        icon: this.Calendar,
+      },
+      {
+        title: 'Clientes Totales',
+        value: String(m.totalClients),
+        change: `+${t.clientsDelta} esta semana`,
+        changeType: 'positive',
+        icon: this.Users,
+      },
+      {
+        title: 'Eventos Completados',
+        value: String(m.completedEvents),
+        change:
+          t.eventsNote === 'stable'
+            ? 'Sin cambios'
+            : `Tendencia: ${t.eventsNote}`,
+        changeType: 'neutral',
+        icon: this.Activity,
+      },
+    ]);
   }
 }

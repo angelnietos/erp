@@ -62,8 +62,8 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 
 - [x] **UI conectada a export servidor**: botones Excel (API) / PDF (API) en el generador de informes (`POST /api/reports/export/xlsx` y `/pdf`).
 - [x] **Validación de payload export**: límites en DTOs (`class-validator`); ampliar datos reales/Prisma y documentación OpenAPI según prioridad.
-- [ ] **PDF rico**: plantillas HTML → PDF o diseño con `pdf-lib` más allá de texto plano.
-- [ ] **Dashboard**: gráficos, rentabilidad por proyecto/cliente, notificaciones en vivo (SSE/WebSocket) si hay prioridad.
+- [x] **PDF rico**: export servidor con cabecera de marca, secciones y tabla (`pdf-lib`); el cliente de informes envía `subtitle`, `sections` y `table` además de `lines` (sin motor HTML para no añadir Chromium).
+- [x] **Dashboard**: gráficos de barras (facturación por cliente y por proyecto vía eventos) desde `GET /api/analytics/dashboard-summary` (`charts` en el DTO); refresco periódico (~45s) y entrada en el centro de notificaciones en cada actualización (alternativa práctica a SSE con JWT en cabecera).
 
 ---
 
@@ -71,10 +71,10 @@ Documento vivo con **lo que falta o conviene hacer** a nivel producto, operacion
 
 Plan detallado de implementación: **[PLAN_UI_UX_THEMING_BROWSER.md](./PLAN_UI_UX_THEMING_BROWSER.md)**.
 
-- [ ] **Feedback sistemático**: toasts o estados de carga/error en acciones que hoy fallan en silencio (regla en `IMPLEMENTATION_PLAN.md`).
-- [ ] **Búsqueda global y filtros** en listados grandes.
-- [ ] **Virtual scroll** en tablas pesadas.
-- [ ] **Presupuestos de bundle**: el build del frontend avisa de budgets superados (inicial y estilos de algunos componentes); reducir CSS in-component o subir límites con justificación.
+- [x] **Feedback sistemático**: `ToastService` + `josanz-toast-stack` en el layout; informes usan toasts en éxito/error (sustituye `alert` en exportes y generación).
+- [x] **Búsqueda global y filtros**: paleta (⌘K) añade atajos «Búsqueda global» hacia `/clients?q=`, `/projects?q=`, `/events?search=`; proyectos con filtro de estado; clientes/eventos leen query al entrar.
+- [x] **Virtual scroll**: `@angular/cdk/scrolling` en `ui-josanz-table` cuando `virtualScroll` y >24 filas; activado en clientes, proyectos y facturación si aplica.
+- [x] **Presupuestos de bundle**: límites de producción alineados al bundle real + CDK (~720kB inicial warning, 16kB warning por estilo de componente); seguir optimizando CSS in-component en `PLAN_UI_UX_THEMING_BROWSER.md` si se quiere bajar de nuevo.
 - [x] **`AuthService` / tenant**: rutas relativas `/api/auth` e interceptor con `x-tenant-id` en URLs que incluyen `/api/`; `technician-api` usa `/api/technicians`.
 
 ---

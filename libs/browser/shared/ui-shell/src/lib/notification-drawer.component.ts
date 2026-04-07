@@ -1,16 +1,11 @@
-import { Component, output } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiButtonComponent } from '@josanz-erp/shared-ui-kit';
-
-export interface AppNotification {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  type: 'info' | 'warning' | 'success' | 'critical';
-  read: boolean;
-}
+import {
+  AppNotification,
+  NotificationFeedStore,
+} from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'josanz-notification-drawer',
@@ -28,14 +23,14 @@ export interface AppNotification {
       </header>
 
       <div class="content-area">
-        @if (notifications.length === 0) {
+        @if (allNotifications().length === 0) {
           <div class="empty-state">
             <lucide-icon name="bell-off" size="40" class="text-muted opacity-30"></lucide-icon>
             <p class="text-uppercase text-muted">No hay registros pendientes</p>
           </div>
         } @else {
           <div class="notification-list">
-            @for (note of notifications; track note.id) {
+            @for (note of allNotifications(); track note.id) {
               <div 
                 class="note-card" 
                 [class.unread]="!note.read"
@@ -152,13 +147,20 @@ export interface AppNotification {
 })
 export class NotificationDrawerComponent {
   closeDrawer = output<void>();
-  
-  notifications: AppNotification[] = [
+
+  private readonly feed = inject(NotificationFeedStore);
+
+  private readonly seedNotifications: AppNotification[] = [
     { id: '1', title: 'Sistema Fiscal', message: 'Certificaciones VeriFactu emitidas correctamente para el período Q1.', time: '10:45 AM', type: 'success', read: false },
     { id: '2', title: 'Inventario Crítico', message: 'Nivel de stock bajo en cámaras Sony FX6. (2 unidades restantes)', time: '09:20 AM', type: 'warning', read: false },
     { id: '3', title: 'Alquiler Activo', message: 'El expediente #RNT-002 ha sido activado por ADMINISTRADOR.', time: 'Ayer', type: 'info', read: true },
     { id: '4', title: 'Alerta Seguridad', message: 'Intento de acceso desde IP no reconocida bloqueado por el firewall.', time: 'Ayer', type: 'critical', read: true },
   ];
+
+  readonly allNotifications = computed(() => [
+    ...this.feed.liveItems(),
+    ...this.seedNotifications,
+  ]);
 
   markRead(note: AppNotification) {
     note.read = true;

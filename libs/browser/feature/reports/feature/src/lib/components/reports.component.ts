@@ -18,7 +18,11 @@ import {
   UiInputComponent,
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  ToastService,
+} from '@josanz-erp/shared-data-access';
 import { escapeHtml, openPrintableDocument } from '@josanz-erp/shared-utils';
 
 interface ReportType {
@@ -471,6 +475,7 @@ export class ReportsComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly http = inject(HttpClient);
+  private readonly toast = inject(ToastService);
 
   currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;
@@ -596,9 +601,11 @@ export class ReportsComponent implements OnInit {
       };
 
       this.generatedReports.update((reports) => [newReport, ...reports]);
+      this.toast.show('Informe generado correctamente.', 'success');
     } catch {
-      window.alert(
+      this.toast.show(
         'No se pudo generar el informe. Revisa la consola o inténtalo de nuevo.',
+        'error',
       );
     } finally {
       this.generating.set(false);
@@ -703,36 +710,70 @@ export class ReportsComponent implements OnInit {
         ),
       );
       this.triggerBlobDownload(blob, `josanz-informe-${report.id}.xlsx`);
+      this.toast.show('Excel descargado.', 'success');
     } catch {
-      window.alert(
-        'No se pudo generar el Excel en el servidor. Comprueba sesión, tenant y que el API esté disponible.',
+      this.toast.show(
+        'No se pudo generar el Excel en el servidor. Comprueba sesión, tenant y API.',
+        'error',
       );
     }
   }
 
   async downloadServerPdf(report: Report) {
     const f = report.filters;
-    const lines = [
-      `Título: ${report.title}`,
-      `Tipo: ${report.type}`,
-      `Generado: ${report.generatedAt}`,
-      `Rango: ${report.dateRange}`,
-      `Desde: ${f.dateFrom}  Hasta: ${f.dateTo}`,
-      f.status ? `Estado: ${f.status}` : '',
-      f.clientId ? `Cliente: ${f.clientId}` : '',
-    ].filter(Boolean);
+    const lines: string[] = [];
+    const sections = [
+      {
+        heading: 'Metadatos',
+        lines: [
+          `ID informe: ${report.id}`,
+          `Tipo: ${report.type}`,
+          `Rango: ${report.dateRange}`,
+        ],
+      },
+      {
+        heading: 'Filtros',
+        lines: [
+          `Desde ${f.dateFrom} · Hasta ${f.dateTo}`,
+          f.status ? `Estado: ${f.status}` : 'Estado: (todos)',
+          f.clientId ? `Cliente: ${f.clientId}` : 'Cliente: (no filtrado)',
+        ],
+      },
+    ];
+    const table = {
+      headers: ['Campo', 'Valor'],
+      rows: [
+        ['id', report.id],
+        ['tipo', report.type],
+        ['titulo', report.title],
+        ['generadoEn', report.generatedAt],
+        ['rango', report.dateRange],
+        ['fechaDesde', f.dateFrom],
+        ['fechaHasta', f.dateTo],
+        ['estado', f.status ?? '—'],
+        ['clienteId', f.clientId ?? '—'],
+      ],
+    };
     try {
       const blob = await firstValueFrom(
         this.http.post(
           '/api/reports/export/pdf',
-          { title: report.title.slice(0, 200), lines },
+          {
+            title: report.title.slice(0, 200),
+            subtitle: `Generado el ${report.generatedAt}`,
+            lines,
+            sections,
+            table,
+          },
           { responseType: 'blob' },
         ),
       );
       this.triggerBlobDownload(blob, `josanz-informe-${report.id}.pdf`);
+      this.toast.show('PDF descargado.', 'success');
     } catch {
-      window.alert(
-        'No se pudo generar el PDF en el servidor. Comprueba sesión, tenant y que el API esté disponible.',
+      this.toast.show(
+        'No se pudo generar el PDF en el servidor. Comprueba sesión, tenant y API.',
+        'error',
       );
     }
   }

@@ -1,147 +1,281 @@
 import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 export type TableVariant = 'default' | 'striped' | 'glass';
 
 @Component({
   selector: 'ui-josanz-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ScrollingModule],
   template: `
-    <div class="table-container" [class]="'table-' + variant">
-      <table>
-        <thead>
-          <tr>
+    <div
+      class="table-container"
+      [class]="'table-' + variant"
+      [class.table-virtual-active]="useVirtual"
+    >
+      @if (useVirtual && data.length === 0) {
+        <div class="empty-state standalone">
+          <span class="text-uppercase">No hay registros</span>
+        </div>
+      } @else if (useVirtual) {
+        <div class="virt-head" [style.gridTemplateColumns]="gridTemplate">
+          @for (col of columns; track col.key) {
+            <div class="virt-th">{{ col.header }}</div>
+          }
+        </div>
+        <cdk-virtual-scroll-viewport
+          [itemSize]="rowHeight"
+          class="virt-viewport"
+          [style.height.px]="viewportHeight"
+        >
+          <div
+            *cdkVirtualFor="let item of data; trackBy: trackByCdk"
+            class="virt-row table-row"
+            [style.gridTemplateColumns]="gridTemplate"
+          >
             @for (col of columns; track col.key) {
-              <th [style.width]="col.width">{{ col.header }}</th>
+              <div class="virt-td">
+                <div class="cell-content">
+                  <ng-container
+                    [ngTemplateOutlet]="cellTemplate"
+                    [ngTemplateOutletContext]="{
+                      $implicit: item,
+                      key: col.key,
+                    }"
+                  >
+                  </ng-container>
+                </div>
+              </div>
             }
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of data; track trackBy(item)) {
-            <tr class="table-row">
+          </div>
+        </cdk-virtual-scroll-viewport>
+      } @else {
+        <table>
+          <thead>
+            <tr>
               @for (col of columns; track col.key) {
-                <td>
-                  <div class="cell-content">
-                    <ng-container 
-                      [ngTemplateOutlet]="cellTemplate" 
-                      [ngTemplateOutletContext]="{ $implicit: item, key: col.key }">
-                    </ng-container>
-                  </div>
-                </td>
+                <th [style.width]="col.width">{{ col.header }}</th>
               }
             </tr>
-          } @empty {
-            <tr>
-              <td [attr.colspan]="columns.length" class="empty-cell">
-                <div class="empty-state">
-                  <span class="text-uppercase">No hay registros</span>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (item of data; track trackBy(item)) {
+              <tr class="table-row">
+                @for (col of columns; track col.key) {
+                  <td>
+                    <div class="cell-content">
+                      <ng-container
+                        [ngTemplateOutlet]="cellTemplate"
+                        [ngTemplateOutletContext]="{
+                          $implicit: item,
+                          key: col.key,
+                        }"
+                      >
+                      </ng-container>
+                    </div>
+                  </td>
+                }
+              </tr>
+            } @empty {
+              <tr>
+                <td [attr.colspan]="columns.length" class="empty-cell">
+                  <div class="empty-state">
+                    <span class="text-uppercase">No hay registros</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
   `,
-  styles: [`
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      border-radius: var(--radius-lg);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-soft);
-      box-shadow:
-        var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.22)),
-        var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.05)),
-        0 0 40px -20px var(--brand-ambient, transparent);
-    }
+  styles: [
+    `
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: var(--radius-lg);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-soft);
+        box-shadow:
+          var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.22)),
+          var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.05)),
+          0 0 40px -20px var(--brand-ambient, transparent);
+      }
 
-    table { 
-      width: 100%; 
-      border-collapse: separate; 
-      border-spacing: 0;
-      text-align: left; 
-    }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        text-align: left;
+      }
 
-    thead {
-      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 40%, transparent) 0%, color-mix(in srgb, var(--bg-tertiary) 50%, transparent) 100%);
-    }
+      thead {
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--bg-primary) 40%, transparent) 0%,
+          color-mix(in srgb, var(--bg-tertiary) 50%, transparent) 100%
+        );
+      }
 
-    th { 
-      padding: 0.65rem 1rem;
-      font-size: 0.58rem; 
-      font-weight: 700; 
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--text-secondary);
-      border-bottom: 1px solid var(--border-soft);
-      font-family: var(--font-display);
-      white-space: nowrap;
-    }
+      th {
+        padding: 0.65rem 1rem;
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-soft);
+        font-family: var(--font-display);
+        white-space: nowrap;
+      }
 
-    td { 
-      padding: 0.65rem 1rem; 
-      font-size: 0.76rem; 
-      color: var(--text-primary);
-      border-bottom: 1px solid var(--border-soft);
-      transition: var(--transition-fast);
-      vertical-align: middle;
-      font-weight: 500;
-    }
+      td {
+        padding: 0.65rem 1rem;
+        font-size: 0.76rem;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-soft);
+        transition: var(--transition-fast);
+        vertical-align: middle;
+        font-weight: 500;
+      }
 
-    .table-row { transition: var(--transition-base); position: relative; }
+      .table-row {
+        transition: var(--transition-base);
+        position: relative;
+      }
 
-    .table-row:hover td {
-      background: color-mix(in srgb, var(--brand) 6%, var(--bg-tertiary));
-      color: var(--text-primary);
-    }
+      .table-row:hover td,
+      .virt-row.table-row:hover .virt-td {
+        background: color-mix(in srgb, var(--brand) 6%, var(--bg-tertiary));
+        color: var(--text-primary);
+      }
 
-    .table-row:hover td:first-child {
-      box-shadow: inset 3px 0 0 var(--brand);
-    }
+      .table-row:hover td:first-child {
+        box-shadow: inset 3px 0 0 var(--brand);
+      }
 
-    .table-row:last-child td { border-bottom: none; }
+      .virt-row.table-row:hover .virt-td:first-child {
+        box-shadow: inset 3px 0 0 var(--brand);
+      }
 
-    /* Variants */
-    .table-striped tbody tr:nth-child(even) td {
-      background: rgba(255, 255, 255, 0.01);
-    }
+      .table-row:last-child td {
+        border-bottom: none;
+      }
 
-    .table-glass {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
+      .virt-head {
+        display: grid;
+        align-items: center;
+        min-height: 42px;
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--bg-primary) 40%, transparent) 0%,
+          color-mix(in srgb, var(--bg-tertiary) 50%, transparent) 100%
+        );
+        border-bottom: 1px solid var(--border-soft);
+      }
 
-    .empty-cell { padding: 0; }
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      padding: 2.75rem 1.5rem;
-      color: var(--text-muted);
-      font-size: 0.65rem;
-    }
+      .virt-th {
+        padding: 0.65rem 1rem;
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--text-secondary);
+        font-family: var(--font-display);
+        white-space: nowrap;
+      }
 
-    .empty-state span {
-      font-size: 0.82rem;
-      letter-spacing: 0.14em;
-      font-weight: 700;
-      opacity: 0.72;
-      font-family: var(--font-display);
-    }
-  `],
+      .virt-viewport {
+        width: 100%;
+        border: none;
+      }
+
+      .virt-row {
+        display: grid;
+        align-items: stretch;
+        min-height: 52px;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      .virt-td {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        font-size: 0.76rem;
+        color: var(--text-primary);
+        min-width: 0;
+      }
+
+      .table-striped tbody tr:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.01);
+      }
+
+      .table-glass {
+        background: var(--surface);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .empty-cell {
+        padding: 0;
+      }
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 2.75rem 1.5rem;
+        color: var(--text-muted);
+        font-size: 0.65rem;
+      }
+
+      .empty-state span {
+        font-size: 0.82rem;
+        letter-spacing: 0.14em;
+        font-weight: 700;
+        opacity: 0.72;
+        font-family: var(--font-display);
+      }
+
+      .empty-state.standalone {
+        padding: 2.75rem 1.5rem;
+      }
+    `,
+  ],
 })
 export class UiTableComponent {
-  @Input() columns: { key: string, header: string, width?: string }[] = [];
+  @Input() columns: { key: string; header: string; width?: string }[] = [];
   @Input() data: unknown[] = [];
   @Input() trackByKey = 'id';
   @Input() variant: TableVariant = 'default';
+  /** Activa scroll virtual (CDK) cuando hay suficientes filas. */
+  @Input() virtualScroll = false;
+  @Input() viewportHeight = 440;
+  @Input() rowHeight = 56;
 
   @ContentChild('cellTemplate') cellTemplate!: TemplateRef<unknown>;
 
-  trackBy(item: unknown) { return (item as Record<string, unknown>)[this.trackByKey]; }
+  get useVirtual(): boolean {
+    return this.virtualScroll && this.data.length > 24;
+  }
+
+  get gridTemplate(): string {
+    if (!this.columns.length) {
+      return '1fr';
+    }
+    return this.columns
+      .map((c) => c.width?.replace('px', 'px') ?? 'minmax(0,1fr)')
+      .join(' ');
+  }
+
+  trackBy(item: unknown) {
+    return (item as Record<string, unknown>)[this.trackByKey];
+  }
+
+  trackByCdk = (_index: number, item: unknown) =>
+    (item as Record<string, unknown>)[this.trackByKey];
 }
