@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, computed, NgZone } from '@angular/core';
+import { Component, Input, inject, signal, computed, NgZone, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
@@ -315,7 +315,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     }
   `]
 })
-export class UIAIChatComponent {
+export class UIAIChatComponent implements OnInit, OnDestroy {
   @Input() feature!: string;
   
   aiBotStore = inject(AIBotStore);
@@ -331,9 +331,18 @@ export class UIAIChatComponent {
   isListening = signal(false);
   private recognition: any;
   private textBeforeDictation = '';
+  private el = inject(ElementRef);
 
   constructor() {
     this.initSpeechRecognition();
+  }
+
+  ngOnInit() {
+    document.body.appendChild(this.el.nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.el.nativeElement.remove();
   }
 
   private initSpeechRecognition() {

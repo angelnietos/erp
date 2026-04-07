@@ -259,7 +259,7 @@ interface QuickAction {
                 >
                   <div class="action-content">
                     <div class="action-icon-wrapper">
-                      <lucide-icon [img]="action.icon" size="24"></lucide-icon>
+                      <lucide-icon [name]="action.icon" size="24"></lucide-icon>
                       <div class="action-glow"></div>
                     </div>
                     <div class="action-text">
@@ -276,8 +276,8 @@ interface QuickAction {
           </ui-josanz-card>
         </div>
       </div>
-      <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
     </div>
+    <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
   `,
   styles: [
     `
