@@ -93,15 +93,13 @@ export type TableVariant = 'default' | 'striped' | 'glass';
   `,
   styles: [
     `
-      .table-container {
+    .table-container {
         width: 100%;
         overflow-x: auto;
         border-radius: var(--radius-lg);
-        background: var(--bg-secondary);
+        background: var(--surface, var(--bg-secondary));
         border: 1px solid var(--border-soft);
-        box-shadow:
-          var(--shadow-sm, 0 4px 24px rgba(0, 0, 0, 0.22)),
-          var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.05));
+        box-shadow: var(--shadow-sm), var(--shadow-inset-shine);
         position: relative;
       }
 
@@ -127,16 +125,17 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       th {
-        padding: 1rem 1.25rem;
-        font-size: 0.6rem;
+        padding: 0.875rem 1.25rem;
+        font-size: 0.58rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-secondary);
-        border-bottom: 1px solid var(--border-vibrant);
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-soft);
         font-family: var(--font-display);
         white-space: nowrap;
-        background: var(--bg-tertiary);
+        background: color-mix(in srgb, var(--surface) 80%, var(--brand) 3%);
+        user-select: none;
       }
 
       td {
@@ -157,13 +156,17 @@ export type TableVariant = 'default' | 'striped' | 'glass';
 
       .table-row:hover td,
       .virt-row.table-row:hover .virt-td {
-        background: rgba(255, 255, 255, 0.02);
+        background: color-mix(in srgb, var(--brand) 4%, transparent);
         color: var(--text-primary);
       }
 
       .table-row:hover td:first-child,
       .virt-row.table-row:hover .virt-td:first-child {
-        box-shadow: inset 4px 0 0 var(--brand);
+        box-shadow: inset 3px 0 0 var(--brand);
+      }
+
+      .table-row {
+        transition: background 0.18s ease;
       }
 
       .table-row:last-child td {
@@ -233,16 +236,16 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
         padding: 4rem 2rem;
         color: var(--text-muted);
       }
 
       .empty-state span {
-        font-size: 0.9rem;
-        letter-spacing: 0.15em;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
         font-weight: 800;
-        opacity: 0.6;
+        opacity: 0.5;
         font-family: var(--font-display);
         text-transform: uppercase;
       }

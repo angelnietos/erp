@@ -938,3 +938,218 @@ main .content a:not(.nav-link):not(.theme-option):not(.menu-item):hover {
     0 0 20px #2f1b14,
     0 0 40px #2f1b14;
 }
+
+/* =====================================================
+   LIGHT THEME GLOBAL SUPPORT
+   ===================================================== */
+html[data-theme='pearl'],
+html[data-theme='sky-day'],
+html[data-theme='rose-quartz'],
+html[data-theme='sage'],
+html[data-theme='lavender'],
+html[data-theme='sunrise'],
+html[data-theme='latte'],
+html[data-theme='animal-crossing'],
+html[data-theme='corporate-light'],
+html[data-theme='light'] {
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07), 0 2px 12px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.11), 0 4px 12px rgba(0,0,0,0.07);
+  --shadow-inset-shine: inset 0 1px 0 rgba(255,255,255,0.9);
+  --border-soft: rgba(0,0,0,0.08);
+  --border-vibrant: rgba(0,0,0,0.12);
+  --surface: rgba(255,255,255,0.94);
+}
+
+/* Quitar scanline oscuro en temas claros */
+html[data-theme='pearl'] body::after,
+html[data-theme='sky-day'] body::after,
+html[data-theme='rose-quartz'] body::after,
+html[data-theme='sage'] body::after,
+html[data-theme='lavender'] body::after,
+html[data-theme='sunrise'] body::after,
+html[data-theme='latte'] body::after,
+html[data-theme='animal-crossing'] body::after,
+html[data-theme='corporate-light'] body::after,
+html[data-theme='light'] body::after {
+  display: none;
+}
+
+/* Textos visibles en temas claros */
+html[data-theme='pearl'] .glow-text,
+html[data-theme='sky-day'] .glow-text,
+html[data-theme='rose-quartz'] .glow-text,
+html[data-theme='sage'] .glow-text,
+html[data-theme='lavender'] .glow-text,
+html[data-theme='sunrise'] .glow-text,
+html[data-theme='latte'] .glow-text,
+html[data-theme='animal-crossing'] .glow-text,
+html[data-theme='corporate-light'] .glow-text,
+html[data-theme='light'] .glow-text {
+  background: none !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  text-shadow: none !important;
+}
+
+/* =====================================================
+   UNIVERSAL PAGE & COMPONENT IMPROVEMENTS
+   ===================================================== */
+
+/* Page header — subrayado de acento de marca */
+.page-header {
+  position: relative;
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 56px;
+  height: 2px;
+  background: var(--brand);
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--brand-glow);
+  transition: width 0.3s var(--ease-out-expo);
+}
+
+.page-header:hover::after {
+  width: 100%;
+}
+
+/* Stats row — responsivo */
+.stats-row {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+  gap: 1rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Filters / navigation bars */
+.filters-bar,
+.navigation-bar,
+.ui-glass-panel {
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Table card */
+.table-card {
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+  border: 1px solid var(--border-soft) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Row actions fade in on hover */
+.row-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
+tr:hover .row-actions,
+[class*="table-row"]:hover .row-actions {
+  opacity: 1;
+}
+
+/* Table footer */
+.table-footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.65rem 1.25rem !important;
+  border-top: 1px solid var(--border-soft) !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted) !important;
+}
+
+/* Loader container */
+.loader-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 240px !important;
+  border-radius: var(--radius-lg) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border-soft) !important;
+}
+
+/* Header actions */
+.header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 0.6rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  color: var(--text-muted) !important;
+  margin-top: 0.35rem !important;
+}
+
+/* Form grid */
+.form-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 1.25rem !important;
+}
+
+.full-width {
+  grid-column: 1 / -1 !important;
+}
+
+/* =====================================================
+   RESPONSIVE IMPROVEMENTS
+   ===================================================== */
+@media (max-width: 1024px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  .header-actions {
+    align-self: stretch;
+    justify-content: flex-end;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filters-bar,
+  .navigation-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .page-container {
+    padding: 1rem !important;
+  }
+}

@@ -43,9 +43,9 @@ export type CardVariant = string;
     .card {
       /* Structural tokens injected via JS in ThemeService.applyStructuralTokens() */
       border-radius: var(--card-radius, var(--radius-lg, 12px));
-      background: var(--card-bg, var(--surface, #1a1a24));
-      border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft, #333));
-      box-shadow: var(--card-shadow, var(--shadow-md)), var(--shadow-inset-shine, none);
+      background: var(--card-bg, var(--surface));
+      border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft));
+      box-shadow: var(--card-shadow, var(--shadow-sm)), var(--shadow-inset-shine);
       transition:
         transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
         box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -138,12 +138,12 @@ export type CardVariant = string;
     }
 
     .card-header {
-      padding: 0.85rem 1.25rem;
-      border-bottom: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft));
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.015);
+      background: color-mix(in srgb, var(--surface) 70%, var(--brand) 4%);
     }
 
     .header-main { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -156,14 +156,14 @@ export type CardVariant = string;
     }
 
     .card-body {
-      padding: 1.1rem;
+      padding: 1.25rem;
       flex: 1;
     }
 
     .card-footer {
-      padding: 0.8rem 1.1rem;
-      background: color-mix(in srgb, var(--bg-primary) 50%, transparent);
-      border-top: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft));
+      padding: 0.875rem 1.25rem;
+      background: color-mix(in srgb, var(--surface) 60%, transparent);
+      border-top: 1px solid var(--border-soft);
     }
 
     .hover-effect { cursor: pointer; }

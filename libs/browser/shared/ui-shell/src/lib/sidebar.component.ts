@@ -115,15 +115,19 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         height: 100%;
       }
 
+      /* ======================================================
+         SIDEBAR — ALWAYS DARK, INDEPENDENT OF ACTIVE THEME
+         ====================================================== */
       .sidebar-container {
         width: 248px;
         min-width: 248px;
         height: 100%;
+        /* Hardcoded dark — never inherits the light theme bg */
         background: linear-gradient(
           165deg,
-          color-mix(in srgb, var(--bg-primary, #050608) 92%, var(--brand) 5%) 0%,
-          rgba(10, 10, 12, 0.92) 48%,
-          rgba(8, 8, 10, 0.94) 100%
+          #0d0d12 0%,
+          #0a0a0f 48%,
+          #08080c 100%
         );
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
@@ -133,28 +137,22 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         transition:
           width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
           min-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        color: var(--text-secondary);
+        /* Hardcoded dark text */
+        color: rgba(255, 255, 255, 0.55);
         overflow: hidden;
         position: relative;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
       }
 
-      /* Neon edge effect */
+      /* Brand-colored neon edge */
       .sidebar-container::after {
         content: '';
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
+        top: 0; right: 0; bottom: 0;
         width: 1px;
-        background: linear-gradient(
-          to bottom,
-          transparent,
-          var(--brand),
-          transparent
-        );
-        opacity: 0.3;
-        box-shadow: 0 0 10px var(--brand-glow);
+        background: linear-gradient(to bottom, transparent, var(--brand), transparent);
+        opacity: 0.25;
+        box-shadow: 0 0 8px var(--brand-glow);
       }
 
       .sidebar-container.collapsed {
@@ -195,16 +193,8 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       @keyframes logoPulse {
-        0%,
-        100% {
-          transform: scaleY(1);
-          opacity: 0.8;
-        }
-        50% {
-          transform: scaleY(1.1);
-          opacity: 1;
-          filter: brightness(1.2);
-        }
+        0%, 100% { transform: scaleY(1); opacity: 0.8; }
+        50% { transform: scaleY(1.1); opacity: 1; filter: brightness(1.2); }
       }
 
       .logo-text {
@@ -212,20 +202,17 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         font-size: 1.05rem;
         letter-spacing: 0.18em;
         font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
-        background: linear-gradient(
-          to right,
-          #fff,
-          color-mix(in srgb, var(--brand) 35%, var(--text-muted))
-        );
+        /* Always white gradient — hardcoded */
+        background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.55));
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
       }
 
       .toggle-control {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        color: rgba(255, 255, 255, 0.45);
         width: 28px;
         height: 28px;
         border-radius: 6px;
@@ -237,10 +224,10 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .toggle-control:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--brand);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
         border-color: var(--brand);
-        box-shadow: 0 0 15px var(--brand-glow);
+        box-shadow: 0 0 12px var(--brand-glow);
       }
 
       .nav-area {
@@ -250,14 +237,12 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         scrollbar-width: none;
       }
 
-      .nav-area::-webkit-scrollbar {
-        display: none;
-      }
+      .nav-area::-webkit-scrollbar { display: none; }
 
       .footer-area {
         padding: 12px;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
-        background: rgba(0, 0, 0, 0.25);
+        background: rgba(0, 0, 0, 0.3);
       }
 
       .nav-list {
@@ -266,24 +251,28 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 4px;
       }
 
+      /* All nav links — hardcoded dark text, never inherits theme */
       .nav-link {
         display: flex;
         align-items: center;
-        padding: 10px 14px;
-        border-radius: 12px;
+        padding: 9px 12px;
+        border-radius: 10px;
         text-decoration: none;
-        color: var(--text-muted);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: rgba(255, 255, 255, 0.5);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
-        min-height: 44px;
+        min-height: 42px;
         font-weight: 700;
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         border: 1px solid transparent;
+        background: transparent;
+        width: 100%;
+        cursor: pointer;
       }
 
       .collapsed .nav-link {
@@ -292,11 +281,10 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .nav-link:hover {
-        background: color-mix(in srgb, #fff 6%, transparent);
-        color: #fff;
-        border-color: color-mix(in srgb, var(--brand) 18%, rgba(255, 255, 255, 0.06));
-        transform: translateX(5px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.07);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.08);
+        transform: translateX(4px);
       }
 
       .collapsed .nav-link:hover {
@@ -304,81 +292,64 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .nav-link.active {
-        background: color-mix(in srgb, var(--brand) 10%, transparent);
+        background: color-mix(in srgb, var(--brand) 14%, rgba(255,255,255,0.03));
         color: var(--brand);
-        border-color: color-mix(in srgb, var(--brand) 20%, transparent);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        border-color: color-mix(in srgb, var(--brand) 28%, transparent);
       }
 
       .nav-link.active::before {
         content: '';
         position: absolute;
         left: -4px;
-        top: 15%;
-        height: 70%;
+        top: 15%; height: 70%;
         width: 3px;
         background: var(--brand);
         border-radius: 0 4px 4px 0;
-        box-shadow: 0 0 15px var(--brand-glow);
+        box-shadow: 0 0 12px var(--brand-glow);
       }
 
       .active-glow {
         position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 40px;
-        background: linear-gradient(
-          to right,
-          transparent,
-          color-mix(in srgb, var(--brand) 15%, transparent)
-        );
+        right: 0; top: 0; bottom: 0;
+        width: 36px;
+        background: linear-gradient(to right, transparent, color-mix(in srgb, var(--brand) 12%, transparent));
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.3s;
       }
 
-      .nav-link.active .active-glow {
-        opacity: 1;
-      }
+      .nav-link.active .active-glow { opacity: 1; }
 
       .logout:hover {
-        background: rgba(239, 68, 68, 0.1) !important;
-        color: #ff4b4b !important;
-        border-color: rgba(239, 68, 68, 0.2) !important;
+        background: rgba(239, 68, 68, 0.12) !important;
+        color: #ff6b6b !important;
+        border-color: rgba(239, 68, 68, 0.22) !important;
       }
 
       .icon-wrapper {
-        width: 20px;
-        height: 20px;
+        width: 20px; height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.3s ease;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
       }
 
-      .nav-link:hover .icon-wrapper {
-        transform: scale(1.1);
-      }
+      .nav-link:hover .icon-wrapper { transform: scale(1.08); }
 
       .label-text {
         margin-left: 12px;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 3px;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: var(--border-medium);
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
+      ::-webkit-scrollbar { width: 3px; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+      ::-webkit-scrollbar-track { background: transparent; }
     `,
   ],
+
 })
 export class SidebarComponent {
   private readonly authStore = inject(AuthStore);
