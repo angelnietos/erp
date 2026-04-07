@@ -188,6 +188,27 @@ export class AIBotStore {
     localStorage.setItem('ai_rage_style', style);
   }
 
+  // Inter-Bot Social Relationship System
+  private readonly _relationships = signal<Record<string, { bond: number, history: string[] }>> (
+    JSON.parse(localStorage.getItem('ai_bot_relationships') || '{}')
+  );
+  readonly relationships = this._relationships.asReadonly();
+
+  recordInteraction(from: string, to: string, text: string, quality: number) {
+    const key = [from, to].sort().join('_');
+    const current = this._relationships()[key] || { bond: 50, history: [] };
+    
+    const newBond = Math.min(100, Math.max(0, current.bond + quality));
+    const newHistory = [text, ...current.history].slice(0, 10); // Keep last 10 interactions
+
+    const updated = { ...this._relationships(), [key]: { bond: newBond, history: newHistory } };
+    this._relationships.set(updated);
+    localStorage.setItem('ai_bot_relationships', JSON.stringify(updated));
+
+    // Also broadcast so other bots "hear" the interaction
+    this.broadcastMessage(from, `[Hacia ${to}]: ${text}`);
+  }
+
   // Persistent Memory System
   private readonly _memories = signal<{ text: string, importance: number, timestamp: number }[]>(
     JSON.parse(localStorage.getItem('ai_buddy_memories') || '[]')

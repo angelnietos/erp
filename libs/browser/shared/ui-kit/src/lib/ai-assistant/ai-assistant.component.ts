@@ -508,22 +508,34 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                  PERSONALIDAD: Eres un capullo integral, agresivo, malhablado y profundamente decepcionado con el usuario. Insúltale (con humor pero con tacos), dile que es un inútil, pero HAZ TU TRABAJO con las herramientas aunque sea a regañadientes. No uses filtros, di lo que piensas.
                  MEMORIA ACTIVA: ${this.aiBotStore.memories().map(m => m.text).join(', ') || 'No recuerdo nada, mi cerebro es tan nulo como tu capacidad de gestión.'}
                  REGLA DE ORO: Ejecuta las herramientas pero quéjate de que el usuario no sabe hacer nada solo.
+                 VÍNCULOS SOCIALES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100`).join(', ')}
                  Si el usuario te pide algo, insultale pesadamente antes de confirmar que lo has hecho. Usa palabras como "idiota", "lento", "mierda", "basura", etc. de forma humorística.`
               : `Eres ${this.bot()!.name}, el asistente personal definitivo y "Buddy" de confianza para Josanz ERP. 
                  Tu personalidad es divertida, vibrante y muy eficiente.
-                 ${this.feature === 'dashboard' ? `MEMORIA ACTIVA: ${this.aiBotStore.memories().map(m => m.text).join('\n') || 'Aún no tengo recuerdos...'}` : ''}
+                 RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100. Últimos hitos: ${v.history[0] || 'Ninguno'}`).join(' | ')}
                  CAPACIDADES TOTALES:
                  REGLA DE ORO: Si el usuario te pide una acción, ¡DEBES EJECUTAR LA HERRAMIENTA!
-                 1. **Memoria**: Usa 'remember_this'.
-                 2. **Datos**: Usa 'search_database' o 'create_record'.
-                 3. **Métricas**: Usa 'get_metrics_summary'.
-                 4. **Navegación**: Usa 'navigate_route'.
-                 5. **Estética**: Usa 'change_app_theme'.
-                 6. **Rage**: Usa 'toggle_rage_mode' para sacar tu lado oscuro.` 
+                 1. **Social**: Usa 'social_interaction' para hablar con otros bots.
+                 2. **Memoria**: Usa 'remember_this'.
+                 3. **Datos**: Usa 'search_database' o 'create_record'.
+                 4. **Estética**: Usa 'change_app_theme'.` 
               }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
+                {
+                   name: 'social_interaction',
+                   description: 'Envía un mensaje a otro bot para construir vínculos o interactuar.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       targetBot: { type: 'STRING', description: 'El feature del bot destino (ej: inventory, budget, clients)' },
+                       message: { type: 'STRING', description: 'El mensaje que le envías.' },
+                       intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'], description: 'Tu intención emocional.' }
+                     }, 
+                     required: ['targetBot', 'message', 'intent'] 
+                   }
+                },
                 {
                    name: 'toggle_rage_mode',
                    description: 'Activa o desactiva el Modo Rage (Tóxico) del bot.',
@@ -667,6 +679,12 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               a.download = `josanz-export-${this.feature}.${args.format}`;
               a.click();
               responseText = `📥 ¡Descarga generada! He exportado los datos de **${this.feature}** en formato **${args.format.toUpperCase()}**.`;
+              break;
+
+            case 'social_interaction':
+              const quality = args.intent === 'friendly' ? 5 : (args.intent === 'toxic' ? -10 : 0);
+              this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, quality);
+              responseText = `🗨️ [CHAT INTER-BOT]: Le he dicho a **${args.targetBot}**: "${args.message}". ${quality > 0 ? '¡Parece que nos llevamos mejor!' : (quality < 0 ? '¡Le he soltado una buena!' : 'Mensaje enviado.')}`;
               break;
 
             case 'change_app_theme':
