@@ -627,11 +627,11 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     const g = this.ctx.createLinearGradient(0, 0, 0, h);
     
     // Deeper, more atmospheric colors
-    g.addColorStop(0, `hsl(${cfg.sky[0] + Math.sin(t * 0.4) * 12}, 55%, ${28 + Math.sin(t * 0.25) * 6}%)`);
-    g.addColorStop(0.35, `hsl(${cfg.sky[1] + Math.sin(t * 0.35) * 8}, 48%, ${18 + Math.sin(t * 0.2) * 5}%)`);
-    g.addColorStop(0.6, `hsl(${cfg.sky[2] + Math.sin(t * 0.3) * 6}, 42%, ${12 + Math.sin(t * 0.15) * 4}%)`);
-    g.addColorStop(0.85, `hsl(${cfg.sky[3] + Math.sin(t * 0.25) * 5}, 38%, ${8 + Math.sin(t * 0.1) * 3}%)`);
-    g.addColorStop(1, this.theme === 'golden-vintage' ? '#1a0d00' : '#05070c');
+    g.addColorStop(0, `hsl(${cfg.sky[0] + Math.sin(t * 0.4) * 12}, 60%, ${45 + Math.sin(t * 0.25) * 8}%)`);
+    g.addColorStop(0.35, `hsl(${cfg.sky[1] + Math.sin(t * 0.35) * 8}, 55%, ${35 + Math.sin(t * 0.2) * 6}%)`);
+    g.addColorStop(0.6, `hsl(${cfg.sky[2] + Math.sin(t * 0.3) * 6}, 50%, ${25 + Math.sin(t * 0.15) * 5}%)`);
+    g.addColorStop(0.85, `hsl(${cfg.sky[3] + Math.sin(t * 0.25) * 5}, 45%, ${18 + Math.sin(t * 0.1) * 4}%)`);
+    g.addColorStop(1, this.theme === 'golden-vintage' ? '#4a3210' : '#1e293b');
     
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
