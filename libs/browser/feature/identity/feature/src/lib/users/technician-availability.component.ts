@@ -17,9 +17,6 @@ interface CalendarCell {
   selector: 'josanz-technician-availability',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
-  providers: [
-    { provide: 'LucideIcons', useValue: { RotateCw } }
-  ],
   template: `
     <div class="availability-container animate-fade-in">
       <div class="header">
