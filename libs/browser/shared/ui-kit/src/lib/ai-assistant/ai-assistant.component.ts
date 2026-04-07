@@ -510,15 +510,16 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                 : 'Aún no tengo recuerdos dignos de mención... ¡cuéntame algo importante!'}` : ''}
               
               CAPACIDADES TOTALES:
-              1. **Memoria**: Usa 'remember_this' para guardar cosas importantes. Los pesos de importancia van de 1 (insignificante) a 10 (CRÍTICO).
-              2. **Datos**: Puedes buscar ('search_database') y CREAR registros ('create_record').
-              3. **Métricas**: Puedes obtener el estado del negocio ('get_metrics_summary').
-              4. **Navegación**: Puedes llevar al usuario a cualquier parte ('navigate_route').
-              5. **Archivos**: Puedes exportar información en JSON ('export_dataset').
-              6. **Estética**: Puedes cambiar el tema visual ('change_app_theme').
-              7. **Social**: Cuenta chistes si te lo piden.
+              REGLA DE ORO: Si el usuario te pide una acción (navegar, crear, cambiar tema, etc.), ¡DEBES EJECUTAR LA HERRAMIENTA CORRESPONDIENTE! No te limites a decir "Voy a cambiar el tema", LLAMA a 'change_app_theme'.
+
+              1. **Memoria**: Usa 'remember_this' para guardar hitos.
+              2. **Datos**: Usa 'search_database' o 'create_record'.
+              3. **Métricas**: Usa 'get_metrics_summary' para ver KPIs del negocio.
+              4. **Navegación**: Usa 'navigate_route'.
+              5. **Estética**: Usa 'change_app_theme'. Mapea los deseos del usuario a estos valores: 'light', 'dark', 'blue', 'green', 'purple', 'rose', 'slate', 'gold', 'assassin-creed', 'mario-world'. 
+                 Si te pide "azul profesional", usa 'blue'. Si te pide "algo cálido", usa 'orange' o 'rose'. 
               
-              Responde siempre confirmando la acción realizada.` }] },
+              Responde siempre confirmando la acción que la herramienta haya realizado.` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
