@@ -30,6 +30,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
       <!-- Chat Window -->
       <div class="chat-window-container" *ngIf="isOpen()" cdkDrag cdkDragBoundary=".page-container" (click)="$event.stopPropagation()">
         <ui-josanz-card variant="glass" class="chat-window animate-slide-up">
+          <div class="chat-layout-wrapper">
           <div class="chat-header" cdkDragHandle [style.border-bottom-color]="bot()!.color">
             <div class="bot-status-info">
               <lucide-icon name="grip-vertical" size="14" class="drag-handle-icon"></lucide-icon>
@@ -73,6 +74,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
             <ui-josanz-button variant="filled" size="sm" (click)="sendMessage()">
               <lucide-icon name="send" size="16"></lucide-icon>
             </ui-josanz-button>
+          </div>
           </div>
         </ui-josanz-card>
       </div>
@@ -129,9 +131,16 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
       overflow: hidden;
       border-radius: 24px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-      background: rgba(15, 23, 42, 0.85) !important; /* Fixed opacity for visibility */
+      background: rgba(15, 23, 42, 0.85) !important;
       backdrop-filter: blur(25px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-layout-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      margin: -1.1rem; /* Neutralize card body padding */
     }
 
     .chat-header {
@@ -253,8 +262,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     }
 
     .chat-input-area input:focus {
+      outline: none;
       border-color: var(--brand);
       background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
     }
 
     /* CDK Drag Classes */
@@ -278,27 +289,68 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 export class UIAIChatComponent {
   @Input() feature!: string;
   
-  private readonly aiBotStore = inject(AIBotStore);
+  aiBotStore = inject(AIBotStore);
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
-  readonly currentInput = signal('');
-  readonly messages = signal<any[]>([]);
+  readonly messages = signal<{id: string, text: string, role: 'user' | 'bot'}[]>([]);
+  currentInput = '';
 
   toggleChat() {
     this.isOpen.update(v => !v);
   }
 
-  sendMessage() {
-    const text = this.currentInput();
-    if (!text.trim()) return;
+  async sendMessage() {
+    if (!this.currentInput.trim()) return;
 
-    this.messages.update(prev => [...prev, { id: Date.now(), role: 'user', text }]);
-    this.currentInput.set('');
+    const userInput = this.currentInput;
+    this.messages.update(m => [...m, { id: Date.now().toString(), text: userInput, role: 'user' }]);
+    this.currentInput = '';
+    this.scrollToBottom();
 
-    // Simulate bot response
+    const provider = this.aiBotStore.selectedProvider();
+    const apiKey = this.aiBotStore.providerApiKey();
+
+    if (!apiKey) {
+      this.messages.update(m => [...m, { id: 'err', text: '⚠️ Necesitas configurar primero el API Key en la pantalla Sistema > Asistentes de IA (Configuración).', role: 'bot' }]);
+      this.scrollToBottom();
+      return;
+    }
+
+    const typingId = 'typing-' + Date.now();
+    this.messages.update(m => [...m, { id: typingId, text: '⏳ *Analizando el módulo...*', role: 'bot' }]);
+    this.scrollToBottom();
+
+    try {
+      let responseText = '';
+      if (provider === 'gemini') {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: `Eres ${this.bot()!.name}, un asistente experto en ${this.bot()!.feature} para Josanz ERP. Hablas de forma concisa.` }] },
+            contents: [{ parts: [{ text: userInput }] }]
+          })
+        });
+
+        if (!res.ok) throw new Error('Falló comunicación Gemini');
+        const data = await res.json();
+        responseText = data.candidates[0].content.parts[0].text;
+      } else {
+        responseText = `La inferencia con ${provider} está en formato stub. Por favor selecciona Google Gemini en la configuración.`;
+      }
+
+      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: responseText, role: 'bot' } : msg));
+    } catch (e: unknown) {
+      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: '❌ Error de red con Gemini. Revisa que tu API Key sea correcta.', role: 'bot' } : msg));
+    }
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom() {
     setTimeout(() => {
-      this.messages.update(prev => [...prev, { id: Date.now(), role: 'bot', text: `Entendido. He registrado tu consulta sobre el módulo de ${this.feature}. Como ${this.bot()?.name}, estoy procesando los datos para darte la mejor respuesta técnica.` }]);
-    }, 1000);
+      const el = document.querySelector('.chat-messages');
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 100);
   }
 }
