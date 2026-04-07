@@ -54,6 +54,7 @@ export type { NavMenuItem } from './lib/nav-menu/nav-menu.component';
 export { DetailPlaceholderComponent } from './lib/detail-placeholder/detail-placeholder.component';
 
 export { ILucideComponent } from './lib/icons/i-lucide.component';
+export { UIMascotComponent } from './lib/mascot/mascot.component';
 
 // Pipes
 export { SelectMapperPipe } from './lib/pipes/select-mapper.pipe';
