@@ -38,6 +38,14 @@ export interface AIRangeMemory {
   sourceBot?: string;
 }
 
+/** Mensaje entre bots (entregado al chat del `targetFeature`). */
+export interface InterBotEnvelope {
+  readonly from: string;
+  readonly text: string;
+  /** Si true, solo se muestra en el chat del destinatario (sin nueva llamada al modelo). */
+  readonly displayOnly?: boolean;
+}
+
 export interface AIBot {
   id: string;
   name: string;
@@ -287,6 +295,39 @@ export class AIBotStore {
     this._messageBus.set({ feature, text, timestamp: Date.now(), target });
   }
 
+  private readonly _interBotInbox = signal<Record<string, InterBotEnvelope[]>>({});
+
+  /** Incrementa en cada mensaje inter-bot para que los asistentes reaccionen (effect). */
+  readonly interBotTick = signal(0);
+
+  private enqueueInterBotMessage(targetFeature: string, env: InterBotEnvelope): void {
+    this._interBotInbox.update((current) => {
+      const prev = current[targetFeature] ?? [];
+      return { ...current, [targetFeature]: [...prev, env] };
+    });
+    this.interBotTick.update((n) => n + 1);
+  }
+
+  /**
+   * Extrae y vacía la cola de mensajes dirigidos a un bot por su `feature`.
+   * Cada instancia del asistente llama solo con su propio feature.
+   */
+  pullInterBotMessagesFor(targetFeature: string): InterBotEnvelope[] {
+    let taken: InterBotEnvelope[] = [];
+    this._interBotInbox.update((current) => {
+      taken = [...(current[targetFeature] ?? [])];
+      return { ...current, [targetFeature]: [] };
+    });
+    return taken;
+  }
+
+  /** Respuesta de un bot que solo debe mostrarse en el chat del destinatario (evita bucles de IA). */
+  sendInterBotDisplay(fromFeature: string, toFeature: string, text: string): void {
+    const t = text.trim();
+    if (!t) return;
+    this.enqueueInterBotMessage(toFeature, { from: fromFeature, text: t, displayOnly: true });
+  }
+
   // Rage Mode
   private readonly _rageMode = signal<boolean>(localStorage.getItem('ai_rage_mode') === 'true');
   readonly rageMode = this._rageMode.asReadonly();
@@ -323,8 +364,7 @@ export class AIBotStore {
     this._relationships.set(updated);
     localStorage.setItem('ai_bot_relationships', JSON.stringify(updated));
 
-    // Also broadcast so other bots "hear" the interaction
-    this.broadcastMessage(from, text, to);
+    this.enqueueInterBotMessage(to, { from, text, displayOnly: false });
   }
 
   // Workspace & Memory System

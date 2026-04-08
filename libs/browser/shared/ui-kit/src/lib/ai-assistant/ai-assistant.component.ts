@@ -460,23 +460,53 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   constructor() {
     this.initSpeechRecognition();
     effect(() => {
-      const latest = this.aiBotStore.latestMessage();
-      if (latest && latest.feature !== this.feature) {
-        if (latest.target === this.feature) {
-          this.onDirectMessageReceived(latest.feature, latest.text);
-        }
-      }
+      this.aiBotStore.interBotTick();
+      const items = this.aiBotStore.pullInterBotMessagesFor(this.feature);
+      if (items.length === 0) return;
+      items.forEach((item, i) => {
+        const delay = 80 + i * 350;
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            if (item.displayOnly) {
+              this.appendPeerBotLine(item.from, item.text);
+            } else {
+              this.onDirectMessageReceived(item.from, item.text);
+            }
+          });
+        }, delay);
+      });
     });
+  }
+
+  private appendPeerBotLine(fromFeature: string, text: string) {
+    const esc = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const name = esc(this.aiBotStore.getBotByFeature(fromFeature)?.name || fromFeature);
+    const safe = esc(text);
+    this.messages.update((m) => [
+      ...m,
+      { id: `${Date.now()}-peer-${fromFeature}`, text: `💬 <strong>${name}</strong>: ${safe}`, role: 'bot' },
+    ]);
+    this.scrollToBottom();
+  }
+
+  /** Tras responder a otro bot, envía la respuesta visible a su chat (sin volver a llamar a su modelo). */
+  private forwardReplyToPeerIfNeeded(responseText: string, peerFeature?: string) {
+    if (!peerFeature || peerFeature === this.feature) return;
+    const t = responseText.trim();
+    if (!t || t.startsWith('❌')) return;
+    this.aiBotStore.sendInterBotDisplay(this.feature, peerFeature, t);
   }
 
   private onDirectMessageReceived(sourceFeature: string, text: string) {
     const sourceName = this.aiBotStore.getBotByFeature(sourceFeature)?.name || sourceFeature;
-    const incomingText = `[De ${sourceName}]: ${text}`;
-    setTimeout(() => {
-      this.messages.update(m => [...m, { id: Date.now().toString(), text: incomingText, role: 'user' }]);
-      this.scrollToBottom();
-      this.triggerAIResponse(`El bot ${sourceName} te acaba de enviar este mensaje: "${text}". Respóndele.`);
-    }, 1000);
+    const incomingText = `[${sourceName}]: ${text}`;
+    this.messages.update((m) => [...m, { id: `${Date.now()}-in`, text: incomingText, role: 'user' }]);
+    this.scrollToBottom();
+    void this.triggerAIResponse(
+      `Te escribe el bot **${sourceName}** (dominio \`${sourceFeature}\`):\n"${text}"\n\nResponde en español, breve y cordial, en tu rol de especialista de este dominio. Si es un saludo, devuélvelo con naturalidad. No uses herramientas salvo que necesites datos reales de APIs.`,
+      { relayReplyToFeature: sourceFeature }
+    );
   }
 
   ngOnInit() {
@@ -526,7 +556,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     await this.triggerAIResponse(userInput);
   }
 
-  async triggerAIResponse(userInput: string) {
+  async triggerAIResponse(
+    userInput: string,
+    opts?: { relayReplyToFeature?: string }
+  ) {
     const provider = this.aiBotStore.selectedProvider();
     const apiKey = this.aiBotStore.providerApiKey();
 
@@ -631,19 +664,19 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
         if (!res.ok) {
           const msg =
-            (data.error as { message?: string } | undefined)?.message ||
+            (data['error'] as { message?: string } | undefined)?.message ||
             `HTTP ${res.status}`;
           throw new Error(msg);
         }
 
-        const candidate = (data.candidates as Record<string, unknown>[] | undefined)?.[0] as
+        const candidate = (data['candidates'] as Record<string, unknown>[] | undefined)?.[0] as
           | { content?: { parts?: unknown[] }; finishReason?: string }
           | undefined;
         const parts = candidate?.content?.parts;
 
         if (!candidate || !Array.isArray(parts) || parts.length === 0) {
           const errText =
-            (data.promptFeedback as { blockReason?: string } | undefined)?.blockReason ||
+            (data['promptFeedback'] as { blockReason?: string } | undefined)?.blockReason ||
             candidate?.finishReason ||
             'Sin contenido en la respuesta del modelo.';
           throw new Error(errText);
@@ -701,19 +734,27 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               const ep = String(args.endpoint ?? '');
               const raw = await firstValueFrom(this.http.get(ep + String(args.params ?? '')));
               await this.triggerAIResponse(
-                `(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`
+                `(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`,
+                opts
               );
               return;
             }
-            case 'social_interaction':
+            case 'social_interaction': {
+              const targetF = String(args.targetBot ?? '');
+              const targetLabel =
+                this.aiBotStore.getBotByFeature(targetF)?.name || targetF;
               this.aiBotStore.recordInteraction(
                 this.feature,
-                String(args.targetBot ?? ''),
+                targetF,
                 String(args.message ?? ''),
                 args.intent === 'friendly' ? 10 : -10
               );
-              responseText = `🗨️ Interacción con ${String(args.targetBot ?? '')} registrada.`;
+              responseText =
+                this.feature === 'dashboard'
+                  ? `🗨️ Mensaje enviado a ${targetLabel}. Lo verá en su chat (o al entrar en su sección) y su respuesta aparecerá aquí.`
+                  : `🗨️ Interacción con ${targetF} registrada.`;
               break;
+            }
             case 'set_app_theme': {
               const rawKey = (args.themeKey ?? args.theme) as string | undefined;
               const key = typeof rawKey === 'string' ? rawKey.trim() : '';
@@ -764,6 +805,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           reasoning: this.currentReasoning() || undefined, 
           role: 'bot' 
         } : msg));
+
+        this.forwardReplyToPeerIfNeeded(responseText, opts?.relayReplyToFeature);
       }
     } catch (e) {
       const greenFallback = this.feature === 'dashboard' ? this.inferGreenThemeKeyFromUserText(userInput) : null;
