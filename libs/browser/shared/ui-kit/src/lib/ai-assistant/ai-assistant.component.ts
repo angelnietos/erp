@@ -627,43 +627,99 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           })
         });
 
-        const data = await res.json();
-        if (!data.candidates) throw new Error('No response');
-        
-        const firstPart = data.candidates[0].content.parts[0];
+        const data = await res.json() as Record<string, unknown>;
+
+        if (!res.ok) {
+          const msg =
+            (data.error as { message?: string } | undefined)?.message ||
+            `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+
+        const candidate = (data.candidates as Record<string, unknown>[] | undefined)?.[0] as
+          | { content?: { parts?: unknown[] }; finishReason?: string }
+          | undefined;
+        const parts = candidate?.content?.parts;
+
+        if (!candidate || !Array.isArray(parts) || parts.length === 0) {
+          const errText =
+            (data.promptFeedback as { blockReason?: string } | undefined)?.blockReason ||
+            candidate?.finishReason ||
+            'Sin contenido en la respuesta del modelo.';
+          throw new Error(errText);
+        }
+
+        const combinedText = parts
+          .map((part) => {
+            if (!part || typeof part !== 'object') return '';
+            return String((part as { text?: string }).text ?? '');
+          })
+          .filter(Boolean)
+          .join('\n');
+
+        const fc = this.extractFunctionCallFromGeminiParts(parts);
         let responseText = '';
+        let themeAppliedByTool = false;
 
-        if (firstPart.functionCall) {
-          const func = firstPart.functionCall;
-          const args = func.args as any;
-          this.aiBotStore.logTaskExecution(this.feature, func.name, args);
+        if (fc) {
+          const thoughtMatch = combinedText.match(/PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i);
+          const reasoning = thoughtMatch ? thoughtMatch[1].replace(/[\[\]]/g, '').trim() : '';
+          this.currentReasoning.set(reasoning);
 
-          switch (func.name) {
+          const funcName = fc.name;
+          const args = fc.args;
+          this.aiBotStore.logTaskExecution(this.feature, funcName, args);
+
+          switch (funcName) {
             case 'broadcast_suggestion':
-              this.aiBotStore.broadcastSuggestion({ botId: this.feature, text: args.text, category: args.category });
-              responseText = `📢 Sugerencia de **${args.category.toUpperCase()}** emitida a todo el sistema.`;
+              this.aiBotStore.broadcastSuggestion({
+                botId: this.feature,
+                text: String(args.text ?? ''),
+                category: args.category as 'efficiency' | 'risk' | 'opportunity',
+              });
+              responseText = `📢 Sugerencia de **${String(args.category ?? '').toUpperCase()}** emitida a todo el sistema.`;
               break;
-            case 'set_bot_mood':
-              this.aiBotStore.setBotMood(this.feature, args.mood, args.energy);
-              responseText = `(Estado actualizado: ${args.mood.toUpperCase()} | Energía: ${args.energy}%)`;
+            case 'set_bot_mood': {
+              const mood =
+                (args.mood as 'neutral' | 'analyzing' | 'alert' | 'creative' | 'toxic' | 'asleep' | undefined) ??
+                'neutral';
+              const energy = Number(args.energy ?? 100);
+              this.aiBotStore.setBotMood(this.feature, mood, energy);
+              responseText = `(Estado actualizado: ${mood.toUpperCase()} | Energía: ${energy}%)`;
               break;
+            }
             case 'remember_this':
-              this.aiBotStore.remember(this.feature, args.text, args.importance, args.isGlobal);
-              responseText = `🧠 Memoria integrada: "${args.text}".`;
+              this.aiBotStore.remember(
+                this.feature,
+                String(args.text ?? ''),
+                Number(args.importance ?? 1),
+                Boolean(args.isGlobal)
+              );
+              responseText = `🧠 Memoria integrada: "${String(args.text ?? '')}".`;
               break;
-            case 'query_domain_data':
-              const raw = await firstValueFrom(this.http.get(args.endpoint + (args.params || '')));
-              await this.triggerAIResponse(`(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`);
+            case 'query_domain_data': {
+              const ep = String(args.endpoint ?? '');
+              const raw = await firstValueFrom(this.http.get(ep + String(args.params ?? '')));
+              await this.triggerAIResponse(
+                `(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`
+              );
               return;
+            }
             case 'social_interaction':
-              this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, args.intent === 'friendly' ? 10 : -10);
-              responseText = `🗨️ Interacción con ${args.targetBot} registrada.`;
+              this.aiBotStore.recordInteraction(
+                this.feature,
+                String(args.targetBot ?? ''),
+                String(args.message ?? ''),
+                args.intent === 'friendly' ? 10 : -10
+              );
+              responseText = `🗨️ Interacción con ${String(args.targetBot ?? '')} registrada.`;
               break;
             case 'set_app_theme': {
               const rawKey = (args.themeKey ?? args.theme) as string | undefined;
               const key = typeof rawKey === 'string' ? rawKey.trim() : '';
               if (key && key in THEMES) {
                 this.themeService.setTheme(key as Theme);
+                themeAppliedByTool = true;
                 const label = THEMES[key as Theme].name;
                 responseText = `Listo: tema aplicado **${label}** (\`${key}\`).`;
               } else {
@@ -685,15 +741,21 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               break;
             }
             default:
-              responseText = `Acción "${func.name}" registrada.`;
+              responseText = `Acción "${funcName}" registrada.`;
           }
         } else {
-          const fullText = firstPart.text || '';
-          const match = fullText.match(/PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i);
+          const match = combinedText.match(/PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i);
           const reasoning = match ? match[1].replace(/[\[\]]/g, '').trim() : '';
           this.currentReasoning.set(reasoning);
-          
-          responseText = fullText.replace(/PENSAMIENTO:\s*\[?[\s\S]*?\]?(\n|$)/i, '').trim();
+
+          responseText = combinedText.replace(/PENSAMIENTO:\s*\[?[\s\S]*?\]?(\n|$)/i, '').trim();
+        }
+
+        const greenFallback = isBuddy ? this.inferGreenThemeKeyFromUserText(userInput) : null;
+        if (greenFallback && !themeAppliedByTool) {
+          this.themeService.setTheme(greenFallback);
+          const line = `✅ Tema verdoso aplicado: **${THEMES[greenFallback].name}** (\`${greenFallback}\`).`;
+          responseText = responseText ? `${responseText}\n\n${line}` : line;
         }
 
         this.messages.update(m => m.map(msg => msg.id === typingId ? { 
@@ -704,7 +766,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         } : msg));
       }
     } catch (e) {
-      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: '❌ Error en la matriz neuronal. Reintenta.', role: 'bot' } : msg));
+      const greenFallback = this.feature === 'dashboard' ? this.inferGreenThemeKeyFromUserText(userInput) : null;
+      if (greenFallback) {
+        this.themeService.setTheme(greenFallback);
+        const line = `✅ Tema verdoso aplicado: **${THEMES[greenFallback].name}** (\`${greenFallback}\`).\n\n(Hubo un fallo al contactar el modelo; el tema se aplicó en local.)`;
+        this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: line, role: 'bot' } : msg));
+      } else {
+        const detail = e instanceof Error ? e.message : String(e);
+        this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: `❌ Error: ${detail}`, role: 'bot' } : msg));
+      }
     }
     this.scrollToBottom();
   }
@@ -714,5 +784,44 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       const el = document.querySelector('.chat-messages');
       if (el) el.scrollTop = el.scrollHeight;
     }, 100);
+  }
+
+  /** Gemini puede devolver functionCall en un part distinto al primero, o con args vacíos. */
+  private extractFunctionCallFromGeminiParts(parts: unknown[] | undefined): { name: string; args: Record<string, unknown> } | null {
+    if (!Array.isArray(parts)) return null;
+    for (const p of parts) {
+      if (!p || typeof p !== 'object') continue;
+      const raw = p as Record<string, unknown>;
+      const fc = (raw.functionCall ?? raw.function_call) as Record<string, unknown> | undefined;
+      if (!fc || typeof fc !== 'object') continue;
+      const name = fc.name as string | undefined;
+      if (!name) continue;
+      let args = fc.args as Record<string, unknown> | undefined;
+      if (args == null && typeof fc.arguments === 'string') {
+        try {
+          args = JSON.parse(fc.arguments) as Record<string, unknown>;
+        } catch {
+          args = {};
+        }
+      }
+      if (args == null || typeof args !== 'object') args = {};
+      return { name, args };
+    }
+    return null;
+  }
+
+  /** Si el usuario pide cambiar el tema hacia verde y el modelo no ejecutó tool, aplicamos en cliente (evita fallos de API). */
+  private inferGreenThemeKeyFromUserText(text: string): Theme | null {
+    const u = text.toLowerCase();
+    if (!/(tema|temática|theme|interfaz|aplicaci[oó]n|\bapp\b|visual|fondo|aspecto|paleta)/i.test(u)) return null;
+    if (!/(verde|verdoso|esmeralda|\bgreen\b|menta|teal|mint|sage|bosque|forest|matrix|lima|lime)/i.test(u)) return null;
+    if (/\bchiste\b/i.test(u)) return null;
+    if (/matrix/i.test(u)) return 'matrix-reloaded';
+    if (/bosque|forest/i.test(u)) return 'forest-dark';
+    if (/menta|mint/i.test(u)) return 'mint';
+    if (/lima|lime/i.test(u)) return 'lime';
+    if (/teal/i.test(u)) return 'teal';
+    if (/sage/i.test(u)) return 'sage';
+    return 'green';
   }
 }
