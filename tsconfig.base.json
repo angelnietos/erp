@@ -224,7 +224,10 @@
         "libs/browser/feature/receipts/feature/src/index.ts"
       ],
       "@josanz-erp/events-shell": ["libs/events/shell/src/index.ts"],
-      "@josanz-erp/ai-core": ["libs/node/shared/ai-core/src/index.ts"]
+      "@josanz-erp/ai-core": ["libs/node/shared/ai-core/src/index.ts"],
+      "@josanz-erp/ai-insights-feature": [
+        "libs/browser/feature/ai-insights/feature/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

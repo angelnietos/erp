@@ -683,6 +683,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    - Cambiar el tema visual
                    - Recordar informaci\u00f3n importante
                    - Exportar datos
+                   - Extraer conclusiones de negocio y guardar sugerencias estructuradas (usa 'save_ai_insight')
                    - Generar contenido visual en pantalla
                    - Responder preguntas generales del negocio`
       : `Eres ${this.bot()!.name}, el EXPERTO ESPECIALIZADO en el m\u00f3dulo de ${this.bot()!.feature} de Josanz ERP.
@@ -698,7 +699,7 @@ ${canHelpLines}
                  Debes responder de forma concreta y \u00fatil explicando exactamente:
                  1. En qu\u00e9 m\u00f3dulo eres experto (${this.bot()!.feature})
                  2. Qu\u00e9 acciones puedes ejecutar ahora mismo (habilidades activas)
-                 3. Qu\u00e9 herramientas de IA tienes: buscar datos reales, crear registros, generar reportes, exportar datos, navegar, recordar informaci\u00f3n
+                 3. Qu\u00e9 herramientas de IA tienes: buscar datos reales, crear registros, generar reportes, registrar mejoras de negocio (insights), exportar datos, navegar, recordar informaci\u00f3n
                  4. Qu\u00e9 habilidades podr\u00edan activarse en configuraci\u00f3n para ampliar tus capacidades
                  Siempre termina con una pregunta concreta para orientar al usuario.
 
@@ -857,6 +858,20 @@ ${canHelpLines}
                         },
                         tableHeaders: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Columnas de la tabla principal.' },
                         tableRows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Filas de datos de la tabla.' }
+                      }, 
+                      required: ['title', 'summary'] 
+                    }
+                 },
+                 {
+                    name: 'save_ai_insight',
+                    description: 'Guarda un informe, feedback estructurado o idea de mejora abstracta en la base de datos empresarial. Úsalo cuando encuentres tendencias interesantes, el usuario pida feedback, propongas mejoras para el negocio o el usuario te ordene guardar conclusiones abstractas de cualquier dominio.',
+                    parameters: { 
+                      type: 'OBJECT', 
+                      properties: { 
+                        title: { type: 'STRING', description: 'Título del insight (ej: "Optimización de Inventario Recomendada").' },
+                        summary: { type: 'STRING', description: 'Explicación detallada de la mejora, datos o feedback.' },
+                        priority: { type: 'STRING', enum: ['LOW', 'MEDIUM', 'HIGH'], description: 'Nivel de prioridad o impacto.' },
+                        metrics: { type: 'OBJECT', description: 'Opcional. Valores numéricos relevantes clave-valor detectados.' }
                       }, 
                       required: ['title', 'summary'] 
                     }
@@ -1020,6 +1035,20 @@ ${canHelpLines}
               } catch (e) {
                 console.error('PDF Generation Error:', e);
                 responseText = `⚠️ Lo siento, he tenido un problema generando el documento PDF. ¿Deseas intentarlo de nuevo?`;
+              }
+              break;
+
+            case 'save_ai_insight':
+              try {
+                const payload = {
+                  botId: this.bot()!.id,
+                  feature: this.feature,
+                  ...args
+                };
+                await firstValueFrom(this.http.post('/api/ai-insights', payload));
+                responseText = `💡 ¡Insight guardado en el Orquestador! He registrado "${args.title}" para que el negocio pueda revisarlo luego.`;
+              } catch(e) {
+                responseText = `⚠️ Ocurrió un error guardando el insight en la base de datos.`;
               }
               break;
 

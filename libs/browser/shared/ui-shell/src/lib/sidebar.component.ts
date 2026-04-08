@@ -21,6 +21,7 @@ import {
   Calendar,
   FileText,
   Clock,
+  BrainCircuit,
 } from 'lucide-angular';
 import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
@@ -401,11 +402,17 @@ export class SidebarComponent {
       icon: 'file-check',
       route: '/verifactu',
     },
+    {
+      id: 'ai-insights',
+      label: 'AI Insights',
+      icon: 'brain-circuit',
+      route: '/ai-insights',
+    },
   ];
 
   filteredNavItems = computed(() => {
     const enabled = this.pluginStore.enabledPlugins();
-    return this.navItems.filter((item) => enabled.includes(item.id || ''));
+    return this.navItems.filter((item) => ['dashboard', 'ai-insights'].includes(item.id || '') || enabled.includes(item.id || ''));
   });
 
   isCollapsed = signal(false);

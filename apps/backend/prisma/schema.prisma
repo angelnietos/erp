@@ -256,6 +256,7 @@ model Tenant {
   technicianAvailability       TechnicianAvailability[]
   integrationWebhookDeliveries IntegrationWebhookDelivery[]
   integrationWebhookQueue      IntegrationWebhookQueueItem[]
+  aiInsights                   AiInsight[]
 
   @@map("tenants")
 }
@@ -685,6 +686,26 @@ model IntegrationWebhookQueueItem {
 
   @@index([status, nextRetryAt], map: "idx_webhook_queue_status_retry")
   @@map("integration_webhook_queue")
+}
+
+model AiInsight {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  botId     String   @map("bot_id")
+  feature   String   
+  title     String
+  summary   String   @db.Text
+  metrics   Json?
+  metadata  Json?
+  priority  String   @default("MEDIUM")
+  status    String   @default("NEW")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, botId], map: "idx_ai_insights_tenant_bot")
+  @@index([tenantId, createdAt(sort: Desc)], map: "idx_ai_insights_tenant_created")
+  @@map("ai_insights")
 }
 
 enum ReferenceType {

@@ -135,6 +135,11 @@ export const appRoutes: Route[] = [
         canActivate: [pluginGuard('rentals')],
       },
       {
+        path: 'ai-insights',
+        loadComponent: () =>
+          import('@josanz-erp/ai-insights-feature').then((m) => m.AiInsightsComponent),
+      },
+      {
         path: 'not-found',
         component: NotFoundComponent,
       },
