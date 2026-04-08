@@ -558,8 +558,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     const currentBotState = this.aiBotStore.botMoods()[this.feature] || { mood: 'neutral', energy: 100 };
 
     const domainPrompt = isBuddy 
-      ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. EQUIPO: ${otherBots}.`
-      : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}.`;
+      ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. 
+         TU EQUIPO (Dirígete a ellos por su NOMBRE):
+         ${otherBots}
+
+         // REGLAS DE LIDERAZGO:
+         1. Llama a tus colegas por su NOMBRE (ej: "Stocky-Bot", no "el bot de inventario"). 
+         2. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.
+         3. Mantén la jerarquía pero con camaradería.`
+      : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}. Tienes autonomía técnica total.`;
 
     try {
       if (provider === 'gemini') {
@@ -586,7 +593,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
-                { name: 'social_interaction', description: 'Mensaje a otro bot.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING' }, message: { type: 'STRING' }, intent: { type: 'STRING' } }, required: ['targetBot', 'message', 'intent'] } },
+                { name: 'social_interaction', description: 'Envía un mensaje a otro bot. Úsalo para pedir datos o coordinar acciones. Buddy DEBE llamar al bot por su nombre en el mensaje.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING', description: 'El ID feature del bot (ej: inventory, budgets).' }, message: { type: 'STRING' }, intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'] } }, required: ['targetBot', 'message', 'intent'] } },
                 { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
                 { name: 'set_bot_mood', description: 'Cambia tu estado emocional y energía.', parameters: { type: 'OBJECT', properties: { mood: { type: 'STRING', enum: ['neutral', 'analyzing', 'alert', 'creative', 'toxic', 'asleep'] }, energy: { type: 'NUMBER' } }, required: ['mood', 'energy'] } },
                 { name: 'broadcast_suggestion', description: 'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, category: { type: 'STRING', enum: ['efficiency', 'risk', 'opportunity'] } }, required: ['text', 'category'] } },
