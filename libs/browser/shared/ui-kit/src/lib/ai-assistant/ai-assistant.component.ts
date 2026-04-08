@@ -73,7 +73,16 @@ import { firstValueFrom } from 'rxjs';
 
             @for (msg of messages(); track msg.id) {
               <div class="message" [class.user-msg]="msg.role === 'user'" [class.bot-msg]="msg.role === 'bot'">
-                <p>{{ msg.text }}</p>
+                <p [innerHTML]="msg.text"></p>
+                <div class="msg-feedback" *ngIf="msg.role === 'bot' && msg.id !== 'err' && !msg.id.toString().startsWith('typing')">
+                  <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
+                    <button class="feedback-btn" (click)="submitFeedback(msg, 'positive')" title="Me gusta esta respuesta">👍</button>
+                    <button class="feedback-btn" (click)="submitFeedback(msg, 'negative')" title="No me gusta esta respuesta">👎</button>
+                  </div>
+                  <div class="feedback-submitted text-friendly" *ngIf="msg.feedbackSubmitted">
+                    <lucide-icon name="check" size="12"></lucide-icon> Guardado en Memoria
+                  </div>
+                </div>
               </div>
             }
           </div>
@@ -378,6 +387,46 @@ import { firstValueFrom } from 'rxjs';
     .cdk-drag-placeholder {
       opacity: 0;
     }
+    
+    .msg-feedback {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 0.5rem;
+    }
+
+    .feedback-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .feedback-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .feedback-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .feedback-submitted {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--success);
+    }
 
     .cdk-drag-animating {
       transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
@@ -403,7 +452,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
-  readonly messages = signal<{id: string, text: string, role: 'user' | 'bot'}[]>([]);
+  readonly messages = signal<{id: string, text: string, role: 'user' | 'bot', feedbackSubmitted?: boolean}[]>([]);
   currentInput = '';
   
   minimize() {
@@ -413,6 +462,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   closeSession() {
     this.isOpen.set(false);
     this.messages.set([]);
+  }
+
+  submitFeedback(msg: any, type: 'positive' | 'negative') {
+    msg.feedbackSubmitted = true;
+    
+    // Explicitly update the signal with the mutated message object so Angular catches it
+    this.messages.update(m => [...m]);
+    
+    // Store in Bot's Workspace Memory persistently
+    const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...". Actúa en consecuencia para potenciar o evitar este comportamiento futuro.`;
+    this.aiBotStore.remember(this.feature, fbText, type === 'positive' ? 3 : 5);
   }
   
   isListening = signal(false);
