@@ -69,6 +69,15 @@ interface AuditLog {
   changes?: Record<string, { old: unknown; new: unknown }>;
 }
 
+/** Shape of a domain event payload as stored in the backend. */
+interface DomainEventPayload {
+  name?: string;
+  userName?: string;
+  email?: string;
+  changes?: Record<string, { old: unknown; new: unknown }>;
+  [key: string]: unknown;
+}
+
 @Component({
   selector: 'lib-audit-trail',
   standalone: true,
@@ -631,16 +640,26 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
     this.domainEventsApi.list(150).subscribe((events) => {
       const fromDomain: AuditLog[] = events.map((e) => {
-        const payload = e.payload as any;
+        const payload = e.payload as DomainEventPayload;
         const userName = payload?.name || payload?.userName || payload?.email || 'Sistema';
         const entityName = payload?.name || payload?.email || `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`;
+
+        const validActions: AuditLog['action'][] = ['CREATE', 'UPDATE', 'DELETE', 'COPY', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT'];
+        const validEntities: AuditLog['entity'][] = ['USER', 'PROJECT', 'SERVICE', 'EVENT', 'CLIENT', 'INVOICE', 'RECEIPT', 'EQUIPMENT'];
+
+        const action = validActions.includes(e.eventType as AuditLog['action'])
+          ? (e.eventType as AuditLog['action'])
+          : 'UPDATE';
+        const entity = validEntities.includes(e.aggregateType as AuditLog['entity'])
+          ? (e.aggregateType as AuditLog['entity'])
+          : 'PROJECT';
         
         return {
           id: `de-${e.id}`,
-          userName: userName,
-          action: (e.eventType as any) || 'UPDATE',
-          entity: (e.aggregateType as any) || 'PROJECT',
-          entityName: entityName,
+          userName,
+          action,
+          entity,
+          entityName,
           timestamp: e.occurredAt,
           details: e.eventType,
           changes: payload?.changes || { payload: { old: null, new: e.payload } },
