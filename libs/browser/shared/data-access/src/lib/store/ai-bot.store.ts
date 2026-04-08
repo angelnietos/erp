@@ -142,6 +142,14 @@ export interface AIRangeMemory {
   sourceBot?: string;
 }
 
+export interface InterBotMessage {
+  from: string;
+  to: string;
+  text: string;
+  displayOnly?: boolean;
+  timestamp: number;
+}
+
 export interface AIBot {
   id: string;
   name: string;
@@ -1355,7 +1363,7 @@ export class AIBotStore {
     const ws = this.getWorkspace(feature);
     if (ws.memories.length >= 10 && ws.memories.length % 10 === 0) {
       const recentMemories: AIRangeMemory[] = ws.memories.slice(-10);
-      const summary = this.generateMemorySummary(recentMemories, feature);
+      const summary = this.generateMemorySummary(recentMemories);
 
       const summaryMemory: AIRangeMemory = {
         text: `RESUMEN AUTOMÁTICO: ${summary}`,
@@ -1732,7 +1740,7 @@ export class AIBotStore {
   }
 
   /** Obtener mensajes pendientes de otros bots */
-  pullInterBotMessagesFor(_feature: string): unknown[] {
+  pullInterBotMessagesFor(_feature: string): InterBotMessage[] {
     // Implementación básica - devolver array vacío
     return [];
   }
