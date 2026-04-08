@@ -20,6 +20,7 @@ import {
   Theme,
   THEMES,
   MasterFilterService,
+  InterBotMessage,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -638,7 +639,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       this.aiBotStore.interBotTick();
       const items = this.aiBotStore.pullInterBotMessagesFor(this.feature);
       if (items.length === 0) return;
-      items.forEach((item, i) => {
+      items.forEach((item: InterBotMessage, i: number) => {
         const delay = 80 + i * 350;
         setTimeout(() => {
           this.ngZone.run(() => {
