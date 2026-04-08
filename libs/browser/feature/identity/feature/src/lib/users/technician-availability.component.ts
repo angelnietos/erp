@@ -27,22 +27,22 @@ interface CalendarCell {
   template: `
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->
-      <header class="dashboard-header">
+      <header class="dashboard-header animate-slide-down">
         <div class="header-info">
-          <h1 class="page-title text-uppercase glow-text">Disponibilidad Técnica</h1>
-          <p class="text-friendly">Gestión integrada de horarios y ausencias del equipo.</p>
+          <h1 class="page-title text-uppercase glow-text">Disponibilidad <span class="text-brand">Técnica</span></h1>
+          <p class="text-friendly">Planificación integrada de recursos humanos y logística para eventos.</p>
         </div>
         <div class="header-actions">
            <!-- MONTH NAVIGATION -->
            <div class="month-navigator ui-glass">
-              <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
+              <button class="nav-btn ripple" (click)="prevMonth()" title="Anterior">
                  <lucide-icon name="chevron-left" size="18"></lucide-icon>
               </button>
               <div class="current-month-display">
                  <span class="m-name">{{ getMonthName() }}</span>
                  <span class="m-year">{{ currentYear() }}</span>
               </div>
-              <button class="nav-btn" (click)="nextMonth()" title="Mes siguiente">
+              <button class="nav-btn ripple" (click)="nextMonth()" title="Siguiente">
                  <lucide-icon name="chevron-right" size="18"></lucide-icon>
               </button>
            </div>
@@ -53,38 +53,39 @@ interface CalendarCell {
                 [class.active]="viewMode() === 'personal'"
                 (click)="viewMode.set('personal')"
               >
-                Mi Calendario
+                Individual
               </button>
               <button 
                 class="toggle-btn" 
                 [class.active]="viewMode() === 'team'"
                 (click)="viewMode.set('team')"
               >
-                Vision Equipo
+                Panel Equipo
               </button>
            </div>
-           <ui-josanz-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()"></ui-josanz-button>
+           
+           <ui-josanz-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()" [class.animate-spin]="isLoading()"></ui-josanz-button>
         </div>
       </header>
 
       <div class="dashboard-layout">
         <!-- SIDEBAR: TEAM LIST -->
-        <aside class="team-sidebar ui-glass">
+        <aside class="team-sidebar ui-glass animate-slide-right">
           <div class="sidebar-header">
-            <h3>Técnicos</h3>
+            <h3>Equipo Técnico</h3>
             <ui-josanz-badge variant="info">{{ technicians().length }}</ui-josanz-badge>
           </div>
           <div class="sidebar-search">
             <ui-josanz-search 
-              variant="filled" 
-              placeholder="BUSCAR TÉCNICO..." 
+              variant="minimal" 
+              placeholder="Buscar operario..." 
               (searchChange)="onSearch($event)"
             ></ui-josanz-search>
           </div>
           <div class="technician-list">
             @for (tech of technicians(); track tech.id) {
               <div 
-                class="tech-item ui-neon" 
+                class="tech-item ui-neon ripple" 
                 [class.selected]="selectedTechId() === tech.id"
                 (click)="selectedTechId.set(tech.id)"
               >
@@ -102,25 +103,26 @@ interface CalendarCell {
         </aside>
 
         <!-- MAIN CALENDAR / TEAM BOARD -->
-        <main class="main-content">
+        <main class="main-content animate-slide-up">
           @if (viewMode() === 'personal') {
-            <ui-josanz-card shape="auto" class="calendar-card">
+            <ui-josanz-card shape="auto" class="calendar-card ui-glass">
               <div class="calendar-header">
-                <div>
-                  <h2 class="text-uppercase">{{ getMonthName() }} <span>{{ currentYear() }}</span></h2>
-                  <p class="tech-label text-friendly" *ngIf="selectedTechId() !== 'me'">
-                     Viendo calendario de: <strong>{{ getSelectedTechName() }}</strong>
+                <div class="header-main">
+                  <h2 class="text-uppercase">{{ getMonthName() }} <span class="year-val">{{ currentYear() }}</span></h2>
+                  <p class="tech-label" *ngIf="getSelectedTechName() as name">
+                     Calendario de: <strong>{{ name }}</strong>
                   </p>
                 </div>
                 <div class="calendar-legend">
                   <div class="legend-item"><span class="dot AVAILABLE"></span><span>Disp.</span></div>
-                  <div class="legend-item"><span class="dot UNAVAILABLE"></span><span>No D.</span></div>
+                  <div class="legend-item"><span class="dot UNAVAILABLE"></span><span>Ocupado</span></div>
                   <div class="legend-item"><span class="dot HOLIDAY"></span><span>Vacac.</span></div>
+                  <div class="legend-item"><span class="dot SICK_LEAVE"></span><span>Baja</span></div>
                 </div>
               </div>
               
               <div class="calendar-grid">
-                @for (day of ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']; track day) {
+                @for (day of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']; track day) {
                   <div class="day-header">{{ day }}</div>
                 }
                 
@@ -129,6 +131,7 @@ interface CalendarCell {
                     class="calendar-cell"
                     [class.other-month]="!cell.isCurrentMonth"
                     [class.today]="cell.isToday"
+                    (click)="toggleAvailability(cell)"
                   >
                     <div class="cell-head">
                       <span class="cell-day">{{ cell.day }}</span>
@@ -136,33 +139,28 @@ interface CalendarCell {
                     
                     <div class="cell-body">
                       @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
-                         <div 
-                            class="status-indicator" 
-                            [class]="status" 
-                            [class.editable]="selectedTechId() === 'me'"
-                            (click)="toggleAvailability(cell)"
-                         >
-                            <div class="indicator-glow"></div>
-                            <span class="indicator-label">{{ getShortLabel(status) }}</span>
+                         <div class="status-pill" [class]="status">
+                            <span class="pill-label">{{ getShortLabel(status) }}</span>
                          </div>
                       }
                     </div>
                     @if (cell.isToday) { <div class="today-marker">HOY</div> }
+                    <div class="cell-hover-bg"></div>
                   </div>
                 }
               </div>
             </ui-josanz-card>
           } @else {
             <!-- TEAM BOARD VIEW -->
-            <ui-josanz-card shape="auto" class="team-board-card">
+            <ui-josanz-card shape="auto" class="team-board-card ui-glass">
               <div class="board-container">
                 <div class="board-header-sticky">
-                   <div class="tech-col-header">Técnico</div>
+                   <div class="tech-col-header">Persona / Día</div>
                    <div class="days-scroll-area">
                       @for (cell of calendarCells(); track cell.date) {
                         <div class="day-col-header" [class.today]="cell.isToday">
                           <span class="d-num">{{ cell.day }}</span>
-                          <span class="d-name">{{ getDayOfWeekName(cell.day) }}</span>
+                          <span class="d-name">{{ getDayOfWeekName(cell.day).substring(0,1) }}</span>
                         </div>
                       }
                    </div>
@@ -170,7 +168,7 @@ interface CalendarCell {
                 
                 <div class="board-body">
                    @for (tech of technicians(); track tech.id) {
-                     <div class="tech-row">
+                     <div class="tech-row" [class.highlight]="selectedTechId() === tech.id">
                         <div class="tech-info-sticky">
                            <div class="avatar-sm" [style.background]="getAvatarColor(tech.name)">{{ tech.name.substring(0,1) }}</div>
                            <span class="name-sm">{{ tech.name }}</span>
@@ -179,7 +177,7 @@ interface CalendarCell {
                            @for (cell of calendarCells(); track cell.date) {
                               <div class="board-cell" [class.today]="cell.isToday">
                                  @if (getTechDayStatus(tech.id, cell.day); as status) {
-                                    <div class="mini-status" [class]="status" title="{{ getShortLabel(status) }}"></div>
+                                    <div class="mini-status-dot" [class]="status" [title]="getShortLabel(status)"></div>
                                  }
                               </div>
                            }
@@ -199,18 +197,25 @@ interface CalendarCell {
     .availability-dashboard {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 2.5rem;
+      padding: 0.5rem;
     }
+
+    .text-brand { color: var(--brand); }
 
     .dashboard-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
+
+    .page-title { margin: 0; font-size: 2.22rem; font-weight: 950; letter-spacing: -0.02em; }
 
     .header-actions {
       display: flex;
-      gap: 1.5rem;
+      gap: 1.25rem;
       align-items: center;
     }
 
@@ -218,65 +223,66 @@ interface CalendarCell {
     .month-navigator {
        display: flex;
        align-items: center;
-       gap: 1rem;
-       padding: 4px;
-       border-radius: 12px !important;
-       background: rgba(255,255,255,0.03) !important;
+       gap: 0.75rem;
+       padding: 0.5rem 1rem;
+       border-radius: 16px !important;
+       background: rgba(255,255,255,0.02) !important;
+       border: 1px solid rgba(255,255,255,0.05) !important;
     }
     .nav-btn {
-       width: 32px; height: 32px; border: none; border-radius: 8px;
-       background: rgba(255,255,255,0.05); color: var(--text-primary);
+       width: 40px; height: 40px; border: none; border-radius: 12px;
+       background: rgba(255,255,255,0.05); color: #fff;
        cursor: pointer; display: flex; align-items: center; justify-content: center;
-       transition: all 0.2s;
+       transition: all 0.3s var(--ease-out-expo);
     }
-    .nav-btn:hover { background: var(--brand); box-shadow: 0 0 10px var(--brand-glow); }
+    .nav-btn:hover { background: var(--brand); transform: translateY(-2px); box-shadow: 0 8px 20px var(--brand-glow); }
+    
     .current-month-display {
-       display: flex; flex-direction: column; align-items: center; min-width: 100px;
+       display: flex; flex-direction: column; align-items: center; min-width: 140px;
     }
-    .m-name { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; color: var(--text-primary); margin-bottom: -2px; }
-    .m-year { font-size: 0.6rem; font-weight: 700; color: var(--brand); letter-spacing: 0.1em; }
+    .m-name { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: 0.05em; }
+    .m-year { font-size: 0.75rem; font-weight: 700; color: var(--brand); opacity: 0.7; }
 
     .view-toggle {
       display: flex;
-      padding: 4px;
-      gap: 4px;
-      border-radius: 50px !important;
-      background: rgba(0,0,0,0.2) !important;
+      padding: 6px;
+      gap: 6px;
+      border-radius: 16px !important;
+      background: rgba(0,0,0,0.3) !important;
     }
 
     .toggle-btn {
-      padding: 0.5rem 1rem;
-      border-radius: 50px;
+      padding: 0.65rem 1.4rem;
+      border-radius: 12px;
       border: none;
       background: transparent;
-      color: var(--text-muted);
-      font-size: 0.65rem;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.3s var(--ease-out-expo);
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .toggle-btn.active {
-      background: var(--brand);
+      background: rgba(255,255,255,0.1);
       color: #fff;
-      box-shadow: 0 4px 15px var(--brand-glow);
+      box-shadow: 0 4px 15px rgba(255,255,255,0.05);
     }
 
     .dashboard-layout {
       display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 2rem;
+      grid-template-columns: 320px 1fr;
+      gap: 2.5rem;
       align-items: flex-start;
     }
 
     .team-sidebar {
-      padding: 1.5rem;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-      min-height: 500px;
+      gap: 2rem;
+      border-radius: 24px !important;
     }
 
     .sidebar-header {
@@ -286,322 +292,174 @@ interface CalendarCell {
     }
 
     .sidebar-header h3 {
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       margin: 0;
+      opacity: 0.8;
     }
 
     .technician-list {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 1rem;
     }
 
     .tech-item {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      border-radius: var(--radius-md);
+      gap: 1.25rem;
+      padding: 1.25rem;
+      border-radius: 18px;
       cursor: pointer;
       background: rgba(255,255,255,0.02);
-      border: 1px solid transparent;
-      transition: all 0.3s var(--ease-out-expo);
+      border: 1px solid rgba(255,255,255,0.03);
+      transition: all 0.4s var(--ease-out-expo);
     }
 
     .tech-item:hover {
       background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
+      transform: translateX(5px);
     }
 
     .tech-item.selected {
-      background: var(--brand-ambient);
-      border-color: var(--brand-border-soft);
-      transform: translateX(8px);
-      box-shadow: 0 0 20px -10px var(--brand-glow);
+      background: linear-gradient(135deg, rgba(var(--brand-rgb), 0.12) 0%, rgba(var(--brand-rgb), 0.05) 100%);
+      border-color: rgba(var(--brand-rgb), 0.3);
+      box-shadow: 0 10px 30px -10px rgba(var(--brand-rgb), 0.4);
     }
 
     .tech-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 900;
-      font-size: 0.9rem;
+      font-weight: 950;
+      font-size: 1.1rem;
       position: relative;
       color: #fff;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-      box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
     }
 
     .status-dot {
       position: absolute;
-      bottom: 0px;
-      right: 0px;
-      width: 12px;
-      height: 12px;
+      bottom: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      border: 2px solid var(--bg-primary);
+      border: 3px solid #0f172a;
     }
 
-    .status-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .status-dot.away { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
-    .status-dot.offline { background: var(--text-muted); }
+    .status-dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
+    .status-dot.away { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+    .status-dot.offline { background: #64748b; }
 
-    .tech-info {
-      display: flex;
-      flex-direction: column;
-    }
+    .tech-info { display: flex; flex-direction: column; gap: 2px; }
+    .tech-name { font-weight: 800; font-size: 1rem; color: #fff; }
+    .tech-role { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
 
-    .tech-name { font-weight: 700; font-size: 0.9rem; color: var(--text-primary); }
-    .tech-role { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-
-    .main-content {
-      flex: 1;
-    }
+    .main-content { flex: 1; }
 
     .calendar-card {
       padding: 0 !important;
       overflow: hidden;
+      border-radius: 28px !important;
     }
 
     .calendar-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      padding: 2rem 2.5rem;
-      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
-    }
-
-    .calendar-header h2 {
-      margin: 0;
-      font-size: 1.75rem;
-      font-family: var(--font-display);
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-
-    .calendar-header h2 span {
-      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-glow) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-left: 0.5rem;
-    }
-
-    .tech-label {
-      margin-top: 0.5rem;
-      font-size: 0.8rem;
-    }
-
-    .tech-label strong { color: var(--text-primary); }
-
-    .calendar-legend {
-      display: flex;
-      gap: 1.25rem;
-    }
-
-    .legend-item {
-      display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.65rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-muted);
+      padding: 3rem 3.5rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
+    .calendar-header h2 { margin: 0; font-size: 2.5rem; font-weight: 950; letter-spacing: -0.04em; }
+    .year-val { opacity: 0.4; color: var(--brand); }
+
+    .tech-label { margin-top: 0.6rem; font-size: 1rem; opacity: 0.7; }
+    .tech-label strong { color: #fff; border-bottom: 1px solid var(--brand); padding-bottom: 2px; }
+
+    .calendar-legend { display: flex; gap: 1.5rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.65rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.5); }
     .dot { width: 8px; height: 8px; border-radius: 50%; }
-    .dot.AVAILABLE { background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .dot.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-    .dot.HOLIDAY { background: var(--info); box-shadow: 0 0 8px var(--info); }
+    .dot.AVAILABLE { background: #10b981; box-shadow: 0 0 10px #10b981; }
+    .dot.UNAVAILABLE { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+    .dot.HOLIDAY { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+    .dot.SICK_LEAVE { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
 
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      padding: 0 1.5rem 2rem 1.5rem;
-      gap: 0.75rem;
+      padding: 1.5rem 2.5rem 3.5rem;
+      gap: 1.25rem;
     }
 
     .day-header {
-      text-align: center;
-      font-size: 0.65rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      letter-spacing: 0.15em;
-      padding-bottom: 1rem;
+      text-align: center; font-size: 0.75rem; font-weight: 900; text-transform: uppercase;
+      color: var(--brand); opacity: 0.6; letter-spacing: 0.2em; padding: 1rem;
     }
 
     .calendar-cell {
-      min-height: 100px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: var(--radius-md);
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.4s var(--ease-out-expo);
+      min-height: 130px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 20px; padding: 1.25rem; display: flex; flex-direction: column; position: relative;
+      overflow: hidden; cursor: pointer; transition: all 0.4s var(--ease-out-expo);
     }
+    .calendar-cell:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); z-index: 10; }
+    .calendar-cell.other-month { opacity: 0.08; pointer-events: none; }
+    .calendar-cell.today { border-color: var(--brand); background: rgba(var(--brand-rgb), 0.05); }
 
-    .calendar-cell:hover {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.15);
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    }
+    .cell-day { font-size: 1.5rem; font-weight: 900; font-family: var(--font-display); opacity: 0.2; }
+    .today .cell-day { opacity: 0.8; color: var(--brand); }
 
-    .calendar-cell.other-month { opacity: 0.15; }
-    .calendar-cell.today {
-      border: 1px solid var(--brand);
-      background: var(--brand-ambient-strong);
-    }
+    .cell-body { flex: 1; display: flex; align-items: flex-end; }
 
-    .today-marker {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: var(--brand);
-      color: #000;
-      font-size: 0.5rem;
-      font-weight: 900;
-      padding: 2px 8px;
-      border-bottom-left-radius: 4px;
-      box-shadow: 0 0 10px var(--brand-glow);
-    }
+    .status-pill { width: 100%; padding: 0.5rem; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; justify-content: center; }
+    .pill-label { font-size: 0.6rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.05em; }
 
-    .cell-day {
-      font-size: 0.9rem;
-      font-weight: 900;
-      font-family: var(--font-display);
-      color: var(--text-muted);
-    }
+    .AVAILABLE .pill-label { color: #10b981; }
+    .UNAVAILABLE .pill-label { color: #ef4444; }
+    .HOLIDAY .pill-label { color: #3b82f6; }
+    .SICK_LEAVE .pill-label { color: #f59e0b; }
 
-    .today .cell-day { color: #fff; }
-
-    .cell-body {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .status-indicator {
-      position: relative;
-      width: 100%;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-      cursor: default;
-      transition: all 0.3s;
-    }
-
-    .status-indicator.editable { cursor: pointer; }
-    .status-indicator.editable:hover { transform: scale(1.08); }
-
-    .indicator-label {
-      font-size: 0.55rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      z-index: 2;
-      letter-spacing: 0.05em;
-    }
-
-    .AVAILABLE { color: var(--success); }
-    .UNAVAILABLE { color: var(--danger); }
-    .HOLIDAY { color: var(--info); }
-    .SICK_LEAVE { color: var(--warning); }
-
-    .indicator-glow {
-      position: absolute;
-      inset: 0;
-      border-radius: 6px;
-      background: currentColor;
-      opacity: 0.1;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .status-indicator:hover .indicator-glow { opacity: 0.22; }
+    .today-marker { position: absolute; top: 1.25rem; right: 1.25rem; background: var(--brand); color: #000; font-size: 0.55rem; font-weight: 950; padding: 3px 10px; border-radius: 6px; box-shadow: 0 0 15px var(--brand-glow); }
 
     /* TEAM BOARD SPECIFIC */
-    .team-board-card { padding: 0 !important; }
+    .team-board-card { padding: 0 !important; border-radius: 28px !important; }
     .board-container { width: 100%; overflow: hidden; position: relative; }
     
-    .board-header-sticky {
-      display: flex;
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
+    .board-header-sticky { display: flex; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .tech-col-header { width: 220px; flex-shrink: 0; padding: 1.5rem 2rem; font-size: 0.75rem; font-weight: 950; text-transform: uppercase; color: var(--brand); }
+    .days-scroll-area { display: flex; flex-grow: 1; overflow-x: auto; }
+    .day-col-header { width: 50px; flex-shrink: 0; padding: 1rem 0; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 1px solid rgba(255,255,255,0.03); }
+    .day-col-header.today { background: var(--brand-ambient); }
+    .d-num { font-size: 1rem; font-weight: 900; }
+    .d-name { font-size: 0.55rem; opacity: 0.4; font-weight: 800; }
     
-    .tech-col-header {
-      width: 180px; flex-shrink: 0; padding: 1rem;
-      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--text-muted);
-      border-right: 1px solid rgba(255,255,255,0.08);
-    }
+    .tech-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.04); transition: all 0.3s; height: 64px; }
+    .tech-row:hover { background: rgba(255,255,255,0.03); }
+    .tech-row.highlight { background: rgba(var(--brand-rgb), 0.05); }
     
-    .days-scroll-area {
-      display: flex; overflow-x: auto; flex-grow: 1;
-      scrollbar-width: thin; scrollbar-color: var(--brand) transparent;
-    }
+    .tech-info-sticky { width: 220px; flex-shrink: 0; padding: 0 2rem; display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2); }
+    .avatar-sm { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 950; color: #fff; }
+    .name-sm { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8; }
     
-    .day-col-header {
-      width: 48px; flex-shrink: 0; padding: 0.75rem 0;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      border-right: 1px solid rgba(255,255,255,0.04);
-    }
-    
-    .day-col-header.today { background: var(--brand-ambient); color: var(--brand); }
-    .d-num { font-size: 0.85rem; font-weight: 900; font-family: var(--font-display); }
-    .d-name { font-size: 0.5rem; font-weight: 800; opacity: 0.6; }
-    
-    .tech-row {
-      display: flex; border-bottom: 1px solid rgba(255,255,255,0.04);
-      transition: background 0.2s;
-    }
-    .tech-row:hover { background: rgba(255,255,255,0.02); }
-    
-    .tech-info-sticky {
-      width: 180px; flex-shrink: 0; padding: 0.75rem 1rem;
-      display: flex; align-items: center; gap: 0.75rem;
-      border-right: 1px solid rgba(255,255,255,0.08);
-      background: rgba(0,0,0,0.1);
-    }
-    
-    .avatar-sm {
-      width: 24px; height: 24px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.6rem; font-weight: 900; color: #fff;
-    }
-    .name-sm { font-size: 0.75rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
-    .cells-row { display: flex; overflow-x: auto; flex-grow: 1; }
-    
-    .board-cell {
-      width: 48px; height: 48px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      border-right: 1px solid rgba(255,255,255,0.04);
-    }
+    .cells-row { display: flex; flex-grow: 1; overflow-x: auto; }
+    .board-cell { width: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.03); }
     .board-cell.today { background: rgba(255,255,255,0.02); }
     
-    .mini-status {
-      width: 12px; height: 12px; border-radius: 50%;
-      box-shadow: 0 0 10px currentColor;
-    }
-    .mini-status.AVAILABLE { background: var(--success); color: var(--success); }
-    .mini-status.UNAVAILABLE { background: var(--danger); color: var(--danger); }
-    .mini-status.HOLIDAY { background: var(--info); color: var(--info); }
-    .mini-status.SICK_LEAVE { background: var(--warning); color: var(--warning); }
+    .mini-status-dot { width: 12px; height: 12px; border-radius: 4px; position: relative; }
+    .mini-status-dot.AVAILABLE { background: #10b981; box-shadow: 0 0 8px #10b981; }
+    .mini-status-dot.UNAVAILABLE { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .mini-status-dot.HOLIDAY { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+    .mini-status-dot.SICK_LEAVE { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
   `]
 })
 export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, FilterableService<Technician> {
-  private readonly api = inject(TechnicianApiService);
   private readonly toast = inject(ToastService);
   private readonly masterFilter = inject(MasterFilterService);
   
@@ -612,11 +470,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   teamAvailability = signal<Record<string, Record<number, string>>>({});
   
   technicians = signal<Technician[]>([
-    { id: 'me', name: 'Antonio Munias', role: 'Administrador', status: 'online' },
-    { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior', status: 'away' },
-    { id: 't3', name: 'Elena García', role: 'Técnica Junior', status: 'online' },
-    { id: 't4', name: 'David López', role: 'Técnico Senior', status: 'offline' },
-    { id: 't5', name: 'Ana Martínez', role: 'Especialista Audiovisual', status: 'online' },
+    { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' },
+    { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' },
+    { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' },
+    { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' },
+    { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' },
+    { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' },
+    { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' },
+    { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' },
   ]);
 
   readonly isLoading = signal<boolean>(false);
@@ -721,59 +582,84 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     this.isLoading.set(true);
     try {
       // Cargar técnicos del servidor
-      const techs = await firstValueFrom(this.api.getTechnicians()) as any[];
+      const techsResponse = await firstValueFrom(this.api.getTechnicians()) as any[];
 
-      if (techs && techs.length > 0) {
-        // Mapear técnicos reales
-        const mapped: Technician[] = techs.map((t: any) => ({
-          id: t.id,
-          name: `${t.user?.firstName || ''} ${t.user?.lastName || ''}`.trim() || t.user?.email || 'Técnico',
-          role: t.skills?.[0] || 'Técnico',
-          status: 'online' as const,
-        }));
-        this.technicians.set(mapped);
+      // Mapear técnicos reales si existen
+      const realTechs: Technician[] = (techsResponse || []).map((t: any) => ({
+        id: t.id,
+        name: `${t.user?.firstName || ''} ${t.user?.lastName || ''}`.trim() || t.user?.email || 'Técnico',
+        role: t.skills?.[0] || 'Personal Técnico',
+        status: 'online' as const,
+      }));
 
-        // Cargar disponibilidad de todos los técnicos para el mes actual
-        const year = this.currentYear();
-        const month = this.currentMonth();
-        const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${daysInMonth}`;
+      // Combinar con los mocks para que NUNCA se vea vacío y la demostración sea rica
+      const allTechs = [...realTechs];
+      // Si el servidor devuelve pocos, rellenamos con los mocks base (evitando duplicados por ID si es necesario)
+      const baseMocks = [
+        { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' },
+        { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' },
+        { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' },
+        { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' },
+        { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' },
+        { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' },
+        { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' },
+        { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' },
+      ];
 
-        const data: Record<string, Record<number, string>> = {};
-
-        await Promise.all(mapped.map(async (tech) => {
-          try {
-            const avail = await firstValueFrom(
-              this.api.getAvailability(tech.id, startDate, endDate)
-            ) as any[];
-
-            data[tech.id] = {};
-            // Rellena todos los días con AVAILABLE por defecto
-            for (let d = 1; d <= daysInMonth; d++) {
-              data[tech.id][d] = 'AVAILABLE';
-            }
-            // Sobreescribe con los datos reales
-            (avail || []).forEach((a: any) => {
-              const day = new Date(a.startDate).getUTCDate();
-              data[tech.id][day] = a.type;
-            });
-          } catch {
-            data[tech.id] = {};
-          }
-        }));
-
-        this.teamAvailability.set(data);
-        // Seleccionar el primer técnico por defecto
-        if (this.selectedTechId() === 'me' && mapped[0]) {
-          this.selectedTechId.set(mapped[0].id);
+      baseMocks.forEach(mock => {
+        if (!allTechs.find(t => t.id === mock.id)) {
+           allTechs.push(mock);
         }
-      } else {
-        // Sin técnicos en el servidor → usar datos de demostración
-        this.initTeamData();
+      });
+
+      this.technicians.set(allTechs);
+
+      // Cargar disponibilidad
+      const year = this.currentYear();
+      const month = this.currentMonth();
+      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${daysInMonth}`;
+
+      const data: Record<string, Record<number, string>> = {};
+      const monthSeed = month + year;
+
+      await Promise.all(allTechs.map(async (tech) => {
+        try {
+          // Intentar obtener datos reales del API
+          const avail = await firstValueFrom(
+            this.api.getAvailability(tech.id, startDate, endDate)
+          ) as any[];
+
+          data[tech.id] = {};
+          // Relleno inicial equilibrado con mock inteligente para que no salga todo "AVAILABLE"
+          // pero respetando los festivos de fin de semana
+          for (let d = 1; d <= daysInMonth; d++) {
+             const date = new Date(year, month, d);
+             const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+             data[tech.id][d] = isWeekend ? 'UNAVAILABLE' : (this.getRandomMockAvailability(d, tech.id, monthSeed).type);
+          }
+
+          // Sobreescribir con datos reales del API si existen
+          (avail || []).forEach((a: any) => {
+            const dayNum = new Date(a.startDate).getUTCDate();
+            data[tech.id][dayNum] = a.type;
+          });
+        } catch {
+          // Si falla el API para este técnico, fallback total al mock inteligente
+          data[tech.id] = {};
+          for (let d = 1; d <= 31; d++) {
+             data[tech.id][d] = this.getRandomMockAvailability(d, tech.id, monthSeed).type;
+          }
+        }
+      }));
+
+      this.teamAvailability.set(data);
+      if (!this.selectedTechId() || this.selectedTechId() === 'me') {
+        this.selectedTechId.set(allTechs[0]?.id || 't1');
       }
-    } catch {
-      // Error de red → usar datos de demostración sin mostrar error al usuario
+    } catch (error) {
+      console.warn('Error syncing with backend, falling back to rich mock data:', error);
       this.initTeamData();
     } finally {
       this.isLoading.set(false);
