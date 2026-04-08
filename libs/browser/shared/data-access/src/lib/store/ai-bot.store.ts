@@ -4,6 +4,7 @@ export interface UserPersonalityProfile {
   /** Nickname the bot assigned to this user */
   nickname: string;
   /** Inferred communication style from interaction patterns */
+  
   style:
     | 'formal'
     | 'casual'
