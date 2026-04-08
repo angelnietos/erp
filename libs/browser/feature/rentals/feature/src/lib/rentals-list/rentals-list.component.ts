@@ -14,8 +14,7 @@ import {
   UiCardComponent,
   UiStatCardComponent,
   UiModalComponent,
-  UiInputComponent,
-  UIAIChatComponent
+  UiInputComponent
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -39,8 +38,7 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
     UiStatCardComponent,
     UiModalComponent,
     UiInputComponent,
-    LucideAngularModule,
-    UIAIChatComponent
+    LucideAngularModule
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -247,8 +245,6 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
         }
       </div>
     </ui-josanz-modal>
-
-    <ui-josanz-ai-assistant feature="rentals"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .form-container { display: flex; flex-direction: column; gap: 1.5rem; padding: 0.5rem 0; }

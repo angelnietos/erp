@@ -13,8 +13,7 @@ import {
   UiModalComponent,
   UiCardComponent,
   UiStatCardComponent,
-  UiInputComponent,
-  UIAIChatComponent
+  UiInputComponent
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
@@ -39,8 +38,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiCardComponent,
     UiStatCardComponent,
     UiInputComponent,
-    LucideAngularModule,
-    UIAIChatComponent
+    LucideAngularModule
   ],
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -169,7 +167,6 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     </ui-josanz-modal>
 
     <!-- AI Assistant -->
-    <ui-josanz-ai-assistant feature="clients"></ui-josanz-ai-assistant>
   `,
   styles: [`
       .page-container {

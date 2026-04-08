@@ -14,8 +14,7 @@ import {
   UiTabsComponent,
   UiCardComponent,
   UiInputComponent,
-  UiStatCardComponent,
-  UIAIChatComponent
+  UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
@@ -40,8 +39,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiCardComponent,
     UiInputComponent,
     UiStatCardComponent,
-    LucideAngularModule,
-    UIAIChatComponent
+    LucideAngularModule
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -221,8 +219,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       </div>
     </ui-josanz-modal>
 
-    <!-- AI Assistant -->
-    <ui-josanz-ai-assistant feature="inventory"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; }

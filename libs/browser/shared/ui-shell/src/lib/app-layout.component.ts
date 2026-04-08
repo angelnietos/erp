@@ -1,6 +1,6 @@
-import { Component, Input, output, inject, signal, HostListener } from '@angular/core';
+import { Component, Input, output, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
 import { ThemeService, Theme, AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
@@ -138,8 +138,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
         
-        <!-- Global AI Buddy (Dashboard Bot) -->
-        <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
+        <ui-josanz-ai-assistant [feature]="currentFeature()"></ui-josanz-ai-assistant>
       </div>
     </div>
   `,
@@ -590,8 +589,28 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 export class AppLayoutComponent {
   readonly logoutClick = output<void>();
   readonly themeService = inject(ThemeService);
+  private readonly router = inject(Router);
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
+  readonly currentFeature = computed(() => {
+    const url = this.router.url;
+    if (url.includes('/inventory')) return 'inventory';
+    if (url.includes('/budgets')) return 'budgets';
+    if (url.includes('/projects')) return 'projects';
+    if (url.includes('/clients')) return 'clients';
+    if (url.includes('/fleet')) return 'fleet';
+    if (url.includes('/rentals')) return 'rentals';
+    if (url.includes('/audit')) return 'audit';
+    if (url.includes('/verifactu')) return 'verifactu';
+    if (url.includes('/billing')) return 'billing';
+    if (url.includes('/delivery')) return 'delivery';
+    if (url.includes('/services')) return 'services';
+    if (url.includes('/receipts')) return 'receipts';
+    if (url.includes('/events')) return 'events';
+    if (url.includes('/reports')) return 'reports';
+    return 'dashboard';
+  });
+
   showThemeMenu = signal(false);
 
   @Input() tenantName = 'Josanz Audiovisuales S.L.';
