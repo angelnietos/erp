@@ -1740,8 +1740,9 @@ export class AIBotStore {
   }
 
   /** Obtener mensajes pendientes de otros bots */
-  pullInterBotMessagesFor(_feature: string): InterBotMessage[] {
-    // Implementación básica - devolver array vacío
+  pullInterBotMessagesFor(feature: string): InterBotMessage[] {
+    // Implementación básica - devolver array vacío para el feature solicitado (placeholder para futuras colas)
+    if (!feature) return [];
     return [];
   }
 

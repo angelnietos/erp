@@ -13,4 +13,4 @@ export * from './lib/guards/plugin.guard';
 export * from './lib/services/dashboard-analytics.service';
 
 export { AIBotStore } from './lib/store/ai-bot.store';
-export type { AIBot } from './lib/store/ai-bot.store';
+export type { AIBot, InterBotMessage } from './lib/store/ai-bot.store';
