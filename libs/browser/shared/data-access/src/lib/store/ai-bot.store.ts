@@ -121,16 +121,16 @@ export interface PredictiveModel {
   accuracy: number;
   lastTrained: number;
   predictions: PredictionResult[];
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
 }
 
 export interface PredictionResult {
   id: string;
   timestamp: number;
-  input: Record<string, any>;
-  prediction: any;
+  input: Record<string, unknown>;
+  prediction: unknown;
   confidence: number;
-  actual?: any;
+  actual?: unknown;
   accuracy?: number;
 }
 
@@ -167,7 +167,7 @@ export class AIBotStore {
   
   readonly selectedProvider = signal<
     'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free'
-  >((localStorage.getItem('ai_provider') as any) || 'gemini');
+  >((localStorage.getItem('ai_provider') as 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free') || 'gemini');
 
   readonly selectedModelId = signal<string>(
     localStorage.getItem('ai_selected_model_id') || 'gemini',
@@ -541,7 +541,7 @@ export class AIBotStore {
       this.selectedProvider.set('ollama');
       this.ollamaConfig.update((c) => ({ ...c, model }));
     } else {
-      this.selectedProvider.set(modelId as any);
+      this.selectedProvider.set(modelId as 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free');
     }
   }
 
@@ -1234,7 +1234,7 @@ export class AIBotStore {
 
   generatePrediction(
     modelId: string,
-    input: Record<string, any>,
+    input: Record<string, unknown>,
   ): PredictionResult | null {
     let targetModel: PredictiveModel | null = null;
     let feature = '';
@@ -1279,25 +1279,25 @@ export class AIBotStore {
 
   private calculatePrediction(
     model: PredictiveModel,
-    input: Record<string, any>,
+    input: Record<string, unknown>,
   ): unknown {
     switch (model.type) {
       case 'demand_forecast': {
-        const baseDemand = input['currentStock'] || 100;
-        const trend = input['growthRate'] || 1.1;
+        const baseDemand = (input['currentStock'] as number) || 100;
+        const trend = (input['growthRate'] as number) || 1.1;
         return Math.round(baseDemand * trend);
       }
 
       case 'churn_prediction': {
-        const riskFactors = input['complaints'] || 0;
-        const satisfaction = input['satisfaction'] || 5;
+        const riskFactors = (input['complaints'] as number) || 0;
+        const satisfaction = (input['satisfaction'] as number) || 5;
         const risk = riskFactors * 10 + (5 - satisfaction) * 20;
         return risk > 50 ? 'high_risk' : 'low_risk';
       }
 
       case 'price_optimization': {
-        const cost = input['cost'] || 0;
-        const marketRate = input['marketRate'] || 1.2;
+        const cost = (input['cost'] as number) || 0;
+        const marketRate = (input['marketRate'] as number) || 1.2;
         return Math.round(cost * marketRate * 1.3);
       }
 
@@ -1308,7 +1308,7 @@ export class AIBotStore {
 
   private calculateConfidence(
     model: PredictiveModel,
-    input: Record<string, any>,
+    input: Record<string, unknown>,
   ): number {
     const baseConfidence = model.accuracy || 50;
     const inputQuality = Object.keys(input).length > 3 ? 20 : 10;
@@ -1383,7 +1383,6 @@ export class AIBotStore {
 
   private generateMemorySummary(
     memories: AIRangeMemory[],
-    feature: string,
   ): string {
     const topics = memories.map((m: AIRangeMemory) => m.tags).flat();
     const uniqueTopics = [...new Set(topics)];
@@ -1428,7 +1427,7 @@ export class AIBotStore {
       });
       if (response.ok) {
         const data = await response.json();
-        const availableModels = data.models?.map((m: any) => m.name) || [];
+        const availableModels = data.models?.map((m: { name: string }) => m.name) || [];
         this.freeModels.update((current) => ({
           ...current,
           localModels: availableModels,
@@ -1473,7 +1472,7 @@ export class AIBotStore {
       try {
         const available = await provider.check();
         if (available) {
-          this.selectedProvider.set(provider.name as any);
+          this.selectedProvider.set(provider.name as 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free');
           console.debug(
             `Proveedor seleccionado automáticamente: ${provider.name}`,
           );
@@ -1517,14 +1516,14 @@ export class AIBotStore {
         case 'huggingface':
           return await this.generateWithHuggingFace(prompt, context);
         case 'free':
-          return this.generateBasicResponse(prompt, context);
+          return this.generateBasicResponse(prompt);
         default:
-          return this.generateBasicResponse(prompt, context);
+          return this.generateBasicResponse(prompt);
       }
     } catch (error) {
       console.warn(`Error con ${provider}, intentando fallback:`, error);
       await this.autoSelectProvider();
-      return this.generateBasicResponse(prompt, context);
+      return this.generateBasicResponse(prompt);
     }
   }
 
@@ -1606,7 +1605,7 @@ export class AIBotStore {
     return 'Lo siento, no pude generar una respuesta.';
   }
 
-  private generateBasicResponse(prompt: string, context?: string): string {
+  private generateBasicResponse(prompt: string): string {
     // Respuestas básicas predefinidas cuando no hay modelos disponibles
     const responses = {
       greeting: [
@@ -1733,7 +1732,7 @@ export class AIBotStore {
   }
 
   /** Obtener mensajes pendientes de otros bots */
-  pullInterBotMessagesFor(feature: string): any[] {
+  pullInterBotMessagesFor(_feature: string): unknown[] {
     // Implementación básica - devolver array vacío
     return [];
   }
@@ -1779,7 +1778,7 @@ export class AIBotStore {
   // ─── Additional UI Integration Methods ──────────────────────────────────────
 
   /** Get dynamic canvas data for features */
-  dynamicCanvas(): Record<string, any> {
+  dynamicCanvas(): Record<string, unknown> {
     return {
       login: {
         showWelcome: true,
@@ -1796,7 +1795,7 @@ export class AIBotStore {
   sendInterBotDisplay(
     fromFeature: string,
     toFeature: string,
-    displayData: any,
+    displayData: unknown,
   ) {
     console.log(
       `Display message from ${fromFeature} to ${toFeature}:`,
