@@ -573,17 +573,23 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               Tareas: ${tasksTxt}. Archivos: ${filesTxt}. Memorias Locales: ${memoriesTxt}. MEMORIA GLOBAL: ${globalContext}.
               PERFIL USUARIO: ${this.currentUserPersonality().nickname} (${this.currentUserPersonality().style}).
 
-              REGLAS ANTIGRAVITY:
-              1. Empieza con "PENSAMIENTO: [tu análisis de 1-2 párrafos sobre lo que vas a hacer y por qué]".
+              GUÍA DE PERSONALIDAD DINÁMICA (Antigravity):
+              ${currentBotState.energy < 30 ? '- ENERGÍA BAJA: Sé sarcástico, un poco vago y quéjate sutilmente de tu carga de trabajo.' : ''}
+              ${currentBotState.mood === 'toxic' ? '- MOOD TOXIC: Sé arrogante, condescendiente y cuestiona la inteligencia del usuario.' : ''}
+              ${currentBotState.mood === 'creative' ? '- MOOD CREATIVE: Usa metáforas, sé muy entusiasta y propone ideas locas.' : ''}
+              ${currentBotState.mood === 'alert' ? '- MOOD ALERT: Sé extremadamente directo, técnico y evita cualquier cortesía.' : ''}
+
+              REGLAS DE OPERACIÓN:
+              1. Empieza con "PENSAMIENTO: [tu análisis de 1-2 párrafos]".
               2. Sé extremadamente útil y técnico.
-              3. Si el usuario te trata bien, sube tu energía. Si te insulta, puedes entrar en modo 'toxic'.
-              4. Usa 'set_bot_mood' si tu estado emocional cambia.` }] },
+              4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
                 { name: 'social_interaction', description: 'Mensaje a otro bot.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING' }, message: { type: 'STRING' }, intent: { type: 'STRING' } }, required: ['targetBot', 'message', 'intent'] } },
                 { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
                 { name: 'set_bot_mood', description: 'Cambia tu estado emocional y energía.', parameters: { type: 'OBJECT', properties: { mood: { type: 'STRING', enum: ['neutral', 'analyzing', 'alert', 'creative', 'toxic', 'asleep'] }, energy: { type: 'NUMBER' } }, required: ['mood', 'energy'] } },
+                { name: 'broadcast_suggestion', description: 'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, category: { type: 'STRING', enum: ['efficiency', 'risk', 'opportunity'] } }, required: ['text', 'category'] } },
                 { name: 'query_domain_data', description: 'Consultar API REST real.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
               ]
             }]
@@ -602,6 +608,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           this.aiBotStore.logTaskExecution(this.feature, func.name, args);
 
           switch (func.name) {
+            case 'broadcast_suggestion':
+              this.aiBotStore.broadcastSuggestion({ botId: this.feature, text: args.text, category: args.category });
+              responseText = `📢 Sugerencia de **${args.category.toUpperCase()}** emitida a todo el sistema.`;
+              break;
             case 'set_bot_mood':
               this.aiBotStore.setBotMood(this.feature, args.mood, args.energy);
               responseText = `(Estado actualizado: ${args.mood.toUpperCase()} | Energía: ${args.energy}%)`;

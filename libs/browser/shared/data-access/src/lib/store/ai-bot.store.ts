@@ -90,6 +90,19 @@ export class AIBotStore {
     }));
   }
 
+  // Proactive Suggestions System
+  private readonly _proactiveSuggestions = signal<ProactiveSuggestion[]>([]);
+  readonly proactiveSuggestions = this._proactiveSuggestions.asReadonly();
+
+  broadcastSuggestion(suggestion: Omit<ProactiveSuggestion, 'id' | 'timestamp'>) {
+    const full: ProactiveSuggestion = {
+      ...suggestion,
+      id: Math.random().toString(36).substring(7),
+      timestamp: Date.now()
+    };
+    this._proactiveSuggestions.update(current => [full, ...current].slice(0, 10));
+  }
+
   // Global Context (Antigravity-style shared knowledge)
   private readonly _globalMemories = signal<AIRangeMemory[]>(
     JSON.parse(localStorage.getItem('ai_global_memories') || '[]')
