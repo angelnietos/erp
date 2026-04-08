@@ -944,23 +944,230 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     // Feature-specific tools
     if (this.feature === 'inventory') {
-      baseFunctionDeclarations.push({
-        name: 'filter_inventory',
+      baseFunctionDeclarations.push(
+        {
+          name: 'filter_inventory',
+          description:
+            'Filtra productos del inventario en tiempo real usando consultas naturales en español.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              query: {
+                type: 'STRING',
+                description:
+                  'Consulta de filtrado (ej: "productos que tengan pantalla", "equipos LED", "dispositivos de audio")',
+              },
+            },
+            required: ['query'],
+          },
+        },
+        {
+          name: 'analyze_inventory_demand',
+          description: 'Analiza patrones de demanda de productos específicos.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              productId: {
+                type: 'STRING',
+                description: 'ID del producto a analizar',
+              },
+              timeRange: {
+                type: 'STRING',
+                description: 'Rango temporal (ej: "30d", "90d", "1y")',
+              },
+            },
+            required: ['productId'],
+          },
+        },
+        {
+          name: 'predict_stock_levels',
+          description:
+            'Predice niveles de stock futuros basados en tendencias.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              productId: { type: 'STRING', description: 'ID del producto' },
+              daysAhead: { type: 'NUMBER', description: 'Días para predecir' },
+            },
+            required: ['productId'],
+          },
+        },
+      );
+    }
+
+    if (this.feature === 'budgets') {
+      baseFunctionDeclarations.push(
+        {
+          name: 'analyze_roi',
+          description:
+            'Analiza el retorno de inversión de proyectos o inversiones.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              investment: { type: 'NUMBER', description: 'Monto de inversión' },
+              expectedReturns: {
+                type: 'NUMBER',
+                description: 'Retornos esperados',
+              },
+              timeFrame: { type: 'STRING', description: 'Periodo de tiempo' },
+            },
+            required: ['investment', 'expectedReturns'],
+          },
+        },
+        {
+          name: 'optimize_budget',
+          description: 'Optimiza distribución de presupuesto entre categorías.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              totalBudget: {
+                type: 'NUMBER',
+                description: 'Presupuesto total disponible',
+              },
+              categories: {
+                type: 'ARRAY',
+                description: 'Lista de categorías con prioridades',
+              },
+            },
+            required: ['totalBudget'],
+          },
+        },
+      );
+    }
+
+    if (this.feature === 'projects') {
+      baseFunctionDeclarations.push(
+        {
+          name: 'schedule_resources',
+          description: 'Programa recursos humanos y equipos para proyectos.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              projectId: { type: 'STRING', description: 'ID del proyecto' },
+              requiredSkills: {
+                type: 'ARRAY',
+                description: 'Habilidades requeridas',
+              },
+              timeFrame: { type: 'STRING', description: 'Periodo temporal' },
+            },
+            required: ['projectId'],
+          },
+        },
+        {
+          name: 'detect_schedule_conflicts',
+          description: 'Detecta conflictos en la planificación de proyectos.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              projectIds: {
+                type: 'ARRAY',
+                description: 'Lista de IDs de proyectos a verificar',
+              },
+            },
+            required: ['projectIds'],
+          },
+        },
+      );
+    }
+
+    if (this.feature === 'clients') {
+      baseFunctionDeclarations.push(
+        {
+          name: 'analyze_sentiment',
+          description: 'Analiza el sentimiento en comunicaciones de clientes.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              text: { type: 'STRING', description: 'Texto a analizar' },
+              context: { type: 'STRING', description: 'Contexto adicional' },
+            },
+            required: ['text'],
+          },
+        },
+        {
+          name: 'predict_churn_risk',
+          description: 'Predice riesgo de abandono de clientes.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              clientId: { type: 'STRING', description: 'ID del cliente' },
+              factors: { type: 'ARRAY', description: 'Factores a considerar' },
+            },
+            required: ['clientId'],
+          },
+        },
+      );
+    }
+
+    // Agregar herramientas avanzadas para todos los bots
+    baseFunctionDeclarations.push(
+      {
+        name: 'start_collaboration',
         description:
-          'Filtra productos del inventario en tiempo real usando consultas naturales en español.',
+          'Inicia una colaboración entre múltiples bots para resolver una tarea compleja.',
         parameters: {
           type: 'OBJECT',
           properties: {
-            query: {
-              type: 'STRING',
+            title: { type: 'STRING', description: 'Título de la colaboración' },
+            participants: {
+              type: 'ARRAY',
               description:
-                'Consulta de filtrado (ej: "productos que tengan pantalla", "equipos LED", "dispositivos de audio")',
+                'Lista de features de bots participantes (ej: ["inventory", "budgets"])',
+            },
+            objective: {
+              type: 'STRING',
+              description: 'Objetivo de la colaboración',
             },
           },
-          required: ['query'],
+          required: ['title', 'participants', 'objective'],
         },
-      });
-    }
+      },
+      {
+        name: 'create_predictive_model',
+        description: 'Crea un modelo de análisis predictivo para el bot.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            type: {
+              type: 'STRING',
+              enum: [
+                'demand_forecast',
+                'churn_prediction',
+                'price_optimization',
+                'resource_planning',
+                'risk_assessment',
+              ],
+              description: 'Tipo de modelo predictivo',
+            },
+            name: { type: 'STRING', description: 'Nombre del modelo' },
+            description: {
+              type: 'STRING',
+              description: 'Descripción del modelo',
+            },
+          },
+          required: ['type', 'name'],
+        },
+      },
+      {
+        name: 'generate_prediction',
+        description: 'Genera una predicción usando un modelo existente.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            modelId: {
+              type: 'STRING',
+              description: 'ID del modelo predictivo',
+            },
+            input: {
+              type: 'OBJECT',
+              description:
+                'Datos de entrada para la predicción (ej: {"currentStock": 100, "growthRate": 1.1})',
+            },
+          },
+          required: ['modelId', 'input'],
+        },
+      },
+    );
 
     try {
       if (provider === 'gemini') {
@@ -1111,6 +1318,192 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               );
               return;
             }
+            case 'analyze_inventory_demand': {
+              const productId = String(args['productId'] ?? '');
+              const timeRange = String(args['timeRange'] ?? '30d');
+              await this.triggerAIResponse(
+                `(SISTEMA: Análisis de demanda para producto ${productId} en rango ${timeRange}. Se requiere integración con datos históricos. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'predict_stock_levels': {
+              const productId = String(args['productId'] ?? '');
+              const daysAhead = Number(args['daysAhead'] ?? 30);
+              await this.triggerAIResponse(
+                `(SISTEMA: Predicción de stock para producto ${productId} en ${daysAhead} días. Se requiere análisis de tendencias. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'analyze_roi': {
+              const investment = Number(args['investment'] ?? 0);
+              const expectedReturns = Number(args['expectedReturns'] ?? 0);
+              const timeFrame = String(args['timeFrame'] ?? '1y');
+              const roi = ((expectedReturns - investment) / investment) * 100;
+              await this.triggerAIResponse(
+                `(SISTEMA: ROI calculado: ${roi.toFixed(2)}% para inversión de ${investment}€ con retornos esperados de ${expectedReturns}€ en ${timeFrame}. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'optimize_budget': {
+              const totalBudget = Number(args['totalBudget'] ?? 0);
+              await this.triggerAIResponse(
+                `(SISTEMA: Optimización de presupuesto total: ${totalBudget}€. Se requiere análisis de prioridades y distribución óptima. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'schedule_resources': {
+              const projectId = String(args['projectId'] ?? '');
+              await this.triggerAIResponse(
+                `(SISTEMA: Programación de recursos para proyecto ${projectId}. Se requiere análisis de disponibilidad y habilidades. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'detect_schedule_conflicts': {
+              const projectIds = Array.isArray(args['projectIds'])
+                ? args['projectIds']
+                : [];
+              await this.triggerAIResponse(
+                `(SISTEMA: Detección de conflictos en proyectos: ${projectIds.join(', ')}. Se requiere verificación de solapamientos temporales. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'analyze_sentiment': {
+              const text = String(args['text'] ?? '');
+              const context = String(args['context'] ?? '');
+              await this.triggerAIResponse(
+                `(SISTEMA: Análisis de sentimiento para texto: "${text.substring(0, 100)}..." en contexto: ${context}. Se requiere procesamiento de lenguaje natural. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'predict_churn_risk': {
+              const clientId = String(args['clientId'] ?? '');
+              await this.triggerAIResponse(
+                `(SISTEMA: Predicción de riesgo de abandono para cliente ${clientId}. Se requiere análisis de patrones históricos. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'start_collaboration': {
+              const title = String(args['title'] ?? '');
+              const participants = Array.isArray(args['participants'])
+                ? args['participants']
+                : [];
+              const objective = String(args['objective'] ?? '');
+              const collabId = this.aiBotStore.startCollaboration(
+                this.feature,
+                title,
+                `Colaboración iniciada por ${this.bot()?.name}`,
+                participants,
+                objective,
+              );
+              await this.triggerAIResponse(
+                `(SISTEMA: Colaboración "${title}" iniciada con ID: ${collabId}. Participantes: ${participants.join(', ')}. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'create_predictive_model': {
+              const type = String(args['type'] ?? 'demand_forecast');
+              const name = String(args['name'] ?? 'Modelo Predictivo');
+              const description = String(
+                args['description'] ?? 'Modelo de análisis predictivo',
+              );
+              const modelId = this.aiBotStore.createPredictiveModel(
+                this.feature,
+                type as any,
+                name,
+                description,
+              );
+              await this.triggerAIResponse(
+                `(SISTEMA: Modelo predictivo "${name}" creado con ID: ${modelId}. Tipo: ${type}. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'generate_prediction': {
+              const modelId = String(args['modelId'] ?? '');
+              const input = args['input'] || {};
+              const prediction = this.aiBotStore.generatePrediction(
+                modelId,
+                input as Record<string, any>,
+              );
+              if (prediction) {
+                await this.triggerAIResponse(
+                  `(SISTEMA: Predicción generada: ${JSON.stringify(prediction.prediction)} con ${prediction.confidence}% confianza. Procesa esta info y responde al usuario.)`,
+                  opts,
+                );
+              } else {
+                await this.triggerAIResponse(
+                  `(SISTEMA: Error al generar predicción - modelo no encontrado. Procesa esta info y responde al usuario.)`,
+                  opts,
+                );
+              }
+              return;
+            }
+            case 'start_collaboration': {
+              const title = String(args['title'] ?? '');
+              const participants = Array.isArray(args['participants'])
+                ? args['participants']
+                : [];
+              const objective = String(args['objective'] ?? '');
+              const collabId = this.aiBotStore.startCollaboration(
+                this.feature,
+                title,
+                `Colaboración iniciada por ${this.bot()?.name}`,
+                participants,
+                objective,
+              );
+              await this.triggerAIResponse(
+                `(SISTEMA: Colaboración "${title}" iniciada con ID: ${collabId}. Participantes: ${participants.join(', ')}. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'create_predictive_model': {
+              const type = String(args['type'] ?? 'demand_forecast');
+              const name = String(args['name'] ?? 'Modelo Predictivo');
+              const description = String(
+                args['description'] ?? 'Modelo de análisis predictivo',
+              );
+              const modelId = this.aiBotStore.createPredictiveModel(
+                this.feature,
+                type as any,
+                name,
+                description,
+              );
+              await this.triggerAIResponse(
+                `(SISTEMA: Modelo predictivo "${name}" creado con ID: ${modelId}. Tipo: ${type}. Procesa esta info y responde al usuario.)`,
+                opts,
+              );
+              return;
+            }
+            case 'generate_prediction': {
+              const modelId = String(args['modelId'] ?? '');
+              const input = args['input'] || {};
+              const prediction = this.aiBotStore.generatePrediction(
+                modelId,
+                input as Record<string, any>,
+              );
+              if (prediction) {
+                await this.triggerAIResponse(
+                  `(SISTEMA: Predicción generada: ${JSON.stringify(prediction.prediction)} con ${prediction.confidence}% confianza. Procesa esta info y responde al usuario.)`,
+                  opts,
+                );
+              } else {
+                await this.triggerAIResponse(
+                  `(SISTEMA: Error al generar predicción - modelo no encontrado. Procesa esta info y responde al usuario.)`,
+                  opts,
+                );
+              }
+              return;
+            }
             case 'social_interaction': {
               const targetF = String(args['targetBot'] ?? '');
               const targetLabel =
@@ -1163,6 +1556,20 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             }
             default:
               responseText = `Acción "${funcName}" registrada.`;
+          }
+
+          // Registrar interacciones exitosas para aprendizaje continuo
+          if (
+            funcName !== 'social_interaction' &&
+            !responseText.includes('Error')
+          ) {
+            this.aiBotStore.recordSuccessfulInteraction(
+              this.feature,
+              'current_user',
+              userInput,
+              funcName,
+              Date.now(),
+            );
           }
         } else {
           const match = combinedText.match(
