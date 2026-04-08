@@ -17,7 +17,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
       width: 100%;
       height: 100%;
       pointer-events: none; /* Allows interacting with underlying elements by default */
-      z-index: 10;
+      z-index: 9999;
       overflow: hidden;
     }
   `],
@@ -28,11 +28,19 @@ export class DynamicCanvasComponent implements OnChanges {
   
   private sanitizer = inject(DomSanitizer);
   safeHtml: SafeHtml = '';
+  private timeoutId: any;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['htmlRef']) {
       // By using bypassSecurityTrustHtml, we allow animation frames, style tags, SVG, etc.
       this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(this.htmlRef || '');
+      
+      if (this.htmlRef) {
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(() => {
+          this.safeHtml = '';
+        }, 5000);
+      }
     }
   }
 }
