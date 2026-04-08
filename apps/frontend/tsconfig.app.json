@@ -21,6 +21,9 @@
       "@josanz-erp/shared-ui-shell": [
         "libs/browser/shared/ui-shell/src/index.ts"
       ],
+      "@josanz-erp/ai-insights-feature": [
+        "libs/browser/feature/ai-insights/feature/src/index.ts"
+      ],
       "@josanz-erp/settings-feature": [
         "libs/browser/feature/settings/feature/src/index.ts"
       ],
