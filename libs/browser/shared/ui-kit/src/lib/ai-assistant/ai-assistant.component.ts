@@ -385,7 +385,13 @@ import { firstValueFrom } from 'rxjs';
   `]
 })
 export class UIAIChatComponent implements OnInit, OnDestroy {
-  @Input() feature!: string;
+  private readonly _feature = signal<string>('');
+  @Input() set feature(val: string) {
+    this._feature.set(val);
+  }
+  get feature(): string {
+    return this._feature();
+  }
   
   aiBotStore = inject(AIBotStore);
   masterFilterService = inject(MasterFilterService);
