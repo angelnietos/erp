@@ -569,6 +569,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}. Tienes autonomía técnica total.`;
 
     try {
+      
       if (provider === 'gemini') {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
