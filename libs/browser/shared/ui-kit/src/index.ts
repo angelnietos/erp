@@ -60,3 +60,4 @@ export { DynamicCanvasComponent } from './lib/dynamic-canvas/dynamic-canvas.comp
 
 // Pipes
 export { SelectMapperPipe } from './lib/pipes/select-mapper.pipe';
+
