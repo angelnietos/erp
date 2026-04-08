@@ -118,6 +118,11 @@ import { firstValueFrom } from 'rxjs';
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Shift secondary assistants (like Time-Bot) to the left to avoid overlap with Buddy (Dashboard) */
+    .ai-assistant-wrapper:not(.feature-dashboard) {
+      right: 12rem;
+    }
+
     /* Support for multiple assistants via host classes */
     :host(.secondary-assistant) .ai-assistant-wrapper {
       right: 14rem;
