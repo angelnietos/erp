@@ -1,8 +1,23 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 
-export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'fleet' | 'rentals' | 'audit' | 'dashboard' | 'universal';
-export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explorer' | 'ninja' | 'queen';
-
+export type MascotType =
+  | 'inventory'
+  | 'budget'
+  | 'clients'
+  | 'projects'
+  | 'fleet'
+  | 'rentals'
+  | 'audit'
+  | 'dashboard'
+  | 'universal';
+export type MascotPersonality =
+  | 'happy'
+  | 'tech'
+  | 'mystic'
+  | 'worker'
+  | 'explorer'
+  | 'ninja'
+  | 'queen';
 
 export interface UserPersonalityProfile {
   /** Nickname the bot assigned to this user */
@@ -172,10 +187,18 @@ export class AIBotStore {
   private _isCheckingProviders = false;
   private _lastCheckTime = 0;
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
-  
+
   readonly selectedProvider = signal<
     'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free'
-  >((localStorage.getItem('ai_provider') as 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free') || 'gemini');
+  >(
+    (localStorage.getItem('ai_provider') as
+      | 'gemini'
+      | 'openai'
+      | 'anthropic'
+      | 'ollama'
+      | 'huggingface'
+      | 'free') || 'gemini',
+  );
 
   readonly selectedModelId = signal<string>(
     localStorage.getItem('ai_selected_model_id') || 'gemini',
@@ -187,6 +210,27 @@ export class AIBotStore {
 
   readonly activeBotFeature = signal<string>(
     localStorage.getItem('ai_active_bot_feature') || 'dashboard',
+  );
+
+  // --- NUEVAS PREFERENCIAS DE USUARIO ---
+  readonly soundEffects = signal<boolean>(
+    localStorage.getItem('pref_sound') === 'true',
+  );
+  readonly compactMode = signal<boolean>(
+    localStorage.getItem('pref_compact') === 'true',
+  );
+  readonly autoArchive = signal<boolean>(
+    localStorage.getItem('pref_autoarchive') === 'true',
+  );
+  readonly sessionTimeout = signal<number>(
+    parseInt(localStorage.getItem('pref_timeout') || '30'),
+  );
+  readonly language = signal<string>(localStorage.getItem('pref_lang') || 'es');
+  readonly experimentalFeatures = signal<boolean>(
+    localStorage.getItem('pref_labs') === 'true',
+  );
+  readonly notificationsEnabled = signal<boolean>(
+    localStorage.getItem('pref_notifications') !== 'false',
   );
 
   // Configuración de modelos gratuitos
@@ -504,7 +548,12 @@ export class AIBotStore {
       name: 'Buddy',
       feature: 'dashboard',
       description: 'Tu compañero central de inteligencia y control general.',
-      skills: ['Global Analytics', 'Theme Morph', 'Voice Control', 'System Health'],
+      skills: [
+        'Global Analytics',
+        'Theme Morph',
+        'Voice Control',
+        'System Health',
+      ],
       activeSkills: ['Global Analytics', 'Theme Morph'],
       status: 'active',
       color: '#facc15',
@@ -549,7 +598,15 @@ export class AIBotStore {
       this.selectedProvider.set('ollama');
       this.ollamaConfig.update((c) => ({ ...c, model }));
     } else {
-      this.selectedProvider.set(modelId as 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free');
+      this.selectedProvider.set(
+        modelId as
+          | 'gemini'
+          | 'openai'
+          | 'anthropic'
+          | 'ollama'
+          | 'huggingface'
+          | 'free',
+      );
     }
   }
 
@@ -1389,9 +1446,7 @@ export class AIBotStore {
     }
   }
 
-  private generateMemorySummary(
-    memories: AIRangeMemory[],
-  ): string {
+  private generateMemorySummary(memories: AIRangeMemory[]): string {
     const topics = memories.map((m: AIRangeMemory) => m.tags).flat();
     const uniqueTopics = [...new Set(topics)];
 
@@ -1426,7 +1481,7 @@ export class AIBotStore {
     if (!force && now - this._lastCheckTime < this.CHECK_THROTTLE_MS) {
       return this.ollamaConfig().available;
     }
-    
+
     this._lastCheckTime = now;
     try {
       const response = await fetch(`${this.ollamaConfig().baseUrl}/api/tags`, {
@@ -1435,7 +1490,8 @@ export class AIBotStore {
       });
       if (response.ok) {
         const data = await response.json();
-        const availableModels = data.models?.map((m: { name: string }) => m.name) || [];
+        const availableModels =
+          data.models?.map((m: { name: string }) => m.name) || [];
         this.freeModels.update((current) => ({
           ...current,
           localModels: availableModels,
@@ -1460,7 +1516,7 @@ export class AIBotStore {
 
   async autoSelectProvider(): Promise<void> {
     if (this._isCheckingProviders) return;
-    
+
     // Si ya tenemos una preferencia guardada que no sea 'free', la respetamos
     // No chequeamos Ollama en segundo plano si ya tenemos un proveedor Cloud para evitar el ruido en consola
     const persisted = localStorage.getItem('ai_selected_model_id');
@@ -1480,7 +1536,15 @@ export class AIBotStore {
       try {
         const available = await provider.check();
         if (available) {
-          this.selectedProvider.set(provider.name as 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free');
+          this.selectedProvider.set(
+            provider.name as
+              | 'gemini'
+              | 'openai'
+              | 'anthropic'
+              | 'ollama'
+              | 'huggingface'
+              | 'free',
+          );
           console.debug(
             `Proveedor seleccionado automáticamente: ${provider.name}`,
           );
@@ -1786,17 +1850,13 @@ export class AIBotStore {
 
   // ─── Additional UI Integration Methods ──────────────────────────────────────
 
-  /** Get dynamic canvas data for features */
-  dynamicCanvas(): Record<string, unknown> {
+  /** Get dynamic canvas HTML for features */
+  dynamicCanvas(): Record<string, string> {
     return {
-      login: {
-        showWelcome: true,
-        theme: 'default',
-      },
-      dashboard: {
-        showStats: true,
-        charts: ['revenue', 'clients'],
-      },
+      login:
+        '<div class="welcome-message"><h2>¡Bienvenido a Josanz ERP!</h2><p>Sistema de gestión integral con IA avanzada</p></div>',
+      dashboard:
+        '<div class="dashboard-canvas"><div class="stats">Estadísticas en tiempo real</div></div>',
     };
   }
 
