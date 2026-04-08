@@ -222,7 +222,7 @@ interface PluginDescriptor {
               @if (managingBotId(); as mId) {
                 @if (aiBotStore.getBotByFeature(mId); as mBot) {
                   <div class="skills-overlay animate-fade-in" (click)="managingBotId.set(null)">
-                    <ui-josanz-card variant="glass" class="skills-panel animate-slide-up" (click)="$event.stopPropagation()">
+                    <div class="skills-panel animate-slide-up" (click)="$event.stopPropagation()">
                       <div class="panel-header">
                         <div class="header-bot">
                           <ui-josanz-mascot [type]="mBot.mascotType" [color]="mBot.color" [personality]="mBot.personality" size="sm"></ui-josanz-mascot>
@@ -255,7 +255,7 @@ interface PluginDescriptor {
                           GUARDAR CONFIGURACIÓN
                         </ui-josanz-button>
                       </div>
-                    </ui-josanz-card>
+                    </div>
                   </div>
                 }
               }
@@ -631,6 +631,14 @@ interface PluginDescriptor {
       max-height: 85vh;
       display: flex;
       flex-direction: column;
+      
+      /* Pure HTML Glass Card */
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-vibrant, var(--border-soft));
+      border-radius: var(--radius-lg, 16px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
 
     .panel-header {
@@ -667,7 +675,8 @@ interface PluginDescriptor {
       flex-direction: column;
       gap: 1rem;
       margin-bottom: 2rem;
-      max-height: 50vh;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding-right: 0.5rem;
       /* Custom Scrollbar */
