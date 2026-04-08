@@ -221,23 +221,58 @@ export class AIBotStore {
     this.broadcastMessage(from, text, to);
   }
 
-  // Persistent Memory System
-  private readonly _memories = signal<{ text: string, importance: number, timestamp: number }[]>(
-    JSON.parse(localStorage.getItem('ai_buddy_memories') || '[]')
+  // Workspace & Memory System
+  private readonly _botWorkspaces = signal<Record<string, {
+    memories: { text: string; importance: number; timestamp: number; }[];
+    lastTasks: string[];
+    contextFiles: Record<string, string>;
+  }>>(
+    JSON.parse(localStorage.getItem('ai_bot_workspaces') || '{}')
   );
-  readonly memories = this._memories.asReadonly();
 
-  remember(text: string, importance: number = 5) {
-    this._memories.update(current => {
-      const updated = [...current, { text, importance, timestamp: Date.now() }];
-      // Keep only top 100 memories, priority to higher importance
-      const limited = updated.sort((a, b) => b.importance - a.importance).slice(0, 100);
-      localStorage.setItem('ai_buddy_memories', JSON.stringify(limited));
-      return limited;
+  getWorkspace(feature: string) {
+    return this._botWorkspaces()[feature] || { memories: [], lastTasks: [], contextFiles: {} };
+  }
+
+  remember(feature: string, text: string, importance: number = 5) {
+    this._botWorkspaces.update(current => {
+      const ws = current[feature] || { memories: [], lastTasks: [], contextFiles: {} };
+      const updatedMemories = [...ws.memories, { text, importance, timestamp: Date.now() }];
+      const limited = updatedMemories.sort((a, b) => b.importance - a.importance).slice(0, 100);
+      const updated = { ...current, [feature]: { ...ws, memories: limited } };
+      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
+      return updated;
     });
   }
 
-  getMemoriesByImportance(minWeight: number = 0) {
-    return this.memories().filter(m => m.importance >= minWeight);
+  logTaskExecution(feature: string, functionName: string, args: any) {
+    this._botWorkspaces.update(current => {
+      const ws = current[feature] || { memories: [], lastTasks: [], contextFiles: {} };
+      const taskStr = `[${new Date().toISOString()}] Ejecutó: ${functionName}(${JSON.stringify(args) || ''})`;
+      const updatedTasks = [taskStr, ...ws.lastTasks].slice(0, 50);
+      const updated = { ...current, [feature]: { ...ws, lastTasks: updatedTasks } };
+      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  writeContextFile(feature: string, filename: string, content: string) {
+    this._botWorkspaces.update(current => {
+      const ws = current[feature] || { memories: [], lastTasks: [], contextFiles: {} };
+      const updated = { ...current, [feature]: { ...ws, contextFiles: { ...ws.contextFiles, [filename]: content } } };
+      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  deleteContextFile(feature: string, filename: string) {
+    this._botWorkspaces.update(current => {
+      const ws = current[feature] || { memories: [], lastTasks: [], contextFiles: {} };
+      const newFiles = { ...ws.contextFiles };
+      delete newFiles[filename];
+      const updated = { ...current, [feature]: { ...ws, contextFiles: newFiles } };
+      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
+      return updated;
+    });
   }
 }

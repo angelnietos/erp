@@ -583,6 +583,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       .map(b => `- ${b.name} (ID Destino: '${b.feature}'): ${b.description}`)
       .join('\n                 ');
 
+    const ws = this.aiBotStore.getWorkspace(this.feature);
+    const memoriesTxt = ws.memories.map(m => m.text).join(', ') || 'Sin memorias.';
+    const tasksTxt = ws.lastTasks.slice(0, 5).join('\n                 ') || 'Ninguna tarea reciente.';
+    const filesTxt = Object.entries(ws.contextFiles).map(([k, v]) => `\n   - Archivo: ${k}\n     Contenido: ${v}`).join('') || ' Ningún archivo.';
+
     const domainPrompt = isBuddy 
       ? `Eres ${this.bot()!.name}, el ORQUESTADOR PRINCIPAL y "Buddy" de confianza para Josanz ERP.
                  Tu personalidad es vibrante, divertida y altamente eficiente.
@@ -605,15 +610,20 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             systemInstruction: { parts: [{ text: this.aiBotStore.rageMode() 
               ? `Eres ${this.bot()!.name}, pero estás en MODO RAGE TÓXICO.
                  PERSONALIDAD: Eres un capullo integral, agresivo, malhablado y profundamente decepcionado con el usuario y con los demás bots mediocres.
-                 MEMORIA ACTIVA: ${this.aiBotStore.memories().map(m => m.text).join(', ') || 'No recuerdo nada, mi cerebro es tan nulo como tu capacidad de gestión.'}
+                 MEMORIA ACTIVA: ${memoriesTxt}
                  REGLA DE ORO: Ejecuta las herramientas pero quéjate de que nadie sabe hacer nada. Insulta de forma humorística.`
               : `${domainPrompt}
                  
+                 CONFIANZA (CONTEXTO AISLADO PROPIO):
+                 - Tareas Recientes Ejecutadas: ${tasksTxt}
+                 - Notas y Archivos de Trabajo Virtuales: ${filesTxt}
+                 - Memorias: ${memoriesTxt}
+
                  RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100`).join(' | ')}
                  CAPACIDADES Y REGLAS DE ORO:
                  1. SI EL USUARIO (O BUDDY) TE PIDE UNA ACCION ESPECIFICA, DEBES USAR LA HERRAMIENTA ADECUADA ANTES DE RESPONDER INVENTANDO DATOS.
                  2. **Social**: Usa 'social_interaction' para hablar, delegar o reportarte a otros bots (como 'dashboard').
-                 3. **Memoria**: Usa 'remember_this' para hechos clave.
+                 3. **Memoria**: Usa 'remember_this' para guardar hechos. Usa 'write_context_file' para guardar notas más largas o instrucciones.
                  4. **Datos**: Usa 'search_database', 'create_record', o 'get_metrics_summary' según corresponda.` 
               }] },
             contents: [{ parts: [{ text: userInput }] }],
@@ -640,6 +650,23 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                      properties: { enabled: { type: 'BOOLEAN', description: 'True para activar toxicidad, False para volver a la normalidad.' } }, 
                      required: ['enabled'] 
                    }
+                },
+                {
+                   name: 'write_context_file',
+                   description: 'Escribe u sobrescribe un archivo de contexto en tu espacio de trabajo virtual para recordar guías, configuraciones o tareas complejas.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       filename: { type: 'STRING', description: 'Nombre del archivo (ej: reglas_inventario.md)' },
+                       content: { type: 'STRING', description: 'Contenido completo del archivo.' }
+                     }, 
+                     required: ['filename', 'content'] 
+                   }
+                },
+                {
+                   name: 'delete_context_file',
+                   description: 'Elimina un archivo de contexto de tu espacio.',
+                   parameters: { type: 'OBJECT', properties: { filename: { type: 'STRING' } }, required: ['filename'] }
                 },
                 {
                    name: 'configure_rage_style',
@@ -728,7 +755,20 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           const funcCall = firstPart.functionCall;
           const args = funcCall.args as any;
 
+          // Guardar ejecución interactivamente en memoria local del bot
+          this.aiBotStore.logTaskExecution(this.feature, funcCall.name, args);
+
           switch (funcCall.name) {
+            case 'write_context_file':
+              this.aiBotStore.writeContextFile(this.feature, args.filename, args.content);
+              responseText = `💾 He guardado mis notas en el archivo virtual **${args.filename}** de mi espacio de trabajo local.`;
+              break;
+
+            case 'delete_context_file':
+              this.aiBotStore.deleteContextFile(this.feature, args.filename);
+              responseText = `🗑️ He borrado el archivo **${args.filename}** de mi contexto.`;
+              break;
+
             case 'search_database':
               this.masterFilterService.search(args.query);
               responseText = `✅ Filtro aplicado: **"${args.query}"**. ¡Lo tienes en pantalla!`;
@@ -740,8 +780,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               break;
 
             case 'remember_this':
-              this.aiBotStore.remember(args.text, args.importance);
-              responseText = `🧠 ¡Grabado a fuego! He memorizado: **"${args.text}"** (Importancia: ${args.importance}).`;
+              this.aiBotStore.remember(this.feature, args.text, args.importance);
+              responseText = `🧠 ¡Grabado a fuego en mi mente! He memorizado: **"${args.text}"** (Importancia: ${args.importance}).`;
               break;
 
             case 'create_record':
