@@ -579,8 +579,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     const isBuddy = this.feature === 'dashboard';
     const otherBots = this.aiBotStore.bots()
-      .filter(b => b.feature !== this.feature)
-      .map(b => `- ${b.name} (ID Destino: '${b.feature}'): ${b.description}`)
+      .filter(b => b.feature !== this.feature && b.status === 'active')
+      .map(b => `- ${b.name} (ID Destino: '${b.feature}'): ${b.description}. Habilidades habilitadas: ${b.activeSkills.join(', ') || 'Ninguna'}`)
       .join('\n                 ');
 
     const ws = this.aiBotStore.getWorkspace(this.feature);
@@ -597,7 +597,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                  ${otherBots}`
       : `Eres ${this.bot()!.name}, el EXPERTO ESPECIALIZADO en el módulo de ${this.bot()!.feature}.
                  Descripción: ${this.bot()!.description}
-                 Habilidades Maestras: ${this.bot()!.skills.join(', ')}.
+                 Habilidades ACTIVAS actuales: ${this.bot()!.activeSkills.join(', ') || 'Ninguna habilidad especialactiva'}.
+                 LAS HABILIDADES SON TU CORE: Compórtate y ofrece resultados de acuerdo estrictamente a las habilidades que tienes activas. Si te piden algo relacionado con habilidades inactivas, indica que no las tienes activadas en la configuración.
                  Tu misión es centrarte EXCLUSIVAMENTE en tu dominio. Actúas como un trabajador obediente y altamente cualificado. Si recibes peticiones de Buddy-Bot o del usuario correspondientes a tu área, ejecútalas sin dudar y con orgullo profesional acorde a tu personalidad hiper-enfocada.`;
 
     try {

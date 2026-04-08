@@ -628,6 +628,9 @@ interface PluginDescriptor {
       width: 100%;
       max-width: 500px;
       padding: 2rem;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .panel-header {
@@ -635,6 +638,7 @@ interface PluginDescriptor {
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 2rem;
+      flex-shrink: 0;
     }
 
     .header-bot {
@@ -663,6 +667,22 @@ interface PluginDescriptor {
       flex-direction: column;
       gap: 1rem;
       margin-bottom: 2rem;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      /* Custom Scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    
+    .skills-config-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .skills-config-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .skills-config-list::-webkit-scrollbar-thumb {
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 10px;
     }
 
     .skill-config-item {
@@ -678,7 +698,7 @@ interface PluginDescriptor {
     .skill-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: block; }
     .skill-desc { font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0; }
 
-    .panel-footer { border-top: 1px solid var(--border-soft); padding-top: 2rem; }
+    .panel-footer { border-top: 1px solid var(--border-soft); padding-top: 2rem; flex-shrink: 0; }
 
     .ai-grid {
       display: grid;
