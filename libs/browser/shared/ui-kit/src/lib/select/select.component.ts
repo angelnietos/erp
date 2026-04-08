@@ -25,6 +25,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
           (blur)="onBlur()"
           [disabled]="disabled"
           [class]="'select-' + variant"
+          [class.select-sm]="size === 'sm'"
           [class.invalid]="error"
         >
           @if (placeholder) {
@@ -55,12 +56,12 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     /* Base Select Styles */
     select {
       width: 100%; 
-      padding: 8px 32px 8px 12px; /* Reduced from 12/40/16 */
+      padding: 8px 32px 8px 12px;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
       color: var(--text-primary);
-      font-size: 0.8rem; /* Reduced from 0.9rem */
+      font-size: 0.8rem;
       transition: var(--transition-base, 280ms ease); 
       outline: none; 
       font-family: var(--font-main);
@@ -68,6 +69,9 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       cursor: pointer;
       box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
     }
+
+    .select-sm { padding: 4px 28px 4px 10px !important; font-size: 0.72rem !important; }
+    .select-sm + .chevron { right: 10px; width: 6px; height: 6px; margin-top: -4px; }
 
     select:focus {
       border-color: color-mix(in srgb, var(--brand) 70%, var(--border-soft));
@@ -202,6 +206,7 @@ export class UiSelectComponent implements ControlValueAccessor {
   @Input() placeholder = '';
   @Input() options: { label: string, value: unknown }[] = [];
   @Input() error = false;
+  @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: SelectVariant = 'default';
 
   value: unknown = '';

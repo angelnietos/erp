@@ -26,6 +26,7 @@ export type InputVariant = string;
         class="input-wrapper" 
         [class]="'input-color-' + color"
         [class]="'input-shape-' + shape"
+        [class]="'input-' + size"
         [class.input-auto-overrides]="shape === 'auto'"
         [class.has-icon]="icon" 
         [class.has-error]="error" 
@@ -128,6 +129,10 @@ export type InputVariant = string;
     .input-shape-rounded {
       --input-radius: 50px;
     }
+    
+    .input-sm input { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+    .input-sm .field-icon { left: 0.75rem; width: 0.9rem; height: 0.9rem; }
+    .input-sm.has-icon input { padding-left: 2.2rem; }
 
     /* ELEMENT BASE RULES */
     input {
@@ -210,6 +215,7 @@ export class UiInputComponent implements ControlValueAccessor {
   @Input() icon = '';
   @Input() hint?: string;
   @Input() error = false;
+  @Input() size: 'sm' | 'md' = 'md';
 
   @Input() color: InputColor = 'default';
   @Input() shape: InputShape = 'auto';

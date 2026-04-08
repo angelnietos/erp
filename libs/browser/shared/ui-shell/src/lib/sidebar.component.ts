@@ -402,7 +402,7 @@ export class SidebarComponent {
     {
       id: 'ai-insights',
       label: 'AI Insights',
-      icon: 'brain-circuit',
+      icon: 'cpu',
       route: '/ai-insights',
     },
   ];

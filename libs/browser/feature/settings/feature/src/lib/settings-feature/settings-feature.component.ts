@@ -177,13 +177,55 @@ interface PluginDescriptor {
                     
                     <div class="bot-info">
                       <div class="bot-header">
-                        <h3>{{ bot.name }}</h3>
+                        <div class="bot-name-edit">
+                          <ui-josanz-input
+                            [ngModel]="bot.name"
+                            (ngModelChange)="aiBotStore.updateBotName(bot.feature, $event)"
+                            size="sm"
+                            placeholder="Nombre del Bot"
+                          ></ui-josanz-input>
+                        </div>
                         <ui-josanz-badge [variant]="bot.status === 'active' ? 'success' : 'neutral'">
                           {{ bot.status === 'active' ? 'SUSCRIPCIÓN ACTIVA' : 'SaaS INACTIVO' }}
                         </ui-josanz-badge>
                       </div>
                       <p class="bot-feature">{{ bot.feature }}</p>
                       <p class="bot-desc">{{ bot.description }}</p>
+                      
+                      <!-- Personalidad y Estética -->
+                      <div class="bot-meta-config row mb-4">
+                        <ui-josanz-select
+                          label="Mascota"
+                          size="sm"
+                          [options]="[
+                            { value: 'inventory', label: 'Cubo Invernadero' },
+                            { value: 'projects', label: 'Hexágono Proyectos' },
+                            { value: 'budget', label: 'Cápsula Fiscal' },
+                            { value: 'clients', label: 'Esfera Social' },
+                            { value: 'fleet', label: 'Vehículo Drive' },
+                            { value: 'rentals', label: 'Cubo Alquiler' },
+                            { value: 'audit', label: 'Domo Auditor' },
+                            { value: 'universal', label: 'Droide Universal' }
+                          ]"
+                          [ngModel]="bot.mascotType"
+                          (ngModelChange)="aiBotStore.updateBotSkin(bot.feature, { mascotType: $event })"
+                        ></ui-josanz-select>
+
+                        <ui-josanz-select
+                          label="Personalidad"
+                          size="sm"
+                          [options]="[
+                            { value: 'tech', label: 'Tecnocrático' },
+                            { value: 'worker', label: 'Productor' },
+                            { value: 'happy', label: 'Optimista' },
+                            { value: 'mystic', label: 'Místico/Oculto' },
+                            { value: 'explorer', label: 'Explorador' },
+                            { value: 'ninja', label: 'Sigiloso/Ninja' }
+                          ]"
+                          [ngModel]="bot.personality"
+                          (ngModelChange)="aiBotStore.updateBotSkin(bot.feature, { personality: $event })"
+                        ></ui-josanz-select>
+                      </div>
                       
                       <div class="skills-list">
                         @for (skill of bot.activeSkills; track skill) {
@@ -267,7 +309,14 @@ interface PluginDescriptor {
                   <div class="buddy-config-col">
                     <ui-josanz-card variant="glass" class="buddy-options-card">
                       <div class="card-header-with-toggle">
-                        <h3>Apariencia Standard</h3>
+                        <div class="buddy-name-edit flex-1">
+                           <ui-josanz-input
+                            label="Nombre del Compañero"
+                            [ngModel]="buddy.name"
+                            (ngModelChange)="aiBotStore.updateBotName('dashboard', $event)"
+                            placeholder="Ej: Buddy, Pato, etc."
+                          ></ui-josanz-input>
+                        </div>
                         <div class="rage-toggle" [class.active]="aiBotStore.rageMode()" (click)="aiBotStore.setRageMode(!aiBotStore.rageMode())">
                           <div class="toggle-label">
                             <lucide-icon name="zap" size="14"></lucide-icon>

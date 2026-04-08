@@ -40,11 +40,17 @@ export interface AIBot {
 export class AIBotStore {
   readonly selectedProvider = signal<'gemini' | 'openai' | 'anthropic'>((localStorage.getItem('ai_provider') as any) || 'gemini');
   readonly providerApiKey = signal<string>(localStorage.getItem('ai_api_key') || '');
+  
+  // Custom names stored in local storage: feature -> name
+  private readonly _customNames = signal<Record<string, string>>(
+    JSON.parse(localStorage.getItem('ai_bot_custom_names') || '{}')
+  );
 
   constructor() {
     effect(() => {
       localStorage.setItem('ai_provider', this.selectedProvider());
       localStorage.setItem('ai_api_key', this.providerApiKey());
+      localStorage.setItem('ai_bot_custom_names', JSON.stringify(this._customNames()));
     });
   }
 
@@ -147,10 +153,24 @@ export class AIBotStore {
     }
   });
 
-  readonly bots = computed(() => Object.values(this._bots()));
+  readonly bots = computed(() => {
+    const defaultBots = this._bots();
+    const customNames = this._customNames();
+    
+    return Object.entries(defaultBots).map(([feature, bot]) => ({
+      ...bot,
+      name: customNames[feature] ?? bot.name
+    }));
+  });
 
   getBotByFeature(feature: string) {
-    return this._bots()[feature];
+    const bot = this._bots()[feature];
+    if (!bot) return undefined;
+    const customName = this._customNames()[feature];
+    return {
+      ...bot,
+      name: customName ?? bot.name
+    };
   }
 
   toggleBotStatus(feature: string) {
@@ -194,6 +214,14 @@ export class AIBotStore {
         [feature]: { ...bot, ...updates }
       };
     });
+  }
+
+  updateBotName(feature: string, newName: string) {
+    if (!newName.trim()) return;
+    this._customNames.update(current => ({
+      ...current,
+      [feature]: newName.trim()
+    }));
   }
 
   // Communication Bus
