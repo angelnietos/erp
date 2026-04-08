@@ -3,7 +3,18 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Sparkles, BrainCircuit, Activity, Trash2, ArrowUpRight } from 'lucide-angular';
-import { SharedUiKitModule } from '@josanz-erp/shared/ui-kit';
+import { SharedUiKitModule } from '@josanz-erp/shared-ui-kit';
+
+export interface AiInsight {
+  id: string;
+  botId: string;
+  feature: string;
+  title: string;
+  summary: string;
+  priority: string;
+  metrics?: Record<string, unknown>;
+  createdAt: string;
+}
 
 @Component({
   selector: 'josanz-ai-insights',
@@ -96,7 +107,7 @@ import { SharedUiKitModule } from '@josanz-erp/shared/ui-kit';
 export class AiInsightsComponent implements OnInit {
   private http = inject(HttpClient);
   
-  insights = signal<any[]>([]);
+  insights = signal<AiInsight[]>([]);
   loading = signal(true);
 
   async ngOnInit() {
@@ -106,7 +117,7 @@ export class AiInsightsComponent implements OnInit {
   async loadInsights() {
     this.loading.set(true);
     try {
-      const data = await firstValueFrom(this.http.get<any[]>('/api/ai-insights'));
+      const data = await firstValueFrom(this.http.get<AiInsight[]>('/api/ai-insights'));
       this.insights.set(data);
     } catch(e) {
       console.error(e);
@@ -115,11 +126,11 @@ export class AiInsightsComponent implements OnInit {
     }
   }
 
-  hasKeys(obj: any): boolean {
-    return obj && Object.keys(obj).length > 0;
+  hasKeys(obj: Record<string, unknown> | null | undefined): boolean {
+    return !!obj && Object.keys(obj).length > 0;
   }
 
-  getKeys(obj: any): string[] {
-    return Object.keys(obj);
+  getKeys(obj: Record<string, unknown> | null | undefined): string[] {
+    return obj ? Object.keys(obj) : [];
   }
 }

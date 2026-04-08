@@ -6,8 +6,8 @@ export interface CreateAiInsightDto {
   feature: string;
   title: string;
   summary: string;
-  metrics?: any;
-  metadata?: any;
+  metrics?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   priority?: string;
 }
 

@@ -711,6 +711,8 @@ interface EventFilter {
         display: flex;
         gap: 1rem;
         justify-content: flex-end;
+        align-items: center;
+        grid-column: 1 / -1;
         margin-top: 1rem;
       }
 
