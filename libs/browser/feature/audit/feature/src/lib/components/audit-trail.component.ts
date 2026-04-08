@@ -205,7 +205,7 @@ interface AuditLog {
 
   `,
   styles: [`
-    .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; }
+    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
 
     .audit-content {
       display: flex;

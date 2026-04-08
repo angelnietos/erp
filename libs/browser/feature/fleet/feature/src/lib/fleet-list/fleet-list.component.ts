@@ -192,7 +192,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
   `,
   styles: [`
-    .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; }
+    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;

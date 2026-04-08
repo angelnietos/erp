@@ -150,14 +150,15 @@ export interface Service {
   styles: [
     `
     .page-container {
-      padding: 0;
-      max-width: 100%;
+      padding: 1.5rem;
+      max-width: 1400px;
       margin: 0 auto;
+      box-sizing: border-box;
     }
 
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .header-breadcrumb {
@@ -166,14 +167,16 @@ export interface Service {
 
     .page-title {
       margin: 0 0 0.5rem 0;
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: 0.025em;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      font-family: var(--font-display);
     }
 
     .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
+      display: flex; gap: 8px; font-size: 0.75rem; font-weight: 800;
+      letter-spacing: 0.15em; color: var(--text-muted); margin-top: 0.5rem;
+      text-transform: uppercase;
     }
 
     .separator {
@@ -186,7 +189,7 @@ export interface Service {
     }
 
     .stats-row { 
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; 
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; 
     }
 
     .filters-bar { 
@@ -212,8 +215,8 @@ export interface Service {
     }
 
     .glow-text { 
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.05em; font-family: var(--font-main);
+      font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 800; color: #fff; margin: 0; 
+      letter-spacing: 0.04em; font-family: var(--font-display);
     }
 
     .flex-1 {
