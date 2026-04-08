@@ -165,6 +165,10 @@ export class AIBotStore {
     'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free'
   >((localStorage.getItem('ai_provider') as any) || 'free');
 
+  readonly selectedModelId = signal<string>(
+    localStorage.getItem('ai_selected_model_id') || 'gemini',
+  );
+
   readonly providerApiKey = signal<string>(
     localStorage.getItem('ai_api_key') || '',
   );
@@ -502,9 +506,45 @@ export class AIBotStore {
   });
   readonly bots = computed<AIBot[]>(() => Object.values(this._bots()));
 
+  readonly aiModelOptions = computed(() => {
+    const options = [
+      { value: 'gemini', label: 'Google Gemini 2.5 Flash (Recomendado)' },
+      { value: 'openai', label: 'OpenAI GPT-4o' },
+      { value: 'anthropic', label: 'Anthropic Claude 3.5' },
+      { value: 'huggingface', label: 'HuggingFace Inference API' },
+    ];
+
+    const localModels = this.freeModels().localModels;
+    if (localModels.length > 0) {
+      localModels.forEach((m) => {
+        options.push({ value: `ollama:${m}`, label: `Ollama: ${m} (Local)` });
+      });
+    } else {
+      options.push({
+        value: 'ollama',
+        label: 'Ollama (Sin modelos detectados aún)',
+      });
+    }
+
+    return options;
+  });
+
+  setAIModel(modelId: string) {
+    this.selectedModelId.set(modelId);
+
+    if (modelId.startsWith('ollama:')) {
+      const model = modelId.split(':')[1];
+      this.selectedProvider.set('ollama');
+      this.ollamaConfig.update((c) => ({ ...c, model }));
+    } else {
+      this.selectedProvider.set(modelId as any);
+    }
+  }
+
   constructor() {
     effect(() => {
       localStorage.setItem('ai_provider', this.selectedProvider());
+      localStorage.setItem('ai_selected_model_id', this.selectedModelId());
       localStorage.setItem('ai_api_key', this.providerApiKey());
       localStorage.setItem('ai_active_bot_feature', this.activeBotFeature());
       localStorage.setItem('ollama_base_url', this.ollamaConfig().baseUrl);

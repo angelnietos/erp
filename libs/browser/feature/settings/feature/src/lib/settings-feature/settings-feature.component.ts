@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, effect, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, effect, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu, Smile, Zap } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
@@ -145,13 +145,9 @@ interface PluginDescriptor {
                   <div class="form-group mb-4">
                     <ui-josanz-select
                       label="Proveedor de IA Base"
-                      [options]="[
-                        { value: 'gemini', label: 'Google Gemini 2.5 Flash (Recomendado)' },
-                        { value: 'openai', label: 'OpenAI GPT-4o' },
-                        { value: 'anthropic', label: 'Anthropic Claude 3.5' }
-                      ]"
-                      [ngModel]="aiBotStore.selectedProvider()"
-                      (ngModelChange)="aiBotStore.selectedProvider.set($event)"
+                      [options]="aiBotStore.aiModelOptions()"
+                      [ngModel]="aiBotStore.selectedModelId()"
+                      (ngModelChange)="aiBotStore.setAIModel($event)"
                     ></ui-josanz-select>
                   </div>
                   
@@ -1041,7 +1037,7 @@ interface PluginDescriptor {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SettingsFeatureComponent {
+export class SettingsFeatureComponent implements OnInit {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
 
@@ -1089,6 +1085,10 @@ export class SettingsFeatureComponent {
   togglePremium() {
     this._pluginStore.togglePerformance();
   }
+  ngOnInit() {
+    this.aiBotStore.autoSelectProvider();
+  }
+
   constructor() {
     effect(() => {
       console.log('SettingsFeature initialized. Bots in store:', this.aiBotStore.bots());
