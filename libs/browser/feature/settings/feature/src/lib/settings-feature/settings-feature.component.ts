@@ -60,7 +60,7 @@ interface PluginDescriptor {
               (click)="activeTab.set('buddy')"
             >
               <lucide-icon name="smile" size="18"></lucide-icon>
-              <span>Buddy (Compañero)</span>
+              <span>{{ aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature()) }}</span>
             </button>
             <button 
               class="nav-item" 
@@ -155,6 +155,15 @@ interface PluginDescriptor {
                     ></ui-josanz-select>
                   </div>
                   
+                  <div class="form-group mb-4">
+                    <ui-josanz-select
+                      label="Agente Principal Activo"
+                      [options]="botOptions()"
+                      [ngModel]="aiBotStore.activeBotFeature()"
+                      (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
+                    ></ui-josanz-select>
+                  </div>
+                  
                   <div class="form-group">
                     <ui-josanz-input
                       label="Clave de Autenticación API (Token)"
@@ -185,9 +194,14 @@ interface PluginDescriptor {
                             placeholder="Nombre del Bot"
                           ></ui-josanz-input>
                         </div>
-                        <ui-josanz-badge [variant]="bot.status === 'active' ? 'success' : 'neutral'">
-                          {{ bot.status === 'active' ? 'SUSCRIPCIÓN ACTIVA' : 'SaaS INACTIVO' }}
-                        </ui-josanz-badge>
+                        <div class="bot-labels">
+                          @if (aiBotStore.activeBotFeature() === bot.feature) {
+                            <ui-josanz-badge variant="success" class="mr-2">AGENTE PRINCIPAL</ui-josanz-badge>
+                          }
+                          <ui-josanz-badge [variant]="bot.status === 'active' ? 'success' : 'neutral'">
+                            {{ bot.status === 'active' ? 'SUSCRIPCIÓN ACTIVA' : 'SaaS INACTIVO' }}
+                          </ui-josanz-badge>
+                        </div>
                       </div>
                       <p class="bot-feature">{{ bot.feature }}</p>
                       <p class="bot-desc">{{ bot.description }}</p>
@@ -253,6 +267,16 @@ interface PluginDescriptor {
                           >
                             {{ managingBotId() === bot.feature ? 'CERRAR PANEL' : 'GESTIONAR SKILLS' }}
                           </ui-josanz-button>
+
+                          @if (aiBotStore.activeBotFeature() !== bot.feature) {
+                            <ui-josanz-button 
+                              variant="outline" 
+                              size="sm"
+                              (click)="aiBotStore.activeBotFeature.set(bot.feature)"
+                            >
+                              USAR COMO PRINCIPAL
+                            </ui-josanz-button>
+                          }
                         }
                       </div>
 
@@ -284,11 +308,11 @@ interface PluginDescriptor {
           @if (activeTab() === 'buddy') {
             <section class="content-section animate-slide-up">
               <div class="section-title">
-                <h2>Customización de Buddy</h2>
-                <p>Configura tu pato de confianza al estilo GunBound</p>
+                <h2>Customización de {{ aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature()) }}</h2>
+                <p>Configura la estética y habilidades de tu agente principal</p>
               </div>
 
-              @if (aiBotStore.getBotByFeature('dashboard'); as buddy) {
+              @if (aiBotStore.getBotByFeature(aiBotStore.activeBotFeature()); as buddy) {
                 <div class="buddy-customizer">
                   <div class="buddy-visual-col">
                     <ui-josanz-card variant="glass" class="buddy-preview-card" [class.is-rage-preview]="aiBotStore.rageMode()">
@@ -313,7 +337,7 @@ interface PluginDescriptor {
                            <ui-josanz-input
                             label="Nombre del Compañero"
                             [ngModel]="buddy.name"
-                            (ngModelChange)="aiBotStore.updateBotName('dashboard', $event)"
+                            (ngModelChange)="aiBotStore.updateBotName(buddy.feature, $event)"
                             placeholder="Ej: Buddy, Pato, etc."
                           ></ui-josanz-input>
                         </div>
@@ -335,7 +359,7 @@ interface PluginDescriptor {
                             @for (c of [{m: '#facc15', s: '#ca8a04', n: 'Pato Clásico'}, {m: '#f43f5e', s: '#9f1239', n: 'Cereza'}, {m: '#10b981', s: '#059669', n: 'Hulk'}, {m: '#8b5cf6', s: '#6d28d9', n: 'Místico'}, {m: '#3b82f6', s: '#1d4ed8', n: 'Aqua'}, {m: '#1e293b', s: '#0f172a', n: 'Stealth'}]; track c.n) {
                               <div class="color-swatch-item" 
                                    [class.active]="buddy.color === c.m"
-                                   (click)="aiBotStore.updateBotSkin('dashboard', { color: c.m, secondaryColor: c.s })">
+                                   (click)="aiBotStore.updateBotSkin(buddy.feature, { color: c.m, secondaryColor: c.s })">
                                 <div class="color-swatch" [style.background]="c.m"></div>
                               </div>
                             }
@@ -352,7 +376,7 @@ interface PluginDescriptor {
                               { value: 'tri', label: 'Triángulo Puntiagudo' }
                             ]"
                             [ngModel]="buddy.bodyShape"
-                            (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { bodyShape: $event })"
+                            (ngModelChange)="aiBotStore.updateBotSkin(buddy.feature, { bodyShape: $event })"
                           ></ui-josanz-select>
                         </div>
 
@@ -365,7 +389,7 @@ interface PluginDescriptor {
                               { value: 'shades', label: 'Gafas de Sol' }
                             ]"
                             [ngModel]="buddy.eyesType"
-                            (ngModelChange)="aiBotStore.updateBotSkin('dashboard', { eyesType: $event })"
+                            (ngModelChange)="aiBotStore.updateBotSkin(buddy.feature, { eyesType: $event })"
                           ></ui-josanz-select>
                         </div>
                       </div>
@@ -396,7 +420,7 @@ interface PluginDescriptor {
                         @for (skill of buddy.skills; track skill) {
                           <div class="skill-config-item">
                             <span class="skill-name">{{ skill }}</span>
-                            <div class="toggle-wrapper" [class.active]="isSkillActive('dashboard', skill)" (click)="aiBotStore.toggleSkill('dashboard', skill)">
+                            <div class="toggle-wrapper" [class.active]="isSkillActive(buddy.feature, skill)" (click)="aiBotStore.toggleSkill(buddy.feature, skill)">
                               <div class="toggle-handle"></div>
                             </div>
                           </div>
@@ -726,6 +750,19 @@ interface PluginDescriptor {
       text-overflow: ellipsis;
     }
 
+    .bot-labels {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .mr-2 { margin-right: 0.5rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .flex-1 { flex: 1; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 1rem; }
+
     .bot-feature {
       font-size: 0.8rem;
       color: var(--brand);
@@ -1024,6 +1061,13 @@ export class SettingsFeatureComponent {
     { id: 'rentals', name: 'Alquileres', icon: 'key', description: 'Sistema de reservas y devoluciones.', category: 'vertical' },
     { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integración mandatoria con la AEAT.', category: 'vertical' },
   ];
+
+  readonly botOptions = computed(() => 
+    this.aiBotStore.bots().map(bot => ({
+      value: bot.feature,
+      label: `${bot.name} (${bot.feature})`
+    }))
+  );
 
   isSkillActive(botId: string, skill: string) {
     const bot = this.aiBotStore.getBotByFeature(botId);

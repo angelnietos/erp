@@ -169,6 +169,10 @@ export class AIBotStore {
     localStorage.getItem('ai_api_key') || '',
   );
 
+  readonly activeBotFeature = signal<string>(
+    localStorage.getItem('ai_active_bot_feature') || 'dashboard',
+  );
+
   // Configuración de modelos gratuitos
   readonly ollamaConfig = signal<{
     baseUrl: string;
@@ -502,6 +506,7 @@ export class AIBotStore {
     effect(() => {
       localStorage.setItem('ai_provider', this.selectedProvider());
       localStorage.setItem('ai_api_key', this.providerApiKey());
+      localStorage.setItem('ai_active_bot_feature', this.activeBotFeature());
       localStorage.setItem('ollama_base_url', this.ollamaConfig().baseUrl);
       localStorage.setItem('ollama_model', this.ollamaConfig().model);
       localStorage.setItem('hf_model', this.freeModels().huggingface.model);

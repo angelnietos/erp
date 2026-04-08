@@ -5,7 +5,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
-import { ThemeService, Theme, AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, Theme, AuthStore, PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
@@ -141,9 +141,9 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         </main>
         
         <!-- IA Assistances Ecosystem (Global & Contextual) -->
-        <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
+        <ui-josanz-ai-assistant [feature]="aiBotStore.activeBotFeature()"></ui-josanz-ai-assistant>
         
-        @if (currentFeature() !== 'dashboard') {
+        @if (currentFeature() !== 'dashboard' && currentFeature() !== aiBotStore.activeBotFeature()) {
           <ui-josanz-ai-assistant [feature]="currentFeature()" class="secondary-assistant"></ui-josanz-ai-assistant>
         }
       </div>
@@ -600,6 +600,7 @@ export class AppLayoutComponent {
   private readonly router = inject(Router);
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
+  readonly aiBotStore = inject(AIBotStore);
   private readonly navEvents = toSignal(
     this.router.events.pipe(filter(event => event instanceof NavigationEnd))
   );
