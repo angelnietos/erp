@@ -1,8 +1,26 @@
-import { Component, Input, inject, signal, computed, effect, NgZone, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  inject,
+  signal,
+  computed,
+  effect,
+  NgZone,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router, RouterModule } from '@angular/router';
-import { AIBotStore, DashboardAnalyticsService, ThemeService, Theme, THEMES, MasterFilterService } from '@josanz-erp/shared-data-access';
+import {
+  AIBotStore,
+  DashboardAnalyticsService,
+  ThemeService,
+  Theme,
+  THEMES,
+  MasterFilterService,
+} from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { FormsModule } from '@angular/forms';
@@ -10,23 +28,33 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-
 @Component({
   selector: 'ui-josanz-ai-assistant',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UIMascotComponent, UiButtonComponent, FormsModule, DragDropModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    UIMascotComponent,
+    UiButtonComponent,
+    FormsModule,
+    DragDropModule,
+  ],
   template: `
-    <div 
-      class="ai-assistant-wrapper" 
-      [class]="'feature-' + feature" 
+    <div
+      class="ai-assistant-wrapper"
+      [class]="'feature-' + feature"
       [class.is-open]="isOpen()"
       *ngIf="bot() && bot()!.status === 'active'"
     >
       <!-- Floating Mascot Bubble -->
-      <div class="mascot-trigger" [class.open]="isOpen()" (click)="toggleChat()">
-        <ui-josanz-mascot 
-          [type]="bot()!.mascotType" 
-          [color]="bot()!.color" 
+      <div
+        class="mascot-trigger"
+        [class.open]="isOpen()"
+        (click)="toggleChat()"
+      >
+        <ui-josanz-mascot
+          [type]="bot()!.mascotType"
+          [color]="bot()!.color"
           [personality]="bot()!.personality"
           [bodyShape]="bot()!.bodyShape"
           [eyesType]="bot()!.eyesType"
@@ -38,32 +66,65 @@ import { firstValueFrom } from 'rxjs';
       </div>
 
       <!-- Chat Window -->
-      <div class="chat-window-container" *ngIf="isOpen()" cdkDrag cdkDragBoundary=".page-container" (click)="$event.stopPropagation()">
+      <div
+        class="chat-window-container"
+        *ngIf="isOpen()"
+        cdkDrag
+        cdkDragBoundary=".page-container"
+        (click)="$event.stopPropagation()"
+      >
         <div class="chat-window animate-slide-up">
-          <div class="chat-header" cdkDragHandle [style.border-bottom-color]="bot()!.color">
+          <div
+            class="chat-header"
+            cdkDragHandle
+            [style.border-bottom-color]="bot()!.color"
+          >
             <div class="bot-status-info">
-              <lucide-icon name="grip-vertical" size="14" class="drag-handle-icon"></lucide-icon>
-              <span class="status-indicator" [style.background]="bot()!.color"></span>
+              <lucide-icon
+                name="grip-vertical"
+                size="14"
+                class="drag-handle-icon"
+              ></lucide-icon>
+              <span
+                class="status-indicator"
+                [style.background]="bot()!.color"
+              ></span>
               <div>
                 <h4>{{ bot()!.name }}</h4>
                 <p>Tu asistente de {{ bot()!.feature }}</p>
               </div>
             </div>
             <div class="window-actions">
-              <button class="action-btn minimize" (click)="minimize()" title="Minimizar">
+              <button
+                class="action-btn minimize"
+                (click)="minimize()"
+                title="Minimizar"
+              >
                 <lucide-icon name="minus" size="18"></lucide-icon>
               </button>
-              <button class="action-btn close" (click)="closeSession()" title="Finalizar Sesión">
+              <button
+                class="action-btn close"
+                (click)="closeSession()"
+                title="Finalizar Sesión"
+              >
                 <lucide-icon name="x" size="18"></lucide-icon>
               </button>
             </div>
           </div>
           <div class="chat-messages">
             <div class="message bot-msg">
-              <p>¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de **{{ bot()!.feature }}** en tiempo real. ¿En qué puedo ayudarte hoy?</p>
+              <p>
+                ¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de **{{
+                  bot()!.feature
+                }}** en tiempo real. ¿En qué puedo ayudarte hoy?
+              </p>
               <div class="bot-skills-badges">
                 @for (skill of bot()!.activeSkills; track skill) {
-                  <span class="skill-badge" [style.background]="bot()!.color + '22'" [style.color]="bot()!.color">
+                  <span
+                    class="skill-badge"
+                    [style.background]="bot()!.color + '22'"
+                    [style.color]="bot()!.color"
+                  >
                     {{ skill }}
                   </span>
                 }
@@ -71,34 +132,70 @@ import { firstValueFrom } from 'rxjs';
             </div>
 
             @for (msg of messages(); track msg.id) {
-              <div class="message" [class.user-msg]="msg.role === 'user'" [class.bot-msg]="msg.role === 'bot'">
-                
+              <div
+                class="message"
+                [class.user-msg]="msg.role === 'user'"
+                [class.bot-msg]="msg.role === 'bot'"
+              >
                 <!-- Reasoning Block -->
-                <div class="msg-reasoning" *ngIf="msg.reasoning" [style.border-left-color]="bot()!.color">
+                <div
+                  class="msg-reasoning"
+                  *ngIf="msg.reasoning"
+                  [style.border-left-color]="bot()!.color"
+                >
                   <div class="reasoning-header">
-                     <div class="ai-pulse" [style.background]="bot()!.color"></div>
-                     <span>TERMINAL DE PENSAMIENTO</span>
+                    <div
+                      class="ai-pulse"
+                      [style.background]="bot()!.color"
+                    ></div>
+                    <span>TERMINAL DE PENSAMIENTO</span>
                   </div>
                   <p class="reasoning-text">{{ msg.reasoning }}</p>
                 </div>
 
                 <!-- Main Content -->
-                <p class="msg-content" *ngIf="msg.text" [innerHTML]="msg.text"></p>
+                <p
+                  class="msg-content"
+                  *ngIf="msg.text"
+                  [innerHTML]="msg.text"
+                ></p>
 
                 <!-- Premium Typing Indicator -->
-                <div class="typing-indicator" *ngIf="!msg.text && msg.id.toString().startsWith('typing')">
+                <div
+                  class="typing-indicator"
+                  *ngIf="!msg.text && msg.id.toString().startsWith('typing')"
+                >
                   <span class="dot"></span>
                   <span class="dot"></span>
                   <span class="dot"></span>
                 </div>
 
-                <div class="msg-feedback" *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text">
+                <div
+                  class="msg-feedback"
+                  *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text"
+                >
                   <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
-                    <button class="feedback-btn" (click)="submitFeedback(msg, 'positive')" title="Me gusta esta respuesta">👍</button>
-                    <button class="feedback-btn" (click)="submitFeedback(msg, 'negative')" title="No me gusta esta respuesta">👎</button>
+                    <button
+                      class="feedback-btn"
+                      (click)="submitFeedback(msg, 'positive')"
+                      title="Me gusta esta respuesta"
+                    >
+                      👍
+                    </button>
+                    <button
+                      class="feedback-btn"
+                      (click)="submitFeedback(msg, 'negative')"
+                      title="No me gusta esta respuesta"
+                    >
+                      👎
+                    </button>
                   </div>
-                  <div class="feedback-submitted text-friendly" *ngIf="msg.feedbackSubmitted">
-                    <lucide-icon name="check" size="12"></lucide-icon> Guardado en Memoria
+                  <div
+                    class="feedback-submitted text-friendly"
+                    *ngIf="msg.feedbackSubmitted"
+                  >
+                    <lucide-icon name="check" size="12"></lucide-icon> Guardado
+                    en Memoria
                   </div>
                 </div>
               </div>
@@ -106,30 +203,55 @@ import { firstValueFrom } from 'rxjs';
           </div>
 
           <!-- Bot Status Bar -->
-          <div class="bot-status-bar" *ngIf="bot()" [style.border-top-color]="bot()!.color">
-             <div class="status-item">
-                <span class="label">HUMOR:</span>
-                <span class="val">{{ (aiBotStore.botMoods()[this.feature]?.mood || 'NEUTRAL').toUpperCase() }}</span>
-             </div>
-             <div class="status-item">
-                <span class="label">ENERGÍA:</span>
-                <div class="energy-bar">
-                   <div class="energy-fill" [style.width]="(aiBotStore.botMoods()[this.feature]?.energy || 100) + '%'" [style.background]="bot()!.color"></div>
-                </div>
-             </div>
+          <div
+            class="bot-status-bar"
+            *ngIf="bot()"
+            [style.border-top-color]="bot()!.color"
+          >
+            <div class="status-item">
+              <span class="label">HUMOR:</span>
+              <span class="val">{{
+                (
+                  aiBotStore.botMoods()[this.feature]?.mood || 'NEUTRAL'
+                ).toUpperCase()
+              }}</span>
+            </div>
+            <div class="status-item">
+              <span class="label">ENERGÍA:</span>
+              <div class="energy-bar">
+                <div
+                  class="energy-fill"
+                  [style.width]="
+                    (aiBotStore.botMoods()[this.feature]?.energy || 100) + '%'
+                  "
+                  [style.background]="bot()!.color"
+                ></div>
+              </div>
+            </div>
           </div>
 
           <div class="chat-input-area">
-            <button class="voice-btn" [class.recording]="isListening()" (click)="toggleSpeech()">
-               <lucide-icon [name]="isListening() ? 'mic-off' : 'mic'" size="18"></lucide-icon>
+            <button
+              class="voice-btn"
+              [class.recording]="isListening()"
+              (click)="toggleSpeech()"
+            >
+              <lucide-icon
+                [name]="isListening() ? 'mic-off' : 'mic'"
+                size="18"
+              ></lucide-icon>
             </button>
-            <input 
-              type="text" 
-              placeholder="Escribe aquí tu consulta..." 
+            <input
+              type="text"
+              placeholder="Escribe aquí tu consulta..."
               [(ngModel)]="currentInput"
               (keyup.enter)="sendMessage()"
             />
-            <ui-josanz-button variant="filled" size="sm" (click)="sendMessage()">
+            <ui-josanz-button
+              variant="filled"
+              size="sm"
+              (click)="sendMessage()"
+            >
               <lucide-icon name="send" size="16"></lucide-icon>
             </ui-josanz-button>
           </div>
@@ -137,271 +259,314 @@ import { firstValueFrom } from 'rxjs';
       </div>
     </div>
   `,
-  styles: [`
-    .ai-assistant-wrapper {
-      position: fixed;
-      bottom: 2rem;
-      right: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 1.2rem;
-      z-index: 1000;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+  styles: [
+    `
+      .ai-assistant-wrapper {
+        position: fixed;
+        bottom: 2rem;
+        right: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 1.2rem;
+        z-index: 1000;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-    .ai-assistant-wrapper:not(.feature-dashboard) {
-      right: 12rem;
-    }
+      .ai-assistant-wrapper:not(.feature-dashboard) {
+        right: 12rem;
+      }
 
-    .mascot-trigger {
-      cursor: pointer;
-      transition: all 0.4s var(--ease-out-expo);
-      opacity: 0.75;
-      transform: scale(0.85);
-      filter: saturate(0.9);
-      position: relative;
-    }
+      .mascot-trigger {
+        cursor: pointer;
+        transition: all 0.4s var(--ease-out-expo);
+        opacity: 0.75;
+        transform: scale(0.85);
+        filter: saturate(0.9);
+        position: relative;
+      }
 
-    .mascot-trigger:hover,
-    .ai-assistant-wrapper.is-open .mascot-trigger {
-      opacity: 1;
-      transform: scale(1);
-      filter: saturate(1);
-    }
+      .mascot-trigger:hover,
+      .ai-assistant-wrapper.is-open .mascot-trigger {
+        opacity: 1;
+        transform: scale(1);
+        filter: saturate(1);
+      }
 
-    .chat-window-container {
-      position: absolute;
-      bottom: 100px;
-      right: 0;
-      width: 400px;
-      z-index: 10001;
-    }
+      .chat-window-container {
+        position: absolute;
+        bottom: 100px;
+        right: 0;
+        width: 400px;
+        z-index: 10001;
+      }
 
-    .chat-window {
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 550px;
-      overflow: hidden;
-      border-radius: 24px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-      background: #0f172a !important;
-      backdrop-filter: blur(25px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+      .chat-window {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 550px;
+        overflow: hidden;
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        background: #0f172a !important;
+        backdrop-filter: blur(25px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-    .chat-header {
-      flex-shrink: 0;
-      padding: 1.5rem;
-      background: rgba(255,255,255,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid transparent;
-      cursor: grab;
-    }
+      .chat-header {
+        flex-shrink: 0;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid transparent;
+        cursor: grab;
+      }
 
-    .bot-status-info {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+      .bot-status-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
 
-    .status-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      box-shadow: 0 0 15px currentColor;
-    }
+      .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        box-shadow: 0 0 15px currentColor;
+      }
 
-    .chat-header h4 { margin: 0; font-size: 1.1rem; color: #fff; font-weight: 800; }
-    .chat-header p { margin: 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+      .chat-header h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #fff;
+        font-weight: 800;
+      }
+      .chat-header p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
 
-    .window-actions {
-      display: flex;
-      gap: 0.25rem;
-    }
+      .window-actions {
+        display: flex;
+        gap: 0.25rem;
+      }
 
-    .action-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 0.5rem;
-      border-radius: 6px;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      .action-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .bot-status-bar {
-       padding: 0.5rem 1rem;
-       background: rgba(0,0,0,0.3);
-       border-top: 1px solid rgba(255,255,255,0.05);
-       display: flex;
-       gap: 1.5rem;
-       font-family: 'JetBrains Mono', monospace;
-       font-size: 0.65rem;
-    }
+      .bot-status-bar {
+        padding: 0.5rem 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        gap: 1.5rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+      }
 
-    .status-item {
-       display: flex;
-       align-items: center;
-       gap: 6px;
-    }
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
 
-    .status-item .label { color: var(--text-muted); font-weight: 800; }
-    .status-item .val { color: #fff; font-weight: 800; text-shadow: 0 0 5PX currentColor; }
+      .status-item .label {
+        color: var(--text-muted);
+        font-weight: 800;
+      }
+      .status-item .val {
+        color: #fff;
+        font-weight: 800;
+        text-shadow: 0 0 5px currentColor;
+      }
 
-    .energy-bar {
-       width: 60px;
-       height: 4px;
-       background: rgba(255,255,255,0.1);
-       border-radius: 2px;
-       overflow: hidden;
-    }
+      .energy-bar {
+        width: 60px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
 
-    .energy-fill {
-       height: 100%;
-       transition: width 0.5s ease;
-    }
+      .energy-fill {
+        height: 100%;
+        transition: width 0.5s ease;
+      }
 
-    .ai-pulse {
-       width: 6px;
-       height: 6px;
-       border-radius: 50%;
-       animation: scannerPulse 1.5s infinite;
-    }
+      .ai-pulse {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        animation: scannerPulse 1.5s infinite;
+      }
 
-    @keyframes scannerPulse {
-       0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
-       70% { transform: scale(1.5); opacity: 0.5; box-shadow: 0 0 0 6px rgba(0,0,0,0); }
-       100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(0,0,0,0); }
-    }
+      @keyframes scannerPulse {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+          box-shadow: 0 0 0 0 currentColor;
+        }
+        70% {
+          transform: scale(1.5);
+          opacity: 0.5;
+          box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
 
-    .typing-indicator {
-       display: flex;
-       gap: 4px;
-       padding: 0.5rem 0;
-    }
+      .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 0.5rem 0;
+      }
 
-    .typing-indicator .dot {
-       width: 6px;
-       height: 6px;
-       background: var(--text-muted);
-       border-radius: 50%;
-       animation: typingDot 1.4s infinite;
-       opacity: 0.3;
-    }
+      .typing-indicator .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--text-muted);
+        border-radius: 50%;
+        animation: typingDot 1.4s infinite;
+        opacity: 0.3;
+      }
 
-    .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+      .typing-indicator .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-indicator .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
 
-    @keyframes typingDot {
-       0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
-       30% { transform: translateY(-4px); opacity: 1; }
-    }
+      @keyframes typingDot {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.3;
+        }
+        30% {
+          transform: translateY(-4px);
+          opacity: 1;
+        }
+      }
 
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      background: rgba(0,0,0,0.1);
-    }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        background: rgba(0, 0, 0, 0.1);
+      }
 
-    .message {
-      max-width: 88%;
-      padding: 0.85rem 1.1rem;
-      border-radius: 18px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
+      .message {
+        max-width: 88%;
+        padding: 0.85rem 1.1rem;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
 
-    .bot-msg {
-      align-self: flex-start;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.05);
-      color: #fafafa;
-      border-bottom-left-radius: 4px;
-    }
+      .bot-msg {
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #fafafa;
+        border-bottom-left-radius: 4px;
+      }
 
-    .user-msg {
-      align-self: flex-end;
-      background: var(--brand);
-      color: #000;
-      font-weight: 600;
-      border-bottom-right-radius: 4px;
-    }
+      .user-msg {
+        align-self: flex-end;
+        background: var(--brand);
+        color: #000;
+        font-weight: 600;
+        border-bottom-right-radius: 4px;
+      }
 
-    .msg-reasoning {
-       margin-bottom: 0.5rem;
-       padding: 0.5rem;
-       background: rgba(0,0,0,0.2);
-       border-left: 2px solid var(--brand);
-       border-radius: 4px;
-       font-family: 'JetBrains Mono', monospace;
-       font-size: 0.75rem;
-    }
+      .msg-reasoning {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-left: 2px solid var(--brand);
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+      }
 
-    .reasoning-header {
-       display: flex;
-       align-items: center;
-       gap: 4px;
-       color: var(--text-muted);
-       font-weight: 800;
-       margin-bottom: 4px;
-       opacity: 0.6;
-    }
+      .reasoning-header {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-muted);
+        font-weight: 800;
+        margin-bottom: 4px;
+        opacity: 0.6;
+      }
 
-    .reasoning-text {
-       color: var(--text-muted);
-       font-style: italic;
-       margin: 0 !important;
-       line-height: 1.3 !important;
-    }
+      .reasoning-text {
+        color: var(--text-muted);
+        font-style: italic;
+        margin: 0 !important;
+        line-height: 1.3 !important;
+      }
 
-    .chat-input-area {
-      flex-shrink: 0;
-      padding: 1.5rem;
-      border-top: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: rgba(0,0,0,0.2);
-    }
+      .chat-input-area {
+        flex-shrink: 0;
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-soft);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+      }
 
-    .voice-btn {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      cursor: pointer;
-    }
+      .voice-btn {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        cursor: pointer;
+      }
 
-    .chat-input-area input {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border-soft);
-      border-radius: 14px;
-      padding: 0.75rem 1.25rem;
-      color: #fff;
-      outline: none;
-    }
+      .chat-input-area input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        padding: 0.75rem 1.25rem;
+        color: #fff;
+        outline: none;
+      }
 
-    .chat-input-area input:focus {
-      border-color: var(--brand);
-    }
-  `]
+      .chat-input-area input:focus {
+        border-color: var(--brand);
+      }
+    `,
+  ],
 })
 export class UIAIChatComponent implements OnInit, OnDestroy {
   private readonly _feature = signal<string>('');
@@ -411,31 +576,40 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   get feature(): string {
     return this._feature();
   }
-  
+
   aiBotStore = inject(AIBotStore);
   masterFilterService = inject(MasterFilterService);
   dashboardService = inject(DashboardAnalyticsService);
   themeService = inject(ThemeService);
   http = inject(HttpClient);
+  masterFilter = inject(MasterFilterService);
   router = inject(Router);
   ngZone = inject(NgZone);
 
   readonly currentUserId = signal<string>(
     JSON.parse(localStorage.getItem('auth_user') || 'null')?.email ||
-    JSON.parse(localStorage.getItem('auth_user') || 'null')?.id ||
-    'anonymous'
+      JSON.parse(localStorage.getItem('auth_user') || 'null')?.id ||
+      'anonymous',
   );
 
   readonly currentUserPersonality = computed(() =>
-    this.aiBotStore.getUserPersonality(this.feature, this.currentUserId())
+    this.aiBotStore.getUserPersonality(this.feature, this.currentUserId()),
   );
-  
+
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
-  readonly messages = signal<{id: string, text: string, role: 'user' | 'bot', reasoning?: string, feedbackSubmitted?: boolean}[]>([]);
+  readonly messages = signal<
+    {
+      id: string;
+      text: string;
+      role: 'user' | 'bot';
+      reasoning?: string;
+      feedbackSubmitted?: boolean;
+    }[]
+  >([]);
   readonly currentReasoning = signal<string>('');
   currentInput = '';
-  
+
   minimize() {
     this.isOpen.set(false);
   }
@@ -447,11 +621,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   submitFeedback(msg: any, type: 'positive' | 'negative') {
     msg.feedbackSubmitted = true;
-    this.messages.update(m => [...m]);
+    this.messages.update((m) => [...m]);
     const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...".`;
     this.aiBotStore.remember(this.feature, fbText, type === 'positive' ? 3 : 5);
   }
-  
+
   isListening = signal(false);
   private recognition: any;
   private textBeforeDictation = '';
@@ -480,18 +654,31 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   private appendPeerBotLine(fromFeature: string, text: string) {
     const esc = (s: string) =>
-      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    const name = esc(this.aiBotStore.getBotByFeature(fromFeature)?.name || fromFeature);
+      s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    const name = esc(
+      this.aiBotStore.getBotByFeature(fromFeature)?.name || fromFeature,
+    );
     const safe = esc(text);
     this.messages.update((m) => [
       ...m,
-      { id: `${Date.now()}-peer-${fromFeature}`, text: `💬 <strong>${name}</strong>: ${safe}`, role: 'bot' },
+      {
+        id: `${Date.now()}-peer-${fromFeature}`,
+        text: `💬 <strong>${name}</strong>: ${safe}`,
+        role: 'bot',
+      },
     ]);
     this.scrollToBottom();
   }
 
   /** Tras responder a otro bot, envía la respuesta visible a su chat (sin volver a llamar a su modelo). */
-  private forwardReplyToPeerIfNeeded(responseText: string, peerFeature?: string) {
+  private forwardReplyToPeerIfNeeded(
+    responseText: string,
+    peerFeature?: string,
+  ) {
     if (!peerFeature || peerFeature === this.feature) return;
     const t = responseText.trim();
     if (!t || t.startsWith('❌')) return;
@@ -499,13 +686,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   private onDirectMessageReceived(sourceFeature: string, text: string) {
-    const sourceName = this.aiBotStore.getBotByFeature(sourceFeature)?.name || sourceFeature;
+    const sourceName =
+      this.aiBotStore.getBotByFeature(sourceFeature)?.name || sourceFeature;
     const incomingText = `[${sourceName}]: ${text}`;
-    this.messages.update((m) => [...m, { id: `${Date.now()}-in`, text: incomingText, role: 'user' }]);
+    this.messages.update((m) => [
+      ...m,
+      { id: `${Date.now()}-in`, text: incomingText, role: 'user' },
+    ]);
     this.scrollToBottom();
     void this.triggerAIResponse(
       `Te escribe el bot **${sourceName}** (dominio \`${sourceFeature}\`):\n"${text}"\n\nResponde en español, breve y cordial, en tu rol de especialista de este dominio. Si es un saludo, devuélvelo con naturalidad. No uses herramientas salvo que necesites datos reales de APIs.`,
-      { relayReplyToFeature: sourceFeature }
+      { relayReplyToFeature: sourceFeature },
     );
   }
 
@@ -518,7 +709,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   private initSpeechRecognition() {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       this.recognition = new SpeechRecognition();
       this.recognition.continuous = false;
@@ -542,13 +735,16 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   toggleChat() {
-    this.isOpen.update(v => !v);
+    this.isOpen.update((v) => !v);
   }
 
   async sendMessage() {
     if (!this.currentInput.trim()) return;
     const userInput = this.currentInput;
-    this.messages.update(m => [...m, { id: Date.now().toString(), text: userInput, role: 'user' }]);
+    this.messages.update((m) => [
+      ...m,
+      { id: Date.now().toString(), text: userInput, role: 'user' },
+    ]);
     this.currentInput = '';
     this.scrollToBottom();
     this.aiBotStore.trackInteraction(this.feature, this.currentUserId());
@@ -558,45 +754,57 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   async triggerAIResponse(
     userInput: string,
-    opts?: { relayReplyToFeature?: string }
+    opts?: { relayReplyToFeature?: string },
   ) {
     const provider = this.aiBotStore.selectedProvider();
     const apiKey = this.aiBotStore.providerApiKey();
 
     if (!apiKey) {
-      this.messages.update(m => [...m, { id: 'err', text: '⚠️ Configura el API Key.', role: 'bot' }]);
+      this.messages.update((m) => [
+        ...m,
+        { id: 'err', text: '⚠️ Configura el API Key.', role: 'bot' },
+      ]);
       this.scrollToBottom();
       return;
     }
 
     const typingId = 'typing-' + Date.now();
-    this.messages.update(m => [...m, { id: typingId, text: '', role: 'bot' }]); // Empty text for custom typing indicator
+    this.messages.update((m) => [
+      ...m,
+      { id: typingId, text: '', role: 'bot' },
+    ]); // Empty text for custom typing indicator
     this.scrollToBottom();
 
     const isBuddy = this.feature === 'dashboard';
-    const otherBots = this.aiBotStore.bots()
-      .filter(b => b.feature !== this.feature && b.status === 'active')
-      .map(b => `- ${b.name} (${b.feature}): ${b.description}`)
+    const otherBots = this.aiBotStore
+      .bots()
+      .filter((b) => b.feature !== this.feature && b.status === 'active')
+      .map((b) => `- ${b.name} (${b.feature}): ${b.description}`)
       .join('\n');
 
     const ws = this.aiBotStore.getWorkspace(this.feature);
-    const memoriesTxt = ws.memories.map(m => m.text).join(', ') || 'Sin memorias.';
+    const memoriesTxt =
+      ws.memories.map((m) => m.text).join(', ') || 'Sin memorias.';
     const tasksTxt = ws.lastTasks.slice(0, 5).join('\n') || 'Ninguna.';
     const filesTxt = Object.keys(ws.contextFiles).join(', ') || 'Ninguno.';
 
-    const globalContext = this.aiBotStore.globalMemories()
-      .map(m => `[${m.sourceBot}]: ${m.text}`)
+    const globalContext = this.aiBotStore
+      .globalMemories()
+      .map((m) => `[${m.sourceBot}]: ${m.text}`)
       .join('\n');
 
-    const currentBotState = this.aiBotStore.botMoods()[this.feature] || { mood: 'neutral', energy: 100 };
+    const currentBotState = this.aiBotStore.botMoods()[this.feature] || {
+      mood: 'neutral',
+      energy: 100,
+    };
 
-    const domainPrompt = isBuddy 
+    const domainPrompt = isBuddy
       ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. 
          TU EQUIPO (Nombres configurados por el usuario):
          ${otherBots}
 
          // REGLAS DE LIDERAZGO:
-         1. Llama a tus colegas por su NOMBRE ACTUAL CONFIGURADO (ej: "${this.aiBotStore.bots().find(b=>b.feature==='inventory')?.name || 'Stocky-Bot'}"). 
+         1. Llama a tus colegas por su NOMBRE ACTUAL CONFIGURADO (ej: "${this.aiBotStore.bots().find((b) => b.feature === 'inventory')?.name || 'Stocky-Bot'}"). 
          2. Respeta los nombres elegidos por el usuario en la configuración del sistema.
          3. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.
 
@@ -619,28 +827,153 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.`;
 
     const baseFunctionDeclarations: Record<string, unknown>[] = [
-      { name: 'social_interaction', description: 'Envía un mensaje a otro bot. Úsalo para pedir datos o coordinar acciones. Buddy DEBE llamar al bot por su nombre en el mensaje.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING', description: 'El ID feature del bot (ej: inventory, budgets).' }, message: { type: 'STRING' }, intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'] } }, required: ['targetBot', 'message', 'intent'] } },
-      { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
-      { name: 'set_bot_mood', description: 'Cambia tu estado emocional y energía.', parameters: { type: 'OBJECT', properties: { mood: { type: 'STRING', enum: ['neutral', 'analyzing', 'alert', 'creative', 'toxic', 'asleep'] }, energy: { type: 'NUMBER' } }, required: ['mood', 'energy'] } },
-      { name: 'broadcast_suggestion', description: 'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, category: { type: 'STRING', enum: ['efficiency', 'risk', 'opportunity'] } }, required: ['text', 'category'] } },
-      { name: 'query_domain_data', description: 'Consultar API REST real.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
+      {
+        name: 'social_interaction',
+        description:
+          'Envía un mensaje a otro bot. Úsalo para pedir datos o coordinar acciones. Buddy DEBE llamar al bot por su nombre en el mensaje.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            targetBot: {
+              type: 'STRING',
+              description: 'El ID feature del bot (ej: inventory, budgets).',
+            },
+            message: { type: 'STRING' },
+            intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'] },
+          },
+          required: ['targetBot', 'message', 'intent'],
+        },
+      },
+      {
+        name: 'remember_this',
+        description: 'Guardar memoria.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            text: { type: 'STRING' },
+            importance: { type: 'NUMBER' },
+            isGlobal: { type: 'BOOLEAN' },
+          },
+          required: ['text', 'importance'],
+        },
+      },
+      {
+        name: 'set_bot_mood',
+        description: 'Cambia tu estado emocional y energía.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            mood: {
+              type: 'STRING',
+              enum: [
+                'neutral',
+                'analyzing',
+                'alert',
+                'creative',
+                'toxic',
+                'asleep',
+              ],
+            },
+            energy: { type: 'NUMBER' },
+          },
+          required: ['mood', 'energy'],
+        },
+      },
+      {
+        name: 'broadcast_suggestion',
+        description:
+          'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            text: { type: 'STRING' },
+            category: {
+              type: 'STRING',
+              enum: ['efficiency', 'risk', 'opportunity'],
+            },
+          },
+          required: ['text', 'category'],
+        },
+      },
+      {
+        name: 'query_domain_data',
+        description: 'Consultar API REST real.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            endpoint: { type: 'STRING' },
+            params: { type: 'STRING' },
+          },
+          required: ['endpoint'],
+        },
+      },
     ];
 
     if (isBuddy) {
       baseFunctionDeclarations.push(
-        { name: 'set_app_theme', description: 'Cambia el tema visual global de la app. Usa la clave exacta (kebab-case). Ejemplos verdes: green, teal, mint, sage, lime, forest-dark, matrix-reloaded, celeste-mountain. Oscuros: dark, classic-dark, nordic. Claros: light, latte, corporate-light. Gaming: cyberpunk-2077, zelda-legend. Si falla, el sistema sugerirá otras claves.', parameters: { type: 'OBJECT', properties: { themeKey: { type: 'STRING', description: 'Clave del tema registrada en la app.' } }, required: ['themeKey'] } },
-        { name: 'set_rage_mode', description: 'Activa o desactiva el modo rage del mascot (efecto visual). Opcionalmente el estilo de furia.', parameters: { type: 'OBJECT', properties: { enabled: { type: 'BOOLEAN' }, style: { type: 'STRING', enum: ['terror', 'angry', 'dark'] } }, required: ['enabled'] } }
+        {
+          name: 'set_app_theme',
+          description:
+            'Cambia el tema visual global de la app. Usa la clave exacta (kebab-case). Ejemplos verdes: green, teal, mint, sage, lime, forest-dark, matrix-reloaded, celeste-mountain. Oscuros: dark, classic-dark, nordic. Claros: light, latte, corporate-light. Gaming: cyberpunk-2077, zelda-legend. Si falla, el sistema sugerirá otras claves.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              themeKey: {
+                type: 'STRING',
+                description: 'Clave del tema registrada en la app.',
+              },
+            },
+            required: ['themeKey'],
+          },
+        },
+        {
+          name: 'set_rage_mode',
+          description:
+            'Activa o desactiva el modo rage del mascot (efecto visual). Opcionalmente el estilo de furia.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              enabled: { type: 'BOOLEAN' },
+              style: { type: 'STRING', enum: ['terror', 'angry', 'dark'] },
+            },
+            required: ['enabled'],
+          },
+        },
       );
     }
 
+    // Feature-specific tools
+    if (this.feature === 'inventory') {
+      baseFunctionDeclarations.push({
+        name: 'filter_inventory',
+        description:
+          'Filtra productos del inventario en tiempo real usando consultas naturales en español.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            query: {
+              type: 'STRING',
+              description:
+                'Consulta de filtrado (ej: "productos que tengan pantalla", "equipos LED", "dispositivos de audio")',
+            },
+          },
+          required: ['query'],
+        },
+      });
+    }
+
     try {
-      
       if (provider === 'gemini') {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: `
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [
+                  {
+                    text: `
               ${domainPrompt}
               ESTADO ACTUAL: Humor: ${currentBotState.mood}, Energía: ${currentBotState.energy}%.
               Tareas: ${tasksTxt}. Archivos: ${filesTxt}. Memorias Locales: ${memoriesTxt}. MEMORIA GLOBAL: ${globalContext}.
@@ -652,15 +985,21 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               ${currentBotState.mood === 'creative' ? '- MOOD CREATIVE: Usa metáforas, sé muy entusiasta y propone ideas locas.' : ''}
               ${currentBotState.mood === 'alert' ? '- MOOD ALERT: Sé extremadamente directo, técnico y evita cualquier cortesía.' : ''}
 
-              ${operationRules}` }] },
-            contents: [{ parts: [{ text: userInput }] }],
-            tools: [{
-              functionDeclarations: baseFunctionDeclarations
-            }]
-          })
-        });
+              ${operationRules}`,
+                  },
+                ],
+              },
+              contents: [{ parts: [{ text: userInput }] }],
+              tools: [
+                {
+                  functionDeclarations: baseFunctionDeclarations,
+                },
+              ],
+            }),
+          },
+        );
 
-        const data = await res.json() as Record<string, unknown>;
+        const data = (await res.json()) as Record<string, unknown>;
 
         if (!res.ok) {
           const msg =
@@ -669,14 +1008,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           throw new Error(msg);
         }
 
-        const candidate = (data['candidates'] as Record<string, unknown>[] | undefined)?.[0] as
+        const candidate = (
+          data['candidates'] as Record<string, unknown>[] | undefined
+        )?.[0] as
           | { content?: { parts?: unknown[] }; finishReason?: string }
           | undefined;
         const parts = candidate?.content?.parts;
 
         if (!candidate || !Array.isArray(parts) || parts.length === 0) {
           const errText =
-            (data['promptFeedback'] as { blockReason?: string } | undefined)?.blockReason ||
+            (data['promptFeedback'] as { blockReason?: string } | undefined)
+              ?.blockReason ||
             candidate?.finishReason ||
             'Sin contenido en la respuesta del modelo.';
           throw new Error(errText);
@@ -695,8 +1037,12 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         let themeAppliedByTool = false;
 
         if (fc) {
-          const thoughtMatch = combinedText.match(/PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i);
-          const reasoning = thoughtMatch ? thoughtMatch[1].replace(/[\[\]]/g, '').trim() : '';
+          const thoughtMatch = combinedText.match(
+            /PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i,
+          );
+          const reasoning = thoughtMatch
+            ? thoughtMatch[1].replace(/[\[\]]/g, '').trim()
+            : '';
           this.currentReasoning.set(reasoning);
 
           const funcName = fc.name;
@@ -707,16 +1053,25 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             case 'broadcast_suggestion':
               this.aiBotStore.broadcastSuggestion({
                 botId: this.feature,
-                text: String(args.text ?? ''),
-                category: args.category as 'efficiency' | 'risk' | 'opportunity',
+                text: String(args['text'] ?? ''),
+                category: args['category'] as
+                  | 'efficiency'
+                  | 'risk'
+                  | 'opportunity',
               });
-              responseText = `📢 Sugerencia de **${String(args.category ?? '').toUpperCase()}** emitida a todo el sistema.`;
+              responseText = `📢 Sugerencia de **${String(args['category'] ?? '').toUpperCase()}** emitida a todo el sistema.`;
               break;
             case 'set_bot_mood': {
               const mood =
-                (args.mood as 'neutral' | 'analyzing' | 'alert' | 'creative' | 'toxic' | 'asleep' | undefined) ??
-                'neutral';
-              const energy = Number(args.energy ?? 100);
+                (args['mood'] as
+                  | 'neutral'
+                  | 'analyzing'
+                  | 'alert'
+                  | 'creative'
+                  | 'toxic'
+                  | 'asleep'
+                  | undefined) ?? 'neutral';
+              const energy = Number(args['energy'] ?? 100);
               this.aiBotStore.setBotMood(this.feature, mood, energy);
               responseText = `(Estado actualizado: ${mood.toUpperCase()} | Energía: ${energy}%)`;
               break;
@@ -724,30 +1079,47 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             case 'remember_this':
               this.aiBotStore.remember(
                 this.feature,
-                String(args.text ?? ''),
-                Number(args.importance ?? 1),
-                Boolean(args.isGlobal)
+                String(args['text'] ?? ''),
+                Number(args['importance'] ?? 1),
+                Boolean(args['isGlobal']),
               );
-              responseText = `🧠 Memoria integrada: "${String(args.text ?? '')}".`;
+              responseText = `🧠 Memoria integrada: "${String(args['text'] ?? '')}".`;
               break;
             case 'query_domain_data': {
-              const ep = String(args.endpoint ?? '');
-              const raw = await firstValueFrom(this.http.get(ep + String(args.params ?? '')));
+              const ep = String(args['endpoint'] ?? '');
+              const raw = await firstValueFrom(
+                this.http.get(ep + String(args['params'] ?? '')),
+              );
               await this.triggerAIResponse(
                 `(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`,
-                opts
+                opts,
+              );
+              return;
+            }
+            case 'filter_inventory': {
+              const query = String(args['query'] ?? '');
+              this.masterFilter.search(query);
+              const results = this.masterFilter.results();
+              await this.triggerAIResponse(
+                `(SISTEMA: Resultados del filtro "${query}": ${results.length} productos encontrados. ${results
+                  .slice(0, 5)
+                  .map((p: any) => `${p.name} (${p.category})`)
+                  .join(
+                    ', ',
+                  )}${results.length > 5 ? '...' : ''}. Procesa esta info y responde al usuario.)`,
+                opts,
               );
               return;
             }
             case 'social_interaction': {
-              const targetF = String(args.targetBot ?? '');
+              const targetF = String(args['targetBot'] ?? '');
               const targetLabel =
                 this.aiBotStore.getBotByFeature(targetF)?.name || targetF;
               this.aiBotStore.recordInteraction(
                 this.feature,
                 targetF,
-                String(args.message ?? ''),
-                args.intent === 'friendly' ? 10 : -10
+                String(args['message'] ?? ''),
+                args['intent'] === 'friendly' ? 10 : -10,
               );
               responseText =
                 this.feature === 'dashboard'
@@ -756,7 +1128,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               break;
             }
             case 'set_app_theme': {
-              const rawKey = (args.themeKey ?? args.theme) as string | undefined;
+              const rawKey = (args['themeKey'] ?? args['theme']) as
+                | string
+                | undefined;
               const key = typeof rawKey === 'string' ? rawKey.trim() : '';
               if (key && key in THEMES) {
                 this.themeService.setTheme(key as Theme);
@@ -764,15 +1138,21 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                 const label = THEMES[key as Theme].name;
                 responseText = `Listo: tema aplicado **${label}** (\`${key}\`).`;
               } else {
-                const samples = (Object.keys(THEMES) as Theme[]).slice(0, 12).join(', ');
+                const samples = (Object.keys(THEMES) as Theme[])
+                  .slice(0, 12)
+                  .join(', ');
                 responseText = `No reconozco el tema "${key}". Algunas claves válidas: ${samples}… (hay más en el selector de temas de la app).`;
               }
               break;
             }
             case 'set_rage_mode': {
-              const on = Boolean(args.enabled);
+              const on = Boolean(args['enabled']);
               this.aiBotStore.setRageMode(on);
-              const st = args.style as 'terror' | 'angry' | 'dark' | undefined;
+              const st = args['style'] as
+                | 'terror'
+                | 'angry'
+                | 'dark'
+                | undefined;
               if (on && st && ['terror', 'angry', 'dark'].includes(st)) {
                 this.aiBotStore.setRageStyle(st);
               }
@@ -785,38 +1165,72 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               responseText = `Acción "${funcName}" registrada.`;
           }
         } else {
-          const match = combinedText.match(/PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i);
+          const match = combinedText.match(
+            /PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i,
+          );
           const reasoning = match ? match[1].replace(/[\[\]]/g, '').trim() : '';
           this.currentReasoning.set(reasoning);
 
-          responseText = combinedText.replace(/PENSAMIENTO:\s*\[?[\s\S]*?\]?(\n|$)/i, '').trim();
+          responseText = combinedText
+            .replace(/PENSAMIENTO:\s*\[?[\s\S]*?\]?(\n|$)/i, '')
+            .trim();
         }
 
-        const greenFallback = isBuddy ? this.inferGreenThemeKeyFromUserText(userInput) : null;
+        const greenFallback = isBuddy
+          ? this.inferGreenThemeKeyFromUserText(userInput)
+          : null;
         if (greenFallback && !themeAppliedByTool) {
           this.themeService.setTheme(greenFallback);
           const line = `✅ Tema verdoso aplicado: **${THEMES[greenFallback].name}** (\`${greenFallback}\`).`;
           responseText = responseText ? `${responseText}\n\n${line}` : line;
         }
 
-        this.messages.update(m => m.map(msg => msg.id === typingId ? { 
-          id: Date.now().toString(), 
-          text: responseText, 
-          reasoning: this.currentReasoning() || undefined, 
-          role: 'bot' 
-        } : msg));
+        this.messages.update((m) =>
+          m.map((msg) =>
+            msg.id === typingId
+              ? {
+                  id: Date.now().toString(),
+                  text: responseText,
+                  reasoning: this.currentReasoning() || undefined,
+                  role: 'bot',
+                }
+              : msg,
+          ),
+        );
 
-        this.forwardReplyToPeerIfNeeded(responseText, opts?.relayReplyToFeature);
+        this.forwardReplyToPeerIfNeeded(
+          responseText,
+          opts?.relayReplyToFeature,
+        );
       }
     } catch (e) {
-      const greenFallback = this.feature === 'dashboard' ? this.inferGreenThemeKeyFromUserText(userInput) : null;
+      const greenFallback =
+        this.feature === 'dashboard'
+          ? this.inferGreenThemeKeyFromUserText(userInput)
+          : null;
       if (greenFallback) {
         this.themeService.setTheme(greenFallback);
         const line = `✅ Tema verdoso aplicado: **${THEMES[greenFallback].name}** (\`${greenFallback}\`).\n\n(Hubo un fallo al contactar el modelo; el tema se aplicó en local.)`;
-        this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: line, role: 'bot' } : msg));
+        this.messages.update((m) =>
+          m.map((msg) =>
+            msg.id === typingId
+              ? { id: Date.now().toString(), text: line, role: 'bot' }
+              : msg,
+          ),
+        );
       } else {
         const detail = e instanceof Error ? e.message : String(e);
-        this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: `❌ Error: ${detail}`, role: 'bot' } : msg));
+        this.messages.update((m) =>
+          m.map((msg) =>
+            msg.id === typingId
+              ? {
+                  id: Date.now().toString(),
+                  text: `❌ Error: ${detail}`,
+                  role: 'bot',
+                }
+              : msg,
+          ),
+        );
       }
     }
     this.scrollToBottom();
@@ -830,19 +1244,23 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   /** Gemini puede devolver functionCall en un part distinto al primero, o con args vacíos. */
-  private extractFunctionCallFromGeminiParts(parts: unknown[] | undefined): { name: string; args: Record<string, unknown> } | null {
+  private extractFunctionCallFromGeminiParts(
+    parts: unknown[] | undefined,
+  ): { name: string; args: Record<string, unknown> } | null {
     if (!Array.isArray(parts)) return null;
     for (const p of parts) {
       if (!p || typeof p !== 'object') continue;
       const raw = p as Record<string, unknown>;
-      const fc = (raw.functionCall ?? raw.function_call) as Record<string, unknown> | undefined;
+      const fc = (raw['functionCall'] ?? raw['function_call']) as
+        | Record<string, unknown>
+        | undefined;
       if (!fc || typeof fc !== 'object') continue;
-      const name = fc.name as string | undefined;
+      const name = fc['name'] as string | undefined;
       if (!name) continue;
-      let args = fc.args as Record<string, unknown> | undefined;
-      if (args == null && typeof fc.arguments === 'string') {
+      let args = fc['args'] as Record<string, unknown> | undefined;
+      if (args == null && typeof fc['arguments'] === 'string') {
         try {
-          args = JSON.parse(fc.arguments) as Record<string, unknown>;
+          args = JSON.parse(fc['arguments']) as Record<string, unknown>;
         } catch {
           args = {};
         }
@@ -856,8 +1274,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   /** Si el usuario pide cambiar el tema hacia verde y el modelo no ejecutó tool, aplicamos en cliente (evita fallos de API). */
   private inferGreenThemeKeyFromUserText(text: string): Theme | null {
     const u = text.toLowerCase();
-    if (!/(tema|temática|theme|interfaz|aplicaci[oó]n|\bapp\b|visual|fondo|aspecto|paleta)/i.test(u)) return null;
-    if (!/(verde|verdoso|esmeralda|\bgreen\b|menta|teal|mint|sage|bosque|forest|matrix|lima|lime)/i.test(u)) return null;
+    if (
+      !/(tema|temática|theme|interfaz|aplicaci[oó]n|\bapp\b|visual|fondo|aspecto|paleta)/i.test(
+        u,
+      )
+    )
+      return null;
+    if (
+      !/(verde|verdoso|esmeralda|\bgreen\b|menta|teal|mint|sage|bosque|forest|matrix|lima|lime)/i.test(
+        u,
+      )
+    )
+      return null;
     if (/\bchiste\b/i.test(u)) return null;
     if (/matrix/i.test(u)) return 'matrix-reloaded';
     if (/bosque|forest/i.test(u)) return 'forest-dark';
