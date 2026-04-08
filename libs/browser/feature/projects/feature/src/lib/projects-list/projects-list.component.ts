@@ -379,9 +379,15 @@ export interface Project {
 
       .client-cell, .date-cell {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 0.5rem;
         font-weight: 500;
+        max-width: 180px;
+        line-height: 1.3;
+      }
+      
+      .client-cell i-lucide {
+        margin-top: 2px;
       }
 
       .text-muted {
@@ -397,11 +403,14 @@ export interface Project {
       }
 
       .text-truncate {
-        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        display: block;
-        max-width: 200px;
+        white-space: normal;
+        max-width: 250px;
+        line-height: 1.4;
       }
 
       /* Status Pill */
@@ -520,14 +529,14 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   });
 
   columns = [
-    { key: 'name', header: 'Nombre' },
-    { key: 'description', header: 'Descripción' },
-    { key: 'clientName', header: 'Cliente' },
-    { key: 'status', header: 'Estado' },
-    { key: 'startDate', header: 'Fecha Inicio' },
-    { key: 'endDate', header: 'Fecha Fin' },
-    { key: 'createdAt', header: 'Creado' },
-    { key: 'actions', header: 'Acciones' },
+    { key: 'name', header: 'Nombre', width: '220px' },
+    { key: 'description', header: 'Descripción', width: '280px' },
+    { key: 'clientName', header: 'Cliente', width: '180px' },
+    { key: 'status', header: 'Estado', width: '120px' },
+    { key: 'startDate', header: 'Fecha Inicio', width: '130px' },
+    { key: 'endDate', header: 'Fecha Fin', width: '130px' },
+    { key: 'createdAt', header: 'Creado', width: '100px' },
+    { key: 'actions', header: 'Acciones', width: '120px' },
   ];
 
   ngOnInit() {

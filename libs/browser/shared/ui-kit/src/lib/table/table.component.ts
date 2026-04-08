@@ -128,27 +128,28 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       th {
-        padding: 0.4rem 0.6rem; /* Reduced from 0.6/0.8 */
-        font-size: 0.52rem; /* Reduced from 0.55rem */
+        padding: 0.6rem;
+        font-size: 0.52rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.14em;
         color: var(--text-muted);
         border-bottom: 1px solid var(--border-soft);
         font-family: var(--font-display);
-        white-space: nowrap;
         background: color-mix(in srgb, var(--surface) 80%, var(--brand) 3%);
         user-select: none;
+        line-height: 1.2;
       }
 
       td {
-        padding: 0.4rem 0.6rem; /* Reduced from 0.6/0.8 */
-        font-size: 0.72rem; /* Reduced from 0.8rem */
+        padding: 0.6rem;
+        font-size: 0.72rem;
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
         transition: var(--transition-fast);
-        vertical-align: middle;
+        vertical-align: top;
         font-weight: 500;
+        line-height: 1.4;
       }
 
       .table-row {
