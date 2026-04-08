@@ -559,13 +559,13 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     const domainPrompt = isBuddy 
       ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. 
-         TU EQUIPO (Dirígete a ellos por su NOMBRE):
+         TU EQUIPO (Nombres configurados por el usuario):
          ${otherBots}
 
          // REGLAS DE LIDERAZGO:
-         1. Llama a tus colegas por su NOMBRE (ej: "Stocky-Bot", no "el bot de inventario"). 
-         2. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.
-         3. Mantén la jerarquía pero con camaradería.`
+         1. Llama a tus colegas por su NOMBRE ACTUAL CONFIGURADO (ej: "${this.aiBotStore.bots().find(b=>b.feature==='inventory')?.name || 'Stocky-Bot'}"). 
+         2. Respeta los nombres elegidos por el usuario en la configuración del sistema.
+         3. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.`
       : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}. Tienes autonomía técnica total.`;
 
     try {
