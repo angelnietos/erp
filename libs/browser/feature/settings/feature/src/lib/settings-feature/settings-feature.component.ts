@@ -205,60 +205,37 @@ interface PluginDescriptor {
                         
                         @if (bot.status === 'active') {
                           <ui-josanz-button 
-                            variant="filled" 
+                            [variant]="managingBotId() === bot.feature ? 'filled' : 'outline'" 
                             size="sm"
-                            (click)="managingBotId.set(bot.feature)"
+                            (click)="managingBotId.set(managingBotId() === bot.feature ? null : bot.feature)"
                           >
-                            GESTIONAR SKILLS
+                            {{ managingBotId() === bot.feature ? 'CERRAR PANEL' : 'GESTIONAR SKILLS' }}
                           </ui-josanz-button>
                         }
                       </div>
+
+                      @if (managingBotId() === bot.feature) {
+                        <div class="inline-skills-panel animate-slide-down">
+                          <h4>Configuración de Habilidades Activas</h4>
+                          <div class="skills-config-list">
+                            @for (skill of bot.skills; track skill) {
+                              <div class="skill-config-item">
+                                <div class="skill-info">
+                                  <span class="skill-name">{{ skill }}</span>
+                                  <p class="skill-desc">Habilita esta capacidad de IA.</p>
+                                </div>
+                                <div class="toggle-wrapper" [class.active]="isSkillActive(bot.feature, skill)" (click)="aiBotStore.toggleSkill(bot.feature, skill)">
+                                  <div class="toggle-handle"></div>
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
                     </div>
                   </ui-josanz-card>
                 }
               </div>
-
-              <!-- Skill Management Modal/Panel -->
-              @if (managingBotId(); as mId) {
-                @if (aiBotStore.getBotByFeature(mId); as mBot) {
-                  <div class="skills-overlay animate-fade-in" (click)="managingBotId.set(null)">
-                    <div class="skills-panel animate-slide-up" (click)="$event.stopPropagation()">
-                      <div class="panel-header">
-                        <div class="header-bot">
-                          <ui-josanz-mascot [type]="mBot.mascotType" [color]="mBot.color" [personality]="mBot.personality" size="sm"></ui-josanz-mascot>
-                          <div>
-                            <h3>Centro de Habilidades: {{ mBot.name }}</h3>
-                            <p>Configura el comportamiento de tu asistente</p>
-                          </div>
-                        </div>
-                        <button class="close-btn" (click)="managingBotId.set(null)">
-                          <lucide-icon name="x" size="20"></lucide-icon>
-                        </button>
-                      </div>
-
-                      <div class="skills-config-list">
-                        @for (skill of mBot.skills; track skill) {
-                          <div class="skill-config-item">
-                            <div class="skill-info">
-                              <span class="skill-name">{{ skill }}</span>
-                              <p class="skill-desc">Habilita esta capacidad avanzada de IA para el módulo.</p>
-                            </div>
-                            <div class="toggle-wrapper" [class.active]="isSkillActive(mId, skill)" (click)="aiBotStore.toggleSkill(mId, skill)">
-                              <div class="toggle-handle"></div>
-                            </div>
-                          </div>
-                        }
-                      </div>
-
-                      <div class="panel-footer">
-                        <ui-josanz-button variant="filled" fullWidth="true" (click)="managingBotId.set(null)">
-                          GUARDAR CONFIGURACIÓN
-                        </ui-josanz-button>
-                      </div>
-                    </div>
-                  </div>
-                }
-              }
             </section>
           }
 
@@ -608,98 +585,34 @@ interface PluginDescriptor {
 
     .bot-actions-row ui-josanz-button { flex: 1; }
 
-    /* Skills Overlay */
-    .skills-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
+    .bot-actions-row ui-josanz-button { flex: 1; }
 
-    .skills-panel {
-      width: 100%;
-      max-width: 500px;
-      padding: 2rem;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      
-      /* Pure HTML Glass Card */
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-vibrant, var(--border-soft));
-      border-radius: var(--radius-lg, 16px);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 2rem;
-      flex-shrink: 0;
-    }
-
-    .header-bot {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
-
-    .header-bot ui-josanz-mascot { width: 60px; height: 60px; }
-    .header-bot h3 { margin: 0; color: #fff; font-size: 1.1rem; }
-    .header-bot p { margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.8rem; }
-
-    .close-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 0.5rem;
-      transition: color 0.3s;
-    }
-
-    .close-btn:hover { color: #fff; }
-
-    .skills-config-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-      /* Custom Scrollbar */
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    /* Inline Skills Panel */
+    .inline-skills-panel {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-soft);
     }
     
-    .skills-config-list::-webkit-scrollbar {
-      width: 6px;
+    .inline-skills-panel h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 1rem 0;
     }
-    .skills-config-list::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .skills-config-list::-webkit-scrollbar-thumb {
-      background-color: rgba(255,255,255,0.2);
-      border-radius: 10px;
+
+    .skills-config-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .skill-config-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 0.75rem 1rem;
       background: rgba(255,255,255,0.03);
       border-radius: 12px;
       border: 1px solid var(--border-soft);
@@ -708,11 +621,9 @@ interface PluginDescriptor {
     .skill-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: block; }
     .skill-desc { font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0; }
 
-    .panel-footer { border-top: 1px solid var(--border-soft); padding-top: 2rem; flex-shrink: 0; }
-
     .ai-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+      display: flex;
+      flex-direction: column;
       gap: 1.5rem;
       width: 100%;
       padding-bottom: 2rem;
