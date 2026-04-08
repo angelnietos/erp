@@ -826,17 +826,18 @@ interface PluginDescriptor {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(var(--brand-rgb, 16, 185, 129), 0.15);
+      background: rgba(var(--brand-rgb, 126, 34, 206), 0.1);
       padding: 0.5rem 1rem;
       border-radius: 100px;
       font-size: 0.75rem;
-      color: #ffffff !important;
-      border: 1px solid rgba(var(--brand-rgb, 16, 185, 129), 0.3);
-      font-weight: 700;
+      color: var(--brand);
+      border: 1px solid rgba(var(--brand-rgb, 126, 34, 206), 0.2);
+      font-weight: 800;
       backdrop-filter: blur(4px);
+      transition: all 0.3s ease;
     }
  
-    .skill-tag lucide-icon { color: #fff; opacity: 0.8; }
+    .skill-tag lucide-icon { color: inherit; opacity: 1; }
 
     /* Prefs */
     .prefs-card { padding: 1rem 2rem; }
