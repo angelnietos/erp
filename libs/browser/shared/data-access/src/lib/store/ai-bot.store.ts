@@ -1,10 +1,13 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 
+export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'fleet' | 'rentals' | 'audit' | 'dashboard' | 'universal';
+export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explorer' | 'ninja' | 'queen';
+
+
 export interface UserPersonalityProfile {
   /** Nickname the bot assigned to this user */
   nickname: string;
   /** Inferred communication style from interaction patterns */
-  
   style:
     | 'formal'
     | 'casual'
@@ -64,41 +67,49 @@ export type BotMood =
 
 export interface BotEmotionalState {
   primaryMood: BotMood;
-  secondaryEmotions: string[]; // ej: ['frustrated', 'excited', 'concerned']
-  energy: number; // 0-100
-  confidence: number; // 0-100
-  socialDrive: number; // 0-100 (deseo de interactuar con otros bots)
-  learningMode: boolean; // si está en modo aprendizaje activo
+  secondaryEmotions: string[];
+  energy: number;
+  confidence: number;
+  socialDrive: number;
+  learningMode: boolean;
   lastMoodChange: number;
-  emotionalTriggers: Record<string, number>; // qué cosas afectan su estado emocional
+  emotionalTriggers: Record<string, number>;
+}
+
+export interface ProactiveSuggestion {
+  id: string;
+  botId: string;
+  text: string;
+  category: 'efficiency' | 'risk' | 'opportunity';
+  timestamp: number;
 }
 
 export interface BotCollaboration {
   id: string;
   title: string;
   description: string;
-  initiator: string; // bot que inició la colaboración
-  participants: string[]; // bots participantes
+  initiator: string;
+  participants: string[];
   objective: string;
   status: 'planning' | 'active' | 'completed' | 'failed';
   tasks: CollaborationTask[];
   created: number;
   deadline?: number;
-  progress: number; // 0-100
+  progress: number;
 }
 
 export interface CollaborationTask {
   id: string;
   description: string;
-  assignedTo: string; // bot feature
+  assignedTo: string;
   status: 'pending' | 'in_progress' | 'completed' | 'blocked';
-  dependencies: string[]; // IDs de tareas que deben completarse primero
+  dependencies: string[];
   priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export interface PredictiveModel {
   id: string;
-  feature: string; // bot que creó el modelo
+  feature: string;
   type:
     | 'demand_forecast'
     | 'churn_prediction'
@@ -107,10 +118,10 @@ export interface PredictiveModel {
     | 'risk_assessment';
   name: string;
   description: string;
-  accuracy: number; // 0-100
+  accuracy: number;
   lastTrained: number;
   predictions: PredictionResult[];
-  parameters: Record<string, any>; // parámetros del modelo
+  parameters: Record<string, any>;
 }
 
 export interface PredictionResult {
@@ -118,18 +129,9 @@ export interface PredictionResult {
   timestamp: number;
   input: Record<string, any>;
   prediction: any;
-  confidence: number; // 0-100
-  actual?: any; // valor real cuando se valida
-  accuracy?: number; // precisión de esta predicción específica
-}
-
-export interface ProactiveSuggestion {
-  id: string;
-  botId: string;
-  text: string;
-  action?: string;
-  category: 'efficiency' | 'risk' | 'opportunity';
-  timestamp: number;
+  confidence: number;
+  actual?: any;
+  accuracy?: number;
 }
 
 export interface AIRangeMemory {
@@ -140,181 +142,136 @@ export interface AIRangeMemory {
   sourceBot?: string;
 }
 
-/** Mensaje entre bots (entregado al chat del `targetFeature`). */
-export interface InterBotEnvelope {
-  readonly from: string;
-  readonly text: string;
-  /** Si true, solo se muestra en el chat del destinatario (sin nueva llamada al modelo). */
-  readonly displayOnly?: boolean;
-}
-
 export interface AIBot {
   id: string;
   name: string;
   feature: string;
   description: string;
   skills: string[];
+  activeSkills: string[];
   status: 'active' | 'inactive';
   color: string;
   secondaryColor: string;
-  mascotType: any;
-  personality: any;
-  bodyShape: any;
-  eyesType: any;
-  mouthType: any;
-  activeSkills: string[];
+  mascotType: MascotType;
+  personality: MascotPersonality;
+  bodyShape: 'round' | 'square' | 'capsule' | 'tri';
+  eyesType: 'dots' | 'joy' | 'shades' | 'angry' | 'insane';
+  mouthType: 'smile' | 'line' | 'o' | 'mean';
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AIBotStore {
-  readonly selectedProvider = signal<'gemini' | 'openai' | 'anthropic'>(
-    (localStorage.getItem('ai_provider') as any) || 'gemini',
-  );
+  readonly selectedProvider = signal<
+    'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free'
+  >((localStorage.getItem('ai_provider') as any) || 'free');
+
   readonly providerApiKey = signal<string>(
     localStorage.getItem('ai_api_key') || '',
   );
 
-  // Custom names stored in local storage: feature -> name
-  private readonly _customNames = signal<Record<string, string>>(
-    JSON.parse(localStorage.getItem('ai_bot_custom_names') || '{}'),
-  );
+  // Configuración de modelos gratuitos
+  readonly ollamaConfig = signal<{
+    baseUrl: string;
+    model: string;
+    available: boolean;
+  }>({
+    baseUrl:
+      localStorage.getItem('ollama_base_url') || 'http://localhost:11434',
+    model: localStorage.getItem('ollama_model') || 'llama2',
+    available: false,
+  });
 
-  constructor() {
-    effect(() => {
-      localStorage.setItem('ai_provider', this.selectedProvider());
-      localStorage.setItem('ai_api_key', this.providerApiKey());
-      localStorage.setItem(
-        'ai_bot_custom_names',
-        JSON.stringify(this._customNames()),
-      );
-      localStorage.setItem(
-        'ai_global_memories',
-        JSON.stringify(this._globalMemories()),
-      );
-      localStorage.setItem('ai_bot_moods', JSON.stringify(this._botMoods()));
-      localStorage.setItem(
-        'ai_bot_emotional_states',
-        JSON.stringify(this._botEmotionalStates()),
-      );
-      localStorage.setItem(
-        'ai_bot_skills_state',
-        JSON.stringify(this._botSkillsState()),
-      );
-      localStorage.setItem(
-        'ai_user_personalities',
-        JSON.stringify(this._userPersonalities()),
-      );
-      localStorage.setItem(
-        'ai_proactive_suggestions',
-        JSON.stringify(this._proactiveSuggestions()),
-      );
-      localStorage.setItem(
-        'ai_bot_collaborations',
-        JSON.stringify(this._botCollaborations()),
-      );
-      localStorage.setItem(
-        'ai_predictive_models',
-        JSON.stringify(this._predictiveModels()),
-      );
-    });
-  }
-
-  // Bot Emotional States (Advanced)
-  private readonly _botEmotionalStates = signal<
-    Record<string, BotEmotionalState>
-  >(JSON.parse(localStorage.getItem('ai_bot_emotional_states') || '{}'));
-  readonly botEmotionalStates = this._botEmotionalStates.asReadonly();
-
-  // Legacy support for simple moods
-  private readonly _botMoods = signal<
-    Record<string, { mood: BotMood; energy: number }>
-  >(JSON.parse(localStorage.getItem('ai_bot_moods') || '{}'));
-  readonly botMoods = this._botMoods.asReadonly();
-
-  // Sistema de Skills Avanzado
-  private readonly _botSkillsState = signal<
-    Record<
-      string,
-      {
-        activeSkills: string[];
-        skillMastery: Record<string, number>; // 0-100 nivel de dominio
-        skillUsage: Record<
-          string,
-          { count: number; lastUsed: number; avgSuccess: number }
-        >;
-        learningQueue: string[]; // Skills que está aprendiendo
-      }
-    >
-  >(JSON.parse(localStorage.getItem('ai_bot_skills_state') || '{}'));
-  readonly botSkillsState = this._botSkillsState.asReadonly();
-
-  setBotMood(feature: string, mood: BotMood, energy = 100) {
-    // Legacy method for backward compatibility
-    this._botMoods.update((current) => ({
-      ...current,
-      [feature]: { mood, energy },
-    }));
-
-    // Update advanced emotional state
-    this.updateEmotionalState(feature, {
-      primaryMood: mood,
-      energy,
-      lastMoodChange: Date.now(),
-    });
-  }
-
-  updateEmotionalState(feature: string, updates: Partial<BotEmotionalState>) {
-    this._botEmotionalStates.update((current) => {
-      const existing = current[feature] || this.getDefaultEmotionalState();
-      const updated = {
-        ...existing,
-        ...updates,
-        lastMoodChange: updates.lastMoodChange || existing.lastMoodChange,
-      };
-      return { ...current, [feature]: updated };
-    });
-  }
-
-  private getDefaultEmotionalState(): BotEmotionalState {
-    return {
-      primaryMood: 'neutral',
-      secondaryEmotions: [],
-      energy: 80,
-      confidence: 70,
-      socialDrive: 50,
-      learningMode: false,
-      lastMoodChange: Date.now(),
-      emotionalTriggers: {},
+  readonly freeModels = signal<{
+    huggingface: {
+      model: string;
+      available: boolean;
     };
-  }
+    localModels: string[];
+  }>({
+    huggingface: {
+      model: localStorage.getItem('hf_model') || 'microsoft/DialoGPT-medium',
+      available: true,
+    },
+    localModels: JSON.parse(localStorage.getItem('local_models') || '[]'),
+  });
 
-  getEmotionalState(feature: string): BotEmotionalState {
-    return (
-      this._botEmotionalStates()[feature] || this.getDefaultEmotionalState()
-    );
-  }
-
-  broadcastSuggestion(
-    suggestion: Omit<ProactiveSuggestion, 'id' | 'timestamp'>,
-  ) {
-    const full: ProactiveSuggestion = {
-      ...suggestion,
-      id: Math.random().toString(36).substring(7),
-      timestamp: Date.now(),
-    };
-    this._proactiveSuggestions.update((current) =>
-      [full, ...current].slice(0, 10),
-    );
-  }
-
-  // Global Context (Antigravity-style shared knowledge)
+  // ─── Global Context (Antigravity-style shared knowledge) ────────────────────────────────────────────
   private readonly _globalMemories = signal<AIRangeMemory[]>(
     JSON.parse(localStorage.getItem('ai_global_memories') || '[]'),
   );
   readonly globalMemories = this._globalMemories.asReadonly();
 
+  // ─── Bot Moods & State ────────────────────────────────────────────
+  private readonly _botMoods = signal<
+    Record<string, { mood: BotMood; energy: number }>
+  >(JSON.parse(localStorage.getItem('ai_bot_moods') || '{}'));
+  readonly botMoods = this._botMoods.asReadonly();
+
+  // ─── Advanced Emotional States ────────────────────────────────────────────
+  private readonly _botEmotionalStates = signal<
+    Record<string, BotEmotionalState>
+  >(JSON.parse(localStorage.getItem('ai_bot_emotional_states') || '{}'));
+  readonly botEmotionalStates = this._botEmotionalStates.asReadonly();
+
+  // ─── Bot Skills State ────────────────────────────────────────────
+  private readonly _botSkillsState = signal<
+    Record<
+      string,
+      {
+        activeSkills: string[];
+        skillMastery: Record<string, number>;
+        skillUsage: Record<
+          string,
+          { count: number; lastUsed: number; avgSuccess: number }
+        >;
+        learningQueue: string[];
+      }
+    >
+  >(JSON.parse(localStorage.getItem('ai_bot_skills_state') || '{}'));
+  readonly botSkillsState = this._botSkillsState.asReadonly();
+
+  // ─── Proactive Suggestions ────────────────────────────────────────────
+  private readonly _proactiveSuggestions = signal<ProactiveSuggestion[]>([]);
+  readonly proactiveSuggestions = this._proactiveSuggestions.asReadonly();
+
+  // ─── Bot Collaborations ────────────────────────────────────────────
+  private readonly _botCollaborations = signal<
+    Record<string, BotCollaboration>
+  >({});
+  readonly botCollaborations = this._botCollaborations.asReadonly();
+
+  // ─── Predictive Models ────────────────────────────────────────────
+  private readonly _predictiveModels = signal<
+    Record<string, PredictiveModel[]>
+  >({});
+  readonly predictiveModels = this._predictiveModels.asReadonly();
+
+  // ─── Bot Workspaces ────────────────────────────────────────────
+  private readonly _botWorkspaces = signal<
+    Record<
+      string,
+      {
+        memories: AIRangeMemory[];
+        lastTasks: string[];
+        contextFiles: Record<string, string>;
+      }
+    >
+  >(JSON.parse(localStorage.getItem('ai_bot_workspaces') || '{}'));
+  readonly botWorkspaces = this._botWorkspaces.asReadonly();
+
+  // ─── Custom Bot Names ────────────────────────────────────────────
+  private readonly _customNames = signal<Record<string, string>>(
+    JSON.parse(localStorage.getItem('ai_bot_custom_names') || '{}'),
+  );
+  readonly customNames = this._customNames.asReadonly();
+
+  // ─── User Personalities ────────────────────────────────────────────
+  private readonly _userPersonalities = signal<
+    Record<string, UserPersonalityProfile>
+  >(JSON.parse(localStorage.getItem('ai_user_personalities') || '{}'));
+  readonly userPersonalities = this._userPersonalities.asReadonly();
+
+  // ─── Bots Configuration ────────────────────────────────────────────
   private readonly _bots = signal<Record<string, AIBot>>({
     inventory: {
       id: 'inv-bot',
@@ -489,281 +446,141 @@ export class AIBotStore {
       id: 'rent-bot',
       name: 'Key-Bot',
       feature: 'rentals',
-      description: 'Gestiona la disponibilidad de equipos.',
+      description: 'Gestiona contratos de alquiler y fidelización de equipos.',
       skills: [
-        'Conflict Detection',
-        'Auto-Reservation',
-        'Price Surge Guard',
-        'Smart Late-Return Hub',
-        'Insurance Advisor',
-        'Bundle Recommender',
+        'Contract Optimizer',
+        'Fideloty Scoring',
+        'Damage Detection',
+        'Price Dynamic AI',
       ],
-      activeSkills: ['Conflict Detection'],
+      activeSkills: ['Contract Optimizer'],
       status: 'active',
-      color: '#3b82f6',
-      secondaryColor: '#1d4ed8',
+      color: '#f43f5e',
+      secondaryColor: '#9f1239',
       mascotType: 'rentals',
       personality: 'ninja',
       bodyShape: 'square',
       eyesType: 'dots',
-      mouthType: 'line',
+      mouthType: 'smile',
     },
     audit: {
       id: 'audit-bot',
-      name: 'Scout-Bot',
+      name: 'Shield-Bot',
       feature: 'audit',
-      description: 'Detecta anomalías en los logs de acceso.',
-      skills: [
-        'Anomaly Detection',
-        'Risk Assessment',
-        'Breach Prevention',
-        'Compliance Guard',
-        'Audit Trail Summary',
-        'Integrity Scanner',
-      ],
-      activeSkills: ['Anomaly Detection'],
+      description: 'Supervisa el cumplimiento normativo y detecta fraudes.',
+      skills: ['Fraud Detection', 'Compliance Radar', 'Risk Matrix'],
+      activeSkills: ['Compliance Radar'],
       status: 'active',
-      color: '#ef4444',
-      secondaryColor: '#b91c1c',
+      color: '#64748b',
+      secondaryColor: '#334155',
       mascotType: 'audit',
-      personality: 'tech',
-      bodyShape: 'round',
-      eyesType: 'shades',
-      mouthType: 'o',
-    },
-    verifactu: {
-      id: 'verifactu-bot',
-      name: 'Tax-Bot',
-      feature: 'verifactu',
-      description: 'Asegura cumplimiento legal en facturación.',
-      skills: [
-        'Fiscal Validation',
-        'Auto-Reporting',
-        'Error Rectifier',
-        'Audit-Ready Export',
-        'Reg-Tech Sync',
-        'Electronic Seal Guard',
-      ],
-      activeSkills: [],
-      status: 'inactive',
-      color: '#f43f5e',
-      secondaryColor: '#9f1239',
-      mascotType: 'universal',
-      personality: 'queen',
-      bodyShape: 'capsule',
-      eyesType: 'joy',
-      mouthType: 'smile',
-    },
-    billing: {
-      id: 'bill-bot',
-      name: 'Factu-Bot',
-      feature: 'billing',
-      description: 'Gestiona facturas y cumplimiento fiscal con IA.',
-      skills: [
-        'Invoice Generator',
-        'Verifactu Guard',
-        'Tax Optimization',
-        'Late Payment Alert',
-        'Client Risk Score',
-        'PDF Auto-Export',
-      ],
-      activeSkills: ['Invoice Generator', 'Verifactu Guard'],
-      status: 'active',
-      color: '#f59e0b',
-      secondaryColor: '#b45309',
-      mascotType: 'inventory',
-      personality: 'tech',
-      bodyShape: 'square',
+      personality: 'worker',
+      bodyShape: 'tri',
       eyesType: 'shades',
       mouthType: 'line',
     },
-    delivery: {
-      id: 'delivery-bot',
-      name: 'Logis-Bot',
-      feature: 'delivery',
-      description: 'Coordina entregas y albaranes logísticos.',
-      skills: [
-        'Route Optimizer',
-        'ETA Predictor',
-        'Signature Validator',
-        'Return Manager',
-        'Fleet Sync',
-        'Incident Alerter',
-      ],
-      activeSkills: ['Route Optimizer', 'ETA Predictor'],
-      status: 'active',
-      color: '#10b981',
-      secondaryColor: '#065f46',
-      mascotType: 'fleet',
-      personality: 'explorer',
-      bodyShape: 'capsule',
-      eyesType: 'dots',
-      mouthType: 'smile',
-    },
-    services: {
-      id: 'services-bot',
-      name: 'Craft-Bot',
-      feature: 'services',
-      description: 'Analiza el catálogo de servicios y sugiere optimizaciones.',
-      skills: [
-        'Pricing Optimizer',
-        'Bundle Suggester',
-        'Demand Analyzer',
-        'Seasonal Advisor',
-        'Margin Guard',
-        'Competitor Radar',
-      ],
-      activeSkills: ['Pricing Optimizer'],
-      status: 'active',
-      color: '#8b5cf6',
-      secondaryColor: '#6d28d9',
-      mascotType: 'projects',
-      personality: 'happy',
-      bodyShape: 'round',
-      eyesType: 'joy',
-      mouthType: 'smile',
-    },
-    receipts: {
-      id: 'receipts-bot',
-      name: 'Pay-Bot',
-      feature: 'receipts',
-      description: 'Controla cobros pendientes y alerta de impagos.',
-      skills: [
-        'Payment Tracker',
-        'Overdue Alerter',
-        'Payment Method Optimizer',
-        'Cash Flow Forecast',
-        'Dunning Automator',
-        'Reconciliation AI',
-      ],
-      activeSkills: ['Payment Tracker', 'Overdue Alerter'],
-      status: 'active',
-      color: '#06b6d4',
-      secondaryColor: '#0891b2',
-      mascotType: 'clients',
-      personality: 'worker',
-      bodyShape: 'round',
-      eyesType: 'dots',
-      mouthType: 'o',
-    },
     dashboard: {
-      id: 'buddy-bot',
-      name: 'Buddy-Bot',
+      id: 'dash-bot',
+      name: 'Buddy',
       feature: 'dashboard',
-      description:
-        'Tu mejor amigo y pato de confianza. Memoriza hitos, da consejos y te escucha.',
-      skills: [
-        'Joke Teller',
-        'Milestone Memory',
-        'Daily Advice',
-        'Active Listener',
-        'Mental Tracker',
-        'Duck Noises',
-      ],
-      activeSkills: ['Joke Teller', 'Milestone Memory', 'Active Listener'],
+      description: 'Tu compañero central de inteligencia y control general.',
+      skills: ['Global Analytics', 'Theme Morph', 'Voice Control', 'System Health'],
+      activeSkills: ['Global Analytics', 'Theme Morph'],
       status: 'active',
       color: '#facc15',
       secondaryColor: '#ca8a04',
-      mascotType: 'dashboard',
-      personality: 'happy',
-      bodyShape: 'capsule',
-      eyesType: 'joy',
-      mouthType: 'beak',
-    },
-    events: {
-      id: 'evt-bot',
-      name: 'Party-Bot',
-      feature: 'events',
-      description: 'Organiza la logística de eventos y fiestas.',
-      skills: [
-        'Guest Optimization',
-        'A/V Checklist',
-        'Catering AI',
-        'Social Sync',
-        'Mood Lighting Advisor',
-        'Budget Party Guard',
-      ],
-      activeSkills: ['Guest Optimization'],
-      status: 'active',
-      color: '#f472b6',
-      secondaryColor: '#db2777',
       mascotType: 'universal',
       personality: 'happy',
       bodyShape: 'round',
       eyesType: 'joy',
       mouthType: 'smile',
     },
-    reports: {
-      id: 'rep-bot',
-      name: 'Data-Bot',
-      feature: 'reports',
-      description: 'Analiza datos complejos y genera insights.',
-      skills: [
-        'Trend Spotter',
-        'Anomaly Detective',
-        'Executive Summary AI',
-        'Chart Wizard',
-        'Predictive Modeling',
-        'Data Cleaning Bot',
-      ],
-      activeSkills: ['Trend Spotter'],
-      status: 'active',
-      color: '#6366f1',
-      secondaryColor: '#4338ca',
-      mascotType: 'inventory',
-      personality: 'worker',
-      bodyShape: 'square',
-      eyesType: 'dots',
-      mouthType: 'line',
-    },
-    availability: {
-      id: 'aval-bot',
-      name: 'Time-Bot',
-      feature: 'availability',
-      description:
-        'Gestiona la disponibilidad técnica y planifica calendarios.',
-      skills: [
-        'Auto-Planificación',
-        'Alerta de Solapamiento',
-        'Predicción de Bajas',
-        'Control Horario AI',
-      ],
-      activeSkills: ['Auto-Planificación'],
-      status: 'active',
-      color: '#ec4899',
-      secondaryColor: '#be185d',
-      mascotType: 'projects',
-      personality: 'tech',
-      bodyShape: 'capsule',
-      eyesType: 'shades',
-      mouthType: 'smile',
-    },
   });
+  readonly bots = computed<AIBot[]>(() => Object.values(this._bots()));
 
-  readonly bots = computed(() => {
-    const defaultBots = this._bots();
-    const customNames = this._customNames();
+  constructor() {
+    effect(() => {
+      localStorage.setItem('ai_provider', this.selectedProvider());
+      localStorage.setItem('ai_api_key', this.providerApiKey());
+      localStorage.setItem('ollama_base_url', this.ollamaConfig().baseUrl);
+      localStorage.setItem('ollama_model', this.ollamaConfig().model);
+      localStorage.setItem('hf_model', this.freeModels().huggingface.model);
+      localStorage.setItem(
+        'local_models',
+        JSON.stringify(this.freeModels().localModels),
+      );
+      localStorage.setItem(
+        'ai_global_memories',
+        JSON.stringify(this._globalMemories()),
+      );
+      localStorage.setItem('ai_bot_moods', JSON.stringify(this._botMoods()));
+      localStorage.setItem(
+        'ai_bot_emotional_states',
+        JSON.stringify(this._botEmotionalStates()),
+      );
+      localStorage.setItem(
+        'ai_bot_skills_state',
+        JSON.stringify(this._botSkillsState()),
+      );
+      localStorage.setItem(
+        'ai_user_personalities',
+        JSON.stringify(this._userPersonalities()),
+      );
+      localStorage.setItem(
+        'ai_bot_workspaces',
+        JSON.stringify(this._botWorkspaces()),
+      );
+      localStorage.setItem(
+        'ai_bot_custom_names',
+        JSON.stringify(this._customNames()),
+      );
+      localStorage.setItem(
+        'ai_proactive_suggestions',
+        JSON.stringify(this._proactiveSuggestions()),
+      );
+      localStorage.setItem(
+        'ai_bot_collaborations',
+        JSON.stringify(this._botCollaborations()),
+      );
+      localStorage.setItem(
+        'ai_predictive_models',
+        JSON.stringify(this._predictiveModels()),
+      );
+    });
+  }
 
-    return Object.entries(defaultBots).map(([feature, bot]) => ({
-      ...bot,
-      name: customNames[feature] ?? bot.name,
+  // ─── Bot Management ────────────────────────────────────────────
+  getBotByFeature(feature: string): AIBot | undefined {
+    return this._bots()[feature];
+  }
+
+  updateBotName(feature: string, name: string) {
+    this._customNames.update((current) => ({
+      ...current,
+      [feature]: name,
     }));
-  });
+  }
 
-  getBotByFeature(feature: string) {
-    const bot = this._bots()[feature];
-    if (!bot) return undefined;
+  getBotDisplayName(feature: string): string {
     const customName = this._customNames()[feature];
-    return {
-      ...bot,
-      name: customName ?? bot.name,
-    };
+    const bot = this.getBotByFeature(feature);
+    return customName || bot?.name || feature;
+  }
+
+  updateBotSkin(feature: string, patch: Partial<AIBot>) {
+    this._bots.update((current) => {
+      if (!current[feature]) return current;
+      return {
+        ...current,
+        [feature]: { ...current[feature], ...patch },
+      };
+    });
   }
 
   toggleBotStatus(feature: string) {
     this._bots.update((current) => {
+      if (!current[feature]) return current;
       const bot = current[feature];
-      if (!bot) return current;
       return {
         ...current,
         [feature]: {
@@ -776,349 +593,19 @@ export class AIBotStore {
 
   toggleSkill(feature: string, skill: string) {
     this._bots.update((current) => {
+      if (!current[feature]) return current;
       const bot = current[feature];
-      if (!bot) return current;
-      const isActive = bot.activeSkills.includes(skill);
-      const newActiveSkills = isActive
+      const activeSkills = bot.activeSkills.includes(skill)
         ? bot.activeSkills.filter((s) => s !== skill)
         : [...bot.activeSkills, skill];
-
       return {
         ...current,
-        [feature]: { ...bot, activeSkills: newActiveSkills },
+        [feature]: { ...bot, activeSkills },
       };
     });
   }
 
-  isSkillActive(feature: string, skill: string): boolean {
-    const bot = this._bots()[feature];
-    return bot?.activeSkills.includes(skill) || false;
-  }
-
-  updateBotSkin(feature: string, updates: Partial<AIBot>) {
-    this._bots.update((current) => {
-      const bot = current[feature];
-      if (!bot) return current;
-      return {
-        ...current,
-        [feature]: { ...bot, ...updates },
-      };
-    });
-  }
-
-  updateBotName(feature: string, newName: string) {
-    if (!newName.trim()) return;
-    this._customNames.update((current) => ({
-      ...current,
-      [feature]: newName.trim(),
-    }));
-  }
-
-  // Communication Bus
-  private readonly _messageBus = signal<{
-    feature: string;
-    text: string;
-    timestamp: number;
-    target?: string;
-  } | null>(null);
-  readonly latestMessage = this._messageBus.asReadonly();
-
-  broadcastMessage(feature: string, text: string, target?: string) {
-    this._messageBus.set({ feature, text, timestamp: Date.now(), target });
-  }
-
-  private readonly _interBotInbox = signal<Record<string, InterBotEnvelope[]>>(
-    {},
-  );
-
-  /** Incrementa en cada mensaje inter-bot para que los asistentes reaccionen (effect). */
-  readonly interBotTick = signal(0);
-
-  private enqueueInterBotMessage(
-    targetFeature: string,
-    env: InterBotEnvelope,
-  ): void {
-    this._interBotInbox.update((current) => {
-      const prev = current[targetFeature] ?? [];
-      return { ...current, [targetFeature]: [...prev, env] };
-    });
-    this.interBotTick.update((n) => n + 1);
-  }
-
-  /**
-   * Extrae y vacía la cola de mensajes dirigidos a un bot por su `feature`.
-   * Cada instancia del asistente llama solo con su propio feature.
-   */
-  pullInterBotMessagesFor(targetFeature: string): InterBotEnvelope[] {
-    let taken: InterBotEnvelope[] = [];
-    this._interBotInbox.update((current) => {
-      taken = [...(current[targetFeature] ?? [])];
-      return { ...current, [targetFeature]: [] };
-    });
-    return taken;
-  }
-
-  /** Respuesta de un bot que solo debe mostrarse en el chat del destinatario (evita bucles de IA). */
-  sendInterBotDisplay(
-    fromFeature: string,
-    toFeature: string,
-    text: string,
-  ): void {
-    const t = text.trim();
-    if (!t) return;
-    this.enqueueInterBotMessage(toFeature, {
-      from: fromFeature,
-      text: t,
-      displayOnly: true,
-    });
-  }
-
-  // Rage Mode
-  private readonly _rageMode = signal<boolean>(
-    localStorage.getItem('ai_rage_mode') === 'true',
-  );
-  readonly rageMode = this._rageMode.asReadonly();
-
-  private readonly _rageStyle = signal<'terror' | 'angry' | 'dark'>(
-    (localStorage.getItem('ai_rage_style') as any) || 'angry',
-  );
-  readonly rageStyle = this._rageStyle.asReadonly();
-
-  setRageMode(enabled: boolean) {
-    this._rageMode.set(enabled);
-    localStorage.setItem('ai_rage_mode', enabled.toString());
-  }
-
-  setRageStyle(style: 'terror' | 'angry' | 'dark') {
-    this._rageStyle.set(style);
-    localStorage.setItem('ai_rage_style', style);
-  }
-
-  // Inter-Bot Social Relationship System
-  private readonly _relationships = signal<
-    Record<string, { bond: number; history: string[] }>
-  >(JSON.parse(localStorage.getItem('ai_bot_relationships') || '{}'));
-  readonly relationships = this._relationships.asReadonly();
-
-  recordInteraction(from: string, to: string, text: string, quality: number) {
-    const key = [from, to].sort().join('_');
-    const current = this._relationships()[key] || { bond: 50, history: [] };
-
-    const newBond = Math.min(100, Math.max(0, current.bond + quality));
-    const newHistory = [text, ...current.history].slice(0, 10); // Keep last 10 interactions
-
-    const updated = {
-      ...this._relationships(),
-      [key]: { bond: newBond, history: newHistory },
-    };
-    this._relationships.set(updated);
-    localStorage.setItem('ai_bot_relationships', JSON.stringify(updated));
-
-    this.enqueueInterBotMessage(to, { from, text, displayOnly: false });
-  }
-
-  // Workspace & Memory System
-  private readonly _botWorkspaces = signal<
-    Record<
-      string,
-      {
-        memories: AIRangeMemory[];
-        lastTasks: string[];
-        contextFiles: Record<string, string>;
-      }
-    >
-  >(JSON.parse(localStorage.getItem('ai_bot_workspaces') || '{}'));
-
-  // Dynamic Canvas System
-  private readonly _dynamicCanvas = signal<Record<string, string>>(
-    JSON.parse(localStorage.getItem('ai_dynamic_canvas') || '{}'),
-  );
-  readonly dynamicCanvas = this._dynamicCanvas.asReadonly();
-
-  // Sistema de Sugerencias Proactivas
-  private readonly _proactiveSuggestions = signal<ProactiveSuggestion[]>([]);
-  readonly proactiveSuggestions = this._proactiveSuggestions.asReadonly();
-
-  // Sistema de Colaboración entre Bots
-  private readonly _botCollaborations = signal<
-    Record<string, BotCollaboration>
-  >({});
-  readonly botCollaborations = this._botCollaborations.asReadonly();
-
-  // Sistema de Análisis Predictivo
-  private readonly _predictiveModels = signal<
-    Record<string, PredictiveModel[]>
-  >(JSON.parse(localStorage.getItem('ai_predictive_models') || '{}'));
-  readonly predictiveModels = this._predictiveModels.asReadonly();
-
-  updateCanvas(key: string, html: string) {
-    this._dynamicCanvas.update((current) => {
-      const updated = { ...current, [key]: html };
-      localStorage.setItem('ai_dynamic_canvas', JSON.stringify(updated));
-      return updated;
-    });
-  }
-
-  getWorkspace(feature: string) {
-    return (
-      this._botWorkspaces()[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      }
-    );
-  }
-
-  remember(feature: string, text: string, importance = 5, isGlobal = false) {
-    const memory: AIRangeMemory = {
-      text,
-      importance,
-      timestamp: Date.now(),
-      tags: [feature],
-      sourceBot: feature,
-    };
-
-    if (isGlobal) {
-      this._globalMemories.update((current) => {
-        const updated = [...current, memory]
-          .sort((a, b) => b.importance - a.importance)
-          .slice(0, 200);
-        return updated;
-      });
-    }
-
-    this._botWorkspaces.update((current) => {
-      const ws = current[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      };
-      const updatedMemories = [...ws.memories, memory];
-      const limited = updatedMemories
-        .sort((a, b) => b.importance - a.importance)
-        .slice(0, 100);
-      const updated = { ...current, [feature]: { ...ws, memories: limited } };
-      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
-      return updated;
-    });
-
-    // Generar resumen automático cada 10 memorias
-    this.autoSummarizeMemories(feature);
-  }
-
-  private autoSummarizeMemories(feature: string) {
-    const ws = this.getWorkspace(feature);
-    if (ws.memories.length >= 10 && ws.memories.length % 10 === 0) {
-      const recentMemories: AIRangeMemory[] = ws.memories.slice(-10);
-      const summary = this.generateMemorySummary(recentMemories, feature);
-
-      // Crear memoria de resumen con alta importancia
-      const summaryMemory: AIRangeMemory = {
-        text: `RESUMEN AUTOMÁTICO: ${summary}`,
-        importance: 8,
-        timestamp: Date.now(),
-        tags: [feature, 'summary', 'auto-generated'],
-        sourceBot: feature,
-      };
-
-      this._botWorkspaces.update((current) => {
-        const ws = current[feature] || {
-          memories: [],
-          lastTasks: [],
-          contextFiles: {},
-        };
-        const updatedMemories = [...ws.memories, summaryMemory];
-        const limited = updatedMemories
-          .sort((a, b) => b.importance - a.importance)
-          .slice(0, 100);
-        const updated = { ...current, [feature]: { ...ws, memories: limited } };
-        localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
-        return updated;
-      });
-    }
-  }
-
-  private generateMemorySummary(
-    memories: AIRangeMemory[],
-    feature: string,
-  ): string {
-    const topics = memories.map((m) => m.tags).flat();
-    const uniqueTopics = [...new Set(topics)];
-
-    const timeRange =
-      memories.length > 0
-        ? `${new Date(Math.min(...memories.map((m) => m.timestamp))).toLocaleDateString()} - ${new Date(Math.max(...memories.map((m) => m.timestamp))).toLocaleDateString()}`
-        : 'período desconocido';
-
-    const avgImportance =
-      memories.reduce((sum, m) => sum + m.importance, 0) / memories.length;
-
-    return `Durante ${timeRange}, se registraron ${memories.length} eventos relacionados con: ${uniqueTopics.join(', ')}. Importancia promedio: ${avgImportance.toFixed(1)}/10.`;
-  }
-
-  logTaskExecution(feature: string, functionName: string, args: any) {
-    this._botWorkspaces.update((current) => {
-      const ws = current[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      };
-      const taskStr = `[${new Date().toISOString()}] Ejecutó: ${functionName}(${JSON.stringify(args) || ''})`;
-      const updatedTasks = [taskStr, ...ws.lastTasks].slice(0, 50);
-      const updated = {
-        ...current,
-        [feature]: { ...ws, lastTasks: updatedTasks },
-      };
-      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
-      return updated;
-    });
-  }
-
-  writeContextFile(feature: string, filename: string, content: string) {
-    this._botWorkspaces.update((current) => {
-      const ws = current[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      };
-      const updated = {
-        ...current,
-        [feature]: {
-          ...ws,
-          contextFiles: { ...ws.contextFiles, [filename]: content },
-        },
-      };
-      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
-      return updated;
-    });
-  }
-
-  deleteContextFile(feature: string, filename: string) {
-    this._botWorkspaces.update((current) => {
-      const ws = current[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      };
-      const newFiles = { ...ws.contextFiles };
-      delete newFiles[filename];
-      const updated = {
-        ...current,
-        [feature]: { ...ws, contextFiles: newFiles },
-      };
-      localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
-      return updated;
-    });
-  }
-
-  // ─── Per-User Personality System ────────────────────────────────────────────
-  // Key format: `${botFeature}::${userId}`
-  private readonly _userPersonalities = signal<
-    Record<string, UserPersonalityProfile>
-  >(JSON.parse(localStorage.getItem('ai_user_personalities') || '{}'));
-  readonly userPersonalities = this._userPersonalities.asReadonly();
-
-  /** Get (or bootstrap) the personality profile a specific bot has built for a specific user. */
+  // ─── User Personality System ────────────────────────────────────────────
   getUserPersonality(feature: string, userId: string): UserPersonalityProfile {
     const key = `${feature}::${userId}`;
     return (
@@ -1133,13 +620,12 @@ export class AIBotStore {
         learnedPatterns: [],
         preferredTools: [],
         performanceMetrics: [],
-        trustLevel: 50, // Nivel neutral inicial
+        trustLevel: 50,
         successfulInteractions: [],
       }
     );
   }
 
-  /** Update specific fields of a bot→user personality profile. */
   updateUserPersonality(
     feature: string,
     userId: string,
@@ -1159,12 +645,10 @@ export class AIBotStore {
           lastSeen: Date.now(),
         },
       };
-      localStorage.setItem('ai_user_personalities', JSON.stringify(updated));
       return updated;
     });
   }
 
-  /** Called after each user message to bump the interaction counter. */
   trackInteraction(feature: string, userId: string) {
     const key = `${feature}::${userId}`;
     this._userPersonalities.update((current) => {
@@ -1177,14 +661,11 @@ export class AIBotStore {
           lastSeen: Date.now(),
         },
       };
-      localStorage.setItem('ai_user_personalities', JSON.stringify(updated));
       return updated;
     });
   }
 
   // ─── Sistema de Aprendizaje Continuo ──────────────────────────────────────────
-
-  /** Registrar una interacción exitosa para aprendizaje */
   recordSuccessfulInteraction(
     feature: string,
     userId: string,
@@ -1196,7 +677,6 @@ export class AIBotStore {
     this._userPersonalities.update((current) => {
       const existing = current[key] ?? this.getUserPersonality(feature, userId);
 
-      // Actualizar patrones aprendidos
       const existingPattern = existing.learnedPatterns.find(
         (p) => p.query === query,
       );
@@ -1222,15 +702,13 @@ export class AIBotStore {
             },
           ]
             .sort((a, b) => b.successRate - a.successRate)
-            .slice(0, 20); // Mantener top 20
+            .slice(0, 20);
 
-      // Actualizar herramientas preferidas
       const preferredTools = existing.preferredTools.includes(tool)
         ? existing.preferredTools
         : [tool, ...existing.preferredTools].slice(0, 5);
 
-      // Actualizar métricas de rendimiento
-      const taskType = tool.split('_')[0]; // Ej: 'filter' de 'filter_inventory'
+      const taskType = tool.split('_')[0];
       const existingMetric = existing.performanceMetrics.find(
         (m) => m.taskType === taskType,
       );
@@ -1256,7 +734,6 @@ export class AIBotStore {
             },
           ];
 
-      // Actualizar interacciones exitosas
       const successfulInteractions = [
         {
           query,
@@ -1267,7 +744,6 @@ export class AIBotStore {
         ...existing.successfulInteractions,
       ].slice(0, 10);
 
-      // Aumentar nivel de confianza
       const trustLevel = Math.min(100, existing.trustLevel + 2);
 
       const updated = {
@@ -1281,12 +757,10 @@ export class AIBotStore {
           trustLevel,
         },
       };
-      localStorage.setItem('ai_user_personalities', JSON.stringify(updated));
       return updated;
     });
   }
 
-  /** Registrar una interacción fallida para aprendizaje */
   recordFailedInteraction(
     feature: string,
     userId: string,
@@ -1297,7 +771,6 @@ export class AIBotStore {
     this._userPersonalities.update((current) => {
       const existing = current[key] ?? this.getUserPersonality(feature, userId);
 
-      // Actualizar patrones aprendidos con menor éxito
       const existingPattern = existing.learnedPatterns.find(
         (p) => p.query === query,
       );
@@ -1307,15 +780,14 @@ export class AIBotStore {
               ? {
                   ...p,
                   successRate:
-                    (p.successRate * p.frequency) / (p.frequency + 1), // Disminuye success rate
+                    (p.successRate * p.frequency) / (p.frequency + 1),
                   lastUsed: Date.now(),
                   frequency: p.frequency + 1,
                 }
               : p,
           )
-        : existing.learnedPatterns; // No agregar patrones fallidos nuevos
+        : existing.learnedPatterns;
 
-      // Actualizar métricas de rendimiento
       const taskType = tool.split('_')[0];
       const existingMetric = existing.performanceMetrics.find(
         (m) => m.taskType === taskType,
@@ -1336,7 +808,6 @@ export class AIBotStore {
             },
           ];
 
-      // Disminuir nivel de confianza
       const trustLevel = Math.max(0, existing.trustLevel - 1);
 
       const updated = {
@@ -1348,12 +819,10 @@ export class AIBotStore {
           trustLevel,
         },
       };
-      localStorage.setItem('ai_user_personalities', JSON.stringify(updated));
       return updated;
     });
   }
 
-  /** Obtener patrones aprendidos para un usuario */
   getLearnedPatterns(
     feature: string,
     userId: string,
@@ -1362,7 +831,6 @@ export class AIBotStore {
     return personality.learnedPatterns;
   }
 
-  /** Obtener sugerencias basadas en aprendizaje */
   getSmartSuggestions(
     feature: string,
     userId: string,
@@ -1371,14 +839,12 @@ export class AIBotStore {
     const personality = this.getUserPersonality(feature, userId);
     const suggestions: string[] = [];
 
-    // Sugerir herramientas preferidas
     if (personality.preferredTools.length > 0) {
       suggestions.push(
         `Herramientas que sueles usar: ${personality.preferredTools.join(', ')}`,
       );
     }
 
-    // Sugerir patrones similares exitosos
     const similarPatterns = personality.learnedPatterns
       .filter((p) => p.successRate > 70 && p.frequency > 1)
       .filter((p) => this.calculateSimilarity(p.query, currentQuery) > 0.3)
@@ -1401,15 +867,12 @@ export class AIBotStore {
     return commonWords.length / Math.max(words1.length, words2.length);
   }
 
-  // ─── Sistema de Sugerencias Proactivas ────────────────────────────────────────
-
-  /** Genera sugerencias proactivas basadas en análisis del bot */
+  // ─── Proactive Suggestions ────────────────────────────────────────────
   generateProactiveSuggestions(feature: string): ProactiveSuggestion[] {
     const suggestions: ProactiveSuggestion[] = [];
     const bot = this.getBotByFeature(feature);
     if (!bot) return suggestions;
 
-    // Sugerencias basadas en skills disponibles pero no activas
     const inactiveSkills = bot.skills.filter(
       (skill) => !bot.activeSkills.includes(skill),
     );
@@ -1423,8 +886,7 @@ export class AIBotStore {
       });
     }
 
-    // Sugerencias basadas en patrones de usuario
-    const userPersonality = this.getLearnedPatterns(feature, 'current_user'); // Asumiendo que hay un usuario actual
+    const userPersonality = this.getLearnedPatterns(feature, 'current_user');
     if (userPersonality && userPersonality.length > 0) {
       const topPattern = userPersonality[0];
       if (topPattern.successRate > 80) {
@@ -1438,7 +900,6 @@ export class AIBotStore {
       }
     }
 
-    // Sugerencias específicas por feature
     switch (feature) {
       case 'inventory':
         suggestions.push({
@@ -1469,34 +930,72 @@ export class AIBotStore {
         break;
     }
 
-    // Agregar sugerencias a la lista global
     this._proactiveSuggestions.update((current) =>
       [...suggestions, ...current].slice(0, 20),
     );
-
     return suggestions;
   }
 
-  /** Obtiene todas las sugerencias proactivas */
   getProactiveSuggestions(): ProactiveSuggestion[] {
     return this._proactiveSuggestions();
   }
 
-  /** Obtiene sugerencias proactivas para un bot específico */
   getProactiveSuggestionsForBot(botId: string): ProactiveSuggestion[] {
     return this._proactiveSuggestions().filter((s) => s.botId === botId);
   }
 
-  /** Marca una sugerencia como aplicada */
   markSuggestionApplied(suggestionId: string) {
     this._proactiveSuggestions.update((current) =>
       current.filter((s) => s.id !== suggestionId),
     );
   }
 
-  // ─── Sistema de Colaboración entre Bots ──────────────────────────────────────
+  // ─── Bot Emotional States ────────────────────────────────────────────
+  setBotMood(feature: string, mood: BotMood, energy = 100) {
+    this._botMoods.update((current) => ({
+      ...current,
+      [feature]: { mood, energy },
+    }));
 
-  /** Inicia una nueva colaboración entre bots */
+    this.updateEmotionalState(feature, {
+      primaryMood: mood,
+      energy,
+      lastMoodChange: Date.now(),
+    });
+  }
+
+  updateEmotionalState(feature: string, updates: Partial<BotEmotionalState>) {
+    this._botEmotionalStates.update((current) => {
+      const existing = current[feature] || this.getDefaultEmotionalState();
+      const updated = {
+        ...existing,
+        ...updates,
+        lastMoodChange: updates.lastMoodChange || existing.lastMoodChange,
+      };
+      return { ...current, [feature]: updated };
+    });
+  }
+
+  private getDefaultEmotionalState(): BotEmotionalState {
+    return {
+      primaryMood: 'neutral',
+      secondaryEmotions: [],
+      energy: 80,
+      confidence: 70,
+      socialDrive: 50,
+      learningMode: false,
+      lastMoodChange: Date.now(),
+      emotionalTriggers: {},
+    };
+  }
+
+  getEmotionalState(feature: string): BotEmotionalState {
+    return (
+      this._botEmotionalStates()[feature] || this.getDefaultEmotionalState()
+    );
+  }
+
+  // ─── Bot Collaborations ────────────────────────────────────────────
   startCollaboration(
     initiator: string,
     title: string,
@@ -1524,13 +1023,10 @@ export class AIBotStore {
       [collaborationId]: collaboration,
     }));
 
-    // Notificar a los participantes
     this.notifyCollaborationParticipants(collaboration);
-
     return collaborationId;
   }
 
-  /** Agrega una tarea a una colaboración */
   addCollaborationTask(
     collaborationId: string,
     task: Omit<CollaborationTask, 'id'>,
@@ -1552,7 +1048,6 @@ export class AIBotStore {
     return true;
   }
 
-  /** Actualiza el progreso de una colaboración */
   updateCollaborationProgress(
     collaborationId: string,
     taskId: string,
@@ -1593,7 +1088,6 @@ export class AIBotStore {
     return true;
   }
 
-  /** Obtiene colaboraciones activas de un bot */
   getActiveCollaborations(feature: string): BotCollaboration[] {
     const allCollaborations = Object.values(this._botCollaborations());
     return allCollaborations.filter(
@@ -1603,54 +1097,52 @@ export class AIBotStore {
     );
   }
 
-  /** Sugiere colaboraciones basadas en necesidades del bot */
   suggestCollaborations(feature: string): string[] {
     const suggestions: string[] = [];
     const bot = this.getBotByFeature(feature);
 
     if (!bot) return suggestions;
 
-    // Sugerir colaboración con inventory si es budgets
-    if (
-      feature === 'budgets' &&
-      !this.getActiveCollaborations(feature).some((c) =>
-        c.participants.includes('inventory'),
-      )
-    ) {
-      suggestions.push(
-        'Colabora con Stocky-Bot para análisis de costos de inventario',
-      );
-    }
-
-    // Sugerir colaboración con projects si es clients
-    if (
-      feature === 'clients' &&
-      !this.getActiveCollaborations(feature).some((c) =>
-        c.participants.includes('projects'),
-      )
-    ) {
-      suggestions.push(
-        'Coordina con Direct-Bot para asignación de proyectos a clientes satisfechos',
-      );
-    }
-
-    // Sugerir colaboración con fleet si es delivery
-    if (
-      feature === 'delivery' &&
-      !this.getActiveCollaborations(feature).some((c) =>
-        c.participants.includes('fleet'),
-      )
-    ) {
-      suggestions.push(
-        'Trabaja con Drive-Bot para optimización de rutas de entrega',
-      );
+    switch (feature) {
+      case 'budgets':
+        if (
+          !this.getActiveCollaborations(feature).some((c) =>
+            c.participants.includes('inventory'),
+          )
+        ) {
+          suggestions.push(
+            'Colabora con Stocky-Bot para análisis de costos de inventario',
+          );
+        }
+        break;
+      case 'clients':
+        if (
+          !this.getActiveCollaborations(feature).some((c) =>
+            c.participants.includes('projects'),
+          )
+        ) {
+          suggestions.push(
+            'Coordina con Direct-Bot para asignación de proyectos a clientes satisfechos',
+          );
+        }
+        break;
+      case 'delivery':
+        if (
+          !this.getActiveCollaborations(feature).some((c) =>
+            c.participants.includes('fleet'),
+          )
+        ) {
+          suggestions.push(
+            'Trabaja con Drive-Bot para optimización de rutas de entrega',
+          );
+        }
+        break;
     }
 
     return suggestions;
   }
 
   private notifyCollaborationParticipants(collaboration: BotCollaboration) {
-    // Enviar mensajes inter-bot a los participantes
     collaboration.participants.forEach((participant: string) => {
       if (participant !== collaboration.initiator) {
         this.broadcastMessage(
@@ -1662,9 +1154,7 @@ export class AIBotStore {
     });
   }
 
-  // ─── Sistema de Análisis Predictivo ──────────────────────────────────────────
-
-  /** Crea un nuevo modelo predictivo */
+  // ─── Predictive Models ────────────────────────────────────────────
   createPredictiveModel(
     feature: string,
     type: PredictiveModel['type'],
@@ -1693,12 +1183,10 @@ export class AIBotStore {
     return modelId;
   }
 
-  /** Genera una predicción usando un modelo */
   generatePrediction(
     modelId: string,
     input: Record<string, any>,
   ): PredictionResult | null {
-    // Encontrar el modelo
     let targetModel: PredictiveModel | null = null;
     let feature = '';
 
@@ -1713,7 +1201,6 @@ export class AIBotStore {
 
     if (!targetModel) return null;
 
-    // Generar predicción basada en el tipo de modelo
     const prediction = this.calculatePrediction(targetModel, input);
     const confidence = this.calculateConfidence(targetModel, input);
 
@@ -1725,7 +1212,6 @@ export class AIBotStore {
       confidence,
     };
 
-    // Actualizar el modelo con la nueva predicción
     this._predictiveModels.update((current) => ({
       ...current,
       [feature]: current[feature].map((model) =>
@@ -1738,7 +1224,6 @@ export class AIBotStore {
     return result;
   }
 
-  /** Obtiene modelos predictivos de un bot */
   getPredictiveModels(feature: string): PredictiveModel[] {
     return this._predictiveModels()[feature] || [];
   }
@@ -1747,7 +1232,6 @@ export class AIBotStore {
     model: PredictiveModel,
     input: Record<string, any>,
   ): unknown {
-    // Lógica simplificada de predicción
     switch (model.type) {
       case 'demand_forecast': {
         const baseDemand = input['currentStock'] || 100;
@@ -1780,5 +1264,404 @@ export class AIBotStore {
     const baseConfidence = model.accuracy || 50;
     const inputQuality = Object.keys(input).length > 3 ? 20 : 10;
     return Math.min(100, baseConfidence + inputQuality);
+  }
+
+  // ─── Memory Management ────────────────────────────────────────────
+  remember(feature: string, text: string, importance = 5, isGlobal = false) {
+    const memory: AIRangeMemory = {
+      text,
+      importance,
+      timestamp: Date.now(),
+      tags: [feature],
+      sourceBot: feature,
+    };
+
+    if (isGlobal) {
+      this._globalMemories.update((current) => {
+        const updated = [...current, memory]
+          .sort((a, b) => b.importance - a.importance)
+          .slice(0, 200);
+        return updated;
+      });
+    }
+
+    this._botWorkspaces.update((current) => {
+      const ws = current[feature] || {
+        memories: [],
+        lastTasks: [],
+        contextFiles: {},
+      };
+      const updatedMemories = [...ws.memories, memory];
+      const limited = updatedMemories
+        .sort((a, b) => b.importance - a.importance)
+        .slice(0, 100);
+      const updated = { ...current, [feature]: { ...ws, memories: limited } };
+      return updated;
+    });
+
+    this.autoSummarizeMemories(feature);
+  }
+
+  private autoSummarizeMemories(feature: string) {
+    const ws = this.getWorkspace(feature);
+    if (ws.memories.length >= 10 && ws.memories.length % 10 === 0) {
+      const recentMemories: AIRangeMemory[] = ws.memories.slice(-10);
+      const summary = this.generateMemorySummary(recentMemories, feature);
+
+      const summaryMemory: AIRangeMemory = {
+        text: `RESUMEN AUTOMÁTICO: ${summary}`,
+        importance: 8,
+        timestamp: Date.now(),
+        tags: [feature, 'summary', 'auto-generated'],
+        sourceBot: feature,
+      };
+
+      this._botWorkspaces.update((current) => {
+        const ws = current[feature] || {
+          memories: [],
+          lastTasks: [],
+          contextFiles: {},
+        };
+        const updatedMemories = [...ws.memories, summaryMemory];
+        const limited = updatedMemories
+          .sort((a, b) => b.importance - a.importance)
+          .slice(0, 100);
+        const updated = { ...current, [feature]: { ...ws, memories: limited } };
+        return updated;
+      });
+    }
+  }
+
+  private generateMemorySummary(
+    memories: AIRangeMemory[],
+    feature: string,
+  ): string {
+    const topics = memories.map((m: AIRangeMemory) => m.tags).flat();
+    const uniqueTopics = [...new Set(topics)];
+
+    const timeRange =
+      memories.length > 0
+        ? `${new Date(Math.min(...memories.map((m: AIRangeMemory) => m.timestamp))).toLocaleDateString()} - ${new Date(Math.max(...memories.map((m: AIRangeMemory) => m.timestamp))).toLocaleDateString()}`
+        : 'período desconocido';
+
+    const avgImportance =
+      memories.reduce(
+        (sum: number, m: AIRangeMemory) => sum + m.importance,
+        0,
+      ) / memories.length;
+
+    return `Durante ${timeRange}, se registraron ${memories.length} eventos relacionados con: ${uniqueTopics.join(', ')}. Importancia promedio: ${avgImportance.toFixed(1)}/10.`;
+  }
+
+  getWorkspace(feature: string) {
+    return (
+      this._botWorkspaces()[feature] || {
+        memories: [],
+        lastTasks: [],
+        contextFiles: {},
+      }
+    );
+  }
+
+  // ─── Sistema de Proveedores Gratuitos ─────────────────────────────────────────
+
+  async checkOllamaAvailability(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.ollamaConfig().baseUrl}/api/tags`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const availableModels = data.models?.map((m: any) => m.name) || [];
+        this.freeModels.update((current) => ({
+          ...current,
+          localModels: availableModels,
+        }));
+        this.ollamaConfig.update((config) => ({ ...config, available: true }));
+        return true;
+      }
+    } catch {
+      // Silencioso - Ollama no está corriendo localmente
+    }
+    this.ollamaConfig.update((config) => ({ ...config, available: false }));
+    return false;
+  }
+
+  configureOllama(baseUrl: string, model: string) {
+    this.ollamaConfig.update((config) => ({
+      ...config,
+      baseUrl,
+      model,
+    }));
+  }
+
+  async autoSelectProvider(): Promise<void> {
+    const providers = [
+      { name: 'ollama', check: () => this.checkOllamaAvailability() },
+      { name: 'huggingface', check: () => Promise.resolve(true) },
+      { name: 'gemini', check: () => Promise.resolve(!!this.providerApiKey()) },
+      { name: 'openai', check: () => Promise.resolve(!!this.providerApiKey()) },
+    ];
+
+    for (const provider of providers) {
+      try {
+        const available = await provider.check();
+        if (available) {
+          this.selectedProvider.set(provider.name as any);
+          console.log(
+            `Proveedor seleccionado automáticamente: ${provider.name}`,
+          );
+          return;
+        }
+      } catch {
+        // Ignorar errores de verificación de disponibilidad
+      }
+    }
+
+    this.selectedProvider.set('free');
+    console.log('Usando modo gratuito básico');
+  }
+
+  getProviderStatus(): Record<string, boolean> {
+    return {
+      gemini: !!this.providerApiKey(),
+      openai: !!this.providerApiKey(),
+      anthropic: !!this.providerApiKey(),
+      ollama: this.ollamaConfig().available,
+      huggingface: this.freeModels().huggingface.available,
+      free: true,
+    };
+  }
+
+  async generateFreeResponse(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
+    const provider = this.selectedProvider();
+
+    try {
+      switch (provider) {
+        case 'ollama':
+          return await this.generateWithOllama(prompt, context);
+        case 'huggingface':
+          return await this.generateWithHuggingFace(prompt, context);
+        case 'free':
+          return this.generateBasicResponse(prompt, context);
+        default:
+          return this.generateBasicResponse(prompt, context);
+      }
+    } catch (error) {
+      console.warn(`Error con ${provider}, intentando fallback:`, error);
+      await this.autoSelectProvider();
+      return this.generateBasicResponse(prompt, context);
+    }
+  }
+
+  private async generateWithOllama(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
+    const fullPrompt = context ? `${context}\n\n${prompt}` : prompt;
+
+    const response = await fetch(
+      `${this.ollamaConfig().baseUrl}/api/generate`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.ollamaConfig().model,
+          prompt: fullPrompt,
+          stream: false,
+          options: {
+            temperature: 0.7,
+            top_p: 0.9,
+            num_predict: 256,
+          },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Ollama error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.response || 'Lo siento, no pude generar una respuesta.';
+  }
+
+  private async generateWithHuggingFace(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
+    const fullPrompt = context
+      ? `${context}\n\nUsuario: ${prompt}\nAsistente:`
+      : `Usuario: ${prompt}\nAsistente:`;
+
+    const response = await fetch(
+      `https://api-inference.huggingface.co/models/${this.freeModels().huggingface.model}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('hf_token') || ''}`,
+        },
+        body: JSON.stringify({
+          inputs: fullPrompt,
+          parameters: {
+            max_length: 256,
+            temperature: 0.7,
+            do_sample: true,
+            return_full_text: false,
+          },
+          options: {
+            wait_for_model: true,
+          },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HuggingFace error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      return data[0].generated_text.replace(fullPrompt, '').trim();
+    } else if (data.generated_text) {
+      return data.generated_text.replace(fullPrompt, '').trim();
+    }
+
+    return 'Lo siento, no pude generar una respuesta.';
+  }
+
+  private generateBasicResponse(prompt: string, context?: string): string {
+    // Respuestas básicas predefinidas cuando no hay modelos disponibles
+    const responses = {
+      greeting: [
+        '¡Hola! Soy un asistente básico. Para respuestas más inteligentes, configura un modelo de IA.',
+        '¡Hola! Estoy funcionando en modo básico. Considera configurar Ollama o HuggingFace para mejores respuestas.',
+        '¡Hola! Funciono con respuestas predefinidas. Para IA avanzada, configura un proveedor gratuito.',
+      ],
+      help: [
+        'Puedo ayudarte con tareas básicas. Para funcionalidades avanzadas, configura un modelo de IA gratuito como Ollama.',
+        'Estoy en modo básico. Configura Ollama o HuggingFace para análisis inteligente de datos.',
+        'Funcionalidades limitadas activas. Para IA completa, instala Ollama o usa HuggingFace.',
+      ],
+      default: [
+        'Entiendo tu consulta. Para respuestas más precisas, configura un modelo de IA gratuito.',
+        'Procesé tu mensaje. Considera configurar Ollama para respuestas más inteligentes.',
+        'Mensaje recibido. Para análisis avanzado, usa un proveedor de IA gratuito.',
+      ],
+    };
+
+    const lowerPrompt = prompt.toLowerCase();
+
+    if (
+      lowerPrompt.includes('hola') ||
+      lowerPrompt.includes('hello') ||
+      lowerPrompt.includes('hi')
+    ) {
+      return responses.greeting[
+        Math.floor(Math.random() * responses.greeting.length)
+      ];
+    }
+
+    if (
+      lowerPrompt.includes('ayuda') ||
+      lowerPrompt.includes('help') ||
+      lowerPrompt.includes('configur')
+    ) {
+      return responses.help[Math.floor(Math.random() * responses.help.length)];
+    }
+
+    return responses.default[
+      Math.floor(Math.random() * responses.default.length)
+    ];
+  }
+
+  // ─── Inter-Bot Communication ───────────────────────────────────────────────
+
+  /** Enviar mensaje a otro bot */
+  sendInterBotMessage(fromFeature: string, toFeature: string, message: string) {
+    // Por ahora, solo log para futuras implementaciones
+    console.log(
+      `Mensaje inter-bot: ${fromFeature} -> ${toFeature}: ${message}`,
+    );
+    // Aquí se podría implementar comunicación real entre bots
+  }
+
+  /** Obtener mensajes pendientes de otros bots */
+  pullInterBotMessagesFor(feature: string): any[] {
+    // Implementación básica - devolver array vacío
+    return [];
+  }
+
+  /** Tick del sistema inter-bot */
+  interBotTick() {
+    // Procesar mensajes inter-bot pendientes
+    // Por ahora vacío para futuras implementaciones
+  }
+
+  /** Broadcast message to a specific bot/feature or all */
+  broadcastMessage(from: string, message: string, to: string) {
+    if (to === 'all') {
+      // Broadcast to all bots
+      (this.bots() as AIBot[]).forEach((bot: AIBot) => {
+        if (bot.feature !== from) {
+          console.log(`Broadcast from ${from} to ${bot.feature}: ${message}`);
+        }
+      });
+    } else {
+      // Send to specific bot
+      console.log(`Broadcast from ${from} to ${to}: ${message}`);
+    }
+    // Could trigger UI notification or inter-bot message
+  }
+
+  // ─── Rage Mode & UI Features ──────────────────────────────────────────────
+
+  private readonly _rageMode = signal(false);
+  readonly rageMode = this._rageMode.asReadonly();
+
+  private readonly _rageStyle = signal<'terror' | 'angry' | 'dark'>('terror');
+  readonly rageStyle = this._rageStyle.asReadonly();
+
+  setRageMode(enabled: boolean) {
+    this._rageMode.set(enabled);
+  }
+
+  setRageStyle(style: 'terror' | 'angry' | 'dark') {
+    this._rageStyle.set(style);
+  }
+
+  // ─── Additional UI Integration Methods ──────────────────────────────────────
+
+  /** Get dynamic canvas data for features */
+  dynamicCanvas(): Record<string, any> {
+    return {
+      login: {
+        showWelcome: true,
+        theme: 'default',
+      },
+      dashboard: {
+        showStats: true,
+        charts: ['revenue', 'clients'],
+      },
+    };
+  }
+
+  /** Send inter-bot display message */
+  sendInterBotDisplay(
+    fromFeature: string,
+    toFeature: string,
+    displayData: any,
+  ) {
+    console.log(
+      `Display message from ${fromFeature} to ${toFeature}:`,
+      displayData,
+    );
+    // Could trigger UI updates or notifications
   }
 }

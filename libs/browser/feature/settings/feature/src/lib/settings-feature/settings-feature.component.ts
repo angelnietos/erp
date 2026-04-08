@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu, Smile, Zap } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
@@ -172,7 +172,7 @@ interface PluginDescriptor {
                 @for (bot of aiBotStore.bots(); track bot.id) {
                   <ui-josanz-card variant="glass" class="ai-bot-card" [class.inactive]="bot.status === 'inactive'">
                     <div class="bot-visual">
-                      <ui-josanz-mascot [type]="bot.mascotType" [color]="bot.color" [personality]="bot.personality" [bodyShape]="bot.bodyShape" [eyesType]="bot.eyesType" [mouthType]="bot.mouthType"></ui-josanz-mascot>
+                      <ui-josanz-mascot [type]="$any(bot.mascotType)" [color]="bot.color" [personality]="$any(bot.personality)" [bodyShape]="$any(bot.bodyShape)" [eyesType]="$any(bot.eyesType)" [mouthType]="$any(bot.mouthType)"></ui-josanz-mascot>
                     </div>
                     
                     <div class="bot-info">
@@ -294,12 +294,12 @@ interface PluginDescriptor {
                     <ui-josanz-card variant="glass" class="buddy-preview-card" [class.is-rage-preview]="aiBotStore.rageMode()">
                       <div class="preview-glow"></div>
                       <ui-josanz-mascot 
-                        [type]="buddy.mascotType" 
+                        [type]="$any(buddy.mascotType)" 
                         [color]="buddy.color" 
-                        [personality]="buddy.personality" 
-                        [bodyShape]="buddy.bodyShape" 
-                        [eyesType]="buddy.eyesType" 
-                        [mouthType]="buddy.mouthType"
+                        [personality]="$any(buddy.personality)" 
+                        [bodyShape]="$any(buddy.bodyShape)" 
+                        [eyesType]="$any(buddy.eyesType)" 
+                        [mouthType]="$any(buddy.mouthType)"
                         [rageMode]="aiBotStore.rageMode()"
                         [rageStyle]="aiBotStore.rageStyle()">
                       </ui-josanz-mascot>
@@ -1044,5 +1044,11 @@ export class SettingsFeatureComponent {
 
   togglePremium() {
     this._pluginStore.togglePerformance();
+  }
+  constructor() {
+    effect(() => {
+      console.log('SettingsFeature initialized. Bots in store:', this.aiBotStore.bots());
+      console.log('Buddy bot:', this.aiBotStore.getBotByFeature('dashboard'));
+    });
   }
 }

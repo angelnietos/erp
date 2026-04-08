@@ -46,18 +46,18 @@ export interface CommandItem {
             @if (contextResults().length > 0) {
                <div class="category-group">
                  <div class="category-label text-uppercase">Resultados en este Módulo</div>
-                 @for (item of contextResults(); track item.id) {
+                 @for (item of contextResults(); track $any(item).id) {
                     <div 
                       class="command-item context-hit" 
                       (click)="executeContextItem(item)"
-                      [class.active]="selectedId() === 'ctx-' + item.id"
+                      [class.active]="selectedId() === 'ctx-' + $any(item).id"
                     >
                       <div class="item-icon ctx">
                         <lucide-icon name="arrow-right-circle" size="18"></lucide-icon>
                       </div>
                       <div class="item-info">
-                        <span class="label text-uppercase">{{ item.name || item.label || 'Resultado' }}</span>
-                        <span class="desc">{{ item.description || 'Ver detalle en el módulo actual' }}</span>
+                        <span class="label text-uppercase">{{ $any(item).name || $any(item).label || 'Resultado' }}</span>
+                        <span class="desc">{{ $any(item).description || 'Ver detalle en el módulo actual' }}</span>
                       </div>
                     </div>
                  }

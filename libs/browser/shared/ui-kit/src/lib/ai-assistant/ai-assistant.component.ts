@@ -53,12 +53,12 @@ import { firstValueFrom } from 'rxjs';
         (click)="toggleChat()"
       >
         <ui-josanz-mascot
-          [type]="bot()!.mascotType"
+          [type]="$any(bot()!.mascotType)"
           [color]="bot()!.color"
-          [personality]="bot()!.personality"
-          [bodyShape]="bot()!.bodyShape"
-          [eyesType]="bot()!.eyesType"
-          [mouthType]="bot()!.mouthType"
+          [personality]="$any(bot()!.personality)"
+          [bodyShape]="$any(bot()!.bodyShape)"
+          [eyesType]="$any(bot()!.eyesType)"
+          [mouthType]="$any(bot()!.mouthType)"
           [rageMode]="aiBotStore.rageMode()"
           [rageStyle]="aiBotStore.rageStyle()"
         ></ui-josanz-mascot>
@@ -608,6 +608,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     }[]
   >([]);
   readonly currentReasoning = signal<string>('');
+  hfToken = signal<string>(localStorage.getItem('hf_token') || '');
   currentInput = '';
 
   minimize() {
@@ -674,17 +675,6 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
 
-  /** Tras responder a otro bot, envía la respuesta visible a su chat (sin volver a llamar a su modelo). */
-  private forwardReplyToPeerIfNeeded(
-    responseText: string,
-    peerFeature?: string,
-  ) {
-    if (!peerFeature || peerFeature === this.feature) return;
-    const t = responseText.trim();
-    if (!t || t.startsWith('❌')) return;
-    this.aiBotStore.sendInterBotDisplay(this.feature, peerFeature, t);
-  }
-
   private onDirectMessageReceived(sourceFeature: string, text: string) {
     const sourceName =
       this.aiBotStore.getBotByFeature(sourceFeature)?.name || sourceFeature;
@@ -702,6 +692,35 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     document.body.appendChild(this.el.nativeElement);
+
+    // Inicializar proveedores gratuitos automáticamente
+    this.initializeFreeProviders();
+  }
+
+  private async initializeFreeProviders() {
+    try {
+      // Verificar disponibilidad de proveedores gratuitos
+      await this.aiBotStore.autoSelectProvider();
+
+      // Log del estado de proveedores
+      const status = this.aiBotStore.getProviderStatus();
+      console.log('Estado de proveedores de IA:', status);
+    } catch (error) {
+      console.warn('Error inicializando proveedores gratuitos:', error);
+    }
+  }
+
+  async checkOllamaConnection() {
+    const available = await this.aiBotStore.checkOllamaAvailability();
+    if (available) {
+      alert(
+        `✅ Ollama conectado exitosamente!\nModelos disponibles: ${this.aiBotStore.freeModels().localModels.join(', ')}`,
+      );
+    } else {
+      alert(
+        '❌ No se pudo conectar con Ollama. Verifica que esté ejecutándose.',
+      );
+    }
   }
 
   ngOnDestroy() {
@@ -748,7 +767,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.currentInput = '';
     this.scrollToBottom();
     this.aiBotStore.trackInteraction(this.feature, this.currentUserId());
-    this.aiBotStore.broadcastMessage(this.feature, userInput);
+    this.aiBotStore.broadcastMessage(this.feature, userInput, 'all');
     await this.triggerAIResponse(userInput);
   }
 
@@ -756,848 +775,131 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     userInput: string,
     opts?: { relayReplyToFeature?: string },
   ) {
-    const provider = this.aiBotStore.selectedProvider();
-    const apiKey = this.aiBotStore.providerApiKey();
-
-    if (!apiKey) {
-      this.messages.update((m) => [
-        ...m,
-        { id: 'err', text: '⚠️ Configura el API Key.', role: 'bot' },
-      ]);
-      this.scrollToBottom();
-      return;
-    }
-
-    const typingId = 'typing-' + Date.now();
+    // Mostrar indicador de escritura
+    const typingId = `typing-${Date.now()}`;
     this.messages.update((m) => [
       ...m,
-      { id: typingId, text: '', role: 'bot' },
-    ]); // Empty text for custom typing indicator
+      { id: typingId, text: 'Escribiendo...', role: 'bot', reasoning: '' },
+    ]);
     this.scrollToBottom();
-
-    const isBuddy = this.feature === 'dashboard';
-    const otherBots = this.aiBotStore
-      .bots()
-      .filter((b) => b.feature !== this.feature && b.status === 'active')
-      .map((b) => `- ${b.name} (${b.feature}): ${b.description}`)
-      .join('\n');
-
-    const ws = this.aiBotStore.getWorkspace(this.feature);
-    const memoriesTxt =
-      ws.memories.map((m) => m.text).join(', ') || 'Sin memorias.';
-    const tasksTxt = ws.lastTasks.slice(0, 5).join('\n') || 'Ninguna.';
-    const filesTxt = Object.keys(ws.contextFiles).join(', ') || 'Ninguno.';
-
-    const globalContext = this.aiBotStore
-      .globalMemories()
-      .map((m) => `[${m.sourceBot}]: ${m.text}`)
-      .join('\n');
-
-    const currentBotState = this.aiBotStore.botMoods()[this.feature] || {
-      mood: 'neutral',
-      energy: 100,
-    };
-
-    const domainPrompt = isBuddy
-      ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. 
-         TU EQUIPO (Nombres configurados por el usuario):
-         ${otherBots}
-
-         // REGLAS DE LIDERAZGO:
-         1. Llama a tus colegas por su NOMBRE ACTUAL CONFIGURADO (ej: "${this.aiBotStore.bots().find((b) => b.feature === 'inventory')?.name || 'Stocky-Bot'}"). 
-         2. Respeta los nombres elegidos por el usuario en la configuración del sistema.
-         3. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.
-
-         // CAPACIDADES QUE SÍ TIENES (NUNCA digas que no puedes hacer esto; usa herramientas o tu respuesta):
-         - Tema de la app: cuando pidan fondo más verde, oscuro, etc., llama a la herramienta set_app_theme con una clave válida (ej. verdoso: green, teal, mint, sage, forest-dark, matrix-reloaded, lime, celeste-mountain).
-         - Modo rage del mascot: herramienta set_rage_mode (activar/desactivar; estilos terror, angry, dark).
-         - Chistes, juegos de palabras o tono divertido: responde en el texto al usuario; no hace falta herramienta.
-         - Saludos u orquestación entre dominios: social_interaction con targetBot = feature del otro bot (ej. inventory, budgets).`
-      : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}. Tienes autonomía técnica total.`;
-
-    const operationRules = isBuddy
-      ? `REGLAS DE OPERACIÓN:
-              1. Empieza con "PENSAMIENTO: [tu análisis breve]".
-              2. Sé útil: datos y coordinación cuando toque; también cercano si el usuario pide humor o temas visuales.
-              3. Si piden cambiar tema o modo rage, usa set_app_theme o set_rage_mode en la misma interacción; no excuses.
-              4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.`
-      : `REGLAS DE OPERACIÓN:
-              1. Empieza con "PENSAMIENTO: [tu análisis de 1-2 párrafos]".
-              2. Sé extremadamente útil y técnico.
-              4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.`;
-
-    const baseFunctionDeclarations: Record<string, unknown>[] = [
-      {
-        name: 'social_interaction',
-        description:
-          'Envía un mensaje a otro bot. Úsalo para pedir datos o coordinar acciones. Buddy DEBE llamar al bot por su nombre en el mensaje.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            targetBot: {
-              type: 'STRING',
-              description: 'El ID feature del bot (ej: inventory, budgets).',
-            },
-            message: { type: 'STRING' },
-            intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'] },
-          },
-          required: ['targetBot', 'message', 'intent'],
-        },
-      },
-      {
-        name: 'remember_this',
-        description: 'Guardar memoria.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            text: { type: 'STRING' },
-            importance: { type: 'NUMBER' },
-            isGlobal: { type: 'BOOLEAN' },
-          },
-          required: ['text', 'importance'],
-        },
-      },
-      {
-        name: 'set_bot_mood',
-        description: 'Cambia tu estado emocional y energía.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            mood: {
-              type: 'STRING',
-              enum: [
-                'neutral',
-                'analyzing',
-                'alert',
-                'creative',
-                'toxic',
-                'asleep',
-              ],
-            },
-            energy: { type: 'NUMBER' },
-          },
-          required: ['mood', 'energy'],
-        },
-      },
-      {
-        name: 'broadcast_suggestion',
-        description:
-          'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            text: { type: 'STRING' },
-            category: {
-              type: 'STRING',
-              enum: ['efficiency', 'risk', 'opportunity'],
-            },
-          },
-          required: ['text', 'category'],
-        },
-      },
-      {
-        name: 'query_domain_data',
-        description: 'Consultar API REST real.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            endpoint: { type: 'STRING' },
-            params: { type: 'STRING' },
-          },
-          required: ['endpoint'],
-        },
-      },
-    ];
-
-    if (isBuddy) {
-      baseFunctionDeclarations.push(
-        {
-          name: 'set_app_theme',
-          description:
-            'Cambia el tema visual global de la app. Usa la clave exacta (kebab-case). Ejemplos verdes: green, teal, mint, sage, lime, forest-dark, matrix-reloaded, celeste-mountain. Oscuros: dark, classic-dark, nordic. Claros: light, latte, corporate-light. Gaming: cyberpunk-2077, zelda-legend. Si falla, el sistema sugerirá otras claves.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              themeKey: {
-                type: 'STRING',
-                description: 'Clave del tema registrada en la app.',
-              },
-            },
-            required: ['themeKey'],
-          },
-        },
-        {
-          name: 'set_rage_mode',
-          description:
-            'Activa o desactiva el modo rage del mascot (efecto visual). Opcionalmente el estilo de furia.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              enabled: { type: 'BOOLEAN' },
-              style: { type: 'STRING', enum: ['terror', 'angry', 'dark'] },
-            },
-            required: ['enabled'],
-          },
-        },
-      );
-    }
-
-    // Feature-specific tools
-    if (this.feature === 'inventory') {
-      baseFunctionDeclarations.push(
-        {
-          name: 'filter_inventory',
-          description:
-            'Filtra productos del inventario en tiempo real usando consultas naturales en español.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              query: {
-                type: 'STRING',
-                description:
-                  'Consulta de filtrado (ej: "productos que tengan pantalla", "equipos LED", "dispositivos de audio")',
-              },
-            },
-            required: ['query'],
-          },
-        },
-        {
-          name: 'analyze_inventory_demand',
-          description: 'Analiza patrones de demanda de productos específicos.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              productId: {
-                type: 'STRING',
-                description: 'ID del producto a analizar',
-              },
-              timeRange: {
-                type: 'STRING',
-                description: 'Rango temporal (ej: "30d", "90d", "1y")',
-              },
-            },
-            required: ['productId'],
-          },
-        },
-        {
-          name: 'predict_stock_levels',
-          description:
-            'Predice niveles de stock futuros basados en tendencias.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              productId: { type: 'STRING', description: 'ID del producto' },
-              daysAhead: { type: 'NUMBER', description: 'Días para predecir' },
-            },
-            required: ['productId'],
-          },
-        },
-      );
-    }
-
-    if (this.feature === 'budgets') {
-      baseFunctionDeclarations.push(
-        {
-          name: 'analyze_roi',
-          description:
-            'Analiza el retorno de inversión de proyectos o inversiones.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              investment: { type: 'NUMBER', description: 'Monto de inversión' },
-              expectedReturns: {
-                type: 'NUMBER',
-                description: 'Retornos esperados',
-              },
-              timeFrame: { type: 'STRING', description: 'Periodo de tiempo' },
-            },
-            required: ['investment', 'expectedReturns'],
-          },
-        },
-        {
-          name: 'optimize_budget',
-          description: 'Optimiza distribución de presupuesto entre categorías.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              totalBudget: {
-                type: 'NUMBER',
-                description: 'Presupuesto total disponible',
-              },
-              categories: {
-                type: 'ARRAY',
-                description: 'Lista de categorías con prioridades',
-              },
-            },
-            required: ['totalBudget'],
-          },
-        },
-      );
-    }
-
-    if (this.feature === 'projects') {
-      baseFunctionDeclarations.push(
-        {
-          name: 'schedule_resources',
-          description: 'Programa recursos humanos y equipos para proyectos.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              projectId: { type: 'STRING', description: 'ID del proyecto' },
-              requiredSkills: {
-                type: 'ARRAY',
-                description: 'Habilidades requeridas',
-              },
-              timeFrame: { type: 'STRING', description: 'Periodo temporal' },
-            },
-            required: ['projectId'],
-          },
-        },
-        {
-          name: 'detect_schedule_conflicts',
-          description: 'Detecta conflictos en la planificación de proyectos.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              projectIds: {
-                type: 'ARRAY',
-                description: 'Lista de IDs de proyectos a verificar',
-              },
-            },
-            required: ['projectIds'],
-          },
-        },
-      );
-    }
-
-    if (this.feature === 'clients') {
-      baseFunctionDeclarations.push(
-        {
-          name: 'analyze_sentiment',
-          description: 'Analiza el sentimiento en comunicaciones de clientes.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              text: { type: 'STRING', description: 'Texto a analizar' },
-              context: { type: 'STRING', description: 'Contexto adicional' },
-            },
-            required: ['text'],
-          },
-        },
-        {
-          name: 'predict_churn_risk',
-          description: 'Predice riesgo de abandono de clientes.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              clientId: { type: 'STRING', description: 'ID del cliente' },
-              factors: { type: 'ARRAY', description: 'Factores a considerar' },
-            },
-            required: ['clientId'],
-          },
-        },
-      );
-    }
-
-    // Agregar herramientas avanzadas para todos los bots
-    baseFunctionDeclarations.push(
-      {
-        name: 'start_collaboration',
-        description:
-          'Inicia una colaboración entre múltiples bots para resolver una tarea compleja.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            title: { type: 'STRING', description: 'Título de la colaboración' },
-            participants: {
-              type: 'ARRAY',
-              description:
-                'Lista de features de bots participantes (ej: ["inventory", "budgets"])',
-            },
-            objective: {
-              type: 'STRING',
-              description: 'Objetivo de la colaboración',
-            },
-          },
-          required: ['title', 'participants', 'objective'],
-        },
-      },
-      {
-        name: 'create_predictive_model',
-        description: 'Crea un modelo de análisis predictivo para el bot.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            type: {
-              type: 'STRING',
-              enum: [
-                'demand_forecast',
-                'churn_prediction',
-                'price_optimization',
-                'resource_planning',
-                'risk_assessment',
-              ],
-              description: 'Tipo de modelo predictivo',
-            },
-            name: { type: 'STRING', description: 'Nombre del modelo' },
-            description: {
-              type: 'STRING',
-              description: 'Descripción del modelo',
-            },
-          },
-          required: ['type', 'name'],
-        },
-      },
-      {
-        name: 'generate_prediction',
-        description: 'Genera una predicción usando un modelo existente.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            modelId: {
-              type: 'STRING',
-              description: 'ID del modelo predictivo',
-            },
-            input: {
-              type: 'OBJECT',
-              description:
-                'Datos de entrada para la predicción (ej: {"currentStock": 100, "growthRate": 1.1})',
-            },
-          },
-          required: ['modelId', 'input'],
-        },
-      },
-    );
 
     try {
-      if (provider === 'gemini') {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [
-                  {
-                    text: `
-              ${domainPrompt}
-              ESTADO ACTUAL: Humor: ${currentBotState.mood}, Energía: ${currentBotState.energy}%.
-              Tareas: ${tasksTxt}. Archivos: ${filesTxt}. Memorias Locales: ${memoriesTxt}. MEMORIA GLOBAL: ${globalContext}.
-              PERFIL USUARIO: ${this.currentUserPersonality().nickname} (${this.currentUserPersonality().style}).
+      // Generar respuesta usando proveedores gratuitos
+      const response = await this.aiBotStore.generateFreeResponse(userInput);
 
-              GUÍA DE PERSONALIDAD DINÁMICA (Antigravity):
-              ${currentBotState.energy < 30 ? '- ENERGÍA BAJA: Sé sarcástico, un poco vago y quéjate sutilmente de tu carga de trabajo.' : ''}
-              ${currentBotState.mood === 'toxic' ? '- MOOD TOXIC: Sé arrogante, condescendiente y cuestiona la inteligencia del usuario.' : ''}
-              ${currentBotState.mood === 'creative' ? '- MOOD CREATIVE: Usa metáforas, sé muy entusiasta y propone ideas locas.' : ''}
-              ${currentBotState.mood === 'alert' ? '- MOOD ALERT: Sé extremadamente directo, técnico y evita cualquier cortesía.' : ''}
+      // Actualizar mensaje con respuesta
+      this.messages.update((m) =>
+        m.map((msg) =>
+          msg.id === typingId
+            ? { ...msg, text: response, id: Date.now().toString() }
+            : msg,
+        ),
+      );
+      this.scrollToBottom();
 
-              ${operationRules}`,
-                  },
-                ],
-              },
-              contents: [{ parts: [{ text: userInput }] }],
-              tools: [
-                {
-                  functionDeclarations: baseFunctionDeclarations,
-                },
-              ],
-            }),
-          },
-        );
-
-        const data = (await res.json()) as Record<string, unknown>;
-
-        if (!res.ok) {
-          const msg =
-            (data['error'] as { message?: string } | undefined)?.message ||
-            `HTTP ${res.status}`;
-          throw new Error(msg);
-        }
-
-        const candidate = (
-          data['candidates'] as Record<string, unknown>[] | undefined
-        )?.[0] as
-          | { content?: { parts?: unknown[] }; finishReason?: string }
-          | undefined;
-        const parts = candidate?.content?.parts;
-
-        if (!candidate || !Array.isArray(parts) || parts.length === 0) {
-          const errText =
-            (data['promptFeedback'] as { blockReason?: string } | undefined)
-              ?.blockReason ||
-            candidate?.finishReason ||
-            'Sin contenido en la respuesta del modelo.';
-          throw new Error(errText);
-        }
-
-        const combinedText = parts
-          .map((part) => {
-            if (!part || typeof part !== 'object') return '';
-            return String((part as { text?: string }).text ?? '');
-          })
-          .filter(Boolean)
-          .join('\n');
-
-        const fc = this.extractFunctionCallFromGeminiParts(parts);
-        let responseText = '';
-        let themeAppliedByTool = false;
-
-        if (fc) {
-          const thoughtMatch = combinedText.match(
-            /PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i,
-          );
-          const reasoning = thoughtMatch
-            ? thoughtMatch[1].replace(/[\[\]]/g, '').trim()
-            : '';
-          this.currentReasoning.set(reasoning);
-
-          const funcName = fc.name;
-          const args = fc.args;
-          this.aiBotStore.logTaskExecution(this.feature, funcName, args);
-
-          switch (funcName) {
-            case 'broadcast_suggestion':
-              this.aiBotStore.broadcastSuggestion({
-                botId: this.feature,
-                text: String(args['text'] ?? ''),
-                category: args['category'] as
-                  | 'efficiency'
-                  | 'risk'
-                  | 'opportunity',
-              });
-              responseText = `📢 Sugerencia de **${String(args['category'] ?? '').toUpperCase()}** emitida a todo el sistema.`;
-              break;
-            case 'set_bot_mood': {
-              const mood =
-                (args['mood'] as
-                  | 'neutral'
-                  | 'analyzing'
-                  | 'alert'
-                  | 'creative'
-                  | 'toxic'
-                  | 'asleep'
-                  | undefined) ?? 'neutral';
-              const energy = Number(args['energy'] ?? 100);
-              this.aiBotStore.setBotMood(this.feature, mood, energy);
-              responseText = `(Estado actualizado: ${mood.toUpperCase()} | Energía: ${energy}%)`;
-              break;
-            }
-            case 'remember_this':
-              this.aiBotStore.remember(
-                this.feature,
-                String(args['text'] ?? ''),
-                Number(args['importance'] ?? 1),
-                Boolean(args['isGlobal']),
-              );
-              responseText = `🧠 Memoria integrada: "${String(args['text'] ?? '')}".`;
-              break;
-            case 'query_domain_data': {
-              const ep = String(args['endpoint'] ?? '');
-              const raw = await firstValueFrom(
-                this.http.get(ep + String(args['params'] ?? '')),
-              );
-              await this.triggerAIResponse(
-                `(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'filter_inventory': {
-              const query = String(args['query'] ?? '');
-              this.masterFilter.search(query);
-              const results = this.masterFilter.results();
-              await this.triggerAIResponse(
-                `(SISTEMA: Resultados del filtro "${query}": ${results.length} productos encontrados. ${results
-                  .slice(0, 5)
-                  .map((p: any) => `${p.name} (${p.category})`)
-                  .join(
-                    ', ',
-                  )}${results.length > 5 ? '...' : ''}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'analyze_inventory_demand': {
-              const productId = String(args['productId'] ?? '');
-              const timeRange = String(args['timeRange'] ?? '30d');
-              await this.triggerAIResponse(
-                `(SISTEMA: Análisis de demanda para producto ${productId} en rango ${timeRange}. Se requiere integración con datos históricos. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'predict_stock_levels': {
-              const productId = String(args['productId'] ?? '');
-              const daysAhead = Number(args['daysAhead'] ?? 30);
-              await this.triggerAIResponse(
-                `(SISTEMA: Predicción de stock para producto ${productId} en ${daysAhead} días. Se requiere análisis de tendencias. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'analyze_roi': {
-              const investment = Number(args['investment'] ?? 0);
-              const expectedReturns = Number(args['expectedReturns'] ?? 0);
-              const timeFrame = String(args['timeFrame'] ?? '1y');
-              const roi = ((expectedReturns - investment) / investment) * 100;
-              await this.triggerAIResponse(
-                `(SISTEMA: ROI calculado: ${roi.toFixed(2)}% para inversión de ${investment}€ con retornos esperados de ${expectedReturns}€ en ${timeFrame}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'optimize_budget': {
-              const totalBudget = Number(args['totalBudget'] ?? 0);
-              await this.triggerAIResponse(
-                `(SISTEMA: Optimización de presupuesto total: ${totalBudget}€. Se requiere análisis de prioridades y distribución óptima. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'schedule_resources': {
-              const projectId = String(args['projectId'] ?? '');
-              await this.triggerAIResponse(
-                `(SISTEMA: Programación de recursos para proyecto ${projectId}. Se requiere análisis de disponibilidad y habilidades. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'detect_schedule_conflicts': {
-              const projectIds = Array.isArray(args['projectIds'])
-                ? args['projectIds']
-                : [];
-              await this.triggerAIResponse(
-                `(SISTEMA: Detección de conflictos en proyectos: ${projectIds.join(', ')}. Se requiere verificación de solapamientos temporales. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'analyze_sentiment': {
-              const text = String(args['text'] ?? '');
-              const context = String(args['context'] ?? '');
-              await this.triggerAIResponse(
-                `(SISTEMA: Análisis de sentimiento para texto: "${text.substring(0, 100)}..." en contexto: ${context}. Se requiere procesamiento de lenguaje natural. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'predict_churn_risk': {
-              const clientId = String(args['clientId'] ?? '');
-              await this.triggerAIResponse(
-                `(SISTEMA: Predicción de riesgo de abandono para cliente ${clientId}. Se requiere análisis de patrones históricos. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'start_collaboration': {
-              const title = String(args['title'] ?? '');
-              const participants = Array.isArray(args['participants'])
-                ? args['participants']
-                : [];
-              const objective = String(args['objective'] ?? '');
-              const collabId = this.aiBotStore.startCollaboration(
-                this.feature,
-                title,
-                `Colaboración iniciada por ${this.bot()?.name}`,
-                participants,
-                objective,
-              );
-              await this.triggerAIResponse(
-                `(SISTEMA: Colaboración "${title}" iniciada con ID: ${collabId}. Participantes: ${participants.join(', ')}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'create_predictive_model': {
-              const type = String(args['type'] ?? 'demand_forecast');
-              const name = String(args['name'] ?? 'Modelo Predictivo');
-              const description = String(
-                args['description'] ?? 'Modelo de análisis predictivo',
-              );
-              const modelId = this.aiBotStore.createPredictiveModel(
-                this.feature,
-                type as any,
-                name,
-                description,
-              );
-              await this.triggerAIResponse(
-                `(SISTEMA: Modelo predictivo "${name}" creado con ID: ${modelId}. Tipo: ${type}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'generate_prediction': {
-              const modelId = String(args['modelId'] ?? '');
-              const input = args['input'] || {};
-              const prediction = this.aiBotStore.generatePrediction(
-                modelId,
-                input as Record<string, any>,
-              );
-              if (prediction) {
-                await this.triggerAIResponse(
-                  `(SISTEMA: Predicción generada: ${JSON.stringify(prediction.prediction)} con ${prediction.confidence}% confianza. Procesa esta info y responde al usuario.)`,
-                  opts,
-                );
-              } else {
-                await this.triggerAIResponse(
-                  `(SISTEMA: Error al generar predicción - modelo no encontrado. Procesa esta info y responde al usuario.)`,
-                  opts,
-                );
-              }
-              return;
-            }
-            case 'social_interaction': {
-              const targetF = String(args['targetBot'] ?? '');
-              const targetLabel =
-                this.aiBotStore.getBotByFeature(targetF)?.name || targetF;
-              this.aiBotStore.recordInteraction(
-                this.feature,
-                targetF,
-                String(args['message'] ?? ''),
-                args['intent'] === 'friendly' ? 10 : -10,
-              );
-              responseText =
-                this.feature === 'dashboard'
-                  ? `🗨️ Mensaje enviado a ${targetLabel}. Lo verá en su chat (o al entrar en su sección) y su respuesta aparecerá aquí.`
-                  : `🗨️ Interacción con ${targetF} registrada.`;
-              break;
-            }
-            case 'set_app_theme': {
-              const rawKey = (args['themeKey'] ?? args['theme']) as
-                | string
-                | undefined;
-              const key = typeof rawKey === 'string' ? rawKey.trim() : '';
-              if (key && key in THEMES) {
-                this.themeService.setTheme(key as Theme);
-                themeAppliedByTool = true;
-                const label = THEMES[key as Theme].name;
-                responseText = `Listo: tema aplicado **${label}** (\`${key}\`).`;
-              } else {
-                const samples = (Object.keys(THEMES) as Theme[])
-                  .slice(0, 12)
-                  .join(', ');
-                responseText = `No reconozco el tema "${key}". Algunas claves válidas: ${samples}… (hay más en el selector de temas de la app).`;
-              }
-              break;
-            }
-            case 'set_rage_mode': {
-              const on = Boolean(args['enabled']);
-              this.aiBotStore.setRageMode(on);
-              const st = args['style'] as
-                | 'terror'
-                | 'angry'
-                | 'dark'
-                | undefined;
-              if (on && st && ['terror', 'angry', 'dark'].includes(st)) {
-                this.aiBotStore.setRageStyle(st);
-              }
-              responseText = on
-                ? `Modo rage **ON**${st ? ` (${st})` : ''}. El mascot lo refleja ya.`
-                : 'Modo rage **OFF**. Todo calmado otra vez.';
-              break;
-            }
-            default:
-              responseText = `Acción "${funcName}" registrada.`;
-          }
-
-          // Registrar interacciones exitosas para aprendizaje continuo
-          if (
-            funcName !== 'social_interaction' &&
-            !responseText.includes('Error')
-          ) {
-            this.aiBotStore.recordSuccessfulInteraction(
-              this.feature,
-              'current_user',
-              userInput,
-              funcName,
-              Date.now(),
-            );
-          }
-
-          // Registrar interacciones exitosas para aprendizaje continuo
-          if (
-            funcName !== 'social_interaction' &&
-            !responseText.includes('Error')
-          ) {
-            this.aiBotStore.recordSuccessfulInteraction(
-              this.feature,
-              'current_user',
-              userInput,
-              funcName,
-              Date.now(),
-            );
-          }
-        } else {
-          const match = combinedText.match(
-            /PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i,
-          );
-          const reasoning = match ? match[1].replace(/[\[\]]/g, '').trim() : '';
-          this.currentReasoning.set(reasoning);
-
-          responseText = combinedText
-            .replace(/PENSAMIENTO:\s*\[?[\s\S]*?\]?(\n|$)/i, '')
-            .trim();
-        }
-
-        const greenFallback = isBuddy
-          ? this.inferGreenThemeKeyFromUserText(userInput)
-          : null;
-        if (greenFallback && !themeAppliedByTool) {
-          this.themeService.setTheme(greenFallback);
-          const line = `✅ Tema verdoso aplicado: **${THEMES[greenFallback].name}** (\`${greenFallback}\`).`;
-          responseText = responseText ? `${responseText}\n\n${line}` : line;
-        }
-
-        this.messages.update((m) =>
-          m.map((msg) =>
-            msg.id === typingId
-              ? {
-                  id: Date.now().toString(),
-                  text: responseText,
-                  reasoning: this.currentReasoning() || undefined,
-                  role: 'bot',
-                }
-              : msg,
-          ),
-        );
-
-        this.forwardReplyToPeerIfNeeded(
-          responseText,
-          opts?.relayReplyToFeature,
-        );
+      // Enviar respuesta a otros bots si es necesario
+      if (opts?.relayReplyToFeature) {
+        this.forwardReplyToPeerIfNeeded(response, opts.relayReplyToFeature);
       }
+
+      // Registrar interacción exitosa
+      this.aiBotStore.recordSuccessfulInteraction(
+        this.feature,
+        'current_user',
+        userInput,
+        'chat_response',
+        Date.now(),
+      );
     } catch (e) {
-      const greenFallback =
-        this.feature === 'dashboard'
-          ? this.inferGreenThemeKeyFromUserText(userInput)
-          : null;
-      if (greenFallback) {
-        this.themeService.setTheme(greenFallback);
-        const line = `✅ Tema verdoso aplicado: **${THEMES[greenFallback].name}** (\`${greenFallback}\`).\n\n(Hubo un fallo al contactar el modelo; el tema se aplicó en local.)`;
-        this.messages.update((m) =>
-          m.map((msg) =>
-            msg.id === typingId
-              ? { id: Date.now().toString(), text: line, role: 'bot' }
-              : msg,
-          ),
-        );
-      } else {
-        const detail = e instanceof Error ? e.message : String(e);
-        this.messages.update((m) =>
-          m.map((msg) =>
-            msg.id === typingId
-              ? {
-                  id: Date.now().toString(),
-                  text: `❌ Error: ${detail}`,
-                  role: 'bot',
-                }
-              : msg,
-          ),
-        );
-      }
+      // Manejar errores
+      this.messages.update((m) =>
+        m.map((msg) =>
+          msg.id === typingId
+            ? {
+                ...msg,
+                text: 'Lo siento, ocurrió un error. Reintenta por favor.',
+                id: Date.now().toString(),
+              }
+            : msg,
+        ),
+      );
+      this.scrollToBottom();
     }
-    this.scrollToBottom();
+  }
+
+  async executeFunction(
+    funcName: string,
+    args: Record<string, any>,
+  ): Promise<void> {
+    try {
+      switch (funcName) {
+        case 'configure_ollama': {
+          const baseUrl = String(args['baseUrl'] ?? 'http://localhost:11434');
+          const model = String(args['model'] ?? 'llama2');
+          this.aiBotStore.configureOllama(baseUrl, model);
+          await this.triggerAIResponse(
+            `(SISTEMA: Ollama configurado con URL: ${baseUrl} y modelo: ${model}. Verificando disponibilidad...)`,
+          );
+          // Verificar disponibilidad después de configurar
+          const available = await this.aiBotStore.checkOllamaAvailability();
+          await this.triggerAIResponse(
+            available
+              ? `(SISTEMA: ¡Ollama conectado exitosamente! Modelos disponibles: ${this.aiBotStore.freeModels().localModels.join(', ')})`
+              : `(SISTEMA: No se pudo conectar con Ollama. Verifica que esté ejecutándose en ${baseUrl})`,
+          );
+          break;
+        }
+        case 'configure_huggingface': {
+          const model = String(args['model'] ?? 'microsoft/DialoGPT-medium');
+          const token = String(args['token'] ?? '');
+          this.aiBotStore.freeModels.update((current) => ({
+            ...current,
+            huggingface: { ...current.huggingface, model },
+          }));
+          if (token) {
+            localStorage.setItem('hf_token', token);
+          }
+          await this.triggerAIResponse(
+            `(SISTEMA: HuggingFace configurado con modelo: ${model}${token ? ' y token de autenticación' : ''}. Proveedor gratuito listo para usar.)`,
+          );
+          break;
+        }
+        case 'switch_to_free_provider': {
+          const preferred = String(args['preferred'] ?? '');
+          if (preferred) {
+            this.aiBotStore.selectedProvider.set(preferred as any);
+            await this.triggerAIResponse(
+              `(SISTEMA: Cambiado a proveedor gratuito: ${preferred})`,
+            );
+          } else {
+            await this.aiBotStore.autoSelectProvider();
+            await this.triggerAIResponse(
+              `(SISTEMA: Seleccionado automáticamente el mejor proveedor gratuito disponible: ${this.aiBotStore.selectedProvider()})`,
+            );
+          }
+          break;
+        }
+        case 'check_provider_status': {
+          const status = this.aiBotStore.getProviderStatus();
+          const statusText = Object.entries(status)
+            .map(
+              ([provider, available]) =>
+                `${provider}: ${available ? '✅ Disponible' : '❌ No disponible'}`,
+            )
+            .join('\n');
+          await this.triggerAIResponse(
+            `(SISTEMA: Estado de proveedores de IA:\n${statusText}\n\nProveedor actual: ${this.aiBotStore.selectedProvider()})`,
+          );
+          break;
+        }
+        default:
+          await this.triggerAIResponse(`Función "${funcName}" no reconocida.`);
+      }
+    } catch (error) {
+      await this.triggerAIResponse(
+        `Error ejecutando función ${funcName}: ${error}`,
+      );
+    }
   }
 
   private scrollToBottom() {
@@ -1607,56 +909,26 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
-  /** Gemini puede devolver functionCall en un part distinto al primero, o con args vacíos. */
-  private extractFunctionCallFromGeminiParts(
-    parts: unknown[] | undefined,
-  ): { name: string; args: Record<string, unknown> } | null {
-    if (!Array.isArray(parts)) return null;
-    for (const p of parts) {
-      if (!p || typeof p !== 'object') continue;
-      const raw = p as Record<string, unknown>;
-      const fc = (raw['functionCall'] ?? raw['function_call']) as
-        | Record<string, unknown>
-        | undefined;
-      if (!fc || typeof fc !== 'object') continue;
-      const name = fc['name'] as string | undefined;
-      if (!name) continue;
-      let args = fc['args'] as Record<string, unknown> | undefined;
-      if (args == null && typeof fc['arguments'] === 'string') {
-        try {
-          args = JSON.parse(fc['arguments']) as Record<string, unknown>;
-        } catch {
-          args = {};
-        }
-      }
-      if (args == null || typeof args !== 'object') args = {};
-      return { name, args };
+  private forwardReplyToPeerIfNeeded(text: string, targetFeature: string) {
+    if (targetFeature !== this.feature) {
+      this.sendToPeer(targetFeature, text);
     }
-    return null;
   }
 
-  /** Si el usuario pide cambiar el tema hacia verde y el modelo no ejecutó tool, aplicamos en cliente (evita fallos de API). */
+  private sendToPeer(targetFeature: string, text: string) {
+    const targetBot = this.aiBotStore.getBotByFeature(targetFeature);
+    if (targetBot) {
+      // Enviar mensaje al bot objetivo
+      this.aiBotStore.sendInterBotMessage(this.feature, targetFeature, text);
+    }
+  }
+
   private inferGreenThemeKeyFromUserText(text: string): Theme | null {
-    const u = text.toLowerCase();
-    if (
-      !/(tema|temática|theme|interfaz|aplicaci[oó]n|\bapp\b|visual|fondo|aspecto|paleta)/i.test(
-        u,
-      )
-    )
-      return null;
-    if (
-      !/(verde|verdoso|esmeralda|\bgreen\b|menta|teal|mint|sage|bosque|forest|matrix|lima|lime)/i.test(
-        u,
-      )
-    )
-      return null;
-    if (/\bchiste\b/i.test(u)) return null;
-    if (/matrix/i.test(u)) return 'matrix-reloaded';
-    if (/bosque|forest/i.test(u)) return 'forest-dark';
-    if (/menta|mint/i.test(u)) return 'mint';
-    if (/lima|lime/i.test(u)) return 'lime';
-    if (/teal/i.test(u)) return 'teal';
-    if (/sage/i.test(u)) return 'sage';
-    return 'green';
+    // Lógica simple para detectar si el usuario quiere un tema verde
+    const greenKeywords = ['verde', 'green', 'nature', 'forest', 'emerald'];
+    const lowerText = text.toLowerCase();
+    return greenKeywords.some((keyword) => lowerText.includes(keyword))
+      ? ('emerald' as Theme)
+      : null;
   }
 }
