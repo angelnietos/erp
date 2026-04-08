@@ -129,6 +129,10 @@ import {
   Smile,
   Zap,
   Minus,
+  FlaskConical,
+  Globe,
+  Volume2,
+  Layout,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -261,6 +265,10 @@ export const appConfig: ApplicationConfig = {
         Smile,
         Zap,
         Minus,
+        FlaskConical,
+        Globe,
+        Volume2,
+        Layout,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },

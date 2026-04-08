@@ -1,6 +1,26 @@
 import { ChangeDetectionStrategy, Component, inject, signal, effect, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Puzzle, Sliders, Bot, Shield, CheckCircle2, X, Cpu, Smile, Zap } from 'lucide-angular';
+import { 
+  LucideAngularModule, 
+  Puzzle, 
+  Sliders, 
+  Bot, 
+  Shield, 
+  CheckCircle2, 
+  X, 
+  Cpu, 
+  Smile, 
+  Zap, 
+  Bell, 
+  Lock, 
+  FlaskConical, 
+  Globe, 
+  Volume2, 
+  Layout,
+  Clock,
+  Trash2,
+  RefreshCw
+} from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UIMascotComponent, UiBadgeComponent, UiInputComponent, UiSelectComponent } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
 import { FormsModule } from '@angular/forms';
@@ -40,11 +60,11 @@ interface PluginDescriptor {
           <nav class="settings-nav">
             <button 
               class="nav-item" 
-              [class.active]="activeTab() === 'plugins'"
-              (click)="activeTab.set('plugins')"
+              [class.active]="activeTab() === 'general'"
+              (click)="activeTab.set('general')"
             >
-              <lucide-icon name="puzzle" size="18"></lucide-icon>
-              <span>Módulos & Plugins</span>
+              <lucide-icon name="sliders" size="18"></lucide-icon>
+              <span>General</span>
             </button>
             <button 
               class="nav-item" 
@@ -55,20 +75,47 @@ interface PluginDescriptor {
               <span>Asistentes de IA</span>
             </button>
             <button 
+              class="nav-item" 
+              [class.active]="activeTab() === 'notifications'"
+              (click)="activeTab.set('notifications')"
+            >
+              <lucide-icon name="bell" size="18"></lucide-icon>
+              <span>Notificaciones</span>
+            </button>
+            <button 
+              class="nav-item" 
+              [class.active]="activeTab() === 'security'"
+              (click)="activeTab.set('security')"
+            >
+              <lucide-icon name="lock" size="18"></lucide-icon>
+              <span>Seguridad</span>
+            </button>
+            <button 
               class="nav-item buddy-nav-item" 
               [class.active]="activeTab() === 'buddy'"
               (click)="activeTab.set('buddy')"
             >
               <lucide-icon name="smile" size="18"></lucide-icon>
-              <span>{{ aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature()) }}</span>
+              <span>Personalizar {{ aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature()) }}</span>
+            </button>
+            
+            <div class="nav-divider">Otros</div>
+
+            <button 
+              class="nav-item" 
+              [class.active]="activeTab() === 'plugins'"
+              (click)="activeTab.set('plugins')"
+            >
+              <lucide-icon name="puzzle" size="18"></lucide-icon>
+              <span>Módulos & Plugins</span>
             </button>
             <button 
               class="nav-item" 
-              [class.active]="activeTab() === 'preferences'"
-              (click)="activeTab.set('preferences')"
+              [class.active]="activeTab() === 'labs'"
+              (click)="activeTab.set('labs')"
             >
-              <lucide-icon name="sliders" size="18"></lucide-icon>
-              <span>Preferencias</span>
+              <lucide-icon name="flask-conical" size="18"></lucide-icon>
+              <span>Laboratorio</span>
             </button>
           </nav>
 
@@ -437,29 +484,46 @@ interface PluginDescriptor {
             </section>
           }
 
-          @if (activeTab() === 'preferences') {
+          @if (activeTab() === 'general') {
             <section class="content-section animate-slide-up">
               <div class="section-title">
-                <h2>Preferencias de Plataforma</h2>
-                <p>Personaliza tu experiencia de usuario y rendimiento</p>
+                <h2>General</h2>
+                <p>Personaliza tu experiencia de usuario y el entorno de trabajo</p>
               </div>
 
-              <div class="prefs-container">
+              <div class="prefs-container grid-config">
                 <ui-josanz-card variant="glass" class="prefs-card">
+                  <h3 class="config-subtitle"><lucide-icon name="globe" size="16"></lucide-icon> Idioma y Localización</h3>
+                  <div class="form-group mb-4">
+                    <ui-josanz-select
+                      label="Idioma del Sistema"
+                      [options]="[
+                        { value: 'es', label: 'Español (Castellano)' },
+                        { value: 'en', label: 'English (US)' },
+                        { value: 'fr', label: 'Français' }
+                      ]"
+                      [ngModel]="aiBotStore.language()"
+                      (ngModelChange)="aiBotStore.language.set($event)"
+                    ></ui-josanz-select>
+                  </div>
+                </ui-josanz-card>
+
+                <ui-josanz-card variant="glass" class="prefs-card">
+                  <h3 class="config-subtitle"><lucide-icon name="layout" size="16"></lucide-icon> Interfaz y Diseño</h3>
                   <div class="pref-row">
                     <div class="pref-text">
-                      <h4>Sincronización en Tiempo Real</h4>
-                      <p>Habilita la comunicación vía WebSockets para datos operativos</p>
+                      <h4>Modo Compacto</h4>
+                      <p>Reduce márgenes y tamaños de botones para ver más datos</p>
                     </div>
-                    <div class="toggle-wrapper" (click)="toggleRealtime()" [class.active]="realtimeSync()">
+                    <div class="toggle-wrapper" (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())" [class.active]="aiBotStore.compactMode()">
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
 
                   <div class="pref-row">
                     <div class="pref-text">
-                      <h4 class="premium-text">Luxe Experience (Global)</h4>
-                      <p>Habilita trazado de rayos simulado y efectos cinematográficos avanzados</p>
+                      <h4 class="premium-text">Luxe Experience</h4>
+                      <p>Efectos cinematográficos y trazado de rayos simulado</p>
                     </div>
                     <div class="toggle-wrapper premium" (click)="togglePremium()" [class.active]="premiumExperience()">
                       <div class="toggle-handle"></div>
@@ -467,6 +531,106 @@ interface PluginDescriptor {
                   </div>
                 </ui-josanz-card>
               </div>
+            </section>
+          }
+
+          @if (activeTab() === 'notifications') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Notificaciones</h2>
+                <p>Gestiona cómo y cuándo quieres recibir avisos</p>
+              </div>
+
+              <ui-josanz-card variant="glass" class="prefs-card">
+                <div class="pref-row">
+                  <div class="pref-text">
+                    <h4>Notificaciones Globales</h4>
+                    <p>Habilitar el sistema de alertas de escritorio y push</p>
+                  </div>
+                  <div class="toggle-wrapper" (click)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())" [class.active]="aiBotStore.notificationsEnabled()">
+                    <div class="toggle-handle"></div>
+                  </div>
+                </div>
+
+                <div class="pref-row">
+                  <div class="pref-text">
+                    <h4>Efectos de Sonido</h4>
+                    <p>Alertas sonoras para interacciones de bot y eventos</p>
+                  </div>
+                  <div class="toggle-wrapper" (click)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())" [class.active]="aiBotStore.soundEffects()">
+                    <div class="toggle-handle"></div>
+                  </div>
+                </div>
+              </ui-josanz-card>
+            </section>
+          }
+
+          @if (activeTab() === 'security') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Seguridad y Privacidad</h2>
+                <p>Protege tus datos y configura el acceso seguro</p>
+              </div>
+
+              <div class="grid-config">
+                <ui-josanz-card variant="glass" class="prefs-card">
+                  <h3 class="config-subtitle"><lucide-icon name="clock" size="16"></lucide-icon> Sesión</h3>
+                  <div class="form-group">
+                    <ui-josanz-select
+                      label="Tiempo de espera de sesión"
+                      [options]="[
+                        { value: 15, label: '15 Minutos' },
+                        { value: 30, label: '30 Minutos' },
+                        { value: 60, label: '1 Hora' },
+                        { value: 0, label: 'Nunca (No recomendado)' }
+                      ]"
+                      [ngModel]="aiBotStore.sessionTimeout()"
+                      (ngModelChange)="aiBotStore.sessionTimeout.set($event)"
+                    ></ui-josanz-select>
+                  </div>
+                </ui-josanz-card>
+
+                <ui-josanz-card variant="glass" class="prefs-card">
+                  <h3 class="config-subtitle"><lucide-icon name="trash2" size="16"></lucide-icon> Gestión de Datos</h3>
+                  <div class="pref-row">
+                    <div class="pref-text">
+                      <h4>Auto-archivo de chats</h4>
+                      <p>Mueve conversaciones antiguas al historial automáticamente</p>
+                    </div>
+                    <div class="toggle-wrapper" (click)="aiBotStore.autoArchive.set(!aiBotStore.autoArchive())" [class.active]="aiBotStore.autoArchive()">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+                </ui-josanz-card>
+              </div>
+            </section>
+          }
+
+          @if (activeTab() === 'labs') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Laboratorio Experimental</h2>
+                <p>Prueba funciones en desarrollo antes que nadie. Cuidado: pueden ser inestables.</p>
+              </div>
+
+              <ui-josanz-card variant="glass" class="labs-card">
+                <div class="labs-header">
+                  <lucide-icon name="flask-conical" size="32" class="labs-icon"></lucide-icon>
+                  <div>
+                    <h3 class="experimental-title">Josanz Genesis Engine</h3>
+                    <p>Activa el motor de razonamiento autónomo profundo</p>
+                  </div>
+                </div>
+                <div class="pref-row mt-4">
+                  <div class="pref-text">
+                    <h4>Habilitar Funciones Beta</h4>
+                    <p>Permite el acceso a herramientas experimentales de IA</p>
+                  </div>
+                  <div class="toggle-wrapper labs-toggle" (click)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())" [class.active]="aiBotStore.experimentalFeatures()">
+                    <div class="toggle-handle"></div>
+                  </div>
+                </div>
+              </ui-josanz-card>
             </section>
           }
         </main>
@@ -578,16 +742,74 @@ interface PluginDescriptor {
       padding: 0.5rem 1rem;
     }
 
+    .nav-divider {
+      padding: 1.5rem 1rem 0.5rem 1.25rem;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      opacity: 0.5;
+    }
+
     /* Content Area */
     .settings-content {
       overflow-y: auto;
       padding-right: 0.5rem;
+      padding-bottom: 4rem;
     }
 
     .content-section {
       display: flex;
       flex-direction: column;
       gap: 2rem;
+    }
+
+    .grid-config {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .config-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .labs-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(217, 70, 239, 0.05) 100%);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .labs-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .labs-icon {
+      color: #a78bfa;
+      filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.4));
+    }
+
+    .experimental-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .labs-toggle.active {
+      background: #8b5cf6 !important;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
     }
 
     .section-title h2 {
@@ -1096,7 +1318,7 @@ export class SettingsFeatureComponent implements OnInit {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
 
-  readonly activeTab = signal<'plugins' | 'ai' | 'buddy' | 'preferences'>('buddy');
+  readonly activeTab = signal<'general' | 'ai' | 'buddy' | 'plugins' | 'notifications' | 'security' | 'labs'>('general');
   readonly managingBotId = signal<string | null>(null);
 
   // Expose signals explicitly for better template inference
