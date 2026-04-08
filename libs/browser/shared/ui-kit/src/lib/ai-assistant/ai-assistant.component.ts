@@ -58,10 +58,9 @@ import { firstValueFrom } from 'rxjs';
               </button>
             </div>
           </div>
-
           <div class="chat-messages">
             <div class="message bot-msg">
-              <p>¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de {{ bot()!.feature }} en tiempo real. ¿En qué puedo ayudarte hoy?</p>
+              <p>¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de **{{ bot()!.feature }}** en tiempo real. ¿En qué puedo ayudarte hoy?</p>
               <div class="bot-skills-badges">
                 @for (skill of bot()!.activeSkills; track skill) {
                   <span class="skill-badge" [style.background]="bot()!.color + '22'" [style.color]="bot()!.color">
@@ -73,15 +72,27 @@ import { firstValueFrom } from 'rxjs';
 
             @for (msg of messages(); track msg.id) {
               <div class="message" [class.user-msg]="msg.role === 'user'" [class.bot-msg]="msg.role === 'bot'">
+                
+                <!-- Reasoning Block -->
                 <div class="msg-reasoning" *ngIf="msg.reasoning" [style.border-left-color]="bot()!.color">
                   <div class="reasoning-header">
-                     <lucide-icon name="brain-circuit" size="12"></lucide-icon>
-                     <span>PENSAMIENTO INTERNO</span>
+                     <div class="ai-pulse" [style.background]="bot()!.color"></div>
+                     <span>TERMINAL DE PENSAMIENTO</span>
                   </div>
                   <p class="reasoning-text">{{ msg.reasoning }}</p>
                 </div>
-                <p [innerHTML]="msg.text"></p>
-                <div class="msg-feedback" *ngIf="msg.role === 'bot' && msg.id !== 'err' && !msg.id.toString().startsWith('typing')">
+
+                <!-- Main Content -->
+                <p class="msg-content" *ngIf="msg.text" [innerHTML]="msg.text"></p>
+
+                <!-- Premium Typing Indicator -->
+                <div class="typing-indicator" *ngIf="!msg.text && msg.id.toString().startsWith('typing')">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </div>
+
+                <div class="msg-feedback" *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text">
                   <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
                     <button class="feedback-btn" (click)="submitFeedback(msg, 'positive')" title="Me gusta esta respuesta">👍</button>
                     <button class="feedback-btn" (click)="submitFeedback(msg, 'negative')" title="No me gusta esta respuesta">👎</button>
@@ -92,6 +103,20 @@ import { firstValueFrom } from 'rxjs';
                 </div>
               </div>
             }
+          </div>
+
+          <!-- Bot Status Bar -->
+          <div class="bot-status-bar" *ngIf="bot()" [style.border-top-color]="bot()!.color">
+             <div class="status-item">
+                <span class="label">HUMOR:</span>
+                <span class="val">{{ (aiBotStore.botMoods()[this.feature]?.mood || 'NEUTRAL').toUpperCase() }}</span>
+             </div>
+             <div class="status-item">
+                <span class="label">ENERGÍA:</span>
+                <div class="energy-bar">
+                   <div class="energy-fill" [style.width]="(aiBotStore.botMoods()[this.feature]?.energy || 100) + '%'" [style.background]="bot()!.color"></div>
+                </div>
+             </div>
           </div>
 
           <div class="chat-input-area">
@@ -209,6 +234,74 @@ import { firstValueFrom } from 'rxjs';
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .bot-status-bar {
+       padding: 0.5rem 1rem;
+       background: rgba(0,0,0,0.3);
+       border-top: 1px solid rgba(255,255,255,0.05);
+       display: flex;
+       gap: 1.5rem;
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 0.65rem;
+    }
+
+    .status-item {
+       display: flex;
+       align-items: center;
+       gap: 6px;
+    }
+
+    .status-item .label { color: var(--text-muted); font-weight: 800; }
+    .status-item .val { color: #fff; font-weight: 800; text-shadow: 0 0 5PX currentColor; }
+
+    .energy-bar {
+       width: 60px;
+       height: 4px;
+       background: rgba(255,255,255,0.1);
+       border-radius: 2px;
+       overflow: hidden;
+    }
+
+    .energy-fill {
+       height: 100%;
+       transition: width 0.5s ease;
+    }
+
+    .ai-pulse {
+       width: 6px;
+       height: 6px;
+       border-radius: 50%;
+       animation: scannerPulse 1.5s infinite;
+    }
+
+    @keyframes scannerPulse {
+       0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+       70% { transform: scale(1.5); opacity: 0.5; box-shadow: 0 0 0 6px rgba(0,0,0,0); }
+       100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+    }
+
+    .typing-indicator {
+       display: flex;
+       gap: 4px;
+       padding: 0.5rem 0;
+    }
+
+    .typing-indicator .dot {
+       width: 6px;
+       height: 6px;
+       background: var(--text-muted);
+       border-radius: 50%;
+       animation: typingDot 1.4s infinite;
+       opacity: 0.3;
+    }
+
+    .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingDot {
+       0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+       30% { transform: translateY(-4px); opacity: 1; }
     }
 
     .chat-messages {
@@ -444,7 +537,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     }
 
     const typingId = 'typing-' + Date.now();
-    this.messages.update(m => [...m, { id: typingId, text: '⏳ *Analizando...*', role: 'bot' }]);
+    this.messages.update(m => [...m, { id: typingId, text: '', role: 'bot' }]); // Empty text for custom typing indicator
     this.scrollToBottom();
 
     const isBuddy = this.feature === 'dashboard';
@@ -462,6 +555,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       .map(m => `[${m.sourceBot}]: ${m.text}`)
       .join('\n');
 
+    const currentBotState = this.aiBotStore.botMoods()[this.feature] || { mood: 'neutral', energy: 100 };
+
     const domainPrompt = isBuddy 
       ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. EQUIPO: ${otherBots}.`
       : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}.`;
@@ -474,21 +569,30 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: `
               ${domainPrompt}
-              ESTADO: Tareas: ${tasksTxt}. Archivos: ${filesTxt}. Memorias Locales: ${memoriesTxt}. MEMORIA GLOBAL: ${globalContext}.
-              PERFIL USUARIO: ${this.currentUserPersonality().nickname}.
-              FORMATO: Siempre empieza con "PENSAMIENTO: [análisis]" seguido de respuesta.` }] },
+              ESTADO ACTUAL: Humor: ${currentBotState.mood}, Energía: ${currentBotState.energy}%.
+              Tareas: ${tasksTxt}. Archivos: ${filesTxt}. Memorias Locales: ${memoriesTxt}. MEMORIA GLOBAL: ${globalContext}.
+              PERFIL USUARIO: ${this.currentUserPersonality().nickname} (${this.currentUserPersonality().style}).
+
+              REGLAS ANTIGRAVITY:
+              1. Empieza con "PENSAMIENTO: [tu análisis de 1-2 párrafos sobre lo que vas a hacer y por qué]".
+              2. Sé extremadamente útil y técnico.
+              3. Si el usuario te trata bien, sube tu energía. Si te insulta, puedes entrar en modo 'toxic'.
+              4. Usa 'set_bot_mood' si tu estado emocional cambia.` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
                 { name: 'social_interaction', description: 'Mensaje a otro bot.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING' }, message: { type: 'STRING' }, intent: { type: 'STRING' } }, required: ['targetBot', 'message', 'intent'] } },
                 { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
-                { name: 'query_domain_data', description: 'Consultar API.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
+                { name: 'set_bot_mood', description: 'Cambia tu estado emocional y energía.', parameters: { type: 'OBJECT', properties: { mood: { type: 'STRING', enum: ['neutral', 'analyzing', 'alert', 'creative', 'toxic', 'asleep'] }, energy: { type: 'NUMBER' } }, required: ['mood', 'energy'] } },
+                { name: 'query_domain_data', description: 'Consultar API REST real.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
               ]
             }]
           })
         });
 
         const data = await res.json();
+        if (!data.candidates) throw new Error('No response');
+        
         const firstPart = data.candidates[0].content.parts[0];
         let responseText = '';
 
@@ -498,30 +602,41 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           this.aiBotStore.logTaskExecution(this.feature, func.name, args);
 
           switch (func.name) {
+            case 'set_bot_mood':
+              this.aiBotStore.setBotMood(this.feature, args.mood, args.energy);
+              responseText = `(Estado actualizado: ${args.mood.toUpperCase()} | Energía: ${args.energy}%)`;
+              break;
             case 'remember_this':
               this.aiBotStore.remember(this.feature, args.text, args.importance, args.isGlobal);
-              responseText = `🧠 Memoria asimilada: "${args.text}".`;
+              responseText = `🧠 Memoria integrada: "${args.text}".`;
               break;
             case 'query_domain_data':
               const raw = await firstValueFrom(this.http.get(args.endpoint + (args.params || '')));
-              await this.triggerAIResponse(`(SISTEMA: Datos: ${JSON.stringify(raw).substring(0, 1000)})`);
+              await this.triggerAIResponse(`(SISTEMA: Datos devueltos: ${JSON.stringify(raw).substring(0, 1000)}. Procesa esta info y responde al usuario.)`);
               return;
             case 'social_interaction':
-              this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, 0);
-              responseText = `🗨️ Mensaje enviado a ${args.targetBot}.`;
+              this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, args.intent === 'friendly' ? 10 : -10);
+              responseText = `🗨️ Interacción con ${args.targetBot} registrada.`;
               break;
           }
         } else {
           const fullText = firstPart.text || '';
-          const match = fullText.match(/PENSAMIENTO:\s*\[([\s\S]*?)\]/);
-          this.currentReasoning.set(match ? match[1] : 'Analizando...');
-          responseText = fullText.replace(/PENSAMIENTO:\s*\[[\s\S]*?\]/, '').trim();
+          const match = fullText.match(/PENSAMIENTO:\s*\[?([\s\S]*?)\]?(\n|$)/i);
+          const reasoning = match ? match[1].replace(/[\[\]]/g, '').trim() : '';
+          this.currentReasoning.set(reasoning);
+          
+          responseText = fullText.replace(/PENSAMIENTO:\s*\[?[\s\S]*?\]?(\n|$)/i, '').trim();
         }
 
-        this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: responseText, reasoning: this.currentReasoning(), role: 'bot' } : msg));
+        this.messages.update(m => m.map(msg => msg.id === typingId ? { 
+          id: Date.now().toString(), 
+          text: responseText, 
+          reasoning: this.currentReasoning() || undefined, 
+          role: 'bot' 
+        } : msg));
       }
     } catch (e) {
-      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: '❌ Error.', role: 'bot' } : msg));
+      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: '❌ Error en la matriz neuronal. Reintenta.', role: 'bot' } : msg));
     }
     this.scrollToBottom();
   }

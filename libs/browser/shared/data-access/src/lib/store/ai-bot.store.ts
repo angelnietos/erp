@@ -19,6 +19,17 @@ export interface UserPersonalityProfile {
   lastMood?: 'happy' | 'frustrated' | 'busy' | 'curious';
 }
 
+export type BotMood = 'neutral' | 'analyzing' | 'alert' | 'creative' | 'toxic' | 'asleep';
+
+export interface ProactiveSuggestion {
+  id: string;
+  botId: string;
+  text: string;
+  action?: string;
+  category: 'efficiency' | 'risk' | 'opportunity';
+  timestamp: number;
+}
+
 export interface AIRangeMemory {
   text: string;
   importance: number;
@@ -62,7 +73,21 @@ export class AIBotStore {
       localStorage.setItem('ai_api_key', this.providerApiKey());
       localStorage.setItem('ai_bot_custom_names', JSON.stringify(this._customNames()));
       localStorage.setItem('ai_global_memories', JSON.stringify(this._globalMemories()));
+      localStorage.setItem('ai_bot_moods', JSON.stringify(this._botMoods()));
     });
+  }
+
+  // Bot Moods & State
+  private readonly _botMoods = signal<Record<string, { mood: BotMood, energy: number }>>(
+    JSON.parse(localStorage.getItem('ai_bot_moods') || '{}')
+  );
+  readonly botMoods = this._botMoods.asReadonly();
+
+  setBotMood(feature: string, mood: BotMood, energy: number = 100) {
+    this._botMoods.update(current => ({
+      ...current,
+      [feature]: { mood, energy }
+    }));
   }
 
   // Global Context (Antigravity-style shared knowledge)
