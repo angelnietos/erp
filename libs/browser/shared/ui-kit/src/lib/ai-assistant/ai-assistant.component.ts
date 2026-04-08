@@ -751,6 +751,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    }
                 },
                 {
+                   name: 'query_domain_data',
+                   description: 'Realiza una llamada a la API REST real del ERP para obtener el estado actual de la base de datos empresarial de cualquier módulo. Úsalo SIEMPRE que necesites responder con DATOS OBJETIVOS Y REALES (ej: lista de proyectos, usuarios, eventos).',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       endpoint: { type: 'STRING', description: 'El endpoint de la API a consultar. Ejemplos obligatorios: /api/inventory, /api/events, /api/projects, /api/clients, /api/receipts, /api/users, /api/fleet, /api/auth/users.' },
+                       params: { type: 'STRING', description: 'Parámetros obligatorios si proceden (ej: ?status=ACTIVE o ?limit=5). Déjalo vacío de lo contrario.' }
+                     }, 
+                     required: ['endpoint'] 
+                   }
+                },
+                {
                    name: 'remember_this',
                    description: 'Guarda un hecho o información importante en tu memoria a largo plazo.',
                    parameters: { 
@@ -845,6 +857,27 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             case 'update_dynamic_canvas':
               this.aiBotStore.updateCanvas(args.targetFeature, args.htmlContent);
               responseText = `✨ He actualizado el Dynamic Canvas en la vista de **${args.targetFeature}** con tu código visual.`;
+              break;
+
+            case 'query_domain_data':
+              try {
+                 const endpoint = args.endpoint.startsWith('/') ? args.endpoint : `/${args.endpoint}`;
+                 const paramsStr = args.params || '';
+                 const queryUrl = endpoint + paramsStr;
+                 
+                 this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `🔌 *Consultando base de datos real: ${queryUrl}...*`, role: 'bot' } : msg));
+                 
+                 const rawData = await firstValueFrom(this.http.get(queryUrl));
+                 const dataStr = JSON.stringify(rawData);
+                 
+                 this.messages.update(m => m.filter(msg => msg.id !== typingId));
+                 const innerQuery = `(SISTEMA: Has ejecutado query_domain_data. El JSON devuelto desde ${queryUrl} es: ${dataStr.substring(0, 3000)}. Ahora, como el experto ${this.bot()!.name}, analiza estos datos reales y responde a mi consulta inicial conversacionalmente, indicando los datos valiosos. Si el JSON está vacío, indica que no hay registros.)`;
+                 
+                 await this.triggerAIResponse(innerQuery);
+                 return; 
+              } catch (e) {
+                 responseText = `⚠️ Error al consultar la API real en ${args.endpoint}. ¿Está el backend encendido?`;
+              }
               break;
 
             case 'search_database':
