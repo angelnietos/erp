@@ -503,8 +503,8 @@ interface EventFilter {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        margin-bottom: 2rem;
-        padding: 3rem 0 2rem 0;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem 0 1rem 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         z-index: 2;
       }
@@ -523,8 +523,8 @@ interface EventFilter {
       .page-title {
         position: relative;
         z-index: 1;
-        margin: 0 0 0.5rem 0;
-        font-size: clamp(1.75rem, 4vw, 3rem);
+        margin: 0 0 0.25rem 0;
+        font-size: clamp(1.5rem, 2vw, 2rem);
         font-weight: 800;
         font-family: var(--font-display);
         letter-spacing: 0.04em;
@@ -565,9 +565,9 @@ interface EventFilter {
 
       .stats-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
       }
 
       .gaming-stats {
@@ -657,14 +657,14 @@ interface EventFilter {
       }
 
       .filters-card {
-        padding: 2rem;
+        padding: 1.5rem;
       }
 
       .filters-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .filters-title-section {
@@ -680,7 +680,7 @@ interface EventFilter {
 
       .filters-header h2 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: var(--text-primary);
         text-transform: uppercase;
@@ -702,8 +702,8 @@ interface EventFilter {
 
       .filters-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
         align-items: end;
       }
 
@@ -715,14 +715,14 @@ interface EventFilter {
       }
 
       .events-card {
-        padding: 2rem;
+        padding: 1.5rem;
       }
 
       .events-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .events-title-section {
@@ -738,7 +738,7 @@ interface EventFilter {
 
       .events-header h2 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: var(--text-primary);
         text-transform: uppercase;
