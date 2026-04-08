@@ -1455,10 +1455,9 @@ export class AIBotStore {
     if (this._isCheckingProviders) return;
     
     // Si ya tenemos una preferencia guardada que no sea 'free', la respetamos
+    // No chequeamos Ollama en segundo plano si ya tenemos un proveedor Cloud para evitar el ruido en consola
     const persisted = localStorage.getItem('ai_selected_model_id');
-    if (persisted && persisted !== 'free') {
-      // Solo verificamos disponibilidad de Ollama en segundo plano sin cambiar el seleccionado
-      void this.checkOllamaAvailability();
+    if (persisted && persisted !== 'free' && persisted !== 'ollama') {
       return;
     }
 

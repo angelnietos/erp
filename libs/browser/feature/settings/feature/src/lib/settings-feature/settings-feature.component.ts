@@ -149,6 +149,14 @@ interface PluginDescriptor {
                       [ngModel]="aiBotStore.selectedModelId()"
                       (ngModelChange)="aiBotStore.setAIModel($event)"
                     ></ui-josanz-select>
+                    <button 
+                      class="mt-2 text-xs text-muted hover:text-brand transition-colors flex items-center gap-1"
+                      (click)="aiBotStore.checkOllamaAvailability(true)"
+                      style="background: none; border: none; cursor: pointer; padding: 0;"
+                    >
+                      <lucide-icon name="refresh-cw" size="12"></lucide-icon>
+                      ACTUALIZAR MODELOS OLLAMA
+                    </button>
                   </div>
                   
                   <div class="form-group mb-4">
@@ -1086,7 +1094,8 @@ export class SettingsFeatureComponent implements OnInit {
     this._pluginStore.togglePerformance();
   }
   ngOnInit() {
-    this.aiBotStore.autoSelectProvider();
+    // No realizamos auto-detección al inicio para evitar ruidos en consola si Ollama no está activo.
+    // El usuario puede usar el botón de 'Actualizar' si desea escanear modelos locales.
   }
 
   constructor() {
