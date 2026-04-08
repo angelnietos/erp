@@ -937,10 +937,37 @@ ${canHelpLines}
                          description: 'El identificador exacto del tema. Mapea la petición del usuario a uno de estos: light, dark, blue, green, purple, orange, rose, slate, zinc, neutral, cyan, teal, amber, indigo, lime, violet, crimson, mint, coral, gold, corporate-light, classic-dark, nordic, latte, forest-dark, assassin-creed, rainbow_six, zelda-legend, mario-world, animal-crossing, gta-san-andreas, red-dead, celeste-mountain, hades-underworld, hollow-knight, pearl, sky-day, rose-quartz, sage, lavender, sunrise, cyberpunk-2077, matrix-reloaded, vaporwave-80s, elden-ring, bloodborne-dark, sekiro-shadow, starfield-space, god-of-war, doom-slayer, fallout-pipboy, skyrim-rim, witcher-wild, league-legends, valorant-spike, overwatch-pulse, minecraft-block, fortnite-storm, cyber-neon-pink, onyx-premium, platinum-luxe.' 
                        } 
                      }, 
-                     required: ['theme'] 
-                   }
-                }
-              ]
+                                           required: ['theme'] 
+                    }
+                 },
+                 {
+                    name: 'set_availability',
+                    description: 'Guarda la disponibilidad de un tecnico en la base de datos real. Usa query_domain_data /api/technicians primero para obtener el UUID real del tecnico.',
+                    parameters: { 
+                      type: 'OBJECT', 
+                      properties: { 
+                        technicianId: { type: 'STRING', description: 'UUID real del tecnico (de query_domain_data /api/technicians).' },
+                        date: { type: 'STRING', description: 'Fecha en formato yyyy-MM-dd (ej: 2026-04-15).' },
+                        type: { type: 'STRING', enum: ['AVAILABLE', 'UNAVAILABLE', 'HOLIDAY', 'SICK_LEAVE'], description: 'Tipo de disponibilidad.' },
+                        notes: { type: 'STRING', description: 'Notas opcionales.' }
+                      }, 
+                      required: ['technicianId', 'date', 'type'] 
+                    }
+                 },
+                 {
+                    name: 'auto_plan_availability',
+                    description: 'Planifica automaticamente la disponibilidad de un tecnico para un mes completo (Lun-Vie = AVAILABLE, Sab-Dom = UNAVAILABLE).',
+                    parameters: { 
+                      type: 'OBJECT', 
+                      properties: { 
+                        technicianId: { type: 'STRING', description: 'UUID real del tecnico.' },
+                        year: { type: 'NUMBER', description: 'Año (ej: 2026).' },
+                        month: { type: 'NUMBER', description: 'Mes 1-12 (ej: 4).' }
+                      }, 
+                      required: ['technicianId', 'year', 'month'] 
+                    }
+                 }
+               ]
             }]
           })
         });
