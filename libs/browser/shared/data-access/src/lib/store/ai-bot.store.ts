@@ -161,9 +161,13 @@ export interface AIBot {
 
 @Injectable({ providedIn: 'root' })
 export class AIBotStore {
+  private _isCheckingProviders = false;
+  private _lastCheckTime = 0;
+  private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
+  
   readonly selectedProvider = signal<
     'gemini' | 'openai' | 'anthropic' | 'ollama' | 'huggingface' | 'free'
-  >((localStorage.getItem('ai_provider') as any) || 'free');
+  >((localStorage.getItem('ai_provider') as any) || 'gemini');
 
   readonly selectedModelId = signal<string>(
     localStorage.getItem('ai_selected_model_id') || 'gemini',
@@ -1410,7 +1414,13 @@ export class AIBotStore {
 
   // ─── Sistema de Proveedores Gratuitos ─────────────────────────────────────────
 
-  async checkOllamaAvailability(): Promise<boolean> {
+  async checkOllamaAvailability(force = false): Promise<boolean> {
+    const now = Date.now();
+    if (!force && now - this._lastCheckTime < this.CHECK_THROTTLE_MS) {
+      return this.ollamaConfig().available;
+    }
+    
+    this._lastCheckTime = now;
     try {
       const response = await fetch(`${this.ollamaConfig().baseUrl}/api/tags`, {
         method: 'GET',
@@ -1442,6 +1452,17 @@ export class AIBotStore {
   }
 
   async autoSelectProvider(): Promise<void> {
+    if (this._isCheckingProviders) return;
+    
+    // Si ya tenemos una preferencia guardada que no sea 'free', la respetamos
+    const persisted = localStorage.getItem('ai_selected_model_id');
+    if (persisted && persisted !== 'free') {
+      // Solo verificamos disponibilidad de Ollama en segundo plano sin cambiar el seleccionado
+      void this.checkOllamaAvailability();
+      return;
+    }
+
+    this._isCheckingProviders = true;
     const providers = [
       { name: 'ollama', check: () => this.checkOllamaAvailability() },
       { name: 'huggingface', check: () => Promise.resolve(true) },
@@ -1454,9 +1475,10 @@ export class AIBotStore {
         const available = await provider.check();
         if (available) {
           this.selectedProvider.set(provider.name as any);
-          console.log(
+          console.debug(
             `Proveedor seleccionado automáticamente: ${provider.name}`,
           );
+          this._isCheckingProviders = false;
           return;
         }
       } catch {
@@ -1465,7 +1487,7 @@ export class AIBotStore {
     }
 
     this.selectedProvider.set('free');
-    console.log('Usando modo gratuito básico');
+    this._isCheckingProviders = false;
   }
 
   getProviderStatus(): Record<string, boolean> {
@@ -1487,6 +1509,10 @@ export class AIBotStore {
 
     try {
       switch (provider) {
+        case 'gemini':
+          return await this.generateWithGemini(prompt, context);
+        case 'openai':
+          return await this.generateWithOpenAI(prompt, context);
         case 'ollama':
           return await this.generateWithOllama(prompt, context);
         case 'huggingface':
@@ -1624,6 +1650,76 @@ export class AIBotStore {
     return responses.default[
       Math.floor(Math.random() * responses.default.length)
     ];
+  }
+
+  private async generateWithGemini(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
+    const apiKey = this.providerApiKey();
+    if (!apiKey) throw new Error('API Key de Gemini no configurada');
+
+    const fullPrompt = context ? `${context}\n\nPregunta: ${prompt}` : prompt;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: fullPrompt,
+                },
+              ],
+            },
+          ],
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Error en Gemini API');
+    }
+
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+  }
+
+  private async generateWithOpenAI(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
+    const apiKey = this.providerApiKey();
+    if (!apiKey) throw new Error('API Key de OpenAI no configurada');
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          ...(context ? [{ role: 'system', content: context }] : []),
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'Error en OpenAI API');
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
   }
 
   // ─── Inter-Bot Communication ───────────────────────────────────────────────
