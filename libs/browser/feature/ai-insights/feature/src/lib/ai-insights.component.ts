@@ -12,7 +12,7 @@ export interface AiInsight {
   title: string;
   summary: string;
   priority: string;
-  metrics?: Record<string, unknown>;
+  metrics?: Record<string, string | number>;
   createdAt: string;
 }
 
@@ -126,11 +126,11 @@ export class AiInsightsComponent implements OnInit {
     }
   }
 
-  hasKeys(obj: Record<string, unknown> | null | undefined): boolean {
+  hasKeys(obj: Record<string, string | number> | null | undefined): boolean {
     return !!obj && Object.keys(obj).length > 0;
   }
 
-  getKeys(obj: Record<string, unknown> | null | undefined): string[] {
+  getKeys(obj: Record<string, string | number> | null | undefined): string[] {
     return obj ? Object.keys(obj) : [];
   }
 }
