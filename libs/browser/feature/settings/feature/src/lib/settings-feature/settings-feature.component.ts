@@ -489,12 +489,13 @@ interface PluginDescriptor {
     /* Sidebar */
     .settings-sidebar {
       background: rgba(15, 23, 42, 0.4);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border-soft);
-      border-radius: 24px;
+      backdrop-filter: blur(40px) saturate(180%);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 32px;
       display: flex;
       flex-direction: column;
-      padding: 2rem 1rem;
+      padding: 2.5rem 1.25rem;
+      box-shadow: 10px 0 50px rgba(0, 0, 0, 0.2);
     }
 
     .sidebar-header {
@@ -524,37 +525,42 @@ interface PluginDescriptor {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
       padding: 1rem 1.25rem;
-      border-radius: 12px;
+      border-radius: 16px;
       color: var(--text-muted);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      font-size: 0.9rem;
       font-weight: 600;
-      font-size: 0.85rem;
-      text-align: left;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-bottom: 0.25rem;
+      border: 1px solid transparent;
+    }
+ 
+    .nav-item:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+ 
+    .nav-item.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(var(--brand-rgb, 16, 185, 129), 0.2) 0%, rgba(var(--brand-rgb, 16, 185, 129), 0.05) 100%);
+      border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-item.buddy-nav-item {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 1.5rem;
+      border-radius: 0 0 16px 16px;
     }
 
     .nav-item lucide-icon { opacity: 0.6; }
-
-    .nav-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
-
-    .nav-item.active {
-      background: linear-gradient(90deg, var(--brand) 0%, rgba(var(--brand-rgb), 0.2) 100%);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
 
     .nav-item.active lucide-icon { opacity: 1; }
 
@@ -662,8 +668,6 @@ interface PluginDescriptor {
 
     .bot-actions-row ui-josanz-button { flex: 1; }
 
-    .bot-actions-row ui-josanz-button { flex: 1; }
-
     /* Inline Skills Panel */
     .inline-skills-panel {
       margin-top: 2rem;
@@ -680,23 +684,31 @@ interface PluginDescriptor {
 
     .skills-config-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.5rem;
-      margin-bottom: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      min-height: 250px; /* Preserve space for skills config */
+      align-content: start;
     }
 
     .skill-config-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 1rem;
-      background: rgba(255,255,255,0.03);
-      border-radius: 12px;
-      border: 1px solid var(--border-soft);
+      padding: 1rem 1.25rem;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
     }
 
-    .skill-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: block; }
-    .skill-desc { font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0; }
+    .skill-config-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.2);
+    }
+ 
+    .skill-name { font-size: 0.9rem; font-weight: 800; color: #fff; display: block; letter-spacing: -0.01em; }
+    .skill-desc { font-size: 0.75rem; color: var(--text-muted); margin: 0.3rem 0 0 0; font-weight: 500; }
 
     .ai-grid {
       display: flex;
@@ -710,13 +722,18 @@ interface PluginDescriptor {
       display: flex;
       flex-direction: row;
       gap: 2rem;
-      padding: 1.75rem;
-      align-items: flex-start;
-      transition: transform 0.3s ease;
+      padding: 2.25rem;
+      align-items: stretch;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+      min-height: 620px; /* Increased and fixed to accommodate standard management panel */
     }
-
+ 
     .ai-bot-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
     .bot-visual {
@@ -733,15 +750,17 @@ interface PluginDescriptor {
 
     .bot-info {
       flex: 1;
-      min-width: 0; /* Prevents text from forcing parent width */
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .bot-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 0.25rem;
+      gap: 1.5rem;
+      margin-bottom: 0.75rem;
     }
 
     .bot-info h3 {
@@ -768,11 +787,13 @@ interface PluginDescriptor {
     .mt-4 { margin-top: 1rem; }
 
     .bot-feature {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--brand);
-      font-weight: 800;
-      margin-bottom: 1rem;
+      font-weight: 900;
+      margin-bottom: 1.25rem;
       text-transform: uppercase;
+      letter-spacing: 0.15em;
+      opacity: 0.9;
     }
 
     .bot-desc {
@@ -787,21 +808,35 @@ interface PluginDescriptor {
       flex-wrap: wrap;
       gap: 0.75rem;
       margin-bottom: 2rem;
+      height: 110px; /* Fixed height for summary area */
+      overflow-y: auto;
+      align-content: flex-start;
+      padding-right: 0.5rem;
+    }
+
+    .skills-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .skills-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
     }
 
     .skill-tag {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      background: rgba(255,255,255,0.05);
-      padding: 0.4rem 0.8rem;
+      gap: 0.5rem;
+      background: rgba(var(--brand-rgb, 16, 185, 129), 0.15);
+      padding: 0.5rem 1rem;
       border-radius: 100px;
       font-size: 0.75rem;
-      color: #fff;
-      border: 1px solid var(--border-soft);
+      color: #ffffff !important;
+      border: 1px solid rgba(var(--brand-rgb, 16, 185, 129), 0.3);
+      font-weight: 700;
+      backdrop-filter: blur(4px);
     }
-
-    .skill-tag lucide-icon { color: var(--brand); }
+ 
+    .skill-tag lucide-icon { color: #fff; opacity: 0.8; }
 
     /* Prefs */
     .prefs-card { padding: 1rem 2rem; }
@@ -816,30 +851,40 @@ interface PluginDescriptor {
     .pref-text h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0; }
     .pref-text p { font-size: 0.75rem; color: var(--text-muted); margin: 0.25rem 0 0 0; }
 
+    /* Enhanced Toggles */
     .toggle-wrapper {
-      width: 44px;
-      height: 22px;
-      background: rgba(255, 255, 255, 0.1);
+      width: 50px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 100px;
       position: relative;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .toggle-handle {
       position: absolute;
-      top: 3px;
-      left: 3px;
+      top: 4px;
+      left: 4px;
       width: 16px;
       height: 16px;
       background: #fff;
       border-radius: 50%;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    .toggle-wrapper.active { background: var(--brand); }
+    .toggle-wrapper.active { 
+       background: var(--brand); 
+       border-color: rgba(255,255,255,0.2);
+       box-shadow: 0 0 15px rgba(var(--brand-rgb, 16, 185, 129), 0.4);
+    }
+    .toggle-wrapper.active .toggle-handle { 
+       left: 28px; 
+       transform: scale(1.1);
+    }
     .toggle-wrapper.active.premium { background: #facc15; }
-    .toggle-wrapper.active .toggle-handle { left: 25px; }
 
     .premium-text { color: #facc15 !important; }
 
@@ -880,8 +925,9 @@ interface PluginDescriptor {
       transform: scale(1.5);
     }
 
-    .buddy-options-card {
+    .buddy-options-card, .buddy-skills-card {
       padding: 1.5rem;
+      min-height: 320px;
     }
 
     .buddy-options-card h3, .buddy-skills-card h3 {
