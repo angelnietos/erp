@@ -23,7 +23,6 @@ import {
   UiButtonComponent,
   UiSelectComponent,
   UiInputComponent,
-  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -75,7 +74,6 @@ interface Report {
     UiSelectComponent,
     UiInputComponent,
     LucideAngularModule,
-    UIAIChatComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -260,7 +258,6 @@ interface Report {
           </div>
         }
       </div>
-      <ui-josanz-ai-assistant [feature]="'reports'"></ui-josanz-ai-assistant>
     </div>
   `,
   styles: [

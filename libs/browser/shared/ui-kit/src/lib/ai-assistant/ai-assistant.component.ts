@@ -99,14 +99,19 @@ import { firstValueFrom } from 'rxjs';
   styles: [`
     .ai-assistant-wrapper {
       position: fixed;
-      bottom: 1.5rem;
+      bottom: 2rem;
       right: 1.5rem;
-      z-index: 10000;
-      transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1.2rem;
+      z-index: 1000;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .ai-assistant-wrapper:not(.feature-dashboard) {
-      right: 11rem; /* Increased separation as requested */
+    /* Support for multiple assistants via host classes */
+    :host(.secondary-assistant) .ai-assistant-wrapper {
+      right: 14rem;
     }
 
     .mascot-trigger {

@@ -15,7 +15,6 @@ import {
   UiCardComponent,
   UiModalComponent,
   UiStatCardComponent,
-  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
@@ -34,7 +33,6 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     UiBadgeComponent,
     UiStatCardComponent,
     UiModalComponent,
-    UIAIChatComponent,
   ],
 	template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -215,7 +213,6 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       </div>
     </ui-josanz-modal>
 
-    <ui-josanz-ai-assistant feature="verifactu"></ui-josanz-ai-assistant>
   `,
 	styles: [`
     .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }

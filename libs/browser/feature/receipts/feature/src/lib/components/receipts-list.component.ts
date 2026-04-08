@@ -17,7 +17,6 @@ import {
   UiSelectComponent,
   UiBadgeComponent,
   UiSearchComponent,
-  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -43,7 +42,6 @@ interface Receipt {
     UiBadgeComponent,
     UiSearchComponent,
     LucideAngularModule,
-    UIAIChatComponent,
   ],
   template: `
     <div class="receipts-container animate-fade-in">
@@ -141,8 +139,6 @@ interface Receipt {
           </div>
         </div>
       </ui-josanz-card>
-
-      <ui-josanz-ai-assistant feature="receipts"></ui-josanz-ai-assistant>
     </div>
   `,
   styles: [

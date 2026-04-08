@@ -23,8 +23,7 @@ import {
   UiCardComponent,
   UiBadgeComponent,
   UiStatCardComponent,
-  UiSearchComponent,
-  UIAIChatComponent
+  UiSearchComponent
 } from '@josanz-erp/shared-ui-kit';
 import {
   DomainEventsApiService,
@@ -79,8 +78,7 @@ interface AuditLog {
     UiBadgeComponent,
     UiStatCardComponent,
     UiSearchComponent,
-    LucideAngularModule,
-    UIAIChatComponent
+    LucideAngularModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -205,7 +203,6 @@ interface AuditLog {
       </div>
     </div>
 
-    <ui-josanz-ai-assistant feature="audit"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; }

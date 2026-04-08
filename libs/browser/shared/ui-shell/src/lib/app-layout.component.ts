@@ -1,6 +1,8 @@
 import { Component, Input, output, inject, signal, computed, HostListener } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
 import { ThemeService, Theme, AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
@@ -138,7 +140,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
         
-        <ui-josanz-ai-assistant [feature]="currentFeature()"></ui-josanz-ai-assistant>
+        <!-- IA Assistances Ecosystem (Global & Contextual) -->
+        <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
+        
+        @if (currentFeature() !== 'dashboard') {
+          <ui-josanz-ai-assistant [feature]="currentFeature()" class="secondary-assistant"></ui-josanz-ai-assistant>
+        }
       </div>
     </div>
   `,
@@ -592,7 +599,13 @@ export class AppLayoutComponent {
   private readonly router = inject(Router);
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
+  private readonly navEvents = toSignal(
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+  );
+
   readonly currentFeature = computed(() => {
+    // Escuchamos el signal de navegación para forzar la re-evaluación
+    this.navEvents(); 
     const url = this.router.url;
     if (url.includes('/inventory')) return 'inventory';
     if (url.includes('/budgets')) return 'budgets';

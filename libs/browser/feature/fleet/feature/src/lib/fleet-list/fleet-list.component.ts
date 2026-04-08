@@ -14,8 +14,7 @@ import {
   UiCardComponent,
   UiTabsComponent,
   UiInputComponent,
-  UiStatCardComponent,
-  UIAIChatComponent
+  UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -40,8 +39,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     UiInputComponent,
     UiStatCardComponent,
     UiStatCardComponent,
-    LucideAngularModule,
-    UIAIChatComponent
+    LucideAngularModule
   ],
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
@@ -192,7 +190,6 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
       </div>
     </ui-josanz-modal>
 
-    <ui-josanz-ai-assistant feature="fleet"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .page-container { padding: 0 120px 0 0; max-width: 100%; margin: 0 auto; }

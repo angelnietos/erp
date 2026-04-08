@@ -23,7 +23,6 @@ import {
   UiStatCardComponent,
   UiInputComponent,
   UiSelectComponent,
-  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
@@ -53,7 +52,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiInputComponent,
     UiSelectComponent,
     LucideAngularModule,
-    UIAIChatComponent,
   ],
   template: `
     <div
@@ -410,7 +408,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       </div>
     </ui-josanz-modal>
 
-    <ui-josanz-ai-assistant feature="billing"></ui-josanz-ai-assistant>
   `,
   styles: [
     `

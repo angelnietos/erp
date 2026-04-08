@@ -15,7 +15,6 @@ import {
   UiInputComponent,
   UiTextareaComponent,
   UiStatCardComponent,
-  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -41,7 +40,6 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     UiTextareaComponent,
     UiStatCardComponent,
     LucideAngularModule,
-    UIAIChatComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -171,7 +169,6 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
       </div>
     </ui-josanz-modal>
 
-    <ui-josanz-ai-assistant feature="delivery"></ui-josanz-ai-assistant>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }

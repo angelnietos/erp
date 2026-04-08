@@ -13,7 +13,6 @@ import {
   UiStatCardComponent,
   UiBadgeComponent,
   UiLoaderComponent,
-  UIAIChatComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -50,7 +49,6 @@ export interface Service {
     UiBadgeComponent,
     UiLoaderComponent,
     LucideAngularModule,
-    UIAIChatComponent,
   ],
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -148,7 +146,6 @@ export interface Service {
       }
     </div>
 
-    <ui-josanz-ai-assistant feature="services"></ui-josanz-ai-assistant>
   `,
   styles: [
     `
