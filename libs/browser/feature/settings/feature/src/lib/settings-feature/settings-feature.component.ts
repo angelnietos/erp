@@ -667,6 +667,7 @@ interface PluginDescriptor {
       flex-direction: column;
       gap: 1rem;
       margin-bottom: 2rem;
+      max-height: 50vh;
       overflow-y: auto;
       padding-right: 0.5rem;
       /* Custom Scrollbar */
