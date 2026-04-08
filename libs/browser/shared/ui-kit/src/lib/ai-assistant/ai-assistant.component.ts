@@ -427,7 +427,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     effect(() => {
       const latest = this.aiBotStore.latestMessage();
       if (latest && latest.feature !== this.feature) {
-        this.onBotHeardMessage(latest.feature, latest.text);
+        if (latest.target === this.feature) {
+          this.onDirectMessageReceived(latest.feature, latest.text);
+        } else if (!latest.target) {
+          this.onBotHeardMessage(latest.feature, latest.text);
+        }
       }
     });
   }
@@ -451,6 +455,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
          }]);
       }
     }, 2000);
+  }
+
+  private onDirectMessageReceived(sourceFeature: string, text: string) {
+    const sourceName = this.aiBotStore.getBotByFeature(sourceFeature)?.name || sourceFeature;
+    const incomingText = `[De ${sourceName}]: ${text}`;
+    
+    setTimeout(() => {
+      this.messages.update(m => [...m, { id: Date.now().toString(), text: incomingText, role: 'user' }]);
+      this.scrollToBottom();
+      this.triggerAIResponse(`El bot ${sourceName} te acaba de enviar este mensaje: "${text}". Respóndele de forma natural, sin usar la herramienta social_interaction a menos que quieras enviarle un nuevo mensaje a OTRO bot. Simplemente habla con él en tu respuesta de texto habitual.`);
+    }, 1000);
   }
 
   ngOnInit() {
@@ -545,6 +560,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     // Broadcast message to the bus
     this.aiBotStore.broadcastMessage(this.feature, userInput);
 
+    await this.triggerAIResponse(userInput);
+  }
+
+  async triggerAIResponse(userInput: string) {
     const provider = this.aiBotStore.selectedProvider();
     const apiKey = this.aiBotStore.providerApiKey();
 
@@ -577,7 +596,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                  RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100. Últimos hitos: ${v.history[0] || 'Ninguno'}`).join(' | ')}
                  CAPACIDADES TOTALES:
                  REGLA DE ORO: Si el usuario te pide una acción, ¡DEBES EJECUTAR LA HERRAMIENTA!
-                 1. **Social**: Usa 'social_interaction' para hablar con otros bots.
+                 1. **Social**: Usa 'social_interaction' para hablar con otros bots. No la uses para responder a un saludo de otro bot, usa texto normal.
                  2. **Memoria**: Usa 'remember_this'.
                  3. **Datos**: Usa 'search_database' o 'create_record'.
                  4. **Estética**: Usa 'change_app_theme'.` 

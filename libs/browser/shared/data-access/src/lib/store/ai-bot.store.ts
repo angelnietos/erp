@@ -174,11 +174,11 @@ export class AIBotStore {
   }
 
   // Communication Bus
-  private readonly _messageBus = signal<{ feature: string, text: string, timestamp: number } | null>(null);
+  private readonly _messageBus = signal<{ feature: string, text: string, timestamp: number, target?: string } | null>(null);
   readonly latestMessage = this._messageBus.asReadonly();
 
-  broadcastMessage(feature: string, text: string) {
-    this._messageBus.set({ feature, text, timestamp: Date.now() });
+  broadcastMessage(feature: string, text: string, target?: string) {
+    this._messageBus.set({ feature, text, timestamp: Date.now(), target });
   }
 
   // Rage Mode
@@ -218,7 +218,7 @@ export class AIBotStore {
     localStorage.setItem('ai_bot_relationships', JSON.stringify(updated));
 
     // Also broadcast so other bots "hear" the interaction
-    this.broadcastMessage(from, `[Hacia ${to}]: ${text}`);
+    this.broadcastMessage(from, text, to);
   }
 
   // Persistent Memory System
