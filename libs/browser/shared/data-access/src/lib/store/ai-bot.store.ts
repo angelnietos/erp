@@ -1,5 +1,22 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 
+export interface UserPersonalityProfile {
+  /** Nickname the bot assigned to this user */
+  nickname: string;
+  /** Inferred communication style from interaction patterns */
+  style: 'formal' | 'casual' | 'technical' | 'playful' | 'direct';
+  /** Things the user seems to enjoy or respond well to */
+  likes: string[];
+  /** Things that annoyed or frustrated this user */
+  dislikes: string[];
+  /** Bot's private notes about this user's personality */
+  notes: string;
+  /** Total messages exchanged with this user */
+  interactionCount: number;
+  /** Timestamp of last interaction */
+  lastSeen: number;
+}
+
 export interface AIBot {
   id: string;
   name: string;
@@ -286,6 +303,60 @@ export class AIBotStore {
       delete newFiles[filename];
       const updated = { ...current, [feature]: { ...ws, contextFiles: newFiles } };
       localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  // ─── Per-User Personality System ────────────────────────────────────────────
+  // Key format: `${botFeature}::${userId}`
+  private readonly _userPersonalities = signal<Record<string, UserPersonalityProfile>>(
+    JSON.parse(localStorage.getItem('ai_user_personalities') || '{}')
+  );
+  readonly userPersonalities = this._userPersonalities.asReadonly();
+
+  /** Get (or bootstrap) the personality profile a specific bot has built for a specific user. */
+  getUserPersonality(feature: string, userId: string): UserPersonalityProfile {
+    const key = `${feature}::${userId}`;
+    return this._userPersonalities()[key] ?? {
+      nickname: userId,
+      style: 'casual',
+      likes: [],
+      dislikes: [],
+      notes: 'Primera interacción. Aún no conozco bien a este usuario.',
+      interactionCount: 0,
+      lastSeen: Date.now(),
+    };
+  }
+
+  /** Update specific fields of a bot→user personality profile. */
+  updateUserPersonality(feature: string, userId: string, patch: Partial<UserPersonalityProfile>) {
+    const key = `${feature}::${userId}`;
+    this._userPersonalities.update(current => {
+      const existing = current[key] ?? this.getUserPersonality(feature, userId);
+      const updated = {
+        ...current,
+        [key]: {
+          ...existing,
+          ...patch,
+          interactionCount: (existing.interactionCount ?? 0) + (patch.interactionCount != null ? 0 : 1),
+          lastSeen: Date.now(),
+        }
+      };
+      localStorage.setItem('ai_user_personalities', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  /** Called after each user message to bump the interaction counter. */
+  trackInteraction(feature: string, userId: string) {
+    const key = `${feature}::${userId}`;
+    this._userPersonalities.update(current => {
+      const existing = current[key] ?? this.getUserPersonality(feature, userId);
+      const updated = {
+        ...current,
+        [key]: { ...existing, interactionCount: existing.interactionCount + 1, lastSeen: Date.now() }
+      };
+      localStorage.setItem('ai_user_personalities', JSON.stringify(updated));
       return updated;
     });
   }

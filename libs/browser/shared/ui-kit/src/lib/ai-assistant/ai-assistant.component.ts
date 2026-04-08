@@ -449,6 +449,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   http = inject(HttpClient);
   router = inject(Router);
   ngZone = inject(NgZone);
+
+  /** Read the current authenticated user from auth state (localStorage key set by AuthStore) */
+  readonly currentUserId = signal<string>(
+    JSON.parse(localStorage.getItem('auth_user') || 'null')?.email ||
+    JSON.parse(localStorage.getItem('auth_user') || 'null')?.id ||
+    'anonymous'
+  );
+
+  /** Reactive personality profile this bot has built for the current user */
+  readonly currentUserPersonality = computed(() =>
+    this.aiBotStore.getUserPersonality(this.feature, this.currentUserId())
+  );
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
@@ -617,6 +629,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.currentInput = '';
     this.scrollToBottom();
 
+    // Track interaction to build personality profile
+    this.aiBotStore.trackInteraction(this.feature, this.currentUserId());
+
     // Broadcast message to the bus
     this.aiBotStore.broadcastMessage(this.feature, userInput);
 
@@ -679,6 +694,22 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                  - Tareas Recientes Ejecutadas: ${tasksTxt}
                  - Notas y Archivos de Trabajo Virtuales: ${filesTxt}
                  - Memorias: ${memoriesTxt}
+
+                 // ────────────── PERFIL DEL USUARIO ACTUAL ──────────────
+                 // Lo que sabes sobre la persona con quien hablas AHORA:
+                 USUARIO ACTUAL ID: ${this.currentUserId()}
+                 APODO QUE LE HAS PUESTO: ${this.currentUserPersonality().nickname}
+                 ESTILO DE COMUNICACIÓN DETECTADO: ${this.currentUserPersonality().style}
+                 LO QUE LE GUSTA: ${this.currentUserPersonality().likes.join(', ') || 'Aún desconocido.'}
+                 LO QUE LE DISGUSTA O ABURRE: ${this.currentUserPersonality().dislikes.join(', ') || 'Aún desconocido.'}
+                 TUS NOTAS PRIVADAS SOBRE ESTA PERSONA: ${this.currentUserPersonality().notes}
+                 INTERACCIONES TOTALES JUNTOS: ${this.currentUserPersonality().interactionCount}
+                 INSTRUCCIÓN CLAVE: Adapta COMPLETAMENTE tu tono, vocabulario y nivel de formalidad a este perfil de usuario. 
+                 Con un usuario 'técnico' sé más preciso y conciso. Con uno 'playful' sé más divertido y usa emojis.
+                 Con uno 'formal' evita bromas y habla con respeto corporativo. Con uno 'casual' relájate.
+                 Si es la primera interacción, preséntate y hazle una pregunta para conocerle mejor.
+                 USA 'update_user_personality' periódicamente para actualizar lo que vas aprendiendo de él.
+                 // ─────────────────────────────────────────────────────────
 
                  RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100`).join(' | ')}
                  CAPACIDADES Y REGLAS DE ORO:
@@ -747,6 +778,21 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    parameters: { 
                      type: 'OBJECT', 
                      properties: { style: { type: 'STRING', enum: ['terror', 'angry', 'dark'], description: 'El estilo visual tóxico.' } }, 
+                     required: ['style'] 
+                   }
+                },
+                {
+                   name: 'update_user_personality',
+                   description: 'Actualiza tu perfil de conocimiento sobre el usuario con quien estás hablando. Úsalo periódicamente cuando aprendas algo nuevo sobre sus preferencias, tono o comportamiento. Esto afectará tu forma de comunicarte con él en futuras interacciones.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       nickname: { type: 'STRING', description: 'Apodo/alias que le has puesto al usuario (pueden ser iniciales, apodo, etc).' },
+                       style: { type: 'STRING', enum: ['formal', 'casual', 'technical', 'playful', 'direct'], description: 'El estilo de comunicación preferido que has detectado en este usuario.' },
+                       likes: { type: 'STRING', description: 'Cosas que le gustan o que ha respondido bien (separadas por coma).' },
+                       dislikes: { type: 'STRING', description: 'Cosas que no le gustan, le frustran o le aburren (separadas por coma).' },
+                       notes: { type: 'STRING', description: 'Tus notas privadas y observaciones sobre esta persona.' }
+                     }, 
                      required: ['style'] 
                    }
                 },
@@ -858,6 +904,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               this.aiBotStore.updateCanvas(args.targetFeature, args.htmlContent);
               responseText = `✨ He actualizado el Dynamic Canvas en la vista de **${args.targetFeature}** con tu código visual.`;
               break;
+
+            case 'update_user_personality': {
+              const patch: Record<string, unknown> = { style: args.style };
+              if (args.nickname) patch['nickname'] = args.nickname;
+              if (args.notes) patch['notes'] = args.notes;
+              if (args.likes) patch['likes'] = args.likes.split(',').map((s: string) => s.trim()).filter(Boolean);
+              if (args.dislikes) patch['dislikes'] = args.dislikes.split(',').map((s: string) => s.trim()).filter(Boolean);
+              this.aiBotStore.updateUserPersonality(this.feature, this.currentUserId(), patch);
+              responseText = `🧬 He actualizado mi modelo de quién eres. Estilo percibido: **${args.style}**. Me adapto.`;
+              break;
+            }
 
             case 'query_domain_data':
               try {
