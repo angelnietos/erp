@@ -1113,6 +1113,33 @@ ${canHelpLines}
                 : `🌈 ¡Nuevo look! He cambiado el estilo del ERP a **${args.theme.toUpperCase()}**.`;
               break;
 
+            case 'set_availability':
+              try {
+                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `💾 *Guardando disponibilidad en la base de datos...*`, role: 'bot' } : msg));
+                await firstValueFrom(this.http.post(`/api/technicians/${args.technicianId}/availability`, {
+                  date: args.date,
+                  type: args.type,
+                  notes: args.notes || ''
+                }));
+                responseText = `✅ ¡Disponibilidad guardada! He marcado a técnico **${args.technicianId.slice(0,8)}...** como **${args.type}** el **${args.date}**.`;
+              } catch (e) {
+                responseText = `⚠️ Error al guardar disponibilidad en el servidor. ¿Está el backend activo?`;
+              }
+              break;
+
+            case 'auto_plan_availability':
+              try {
+                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `🧠 *Generando plan mensual automático para ${args.month}/${args.year}...*`, role: 'bot' } : msg));
+                const planResult = await firstValueFrom(this.http.post<{ saved: number }>(
+                  `/api/technicians/${args.technicianId}/availability/auto-plan`,
+                  { year: args.year, month: args.month }
+                ));
+                responseText = `📅 ¡Plan mensual generado! He planificado **${planResult?.saved ?? 0} días** de disponibilidad para el mes ${args.month}/${args.year}. Días laborables = DISPONIBLE, fines de semana = NO DISPONIBLE.`;
+              } catch (e) {
+                responseText = `⚠️ Error al generar el plan mensual. Verifica que el ID del técnico sea correcto.`;
+              }
+              break;
+
             case 'toggle_rage_mode':
               this.aiBotStore.setRageMode(args.enabled);
               responseText = args.enabled 
@@ -1146,3 +1173,4 @@ ${canHelpLines}
     }, 100);
   }
 }
+

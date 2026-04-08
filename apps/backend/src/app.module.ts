@@ -23,6 +23,7 @@ import { Phase3Module } from './phase3/phase3.module';
 import { HealthModule } from './health/health.module';
 import { ReportsExportModule } from './reports-export/reports-export.module';
 import { AiInsightsModule } from './ai-insights/ai-insights.module';
+import { TechniciansModule } from './technicians/technicians.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { AiInsightsModule } from './ai-insights/ai-insights.module';
     HealthModule,
     ReportsExportModule,
     AiInsightsModule,
+    TechniciansModule,
   ],
   providers: [
     {

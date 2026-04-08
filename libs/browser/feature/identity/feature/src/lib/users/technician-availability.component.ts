@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TechnicianApiService, ToastService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent } from '@josanz-erp/shared-ui-kit';
-import { Observable, of } from 'rxjs';
+import { Observable, of, firstValueFrom } from 'rxjs';
 
 interface Technician {
   id: string;
@@ -618,13 +618,16 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     { id: 't5', name: 'Ana Martínez', role: 'Especialista Audiovisual', status: 'online' },
   ]);
 
+  readonly isLoading = signal<boolean>(false);
+
   currentMonth = signal<number>(new Date().getMonth());
   currentYear = signal<number>(new Date().getFullYear());
 
   constructor() {
     effect(() => {
       this.initCalendarCells();
-      this.initTeamData();
+      // Cuando cambia mes/año, recargamos datos del servidor
+      void this.loadMonth();
     }, { allowSignalWrites: true });
   }
 
@@ -713,32 +716,99 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     this.teamAvailability.set(data);
   }
 
-  loadMonth() {
-    this.initTeamData();
-    this.toast.show('Datos actualizados desde el servidor', 'info');
+  async loadMonth() {
+    this.isLoading.set(true);
+    try {
+      // Cargar técnicos del servidor
+      const techs = await firstValueFrom(this.api.getTechnicians()) as any[];
+
+      if (techs && techs.length > 0) {
+        // Mapear técnicos reales
+        const mapped: Technician[] = techs.map((t: any) => ({
+          id: t.id,
+          name: `${t.user?.firstName || ''} ${t.user?.lastName || ''}`.trim() || t.user?.email || 'Técnico',
+          role: t.skills?.[0] || 'Técnico',
+          status: 'online' as const,
+        }));
+        this.technicians.set(mapped);
+
+        // Cargar disponibilidad de todos los técnicos para el mes actual
+        const year = this.currentYear();
+        const month = this.currentMonth();
+        const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${daysInMonth}`;
+
+        const data: Record<string, Record<number, string>> = {};
+
+        await Promise.all(mapped.map(async (tech) => {
+          try {
+            const avail = await firstValueFrom(
+              this.api.getAvailability(tech.id, startDate, endDate)
+            ) as any[];
+
+            data[tech.id] = {};
+            // Rellena todos los días con AVAILABLE por defecto
+            for (let d = 1; d <= daysInMonth; d++) {
+              data[tech.id][d] = 'AVAILABLE';
+            }
+            // Sobreescribe con los datos reales
+            (avail || []).forEach((a: any) => {
+              const day = new Date(a.startDate).getUTCDate();
+              data[tech.id][day] = a.type;
+            });
+          } catch {
+            data[tech.id] = {};
+          }
+        }));
+
+        this.teamAvailability.set(data);
+        // Seleccionar el primer técnico por defecto
+        if (this.selectedTechId() === 'me' && mapped[0]) {
+          this.selectedTechId.set(mapped[0].id);
+        }
+      } else {
+        // Sin técnicos en el servidor → usar datos de demostración
+        this.initTeamData();
+      }
+    } catch {
+      // Error de red → usar datos de demostración sin mostrar error al usuario
+      this.initTeamData();
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   toggleAvailability(cell: CalendarCell) {
-    if (this.selectedTechId() !== 'me') return;
+    const currentTechId = this.selectedTechId();
 
     const types: string[] = ['AVAILABLE', 'UNAVAILABLE', 'HOLIDAY', 'SICK_LEAVE'];
-    const currentStatus = this.getTechDayStatus('me', cell.day);
+    const currentStatus = this.getTechDayStatus(currentTechId, cell.day);
     const currentIdx = types.indexOf(currentStatus);
     const nextType = types[(currentIdx + 1) % types.length];
-    
+
+    // Actualizar UI de inmediato (optimistic update)
     this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
       const updated = { ...prev };
-      if (!updated['me']) updated['me'] = {};
-      updated['me'][cell.day] = nextType;
+      if (!updated[currentTechId]) updated[currentTechId] = {};
+      updated[currentTechId][cell.day] = nextType;
       return updated;
     });
 
-    this.api.setFullDayAvailability('me', cell.date, nextType).subscribe({
+    // Guardar en backend
+    this.api.setFullDayAvailability(currentTechId, cell.date, nextType).subscribe({
       next: () => {
-        this.toast.show(`Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
+        this.toast.show(`✅ Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
       },
-      error: () => {
-        this.toast.show('Error al guardar disponibilidad', 'error');
+      error: (err) => {
+        console.error('Error guardando disponibilidad:', err);
+        // Revertir cambio optimista
+        this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
+          const reverted = { ...prev };
+          if (reverted[currentTechId]) reverted[currentTechId][cell.day] = currentStatus;
+          return reverted;
+        });
+        this.toast.show('Error al guardar disponibilidad. Reinténtalo.', 'error');
       }
     });
   }
