@@ -138,6 +138,12 @@ export class AIBotStore {
       description: 'Analiza datos complejos y genera insights.',
       skills: ['Trend Spotter', 'Anomaly Detective', 'Executive Summary AI', 'Chart Wizard', 'Predictive Modeling', 'Data Cleaning Bot'],
       activeSkills: ['Trend Spotter'], status: 'active', color: '#6366f1', secondaryColor: '#4338ca', mascotType: 'inventory', personality: 'worker', bodyShape: 'square', eyesType: 'dots', mouthType: 'line'
+    },
+    'availability': { 
+      id: 'aval-bot', name: 'Time-Bot', feature: 'availability',
+      description: 'Gestiona la disponibilidad técnica y planifica calendarios.',
+      skills: ['Auto-Planificación', 'Alerta de Solapamiento', 'Predicción de Bajas', 'Control Horario AI'],
+      activeSkills: ['Auto-Planificación'], status: 'active', color: '#ec4899', secondaryColor: '#be185d', mascotType: 'projects', personality: 'tech', bodyShape: 'capsule', eyesType: 'shades', mouthType: 'smile'
     }
   });
 
