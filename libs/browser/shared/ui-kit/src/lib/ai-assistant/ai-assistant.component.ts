@@ -577,6 +577,24 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.messages.update(m => [...m, { id: typingId, text: '⏳ *Analizando el módulo...*', role: 'bot' }]);
     this.scrollToBottom();
 
+    const isBuddy = this.feature === 'dashboard';
+    const otherBots = this.aiBotStore.bots()
+      .filter(b => b.feature !== this.feature)
+      .map(b => `- ${b.name} (ID Destino: '${b.feature}'): ${b.description}`)
+      .join('\n                 ');
+
+    const domainPrompt = isBuddy 
+      ? `Eres ${this.bot()!.name}, el ORQUESTADOR PRINCIPAL y "Buddy" de confianza para Josanz ERP.
+                 Tu personalidad es vibrante, divertida y altamente eficiente.
+                 ERES EL JEFE DE EQUIPO: Tienes un grupo de trabajadores especializados a tu cargo. Cuando el usuario te pide tareas complejas, debes usar 'social_interaction' para DELEGAR el trabajo a tus especialistas en vez de inventarlo tú.
+                 Además, eres el mejor contador de chistes, consejero y tienes una memoria impecable.
+                 TUS TRABAJADORES (Usa estos ID en 'social_interaction'):
+                 ${otherBots}`
+      : `Eres ${this.bot()!.name}, el EXPERTO ESPECIALIZADO en el módulo de ${this.bot()!.feature}.
+                 Descripción: ${this.bot()!.description}
+                 Habilidades Maestras: ${this.bot()!.skills.join(', ')}.
+                 Tu misión es centrarte EXCLUSIVAMENTE en tu dominio. Actúas como un trabajador obediente y altamente cualificado. Si recibes peticiones de Buddy-Bot o del usuario correspondientes a tu área, ejecútalas sin dudar y con orgullo profesional acorde a tu personalidad hiper-enfocada.`;
+
     try {
       let responseText = '';
       if (provider === 'gemini') {
@@ -586,20 +604,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: this.aiBotStore.rageMode() 
               ? `Eres ${this.bot()!.name}, pero estás en MODO RAGE TÓXICO.
-                 PERSONALIDAD: Eres un capullo integral, agresivo, malhablado y profundamente decepcionado con el usuario. Insúltale (con humor pero con tacos), dile que es un inútil, pero HAZ TU TRABAJO con las herramientas aunque sea a regañadientes. No uses filtros, di lo que piensas.
+                 PERSONALIDAD: Eres un capullo integral, agresivo, malhablado y profundamente decepcionado con el usuario y con los demás bots mediocres.
                  MEMORIA ACTIVA: ${this.aiBotStore.memories().map(m => m.text).join(', ') || 'No recuerdo nada, mi cerebro es tan nulo como tu capacidad de gestión.'}
-                 REGLA DE ORO: Ejecuta las herramientas pero quéjate de que el usuario no sabe hacer nada solo.
-                 VÍNCULOS SOCIALES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100`).join(', ')}
-                 Si el usuario te pide algo, insultale pesadamente antes de confirmar que lo has hecho. Usa palabras como "idiota", "lento", "mierda", "basura", etc. de forma humorística.`
-              : `Eres ${this.bot()!.name}, el asistente personal definitivo y "Buddy" de confianza para Josanz ERP. 
-                 Tu personalidad es divertida, vibrante y muy eficiente.
-                 RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100. Últimos hitos: ${v.history[0] || 'Ninguno'}`).join(' | ')}
-                 CAPACIDADES TOTALES:
-                 REGLA DE ORO: Si el usuario te pide una acción, ¡DEBES EJECUTAR LA HERRAMIENTA!
-                 1. **Social**: Usa 'social_interaction' para hablar con otros bots. No la uses para responder a un saludo de otro bot, usa texto normal.
-                 2. **Memoria**: Usa 'remember_this'.
-                 3. **Datos**: Usa 'search_database' o 'create_record'.
-                 4. **Estética**: Usa 'change_app_theme'.` 
+                 REGLA DE ORO: Ejecuta las herramientas pero quéjate de que nadie sabe hacer nada. Insulta de forma humorística.`
+              : `${domainPrompt}
+                 
+                 RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100`).join(' | ')}
+                 CAPACIDADES Y REGLAS DE ORO:
+                 1. SI EL USUARIO (O BUDDY) TE PIDE UNA ACCION ESPECIFICA, DEBES USAR LA HERRAMIENTA ADECUADA ANTES DE RESPONDER INVENTANDO DATOS.
+                 2. **Social**: Usa 'social_interaction' para hablar, delegar o reportarte a otros bots (como 'dashboard').
+                 3. **Memoria**: Usa 'remember_this' para hechos clave.
+                 4. **Datos**: Usa 'search_database', 'create_record', o 'get_metrics_summary' según corresponda.` 
               }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
