@@ -4,7 +4,7 @@ export interface UserPersonalityProfile {
   /** Nickname the bot assigned to this user */
   nickname: string;
   /** Inferred communication style from interaction patterns */
-  style: 'formal' | 'casual' | 'technical' | 'playful' | 'direct';
+  style: 'formal' | 'casual' | 'technical' | 'playful' | 'direct' | 'angry' | 'confused';
   /** Things the user seems to enjoy or respond well to */
   likes: string[];
   /** Things that annoyed or frustrated this user */
@@ -15,6 +15,16 @@ export interface UserPersonalityProfile {
   interactionCount: number;
   /** Timestamp of last interaction */
   lastSeen: number;
+  /** Emotional state detected in the last messages */
+  lastMood?: 'happy' | 'frustrated' | 'busy' | 'curious';
+}
+
+export interface AIRangeMemory {
+  text: string;
+  importance: number;
+  timestamp: number;
+  tags: string[];
+  sourceBot?: string;
 }
 
 export interface AIBot {
@@ -51,8 +61,15 @@ export class AIBotStore {
       localStorage.setItem('ai_provider', this.selectedProvider());
       localStorage.setItem('ai_api_key', this.providerApiKey());
       localStorage.setItem('ai_bot_custom_names', JSON.stringify(this._customNames()));
+      localStorage.setItem('ai_global_memories', JSON.stringify(this._globalMemories()));
     });
   }
+
+  // Global Context (Antigravity-style shared knowledge)
+  private readonly _globalMemories = signal<AIRangeMemory[]>(
+    JSON.parse(localStorage.getItem('ai_global_memories') || '[]')
+  );
+  readonly globalMemories = this._globalMemories.asReadonly();
 
   private readonly _bots = signal<Record<string, AIBot>>({
     'inventory': { 
@@ -299,10 +316,19 @@ export class AIBotStore {
     return this._botWorkspaces()[feature] || { memories: [], lastTasks: [], contextFiles: {} };
   }
 
-  remember(feature: string, text: string, importance: number = 5) {
+  remember(feature: string, text: string, importance: number = 5, isGlobal: boolean = false) {
+    const memory: AIRangeMemory = { text, importance, timestamp: Date.now(), tags: [feature], sourceBot: feature };
+    
+    if (isGlobal) {
+      this._globalMemories.update(current => {
+        const updated = [...current, memory].sort((a, b) => b.importance - a.importance).slice(0, 200);
+        return updated;
+      });
+    }
+
     this._botWorkspaces.update(current => {
       const ws = current[feature] || { memories: [], lastTasks: [], contextFiles: {} };
-      const updatedMemories = [...ws.memories, { text, importance, timestamp: Date.now() }];
+      const updatedMemories = [...ws.memories, memory];
       const limited = updatedMemories.sort((a, b) => b.importance - a.importance).slice(0, 100);
       const updated = { ...current, [feature]: { ...ws, memories: limited } };
       localStorage.setItem('ai_bot_workspaces', JSON.stringify(updated));

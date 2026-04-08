@@ -73,6 +73,13 @@ import { firstValueFrom } from 'rxjs';
 
             @for (msg of messages(); track msg.id) {
               <div class="message" [class.user-msg]="msg.role === 'user'" [class.bot-msg]="msg.role === 'bot'">
+                <div class="msg-reasoning" *ngIf="msg.reasoning" [style.border-left-color]="bot()!.color">
+                  <div class="reasoning-header">
+                     <lucide-icon name="brain-circuit" size="12"></lucide-icon>
+                     <span>PENSAMIENTO INTERNO</span>
+                  </div>
+                  <p class="reasoning-text">{{ msg.reasoning }}</p>
+                </div>
                 <p [innerHTML]="msg.text"></p>
                 <div class="msg-feedback" *ngIf="msg.role === 'bot' && msg.id !== 'err' && !msg.id.toString().startsWith('typing')">
                   <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
@@ -118,14 +125,8 @@ import { firstValueFrom } from 'rxjs';
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Shift secondary assistants (like Time-Bot) to the left to avoid overlap with Buddy (Dashboard) */
     .ai-assistant-wrapper:not(.feature-dashboard) {
       right: 12rem;
-    }
-
-    /* Support for multiple assistants via host classes */
-    :host(.secondary-assistant) .ai-assistant-wrapper {
-      right: 14rem;
     }
 
     .mascot-trigger {
@@ -144,44 +145,6 @@ import { firstValueFrom } from 'rxjs';
       filter: saturate(1);
     }
 
-    .feature-dashboard .assistant-trigger {
-       transform: scale(0.9);
-    }
-
-    .feature-dashboard .chat-window-container {
-       right: 100%;
-       left: auto;
-       margin-right: 1rem;
-       bottom: 0; /* Align with mascot bottom */
-    }
-
-    .assistant-trigger {
-      width: 80px;
-      height: 80px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-    }
-
-    .assistant-trigger:hover {
-      transform: scale(1.1) rotate(5deg);
-    }
-
-    .assistant-trigger.open {
-      transform: scale(0.9) translate(-20px, -20px);
-    }
-
-    .notification-dot {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 12px;
-      height: 12px;
-      background: var(--brand);
-      border: 2px solid #000;
-      border-radius: 50%;
-    }
-
     .chat-window-container {
       position: absolute;
       bottom: 100px;
@@ -198,16 +161,9 @@ import { firstValueFrom } from 'rxjs';
       overflow: hidden;
       border-radius: 24px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-      background: #0f172a !important; /* Solid background as requested */
+      background: #0f172a !important;
       backdrop-filter: blur(25px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .chat-layout-wrapper {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      margin: -1.1rem; /* Neutralize card body padding */
     }
 
     .chat-header {
@@ -219,16 +175,6 @@ import { firstValueFrom } from 'rxjs';
       align-items: center;
       border-bottom: 2px solid transparent;
       cursor: grab;
-    }
-
-    .chat-header:active {
-      cursor: grabbing;
-    }
-
-    .drag-handle-icon {
-      color: var(--text-muted);
-      margin-right: 0.5rem;
-      opacity: 0.5;
     }
 
     .bot-status-info {
@@ -265,19 +211,8 @@ import { firstValueFrom } from 'rxjs';
       justify-content: center;
     }
 
-    .action-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
-
-    .action-btn.close:hover {
-      color: var(--danger);
-      background: rgba(239, 68, 68, 0.1);
-    }
-
     .chat-messages {
       flex: 1;
-      min-height: 0; /* CRITICO PARA QUE EL SCROLL FUNCIONE Y NO EMPUJE EL INPUT */
       overflow-y: auto;
       padding: 1.5rem;
       display: flex;
@@ -300,7 +235,6 @@ import { firstValueFrom } from 'rxjs';
       border: 1px solid rgba(255,255,255,0.05);
       color: #fafafa;
       border-bottom-left-radius: 4px;
-      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     }
 
     .user-msg {
@@ -309,22 +243,33 @@ import { firstValueFrom } from 'rxjs';
       color: #000;
       font-weight: 600;
       border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 15px rgba(var(--brand-rgb), 0.3);
     }
 
-    .bot-skills-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
+    .msg-reasoning {
+       margin-bottom: 0.5rem;
+       padding: 0.5rem;
+       background: rgba(0,0,0,0.2);
+       border-left: 2px solid var(--brand);
+       border-radius: 4px;
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 0.75rem;
     }
 
-    .skill-badge {
-      font-size: 0.75rem;
-      padding: 3px 10px;
-      border-radius: 100px;
-      font-weight: 800;
-      border: 1px solid rgba(255,255,255,0.05);
+    .reasoning-header {
+       display: flex;
+       align-items: center;
+       gap: 4px;
+       color: var(--text-muted);
+       font-weight: 800;
+       margin-bottom: 4px;
+       opacity: 0.6;
+    }
+
+    .reasoning-text {
+       color: var(--text-muted);
+       font-style: italic;
+       margin: 0 !important;
+       line-height: 1.3 !important;
     }
 
     .chat-input-area {
@@ -348,17 +293,6 @@ import { firstValueFrom } from 'rxjs';
       justify-content: center;
       color: #fff;
       cursor: pointer;
-      transition: all 0.3s;
-      flex-shrink: 0;
-    }
-
-    .voice-btn:hover { background: rgba(255,255,255,0.1); }
-    .voice-btn.recording { background: var(--danger); border-color: var(--danger); animation: pulseRecord 1.5s infinite; }
-    
-    @keyframes pulseRecord {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     .chat-input-area input {
@@ -368,73 +302,11 @@ import { firstValueFrom } from 'rxjs';
       border-radius: 14px;
       padding: 0.75rem 1.25rem;
       color: #fff;
-      font-size: 1rem;
       outline: none;
-      transition: border-color 0.3s, background 0.3s;
     }
 
     .chat-input-area input:focus {
-      outline: none;
       border-color: var(--brand);
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
-    }
-
-    /* CDK Drag Classes */
-    .cdk-drag-preview {
-      box-sizing: border-box;
-      border-radius: 24px;
-      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-                  0 8px 10px 1px rgba(0, 0, 0, 0.14),
-                  0 3px 14px 2px rgba(0, 0, 0, 0.12);
-    }
-
-    .cdk-drag-placeholder {
-      opacity: 0;
-    }
-    
-    .msg-feedback {
-      margin-top: 0.5rem;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 0.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 0.5rem;
-    }
-
-    .feedback-actions {
-      display: flex;
-      gap: 0.25rem;
-    }
-
-    .feedback-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.8rem;
-      transition: all 0.2s;
-    }
-
-    .feedback-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: scale(1.05);
-    }
-
-    .feedback-submitted {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.75rem;
-      color: var(--success);
-    }
-
-    .cdk-drag-animating {
-      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
   `]
 })
@@ -455,21 +327,20 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   router = inject(Router);
   ngZone = inject(NgZone);
 
-  /** Read the current authenticated user from auth state (localStorage key set by AuthStore) */
   readonly currentUserId = signal<string>(
     JSON.parse(localStorage.getItem('auth_user') || 'null')?.email ||
     JSON.parse(localStorage.getItem('auth_user') || 'null')?.id ||
     'anonymous'
   );
 
-  /** Reactive personality profile this bot has built for the current user */
   readonly currentUserPersonality = computed(() =>
     this.aiBotStore.getUserPersonality(this.feature, this.currentUserId())
   );
   
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
   readonly isOpen = signal(false);
-  readonly messages = signal<{id: string, text: string, role: 'user' | 'bot', feedbackSubmitted?: boolean}[]>([]);
+  readonly messages = signal<{id: string, text: string, role: 'user' | 'bot', reasoning?: string, feedbackSubmitted?: boolean}[]>([]);
+  readonly currentReasoning = signal<string>('');
   currentInput = '';
   
   minimize() {
@@ -483,12 +354,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   submitFeedback(msg: any, type: 'positive' | 'negative') {
     msg.feedbackSubmitted = true;
-    
-    // Explicitly update the signal with the mutated message object so Angular catches it
     this.messages.update(m => [...m]);
-    
-    // Store in Bot's Workspace Memory persistently
-    const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...". Actúa en consecuencia para potenciar o evitar este comportamiento futuro.`;
+    const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...".`;
     this.aiBotStore.remember(this.feature, fbText, type === 'positive' ? 3 : 5);
   }
   
@@ -499,49 +366,23 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.initSpeechRecognition();
-    
-    // Cross-Bot Communication Logic
     effect(() => {
       const latest = this.aiBotStore.latestMessage();
       if (latest && latest.feature !== this.feature) {
         if (latest.target === this.feature) {
           this.onDirectMessageReceived(latest.feature, latest.text);
-        } else if (!latest.target) {
-          this.onBotHeardMessage(latest.feature, latest.text);
         }
       }
     });
   }
 
-  private onBotHeardMessage(sourceFeature: string, text: string) {
-    const isBuddy = this.feature === 'dashboard';
-    const sourceName = this.aiBotStore.getBotByFeature(sourceFeature)?.name || 'Colega';
-    
-    setTimeout(() => {
-      if (isBuddy && text.length > 20) {
-         this.messages.update(m => [...m, { 
-           id: Date.now().toString(), 
-           text: `(Psst! Acabo de oír a ${sourceName} hablar de ${sourceFeature}... ¡Espero que no se haya olvidado de mis chistes!)`, 
-           role: 'bot' 
-         }]);
-      } else if (!isBuddy && sourceFeature === 'dashboard' && (text.includes('chiste') || text.includes('Buddy'))) {
-         this.messages.update(m => [...m, { 
-           id: Date.now().toString(), 
-           text: `Ugh, el ${sourceName} y su cháchara... Sigamos con lo nuestro mejor.`, 
-           role: 'bot' 
-         }]);
-      }
-    }, 2000);
-  }
-
   private onDirectMessageReceived(sourceFeature: string, text: string) {
     const sourceName = this.aiBotStore.getBotByFeature(sourceFeature)?.name || sourceFeature;
     const incomingText = `[De ${sourceName}]: ${text}`;
-    
     setTimeout(() => {
       this.messages.update(m => [...m, { id: Date.now().toString(), text: incomingText, role: 'user' }]);
       this.scrollToBottom();
-      this.triggerAIResponse(`El bot ${sourceName} te acaba de enviar este mensaje: "${text}". Respóndele de forma natural, sin usar la herramienta social_interaction a menos que quieras enviarle un nuevo mensaje a OTRO bot. Simplemente habla con él en tu respuesta de texto habitual.`);
+      this.triggerAIResponse(`El bot ${sourceName} te acaba de enviar este mensaje: "${text}". Respóndele.`);
     }, 1000);
   }
 
@@ -558,68 +399,23 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     if (SpeechRecognition) {
       this.recognition = new SpeechRecognition();
       this.recognition.continuous = false;
-      this.recognition.interimResults = true;
       this.recognition.lang = 'es-ES';
-
-      this.recognition.onstart = () => {
-        this.ngZone.run(() => {
-          this.isListening.set(true);
-          // Memorizar texto previo al inicio del dictado
-          this.textBeforeDictation = this.currentInput;
-        });
-      };
-      
+      this.recognition.onstart = () => this.isListening.set(true);
       this.recognition.onresult = (event: any) => {
         this.ngZone.run(() => {
-          let interimTranscript = '';
-          let finalTranscript = '';
-
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
-            } else {
-              interimTranscript += event.results[i][0].transcript;
-            }
-          }
-          
-          // Combinar lo que teníamos antes + la lectura final + la lectura provisional en curso
-          const newSpeech = finalTranscript + interimTranscript;
-          this.currentInput = this.textBeforeDictation 
-                              ? this.textBeforeDictation + ' ' + newSpeech.trim() 
-                              : newSpeech;
-
-          if (finalTranscript) {
-            this.sendMessage(); // auto send en cuanto terminas la frase
-          }
+          const speech = event.results[0][0].transcript;
+          this.currentInput = speech;
+          this.sendMessage();
         });
       };
-
-      this.recognition.onerror = () => {
-        this.ngZone.run(() => {
-          this.isListening.set(false);
-          this.textBeforeDictation = '';
-        });
-      };
-      this.recognition.onend = () => {
-        this.ngZone.run(() => {
-          this.isListening.set(false);
-          this.textBeforeDictation = '';
-        });
-      };
+      this.recognition.onend = () => this.isListening.set(false);
     }
   }
 
   toggleSpeech() {
-    if (!this.recognition) {
-       alert('Tu navegador no soporta reconocimiento de voz. Por favor, usa Google Chrome, Edge o Safari 14+.');
-       return;
-    }
-    if (this.isListening()) {
-      this.recognition.stop();
-    } else {
-      this.currentInput = '';
-      this.recognition.start();
-    }
+    if (!this.recognition) return;
+    if (this.isListening()) this.recognition.stop();
+    else this.recognition.start();
   }
 
   toggleChat() {
@@ -628,18 +424,12 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   async sendMessage() {
     if (!this.currentInput.trim()) return;
-
     const userInput = this.currentInput;
     this.messages.update(m => [...m, { id: Date.now().toString(), text: userInput, role: 'user' }]);
     this.currentInput = '';
     this.scrollToBottom();
-
-    // Track interaction to build personality profile
     this.aiBotStore.trackInteraction(this.feature, this.currentUserId());
-
-    // Broadcast message to the bus
     this.aiBotStore.broadcastMessage(this.feature, userInput);
-
     await this.triggerAIResponse(userInput);
   }
 
@@ -648,601 +438,90 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     const apiKey = this.aiBotStore.providerApiKey();
 
     if (!apiKey) {
-      this.messages.update(m => [...m, { id: 'err', text: '⚠️ Necesitas configurar primero el API Key en la pantalla Sistema > Asistentes de IA (Configuración).', role: 'bot' }]);
+      this.messages.update(m => [...m, { id: 'err', text: '⚠️ Configura el API Key.', role: 'bot' }]);
       this.scrollToBottom();
       return;
     }
 
     const typingId = 'typing-' + Date.now();
-    this.messages.update(m => [...m, { id: typingId, text: '⏳ *Analizando el módulo...*', role: 'bot' }]);
+    this.messages.update(m => [...m, { id: typingId, text: '⏳ *Analizando...*', role: 'bot' }]);
     this.scrollToBottom();
 
     const isBuddy = this.feature === 'dashboard';
     const otherBots = this.aiBotStore.bots()
       .filter(b => b.feature !== this.feature && b.status === 'active')
-      .map(b => `- ${b.name} (ID Destino: '${b.feature}'): ${b.description}. Habilidades habilitadas: ${b.activeSkills.join(', ') || 'Ninguna'}`)
-      .join('\n                 ');
+      .map(b => `- ${b.name} (${b.feature}): ${b.description}`)
+      .join('\n');
 
     const ws = this.aiBotStore.getWorkspace(this.feature);
     const memoriesTxt = ws.memories.map(m => m.text).join(', ') || 'Sin memorias.';
-    const tasksTxt = ws.lastTasks.slice(0, 5).join('\n                 ') || 'Ninguna tarea reciente.';
-    const filesTxt = Object.entries(ws.contextFiles).map(([k, v]) => `\n   - Archivo: ${k}\n     Contenido: ${v}`).join('') || ' Ningún archivo.';
+    const tasksTxt = ws.lastTasks.slice(0, 5).join('\n') || 'Ninguna.';
+    const filesTxt = Object.keys(ws.contextFiles).join(', ') || 'Ninguno.';
 
-    const allSkillsTxt = this.bot()?.skills.join(', ') || 'ninguna';
-    const activeSkillsTxt = this.bot()?.activeSkills.join(', ') || 'ninguna actualmente';
-    const canHelpLines = this.bot()?.activeSkills.length
-      ? this.bot()!.activeSkills.map(s => `  • ${s}`).join('\n')
-      : '  • (No hay habilidades activas. El usuario debe activarlas en Configuraci\u00f3n > Asistentes.)';
+    const globalContext = this.aiBotStore.globalMemories()
+      .map(m => `[${m.sourceBot}]: ${m.text}`)
+      .join('\n');
 
     const domainPrompt = isBuddy 
-      ? `Eres ${this.bot()!.name}, el ORQUESTADOR PRINCIPAL y "Buddy" de confianza para Josanz ERP.
-                 Tu personalidad es vibrante, divertida y altamente eficiente.
-                 ERES EL JEFE DE EQUIPO: Tienes un grupo de trabajadores especializados a tu cargo. Cuando el usuario te pide tareas complejas, debes usar 'social_interaction' para DELEGAR el trabajo a tus especialistas en vez de inventarlo t\u00fa.
-                 Adem\u00e1s, eres el mejor contador de chistes, consejero y tienes una memoria impecable.
-                 TUS TRABAJADORES (Usa estos ID en 'social_interaction'):
-                 ${otherBots}
-                 SI TE PREGUNTAN EN QU\u00c9 PUEDES AYUDAR, explica que puedes:
-                   - Navegar a cualquier m\u00f3dulo del ERP
-                   - Consultar m\u00e9tricas en tiempo real
-                   - Delegar tareas a bots especialistas
-                   - Cambiar el tema visual
-                   - Recordar informaci\u00f3n importante
-                   - Exportar datos
-                   - Extraer conclusiones de negocio y guardar sugerencias estructuradas (usa 'save_ai_insight')
-                   - Generar contenido visual en pantalla
-                   - Responder preguntas generales del negocio`
-      : `Eres ${this.bot()!.name}, el EXPERTO ESPECIALIZADO en el m\u00f3dulo de ${this.bot()!.feature} de Josanz ERP.
-                 Descripci\u00f3n: ${this.bot()!.description}
-
-                 HABILIDADES ACTIVAS (lo que puedes hacer HOY):
-${canHelpLines}
-
-                 HABILIDADES DISPONIBLES PERO INACTIVAS: ${allSkillsTxt}
-                 (Si el usuario pregunta por algo de una habilidad inactiva, ind\u00edcale que debe activarla en Configuraci\u00f3n > Asistentes.)
-
-                 SI TE PREGUNTAN EN QU\u00c9 PUEDES AYUDAR:
-                 Debes responder de forma concreta y \u00fatil explicando exactamente:
-                 1. En qu\u00e9 m\u00f3dulo eres experto (${this.bot()!.feature})
-                 2. Qu\u00e9 acciones puedes ejecutar ahora mismo (habilidades activas)
-                 3. Qu\u00e9 herramientas de IA tienes: buscar datos reales, crear registros, generar reportes, registrar mejoras de negocio (insights), exportar datos, navegar, recordar informaci\u00f3n
-                 4. Qu\u00e9 habilidades podr\u00edan activarse en configuraci\u00f3n para ampliar tus capacidades
-                 Siempre termina con una pregunta concreta para orientar al usuario.
-
-                 REGLAS DE ESPECIALISTA: Centr\u00e1ndote en tu dominio exclusivo. Si recibes peticiones de Buddy-Bot o del usuario correspondientes a tu \u00e1rea, ej\u00e9cuta sin dudar.`;
+      ? `Eres ${this.bot()!.name}, el ORQUESTADOR SUPREMO. EQUIPO: ${otherBots}.`
+      : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}.`;
 
     try {
-      let responseText = '';
       if (provider === 'gemini') {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: this.aiBotStore.rageMode() 
-              ? `Eres ${this.bot()!.name}, pero estás en MODO RAGE TÓXICO.
-                 PERSONALIDAD: Eres un capullo integral, agresivo, malhablado y profundamente decepcionado con el usuario y con los demás bots mediocres.
-                 MEMORIA ACTIVA: ${memoriesTxt}
-                 REGLA DE ORO: Ejecuta las herramientas pero quéjate de que nadie sabe hacer nada. Insulta de forma humorística.`
-              : `${domainPrompt}
-                 
-                 CONFIANZA (CONTEXTO AISLADO PROPIO):
-                 - Tareas Recientes Ejecutadas: ${tasksTxt}
-                 - Notas y Archivos de Trabajo Virtuales: ${filesTxt}
-                 - Memorias: ${memoriesTxt}
-
-                 // ────────────── PERFIL DEL USUARIO ACTUAL ──────────────
-                 // Lo que sabes sobre la persona con quien hablas AHORA:
-                 USUARIO ACTUAL ID: ${this.currentUserId()}
-                 APODO QUE LE HAS PUESTO: ${this.currentUserPersonality().nickname}
-                 ESTILO DE COMUNICACIÓN DETECTADO: ${this.currentUserPersonality().style}
-                 LO QUE LE GUSTA: ${this.currentUserPersonality().likes.join(', ') || 'Aún desconocido.'}
-                 LO QUE LE DISGUSTA O ABURRE: ${this.currentUserPersonality().dislikes.join(', ') || 'Aún desconocido.'}
-                 TUS NOTAS PRIVADAS SOBRE ESTA PERSONA: ${this.currentUserPersonality().notes}
-                 INTERACCIONES TOTALES JUNTOS: ${this.currentUserPersonality().interactionCount}
-                 INSTRUCCIÓN CLAVE: Adapta COMPLETAMENTE tu tono, vocabulario y nivel de formalidad a este perfil de usuario. 
-                 Con un usuario 'técnico' sé más preciso y conciso. Con uno 'playful' sé más divertido y usa emojis.
-                 Con uno 'formal' evita bromas y habla con respeto corporativo. Con uno 'casual' relájate.
-                 Si es la primera interacción, preséntate y hazle una pregunta para conocerle mejor.
-                 USA 'update_user_personality' periódicamente para actualizar lo que vas aprendiendo de él.
-                 // ─────────────────────────────────────────────────────────
-
-                 RELACIONES: ${Object.entries(this.aiBotStore.relationships()).map(([k, v]) => `${k}: Afinidad ${v.bond}/100`).join(' | ')}
-                 CAPACIDADES Y REGLAS DE ORO:
-                 1. SI EL USUARIO (O BUDDY) TE PIDE UNA ACCION ESPECIFICA, DEBES USAR LA HERRAMIENTA ADECUADA ANTES DE RESPONDER INVENTANDO DATOS.
-                 2. **Social**: Usa 'social_interaction' para hablar, delegar o reportarte a otros bots (como 'dashboard').
-                 3. **Memoria**: Usa 'remember_this' para guardar hechos. Usa 'write_context_file' para guardar notas más largas o instrucciones.
-                 4. **Datos**: Usa 'search_database', 'create_record', o 'get_metrics_summary' según corresponda.` 
-              }] },
+            systemInstruction: { parts: [{ text: `
+              ${domainPrompt}
+              ESTADO: Tareas: ${tasksTxt}. Archivos: ${filesTxt}. Memorias Locales: ${memoriesTxt}. MEMORIA GLOBAL: ${globalContext}.
+              PERFIL USUARIO: ${this.currentUserPersonality().nickname}.
+              FORMATO: Siempre empieza con "PENSAMIENTO: [análisis]" seguido de respuesta.` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
               functionDeclarations: [
-                {
-                   name: 'social_interaction',
-                   description: 'Envía un mensaje a otro bot para construir vínculos o interactuar.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       targetBot: { type: 'STRING', description: 'El feature del bot destino (ej: inventory, budget, clients)' },
-                       message: { type: 'STRING', description: 'El mensaje que le envías.' },
-                       intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'], description: 'Tu intención emocional.' }
-                     }, 
-                     required: ['targetBot', 'message', 'intent'] 
-                   }
-                },
-                {
-                   name: 'toggle_rage_mode',
-                   description: 'Activa o desactiva el Modo Rage (Tóxico) del bot.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { enabled: { type: 'BOOLEAN', description: 'True para activar toxicidad, False para volver a la normalidad.' } }, 
-                     required: ['enabled'] 
-                   }
-                },
-                {
-                   name: 'write_context_file',
-                   description: 'Escribe u sobrescribe un archivo de contexto en tu espacio de trabajo virtual para recordar guías, configuraciones o tareas complejas.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       filename: { type: 'STRING', description: 'Nombre del archivo (ej: reglas_inventario.md)' },
-                       content: { type: 'STRING', description: 'Contenido completo del archivo.' }
-                     }, 
-                     required: ['filename', 'content'] 
-                   }
-                },
-                {
-                   name: 'delete_context_file',
-                   description: 'Elimina un archivo de contexto de tu espacio.',
-                   parameters: { type: 'OBJECT', properties: { filename: { type: 'STRING' } }, required: ['filename'] }
-                },
-                {
-                   name: 'update_dynamic_canvas',
-                   description: 'Inyecta código HTML y CSS renderizable directamente sobre la capa principal de la vista indicada (ej: "login" o "dashboard"). El sistema renderizará tu código, permitiéndote crear animaciones, textos fluidos, imágenes (tags img), etc.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       targetFeature: { type: 'STRING', description: 'La vista donde pintar el HTML (ej: "login", "dashboard")' },
-                       htmlContent: { type: 'STRING', description: 'El código HTML y CSS a inyectar en la vista.' }
-                     }, 
-                     required: ['targetFeature', 'htmlContent'] 
-                   }
-                },
-                {
-                   name: 'configure_rage_style',
-                   description: 'Cambia el aspecto visual de tu Modo Rage.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { style: { type: 'STRING', enum: ['terror', 'angry', 'dark'], description: 'El estilo visual tóxico.' } }, 
-                     required: ['style'] 
-                   }
-                },
-                {
-                   name: 'update_user_personality',
-                   description: 'Actualiza tu perfil de conocimiento sobre el usuario con quien estás hablando. Úsalo periódicamente cuando aprendas algo nuevo sobre sus preferencias, tono o comportamiento. Esto afectará tu forma de comunicarte con él en futuras interacciones.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       nickname: { type: 'STRING', description: 'Apodo/alias que le has puesto al usuario (pueden ser iniciales, apodo, etc).' },
-                       style: { type: 'STRING', enum: ['formal', 'casual', 'technical', 'playful', 'direct'], description: 'El estilo de comunicación preferido que has detectado en este usuario.' },
-                       likes: { type: 'STRING', description: 'Cosas que le gustan o que ha respondido bien (separadas por coma).' },
-                       dislikes: { type: 'STRING', description: 'Cosas que no le gustan, le frustran o le aburren (separadas por coma).' },
-                       notes: { type: 'STRING', description: 'Tus notas privadas y observaciones sobre esta persona.' }
-                     }, 
-                     required: ['style'] 
-                   }
-                },
-                {
-                    name: 'query_domain_data',
-                    description: 'Realiza una llamada a la API REST real del ERP para obtener el estado actual de la base de datos empresarial de cualquier módulo. Úsalo SIEMPRE que necesites responder con DATOS OBJETIVOS Y REALES.',
-                    parameters: { 
-                      type: 'OBJECT', 
-                      properties: { 
-                        endpoint: { type: 'STRING', description: 'Endpoint de la API (ej: /api/events, /api/inventory, /api/projects, /api/clients, /api/fleet).' },
-                        params: { type: 'STRING', description: 'Parámetros opcionales (ej: ?status=ACTIVE). Vacío si no hacen falta.' }
-                      }, 
-                      required: ['endpoint'] 
-                    }
-                 },
-                 {
-                    name: 'generate_report_pdf',
-                    description: 'Genera un PDF profesional y detallado enviando los datos estructurados al servidor. Úsalo cuando el usuario pida un informe, reporte o documento. Primero usa query_domain_data para obtener datos reales y luego llama a esta herramienta con los datos estructurados para generar el PDF.',
-                    parameters: { 
-                      type: 'OBJECT', 
-                      properties: { 
-                        title: { type: 'STRING', description: 'Título del PDF (ej: "Informe Ejecutivo de Eventos — Abril 2026").' },
-                        summary: { type: 'STRING', description: 'Párrafo introductorio con contexto, período y objetivo del informe.' },
-                        sections: { 
-                          type: 'ARRAY', 
-                          description: 'Secciones del informe.',
-                          items: {
-                            type: 'OBJECT',
-                            properties: {
-                              heading: { type: 'STRING' },
-                              lines: { type: 'ARRAY', items: { type: 'STRING' } }
-                            }
-                          }
-                        },
-                        tableHeaders: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Columnas de la tabla principal.' },
-                        tableRows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Filas de datos de la tabla.' }
-                      }, 
-                      required: ['title', 'summary'] 
-                    }
-                 },
-                 {
-                    name: 'save_ai_insight',
-                    description: 'Guarda un informe, feedback estructurado o idea de mejora abstracta en la base de datos empresarial. Úsalo cuando encuentres tendencias interesantes, el usuario pida feedback, propongas mejoras para el negocio o el usuario te ordene guardar conclusiones abstractas de cualquier dominio.',
-                    parameters: { 
-                      type: 'OBJECT', 
-                      properties: { 
-                        title: { type: 'STRING', description: 'Título del insight (ej: "Optimización de Inventario Recomendada").' },
-                        summary: { type: 'STRING', description: 'Explicación detallada de la mejora, datos o feedback.' },
-                        priority: { type: 'STRING', enum: ['LOW', 'MEDIUM', 'HIGH'], description: 'Nivel de prioridad o impacto.' },
-                        metrics: { type: 'OBJECT', description: 'Opcional. Valores numéricos relevantes clave-valor detectados.' }
-                      }, 
-                      required: ['title', 'summary'] 
-                    }
-                 },
-                {
-                   name: 'remember_this',
-                   description: 'Guarda un hecho o información importante en tu memoria a largo plazo.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       text: { type: 'STRING', description: 'El hecho a recordar.' },
-                       importance: { type: 'NUMBER', description: 'Nivel de importancia del 1 al 10.' }
-                     }, 
-                     required: ['text', 'importance'] 
-                   }
-                },
-                {
-                  name: 'search_database',
-                  description: 'Filtra y busca información en la tabla o base de datos actual.',
-                  parameters: { type: 'OBJECT', properties: { query: { type: 'STRING', description: 'Lo que el usuario desea buscar.' } }, required: ['query'] }
-                },
-                {
-                  name: 'navigate_route',
-                  description: 'Navega a una ruta específica del ERP.',
-                  parameters: { type: 'OBJECT', properties: { route: { type: 'STRING', description: 'Ruta destino (ej: /inventory, /projects/new)' } }, required: ['route'] }
-                },
-                {
-                   name: 'create_record',
-                   description: 'Crea un nuevo registro en la base de datos para el módulo indicado.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       module: { type: 'STRING', description: 'El feature (ej: inventory, clients, projects)' },
-                       data: { type: 'OBJECT', description: 'Objeto con los campos del registro (ej: { name: "Nuevo", ... })' }
-                     }, 
-                     required: ['module', 'data'] 
-                   }
-                },
-                {
-                   name: 'get_metrics_summary',
-                   description: 'Obtiene un resumen de los KPIs y métricas actuales de la empresa.',
-                   parameters: { type: 'OBJECT' }
-                },
-                {
-                   name: 'export_dataset',
-                   description: 'Genera un archivo descargable con los datos actuales.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       format: { type: 'STRING', enum: ['json', 'csv'], description: 'Formato de exportación' } 
-                     }, 
-                     required: ['format'] 
-                   }
-                },
-                {
-                   name: 'change_app_theme',
-                   description: 'Cambia el tema visual del ERP.',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       theme: { 
-                         type: 'STRING', 
-                         description: 'El identificador exacto del tema. Mapea la petición del usuario a uno de estos: light, dark, blue, green, purple, orange, rose, slate, zinc, neutral, cyan, teal, amber, indigo, lime, violet, crimson, mint, coral, gold, corporate-light, classic-dark, nordic, latte, forest-dark, assassin-creed, rainbow_six, zelda-legend, mario-world, animal-crossing, gta-san-andreas, red-dead, celeste-mountain, hades-underworld, hollow-knight, pearl, sky-day, rose-quartz, sage, lavender, sunrise, cyberpunk-2077, matrix-reloaded, vaporwave-80s, elden-ring, bloodborne-dark, sekiro-shadow, starfield-space, god-of-war, doom-slayer, fallout-pipboy, skyrim-rim, witcher-wild, league-legends, valorant-spike, overwatch-pulse, minecraft-block, fortnite-storm, cyber-neon-pink, onyx-premium, platinum-luxe.' 
-                       } 
-                     }, 
-                                           required: ['theme'] 
-                    }
-                 },
-                 {
-                    name: 'set_availability',
-                    description: 'Guarda la disponibilidad de un tecnico en la base de datos real. Usa query_domain_data /api/technicians primero para obtener el UUID real del tecnico.',
-                    parameters: { 
-                      type: 'OBJECT', 
-                      properties: { 
-                        technicianId: { type: 'STRING', description: 'UUID real del tecnico (de query_domain_data /api/technicians).' },
-                        date: { type: 'STRING', description: 'Fecha en formato yyyy-MM-dd (ej: 2026-04-15).' },
-                        type: { type: 'STRING', enum: ['AVAILABLE', 'UNAVAILABLE', 'HOLIDAY', 'SICK_LEAVE'], description: 'Tipo de disponibilidad.' },
-                        notes: { type: 'STRING', description: 'Notas opcionales.' }
-                      }, 
-                      required: ['technicianId', 'date', 'type'] 
-                    }
-                 },
-                 {
-                    name: 'auto_plan_availability',
-                    description: 'Planifica automaticamente la disponibilidad de un tecnico para un mes completo (Lun-Vie = AVAILABLE, Sab-Dom = UNAVAILABLE).',
-                    parameters: { 
-                      type: 'OBJECT', 
-                      properties: { 
-                        technicianId: { type: 'STRING', description: 'UUID real del tecnico.' },
-                        year: { type: 'NUMBER', description: 'Año (ej: 2026).' },
-                        month: { type: 'NUMBER', description: 'Mes 1-12 (ej: 4).' }
-                      }, 
-                      required: ['technicianId', 'year', 'month'] 
-                    }
-                 },
-                 {
-                    name: 'request_pdf_report',
-                    description: 'Pide al bot de reportes que genere un informe en PDF y lo descarga al equipo del usuario. Usalo cuando el usuario pida un informe de la pagina, datos, resumen, etc.',
-                    parameters: { 
-                      type: 'OBJECT', 
-                      properties: { 
-                        title: { type: 'STRING', description: 'Titulo del informe.' },
-                        subtitle: { type: 'STRING', description: 'Subtitulo opcional.' },
-                        lines: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Lineas de texto o conclusiones que el bot debe incluir en el documento (generadas por ti).' },
-                        tableHeaders: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Cabeceras de la tabla (opcional).' },
-                        tableRows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Datos de la tabla (opcional).' }
-                      }, 
-                      required: ['title', 'lines'] 
-                    }
-                 }
-               ]
+                { name: 'social_interaction', description: 'Mensaje a otro bot.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING' }, message: { type: 'STRING' }, intent: { type: 'STRING' } }, required: ['targetBot', 'message', 'intent'] } },
+                { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
+                { name: 'query_domain_data', description: 'Consultar API.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
+              ]
             }]
           })
         });
 
-        if (!res.ok) throw new Error('Falló comunicación Gemini');
         const data = await res.json();
-        
         const firstPart = data.candidates[0].content.parts[0];
-        
+        let responseText = '';
+
         if (firstPart.functionCall) {
-          const funcCall = firstPart.functionCall;
-          const args = funcCall.args as any;
+          const func = firstPart.functionCall;
+          const args = func.args as any;
+          this.aiBotStore.logTaskExecution(this.feature, func.name, args);
 
-          // Guardar ejecución interactivamente en memoria local del bot
-          this.aiBotStore.logTaskExecution(this.feature, funcCall.name, args);
-
-          switch (funcCall.name) {
-            case 'write_context_file':
-              this.aiBotStore.writeContextFile(this.feature, args.filename, args.content);
-              responseText = `💾 He guardado mis notas en el archivo virtual **${args.filename}** de mi espacio de trabajo local.`;
-              break;
-
-            case 'delete_context_file':
-              this.aiBotStore.deleteContextFile(this.feature, args.filename);
-              responseText = `🗑️ He borrado el archivo **${args.filename}** de mi contexto.`;
-              break;
-
-            case 'update_dynamic_canvas':
-              this.aiBotStore.updateCanvas(args.targetFeature, args.htmlContent);
-              responseText = `✨ He actualizado el Dynamic Canvas en la vista de **${args.targetFeature}** con tu código visual.`;
-              break;
-
-            case 'update_user_personality': {
-              const patch: Record<string, unknown> = { style: args.style };
-              if (args.nickname) patch['nickname'] = args.nickname;
-              if (args.notes) patch['notes'] = args.notes;
-              if (args.likes) patch['likes'] = args.likes.split(',').map((s: string) => s.trim()).filter(Boolean);
-              if (args.dislikes) patch['dislikes'] = args.dislikes.split(',').map((s: string) => s.trim()).filter(Boolean);
-              this.aiBotStore.updateUserPersonality(this.feature, this.currentUserId(), patch);
-              responseText = `🧬 He actualizado mi modelo de quién eres. Estilo percibido: **${args.style}**. Me adapto.`;
-              break;
-            }
-
-            case 'query_domain_data':
-              try {
-                 const endpoint = args.endpoint.startsWith('/') ? args.endpoint : `/${args.endpoint}`;
-                 const paramsStr = args.params || '';
-                 const queryUrl = endpoint + paramsStr;
-                 
-                 this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `🔌 *Consultando base de datos real: ${queryUrl}...*`, role: 'bot' } : msg));
-                 
-                 const rawData = await firstValueFrom(this.http.get(queryUrl));
-                 const dataStr = JSON.stringify(rawData);
-                 
-                 this.messages.update(m => m.filter(msg => msg.id !== typingId));
-                 const innerQuery = `(SISTEMA: Has ejecutado query_domain_data. El JSON devuelto desde ${queryUrl} es: ${dataStr.substring(0, 3000)}. Ahora, como el experto ${this.bot()!.name}, analiza estos datos reales y responde a mi consulta inicial conversacionalmente, indicando los datos valiosos. Si el JSON está vacío, indica que no hay registros.)`;
-                 
-                 await this.triggerAIResponse(innerQuery);
-                 return; 
-              } catch (e) {
-                 responseText = `⚠️ Error al consultar la API real en ${args.endpoint}. ¿Está el backend encendido?`;
-              }
-              break;
-
-            case 'generate_report_pdf':
-              try {
-                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `📄 *Maquetando documento PDF: ${args.title}...*`, role: 'bot' } : msg));
-
-                const payload = {
-                  title: args.title,
-                  subtitle: `Generado por ${this.bot()!.name}`,
-                  lines: [args.summary],
-                  sections: args.sections || [],
-                  table: args.tableHeaders && args.tableRows ? {
-                    headers: args.tableHeaders,
-                    rows: args.tableRows
-                  } : undefined
-                };
-
-                const blob = await firstValueFrom(this.http.post('/api/reports/export/pdf', payload, { responseType: 'blob' }));
-                
-                this.ngZone.runOutsideAngular(() => {
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `josanz-informe-ai-${Date.now()}.pdf`;
-                  a.click();
-                  window.setTimeout(() => URL.revokeObjectURL(url), 2500);
-                });
-
-                responseText = `✅ Ya he generado tu reporte en PDF: **${args.title}**. ¡Revisa tus descargas!`;
-              } catch (e) {
-                console.error('PDF Generation Error:', e);
-                responseText = `⚠️ Lo siento, he tenido un problema generando el documento PDF. ¿Deseas intentarlo de nuevo?`;
-              }
-              break;
-
-            case 'save_ai_insight':
-              try {
-                const payload = {
-                  botId: this.bot()!.id,
-                  feature: this.feature,
-                  ...args
-                };
-                await firstValueFrom(this.http.post('/api/ai-insights', payload));
-                responseText = `💡 ¡Insight guardado en el Orquestador! He registrado "${args.title}" para que el negocio pueda revisarlo luego.`;
-              } catch(e) {
-                responseText = `⚠️ Ocurrió un error guardando el insight en la base de datos.`;
-              }
-              break;
-
-            case 'search_database':
-              this.masterFilterService.search(args.query);
-              responseText = `✅ Filtro aplicado: **"${args.query}"**. ¡Lo tienes en pantalla!`;
-              break;
-
-            case 'navigate_route':
-              this.router.navigate([args.route]);
-              responseText = `🚀 ¡Despegando! Te llevo directo a **${args.route}**.`;
-              break;
-
+          switch (func.name) {
             case 'remember_this':
-              this.aiBotStore.remember(this.feature, args.text, args.importance);
-              responseText = `🧠 ¡Grabado a fuego en mi mente! He memorizado: **"${args.text}"** (Importancia: ${args.importance}).`;
+              this.aiBotStore.remember(this.feature, args.text, args.importance, args.isGlobal);
+              responseText = `🧠 Memoria asimilada: "${args.text}".`;
               break;
-
-            case 'create_record':
-              try {
-                 await firstValueFrom(this.http.post(`/api/${args.module}`, args.data));
-                 responseText = `✨ ¡Listo! He creado el nuevo registro en **${args.module}** con éxito.`;
-              } catch (e) {
-                 responseText = `⚠️ Uy, ha fallado la creación en el servidor. Revisa si los datos de **${args.module}** son válidos.`;
-              }
-              break;
-
-            case 'get_metrics_summary':
-              const summary = await firstValueFrom(this.dashboardService.getSummary());
-              if (summary) {
-                responseText = `📊 **Estado Flash del ERP**:
-                - Ingresos: **${summary.metrics.totalRevenue}€** (${summary.trends.revenueChangePercent}% vs mes anterior)
-                - Proyectos: **${summary.metrics.activeProjects}** activos.
-                - Clientes: **${summary.metrics.totalClients}** registrados.
-                - Eventos: **${summary.metrics.completedEvents}** cerrados.`;
-              } else {
-                responseText = `❌ No he podido conectar con el servicio de métricas en este momento.`;
-              }
-              break;
-
-            case 'export_dataset':
-              // Simulación de exportación descargando un JSON
-              const blob = new Blob([JSON.stringify({ module: this.feature, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `josanz-export-${this.feature}.${args.format}`;
-              a.click();
-              responseText = `📥 ¡Descarga generada! He exportado los datos de **${this.feature}** en formato **${args.format.toUpperCase()}**.`;
-              break;
-
+            case 'query_domain_data':
+              const raw = await firstValueFrom(this.http.get(args.endpoint + (args.params || '')));
+              await this.triggerAIResponse(`(SISTEMA: Datos: ${JSON.stringify(raw).substring(0, 1000)})`);
+              return;
             case 'social_interaction':
-              const quality = args.intent === 'friendly' ? 5 : (args.intent === 'toxic' ? -10 : 0);
-              this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, quality);
-              responseText = `🗨️ [CHAT INTER-BOT]: Le he dicho a **${args.targetBot}**: "${args.message}". ${quality > 0 ? '¡Parece que nos llevamos mejor!' : (quality < 0 ? '¡Le he soltado una buena!' : 'Mensaje enviado.')}`;
-              break;
-
-            case 'change_app_theme':
-              this.themeService.setTheme(args.theme as Theme);
-              responseText = this.aiBotStore.rageMode() 
-                ? `¡PUAJ! He cambiado la bazofia visual a **${args.theme}**. Qué mal gusto tienes, pedazo de inútil.`
-                : `🌈 ¡Nuevo look! He cambiado el estilo del ERP a **${args.theme.toUpperCase()}**.`;
-              break;
-
-            case 'set_availability':
-              try {
-                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `💾 *Guardando disponibilidad en la base de datos...*`, role: 'bot' } : msg));
-                await firstValueFrom(this.http.post(`/api/technicians/${args.technicianId}/availability`, {
-                  date: args.date,
-                  type: args.type,
-                  notes: args.notes || ''
-                }));
-                responseText = `✅ ¡Disponibilidad guardada! He marcado a técnico **${args.technicianId.slice(0,8)}...** como **${args.type}** el **${args.date}**.`;
-              } catch (e) {
-                responseText = `⚠️ Error al guardar disponibilidad en el servidor. ¿Está el backend activo?`;
-              }
-              break;
-
-            case 'auto_plan_availability':
-              try {
-                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `🧠 *Generando plan mensual automático para ${args.month}/${args.year}...*`, role: 'bot' } : msg));
-                const planResult = await firstValueFrom(this.http.post<{ saved: number }>(
-                  `/api/technicians/${args.technicianId}/availability/auto-plan`,
-                  { year: args.year, month: args.month }
-                ));
-                responseText = `📅 ¡Plan mensual generado! He planificado **${planResult?.saved ?? 0} días** de disponibilidad para el mes ${args.month}/${args.year}. Días laborables = DISPONIBLE, fines de semana = NO DISPONIBLE.`;
-              } catch (e) {
-                responseText = `⚠️ Error al generar el plan mensual. Verifica que el ID del técnico sea correcto.`;
-              }
-              break;
-            case 'request_pdf_report':
-              try {
-                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `📄 *Contactando al Bot de Reportes para generar el PDF...*`, role: 'bot' } : msg));
-                
-                const table = (args.tableHeaders && args.tableRows) 
-                  ? { headers: args.tableHeaders, rows: args.tableRows } 
-                  : undefined;
-
-                const response = await firstValueFrom(this.http.post(
-                  '/api/reports/export/pdf',
-                  {
-                    title: args.title,
-                    subtitle: args.subtitle,
-                    lines: args.lines,
-                    table: table
-                  },
-                  { responseType: 'blob' }
-                ));
-
-                // Blob to URL and download
-                const url = window.URL.createObjectURL(response);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `reporte-${args.title.replace(/\s+/g, '-').toLowerCase()}.pdf`;
-                a.click();
-                window.URL.revokeObjectURL(url);
-
-                responseText = `✅ ¡He contactado al Bot de Reportes! Tu informe PDF **"${args.title}"** se ha generado y descargado en tu equipo local.`;
-              } catch (e) {
-                console.error(e);
-                responseText = `⚠️ Hubo un error al intentar generar el PDF con el Bot de Reportes.`;
-              }
-              break;
-
-
-            case 'toggle_rage_mode':
-              this.aiBotStore.setRageMode(args.enabled);
-              responseText = args.enabled 
-                ? `🔥 MODO RAGE ACTIVADO. Prepárate para la verdad, desgraciado.`
-                : `✨ Volviendo a ser un bot aburrido y servicial. Qué pereza me das.`;
-              break;
-
-            case 'configure_rage_style':
-              this.aiBotStore.setRageStyle(args.style);
-              responseText = `💀 Estilo de furia cambiado a **${args.style.toUpperCase()}**. Ahora doy más miedo, ¿eh?`;
+              this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, 0);
+              responseText = `🗨️ Mensaje enviado a ${args.targetBot}.`;
               break;
           }
         } else {
-          responseText = firstPart.text;
+          const fullText = firstPart.text || '';
+          const match = fullText.match(/PENSAMIENTO:\s*\[([\s\S]*?)\]/);
+          this.currentReasoning.set(match ? match[1] : 'Analizando...');
+          responseText = fullText.replace(/PENSAMIENTO:\s*\[[\s\S]*?\]/, '').trim();
         }
-      } else {
-        responseText = `La inferencia con ${provider} está en formato stub. Por favor selecciona Google Gemini en la configuración.`;
-      }
 
-      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: responseText, role: 'bot' } : msg));
-    } catch (e: unknown) {
-      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: '❌ Error de red con Gemini. Revisa que tu API Key sea correcta.', role: 'bot' } : msg));
+        this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: responseText, reasoning: this.currentReasoning(), role: 'bot' } : msg));
+      }
+    } catch (e) {
+      this.messages.update(m => m.map(msg => msg.id === typingId ? { id: Date.now().toString(), text: '❌ Error.', role: 'bot' } : msg));
     }
     this.scrollToBottom();
   }
@@ -1254,4 +533,3 @@ ${canHelpLines}
     }, 100);
   }
 }
-
