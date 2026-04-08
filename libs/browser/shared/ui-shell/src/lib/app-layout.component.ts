@@ -621,6 +621,8 @@ export class AppLayoutComponent {
     if (url.includes('/receipts')) return 'receipts';
     if (url.includes('/events')) return 'events';
     if (url.includes('/reports')) return 'reports';
+    if (url.includes('/availability')) return 'availability';
+    if (url.includes('/users')) return 'users';
     return 'dashboard';
   });
 

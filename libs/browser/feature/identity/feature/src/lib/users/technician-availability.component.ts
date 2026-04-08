@@ -23,7 +23,7 @@ interface CalendarCell {
 @Component({
   selector: 'josanz-technician-availability',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent, UIAIChatComponent],
+  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent],
   template: `
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->
@@ -77,7 +77,7 @@ interface CalendarCell {
           </div>
           <div class="sidebar-search">
             <ui-josanz-search 
-              variant="minimal" 
+              variant="filled" 
               placeholder="Buscar operario..." 
               (searchChange)="onSearch($event)"
             ></ui-josanz-search>
@@ -190,7 +190,6 @@ interface CalendarCell {
           }
         </main>
       </div>
-      <ui-josanz-ai-assistant feature="availability"></ui-josanz-ai-assistant>
     </div>
   `,
   styles: [`
@@ -460,6 +459,7 @@ interface CalendarCell {
   `]
 })
 export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, FilterableService<Technician> {
+  private readonly api = inject(TechnicianApiService);
   private readonly toast = inject(ToastService);
   private readonly masterFilter = inject(MasterFilterService);
   
@@ -470,14 +470,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   teamAvailability = signal<Record<string, Record<number, string>>>({});
   
   technicians = signal<Technician[]>([
-    { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' },
-    { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' },
-    { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' },
-    { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' },
-    { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' },
-    { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' },
-    { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' },
-    { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' },
+    { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' as const },
+    { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' as const },
+    { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' as const },
+    { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' as const },
+    { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' as const },
+    { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' as const },
+    { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' as const },
+    { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' as const },
   ]);
 
   readonly isLoading = signal<boolean>(false);
@@ -596,14 +596,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       const allTechs = [...realTechs];
       // Si el servidor devuelve pocos, rellenamos con los mocks base (evitando duplicados por ID si es necesario)
       const baseMocks = [
-        { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' },
-        { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' },
-        { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' },
-        { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' },
-        { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' },
-        { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' },
-        { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' },
-        { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' },
+        { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' as const },
+        { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' as const },
+        { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' as const },
+        { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' as const },
+        { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' as const },
+        { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' as const },
+        { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' as const },
+        { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' as const },
       ];
 
       baseMocks.forEach(mock => {
@@ -687,7 +687,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       next: () => {
         this.toast.show(`✅ Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error guardando disponibilidad:', err);
         // Revertir cambio optimista
         this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
