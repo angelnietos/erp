@@ -2,8 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { Sparkles, BrainCircuit, Activity, Trash2, ArrowUpRight } from 'lucide-angular';
-import { SharedUiKitModule } from '@josanz-erp/shared-ui-kit';
+import { Sparkles, BrainCircuit, Activity, Trash2, ArrowUpRight, LucideAngularModule } from 'lucide-angular';
 
 export interface AiInsight {
   id: string;
@@ -19,7 +18,7 @@ export interface AiInsight {
 @Component({
   selector: 'josanz-ai-insights',
   standalone: true,
-  imports: [CommonModule, SharedUiKitModule, Sparkles, BrainCircuit, Activity, Trash2, ArrowUpRight],
+  imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="p-[1.5rem] w-full max-w-[1400px] mx-auto box-border pt-24 min-h-screen">
       <header class="flex justify-between items-end mb-8 border-b border-border/40 pb-4">
