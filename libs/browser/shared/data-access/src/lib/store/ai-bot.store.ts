@@ -295,10 +295,6 @@ export class AIBotStore {
     );
   }
 
-  // Proactive Suggestions System
-  private readonly _proactiveSuggestions = signal<ProactiveSuggestion[]>([]);
-  readonly proactiveSuggestions = this._proactiveSuggestions.asReadonly();
-
   broadcastSuggestion(
     suggestion: Omit<ProactiveSuggestion, 'id' | 'timestamp'>,
   ) {
@@ -925,7 +921,7 @@ export class AIBotStore {
     Record<
       string,
       {
-        memories: { text: string; importance: number; timestamp: number }[];
+        memories: AIRangeMemory[];
         lastTasks: string[];
         contextFiles: Record<string, string>;
       }
@@ -939,9 +935,7 @@ export class AIBotStore {
   readonly dynamicCanvas = this._dynamicCanvas.asReadonly();
 
   // Sistema de Sugerencias Proactivas
-  private readonly _proactiveSuggestions = signal<
-    Record<string, ProactiveSuggestion[]>
-  >({});
+  private readonly _proactiveSuggestions = signal<ProactiveSuggestion[]>([]);
   readonly proactiveSuggestions = this._proactiveSuggestions.asReadonly();
 
   // Sistema de Colaboración entre Bots
@@ -1014,7 +1008,7 @@ export class AIBotStore {
   private autoSummarizeMemories(feature: string) {
     const ws = this.getWorkspace(feature);
     if (ws.memories.length >= 10 && ws.memories.length % 10 === 0) {
-      const recentMemories = ws.memories.slice(-10);
+      const recentMemories: AIRangeMemory[] = ws.memories.slice(-10);
       const summary = this.generateMemorySummary(recentMemories, feature);
 
       // Crear memoria de resumen con alta importancia
@@ -1474,27 +1468,29 @@ export class AIBotStore {
         break;
     }
 
-    // Guardar sugerencias
-    this._proactiveSuggestions.update((current) => ({
-      ...current,
-      [feature]: suggestions,
-    }));
+    // Agregar sugerencias a la lista global
+    this._proactiveSuggestions.update((current) =>
+      [...suggestions, ...current].slice(0, 20),
+    );
 
     return suggestions;
   }
 
-  /** Obtiene sugerencias proactivas para un bot */
-  getProactiveSuggestions(feature: string): ProactiveSuggestion[] {
-    return this._proactiveSuggestions()[feature] || [];
+  /** Obtiene todas las sugerencias proactivas */
+  getProactiveSuggestions(): ProactiveSuggestion[] {
+    return this._proactiveSuggestions();
+  }
+
+  /** Obtiene sugerencias proactivas para un bot específico */
+  getProactiveSuggestionsForBot(botId: string): ProactiveSuggestion[] {
+    return this._proactiveSuggestions().filter((s) => s.botId === botId);
   }
 
   /** Marca una sugerencia como aplicada */
-  markSuggestionApplied(feature: string, suggestionId: string) {
-    this._proactiveSuggestions.update((current) => {
-      const featureSuggestions = current[feature] || [];
-      const updated = featureSuggestions.filter((s) => s.id !== suggestionId);
-      return { ...current, [feature]: updated };
-    });
+  markSuggestionApplied(suggestionId: string) {
+    this._proactiveSuggestions.update((current) =>
+      current.filter((s) => s.id !== suggestionId),
+    );
   }
 
   // ─── Sistema de Colaboración entre Bots ──────────────────────────────────────
@@ -1600,7 +1596,7 @@ export class AIBotStore {
   getActiveCollaborations(feature: string): BotCollaboration[] {
     const allCollaborations = Object.values(this._botCollaborations());
     return allCollaborations.filter(
-      (collab) =>
+      (collab: BotCollaboration) =>
         collab.participants.includes(feature) &&
         ['planning', 'active'].includes(collab.status),
     );
@@ -1654,7 +1650,7 @@ export class AIBotStore {
 
   private notifyCollaborationParticipants(collaboration: BotCollaboration) {
     // Enviar mensajes inter-bot a los participantes
-    collaboration.participants.forEach((participant) => {
+    collaboration.participants.forEach((participant: string) => {
       if (participant !== collaboration.initiator) {
         this.broadcastMessage(
           collaboration.initiator,
@@ -1749,7 +1745,7 @@ export class AIBotStore {
   private calculatePrediction(
     model: PredictiveModel,
     input: Record<string, any>,
-  ): any {
+  ): unknown {
     // Lógica simplificada de predicción
     switch (model.type) {
       case 'demand_forecast': {

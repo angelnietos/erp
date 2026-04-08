@@ -1447,63 +1447,6 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               }
               return;
             }
-            case 'start_collaboration': {
-              const title = String(args['title'] ?? '');
-              const participants = Array.isArray(args['participants'])
-                ? args['participants']
-                : [];
-              const objective = String(args['objective'] ?? '');
-              const collabId = this.aiBotStore.startCollaboration(
-                this.feature,
-                title,
-                `Colaboración iniciada por ${this.bot()?.name}`,
-                participants,
-                objective,
-              );
-              await this.triggerAIResponse(
-                `(SISTEMA: Colaboración "${title}" iniciada con ID: ${collabId}. Participantes: ${participants.join(', ')}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'create_predictive_model': {
-              const type = String(args['type'] ?? 'demand_forecast');
-              const name = String(args['name'] ?? 'Modelo Predictivo');
-              const description = String(
-                args['description'] ?? 'Modelo de análisis predictivo',
-              );
-              const modelId = this.aiBotStore.createPredictiveModel(
-                this.feature,
-                type as any,
-                name,
-                description,
-              );
-              await this.triggerAIResponse(
-                `(SISTEMA: Modelo predictivo "${name}" creado con ID: ${modelId}. Tipo: ${type}. Procesa esta info y responde al usuario.)`,
-                opts,
-              );
-              return;
-            }
-            case 'generate_prediction': {
-              const modelId = String(args['modelId'] ?? '');
-              const input = args['input'] || {};
-              const prediction = this.aiBotStore.generatePrediction(
-                modelId,
-                input as Record<string, any>,
-              );
-              if (prediction) {
-                await this.triggerAIResponse(
-                  `(SISTEMA: Predicción generada: ${JSON.stringify(prediction.prediction)} con ${prediction.confidence}% confianza. Procesa esta info y responde al usuario.)`,
-                  opts,
-                );
-              } else {
-                await this.triggerAIResponse(
-                  `(SISTEMA: Error al generar predicción - modelo no encontrado. Procesa esta info y responde al usuario.)`,
-                  opts,
-                );
-              }
-              return;
-            }
             case 'social_interaction': {
               const targetF = String(args['targetBot'] ?? '');
               const targetLabel =
@@ -1556,6 +1499,20 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             }
             default:
               responseText = `Acción "${funcName}" registrada.`;
+          }
+
+          // Registrar interacciones exitosas para aprendizaje continuo
+          if (
+            funcName !== 'social_interaction' &&
+            !responseText.includes('Error')
+          ) {
+            this.aiBotStore.recordSuccessfulInteraction(
+              this.feature,
+              'current_user',
+              userInput,
+              funcName,
+              Date.now(),
+            );
           }
 
           // Registrar interacciones exitosas para aprendizaje continuo
