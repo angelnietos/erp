@@ -692,9 +692,6 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     document.body.appendChild(this.el.nativeElement);
-
-    // Inicializar proveedores gratuitos automáticamente
-    this.initializeFreeProviders();
   }
 
   private async initializeFreeProviders() {
