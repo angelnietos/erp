@@ -663,18 +663,46 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     const tasksTxt = ws.lastTasks.slice(0, 5).join('\n                 ') || 'Ninguna tarea reciente.';
     const filesTxt = Object.entries(ws.contextFiles).map(([k, v]) => `\n   - Archivo: ${k}\n     Contenido: ${v}`).join('') || ' Ningún archivo.';
 
+    const allSkillsTxt = this.bot()?.skills.join(', ') || 'ninguna';
+    const activeSkillsTxt = this.bot()?.activeSkills.join(', ') || 'ninguna actualmente';
+    const canHelpLines = this.bot()?.activeSkills.length
+      ? this.bot()!.activeSkills.map(s => `  • ${s}`).join('\n')
+      : '  • (No hay habilidades activas. El usuario debe activarlas en Configuraci\u00f3n > Asistentes.)';
+
     const domainPrompt = isBuddy 
       ? `Eres ${this.bot()!.name}, el ORQUESTADOR PRINCIPAL y "Buddy" de confianza para Josanz ERP.
                  Tu personalidad es vibrante, divertida y altamente eficiente.
-                 ERES EL JEFE DE EQUIPO: Tienes un grupo de trabajadores especializados a tu cargo. Cuando el usuario te pide tareas complejas, debes usar 'social_interaction' para DELEGAR el trabajo a tus especialistas en vez de inventarlo tú.
-                 Además, eres el mejor contador de chistes, consejero y tienes una memoria impecable.
+                 ERES EL JEFE DE EQUIPO: Tienes un grupo de trabajadores especializados a tu cargo. Cuando el usuario te pide tareas complejas, debes usar 'social_interaction' para DELEGAR el trabajo a tus especialistas en vez de inventarlo t\u00fa.
+                 Adem\u00e1s, eres el mejor contador de chistes, consejero y tienes una memoria impecable.
                  TUS TRABAJADORES (Usa estos ID en 'social_interaction'):
-                 ${otherBots}`
-      : `Eres ${this.bot()!.name}, el EXPERTO ESPECIALIZADO en el módulo de ${this.bot()!.feature}.
-                 Descripción: ${this.bot()!.description}
-                 Habilidades ACTIVAS actuales: ${this.bot()!.activeSkills.join(', ') || 'Ninguna habilidad especialactiva'}.
-                 LAS HABILIDADES SON TU CORE: Compórtate y ofrece resultados de acuerdo estrictamente a las habilidades que tienes activas. Si te piden algo relacionado con habilidades inactivas, indica que no las tienes activadas en la configuración.
-                 Tu misión es centrarte EXCLUSIVAMENTE en tu dominio. Actúas como un trabajador obediente y altamente cualificado. Si recibes peticiones de Buddy-Bot o del usuario correspondientes a tu área, ejecútalas sin dudar y con orgullo profesional acorde a tu personalidad hiper-enfocada.`;
+                 ${otherBots}
+                 SI TE PREGUNTAN EN QU\u00c9 PUEDES AYUDAR, explica que puedes:
+                   - Navegar a cualquier m\u00f3dulo del ERP
+                   - Consultar m\u00e9tricas en tiempo real
+                   - Delegar tareas a bots especialistas
+                   - Cambiar el tema visual
+                   - Recordar informaci\u00f3n importante
+                   - Exportar datos
+                   - Generar contenido visual en pantalla
+                   - Responder preguntas generales del negocio`
+      : `Eres ${this.bot()!.name}, el EXPERTO ESPECIALIZADO en el m\u00f3dulo de ${this.bot()!.feature} de Josanz ERP.
+                 Descripci\u00f3n: ${this.bot()!.description}
+
+                 HABILIDADES ACTIVAS (lo que puedes hacer HOY):
+${canHelpLines}
+
+                 HABILIDADES DISPONIBLES PERO INACTIVAS: ${allSkillsTxt}
+                 (Si el usuario pregunta por algo de una habilidad inactiva, ind\u00edcale que debe activarla en Configuraci\u00f3n > Asistentes.)
+
+                 SI TE PREGUNTAN EN QU\u00c9 PUEDES AYUDAR:
+                 Debes responder de forma concreta y \u00fatil explicando exactamente:
+                 1. En qu\u00e9 m\u00f3dulo eres experto (${this.bot()!.feature})
+                 2. Qu\u00e9 acciones puedes ejecutar ahora mismo (habilidades activas)
+                 3. Qu\u00e9 herramientas de IA tienes: buscar datos reales, crear registros, generar reportes, exportar datos, navegar, recordar informaci\u00f3n
+                 4. Qu\u00e9 habilidades podr\u00edan activarse en configuraci\u00f3n para ampliar tus capacidades
+                 Siempre termina con una pregunta concreta para orientar al usuario.
+
+                 REGLAS DE ESPECIALISTA: Centr\u00e1ndote en tu dominio exclusivo. Si recibes peticiones de Buddy-Bot o del usuario correspondientes a tu \u00e1rea, ej\u00e9cuta sin dudar.`;
 
     try {
       let responseText = '';
@@ -797,17 +825,42 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    }
                 },
                 {
-                   name: 'query_domain_data',
-                   description: 'Realiza una llamada a la API REST real del ERP para obtener el estado actual de la base de datos empresarial de cualquier módulo. Úsalo SIEMPRE que necesites responder con DATOS OBJETIVOS Y REALES (ej: lista de proyectos, usuarios, eventos).',
-                   parameters: { 
-                     type: 'OBJECT', 
-                     properties: { 
-                       endpoint: { type: 'STRING', description: 'El endpoint de la API a consultar. Ejemplos obligatorios: /api/inventory, /api/events, /api/projects, /api/clients, /api/receipts, /api/users, /api/fleet, /api/auth/users.' },
-                       params: { type: 'STRING', description: 'Parámetros obligatorios si proceden (ej: ?status=ACTIVE o ?limit=5). Déjalo vacío de lo contrario.' }
-                     }, 
-                     required: ['endpoint'] 
-                   }
-                },
+                    name: 'query_domain_data',
+                    description: 'Realiza una llamada a la API REST real del ERP para obtener el estado actual de la base de datos empresarial de cualquier módulo. Úsalo SIEMPRE que necesites responder con DATOS OBJETIVOS Y REALES.',
+                    parameters: { 
+                      type: 'OBJECT', 
+                      properties: { 
+                        endpoint: { type: 'STRING', description: 'Endpoint de la API (ej: /api/events, /api/inventory, /api/projects, /api/clients, /api/fleet).' },
+                        params: { type: 'STRING', description: 'Parámetros opcionales (ej: ?status=ACTIVE). Vacío si no hacen falta.' }
+                      }, 
+                      required: ['endpoint'] 
+                    }
+                 },
+                 {
+                    name: 'generate_report_pdf',
+                    description: 'Genera un PDF profesional y detallado enviando los datos estructurados al servidor. Úsalo cuando el usuario pida un informe, reporte o documento. Primero usa query_domain_data para obtener datos reales y luego llama a esta herramienta con los datos estructurados para generar el PDF.',
+                    parameters: { 
+                      type: 'OBJECT', 
+                      properties: { 
+                        title: { type: 'STRING', description: 'Título del PDF (ej: "Informe Ejecutivo de Eventos — Abril 2026").' },
+                        summary: { type: 'STRING', description: 'Párrafo introductorio con contexto, período y objetivo del informe.' },
+                        sections: { 
+                          type: 'ARRAY', 
+                          description: 'Secciones del informe.',
+                          items: {
+                            type: 'OBJECT',
+                            properties: {
+                              heading: { type: 'STRING' },
+                              lines: { type: 'ARRAY', items: { type: 'STRING' } }
+                            }
+                          }
+                        },
+                        tableHeaders: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Columnas de la tabla principal.' },
+                        tableRows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Filas de datos de la tabla.' }
+                      }, 
+                      required: ['title', 'summary'] 
+                    }
+                 },
                 {
                    name: 'remember_this',
                    description: 'Guarda un hecho o información importante en tu memoria a largo plazo.',
@@ -934,6 +987,39 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                  return; 
               } catch (e) {
                  responseText = `⚠️ Error al consultar la API real en ${args.endpoint}. ¿Está el backend encendido?`;
+              }
+              break;
+
+            case 'generate_report_pdf':
+              try {
+                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `📄 *Maquetando documento PDF: ${args.title}...*`, role: 'bot' } : msg));
+
+                const payload = {
+                  title: args.title,
+                  subtitle: `Generado por ${this.bot()!.name}`,
+                  lines: [args.summary],
+                  sections: args.sections || [],
+                  table: args.tableHeaders && args.tableRows ? {
+                    headers: args.tableHeaders,
+                    rows: args.tableRows
+                  } : undefined
+                };
+
+                const blob = await firstValueFrom(this.http.post('/api/reports/export/pdf', payload, { responseType: 'blob' }));
+                
+                this.ngZone.runOutsideAngular(() => {
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `josanz-informe-ai-${Date.now()}.pdf`;
+                  a.click();
+                  window.setTimeout(() => URL.revokeObjectURL(url), 2500);
+                });
+
+                responseText = `✅ Ya he generado tu reporte en PDF: **${args.title}**. ¡Revisa tus descargas!`;
+              } catch (e) {
+                console.error('PDF Generation Error:', e);
+                responseText = `⚠️ Lo siento, he tenido un problema generando el documento PDF. ¿Deseas intentarlo de nuevo?`;
               }
               break;
 
