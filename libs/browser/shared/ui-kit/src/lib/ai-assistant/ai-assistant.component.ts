@@ -966,6 +966,21 @@ ${canHelpLines}
                       }, 
                       required: ['technicianId', 'year', 'month'] 
                     }
+                 },
+                 {
+                    name: 'request_pdf_report',
+                    description: 'Pide al bot de reportes que genere un informe en PDF y lo descarga al equipo del usuario. Usalo cuando el usuario pida un informe de la pagina, datos, resumen, etc.',
+                    parameters: { 
+                      type: 'OBJECT', 
+                      properties: { 
+                        title: { type: 'STRING', description: 'Titulo del informe.' },
+                        subtitle: { type: 'STRING', description: 'Subtitulo opcional.' },
+                        lines: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Lineas de texto o conclusiones que el bot debe incluir en el documento (generadas por ti).' },
+                        tableHeaders: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Cabeceras de la tabla (opcional).' },
+                        tableRows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Datos de la tabla (opcional).' }
+                      }, 
+                      required: ['title', 'lines'] 
+                    }
                  }
                ]
             }]
@@ -1166,6 +1181,40 @@ ${canHelpLines}
                 responseText = `⚠️ Error al generar el plan mensual. Verifica que el ID del técnico sea correcto.`;
               }
               break;
+            case 'request_pdf_report':
+              try {
+                this.messages.update(m => m.map(msg => msg.id === typingId ? { id: typingId, text: `📄 *Contactando al Bot de Reportes para generar el PDF...*`, role: 'bot' } : msg));
+                
+                const table = (args.tableHeaders && args.tableRows) 
+                  ? { headers: args.tableHeaders, rows: args.tableRows } 
+                  : undefined;
+
+                const response = await firstValueFrom(this.http.post(
+                  '/api/reports/export/pdf',
+                  {
+                    title: args.title,
+                    subtitle: args.subtitle,
+                    lines: args.lines,
+                    table: table
+                  },
+                  { responseType: 'blob' }
+                ));
+
+                // Blob to URL and download
+                const url = window.URL.createObjectURL(response);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reporte-${args.title.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                responseText = `✅ ¡He contactado al Bot de Reportes! Tu informe PDF **"${args.title}"** se ha generado y descargado en tu equipo local.`;
+              } catch (e) {
+                console.error(e);
+                responseText = `⚠️ Hubo un error al intentar generar el PDF con el Bot de Reportes.`;
+              }
+              break;
+
 
             case 'toggle_rage_mode':
               this.aiBotStore.setRageMode(args.enabled);
