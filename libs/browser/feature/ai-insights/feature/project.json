@@ -1,6 +1,6 @@
 {
   "name": "ai-insights-feature",
-  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/browser/feature/ai-insights/feature/src",
   "prefix": "josanz",
   "projectType": "library",
