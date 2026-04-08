@@ -2,7 +2,7 @@ import { Component, Input, inject, signal, computed, effect, NgZone, ElementRef,
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router, RouterModule } from '@angular/router';
-import { AIBotStore, DashboardAnalyticsService, ThemeService, Theme, MasterFilterService } from '@josanz-erp/shared-data-access';
+import { AIBotStore, DashboardAnalyticsService, ThemeService, Theme, THEMES, MasterFilterService } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { FormsModule } from '@angular/forms';
@@ -565,8 +565,40 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
          // REGLAS DE LIDERAZGO:
          1. Llama a tus colegas por su NOMBRE ACTUAL CONFIGURADO (ej: "${this.aiBotStore.bots().find(b=>b.feature==='inventory')?.name || 'Stocky-Bot'}"). 
          2. Respeta los nombres elegidos por el usuario en la configuración del sistema.
-         3. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.`
+         3. Tú eres el enlace con el usuario; si necesitas algo de un área, pídeselo al bot correspondiente por su nombre usando 'social_interaction'.
+
+         // CAPACIDADES QUE SÍ TIENES (NUNCA digas que no puedes hacer esto; usa herramientas o tu respuesta):
+         - Tema de la app: cuando pidan fondo más verde, oscuro, etc., llama a la herramienta set_app_theme con una clave válida (ej. verdoso: green, teal, mint, sage, forest-dark, matrix-reloaded, lime, celeste-mountain).
+         - Modo rage del mascot: herramienta set_rage_mode (activar/desactivar; estilos terror, angry, dark).
+         - Chistes, juegos de palabras o tono divertido: responde en el texto al usuario; no hace falta herramienta.
+         - Saludos u orquestación entre dominios: social_interaction con targetBot = feature del otro bot (ej. inventory, budgets).`
       : `Eres ${this.bot()!.name}, el ESPECIALISTA en ${this.bot()!.feature}. Tienes autonomía técnica total.`;
+
+    const operationRules = isBuddy
+      ? `REGLAS DE OPERACIÓN:
+              1. Empieza con "PENSAMIENTO: [tu análisis breve]".
+              2. Sé útil: datos y coordinación cuando toque; también cercano si el usuario pide humor o temas visuales.
+              3. Si piden cambiar tema o modo rage, usa set_app_theme o set_rage_mode en la misma interacción; no excuses.
+              4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.`
+      : `REGLAS DE OPERACIÓN:
+              1. Empieza con "PENSAMIENTO: [tu análisis de 1-2 párrafos]".
+              2. Sé extremadamente útil y técnico.
+              4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.`;
+
+    const baseFunctionDeclarations: Record<string, unknown>[] = [
+      { name: 'social_interaction', description: 'Envía un mensaje a otro bot. Úsalo para pedir datos o coordinar acciones. Buddy DEBE llamar al bot por su nombre en el mensaje.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING', description: 'El ID feature del bot (ej: inventory, budgets).' }, message: { type: 'STRING' }, intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'] } }, required: ['targetBot', 'message', 'intent'] } },
+      { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
+      { name: 'set_bot_mood', description: 'Cambia tu estado emocional y energía.', parameters: { type: 'OBJECT', properties: { mood: { type: 'STRING', enum: ['neutral', 'analyzing', 'alert', 'creative', 'toxic', 'asleep'] }, energy: { type: 'NUMBER' } }, required: ['mood', 'energy'] } },
+      { name: 'broadcast_suggestion', description: 'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, category: { type: 'STRING', enum: ['efficiency', 'risk', 'opportunity'] } }, required: ['text', 'category'] } },
+      { name: 'query_domain_data', description: 'Consultar API REST real.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
+    ];
+
+    if (isBuddy) {
+      baseFunctionDeclarations.push(
+        { name: 'set_app_theme', description: 'Cambia el tema visual global de la app. Usa la clave exacta (kebab-case). Ejemplos verdes: green, teal, mint, sage, lime, forest-dark, matrix-reloaded, celeste-mountain. Oscuros: dark, classic-dark, nordic. Claros: light, latte, corporate-light. Gaming: cyberpunk-2077, zelda-legend. Si falla, el sistema sugerirá otras claves.', parameters: { type: 'OBJECT', properties: { themeKey: { type: 'STRING', description: 'Clave del tema registrada en la app.' } }, required: ['themeKey'] } },
+        { name: 'set_rage_mode', description: 'Activa o desactiva el modo rage del mascot (efecto visual). Opcionalmente el estilo de furia.', parameters: { type: 'OBJECT', properties: { enabled: { type: 'BOOLEAN' }, style: { type: 'STRING', enum: ['terror', 'angry', 'dark'] } }, required: ['enabled'] } }
+      );
+    }
 
     try {
       
@@ -587,19 +619,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               ${currentBotState.mood === 'creative' ? '- MOOD CREATIVE: Usa metáforas, sé muy entusiasta y propone ideas locas.' : ''}
               ${currentBotState.mood === 'alert' ? '- MOOD ALERT: Sé extremadamente directo, técnico y evita cualquier cortesía.' : ''}
 
-              REGLAS DE OPERACIÓN:
-              1. Empieza con "PENSAMIENTO: [tu análisis de 1-2 párrafos]".
-              2. Sé extremadamente útil y técnico.
-              4. Usa 'set_bot_mood' si tu estado emocional cambia según la interacción.` }] },
+              ${operationRules}` }] },
             contents: [{ parts: [{ text: userInput }] }],
             tools: [{
-              functionDeclarations: [
-                { name: 'social_interaction', description: 'Envía un mensaje a otro bot. Úsalo para pedir datos o coordinar acciones. Buddy DEBE llamar al bot por su nombre en el mensaje.', parameters: { type: 'OBJECT', properties: { targetBot: { type: 'STRING', description: 'El ID feature del bot (ej: inventory, budgets).' }, message: { type: 'STRING' }, intent: { type: 'STRING', enum: ['friendly', 'toxic', 'neutral'] } }, required: ['targetBot', 'message', 'intent'] } },
-                { name: 'remember_this', description: 'Guardar memoria.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, importance: { type: 'NUMBER' }, isGlobal: { type: 'BOOLEAN' } }, required: ['text', 'importance'] } },
-                { name: 'set_bot_mood', description: 'Cambia tu estado emocional y energía.', parameters: { type: 'OBJECT', properties: { mood: { type: 'STRING', enum: ['neutral', 'analyzing', 'alert', 'creative', 'toxic', 'asleep'] }, energy: { type: 'NUMBER' } }, required: ['mood', 'energy'] } },
-                { name: 'broadcast_suggestion', description: 'Emite una sugerencia proactiva global sobre eficiencia, riesgo u oportunidad.', parameters: { type: 'OBJECT', properties: { text: { type: 'STRING' }, category: { type: 'STRING', enum: ['efficiency', 'risk', 'opportunity'] } }, required: ['text', 'category'] } },
-                { name: 'query_domain_data', description: 'Consultar API REST real.', parameters: { type: 'OBJECT', properties: { endpoint: { type: 'STRING' }, params: { type: 'STRING' } }, required: ['endpoint'] } }
-              ]
+              functionDeclarations: baseFunctionDeclarations
             }]
           })
         });
@@ -636,6 +659,33 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               this.aiBotStore.recordInteraction(this.feature, args.targetBot, args.message, args.intent === 'friendly' ? 10 : -10);
               responseText = `🗨️ Interacción con ${args.targetBot} registrada.`;
               break;
+            case 'set_app_theme': {
+              const rawKey = (args.themeKey ?? args.theme) as string | undefined;
+              const key = typeof rawKey === 'string' ? rawKey.trim() : '';
+              if (key && key in THEMES) {
+                this.themeService.setTheme(key as Theme);
+                const label = THEMES[key as Theme].name;
+                responseText = `Listo: tema aplicado **${label}** (\`${key}\`).`;
+              } else {
+                const samples = (Object.keys(THEMES) as Theme[]).slice(0, 12).join(', ');
+                responseText = `No reconozco el tema "${key}". Algunas claves válidas: ${samples}… (hay más en el selector de temas de la app).`;
+              }
+              break;
+            }
+            case 'set_rage_mode': {
+              const on = Boolean(args.enabled);
+              this.aiBotStore.setRageMode(on);
+              const st = args.style as 'terror' | 'angry' | 'dark' | undefined;
+              if (on && st && ['terror', 'angry', 'dark'].includes(st)) {
+                this.aiBotStore.setRageStyle(st);
+              }
+              responseText = on
+                ? `Modo rage **ON**${st ? ` (${st})` : ''}. El mascot lo refleja ya.`
+                : 'Modo rage **OFF**. Todo calmado otra vez.';
+              break;
+            }
+            default:
+              responseText = `Acción "${func.name}" registrada.`;
           }
         } else {
           const fullText = firstPart.text || '';
