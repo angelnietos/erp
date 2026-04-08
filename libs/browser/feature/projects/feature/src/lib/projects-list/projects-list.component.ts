@@ -228,7 +228,7 @@ export interface Project {
   styles: [
     `
       .page-container {
-        padding: 1.5rem;
+        padding: 1rem; /* Reduced from 1.5rem */
         max-width: 1400px;
         margin: 0 auto;
         box-sizing: border-box;
@@ -238,8 +238,8 @@ export interface Project {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
+        margin-bottom: 1rem; /* Reduced from 1.5rem */
+        padding-bottom: 0.75rem; /* Reduced from 1rem */
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
@@ -276,10 +276,10 @@ export interface Project {
 
       .filters-bar {
         display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
+        gap: 0.75rem; /* Reduced from 1rem */
+        margin-bottom: 1rem; /* Reduced from 1.5rem */
+        padding: 0.5rem 0.75rem; /* Reduced from 0.75/1 */
+        border-radius: 10px;
       }
 
       .table-card {
@@ -309,7 +309,7 @@ export interface Project {
       }
 
       .glow-text {
-        font-size: 1.6rem;
+        font-size: 1.35rem; /* Reduced from 1.6rem */
         font-weight: 800;
         color: #fff;
         margin: 0;
@@ -337,14 +337,14 @@ export interface Project {
       }
 
       .project-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 10px;
+        width: 28px; /* Reduced from 32px */
+        height: 28px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.04);
       }
 
       .project-link {
@@ -408,10 +408,10 @@ export interface Project {
       .status-pill {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.75rem;
-        border-radius: 100px;
-        font-size: 0.65rem;
+        gap: 0.4rem;
+        padding: 0.25rem 0.6rem; /* Reduced from 0.35/0.75 */
+        border-radius: 80px;
+        font-size: 0.6rem; /* Reduced from 0.65rem */
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.05em;

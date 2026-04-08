@@ -128,11 +128,11 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       th {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.55rem;
+        padding: 0.4rem 0.6rem; /* Reduced from 0.6/0.8 */
+        font-size: 0.52rem; /* Reduced from 0.55rem */
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.14em;
         color: var(--text-muted);
         border-bottom: 1px solid var(--border-soft);
         font-family: var(--font-display);
@@ -142,8 +142,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       td {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem; /* Reduced from 0.6/0.8 */
+        font-size: 0.72rem; /* Reduced from 0.8rem */
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
         transition: var(--transition-fast);

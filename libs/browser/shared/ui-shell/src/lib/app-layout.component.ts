@@ -155,6 +155,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       height: 100vh;
       overflow: hidden;
       font-family: var(--font-main);
+      font-size: 14px; /* Scaled down base */
     }
 
     .app-layout {
@@ -173,15 +174,15 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
     }
 
     .top-nav {
-      height: 48px;
-      background: rgba(10, 10, 10, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      height: 42px; /* Reduced from 48px */
+      background: rgba(10, 10, 10, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 16px;
       flex-shrink: 0;
       z-index: 100;
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
@@ -196,12 +197,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       position: relative;
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 8px;
-      padding: 0 12px;
-      height: 34px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+      padding: 0 10px;
+      height: 30px; /* Reduced from 34px */
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.04);
       cursor: pointer;
     }
 

@@ -153,14 +153,14 @@ export type CardVariant = string;
     .header-main { display: flex; flex-direction: column; gap: 0.25rem; }
 
     .card-header h3 {
-      font-size: 0.62rem;
+      font-size: 0.58rem; /* Reduced from 0.62rem */
       letter-spacing: 0.08em;
       color: var(--text-secondary);
       margin: 0;
     }
 
     .card-body {
-      padding: 1.25rem;
+      padding: 0.875rem; /* Reduced from 1.25rem */
       flex: 1;
     }
 

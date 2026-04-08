@@ -55,12 +55,12 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     /* Base Select Styles */
     select {
       width: 100%; 
-      padding: 12px 40px 12px 16px; 
+      padding: 8px 32px 8px 12px; /* Reduced from 12/40/16 */
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
       color: var(--text-primary);
-      font-size: 0.9rem; 
+      font-size: 0.8rem; /* Reduced from 0.9rem */
       transition: var(--transition-base, 280ms ease); 
       outline: none; 
       font-family: var(--font-main);
@@ -174,9 +174,9 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
 
     .chevron {
       position: absolute; 
-      right: 16px; 
-      width: 10px; 
-      height: 10px;
+      right: 12px; /* Adjusted from 16px */
+      width: 8px; /* Slightly smaller chevron */
+      height: 8px;
       border-right: 2px solid var(--text-muted); 
       border-bottom: 2px solid var(--text-muted);
       transform: rotate(45deg); 

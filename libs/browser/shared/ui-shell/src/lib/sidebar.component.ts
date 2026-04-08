@@ -120,10 +120,9 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
          SIDEBAR — ALWAYS DARK, INDEPENDENT OF ACTIVE THEME
          ====================================================== */
       .sidebar-container {
-        width: 210px;
-        min-width: 210px;
+        width: 185px; /* Reduced from 210px */
+        min-width: 185px;
         height: 100%;
-        /* Hardcoded dark — never inherits the light theme bg */
         background: linear-gradient(
           165deg,
           #0d0d12 0%,
@@ -132,13 +131,12 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         );
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
-        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
         display: flex;
         flex-direction: column;
         transition:
           width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
           min-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        /* Hardcoded dark text */
         color: rgba(255, 255, 255, 0.55);
         overflow: hidden;
         position: relative;
@@ -162,14 +160,14 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       }
 
       .header {
-        height: 48px;
+        height: 42px; /* Reduced from 48px to match top nav */
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 20px;
+        padding: 0 16px; /* Reduced from 20px */
         flex-shrink: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        margin-bottom: 4px;
         transition: padding 0.3s ease;
       }
 
@@ -200,10 +198,9 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
       .logo-text {
         font-weight: 800;
-        font-size: 1.05rem;
-        letter-spacing: 0.18em;
+        font-size: 0.95rem; /* Reduced from 1.05rem */
+        letter-spacing: 0.16em;
         font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
-        /* Always white gradient — hardcoded */
         background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.55));
         -webkit-background-clip: text;
         background-clip: text;
@@ -259,17 +256,17 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       .nav-link {
         display: flex;
         align-items: center;
-        padding: 7px 10px;
-        border-radius: 8px;
+        padding: 6px 12px; /* Reduced padding from 7/10 */
+        border-radius: 6px;
         text-decoration: none;
         color: rgba(255, 255, 255, 0.5);
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
-        min-height: 42px;
+        min-height: 38px; /* Reduced from 42px */
         font-weight: 700;
-        font-size: 0.68rem;
+        font-size: 0.64rem; /* Reduced from 0.68rem */
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         border: 1px solid transparent;
         background: transparent;
         width: 100%;
