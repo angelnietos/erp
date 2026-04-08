@@ -730,6 +730,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                    parameters: { type: 'OBJECT', properties: { filename: { type: 'STRING' } }, required: ['filename'] }
                 },
                 {
+                   name: 'update_dynamic_canvas',
+                   description: 'Inyecta código HTML y CSS renderizable directamente sobre la capa principal de la vista indicada (ej: "login" o "dashboard"). El sistema renderizará tu código, permitiéndote crear animaciones, textos fluidos, imágenes (tags img), etc.',
+                   parameters: { 
+                     type: 'OBJECT', 
+                     properties: { 
+                       targetFeature: { type: 'STRING', description: 'La vista donde pintar el HTML (ej: "login", "dashboard")' },
+                       htmlContent: { type: 'STRING', description: 'El código HTML y CSS a inyectar en la vista.' }
+                     }, 
+                     required: ['targetFeature', 'htmlContent'] 
+                   }
+                },
+                {
                    name: 'configure_rage_style',
                    description: 'Cambia el aspecto visual de tu Modo Rage.',
                    parameters: { 
@@ -828,6 +840,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             case 'delete_context_file':
               this.aiBotStore.deleteContextFile(this.feature, args.filename);
               responseText = `🗑️ He borrado el archivo **${args.filename}** de mi contexto.`;
+              break;
+
+            case 'update_dynamic_canvas':
+              this.aiBotStore.updateCanvas(args.targetFeature, args.htmlContent);
+              responseText = `✨ He actualizado el Dynamic Canvas en la vista de **${args.targetFeature}** con tu código visual.`;
               break;
 
             case 'search_database':

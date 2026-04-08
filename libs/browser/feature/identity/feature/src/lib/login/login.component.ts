@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthStore } from '@josanz-erp/identity-data-access';
-import { UiInputComponent, UiButtonComponent, UiAlertComponent } from '@josanz-erp/shared-ui-kit';
+import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, User, Lock, ArrowRight, Sparkles, Palette, Zap, Waves, Cpu, Volume2, Grid, Aperture, Search, Moon } from 'lucide-angular';
+import { AIBotStore } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-background/animated-background.component';
 
 interface BackgroundThemeOption {
@@ -16,7 +17,7 @@ interface BackgroundThemeOption {
 @Component({
   selector: 'lib-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, UiInputComponent, UiButtonComponent, UiAlertComponent, AnimatedBackgroundComponent],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, UiInputComponent, UiButtonComponent, UiAlertComponent, AnimatedBackgroundComponent, DynamicCanvasComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +30,10 @@ export class LoginComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
+
+  private readonly aiBotStore = inject(AIBotStore);
+  // Get dynamically generated HTML for the 'login' feature
+  readonly dynamicHtml = computed(() => this.aiBotStore.dynamicCanvas()?.['login'] || '');
 
   readonly icons = { User, Lock, ArrowRight, Sparkles, Palette, Zap, Waves, Cpu, Volume2, Grid, Aperture, Search, Moon };
   

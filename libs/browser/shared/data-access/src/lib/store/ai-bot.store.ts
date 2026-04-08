@@ -230,6 +230,20 @@ export class AIBotStore {
     JSON.parse(localStorage.getItem('ai_bot_workspaces') || '{}')
   );
 
+  // Dynamic Canvas System
+  private readonly _dynamicCanvas = signal<Record<string, string>>(
+    JSON.parse(localStorage.getItem('ai_dynamic_canvas') || '{}')
+  );
+  readonly dynamicCanvas = this._dynamicCanvas.asReadonly();
+
+  updateCanvas(key: string, html: string) {
+    this._dynamicCanvas.update(current => {
+      const updated = { ...current, [key]: html };
+      localStorage.setItem('ai_dynamic_canvas', JSON.stringify(updated));
+      return updated;
+    });
+  }
+
   getWorkspace(feature: string) {
     return this._botWorkspaces()[feature] || { memories: [], lastTasks: [], contextFiles: {} };
   }

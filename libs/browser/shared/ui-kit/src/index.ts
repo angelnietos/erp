@@ -56,6 +56,7 @@ export { DetailPlaceholderComponent } from './lib/detail-placeholder/detail-plac
 export { ILucideComponent } from './lib/icons/i-lucide.component';
 export { UIMascotComponent } from './lib/mascot/mascot.component';
 export { UIAIChatComponent } from './lib/ai-assistant/ai-assistant.component';
+export { DynamicCanvasComponent } from './lib/dynamic-canvas/dynamic-canvas.component';
 
 // Pipes
 export { SelectMapperPipe } from './lib/pipes/select-mapper.pipe';
