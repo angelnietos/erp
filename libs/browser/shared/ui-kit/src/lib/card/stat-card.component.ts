@@ -37,150 +37,99 @@ import { LucideAngularModule } from 'lucide-angular';
         display: block;
       }
       .stat-card {
-        padding: 1.125rem 1.375rem;
-        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.75rem;
+        border-radius: 20px;
         display: flex;
-        align-items: center;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 1.5rem;
         position: relative;
         overflow: hidden;
         cursor: pointer;
-        transition:
-          transform 0.35s var(--ease-out-expo),
-          box-shadow 0.35s var(--ease-out-expo);
-        background: var(--card-bg, var(--surface));
-        border: 1px solid var(--card-border, var(--border-soft));
-        box-shadow: var(--shadow-sm), var(--shadow-inset-shine);
+        transition: all 0.4s var(--ease-out-expo);
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       }
 
       .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow:
-          var(--shadow-md),
-          0 0 32px -8px var(--brand-glow);
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--brand);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px var(--brand-glow);
       }
 
-      /* Shimmer on hover */
-      .stat-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 60%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.06),
-          transparent
-        );
-        transform: skewX(-15deg);
-        transition: left 0.6s var(--ease-out-expo);
-        pointer-events: none;
-      }
-      .stat-card:hover::after {
-        left: 150%;
+      .stat-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
       }
 
       .stat-icon-wrapper {
-        width: 3rem;
-        height: 3rem;
-        min-width: 3rem;
-        background: color-mix(in srgb, var(--brand) 12%, transparent);
-        border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
-        border-radius: var(--radius-md);
+        width: 3.5rem;
+        height: 3.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: var(--brand);
-        transition: all 0.35s var(--ease-out-expo);
+        transition: all 0.4s var(--ease-out-expo);
       }
 
       .stat-card:hover .stat-icon-wrapper {
-        transform: scale(1.12) rotate(-6deg);
         background: var(--brand);
         color: #fff;
+        transform: rotate(-8deg) scale(1.1);
         box-shadow: 0 0 20px var(--brand-glow);
-        border-color: transparent;
       }
 
       .stat-content {
         display: flex;
         flex-direction: column;
-        gap: 0.1rem;
-        flex: 1;
-        min-width: 0;
+        gap: 0.25rem;
       }
 
       .stat-label {
-        font-size: 0.6rem;
-        font-weight: 800;
+        font-size: 0.65rem;
+        font-weight: 900;
         color: var(--text-muted);
-        letter-spacing: 0.1em;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        font-family: var(--font-display);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .stat-value-row {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        gap: 0.5rem;
       }
 
       .stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
+        font-size: 2.2rem;
+        font-weight: 900;
         margin: 0;
-        font-family: var(--font-display);
         letter-spacing: -0.02em;
-        color: var(--text-primary);
-        line-height: 1;
+        color: #fff;
+        font-family: var(--font-gaming, inherit);
       }
 
       .stat-trend {
-        font-size: 0.68rem;
-        font-weight: 800;
-        padding: 0.2rem 0.55rem;
-        border-radius: 2rem;
-        white-space: nowrap;
-        flex-shrink: 0;
+        font-size: 0.72rem;
+        font-weight: 900;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        backdrop-filter: blur(4px);
       }
 
-      .stat-trend.up {
-        background: color-mix(
-          in srgb,
-          var(--success, #10b981) 12%,
-          transparent
-        );
-        color: var(--success, #10b981);
-        border: 1px solid
-          color-mix(in srgb, var(--success, #10b981) 25%, transparent);
-      }
-
-      .stat-trend.down {
-        background: color-mix(in srgb, var(--danger, #ef4444) 12%, transparent);
-        color: var(--danger, #ef4444);
-        border: 1px solid
-          color-mix(in srgb, var(--danger, #ef4444) 25%, transparent);
-      }
+      .stat-trend.up { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+      .stat-trend.down { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 
       .accent-line {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(
-          90deg,
-          var(--brand),
-          color-mix(in srgb, var(--brand) 50%, transparent)
-        );
-        box-shadow: 0 0 12px var(--brand-glow);
+        position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+        background: var(--brand); box-shadow: 0 0 15px var(--brand-glow);
+        transform: scaleX(0); transition: transform 0.4s; transform-origin: left;
       }
+      .stat-card:hover .accent-line { transform: scaleX(1); }
     `,
   ],
 })
