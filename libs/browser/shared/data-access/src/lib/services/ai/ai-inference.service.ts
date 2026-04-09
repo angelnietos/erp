@@ -144,14 +144,14 @@ export class AIInferenceService {
     const body: {
       contents: Array<{ role: string; parts: Array<{ text: string }> }>;
       generationConfig: { temperature: number; topK: number; topP: number; maxOutputTokens: number };
-      system_instruction?: { parts: Array<{ text: string }> };
+      systemInstruction?: { parts: Array<{ text: string }> };
     } = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 2048 }
     };
 
     if (context) {
-      body.system_instruction = { parts: [{ text: context }] };
+      body.systemInstruction = { parts: [{ text: context }] };
     }
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`, {
