@@ -42,6 +42,18 @@ export class AIInferenceService {
   });
 
   constructor() {
+    // MIGRATION: stale 'grok' provider + existing Google key → switch to gemini
+    const storedProvider = localStorage.getItem('ai_provider');
+    if (storedProvider === 'grok' && AI_CONFIG.google_api_key) {
+      localStorage.setItem('ai_provider', 'gemini');
+      localStorage.setItem('ai_selected_model_id', 'gemini');
+      this.selectedProvider.set('gemini');
+      this.selectedModelId.set('gemini');
+    } else if (!storedProvider && AI_CONFIG.google_api_key) {
+      this.selectedProvider.set('gemini');
+      this.selectedModelId.set('gemini');
+    }
+
     effect(() => {
       localStorage.setItem('ai_provider', this.selectedProvider());
       localStorage.setItem('ai_selected_model_id', this.selectedModelId());
@@ -93,7 +105,18 @@ export class AIInferenceService {
   });
 
   async generateResponse(prompt: string, context?: string): Promise<string> {
-    const provider = this.selectedProvider();
+    // selectedModelId is the source of truth — it's what the Settings UI dropdown controls.
+    // selectedProvider is kept in sync by setAIModel, but may lag due to HMR or initialization order.
+    const modelId = this.selectedModelId();
+    const provider: AIProvider = modelId.startsWith('ollama:')
+      ? 'ollama'
+      : (modelId as AIProvider);
+
+    // Keep selectedProvider in sync silently
+    if (this.selectedProvider() !== provider) {
+      this.selectedProvider.set(provider);
+    }
+
     try {
       switch (provider) {
         case 'gemini': return await this.generateWithGemini(prompt, context);
@@ -108,8 +131,7 @@ export class AIInferenceService {
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       console.error(`🔴 Error con proveedor [${provider}]:`, msg);
-      // DO NOT auto-switch providers — respect the user's choice and surface the real error
-      throw new Error(`[${provider.toUpperCase()}] ${msg}`);
+      throw new Error(`[🤖 ${provider.toUpperCase()}] ${msg}`);
     }
   }
 
