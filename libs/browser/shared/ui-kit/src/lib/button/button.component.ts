@@ -15,9 +15,22 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     <button 
       [type]="type" 
       class="btn"
-      [class]="'btn-color-' + color"
-      [class]="'btn-shape-' + shape"
-      [class]="'btn-' + size"
+      [class.btn-sm]="size === 'sm'"
+      [class.btn-md]="size === 'md'"
+      [class.btn-lg]="size === 'lg'"
+      [class.btn-color-primary]="color === 'primary'"
+      [class.btn-color-danger]="color === 'danger'"
+      [class.btn-color-success]="color === 'success'"
+      [class.btn-color-warning]="color === 'warning'"
+      [class.btn-color-secondary]="color === 'secondary'"
+      [class.btn-color-info]="color === 'info'"
+      [class.btn-color-app]="color === 'app'"
+      [class.btn-color-default]="color === 'default'"
+      [class.btn-shape-solid]="shape === 'solid' || shape === 'auto'"
+      [class.btn-shape-glass]="shape === 'glass'"
+      [class.btn-shape-outline]="shape === 'outline'"
+      [class.btn-shape-ghost]="shape === 'ghost'"
+      [class.btn-shape-link]="shape === 'link'"
       [class.btn-auto-overrides]="shape === 'auto'"
       [disabled]="disabled || loading"
       (click)="clicked.emit($event)"
@@ -35,22 +48,23 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   styles: [`
     .btn {
       position: relative;
-      font-weight: 900;
+      font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       justify-content: center;
       align-items: center;
       gap: 12px;
       transition: all 0.4s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
-      font-family: inherit;
+      font-family: var(--font-display, inherit);
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.12em;
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
       border-radius: var(--radius-md, 12px);
       border: 1px solid transparent;
       overflow: hidden;
+      user-select: none;
     }
 
     .btn::after {
