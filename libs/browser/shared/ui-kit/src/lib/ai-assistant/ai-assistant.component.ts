@@ -847,7 +847,12 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     // Detectar comandos especiales antes de procesar con IA
     const themeCommand = this.detectThemeCommand(userInput);
     if (themeCommand) {
-      await this.executeThemeCommand(themeCommand, userInput);
+      if (themeCommand === 'random') {
+        // User said "cambiar tema" without specifying - offer suggestions
+        await this.handleRandomThemeRequest(userInput);
+      } else {
+        await this.executeThemeCommand(themeCommand as Theme, userInput);
+      }
       return;
     }
 
@@ -1017,34 +1022,147 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     }
   }
 
-  private detectThemeCommand(text: string): Theme | null {
+  private detectThemeCommand(text: string): Theme | 'random' | null {
     const lowerText = text.toLowerCase();
 
-    // Detectar tema verde
-    const greenKeywords = [
-      'verde',
-      'green',
-      'tema verdoso',
-      'verde app',
-      'cambiar tema verde',
-      'cambiar tema ',
+    // Check for random theme request
+    if (
+      lowerText.includes('elige uno aleatorio') ||
+      lowerText.includes('random') ||
+      lowerText.includes('aleatorio')
+    ) {
+      // Pick a random theme from popular ones
+      const popularThemes: Theme[] = [
+        'dark',
+        'light',
+        'purple',
+        'blue',
+        'green',
+        'orange',
+        'rose',
+        'cyberpunk-2077',
+        'matrix-reloaded',
+        'vaporwave-80s',
+      ];
+      return popularThemes[Math.floor(Math.random() * popularThemes.length)];
+    }
+
+    // Check for theme change commands
+    const themeChangeKeywords = [
+      'cambiar tema',
+      'pon un tema',
+      'set theme',
+      'cambiar a tema',
+      'tema',
     ];
-    if (greenKeywords.some((keyword) => lowerText.includes(keyword))) {
-      return 'green' as Theme;
+    const hasThemeCommand = themeChangeKeywords.some((keyword) =>
+      lowerText.includes(keyword),
+    );
+
+    if (!hasThemeCommand) {
+      return null;
     }
 
-    // Detectar otros temas comunes
-    if (lowerText.includes('tema oscuro') || lowerText.includes('dark')) {
-      return 'dark' as Theme;
-    }
-    if (lowerText.includes('tema claro') || lowerText.includes('light')) {
-      return 'light' as Theme;
-    }
-    if (lowerText.includes('tema azul') || lowerText.includes('blue')) {
-      return 'blue' as Theme;
+    // Get all available theme names and their keys
+    const themeEntries = Object.entries(this.themeService.themes);
+
+    // Check if user mentioned any theme name
+    for (const [themeKey, themeConfig] of themeEntries) {
+      const themeName = themeConfig.name.toLowerCase();
+      const themeKeyLower = themeKey.toLowerCase();
+
+      // Check for theme name or key in user input
+      if (lowerText.includes(themeName) || lowerText.includes(themeKeyLower)) {
+        return themeKey as Theme;
+      }
     }
 
-    return null;
+    // Fallback to common keywords for popular themes
+    const keywordMappings: Record<string, Theme> = {
+      verde: 'green',
+      green: 'green',
+      oscuro: 'dark',
+      dark: 'dark',
+      claro: 'light',
+      light: 'light',
+      azul: 'blue',
+      blue: 'blue',
+      morado: 'purple',
+      purple: 'purple',
+      naranja: 'orange',
+      orange: 'orange',
+      rosa: 'rose',
+      rose: 'rose',
+      cyan: 'cyan',
+      teal: 'teal',
+      amarillo: 'amber',
+      amber: 'amber',
+      indigo: 'indigo',
+      lime: 'lime',
+      violet: 'violet',
+      crimson: 'crimson',
+      mint: 'mint',
+      coral: 'coral',
+      oro: 'gold',
+      gold: 'gold',
+    };
+
+    for (const [keyword, theme] of Object.entries(keywordMappings)) {
+      if (lowerText.includes(keyword)) {
+        return theme;
+      }
+    }
+
+    // If user just said "cambiar tema" without specifying, return a special flag
+    // We'll handle this in sendMessage by offering suggestions or picking random
+    return 'random'; // Special case to show suggestions
+  }
+
+  private async handleRandomThemeRequest(userInput: string) {
+    // Agregar mensaje del usuario
+    this.messages.update((m) => [
+      ...m,
+      { id: Date.now().toString(), text: userInput, role: 'user' },
+    ]);
+
+    // Get some popular/fun themes to suggest
+    const popularThemes: Theme[] = [
+      'dark',
+      'light',
+      'purple',
+      'blue',
+      'green',
+      'orange',
+      'rose',
+      'cyberpunk-2077',
+      'matrix-reloaded',
+      'vaporwave-80s',
+    ];
+    const randomThemes = popularThemes
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 4);
+
+    const themeOptions = randomThemes
+      .map((theme) => {
+        const themeName = this.themeService.themes[theme]?.name || theme;
+        return `"${themeName}"`;
+      })
+      .join(', ');
+
+    const botResponse = `¡Claro! Tengo muchos temas disponibles. Aquí van algunas sugerencias populares: ${themeOptions}. ¿Cuál te gustaría probar? O dime "elige uno aleatorio" para que yo escoja uno por ti.`;
+
+    this.messages.update((m) => [
+      ...m,
+      {
+        id: (Date.now() + 1).toString(),
+        text: botResponse,
+        role: 'bot',
+        reasoning: '',
+      },
+    ]);
+
+    this.currentInput = '';
+    this.scrollToBottom();
   }
 
   private async executeThemeCommand(theme: Theme, userInput: string) {
@@ -1080,23 +1198,5 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       `Tema cambiado a ${themeName}`,
       'all',
     );
-  }
-
-  private inferGreenThemeKeyFromUserText(text: string): Theme | null {
-    // Lógica mejorada para detectar si el usuario quiere un tema verde
-    const greenKeywords = [
-      'verde',
-      'green',
-      'nature',
-      'forest',
-      'emerald',
-      'tema verdoso',
-      'verde app',
-      'cambiar tema',
-    ];
-    const lowerText = text.toLowerCase();
-    return greenKeywords.some((keyword) => lowerText.includes(keyword))
-      ? ('green' as Theme)
-      : null;
   }
 }
