@@ -1,0 +1,35 @@
+import { AIBot } from '../../models/ai-bot.model';
+
+export const FLEET_BOT: AIBot = {
+  id: 'fleet-bot',
+  name: 'Drive-Bot',
+  feature: 'fleet',
+  description: 'Optimiza rutas de transporte y gestiona flota vehicular.',
+  skills: [
+    'Route Optimization',
+    'Predictive Maintenance',
+    'Fuel Efficiency AI',
+    'Driver Habits Monitor',
+    'Load Balancing',
+    'Parking Finder',
+    'Gestión de Mantenimiento',
+    'Análisis de Costos',
+    'Monitoreo en Tiempo Real',
+    'Optimización de Flota',
+    'Planificación de Rutas',
+    'Alertas de Seguridad',
+  ],
+  activeSkills: [
+    'Route Optimization',
+    'Predictive Maintenance',
+    'Monitoreo en Tiempo Real',
+  ],
+  status: 'inactive',
+  color: '#f59e0b',
+  secondaryColor: '#d97706',
+  mascotType: 'fleet',
+  personality: 'explorer',
+  bodyShape: 'capsule',
+  eyesType: 'shades',
+  mouthType: 'o',
+};
