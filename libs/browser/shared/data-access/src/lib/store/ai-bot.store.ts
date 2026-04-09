@@ -184,9 +184,11 @@ export class AIBotStore {
       'verifactu': 'verifactu',
       'users': 'users',
       'usuarios': 'users',
-      'identity': 'identity',
-      'hr': 'identity',
-      'rrhh': 'identity',
+      /** Bot de personal / RRHH (ruta `/users`) — no usar feature inexistente `identity` */
+      'identity': 'users',
+      'hr': 'users',
+      'rrhh': 'users',
+      'personal': 'users',
       'fleet': 'fleet',
       'flota': 'fleet',
     };

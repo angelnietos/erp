@@ -27,7 +27,8 @@ export class AIWorkflowService {
 
   async executeAction(actionStr: string): Promise<void> {
     try {
-      const parsed = JSON.parse(actionStr);
+      const cleaned = this.sanitizeActionPayload(actionStr);
+      const parsed = JSON.parse(cleaned);
       const actions = Array.isArray(parsed) ? parsed : [parsed];
 
       for (const action of actions) {
@@ -39,6 +40,26 @@ export class AIWorkflowService {
     } catch (e) {
       console.error('Failed to parse/execute bot workflow:', actionStr, e);
     }
+  }
+
+  /**
+   * El modelo a veces envuelve el JSON en ```json ... ``` o añade texto tras el array.
+   */
+  private sanitizeActionPayload(raw: string): string {
+    let s = raw.trim();
+    const fence = /^```(?:json)?\s*\n?([\s\S]*?)\n?```$/im.exec(s);
+    if (fence) {
+      s = fence[1].trim();
+    }
+    const arrayMatch = s.match(/\[[\s\S]*\]/);
+    if (arrayMatch) {
+      return arrayMatch[0];
+    }
+    const objMatch = s.match(/\{[\s\S]*\}/);
+    if (objMatch) {
+      return objMatch[0];
+    }
+    return s;
   }
 
   /**
@@ -79,8 +100,8 @@ export class AIWorkflowService {
         if (url) {
           this.orchestrationBus.addLog(`🧭 Navegando a ${url} y filtrando: "${query}"`);
           await this.router.navigateByUrl(url);
-          // Wait for component to mount before applying filter
-          await new Promise(r => setTimeout(r, 600));
+          // Lista + debounce del MasterFilter (~350ms): dar margen al proveedor registrado
+          await new Promise(r => setTimeout(r, 900));
           if (query) this.masterFilterService.search(query);
         }
         break;
@@ -169,16 +190,20 @@ export class AIWorkflowService {
 
       // ─── Delegate to another bot ──────────────────────────────────────────────
       case 'delegate': {
-        const target = (payload['target'] as string) ?? '';
+        const rawTarget = (payload['target'] as string) ?? '';
+        const target = this.normalizeTarget(rawTarget);
         // Support both nested action object and plain instruction
         const delegatedActionObj = (payload['action'] as Record<string, unknown>) ?? null;
         const instruction = (payload['instruction'] as string) ?? '';
+        /** Si false, no cambiar de ruta tras delegar (p. ej. desde Ajustes) */
+        const followNavigate =
+          (payload['followNavigate'] as boolean | undefined) !== false;
 
         if (delegatedActionObj) {
           // This is a structured action → dispatch to OrchestrationBus
           this.orchestrationBus.dispatch({
             from: 'buddy',
-            to: this.normalizeTarget(target),
+            to: target,
             type: this.mapActionToOrchType(delegatedActionObj['type'] as string),
             payload: (delegatedActionObj['payload'] as Record<string, unknown>) ?? delegatedActionObj,
           });
@@ -191,6 +216,12 @@ export class AIWorkflowService {
           this.delegateHandler(target, message, delegatedActionObj ?? payload);
         } else {
           console.warn(`[Workflow] Delegate to "${target}" — no handler or target missing`);
+        }
+
+        // El asistente del dominio solo está montado en su ruta: sin navegar, la cola no se procesa.
+        if (followNavigate && target === 'users') {
+          await new Promise((r) => setTimeout(r, 400));
+          await this.router.navigateByUrl('/users');
         }
         break;
       }
@@ -226,16 +257,26 @@ export class AIWorkflowService {
 
   private normalizeTarget(target: string): string {
     const map: Record<string, string> = {
-      'presupuestos': 'budgets',
-      'budget': 'budgets',
-      'inventario': 'inventory',
-      'clientes': 'clients',
-      'client': 'clients',
-      'events': 'events',
-      'eventos': 'events',
-      'hr': 'identity',
-      'rrhh': 'identity',
-      'disponibilidad': 'identity',
+      presupuestos: 'budgets',
+      budget: 'budgets',
+      inventario: 'inventory',
+      clientes: 'clients',
+      client: 'clients',
+      events: 'events',
+      eventos: 'events',
+      reports: 'reports',
+      informes: 'reports',
+      availability: 'availability',
+      disponibilidad: 'availability',
+      services: 'services',
+      servicios: 'services',
+      /** Personal / RRHH → bot `users` (ruta `/users`) */
+      identity: 'users',
+      hr: 'users',
+      rrhh: 'users',
+      personal: 'users',
+      usuarios: 'users',
+      users: 'users',
     };
     return map[target.toLowerCase().trim()] ?? target;
   }
@@ -304,7 +345,8 @@ Eres Buddy, el orquestador maestro del ERP Josanz. Puedes coordinar a todos los 
 
 8. DELEGAR A BOT ESPECIALISTA:
 {"type":"delegate","payload":{"target":"budgets","instruction":"Prepara presupuesto para reponer 10 unidades de Altavoz Autoamplificado con proveedor Audiovisuales Madrid"}}
-{"type":"delegate","payload":{"target":"identity","instruction":"Busca técnico con habilidad AUDIO disponible esta semana"}}
+{"type":"delegate","payload":{"target":"users","instruction":"Busca técnico con habilidad AUDIO disponible esta semana"}}
+Opcional: "followNavigate": false evita saltar a la ruta del bot (por defecto, delegar a users abre /users para que el asistente ejecute la tarea).
 {"type":"delegate","payload":{"target":"inventory","instruction":"Filtra productos con stock 0"}}
 
 9. NOTIFICAR:
@@ -313,15 +355,16 @@ Eres Buddy, el orquestador maestro del ERP Josanz. Puedes coordinar a todos los 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🤖 BOTS DISPONIBLES PARA DELEGAR:
 - "inventory" → Stocky-Bot (Inventario y stock)
-- "budgets" → Money-Bot (Presupuestos y facturas)
-- "clients" → Client-Bot (Clientes y CRM)
-- "events" → Event-Bot (Eventos y planificación)
-- "identity" → HR-Bot (Personal y disponibilidad)
-- "fleet" → Fleet-Bot (Flota y vehículos)
+- "budgets" → Cali-Bot (Presupuestos)
+- "clients" → Social-Bot (Clientes y CRM)
+- "events" → Stage-Bot (Eventos y planificación)
+- "users" → People-Bot (Personal, técnicos, permisos; alias: identity, hr, rrhh)
+- "availability" → Pulse-Bot (Calendario de disponibilidad)
+- "fleet" → Drive-Bot (Flota y vehículos)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📍 RUTAS VÁLIDAS:
-/inventory, /budgets, /clients, /events, /fleet, /reports, /audit, /settings, /budgets/new, /availability
+/inventory, /budgets, /clients, /events, /fleet, /reports, /audit, /settings, /budgets/new, /availability, /users
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 EJEMPLOS DE WORKFLOWS COMPLETOS:
@@ -329,8 +372,8 @@ Eres Buddy, el orquestador maestro del ERP Josanz. Puedes coordinar a todos los 
 ESCENARIO 1 - Stock crítico y reposición:
 [ACTION] [{"type":"navigateAndFilter","payload":{"url":"/inventory","query":"stock 0"}},{"type":"wait","payload":{"ms":800}},{"type":"delegate","payload":{"target":"budgets","instruction":"Prepara borrador de compra con Audiovisuales Madrid para reponer 10 unidades de Altavoz Autoamplificado"}},{"type":"notify","payload":{"message":"He localizado el material sin stock y el bot de presupuestos está preparando el borrador de compra"}}]
 
-ESCENARIO 2 - Baja médica + sustitución:
-[ACTION] [{"type":"setAvailabilityRange","payload":{"techId":"t2","status":"SICK_LEAVE","dates":["${today}","${friday}"]}},{"type":"wait","payload":{"ms":600}},{"type":"navigateAndFilter","payload":{"url":"/events","query":"Concierto Verano 2026"}},{"type":"delegate","payload":{"target":"identity","instruction":"Busca técnico con habilidad AUDIO disponible para sustituir a Dani Sonido esta semana"}},{"type":"notify","payload":{"message":"Baja registrada y solicitud de sustitución enviada al bot de RRHH"}}]
+ESCENARIO 2 - Baja médica + sustitución (delegar a users abre /users automáticamente; el array debe incluir TODOS los pasos):
+[ACTION] [{"type":"setAvailabilityRange","payload":{"techId":"t2","status":"SICK_LEAVE","dates":["${today}","${friday}"]}},{"type":"wait","payload":{"ms":600}},{"type":"navigateAndFilter","payload":{"url":"/events","query":"Concierto Verano 2026"}},{"type":"wait","payload":{"ms":500}},{"type":"delegate","payload":{"target":"users","instruction":"Busca técnico con habilidad AUDIO disponible para sustituir a Dani Sonido esta semana"}},{"type":"notify","payload":{"message":"Baja registrada, evento revisado y tarea enviada a People-Bot (personal)"}}]
 
 ESCENARIO 3 - Lead a oferta:
 [ACTION] [{"type":"navigateAndFilter","payload":{"url":"/clients","query":"Eventos Global S.L."}},{"type":"delegate","payload":{"target":"budgets","instruction":"Prepara nueva oferta de alquiler con 4 Proyectores Láser 4K para Eventos Global S.L."}},{"type":"notify","payload":{"message":"Abriendo ficha de cliente y preparando oferta simultáneamente"}}]

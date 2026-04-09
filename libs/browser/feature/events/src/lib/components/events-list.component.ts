@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  computed,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -278,6 +286,21 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
 
   initialEvents: Event[] = [
     {
+      id: 'ev-concierto-2026',
+      title: 'Concierto Verano 2026',
+      description: 'Montaje audio, iluminación y streaming para gira de verano',
+      date: '2026-07-18',
+      time: '21:00',
+      location: 'Auditorio Municipal',
+      status: 'active',
+      attendees: 0,
+      capacity: 5000,
+      type: 'other',
+      organizer: 'Producción Josanz',
+      cost: 0,
+      createdAt: '2026-03-01T09:00:00Z',
+    },
+    {
       id: '1',
       title: 'Evento Corporativo ABC',
       description: 'Evento anual de networking y presentación de productos',
@@ -384,6 +407,18 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
 
   getInitials(title: string): string {
     return title.slice(0, 2).toUpperCase();
+  }
+
+  constructor() {
+    // Sincronizar búsqueda local con MasterFilter (workflows: navigateAndFilter → search)
+    effect(() => {
+      const q = this.masterFilter.query();
+      if (this.filters.search === q) {
+        return;
+      }
+      this.filters = { ...this.filters, search: q };
+      this.applyFilters();
+    });
   }
 
   getEventGradient(type: string): string {
