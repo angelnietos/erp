@@ -18,6 +18,7 @@ import {
   UiCardComponent,
   UiButtonComponent,
   UiStatCardComponent,
+  UiFeatureStatsComponent
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
@@ -61,6 +62,7 @@ interface QuickAction {
     UiButtonComponent,
     UiStatCardComponent,
     LucideAngularModule,
+    UiFeatureStatsComponent,
   ],
   template: `
     <div class="dashboard-wrapper animate-fade-in">
@@ -83,7 +85,7 @@ interface QuickAction {
       </section>
 
       <!-- Key Metrics -->
-      <section class="metrics-row">
+      <ui-feature-stats>
         @for (metric of metrics(); track metric.title) {
           <ui-stat-card
             [label]="metric.title"
@@ -94,7 +96,7 @@ interface QuickAction {
             (click)="onMetricNavigate(metric)"
           ></ui-stat-card>
         }
-      </section>
+      </ui-feature-stats>
 
       <!-- Main Grid Layout -->
       <div class="dashboard-grid">
@@ -263,13 +265,7 @@ interface QuickAction {
     }
 
     /* Grid Layout */
-    .metrics-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
-      padding: 0 2rem;
-      margin-bottom: 2.5rem;
-    }
+
 
     .dashboard-grid {
       display: grid;

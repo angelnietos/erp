@@ -25,6 +25,11 @@ import { LucideAngularModule } from 'lucide-angular';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      padding: 0 clamp(1rem, 2.5vw, 2rem);
+    }
+
     .stats-wrapper {
       margin-bottom: 2rem;
       transition: all 0.5s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
@@ -36,7 +41,7 @@ import { LucideAngularModule } from 'lucide-angular';
       gap: 1rem;
       margin-bottom: 0.5rem;
       cursor: pointer;
-      opacity: 0.4;
+      opacity: 0.6;
       transition: opacity 0.3s ease;
     }
 

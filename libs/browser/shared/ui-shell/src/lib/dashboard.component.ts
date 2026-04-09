@@ -6,7 +6,8 @@ import { LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiStatCardComponent, UiResourceMonitorComponent, ResourceItem 
+  UiStatCardComponent, UiResourceMonitorComponent, ResourceItem,
+  UiFeatureStatsComponent
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
@@ -16,7 +17,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
   imports: [
     CommonModule, RouterModule, LucideAngularModule, 
     UiCardComponent, UiButtonComponent, UiBadgeComponent,
-    UiStatCardComponent, UiResourceMonitorComponent
+    UiStatCardComponent, UiResourceMonitorComponent, UiFeatureStatsComponent
   ],
   template: `
     <div class="dashboard-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
@@ -45,7 +46,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         </div>
       </header>
 
-      <div class="stats-grid">
+      <ui-feature-stats>
         <ui-stat-card 
           label="Facturación Mensual" 
           value="€42,850.00" 
@@ -73,7 +74,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
           value="92%" 
           icon="truck">
         </ui-stat-card>
-      </div>
+      </ui-feature-stats>
 
       <div class="main-content-grid">
         <ui-card 
@@ -127,7 +128,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     </div>
   `,
   styles: [`
-    .dashboard-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    .dashboard-container { padding: 0.5rem 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
     
     .page-header {
       display: flex; justify-content: space-between; align-items: flex-end;
@@ -143,8 +144,6 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
       letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
     }
-    
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 
     .main-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; min-height: 400px; }
     .sidebar-grid { display: flex; flex-direction: column; gap: 1.5rem; }
