@@ -103,7 +103,14 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         ></ui-search>
         <div class="filter-actions">
            <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
-           <ui-button variant="ghost" size="sm" icon="ArrowUp">Ordenar</ui-button>
+            <ui-button 
+              variant="ghost" 
+              size="sm" 
+              [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+              (clicked)="toggleSort()"
+            >
+              ORDENAR: {{ sortField() === 'name' ? 'NOMBRE' : sortField() === 'revenue' ? 'INGRESOS' : 'PROYECTOS' }}
+            </ui-button>
         </div>
       </div>
 
