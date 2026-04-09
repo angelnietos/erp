@@ -27,12 +27,14 @@ interface CalendarCell {
   template: `
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->
-      <header class="dashboard-header animate-slide-down">
-        <div class="header-info">
+      <header class="dashboard-header">
+        <div class="header-info animate-slide-right">
+          <div class="breadcrumb">RRHH / GESTIÓN DE EQUIPO</div>
           <h1 class="page-title text-uppercase glow-text">Disponibilidad <span class="text-brand">Técnica</span></h1>
-          <p class="text-friendly">Planificación integrada de recursos humanos y logística para eventos.</p>
+          <p class="text-friendly">Supervisión en tiempo real de cuadrantes y estatus operativo del personal.</p>
         </div>
-        <div class="header-actions">
+        
+        <div class="header-actions animate-slide-left">
            <!-- MONTH NAVIGATION -->
            <div class="month-navigator ui-glass">
               <button class="nav-btn ripple" (click)="prevMonth()" title="Anterior">
@@ -53,6 +55,7 @@ interface CalendarCell {
                 [class.active]="viewMode() === 'personal'"
                 (click)="viewMode.set('personal')"
               >
+                <lucide-icon name="user" size="14"></lucide-icon>
                 Individual
               </button>
               <button 
@@ -60,124 +63,141 @@ interface CalendarCell {
                 [class.active]="viewMode() === 'team'"
                 (click)="viewMode.set('team')"
               >
-                Panel Equipo
+                <lucide-icon name="users" size="14"></lucide-icon>
+                Equipo
               </button>
            </div>
            
-           <ui-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()" [class.animate-spin]="isLoading()"></ui-button>
+           <div class="refresh-action">
+              <ui-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()" [class.animate-spin]="isLoading()" class="ui-bloom"></ui-button>
+           </div>
         </div>
       </header>
 
       <div class="dashboard-layout">
         <!-- SIDEBAR: TEAM LIST -->
-        <aside class="team-sidebar ui-glass animate-slide-right">
+        <aside class="team-sidebar animate-slide-right">
           <div class="sidebar-header">
-            <h3>Equipo Técnico</h3>
-            <ui-badge variant="info">{{ technicians().length }}</ui-badge>
+            <h3>Operarios AV</h3>
+            <ui-badge variant="info" class="count-badge">{{ technicians().length }}</ui-badge>
           </div>
           <div class="sidebar-search">
             <ui-search 
-              variant="filled" 
-              placeholder="Buscar operario..." 
+              variant="glass" 
+              placeholder="Filtro rápido..." 
               (searchChange)="onSearch($event)"
             ></ui-search>
           </div>
-          <div class="technician-list">
+          <div class="technician-list custom-scrollbar">
             @for (tech of technicians(); track tech.id) {
               <div 
-                class="tech-item ui-neon ripple" 
+                class="tech-card ui-neon" 
                 [class.selected]="selectedTechId() === tech.id"
                 (click)="selectedTechId.set(tech.id)"
               >
-                <div class="tech-avatar" [style.background]="getAvatarColor(tech.name)">
-                  {{ tech.name.substring(0, 2).toUpperCase() }}
-                  <span class="status-dot" [class]="tech.status"></span>
+                <div class="tech-avatar-wrapper">
+                  <div class="tech-avatar" [style.background]="getAvatarColor(tech.name)">
+                    {{ tech.name.substring(0, 2).toUpperCase() }}
+                  </div>
+                  <span class="status-indicator" [class]="tech.status"></span>
                 </div>
-                <div class="tech-info">
+                <div class="tech-body">
                   <span class="tech-name">{{ tech.name }}</span>
                   <span class="tech-role">{{ tech.role }}</span>
                 </div>
+                <lucide-icon name="chevron-right" size="14" class="tech-chevron"></lucide-icon>
               </div>
             }
           </div>
         </aside>
 
         <!-- MAIN CALENDAR / TEAM BOARD -->
-        <main class="main-content animate-slide-up">
+        <main class="main-content">
           @if (viewMode() === 'personal') {
-            <ui-card shape="auto" class="calendar-card ui-glass">
-              <div class="calendar-header">
-                <div class="header-main">
-                  <h2 class="text-uppercase">{{ getMonthName() }} <span class="year-val">{{ currentYear() }}</span></h2>
-                  <p class="tech-label" *ngIf="getSelectedTechName() as name">
-                     Calendario de: <strong>{{ name }}</strong>
-                  </p>
-                </div>
-                <div class="calendar-legend">
-                  <div class="legend-item"><span class="dot AVAILABLE"></span><span>Disp.</span></div>
-                  <div class="legend-item"><span class="dot UNAVAILABLE"></span><span>Ocupado</span></div>
-                  <div class="legend-item"><span class="dot HOLIDAY"></span><span>Vacac.</span></div>
-                  <div class="legend-item"><span class="dot SICK_LEAVE"></span><span>Baja</span></div>
-                </div>
-              </div>
-              
-              <div class="calendar-grid">
-                @for (day of ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']; track day) {
-                  <div class="day-header">{{ day }}</div>
-                }
-                
-                @for (cell of calendarCells(); track cell.date) {
-                  <div 
-                    class="calendar-cell"
-                    [class.other-month]="!cell.isCurrentMonth"
-                    [class.today]="cell.isToday"
-                    (click)="toggleAvailability(cell)"
-                  >
-                    <div class="cell-head">
-                      <span class="cell-day">{{ cell.day }}</span>
+            <div class="calendar-wrapper animate-slide-up">
+              <ui-card shape="auto" class="calendar-card ui-glass-panel ui-bloom">
+                <div class="calendar-card-header">
+                  <div class="header-meta">
+                    <div class="tech-selector-info" *ngIf="getSelectedTechName() as name">
+                      <span class="label">CALENDARIO</span>
+                      <h2 class="tech-display-name text-uppercase">{{ name }}</h2>
                     </div>
-                    
-                    <div class="cell-body">
-                      @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
-                         <div class="status-pill" [class]="status">
-                            <span class="pill-label">{{ getShortLabel(status) }}</span>
-                         </div>
-                      }
-                    </div>
-                    @if (cell.isToday) { <div class="today-marker">HOY</div> }
-                    <div class="cell-hover-bg"></div>
                   </div>
-                }
-              </div>
-            </ui-card>
+                  <div class="calendar-legend">
+                    <div class="legend-item AVAILABLE"><span class="dot"></span><span>Disp.</span></div>
+                    <div class="legend-item UNAVAILABLE"><span class="dot"></span><span>Ocupado</span></div>
+                    <div class="legend-item HOLIDAY"><span class="dot"></span><span>Vacac.</span></div>
+                    <div class="legend-item SICK_LEAVE"><span class="dot"></span><span>Resto</span></div>
+                  </div>
+                </div>
+                
+                <div class="calendar-container">
+                  <div class="calendar-grid-header">
+                    @for (day of ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']; track day) {
+                      <div class="grid-day-label">{{ day }}</div>
+                    }
+                  </div>
+                  
+                  <div class="calendar-grid">
+                    @for (cell of calendarCells(); track cell.date) {
+                      <div 
+                        class="calendar-cell"
+                        [class.other-month]="!cell.isCurrentMonth"
+                        [class.today]="cell.isToday"
+                        (click)="toggleAvailability(cell)"
+                      >
+                        <span class="day-number">{{ cell.day }}</span>
+                        
+                        <div class="cell-status-content">
+                          @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
+                             <div class="status-indicator-bar" [class]="status"></div>
+                             <div class="status-tag" [class]="status">
+                                {{ getShortLabel(status) }}
+                             </div>
+                          }
+                        </div>
+
+                        @if (cell.isToday) { <div class="today-tag">HOY</div> }
+                        <div class="cell-glow"></div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </ui-card>
+            </div>
           } @else {
             <!-- TEAM BOARD VIEW -->
-            <ui-card shape="auto" class="team-board-card ui-glass">
-              <div class="board-container">
-                <div class="board-header-sticky">
-                   <div class="tech-col-header">Persona / Día</div>
-                   <div class="days-scroll-area">
+            <div class="team-board-wrapper animate-slide-up">
+              <ui-card shape="auto" class="team-board-card ui-glass-panel">
+                <div class="board-header">
+                   <div class="header-col persona-col">Equipo Josanz</div>
+                   <div class="days-column-container custom-scrollbar-h">
                       @for (cell of calendarCells(); track cell.date) {
-                        <div class="day-col-header" [class.today]="cell.isToday">
-                          <span class="d-num">{{ cell.day }}</span>
-                          <span class="d-name">{{ getDayOfWeekName(cell.day).substring(0,1) }}</span>
+                        <div class="day-header-col" [class.is-today]="cell.isToday">
+                          <span class="d-n">{{ cell.day }}</span>
+                          <span class="d-l">{{ getDayOfWeekName(cell.day).substring(0,1) }}</span>
                         </div>
                       }
                    </div>
                 </div>
                 
-                <div class="board-body">
+                <div class="board-rows custom-scrollbar">
                    @for (tech of technicians(); track tech.id) {
-                     <div class="tech-row" [class.highlight]="selectedTechId() === tech.id">
-                        <div class="tech-info-sticky">
-                           <div class="avatar-sm" [style.background]="getAvatarColor(tech.name)">{{ tech.name.substring(0,1) }}</div>
-                           <span class="name-sm">{{ tech.name }}</span>
+                     <div class="board-row" [class.is-selected]="selectedTechId() === tech.id">
+                        <div class="board-tech-info">
+                           <div class="mini-avatar" [style.background]="getAvatarColor(tech.name)">{{ tech.name.substring(0,1) }}</div>
+                           <div class="mini-meta">
+                              <span class="n">{{ tech.name }}</span>
+                              <span class="r">{{ tech.role }}</span>
+                           </div>
                         </div>
-                        <div class="cells-row">
+                        <div class="board-cells-container">
                            @for (cell of calendarCells(); track cell.date) {
-                              <div class="board-cell" [class.today]="cell.isToday">
+                              <div class="board-day-cell" [class.is-today]="cell.isToday">
                                  @if (getTechDayStatus(tech.id, cell.day); as status) {
-                                    <div class="mini-status-dot" [class]="status" [title]="getShortLabel(status)"></div>
+                                    <div class="status-marker" [class]="status" [title]="getShortLabel(status)"></div>
+                                 } @else {
+                                    <div class="status-marker default"></div>
                                  }
                               </div>
                            }
@@ -185,8 +205,8 @@ interface CalendarCell {
                      </div>
                    }
                 </div>
-              </div>
-            </ui-card>
+              </ui-card>
+            </div>
           }
         </main>
       </div>
@@ -194,268 +214,162 @@ interface CalendarCell {
   `,
   styles: [`
     .availability-dashboard {
-      display: flex;
-      flex-direction: column;
-      gap: 2.5rem;
-      padding: 0.5rem;
+      display: flex; flex-direction: column; gap: 2rem;
+      padding: 0 1rem 2rem;
     }
 
     .text-brand { color: var(--brand); }
+    .breadcrumb { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .page-title { margin: 0; font-size: 2.5rem; font-weight: 950; letter-spacing: -0.02em; line-height: 1; }
+    .text-friendly { margin: 0.75rem 0 0; font-size: 1rem; color: var(--text-secondary); }
 
     .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 1rem 0 2rem; border-bottom: 1px solid var(--border-soft);
     }
 
-    .page-title { margin: 0; font-size: 2.22rem; font-weight: 950; letter-spacing: -0.02em; }
-
-    .header-actions {
-      display: flex;
-      gap: 1.25rem;
-      align-items: center;
-    }
+    .header-actions { display: flex; gap: 1rem; align-items: center; }
 
     /* MONTH NAVIGATOR */
     .month-navigator {
-       display: flex;
-       align-items: center;
-       gap: 0.75rem;
-       padding: 0.5rem 1rem;
-       border-radius: 16px !important;
-       background: rgba(255,255,255,0.02) !important;
-       border: 1px solid rgba(255,255,255,0.05) !important;
+       display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem;
+       border-radius: var(--radius-lg); background: var(--bg-secondary); border: 1px solid var(--border-soft);
     }
     .nav-btn {
-       width: 40px; height: 40px; border: none; border-radius: 12px;
-       background: rgba(255,255,255,0.05); color: #fff;
+       width: 36px; height: 36px; border: none; border-radius: 12px;
+       background: transparent; color: var(--text-primary);
        cursor: pointer; display: flex; align-items: center; justify-content: center;
-       transition: all 0.3s var(--ease-out-expo);
+       transition: var(--transition-base);
     }
-    .nav-btn:hover { background: var(--brand); transform: translateY(-2px); box-shadow: 0 8px 20px var(--brand-glow); }
+    .nav-btn:hover { background: var(--brand-ambient); color: var(--brand); transform: scale(1.1); }
     
-    .current-month-display {
-       display: flex; flex-direction: column; align-items: center; min-width: 140px;
-    }
-    .m-name { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; letter-spacing: 0.05em; }
-    .m-year { font-size: 0.75rem; font-weight: 700; color: var(--brand); opacity: 0.7; }
+    .current-month-display { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+    .m-name { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; color: var(--text-primary); letter-spacing: 0.05em; }
+    .m-year { font-size: 0.7rem; font-weight: 700; color: var(--brand); opacity: 0.6; }
 
     .view-toggle {
-      display: flex;
-      padding: 6px;
-      gap: 6px;
-      border-radius: 16px !important;
-      background: rgba(0,0,0,0.3) !important;
+      display: flex; padding: 0.4rem; gap: 0.4rem;
+      border-radius: var(--radius-lg); background: var(--bg-secondary);
     }
-
     .toggle-btn {
-      padding: 0.65rem 1.4rem;
-      border-radius: 12px;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.4);
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.4s var(--ease-out-expo);
+      padding: 0.6rem 1.2rem; border-radius: 10px; border: none; background: transparent;
+      color: var(--text-muted); font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+      cursor: pointer; transition: var(--transition-base); display: flex; align-items: center; gap: 0.5rem;
     }
+    .toggle-btn lucide-icon { opacity: 0.5; }
+    .toggle-btn.active { background: var(--brand); color: #000; box-shadow: 0 4px 15px var(--brand-glow); }
+    .toggle-btn.active lucide-icon { opacity: 1; }
 
-    .toggle-btn.active {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(255,255,255,0.05);
+    .dashboard-layout { display: grid; grid-template-columns: 340px 1fr; gap: 2rem; margin-top: 1rem; }
+
+    /* SIDEBAR */
+    .team-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+    .sidebar-header { display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-header h3 { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); margin: 0; }
+    .count-badge { font-family: var(--font-gaming); }
+
+    .technician-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 700px; overflow-y: auto; padding-right: 0.5rem; }
+    .tech-card {
+      display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 16px;
+      cursor: pointer; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
+      transition: var(--transition-base); position: relative;
     }
+    .tech-card:hover { transform: translateX(4px); border-color: var(--brand-border-soft); background: var(--brand-ambient); }
+    .tech-card.selected { border-width: 2px; border-color: var(--brand); background: var(--brand-ambient-strong); box-shadow: var(--shadow-glow); }
 
-    .dashboard-layout {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 2.5rem;
-      align-items: flex-start;
-    }
+    .tech-avatar-wrapper { position: relative; }
+    .tech-avatar { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.95rem; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .status-indicator { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg-tertiary); }
+    .status-indicator.online { background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .status-indicator.away { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
+    .status-indicator.offline { background: var(--text-muted); }
 
-    .team-sidebar {
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      border-radius: 24px !important;
-    }
+    .tech-body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .tech-name { font-weight: 800; font-size: 0.95rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tech-role { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .tech-chevron { opacity: 0; transition: var(--transition-fast); transform: translateX(-10px); color: var(--brand); }
+    .tech-card.selected .tech-chevron, .tech-card:hover .tech-chevron { opacity: 1; transform: translateX(0); }
 
-    .sidebar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    /* CALENDAR PERSONAL */
+    .calendar-card { border-radius: 24px !important; overflow: hidden; border: 1px solid var(--border-soft); }
+    .calendar-card-header { display: flex; justify-content: space-between; align-items: center; padding: 2.5rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-soft); }
+    .label { font-size: 0.6rem; font-weight: 800; color: var(--brand); letter-spacing: 0.2em; }
+    .tech-display-name { margin: 0.2rem 0 0; font-size: 1.8rem; font-weight: 950; letter-spacing: -0.02em; }
 
-    .sidebar-header h3 {
-      font-size: 0.95rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      margin: 0;
-      opacity: 0.8;
-    }
+    .calendar-legend { display: flex; gap: 1rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .legend-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+    .legend-item.AVAILABLE .dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .legend-item.UNAVAILABLE .dot { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+    .legend-item.HOLIDAY .dot { background: var(--info); box-shadow: 0 0 8px var(--info); }
+    .legend-item.SICK_LEAVE .dot { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
 
-    .technician-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+    .calendar-container { padding: 2rem 3rem 3rem; }
+    .calendar-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; margin-bottom: 1rem; }
+    .grid-day-label { text-align: center; color: var(--text-muted); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.1em; }
 
-    .tech-item {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      padding: 1.25rem;
-      border-radius: 18px;
-      cursor: pointer;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.03);
-      transition: all 0.4s var(--ease-out-expo);
-    }
-
-    .tech-item:hover {
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.1);
-      transform: translateX(5px);
-    }
-
-    .tech-item.selected {
-      background: linear-gradient(135deg, rgba(var(--brand-rgb), 0.12) 0%, rgba(var(--brand-rgb), 0.05) 100%);
-      border-color: rgba(var(--brand-rgb), 0.3);
-      box-shadow: 0 10px 30px -10px rgba(var(--brand-rgb), 0.4);
-    }
-
-    .tech-avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 950;
-      font-size: 1.1rem;
-      position: relative;
-      color: #fff;
-    }
-
-    .status-dot {
-      position: absolute;
-      bottom: -4px;
-      right: -4px;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 3px solid #0f172a;
-    }
-
-    .status-dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
-    .status-dot.away { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
-    .status-dot.offline { background: #64748b; }
-
-    .tech-info { display: flex; flex-direction: column; gap: 2px; }
-    .tech-name { font-weight: 800; font-size: 1rem; color: #fff; }
-    .tech-role { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-
-    .main-content { flex: 1; }
-
-    .calendar-card {
-      padding: 0 !important;
-      overflow: hidden;
-      border-radius: 28px !important;
-    }
-
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 3rem 3.5rem;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .calendar-header h2 { margin: 0; font-size: 2.5rem; font-weight: 950; letter-spacing: -0.04em; }
-    .year-val { opacity: 0.4; color: var(--brand); }
-
-    .tech-label { margin-top: 0.6rem; font-size: 1rem; opacity: 0.7; }
-    .tech-label strong { color: #fff; border-bottom: 1px solid var(--brand); padding-bottom: 2px; }
-
-    .calendar-legend { display: flex; gap: 1.5rem; }
-    .legend-item { display: flex; align-items: center; gap: 0.65rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.5); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; }
-    .dot.AVAILABLE { background: #10b981; box-shadow: 0 0 10px #10b981; }
-    .dot.UNAVAILABLE { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
-    .dot.HOLIDAY { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
-    .dot.SICK_LEAVE { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      padding: 1.5rem 2.5rem 3.5rem;
-      gap: 1.25rem;
-    }
-
-    .day-header {
-      text-align: center; font-size: 0.75rem; font-weight: 900; text-transform: uppercase;
-      color: var(--brand); opacity: 0.6; letter-spacing: 0.2em; padding: 1rem;
-    }
-
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; }
     .calendar-cell {
-      min-height: 130px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
-      border-radius: 20px; padding: 1.25rem; display: flex; flex-direction: column; position: relative;
-      overflow: hidden; cursor: pointer; transition: all 0.4s var(--ease-out-expo);
+      aspect-ratio: 1 / 1.1; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
+      border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden; cursor: pointer; transition: var(--transition-base);
     }
-    .calendar-cell:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); z-index: 10; }
-    .calendar-cell.other-month { opacity: 0.08; pointer-events: none; }
-    .calendar-cell.today { border-color: var(--brand); background: rgba(var(--brand-rgb), 0.05); }
+    .calendar-cell:hover { transform: translateY(-4px) scale(1.02); border-color: var(--brand-border-soft); background: var(--brand-ambient); z-index: 5; }
+    .calendar-cell.today { border: 2px solid var(--brand); background: var(--brand-ambient); }
+    .calendar-cell.other-month { opacity: 0.1; pointer-events: none; }
 
-    .cell-day { font-size: 1.5rem; font-weight: 900; font-family: var(--font-display); opacity: 0.2; }
-    .today .cell-day { opacity: 0.8; color: var(--brand); }
+    .day-number { font-size: 1.4rem; font-weight: 900; font-family: var(--font-gaming); color: var(--text-primary); opacity: 0.3; }
+    .today .day-number { color: var(--brand); opacity: 1; }
 
-    .cell-body { flex: 1; display: flex; align-items: flex-end; }
+    .cell-status-content { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
+    .status-indicator-bar { width: 100%; height: 3px; border-radius: 10px; background: var(--text-muted); opacity: 0.2; }
+    .status-indicator-bar.AVAILABLE { background: var(--success); opacity: 1; box-shadow: 0 2px 8px var(--success); }
+    .status-indicator-bar.UNAVAILABLE { background: var(--danger); opacity: 1; box-shadow: 0 2px 8px var(--danger); }
+    .status-indicator-bar.HOLIDAY { background: var(--info); opacity: 1; box-shadow: 0 2px 8px var(--info); }
+    .status-indicator-bar.SICK_LEAVE { background: var(--warning); opacity: 1; box-shadow: 0 2px 8px var(--warning); }
 
-    .status-pill { width: 100%; padding: 0.5rem; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; justify-content: center; }
-    .pill-label { font-size: 0.6rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.05em; }
+    .status-tag { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); opacity: 0.5; }
+    .status-tag.AVAILABLE { color: var(--success); opacity: 1; }
+    .status-tag.UNAVAILABLE { color: var(--danger); opacity: 1; }
+    .status-tag.HOLIDAY { color: var(--info); opacity: 1; }
+    .status-tag.SICK_LEAVE { color: var(--warning); opacity: 1; }
 
-    .AVAILABLE .pill-label { color: #10b981; }
-    .UNAVAILABLE .pill-label { color: #ef4444; }
-    .HOLIDAY .pill-label { color: #3b82f6; }
-    .SICK_LEAVE .pill-label { color: #f59e0b; }
+    .today-tag { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--brand); color: #000; font-size: 0.5rem; font-weight: 950; padding: 2px 6px; border-radius: 4px; box-shadow: 0 0 10px var(--brand-glow); }
 
-    .today-marker { position: absolute; top: 1.25rem; right: 1.25rem; background: var(--brand); color: #000; font-size: 0.55rem; font-weight: 950; padding: 3px 10px; border-radius: 6px; box-shadow: 0 0 15px var(--brand-glow); }
+    /* TEAM BOARD */
+    .team-board-card { padding: 0 !important; border-radius: 20px !important; overflow: hidden; }
+    .board-header { display: flex; background: var(--bg-secondary); border-bottom: 2px solid var(--border-soft); }
+    .persona-col { width: 240px; flex-shrink: 0; padding: 1.5rem; font-weight: 900; text-transform: uppercase; color: var(--brand); font-size: 0.7rem; border-right: 1px solid var(--border-soft); }
+    .days-column-container { display: flex; overflow-x: auto; flex: 1; }
+    .day-header-col { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0; gap: 2px; }
+    .day-header-col.is-today { background: var(--brand-ambient); }
+    .day-header-col .d-n { font-size: 0.9rem; font-weight: 900; }
+    .day-header-col .d-l { font-size: 0.55rem; opacity: 0.5; font-weight: 800; }
 
-    /* TEAM BOARD SPECIFIC */
-    .team-board-card { padding: 0 !important; border-radius: 28px !important; }
-    .board-container { width: 100%; overflow: hidden; position: relative; }
+    .board-row { display: flex; border-bottom: 1px solid var(--border-soft); height: 56px; transition: var(--transition-fast); }
+    .board-row:hover { background: var(--bg-secondary); }
+    .board-row.is-selected { background: var(--brand-ambient); }
     
-    .board-header-sticky { display: flex; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .tech-col-header { width: 220px; flex-shrink: 0; padding: 1.5rem 2rem; font-size: 0.75rem; font-weight: 950; text-transform: uppercase; color: var(--brand); }
-    .days-scroll-area { display: flex; flex-grow: 1; overflow-x: auto; }
-    .day-col-header { width: 50px; flex-shrink: 0; padding: 1rem 0; display: flex; flex-direction: column; align-items: center; gap: 4px; border-left: 1px solid rgba(255,255,255,0.03); }
-    .day-col-header.today { background: var(--brand-ambient); }
-    .d-num { font-size: 1rem; font-weight: 900; }
-    .d-name { font-size: 0.55rem; opacity: 0.4; font-weight: 800; }
-    
-    .tech-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.04); transition: all 0.3s; height: 64px; }
-    .tech-row:hover { background: rgba(255,255,255,0.03); }
-    .tech-row.highlight { background: rgba(var(--brand-rgb), 0.05); }
-    
-    .tech-info-sticky { width: 220px; flex-shrink: 0; padding: 0 2rem; display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2); }
-    .avatar-sm { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 950; color: #fff; }
-    .name-sm { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8; }
-    
-    .cells-row { display: flex; flex-grow: 1; overflow-x: auto; }
-    .board-cell { width: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.03); }
-    .board-cell.today { background: rgba(255,255,255,0.02); }
-    
-    .mini-status-dot { width: 12px; height: 12px; border-radius: 4px; position: relative; }
-    .mini-status-dot.AVAILABLE { background: #10b981; box-shadow: 0 0 8px #10b981; }
-    .mini-status-dot.UNAVAILABLE { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-    .mini-status-dot.HOLIDAY { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
-    .mini-status-dot.SICK_LEAVE { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+    .board-tech-info { width: 240px; flex-shrink: 0; padding: 0 1.5rem; display: flex; align-items: center; gap: 0.75rem; border-right: 1px solid var(--border-soft); }
+    .mini-avatar { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: #fff; }
+    .mini-meta { display: flex; flex-direction: column; }
+    .mini-meta .n { font-size: 0.85rem; font-weight: 800; color: var(--text-primary); }
+    .mini-meta .r { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+
+    .board-cells-container { display: flex; flex: 1; overflow-x: auto; }
+    .board-day-cell { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: center; }
+    .board-day-cell.is-today { background: rgba(255,255,255,0.02); }
+    .status-marker { width: 24px; height: 6px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+    .status-marker.AVAILABLE { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .status-marker.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+    .status-marker.HOLIDAY { background: var(--info); box-shadow: 0 0 6px var(--info); }
+    .status-marker.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+
+    /* UTILS */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 10px; }
+    .custom-scrollbar-h::-webkit-scrollbar { height: 4px; }
+    .custom-scrollbar-h::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 10px; }
   `]
 })
 export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, FilterableService<Technician> {
