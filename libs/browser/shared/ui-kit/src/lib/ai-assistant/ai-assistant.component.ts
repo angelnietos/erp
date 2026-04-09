@@ -752,8 +752,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   private async initializeFreeProviders() {
     try {
-      // Verificar disponibilidad de proveedores gratuitos
-      await this.aiBotStore.autoSelectProvider();
+      // Solo seleccionar automáticamente si el proveedor actual es 'free'
+      const currentProvider = this.aiBotStore.selectedProvider();
+      if (currentProvider === 'free') {
+        await this.aiBotStore.autoSelectProvider();
+      }
 
       // Log del estado de proveedores
       const status = this.aiBotStore.getProviderStatus();
@@ -946,21 +949,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           );
           break;
         }
-        case 'configure_huggingface': {
-          const model = String(args['model'] ?? 'microsoft/DialoGPT-medium');
-          const token = String(args['token'] ?? '');
-          this.aiBotStore.freeModels.update((current) => ({
-            ...current,
-            huggingface: { ...current.huggingface, model },
-          }));
-          if (token) {
-            localStorage.setItem('hf_token', token);
-          }
-          await this.triggerAIResponse(
-            `(SISTEMA: HuggingFace configurado con modelo: ${model}${token ? ' y token de autenticación' : ''}. Proveedor gratuito listo para usar.)`,
-          );
-          break;
-        }
+
         case 'switch_to_free_provider': {
           const preferred = String(args['preferred'] ?? '');
           if (preferred) {
