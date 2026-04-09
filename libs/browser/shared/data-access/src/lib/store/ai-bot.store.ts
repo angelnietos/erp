@@ -1,25 +1,18 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { ALL_BOTS } from './bots';
 import {
   AIBot,
   AIRangeMemory,
-  BotCollaboration,
-  CollaborationTask,
   BotEmotionalState,
   BotMood,
   InterBotMessage,
   PredictiveModel,
-  PredictionResult,
-  ProactiveSuggestion,
   UserPersonalityProfile,
 } from '../models/ai-bot.model';
-import { AI_CONFIG } from '../configs/ai.config';
-import { ThemeService, Theme } from '../services/theme.service';
 import { MasterFilterService } from '../services/master-filter.service';
 
 // Import New Refactored Services
-import { AIInferenceService, AIProvider } from '../services/ai/ai-inference.service';
+import { AIInferenceService } from '../services/ai/ai-inference.service';
 import { AIMemoryService } from '../services/ai/ai-memory.service';
 import { AIWorkflowService } from '../services/ai/ai-workflow.service';
 import { AIPredictiveService } from '../services/ai/ai-predictive.service';
@@ -148,6 +141,22 @@ export class AIBotStore {
     return this.predictive.generatePrediction(modelId, input);
   }
 
+  // ─── Missing Delegations for Compatibility ────────────────────────────────
+
+  async autoSelectProvider(): Promise<void> {
+    return this.inference.autoSelectProvider();
+  }
+
+  trackInteraction(feature: string, userId: string): void {
+    console.debug(`[AIBotStore] Interaction tracked for ${feature}:${userId}`);
+    // Optional: implement logic in UserPersonalityService if created
+  }
+
+  configureOllama(baseUrl: string, model: string): void {
+    this.inference.ollamaConfig.update(c => ({ ...c, baseUrl, model }));
+    this.checkOllamaAvailability(true);
+  }
+
   // ─── Local Store Management ────────────────────────────────────────────────
 
   getBotByFeature(feature: string): AIBot | undefined {
@@ -216,7 +225,9 @@ export class AIBotStore {
     this._interBotQueue.update(q => [...q, msg]);
   }
 
-  interBotTick() {}
+  interBotTick() {
+    console.debug('[AIBotStore] Inter-bot queue tick');
+  }
 
   // User Personality
   getUserPersonality(feature: string, userId: string): UserPersonalityProfile {
@@ -229,21 +240,27 @@ export class AIBotStore {
   }
 
   recordSuccessfulInteraction(feature: string, userId: string, query: string, tool: string, respTime: number) {
-    // Simplified for now, could be moved to another service
-    console.log('Interaction recorded successfully');
+    console.debug(`[AIBotStore] Interaction recorded: ${feature}, ${userId}, ${query}, ${tool}, ${respTime}ms`);
   }
 
   // --- UI Helpers ---
-  setRageMode(enabled: boolean) { /* Local state if needed */ }
-  setRageStyle(style: any) { /* Local state if needed */ }
+  setRageMode(enabled: boolean) { 
+    this.rageMode.set(enabled);
+  }
+  
+  setRageStyle(style: string) { 
+    this.rageStyle.set(style);
+  }
+
   rageMode = signal(false);
   rageStyle = signal('terror');
 
   setAIModel(modelId: string) {
     this.inference.selectedModelId.set(modelId);
     if (modelId.startsWith('ollama:')) {
+      const modelName = modelId.split(':')[1];
       this.inference.selectedProvider.set('ollama');
-      this.inference.ollamaConfig.update(c => ({ ...c, model: modelId.split(':')[1] }));
+      this.inference.ollamaConfig.update(c => ({ ...c, model: modelName }));
     } else {
       this.inference.selectedProvider.set(modelId as any);
     }
@@ -277,3 +294,4 @@ export class AIBotStore {
     });
   }
 }
+
