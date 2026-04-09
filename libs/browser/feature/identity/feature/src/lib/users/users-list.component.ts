@@ -111,7 +111,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
               <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
               <h3>No hay usuarios</h3>
               <p>El directorio está vacío. Comienza invitando a un nuevo colaborador.</p>
-              <ui-button variant="solid" icon="UserPlus">Invitar usuario</ui-button>
+              <ui-button variant="solid" icon="user-plus">Invitar usuario</ui-button>
             </div>
           }
         </ui-feature-grid>
