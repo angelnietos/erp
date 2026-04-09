@@ -62,7 +62,11 @@ export type Theme =
   | 'fortnite-storm'
   | 'cyber-neon-pink'
   | 'onyx-premium'
-  | 'platinum-luxe';
+  | 'platinum-luxe'
+  | 'cyber-ocean'
+  | 'blood-moon'
+  | 'midnight-sun'
+  | 'icy-phantom';
 
 function hexToRgbTriplet(hex: string): string {
   const normalized = hex.replace('#', '').trim();
@@ -160,24 +164,24 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     uiVariant: 'glass',
   },
   green: {
-    name: 'Emerald Grid',
-    primary: '#34d399',
-    secondary: '#86efac',
-    background: '#062016',
-    surface: '#0d3223',
-    text: '#ecfdf5',
-    textMuted: '#a7f3d0',
-    border: 'rgba(16, 185, 129, 0.25)',
-    brand: '#34d399',
-    brandGlow: 'rgba(52, 211, 153, 0.45)',
-    bgSecondary: '#0a2a1d',
-    bgTertiary: '#143b2b',
-    bgStyle: 'grid',
+    name: 'Emerald Matrix',
+    primary: '#10b981',
+    secondary: '#34d399',
+    background: '#041510',
+    surface: '#0a2119',
+    text: '#ffffff',
+    textMuted: '#86efac',
+    border: 'rgba(52, 211, 153, 0.15)',
+    brand: '#10b981',
+    brandGlow: 'rgba(16, 185, 129, 0.5)',
+    bgSecondary: '#061b14',
+    bgTertiary: '#0d2a1f',
+    bgStyle: 'matrix',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#10b981',
-    uiVariant: 'solid',
+    uiVariant: 'glass',
   },
   purple: {
     name: 'Void Spiral',
@@ -1319,6 +1323,86 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     info: '#3b82f6',
     uiVariant: 'solid',
   },
+  'cyber-ocean': {
+    name: 'Cyber Ocean',
+    primary: '#06b6d4',
+    secondary: '#0891b2',
+    background: '#020617',
+    surface: '#0f172a',
+    text: '#f8fafc',
+    textMuted: '#94a3b8',
+    border: 'rgba(6, 182, 212, 0.2)',
+    brand: '#06b6d4',
+    brandGlow: 'rgba(6, 182, 212, 0.5)',
+    bgSecondary: '#020617',
+    bgTertiary: '#1e293b',
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4',
+    uiVariant: 'glass',
+  },
+  'blood-moon': {
+    name: 'Blood Moon',
+    primary: '#ef4444',
+    secondary: '#991b1b',
+    background: '#0c0505',
+    surface: '#1a0505',
+    text: '#fee2e2',
+    textMuted: '#f87171',
+    border: 'rgba(239, 68, 68, 0.2)',
+    brand: '#ef4444',
+    brandGlow: 'rgba(239, 68, 68, 0.5)',
+    bgSecondary: '#0c0505',
+    bgTertiary: '#2d0a0a',
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#f87171',
+    uiVariant: 'glass',
+  },
+  'midnight-sun': {
+    name: 'Midnight Sun',
+    primary: '#f59e0b',
+    secondary: '#d97706',
+    background: '#090702',
+    surface: '#181205',
+    text: '#fffbeb',
+    textMuted: '#fbbf24',
+    border: 'rgba(245, 158, 11, 0.2)',
+    brand: '#f59e0b',
+    brandGlow: 'rgba(245, 158, 11, 0.5)',
+    bgSecondary: '#090702',
+    bgTertiary: '#261a0a',
+    bgStyle: 'bokeh',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#fbbf24',
+    uiVariant: 'glass',
+  },
+  'icy-phantom': {
+    name: 'Icy Phantom',
+    primary: '#e2e8f0',
+    secondary: '#cbd5e1',
+    background: '#f8fafc',
+    surface: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#64748b',
+    border: '#e2e8f0',
+    brand: '#334155',
+    brandGlow: 'rgba(51, 65, 85, 0.15)',
+    bgSecondary: '#f1f5f9',
+    bgTertiary: '#f8fafc',
+    bgStyle: 'spot',
+    success: '#059669',
+    warning: '#f59e0b',
+    danger: '#dc2626',
+    info: '#334155',
+    uiVariant: 'minimal',
+  },
 };
 
 /** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
@@ -1329,6 +1413,18 @@ export interface ThemeMenuSection {
 }
 
 const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
+  {
+    id: 'luxe',
+    label: '✨ Premium Design',
+    keys: [
+      'cyber-ocean',
+      'blood-moon',
+      'midnight-sun',
+      'icy-phantom',
+      'onyx-premium',
+      'platinum-luxe',
+    ],
+  },
   {
     id: 'light',
     label: '☀️ Temas Claros',

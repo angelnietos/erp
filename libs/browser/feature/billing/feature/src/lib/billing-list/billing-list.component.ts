@@ -87,7 +87,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         <ui-stat-card
           label="Cumplimiento Fiscal"
           value="100%"
-          icon="check-double"
+          icon="check-check"
           [accent]="false"
         ></ui-stat-card>
       </ui-feature-stats>
