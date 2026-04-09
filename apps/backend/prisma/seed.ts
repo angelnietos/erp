@@ -759,6 +759,7 @@ async function main() {
   console.log('- Created categories');
 
   // Seed technicians
+  
   const userDani = await prisma.user.create({
     data: {
       tenantId: tenant.id,
