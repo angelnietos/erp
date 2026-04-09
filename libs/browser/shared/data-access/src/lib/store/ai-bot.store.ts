@@ -533,7 +533,6 @@ export class AIBotStore {
       eyesType: 'dots',
       mouthType: 'smile',
     },
-    
     audit: {
       id: 'audit-bot',
       name: 'Shield-Bot',
@@ -1529,38 +1528,6 @@ export class AIBotStore {
       // Domain bots (including dashboard): access only to their own domain store data
       return this.getWorkspace(feature).memories;
     }
-  }
-
-  // ─── Bot Position Management ────────────────────────────────────────────
-  getBotPosition(feature: string): { x: number; y: number } {
-    const positions = this._botPositions();
-    if (positions[feature]) {
-      return positions[feature];
-    }
-    // Return default positions based on feature
-    return this.getDefaultBotPosition(feature);
-  }
-
-  private getDefaultBotPosition(feature: string): { x: number; y: number } {
-    const defaults: Record<string, { x: number; y: number }> = {
-      dashboard: { x: 20, y: 100 },
-      inventory: { x: 20, y: 200 },
-      budgets: { x: 20, y: 300 },
-      projects: { x: 20, y: 400 },
-      clients: { x: 20, y: 500 },
-      fleet: { x: 20, y: 600 },
-      rentals: { x: 20, y: 700 },
-      audit: { x: 20, y: 800 },
-      buddy: { x: window.innerWidth - 420, y: 100 }, // Secondary position on the right
-    };
-    return defaults[feature] || { x: 20, y: 100 };
-  }
-
-  updateBotPosition(feature: string, position: { x: number; y: number }) {
-    this._botPositions.update((current) => ({
-      ...current,
-      [feature]: position,
-    }));
   }
 
   // ─── Sistema de Proveedores Gratuitos ─────────────────────────────────────────
