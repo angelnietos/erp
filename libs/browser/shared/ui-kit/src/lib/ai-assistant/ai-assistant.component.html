@@ -25,7 +25,7 @@
       [eyesType]="$any(bot()!.eyesType)"
       [mouthType]="$any(bot()!.mouthType)"
       [rageMode]="aiBotStore.rageMode()"
-      [rageStyle]="aiBotStore.rageStyle()"
+      [rageStyle]="$any(aiBotStore.rageStyle())"
     ></ui-mascot>
     <div class="notification-dot animate-pulse"></div>
   </div>

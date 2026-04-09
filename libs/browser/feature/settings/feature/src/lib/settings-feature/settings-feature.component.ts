@@ -515,7 +515,7 @@ interface PluginDescriptor {
                         [eyesType]="$any(buddy.eyesType)"
                         [mouthType]="$any(buddy.mouthType)"
                         [rageMode]="aiBotStore.rageMode()"
-                        [rageStyle]="aiBotStore.rageStyle()"
+                        [rageStyle]="$any(aiBotStore.rageStyle())"
                       >
                       </ui-mascot>
                     </ui-card>
