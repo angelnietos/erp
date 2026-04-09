@@ -1,6 +1,6 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { FILTER_PROVIDER, FilterableService } from '../tokens/filter.tokens';
-import { Observable, of, Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { FilterableService } from '../tokens/filter.tokens';
+import { of, Subject } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -58,6 +58,12 @@ export class MasterFilterService {
    */
   registerProvider(provider: FilterableService<unknown>) {
     this.activeProvider.set(provider);
+  }
+
+  applyAIPendingFilter(query: string) {
+    if (query) {
+      this.search(query);
+    }
   }
 
   /**

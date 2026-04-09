@@ -27,6 +27,7 @@ export class AIBotStore {
   private _lastCheckTime = 0;
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
 
+
   readonly selectedProvider = signal<
     | 'gemini'
     | 'openai'
@@ -159,6 +160,25 @@ export class AIBotStore {
   >(JSON.parse(localStorage.getItem('ai_bot_workspaces') || '{}'));
   readonly botWorkspaces = this._botWorkspaces.asReadonly();
 
+  // ─── Pending Filters per Domain (Cross-Domain state) ─────────────────────
+  private readonly _pendingFilters = signal<Record<string, string>>({});
+  readonly pendingFilters = this._pendingFilters.asReadonly();
+
+  setPendingFilter(feature: string, query: string) {
+    this._pendingFilters.update((prev) => ({ ...prev, [feature]: query }));
+    // Si ya estamos en ese dominio, aplicarlo inmediatamente
+    if (this.activeBotFeature() === feature) {
+      this.masterFilterService.search(query);
+    }
+  }
+
+  clearPendingFilter(feature: string) {
+    this._pendingFilters.update((prev) => {
+      const { [feature]: _unused, ...rest } = prev;
+      return rest;
+    });
+  }
+
   // ─── Custom Bot Names ────────────────────────────────────────────
   private readonly _customNames = signal<Record<string, string>>(
     JSON.parse(localStorage.getItem('ai_bot_custom_names') || '{}'),
@@ -239,6 +259,20 @@ export class AIBotStore {
   }
 
   constructor() {
+    // Sincronización proactiva de filtros entre dominios
+    effect(() => {
+      const feature = this.activeBotFeature();
+      const pendingFilter = this._pendingFilters()[feature];
+
+      if (pendingFilter && this.masterFilterService) {
+        // Pequeño delay para asegurar que el provider del nuevo feature se haya registrado
+        setTimeout(() => {
+          this.masterFilterService.search(pendingFilter);
+          console.log(`🤖 AI: Aplicado filtro delegado para ${feature}: "${pendingFilter}"`);
+        }, 500);
+      }
+    });
+
     effect(() => {
       localStorage.setItem('ai_provider', this.selectedProvider());
       localStorage.setItem('ai_selected_model_id', this.selectedModelId());
@@ -1706,53 +1740,66 @@ export class AIBotStore {
     return responses[Math.floor(Math.random() * responses.length)];
   }
 
-  /** Execution Engine for Bot Commands */
-  executeAction(actionStr: string) {
+  /** Execution Engine for Bot Workflows and Chained Actions */
+  async executeAction(actionStr: string): Promise<void> {
     try {
-      const action = JSON.parse(actionStr) as {
-        type: string;
-        payload?: {
-          url?: string;
-          theme?: string;
-          message?: string;
-          query?: string;
-        };
-      };
-      console.log('🤖 Bot executing action:', action);
+      const parsed = JSON.parse(actionStr);
+      const actions = Array.isArray(parsed) ? parsed : [parsed];
 
-      switch (action.type) {
-        case 'navigate':
-          if (action.payload?.url) {
-            this.router.navigateByUrl(action.payload.url);
+      for (const action of actions) {
+        console.log('🤖 Bot executing workflow step:', action);
+
+        switch (action.type) {
+          case 'navigate':
+            if (action.payload?.url) {
+              this.router.navigateByUrl(action.payload.url);
+            }
+            break;
+          case 'toggleTheme': {
+            const current = this.themeService.currentTheme();
+            this.themeService.setTheme(current === 'dark' ? 'light' : 'dark');
+            break;
           }
-          break;
-        case 'toggleTheme': {
-          const current = this.themeService.currentTheme();
-          this.themeService.setTheme(current === 'dark' ? 'light' : 'dark');
-          break;
+          case 'setTheme':
+            if (action.payload?.theme) {
+              this.themeService.setTheme(action.payload.theme as Theme);
+            }
+            break;
+          case 'applyFilter':
+            if (action.payload?.query) {
+              this.masterFilterService.search(action.payload.query);
+            }
+            break;
+          case 'goBack':
+            window.history.back();
+            break;
+          case 'wait':
+            const ms = action.payload?.ms || 1000;
+            await new Promise((resolve) => setTimeout(resolve, ms));
+            break;
+          case 'delegate': {
+            if (action.payload?.target && action.payload?.action) {
+              const target = action.payload.target;
+              const subAction = action.payload.action;
+              console.log(`📡 Delegating action to ${target}:`, subAction);
+
+              if (subAction.type === 'applyFilter') {
+                this.setPendingFilter(target, subAction.payload?.query || '');
+              } else if (subAction.type === 'navigate') {
+                this.router.navigateByUrl(subAction.payload.url);
+              }
+            }
+            break;
+          }
+          case 'showNotification':
+            console.log('Bot Notification:', action.payload?.message);
+            break;
+          default:
+            console.warn('Unknown bot action:', action.type);
         }
-        case 'setTheme':
-          if (action.payload?.theme) {
-            this.themeService.setTheme(action.payload.theme as Theme);
-          }
-          break;
-        case 'applyFilter':
-          if (action.payload?.query) {
-            this.masterFilterService.search(action.payload.query);
-          }
-          break;
-        case 'goBack':
-          window.history.back();
-          break;
-        case 'showNotification':
-          // El chat ya muestra el texto del bot, esto es para algo extra si se requiere
-          console.log('Bot Notification:', action.payload?.message);
-          break;
-        default:
-          console.warn('Unknown bot action:', action.type);
       }
-    } catch {
-      console.error('Failed to parse/execute bot action:', actionStr);
+    } catch (e) {
+      console.error('Failed to parse/execute bot workflow:', actionStr, e);
     }
   }
 
@@ -1773,14 +1820,14 @@ ESTRUCTURA DE FLUJO:
 ACCIONES MOTOR:
 1. 'navigate': {url: string} -> Cambia de sección.
 2. 'applyFilter': {query: string} -> Filtra datos en tiempo real.
-3. 'wait': {ms: number} -> Pausa entre pasos del workflow (muy útil para UI).
-4. 'setTheme': {theme: string} -> Cambia el diseño.
-5. 'goBack': {} -> Retrocede.
+3. 'wait': {ms: number} -> Pausa entre pasos del workflow.
+4. 'delegate': {target: string, action: object} -> DELEGA una acción a otro bot.
+   (Ejemplo: Buddy dice a inventario que busque algo: {"type": "delegate", "payload": {"target": "inventory", "action": {"type": "applyFilter", "payload": {"query": "foco"}}}} )
 
 REGLAS CRÍTICAS:
-- Prioriza workflows para peticiones complejas (ej. "busca y enséñame los detalles").
+- Como Buddy (Orquestador), usa 'delegate' para que los otros bots preparen el terreno antes de navegar.
+- Si delegas un filtro a un target, el usuario verá ese filtro aplicado en cuanto entre en esa sección.
 - El JSON debe ser impecable.
-- Usa 'wait' entre un filtro y una navegación para una mejor UX.
 `;
   }
 }
