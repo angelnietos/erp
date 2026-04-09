@@ -41,7 +41,7 @@ export class AIBotStore {
   readonly predictiveModels = this.predictive.predictiveModels;
 
   // --- Core Bot State ---
-  private readonly _bots = signal<Record<string, AIBot>>(ALL_BOTS);
+  private readonly _bots = signal<Record<string, AIBot>>(this.getInitialBots());
   readonly bots = computed<AIBot[]>(() => Object.values(this._bots()));
 
   readonly activeBotFeature = signal<string>(
@@ -119,6 +119,12 @@ export class AIBotStore {
       localStorage.setItem('pref_sound', String(this.soundEffects()));
       localStorage.setItem('pref_compact', String(this.compactMode()));
       localStorage.setItem('pref_lang', this.language());
+      // Persist bot status and activeSkills overrides
+      const botOverrides: Record<string, { status: string; activeSkills: string[] }> = {};
+      Object.entries(this._bots()).forEach(([key, bot]) => {
+        botOverrides[key] = { status: bot.status, activeSkills: bot.activeSkills };
+      });
+      localStorage.setItem('ai_bot_overrides', JSON.stringify(botOverrides));
     });
   }
 
@@ -172,6 +178,27 @@ export class AIBotStore {
 
   getBotByFeature(feature: string): AIBot | undefined {
     return this._bots()[feature];
+  }
+
+  private getInitialBots(): Record<string, AIBot> {
+    try {
+      const savedOverrides = localStorage.getItem('ai_bot_overrides');
+      if (!savedOverrides) return ALL_BOTS;
+      const overrides: Record<string, { status: string; activeSkills: string[] }> = JSON.parse(savedOverrides);
+      const merged: Record<string, AIBot> = { ...ALL_BOTS };
+      Object.entries(overrides).forEach(([key, override]) => {
+        if (merged[key]) {
+          merged[key] = {
+            ...merged[key],
+            status: override.status as AIBot['status'],
+            activeSkills: override.activeSkills ?? merged[key].activeSkills,
+          };
+        }
+      });
+      return merged;
+    } catch {
+      return ALL_BOTS;
+    }
   }
 
   updateBotName(feature: string, name: string) {
