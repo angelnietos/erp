@@ -21,6 +21,7 @@ import {
   Building2,
   Bell,
   LayoutDashboard,
+  Layout,
   Users,
   Package,
   Receipt,
@@ -93,6 +94,7 @@ import {
   Tag,
   Puzzle,
   SlidersHorizontal,
+  Sliders,
   Settings2,
   FileX,
   CloudUpload,
@@ -224,6 +226,7 @@ export const appConfig: ApplicationConfig = {
         Tag,
         Puzzle,
         SlidersHorizontal,
+        Sliders,
         Settings2,
         FileX,
         CloudUpload,
@@ -264,4 +267,3 @@ export const appConfig: ApplicationConfig = {
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
   ],
 };
-

@@ -78,7 +78,7 @@ interface PluginDescriptor {
               [class.active]="activeTab() === 'general'"
               (click)="activeTab.set('general')"
             >
-              <lucide-icon name="sliders" size="18"></lucide-icon>
+              <lucide-icon name="sliders-horizontal" size="18"></lucide-icon>
               <span>General</span>
             </button>
             <button
@@ -222,10 +222,7 @@ interface PluginDescriptor {
               </div>
 
               <!-- NUEVO: Panel global de configuración del LLM -->
-              <ui-card
-                variant="glass"
-                class="ai-global-config-card mb-6"
-              >
+              <ui-card variant="glass" class="ai-global-config-card mb-6">
                 <div class="config-header">
                   <div class="config-title">
                     <lucide-icon name="cpu" size="20"></lucide-icon>
@@ -654,10 +651,7 @@ interface PluginDescriptor {
                       }
                     </ui-card>
 
-                    <ui-card
-                      variant="glass"
-                      class="buddy-skills-card mt-6"
-                    >
+                    <ui-card variant="glass" class="buddy-skills-card mt-6">
                       <h3>Habilidades de Confianza</h3>
                       <div class="skills-config-list mt-4">
                         @for (skill of buddy.skills; track skill) {
