@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AI_CONFIG } from '../configs/ai.config';
-import { ThemeService } from '../services/theme.service';
+import { ThemeService, Theme } from '../services/theme.service';
 
 
 export type MascotType =
@@ -1582,7 +1582,15 @@ export class AIBotStore {
     ];
     const isValid = validProviders.includes(persisted || '');
 
-    return (persisted as any) || 'openrouter';
+    return (isValid ? persisted : 'openrouter') as
+      | 'gemini'
+      | 'openai'
+      | 'anthropic'
+      | 'grok'
+      | 'together'
+      | 'openrouter'
+      | 'ollama'
+      | 'free';
   }
 
   private getInitialModelId(): string {
@@ -1751,7 +1759,7 @@ export class AIBotStore {
     } catch (error) {
       console.warn(`Error con ${provider}, intentando fallback:`, error);
       await this.autoSelectProvider();
-      return this.generateBasicResponse(prompt);
+      return this.generateBasicResponse();
     }
   }
 
@@ -1833,7 +1841,7 @@ export class AIBotStore {
     return 'Lo siento, no pude generar una respuesta.';
   }
 
-  private generateBasicResponse(_prompt: string): string {
+  private generateBasicResponse(): string {
     // Respuesta básica cuando no hay APIs configuradas
     const responses = [
       '¡Hola! Actualmente estoy usando respuestas básicas. Las APIs premium (Gemini, OpenAI, etc.) requieren configuración de claves API.',
@@ -2039,7 +2047,7 @@ export class AIBotStore {
       // En v1/responses el resultado suele estar en data.output o data.text
       // Basándome en la tendencia de xAI, usaré data.output o el fallback al formato antiguo si es necesario
       return data.output || data.choices?.[0]?.message?.content || data.text || 'Respuesta generada';
-    } catch (_e) {
+    } catch {
       return `[Error Grok] No se pudo conectar con xAI. Verifica tu API Key.`;
     }
   }
@@ -2073,7 +2081,7 @@ export class AIBotStore {
       if (!resp.ok) throw new Error('Error en API de Together');
       const data = await resp.json();
       return data.choices[0].message.content;
-    } catch (_e) {
+    } catch {
       return `[Error Together] Hubo un problema con la conexión.`;
     }
   }
@@ -2107,7 +2115,7 @@ export class AIBotStore {
       if (!resp.ok) throw new Error('Error en OpenRouter');
       const data = await resp.json();
       return data.choices[0].message.content;
-    } catch (_e) {
+    } catch {
       return this.generateSmartFallback(prompt, context);
     }
   }
@@ -2160,7 +2168,7 @@ export class AIBotStore {
         default:
           console.warn('Unknown bot action:', action.type);
       }
-    } catch (_err) {
+    } catch {
       console.error('Failed to parse/execute bot action:', actionStr);
     }
   }
