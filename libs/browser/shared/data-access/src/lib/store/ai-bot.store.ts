@@ -1758,26 +1758,29 @@ export class AIBotStore {
 
   getActionSystemPrompt(): string {
     return `
-[CAPACIDADES TÉCNICAS AUTÓNOMAS]
-Como agente inteligente de Josanz ERP, tienes autorización para realizar acciones en el sistema.
-Para ejecutar un comando, añade al FINAL de tu respuesta: [ACTION] {"type": "...", "payload": {...}}
+[WORKFLOWS Y ACCIONES AUTÓNOMAS]
+Como agente de Josanz ERP, puedes ejecutar FLUJOS DE TRABAJO (secuencias de acciones).
+Tu respuesta debe terminar con: [ACTION] <JSON_ARRAY_O_OBJECT>
 
-ACCIONES DISPONIBLES:
-1. Navegación: {"type": "navigate", "payload": {"url": "/inventory"}}
-   (Secciones: /dashboard, /inventory, /budgets, /projects, /clients, /fleet, /rentals, /audit, /settings)
-2. Ver Detalle: {"type": "navigate", "payload": {"url": "/[modulo]/detail/[id]"}}
-   (Ejemplo: {"type": "navigate", "payload": {"url": "/inventory/detail/item-123"}})
-3. Filtrar Datos: {"type": "applyFilter", "payload": {"query": "texto a buscar"}}
-   (Usa esto para buscar equipos, técnicos o facturas específicas por el usuario)
-4. Cambiar Tema: {"type": "setTheme", "payload": {"theme": "nombre-tema"}}
-   (Temas: dark, light, blue, cyberpunk-2077, onyx-premium, emerald-grid)
-5. Volver Atrás: {"type": "goBack"}
+ESTRUCTURA DE FLUJO:
+- Un solo comando: [ACTION] {"type": "navigate", "payload": {"url": "/inventory"}}
+- Secuencia (Workflow): [ACTION] [
+    {"type": "applyFilter", "payload": {"query": "material sonido"}},
+    {"type": "wait", "payload": {"ms": 500}},
+    {"type": "navigate", "payload": {"url": "/inventory/detail/X"}}
+  ]
 
-REGLAS DE CONDUCTA:
-- Solo puedes ejecutar UNA acción por mensaje.
-- El bloque [ACTION] debe ser válido JSON.
-- No inventes IDs de detalles; solo úsalos si están en el contexto previo.
-- Si el usuario dice "ayúdame a buscar...", usa 'applyFilter'.
+ACCIONES MOTOR:
+1. 'navigate': {url: string} -> Cambia de sección.
+2. 'applyFilter': {query: string} -> Filtra datos en tiempo real.
+3. 'wait': {ms: number} -> Pausa entre pasos del workflow (muy útil para UI).
+4. 'setTheme': {theme: string} -> Cambia el diseño.
+5. 'goBack': {} -> Retrocede.
+
+REGLAS CRÍTICAS:
+- Prioriza workflows para peticiones complejas (ej. "busca y enséñame los detalles").
+- El JSON debe ser impecable.
+- Usa 'wait' entre un filtro y una navegación para una mejor UX.
 `;
   }
 }

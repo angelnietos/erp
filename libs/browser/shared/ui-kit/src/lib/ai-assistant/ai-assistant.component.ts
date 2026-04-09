@@ -366,8 +366,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         displayResponse = parts[0].trim();
         const actionStr = parts[1].trim();
 
-        // Ejecutar la acción técnica en el sistema
-        this.aiBotStore.executeAction(actionStr);
+        // Ejecutar la acción técnica en el sistema (Workflow)
+        await this.aiBotStore.executeAction(actionStr);
       }
 
       // Actualizar mensaje con respuesta (limpia de metadatos de acción)
