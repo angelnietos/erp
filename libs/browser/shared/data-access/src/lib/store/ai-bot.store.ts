@@ -331,6 +331,10 @@ export class AIBotStore {
   >(JSON.parse(localStorage.getItem('ai_user_personalities') || '{}'));
   readonly userPersonalities = this._userPersonalities.asReadonly();
 
+  // ─── Inter-Bot Communication Queue ──────────────────────────────────────
+  private readonly _interBotQueue = signal<InterBotMessage[]>([]);
+  readonly interBotQueue = this._interBotQueue.asReadonly();
+
   // ─── Bots Configuration ────────────────────────────────────────────
   private readonly _bots = signal<Record<string, AIBot>>({
     inventory: {
@@ -1897,40 +1901,61 @@ export class AIBotStore {
 
   /** Enviar mensaje a otro bot */
   sendInterBotMessage(fromFeature: string, toFeature: string, message: string) {
-    // Por ahora, solo log para futuras implementaciones
-    console.log(
-      `Mensaje inter-bot: ${fromFeature} -> ${toFeature}: ${message}`,
-    );
-    // Aquí se podría implementar comunicación real entre bots
+    const msg: InterBotMessage = {
+      from: fromFeature,
+      to: toFeature,
+      text: message,
+      timestamp: Date.now(),
+      displayOnly: false,
+    };
+    this._interBotQueue.update((q) => [...q, msg]);
   }
 
   /** Obtener mensajes pendientes de otros bots */
   pullInterBotMessagesFor(feature: string): InterBotMessage[] {
-    // Implementación básica - devolver array vacío para el feature solicitado (placeholder para futuras colas)
-    if (!feature) return [];
-    return [];
+    const all = this._interBotQueue();
+    const forMe = all.filter((m) => m.to === feature || m.to === 'all');
+
+    if (forMe.length > 0) {
+      // Remover mensajes entregados de la cola
+      this._interBotQueue.update((q) => q.filter((m) => !forMe.includes(m)));
+    }
+    return forMe;
   }
 
   /** Tick del sistema inter-bot */
   interBotTick() {
-    // Procesar mensajes inter-bot pendientes
-    // Por ahora vacío para futuras implementaciones
+    // Podría usarse para procesos automáticos o limpieza de cola
   }
 
   /** Broadcast message to a specific bot/feature or all */
   broadcastMessage(from: string, message: string, to: string) {
     if (to === 'all') {
-      // Broadcast to all bots
-      (this.bots() as AIBot[]).forEach((bot: AIBot) => {
-        if (bot.feature !== from) {
-          console.log(`Broadcast from ${from} to ${bot.feature}: ${message}`);
-        }
+      // Enviar una copia a cada bot activo (excepto al emisor)
+      const activeBots = Object.values(this._bots()).filter(
+        (b) => b.status === 'active' && b.feature !== from,
+      );
+
+      activeBots.forEach((bot) => {
+        const msg: InterBotMessage = {
+          from,
+          to: bot.feature,
+          text: message,
+          timestamp: Date.now(),
+          displayOnly: true,
+        };
+        this._interBotQueue.update((q) => [...q, msg]);
       });
     } else {
-      // Send to specific bot
-      console.log(`Broadcast from ${from} to ${to}: ${message}`);
+      const msg: InterBotMessage = {
+        from,
+        to,
+        text: message,
+        timestamp: Date.now(),
+        displayOnly: true,
+      };
+      this._interBotQueue.update((q) => [...q, msg]);
     }
-    // Could trigger UI notification or inter-bot message
   }
 
   // ─── Rage Mode & UI Features ──────────────────────────────────────────────
@@ -1967,32 +1992,75 @@ export class AIBotStore {
     prompt: string,
     context?: string,
   ): Promise<string> {
-    console.log('🚀 Generando respuesta con Grok para:', prompt);
+    const apiKey = this.providerApiKey();
 
-    // Por ahora, devolver una respuesta simulada hasta que tengamos una API key válida
-    const responses = [
-      '¡Hola! Soy Grok de xAI. Tu consulta es interesante. Estoy aquí para ayudarte.',
-      'Como Grok de xAI, me enfoco en ser útil y veraz en mis respuestas.',
-      '¡Excelente pregunta! Me hace pensar en las capacidades de la IA moderna.',
-      'Grok aquí, creado por xAI. ¿En qué puedo ayudarte hoy?',
-    ];
-    const response = responses[Math.floor(Math.random() * responses.length)];
-    console.log('✅ Respuesta de Grok generada:', response);
-    return response;
+    if (!apiKey) {
+      // Fallback inteligente: simular respuesta basada en contexto si no hay API key
+      const isBuddy = context?.toLowerCase().includes('buddy');
+      const feature = context?.match(/especializado en ([\w-]+)/)?.[1] || 'general';
+
+      return isBuddy
+        ? `[Simulación Grok] Como Buddy, entiendo que preguntas sobre "${prompt}" en el contexto de ${feature}. (Configura una API Key para respuestas reales).`
+        : `[Simulación Grok] Hola, soy el asistente de ${feature}. Sobre "${prompt}", puedo decirte que estamos analizando los datos. (Configura una API Key para respuestas reales).`;
+    }
+
+    try {
+      const resp = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'grok-4.20-latest',
+          messages: [
+            ...(context ? [{ role: 'system', content: context }] : []),
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.7,
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Error en API de Grok');
+      const data = await resp.json();
+      return data.choices[0].message.content;
+    } catch (e) {
+      return `[Error Grok] No se pudo conectar con xAI. Verifica tu API Key.`;
+    }
   }
 
   private async generateWithTogether(
     prompt: string,
     context?: string,
   ): Promise<string> {
-    // Respuestas simuladas para Together AI
-    const responses = [
-      '¡Hola desde Together AI! Utilizo modelos avanzados como Mistral.',
-      'Como IA de Together AI, estoy aquí para ayudarte con respuestas inteligentes.',
-      'Together AI combina lo mejor de diferentes modelos de IA.',
-      '¡Perfecto! Puedo ayudarte con esa consulta usando tecnología de vanguardia.',
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+    const apiKey = this.providerApiKey();
+
+    if (!apiKey) {
+      return `[Simulación Together] Estoy analizando "${prompt}" usando modelos Open Source. Por favor, añade tu API Key de Together AI para respuestas completas.`;
+    }
+
+    try {
+      const resp = await fetch('https://api.together.xyz/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'deepseek-ai/DeepSeek-V3',
+          messages: [
+            ...(context ? [{ role: 'system', content: context }] : []),
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Error en API de Together');
+      const data = await resp.json();
+      return data.choices[0].message.content;
+    } catch (e) {
+      return `[Error Together] Hubo un problema con la conexión.`;
+    }
   }
 
   /** Send inter-bot display message */
