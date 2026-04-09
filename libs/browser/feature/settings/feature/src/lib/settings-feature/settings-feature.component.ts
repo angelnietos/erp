@@ -377,6 +377,53 @@ interface PluginDescriptor {
                             })
                           "
                         ></ui-select>
+
+                        <ui-select
+                          label="Forma del Cuerpo"
+                          size="sm"
+                          [options]="[
+                            { value: 'round', label: 'Redonda' },
+                            { value: 'square', label: 'Cuadrada' },
+                            { value: 'capsule', label: 'Cápsula' },
+                            { value: 'tri', label: 'Triangular' },
+                            { value: 'mushroom-cap', label: 'Seta (Sombrero)' },
+                            { value: 'mushroom-full', label: 'Seta Completa' },
+                          ]"
+                          [ngModel]="bot.bodyShape"
+                          (ngModelChange)="
+                            aiBotStore.updateBotSkin(bot.feature, {
+                              bodyShape: $event,
+                            })
+                          "
+                        ></ui-select>
+
+                        <div class="form-group">
+                          <label class="form-label">Color Principal</label>
+                          <input
+                            type="color"
+                            class="color-input"
+                            [value]="bot.color"
+                            (input)="
+                              aiBotStore.updateBotSkin(bot.feature, {
+                                color: $event.target.value,
+                              })
+                            "
+                          />
+                        </div>
+
+                        <div class="form-group">
+                          <label class="form-label">Color Secundario</label>
+                          <input
+                            type="color"
+                            class="color-input"
+                            [value]="bot.secondaryColor"
+                            (input)="
+                              aiBotStore.updateBotSkin(bot.feature, {
+                                secondaryColor: $event.target.value,
+                              })
+                            "
+                          />
+                        </div>
                       </div>
 
                       <div class="skills-list">
@@ -1495,6 +1542,27 @@ interface PluginDescriptor {
         letter-spacing: 0.05em;
         color: var(--text-muted);
         margin-bottom: 0.5rem;
+      }
+
+      .color-input {
+        width: 60px;
+        height: 40px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.6);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .color-input:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
+
+      .color-input:focus {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(var(--brand-rgb), 0.3);
       }
 
       .color-picker-grid {
