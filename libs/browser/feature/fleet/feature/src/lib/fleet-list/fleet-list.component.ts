@@ -4,17 +4,19 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
   UiPaginationComponent,
   UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
-  UiCardComponent,
   UiTabsComponent,
   UiInputComponent,
-  UiStatCardComponent
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -27,41 +29,32 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     CommonModule, 
     RouterModule, 
     FormsModule,
-    UiTableComponent, 
     UiButtonComponent, 
     UiSearchComponent, 
     UiPaginationComponent, 
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiCardComponent,
     UiTabsComponent,
     UiInputComponent,
     UiStatCardComponent,
-    UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'">
-            Gestión de Flota Logística
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">UNIDADES LOGÍSTICAS</span>
-            <span class="separator">/</span>
-            <span>MONITOREO DE MOVILIDAD</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          <ui-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
-            NUEVA UNIDAD
-          </ui-button>
-        </div>
-      </header>
+    <div class="fleet-container">
+      <ui-feature-header
+        title="Flota Logística"
+        subtitle="Monitoreo de movilidad y mantenimiento preventivo"
+        icon="truck"
+        actionLabel="NUEVA UNIDAD"
+        (actionClicked)="openCreateModal()"
+      ></ui-feature-header>
 
-      <div class="stats-row">
+      <ui-feature-stats>
         <ui-stat-card 
           label="Unidades Activas" 
           [value]="vehicles().length.toString()" 
@@ -80,18 +73,25 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           icon="alert-triangle" 
           [class.text-danger]="alertCount() > 0">
         </ui-stat-card>
-      </div>
+        <ui-stat-card
+          label="Sincronización GPS"
+          value="Online"
+          icon="navigation"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="navigation-bar ui-glass-panel">
+      <div class="navigation-bar">
         <ui-tabs 
           [tabs]="tabs" 
           [activeTab]="activeTab()" 
           variant="underline" 
           (tabChange)="onTabChange($event)"
+          class="flex-1"
         ></ui-tabs>
         
         <ui-search 
-          variant="filled"
+          variant="glass"
           placeholder="BUSCAR MATRÍCULA O CONDUCTOR..." 
           (searchChange)="onSearch($event)"
           class="search-bar"
@@ -103,158 +103,141 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           <ui-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-loader>
         </div>
       } @else {
-        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-table [columns]="columns" [data]="displayedVehicles()" variant="default">
-            <ng-template #cellTemplate let-vehicle let-key="key">
-              @switch (key) {
-                @case ('plate') {
-                  <div class="vehicle-cell">
-                    <div class="vehicle-icon" [style.background]="currentTheme().primary + '15'">
-                      <lucide-icon [name]="getVehicleIcon(vehicle.type)" [size]="14" [style.color]="currentTheme().primary"></lucide-icon>
-                    </div>
-                    <a [routerLink]="['/fleet', vehicle.id]" class="vehicle-link text-uppercase">
-                      {{ vehicle.plate }}
-                    </a>
-                  </div>
-                }
-                @case ('type') {
-                  <ui-badge variant="info">{{ getTypeLabel(vehicle.type) | uppercase }}</ui-badge>
-                }
-                @case ('status') {
-                  <ui-badge [variant]="getStatusVariant(vehicle.status)">
-                    {{ getStatusLabel(vehicle.status) | uppercase }}
-                  </ui-badge>
-                }
-                @case ('insuranceExpiry') {
-                  <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.insuranceExpiry)">
-                    {{ formatDate(vehicle.insuranceExpiry) }}
-                  </span>
-                }
-                @case ('itvExpiry') {
-                  <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.itvExpiry)">
-                    {{ formatDate(vehicle.itvExpiry) }}
-                  </span>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/fleet', vehicle.id]"></ui-button>
-                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editVehicle(vehicle)"></ui-button>
-                  </div>
-                }
-                @default {
-                  {{ vehicle[key] }}
-                }
+        <ui-feature-grid>
+          @for (vehicle of displayedVehicles(); track vehicle.id) {
+            <ui-feature-card
+              [name]="vehicle.plate | uppercase"
+              [subtitle]="(vehicle.brand + ' ' + vehicle.model) | uppercase"
+              [avatarInitials]="getInitials(vehicle.plate)"
+              [avatarBackground]="getVehicleGradient(vehicle.type)"
+              [status]="vehicle.status === 'available' ? 'active' : 'offline'"
+              [badgeLabel]="getStatusLabel(vehicle.status) | uppercase"
+              [badgeVariant]="getStatusVariant(vehicle.status)"
+              (cardClicked)="onRowClick(vehicle)"
+              (editClicked)="editVehicle(vehicle)"
+              [footerItems]="[
+                { icon: 'calendar', label: 'Año: ' + vehicle.year },
+                { icon: 'shield', label: 'Seguro: ' + formatDate(vehicle.insuranceExpiry) },
+                { icon: 'check-square', label: 'ITV: ' + formatDate(vehicle.itvExpiry) }
+              ]"
+            >
+              @if (isExpired(vehicle.insuranceExpiry) || isExpired(vehicle.itvExpiry)) {
+                <div class="vehicle-alerts">
+                 <span class="alert-badge overdue">
+                    <lucide-icon name="alert-circle" size="12"></lucide-icon> ALERTA TÉCNICA
+                 </span>
+                </div>
               }
-            </ng-template>
-          </ui-table>
-
-          <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
-            <div class="table-info uppercase">
-              {{ displayedVehicles().length }} UNIDADES EN RANGO OPERATIVO
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon name="truck" size="64" class="empty-icon"></lucide-icon>
+              <h3>No hay unidades</h3>
+              <p>Comienza registrando tu primer vehículo en la flota.</p>
+              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Registrar unidad</ui-button>
             </div>
-            <ui-pagination 
-              [currentPage]="currentPage()" 
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-pagination>
-          </footer>
-        </ui-card>
+          }
+        </ui-feature-grid>
+
+        <footer class="pagination-footer">
+           <ui-pagination 
+            [currentPage]="currentPage()" 
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          ></ui-pagination>
+        </footer>
       }
     </div>
 
-    <!-- Create/Edit Modal -->
+    <!-- Modals -->
     <ui-modal 
       [isOpen]="isModalOpen()" 
       [title]="editingVehicle() ? 'MODIFICACIÓN DE FICHA TÉCNICA' : 'REGISTRO DE NUEVA UNIDAD'"
       (closed)="closeModal()"
-      variant="dark"
+      variant="glass"
     >
       <div class="form-grid">
-        <div class="form-section">
-          <h3 class="section-title text-uppercase" [style.color]="currentTheme().primary">Especificaciones Técnicas</h3>
-          <div class="input-grid">
-            <ui-input label="Matrícula" [(ngModel)]="formData.plate" icon="hash"></ui-input>
+         <ui-input label="Matrícula" [(ngModel)]="formData.plate" icon="hash"></ui-input>
+         <div class="row">
             <ui-input label="Marca" [(ngModel)]="formData.brand" icon="car"></ui-input>
             <ui-input label="Modelo" [(ngModel)]="formData.model" icon="box"></ui-input>
-            <ui-input label="Año" type="number" [(ngModel)]="formData.year" icon="calendar"></ui-input>
-          </div>
-        </div>
+         </div>
+         <div class="row">
+           <ui-input label="Año" type="number" [(ngModel)]="formData.year" icon="calendar"></ui-input>
+           <ui-input label="Tipo" [(ngModel)]="formData.type" icon="truck"></ui-input>
+         </div>
+         <div class="row">
+            <ui-input label="Seguro hasta" type="date" [(ngModel)]="formData.insuranceExpiry" icon="shield"></ui-input>
+            <ui-input label="ITV hasta" type="date" [(ngModel)]="formData.itvExpiry" icon="check-square"></ui-input>
+         </div>
       </div>
-      
-      <div modal-footer class="modal-actions">
+      <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button variant="glass" (clicked)="saveVehicle()" [disabled]="!formData.plate">
-          {{ editingVehicle() ? 'ACTUALIZAR FICHA' : 'REGISTRAR UNIDAD' }}
-        </ui-button>
+        <ui-button variant="solid" (clicked)="saveVehicle()" [disabled]="!formData.plate" icon="save">GUARDAR</ui-button>
       </div>
     </ui-modal>
-
   `,
   styles: [`
-    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
-    
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .glow-text { 
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.05em; font-family: var(--font-main);
-    }
-    
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
-    }
-    
-    .stats-row { 
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; 
+    .fleet-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
     }
 
-    .navigation-bar { 
-      display: flex; justify-content: space-between; align-items: center; 
-      margin-bottom: 1.5rem; padding: 0.25rem 1rem; border-radius: 12px;
-      background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
+    .navigation-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.5rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      gap: 2rem;
     }
 
-    .search-bar { width: 320px; }
-    
-    /* Table Luxe Refinement */
-    .table-card { border-radius: 16px; overflow: hidden; }
-    .neon-glow { box-shadow: 0 0 40px rgba(0, 0, 0, 0.4), inset 0 0 1px rgba(255, 255, 255, 0.1); }
+    .flex-1 { flex: 1; }
+    .search-bar { width: 350px; }
 
-    .vehicle-cell { display: flex; align-items: center; gap: 12px; }
-    .vehicle-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+    .loader-container { display: flex; justify-content: center; padding: 5rem; }
+
+    .vehicle-alerts { margin-top: 1rem; }
+    .alert-badge {
+       display: inline-flex;
+       align-items: center;
+       gap: 0.25rem;
+       font-size: 0.65rem;
+       font-weight: 800;
+       padding: 0.2rem 0.6rem;
+       border-radius: 4px;
+       letter-spacing: 0.05em;
     }
+    .alert-badge.overdue { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
-    .vehicle-link { 
-      color: #fff; text-decoration: none; font-weight: 700; font-size: 0.8rem;
-      letter-spacing: 0.05em; transition: 0.2s;
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
     }
-    .vehicle-link:hover { color: var(--brand); text-shadow: 0 0 10px var(--brand-glow); }
-    
-    .overdue { color: var(--danger); font-weight: 800; }
-    .row-actions { display: flex; gap: 4px; }
-    
-    .table-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.05);
-    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
-    .form-section { display: flex; flex-direction: column; gap: 1.5rem; }
-    .section-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.15em; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
 
-    @media (max-width: 1024px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; padding: 1rem; }
-      .search-bar { width: 100%; }
-      .input-grid { grid-template-columns: 1fr; }
+    /* Modal Form Styles */
+    .form-grid { display: flex; flex-direction: column; gap: 1.25rem; padding: 1rem 0; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
+
+    @media (max-width: 900px) {
+       .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
+       .search-bar { width: 100%; }
+       .row { grid-template-columns: 1fr; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -354,6 +337,22 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     this.editingVehicle.set(null);
     this.formData = { plate: '', brand: '', model: '', year: new Date().getFullYear(), type: 'van', status: 'available' };
     this.isModalOpen.set(true);
+  }
+
+  onRowClick(vehicle: Vehicle) {
+     // Navigate
+  }
+
+  getInitials(plate: string): string {
+    return plate.slice(0, 2).toUpperCase();
+  }
+
+  getVehicleGradient(type: string): string {
+    switch (type) {
+      case 'van': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'truck': return 'linear-gradient(135deg, #10b981, #059669)';
+      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+    }
   }
 
   editVehicle(vehicle: Vehicle) {

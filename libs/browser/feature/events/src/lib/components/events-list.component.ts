@@ -1,31 +1,13 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import {
-  LucideAngularModule,
-  Calendar,
-  Plus,
-  Search,
-  Filter,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Users,
-  MapPin,
-  Eye,
-  History,
-  TrendingUp,
-  Activity,
-  Clock,
-} from 'lucide-angular';
-import {
-  UiCardComponent,
-  UiButtonComponent,
-  UiBadgeComponent,
-  UiInputComponent,
-  UiSelectComponent,
+import { 
+  UiButtonComponent, 
+  UiBadgeComponent, 
+  UiInputComponent, 
+  UiSelectComponent, 
   UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
@@ -53,14 +35,6 @@ interface Event {
   createdAt: string;
 }
 
-interface EventFilter {
-  search: string;
-  status: string;
-  type: string;
-  dateFrom: string;
-  dateTo: string;
-}
-
 @Component({
   selector: 'lib-events-list',
   standalone: true,
@@ -69,365 +43,150 @@ interface EventFilter {
     RouterModule,
     ReactiveFormsModule,
     FormsModule,
-    UiCardComponent,
     UiButtonComponent,
     UiBadgeComponent,
     UiInputComponent,
     UiSelectComponent,
     UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.perf-optimized]="pluginStore.highPerformanceMode()"
-    >
-      <div class="hero-section">
-        <div class="hero-bg-pattern"></div>
-        <div class="hero-gradient-overlay"></div>
-        <header
-          class="page-header"
-          [style.border-bottom-color]="currentTheme().primary + '33'"
-        >
-          <div class="header-breadcrumb">
-            <div class="hero-glow-effect"></div>
-            <h1 class="page-title text-uppercase">
-              <span class="title-icon">🎯</span>
-              Sistema de Eventos
-            </h1>
-            <div class="breadcrumb">
-              <span class="active" [style.color]="currentTheme().primary"
-                ><span class="breadcrumb-icon">⚡</span>GESTIÓN Y
-                PLANIFICACIÓN</span
-              >
-              <span class="separator">/</span>
-              <span
-                ><span class="breadcrumb-icon">🎪</span>EVENTOS
-                CORPORATIVOS</span
-              >
-            </div>
-          </div>
-        </header>
-      </div>
+    <div class="events-container">
+      <ui-feature-header
+        title="Eventos"
+        subtitle="Planificación y gestión de eventos corporativos"
+        icon="calendar"
+        actionLabel="NUEVO EVENTO"
+        routerLink="/events/new"
+      ></ui-feature-header>
 
-      <div class="stats-row gaming-stats">
-        <ui-stat-card
-          label="Total Eventos"
-          [value]="events().length.toString()"
-          icon="calendar"
-          [accent]="true"
-          class="stat-card-animated"
-        >
+      <ui-feature-stats>
+        <ui-stat-card 
+          label="Total Eventos" 
+          [value]="events().length.toString()" 
+          icon="layout" 
+          [accent]="true">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Activos" 
+          [value]="activeEventsCount().toString()" 
+          icon="zap" 
+          [trend]="15">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Próximo" 
+          [value]="nextEventDays().toString() + ' días'" 
+          icon="clock">
         </ui-stat-card>
         <ui-stat-card
-          label="Eventos Activos"
-          [value]="activeEventsCount().toString()"
-          icon="activity"
-          [trend]="15"
-          class="stat-card-animated"
-        >
-        </ui-stat-card>
-        <ui-stat-card
-          label="Próximo Evento"
-          [value]="nextEventDays().toString() + ' días'"
-          icon="clock"
-          class="stat-card-animated"
-        >
-        </ui-stat-card>
-        <ui-stat-card
-          label="Asistentes Totales"
+          label="Asistentes"
           [value]="totalAttendees().toString()"
           icon="users"
           [trend]="8"
-          class="stat-card-animated"
-        >
-        </ui-stat-card>
-      </div>
+        ></ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="events-content">
-        <!-- Filters -->
-        <ui-card class="filters-card gaming-card">
-          <div class="filters-header">
-            <div class="filters-title-section">
-              <span class="filters-icon">🔍</span>
-              <h2>Filtros de Búsqueda Avanzada</h2>
-            </div>
-            <ui-button
-              variant="ghost"
-              size="sm"
-              icon="filter"
-              (click)="clearFilters()"
-              class="clear-filters-btn"
-            >
-              <span class="btn-icon">🗑️</span>
-              Limpiar
-            </ui-button>
-          </div>
-
-          <div class="filters-grid">
-            <ui-input
-              label="Buscar"
-              [(ngModel)]="filters.search"
-              (ngModelChange)="onSearchChange($event)"
-              name="search"
-              placeholder="Título, descripción, organizador..."
-              icon="search"
-            />
-
-            <ui-select
-              label="Estado"
+      <div class="filters-bar">
+        <ui-search 
+          variant="glass"
+          placeholder="BUSCAR EVENTOS..." 
+          (searchChange)="onSearchChange($event)"
+          class="flex-1"
+        ></ui-search>
+        
+        <div class="quick-filters">
+           <ui-select
+              label="ESTADO"
               [(ngModel)]="filters.status"
               name="status"
               [options]="statusOptions"
             />
-
             <ui-select
-              label="Tipo"
+              label="TIPO"
               [(ngModel)]="filters.type"
               name="type"
               [options]="typeOptions"
             />
-
-            <ui-input
-              label="Fecha Desde"
-              type="date"
-              [(ngModel)]="filters.dateFrom"
-              name="dateFrom"
-            />
-
-            <ui-input
-              label="Fecha Hasta"
-              type="date"
-              [(ngModel)]="filters.dateTo"
-              name="dateTo"
-            />
-
-            <div class="filter-actions">
-              <ui-button
-                variant="primary"
-                icon="search"
-                (click)="applyFilters()"
-              >
-                Aplicar Filtros
-              </ui-button>
-              <ui-button
-                variant="primary"
-                [routerLink]="['/events/new']"
-              >
-                <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-                Nuevo Evento
-              </ui-button>
-            </div>
-          </div>
-        </ui-card>
-
-        <!-- Events List -->
-        <ui-card class="events-card gaming-card">
-          <div class="events-header">
-            <div class="events-title-section">
-              <span class="events-icon">📋</span>
-              <h2>Eventos Planificados</h2>
-            </div>
-            <span class="events-count gaming-badge"
-              >{{ filteredEvents().length }}
-              <span class="count-icon">🎯</span> eventos encontrados</span
-            >
-          </div>
-
-          <div class="events-list">
-            @for (event of paginatedEvents(); track event.id) {
-              <div
-                class="event-item gaming-event-item"
-                [class.expanded]="expandedEvent() === event.id"
-                [class]="getEventStatusClass(event.status)"
-              >
-                <div
-                  class="event-summary gaming-summary"
-                  (click)="toggleEventExpansion(event.id)"
-                  (keydown.enter)="toggleEventExpansion(event.id)"
-                  (keydown.space)="
-                    toggleEventExpansion(event.id); $event.preventDefault()
-                  "
-                  tabindex="0"
-                >
-                  <div
-                    class="event-icon gaming-icon"
-                    [class]="getEventTypeClass(event.type)"
-                  >
-                    <lucide-icon
-                      [img]="getEventIcon(event.type)"
-                      size="20"
-                    ></lucide-icon>
-                    <div class="icon-glow"></div>
-                  </div>
-
-                  <div class="event-info">
-                    <div class="event-primary">
-                      <span class="event-title">{{ event.title }}</span>
-                      <span class="event-type">{{
-                        getTypeText(event.type)
-                      }}</span>
-                      <span class="event-organizer">
-                        @if (event.organizer) {
-                          por {{ event.organizer }}
-                        }
-                      </span>
-                    </div>
-                    <div class="event-meta">
-                      <span class="event-date">
-                        <lucide-icon
-                          [img]="CalendarIcon"
-                          size="14"
-                        ></lucide-icon>
-                        {{ formatDate(event.date) }} - {{ event.time }}
-                      </span>
-                      <span class="event-attendees">
-                        <lucide-icon [img]="UsersIcon" size="14"></lucide-icon>
-                        {{ event.attendees }}/{{ event.capacity }} asistentes
-                      </span>
-                      <ui-badge
-                        [variant]="getStatusVariant(event.status)"
-                      >
-                        {{ getStatusText(event.status) }}
-                      </ui-badge>
-                    </div>
-                  </div>
-
-                  <div class="event-toggle">
-                    <lucide-icon
-                      [img]="HistoryIcon"
-                      size="16"
-                      [class.rotated]="expandedEvent() === event.id"
-                    ></lucide-icon>
-                  </div>
-                </div>
-
-                @if (expandedEvent() === event.id) {
-                  <div class="event-details">
-                    @if (event.description) {
-                      <div class="details-section">
-                        <h4>Descripción</h4>
-                        <p class="text-friendly">{{ event.description }}</p>
-                      </div>
-                    }
-
-                    <div class="details-section">
-                      <h4>Información del Evento</h4>
-                      <div class="details-grid">
-                        <div class="detail-item">
-                          <span class="detail-label">Ubicación:</span>
-                          <span class="detail-value">{{
-                            event.location || 'No especificada'
-                          }}</span>
-                        </div>
-                        <div class="detail-item">
-                          <span class="detail-label">Costo:</span>
-                          <span class="detail-value">{{
-                            event.cost ? '€' + event.cost : 'Gratuito'
-                          }}</span>
-                        </div>
-                        <div class="detail-item">
-                          <span class="detail-label">Capacidad:</span>
-                          <span class="detail-value">{{
-                            event.capacity || 'Sin límite'
-                          }}</span>
-                        </div>
-                        <div class="detail-item">
-                          <span class="detail-label">Creado:</span>
-                          <span class="detail-value">{{
-                            formatCreatedDate(event.createdAt)
-                          }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="event-actions gaming-actions">
-                      <ui-button
-                        variant="ghost"
-                        size="sm"
-                        [routerLink]="['/events', event.id]"
-                        (click)="$event.stopPropagation()"
-                        class="action-btn view-btn"
-                      >
-                        <span class="action-icon">👁️</span>
-                        <lucide-icon [img]="EyeIcon" size="14"></lucide-icon>
-                        Ver Detalles
-                      </ui-button>
-                      <ui-button
-                        variant="ghost"
-                        size="sm"
-                        [routerLink]="['/events', event.id, 'edit']"
-                        (click)="$event.stopPropagation()"
-                        class="action-btn edit-btn"
-                      >
-                        <span class="action-icon">✏️</span>
-                        <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
-                        Editar
-                      </ui-button>
-                      <ui-button
-                        variant="ghost"
-                        size="sm"
-                        class="danger action-btn delete-btn"
-                        (click)="$event.stopPropagation()"
-                      >
-                        <span class="action-icon">🗑️</span>
-                        <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
-                        Eliminar
-                      </ui-button>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-
-            @if (paginatedEvents().length === 0) {
-              <div class="no-events">
-                <lucide-icon [img]="CalendarIcon" size="48"></lucide-icon>
-                <h3>No se encontraron eventos</h3>
-                <p class="text-friendly">
-                  No hay eventos que coincidan con los filtros aplicados.
-                </p>
-                <ui-button
-                  variant="primary"
-                  [routerLink]="['/events/new']"
-                >
-                  <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-                  Crear Nuevo Evento
-                </ui-button>
-              </div>
-            }
-          </div>
-
-          <!-- Pagination -->
-          @if (totalPages() > 1) {
-            <div class="pagination">
-              <ui-button
-                variant="ghost"
-                size="sm"
-                [disabled]="currentPage() === 1"
-                (click)="goToPage(currentPage() - 1)"
-              >
-                Anterior
-              </ui-button>
-
-              <span class="page-info text-friendly">
-                Página {{ currentPage() }} de {{ totalPages() }}
-              </span>
-
-              <ui-button
-                variant="ghost"
-                size="sm"
-                [disabled]="currentPage() === totalPages()"
-                (click)="goToPage(currentPage() + 1)"
-              >
-                Siguiente
-              </ui-button>
-            </div>
-          }
-        </ui-card>
+        </div>
       </div>
+
+      <ui-feature-grid>
+        @for (event of filteredEvents(); track event.id) {
+          <ui-feature-card
+            [name]="event.title"
+            [subtitle]="event.location || 'Sin ubicación'"
+            [avatarInitials]="getInitials(event.title)"
+            [avatarBackground]="getEventGradient(event.type)"
+            [status]="event.status === 'active' ? 'active' : 'offline'"
+            [badgeLabel]="getStatusText(event.status) | uppercase"
+            [badgeVariant]="getStatusVariant(event.status)"
+            (cardClicked)="onRowClick(event)"
+            [footerItems]="[
+              { icon: 'calendar', label: formatDate(event.date) },
+              { icon: 'users', label: event.attendees + '/' + event.capacity }
+            ]"
+          >
+             <div footer-extra class="card-actions">
+                <ui-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/events', event.id, 'edit']"></ui-button>
+                <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/events', event.id]"></ui-button>
+             </div>
+          </ui-feature-card>
+        } @empty {
+          <div class="empty-state">
+            <lucide-icon name="calendar" size="64" class="empty-icon"></lucide-icon>
+            <h3>No hay eventos</h3>
+            <p>Parece que no hay nada programado para los filtros seleccionados.</p>
+            <ui-button variant="solid" routerLink="/events/new" icon="CirclePlus">Crear evento</ui-button>
+          </div>
+        }
+      </ui-feature-grid>
     </div>
   `,
+  styles: [`
+    .events-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .filters-bar {
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .flex-1 { flex: 1; }
+    .quick-filters { display: flex; gap: 1rem; width: 450px; }
+
+    .card-actions { display: flex; gap: 0.25rem; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
+    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+
+    @media (max-width: 900px) {
+       .filters-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
+       .quick-filters { width: 100%; flex-direction: column; }
+    }
+  `],
   styles: [
     `
       .page-container {
@@ -1471,6 +1230,26 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
       createdAt: '2024-03-10T10:15:00Z',
     },
   ];
+
+
+  onRowClick(event: Event) {
+    // Navigate
+  }
+
+  getInitials(title: string): string {
+    return title.slice(0, 2).toUpperCase();
+  }
+
+  getEventGradient(type: string): string {
+    switch (type) {
+      case 'conference': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'workshop': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'meeting': return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      case 'social': return 'linear-gradient(135deg, #ec4899, #be185d)';
+      case 'presentation': return 'linear-gradient(135deg, #6366f1, #4338ca)';
+      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+    }
+  }
 
   ngOnInit() {
     this.events.set(this.initialEvents);

@@ -4,17 +4,19 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
   UiPaginationComponent,
   UiBadgeComponent,
   UiLoaderComponent,
   UiTabsComponent,
-  UiCardComponent,
   UiStatCardComponent,
   UiModalComponent,
-  UiInputComponent
+  UiInputComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
@@ -27,44 +29,36 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
     CommonModule, 
     RouterModule, 
     FormsModule,
-    UiTableComponent, 
     UiButtonComponent, 
     UiSearchComponent, 
     UiPaginationComponent, 
     UiBadgeComponent,
     UiLoaderComponent,
     UiTabsComponent,
-    UiCardComponent,
     UiStatCardComponent,
     UiModalComponent,
     UiInputComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'">
-            Arrendamientos & Alquileres
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">GESTIÓN OPERATIVA</span>
-            <span class="separator">/</span>
-            <span>MONITOREO DE ALQUILERES</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          <ui-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
-            NUEVO EXPEDIENTE
-          </ui-button>
-        </div>
-      </header>
+    <div class="rentals-container">
+      <ui-feature-header
+        title="Alquileres"
+        subtitle="Gestión operativa y monitoreo de expedientes"
+        icon="key"
+        actionLabel="NUEVO EXPEDIENTE"
+        (actionClicked)="openCreateModal()"
+      ></ui-feature-header>
 
-      <div class="stats-row">
+      <ui-feature-stats>
         <ui-stat-card 
           label="Expedientes Activos" 
           [value]="activeCount().toString()" 
-          icon="play-circle" 
+          icon="activity" 
           [accent]="true">
         </ui-stat-card>
         <ui-stat-card 
@@ -78,18 +72,25 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
           [value]="formatCurrencyEu(totalRevenue())" 
           icon="trending-up">
         </ui-stat-card>
-      </div>
+        <ui-stat-card 
+          label="Eficiencia" 
+          value="92%" 
+          icon="check-circle"
+          [accent]="false">
+        </ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="navigation-bar ui-glass-panel">
+      <div class="navigation-bar">
         <ui-tabs 
           [tabs]="tabs" 
           [activeTab]="activeTab()" 
           variant="underline" 
           (tabChange)="onTabChange($event)"
+          class="flex-1"
         ></ui-tabs>
         
         <ui-search 
-          variant="filled"
+          variant="glass"
           placeholder="BUSCAR EXPEDIENTE O CLIENTE..." 
           (searchChange)="onSearch($event)"
           class="search-bar"
@@ -101,219 +102,179 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
           <ui-loader message="SINCRONIZANDO REGISTROS DE OPERACIÓN..."></ui-loader>
         </div>
       } @else {
-        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-table [columns]="columns" [data]="displayedRentals()" variant="default">
-            <ng-template #cellTemplate let-rental let-key="key">
-              @switch (key) {
-                @case ('id') {
-                  <a [routerLink]="['/rentals', rental.id]" class="rental-link" [style.color]="currentTheme().primary">
-                    #{{ rental.id.slice(0, 8) | uppercase }}
-                  </a>
-                }
-                @case ('status') {
-                  <ui-badge [variant]="getStatusVariant(rental.status)">
-                    {{ getStatusLabel(rental.status) | uppercase }}
-                  </ui-badge>
-                }
-                @case ('totalAmount') {
-                  <span class="currency-value">{{ rental.totalAmount | currency:'EUR' }}</span>
-                }
-                @case ('signature') {
-                  <div class="sig-cell">
+        <ui-feature-grid>
+          @for (rental of displayedRentals(); track rental.id) {
+            <ui-feature-card
+              [name]="rental.clientName"
+              [subtitle]="'REF: ' + (rental.id.slice(0, 8) | uppercase)"
+              [avatarInitials]="getInitials(rental.clientName)"
+              [avatarBackground]="getStatusGradient(rental.status)"
+              [status]="rental.status === 'ACTIVE' ? 'active' : 'offline'"
+              [badgeLabel]="getStatusLabel(rental.status) | uppercase"
+              [badgeVariant]="getStatusVariant(rental.status)"
+              (cardClicked)="onRowClick(rental)"
+              (editClicked)="editRental(rental)"
+              [footerItems]="[
+                { icon: 'calendar', label: (rental.startDate | date:'dd/MM/yy') },
+                { icon: 'package', label: rental.itemsCount + ' unid.' },
+                { icon: 'euro', label: rental.totalAmount | currency:'EUR' }
+              ]"
+            >
+              <div class="rental-extras">
+                 <div class="signature-status">
                     @if (rental.signatureStatus === 'SIGNED') {
-                      <lucide-icon name="check-circle" [size]="16" [style.color]="currentTheme().success" title="Contrato firmado"></lucide-icon>
-                    } @else if (rental.signatureStatus === 'PENDING') {
-                      <lucide-icon name="clock" [size]="16" [style.color]="currentTheme().warning" title="Firma pendiente"></lucide-icon>
+                       <span class="sig-badge signed">
+                         <lucide-icon name="check-circle" size="12"></lucide-icon> FIRMADO
+                       </span>
                     } @else {
-                      <span class="text-muted">—</span>
+                       <span class="sig-badge pending">
+                         <lucide-icon name="clock" size="12"></lucide-icon> PEN. FIRMA
+                       </span>
                     }
-                  </div>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/rentals', rental.id]"></ui-button>
-                    @if (rental.status === 'DRAFT') {
-                      <ui-button variant="ghost" size="sm" icon="play" (clicked)="activateRental(rental)" [style.color]="currentTheme().success"></ui-button>
-                    }
-                    @if (rental.status !== 'CANCELLED' && rental.status !== 'COMPLETED') {
-                      <ui-button variant="ghost" size="sm" icon="pen-tool" (clicked)="openSignatureModal(rental)" title="Firma digital del contrato"></ui-button>
-                    }
-                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editRental(rental)"></ui-button>
-                  </div>
-                }
-                @default {
-                  {{ rental[key] }}
-                }
-              }
-            </ng-template>
-          </ui-table>
+                 </div>
+              </div>
 
-          <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
-            <div class="table-info uppercase">
-              {{ displayedRentals().length }} EXPEDIENTES EN LISTADO ACTUAL
+              <div footer-extra class="card-actions">
+                 <ui-button variant="ghost" size="sm" icon="pen-tool" (click)="$event.stopPropagation(); openSignatureModal(rental)"></ui-button>
+                 @if (rental.status === 'DRAFT') {
+                    <ui-button variant="ghost" size="sm" icon="play" (click)="$event.stopPropagation(); activateRental(rental)" class="text-success"></ui-button>
+                 }
+              </div>
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon name="key" size="64" class="empty-icon"></lucide-icon>
+              <h3>No hay expedientes</h3>
+              <p>Comienza creando un nuevo registro de alquiler para tus clientes.</p>
+              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Nuevo expediente</ui-button>
             </div>
-            <ui-pagination 
-              [currentPage]="currentPage()" 
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-pagination>
-          </footer>
-        </ui-card>
+          }
+        </ui-feature-grid>
+
+        <footer class="pagination-footer">
+           <ui-pagination 
+            [currentPage]="currentPage()" 
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          ></ui-pagination>
+        </footer>
       }
     </div>
 
-    <!-- Create/Edit Modal -->
+    <!-- Modals -->
     <ui-modal
       [isOpen]="isModalOpen()"
       [title]="editingRental() ? 'EDITAR EXPEDIENTE' : 'NUEVO EXPEDIENTE'"
-      variant="dark"
+      variant="glass"
       (closed)="closeModal()"
     >
-      <div class="form-container">
-        <ui-input 
-          label="NOMBRE DEL CLIENTE/PRODUCCIÓN" 
-          [(ngModel)]="formData.clientName" 
-          placeholder="Ej: Producciones Audiovisuales S.L."
-        ></ui-input>
-        
-        <div class="form-row">
-          <ui-input 
-            label="FECHA DE INICIO" 
-            type="date" 
-            [(ngModel)]="formData.startDate"
-          ></ui-input>
-          
-          <ui-input 
-            label="FECHA DE RETORNO" 
-            type="date" 
-            [(ngModel)]="formData.endDate"
-          ></ui-input>
-        </div>
-
-        <div class="form-row">
-          <ui-input 
-            label="UNIDADES TÉCNICAS" 
-            type="number" 
-            [(ngModel)]="formData.itemsCount"
-          ></ui-input>
-          
-          <ui-input 
-            label="IMPORTE ESTIMADO (€)" 
-            type="number" 
-            [(ngModel)]="formData.totalAmount"
-          ></ui-input>
-        </div>
+      <div class="form-grid">
+         <ui-input label="CLIENTE / PRODUCCIÓN" [(ngModel)]="formData.clientName" placeholder="Ej: Producciones S.L." icon="user"></ui-input>
+         <div class="row">
+            <ui-input label="INICIO" type="date" [(ngModel)]="formData.startDate" icon="calendar"></ui-input>
+            <ui-input label="RETORNO" type="date" [(ngModel)]="formData.endDate" icon="calendar"></ui-input>
+         </div>
+         <div class="row">
+            <ui-input label="UNIDADES" type="number" [(ngModel)]="formData.itemsCount" icon="package"></ui-input>
+            <ui-input label="IMPORTE (€)" type="number" [(ngModel)]="formData.totalAmount" icon="euro"></ui-input>
+         </div>
       </div>
-      
-      <div modal-footer class="modal-footer-actions">
+      <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button variant="app" (clicked)="saveRental()" [disabled]="!formData.clientName">
-          GUARDAR EXPEDIENTE
-        </ui-button>
+        <ui-button variant="solid" (clicked)="saveRental()" [disabled]="!formData.clientName" icon="save">GUARDAR</ui-button>
       </div>
     </ui-modal>
 
     <ui-modal
       [isOpen]="isSignatureModalOpen()"
-      title="FIRMA DIGITAL DEL CONTRATO"
-      variant="dark"
+      title="FIRMA DIGITAL"
+      variant="glass"
       (closed)="closeSignatureModal()"
     >
       @if (rentalForSignature(); as rs) {
-        <div class="sig-flow">
-          <p class="sig-intro text-friendly">
-            Expediente <strong>#{{ rs.id.slice(0, 8) | uppercase }}</strong> · {{ rs.clientName }}
-          </p>
-          <p class="sig-status text-friendly">
-            Estado actual:
-            <strong>{{ getSignatureLabel(rs.signatureStatus) }}</strong>
-          </p>
-          <ui-input
-            label="Email del firmante (opcional)"
-            [(ngModel)]="signatureEmail"
-            placeholder="cliente@empresa.com"
-            hint="En producción aquí se enviaría el enlace al proveedor de firma (ej. integración Verifactu / tercero)."
-          ></ui-input>
+        <div class="sig-panel">
+          <h3>Expediente #{{ rs.id.slice(0, 8) | uppercase }}</h3>
+          <p>Estado de firma: <strong>{{ getSignatureLabel(rs.signatureStatus) | uppercase }}</strong></p>
+          <ui-input label="Email del firmante" [(ngModel)]="signatureEmail" placeholder="email@cliente.com" icon="mail"></ui-input>
         </div>
       }
-      <div modal-footer class="modal-footer-actions">
+      <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-button>
-        @if (rentalForSignature()?.signatureStatus !== 'SIGNED') {
-          <ui-button variant="glass" (clicked)="markSignaturePending()">ENVIAR SOLICITUD DE FIRMA</ui-button>
-          <ui-button variant="app" (clicked)="markSignatureSigned()">MARCAR COMO FIRMADO</ui-button>
-        }
+        <ui-button variant="glass" (clicked)="markSignaturePending()">SOLICITAR FIRMA</ui-button>
+        <ui-button variant="solid" (clicked)="markSignatureSigned()" icon="check">FIRMADO</ui-button>
       </div>
     </ui-modal>
   `,
   styles: [`
-    .form-container { display: flex; flex-direction: column; gap: 1.5rem; padding: 0.5rem 0; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .modal-footer-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
-    
-    .page-container {
-      position: relative;
-      padding: 1.5rem;
+    .rentals-container {
       max-width: 1400px;
       margin: 0 auto;
-      min-height: calc(100vh - 80px);
-      box-sizing: border-box;
-    }
-    
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .glow-text { 
-      font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.04em; font-family: var(--font-display);
-    }
-    
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.75rem; font-weight: 800;
-      letter-spacing: 0.15em; color: var(--text-muted); margin-top: 0.5rem;
-      text-transform: uppercase;
-    }
-    
-    .stats-row { 
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; 
+      padding: 2rem;
     }
 
-    .navigation-bar { 
-      display: flex; justify-content: space-between; align-items: center; 
-      margin-bottom: 1.5rem; padding: 0.25rem 1rem; border-radius: 12px;
-      background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
+    .navigation-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.5rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      gap: 2rem;
     }
 
-    .search-bar { width: 320px; }
-    
-    /* Table Luxe Refinement */
-    .table-card { border-radius: 16px; overflow: hidden; }
-    .neon-glow { box-shadow: 0 0 40px rgba(0, 0, 0, 0.4), inset 0 0 1px rgba(255, 255, 255, 0.1); }
+    .flex-1 { flex: 1; }
+    .search-bar { width: 350px; }
 
-    .rental-link { 
-      text-decoration: none; font-weight: 800; font-family: var(--font-mono); font-size: 0.75rem;
-      letter-spacing: 0.05em; transition: 0.2s;
-    }
-    .rental-link:hover { color: #fff !important; text-shadow: 0 0 10px var(--brand-glow); }
-    
-    .currency-value { color: #fff; font-weight: 700; font-size: 0.8rem; }
-    .sig-cell { display: flex; align-items: center; justify-content: center; }
-    .text-muted { color: var(--text-muted); font-size: 0.75rem; }
-    .row-actions { display: flex; gap: 4px; flex-wrap: wrap; }
-    .sig-flow { display: flex; flex-direction: column; gap: 1rem; }
-    .sig-intro, .sig-status { font-size: 0.75rem; color: var(--text-secondary); margin: 0; line-height: 1.4; }
-    
-    .table-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.05);
-    }
+    .loader-container { display: flex; justify-content: center; padding: 5rem; }
 
-    @media (max-width: 1024px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; padding: 1rem; }
-      .search-bar { width: 100%; }
+    .rental-extras { margin-top: 1rem; }
+    .sig-badge {
+       display: inline-flex;
+       align-items: center;
+       gap: 0.25rem;
+       font-size: 0.65rem;
+       font-weight: 800;
+       padding: 0.2rem 0.6rem;
+       border-radius: 4px;
+       letter-spacing: 0.05em;
+    }
+    .sig-badge.signed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .sig-badge.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+    .card-actions { display: flex; gap: 0.25rem; }
+    .text-success { color: var(--success) !important; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
+    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+
+    .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
+
+    /* Modal Form Styles */
+    .form-grid { display: flex; flex-direction: column; gap: 1.25rem; padding: 1rem 0; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
+    .sig-panel { padding: 1rem 0; }
+    .sig-panel h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .sig-panel p { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+    @media (max-width: 900px) {
+       .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
+       .search-bar { width: 100%; }
+       .row { grid-template-columns: 1fr; }
+    }
+  `],
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -418,6 +379,28 @@ export class RentalsListComponent implements OnInit, FilterableService<Rental> {
     this.editingRental.set(null);
     this.formData = { clientName: '', status: 'DRAFT', startDate: new Date().toISOString().split('T')[0], itemsCount: 0, totalAmount: 0 };
     this.isModalOpen.set(true);
+  }
+
+  onRowClick(rental: Rental) {
+    this.router.navigate(['/rentals', rental.id]);
+  }
+
+  getInitials(name: string): string {
+    return (name || '??')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  }
+
+  getStatusGradient(status: string): string {
+    switch (status) {
+      case 'ACTIVE': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'DRAFT': return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      case 'COMPLETED': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'CANCELLED': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+    }
   }
 
   editRental(rental: Rental) {

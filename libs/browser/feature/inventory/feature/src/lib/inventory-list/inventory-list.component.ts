@@ -12,7 +12,6 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
   UiPaginationComponent,
@@ -20,9 +19,12 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
-  UiCardComponent,
   UiInputComponent,
   UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import {
@@ -42,7 +44,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     CommonModule,
     RouterModule,
     FormsModule,
-    UiTableComponent,
     UiButtonComponent,
     UiSearchComponent,
     UiPaginationComponent,
@@ -50,82 +51,61 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
-    UiCardComponent,
     UiInputComponent,
     UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
-    >
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
-      >
-        <div class="header-breadcrumb">
-          <h1
-            class="page-title text-uppercase glow-text"
-            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'"
-          >
-            Inventario de Activos
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >CENTRO DE RECURSOS</span
-            >
-            <span class="separator">/</span>
-            <span>MONITOREO GLOBAL</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          @if (config.enableCreate) {
-            <ui-button
-              variant="app"
-              size="md"
-              (clicked)="openCreateModal()"
-              icon="plus"
-            >
-              NUEVO PRODUCTO
-            </ui-button>
-          }
-        </div>
-      </header>
+    <div class="inventory-container">
+      <ui-feature-header
+        title="Inventario"
+        subtitle="Monitoreo global de activos y recursos"
+        icon="package"
+        actionLabel="NUEVO PRODUCTO"
+        (actionClicked)="openCreateModal()"
+      ></ui-feature-header>
 
-      <div class="stats-row">
+      <ui-feature-stats>
         <ui-stat-card
           label="Total Equipos"
           [value]="allProducts().length.toString()"
           icon="package"
           [accent]="true"
-        >
-        </ui-stat-card>
+        ></ui-stat-card>
         <ui-stat-card
           label="Stock Crítico"
           [value]="criticalCount().toString()"
           icon="alert-octagon"
-          [trend]="-1"
-        >
-        </ui-stat-card>
+          [trend]="-2"
+        ></ui-stat-card>
         <ui-stat-card
           label="Valoración Flota"
           [value]="formatCurrencyEu(totalValue())"
           icon="bar-chart-3"
-        >
-        </ui-stat-card>
-      </div>
+        ></ui-stat-card>
+        <ui-stat-card
+          label="Sincronización"
+          value="Online"
+          icon="refresh-cw"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="navigation-bar ui-glass-panel">
+      <div class="filters-bar">
         <ui-tabs
           [tabs]="tabs()"
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($any($event))"
+          class="flex-1"
         ></ui-tabs>
 
         <ui-search
-          variant="filled"
+          variant="glass"
           placeholder="BUSCAR EQUIPAMIENTO O SKU..."
           (searchChange)="onSearch($any($event))"
           class="search-bar"
@@ -134,334 +114,147 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-loader
-            message="SINCRONIZANDO INVENTARIO GLOBAL..."
-          ></ui-loader>
+          <ui-loader message="SINCRONIZANDO INVENTARIO GLOBAL..."></ui-loader>
         </div>
       } @else {
-        <ui-card
-          variant="glass"
-          class="table-card"
-          [class.neon-glow]="!pluginStore.highPerformanceMode()"
-        >
-          <ui-table
-            [columns]="columns"
-            [data]="products()"
-            variant="default"
-          >
-            <ng-template #cellTemplate let-product let-key="key">
-              @switch (key) {
-                @case ('name') {
-                  <div class="product-cell">
-                    <div
-                      class="product-icon"
-                      [style.background]="currentTheme().primary + '15'"
-                    >
-                      <lucide-icon
-                        [name]="product.type === 'serialized' ? 'cpu' : 'box'"
-                        [size]="14"
-                        [style.color]="currentTheme().primary"
-                      ></lucide-icon>
-                    </div>
-                    <a
-                      [routerLink]="['/inventory', product.id]"
-                      class="product-link"
-                    >
-                      {{ product.name | uppercase }}
-                    </a>
-                  </div>
-                }
-                @case ('status') {
-                  <ui-badge [variant]="getStatusVariant(product.status)">
-                    {{ getStatusLabel(product.status) | uppercase }}
-                  </ui-badge>
-                }
-                @case ('totalStock') {
-                  <div class="stock-info">
-                    <span class="val font-mono">{{ product.totalStock }}</span>
-                    @if (product.reservedStock > 0) {
-                      <span
-                        class="res text-warning font-mono"
-                        [style.color]="currentTheme().secondary"
-                        >({{ product.reservedStock }} RES.)</span
-                      >
-                    }
-                  </div>
-                }
-                @case ('dailyRate') {
-                  <span class="price-val font-mono">{{
-                    product.dailyRate | currency: 'EUR'
-                  }}</span>
-                  <small class="unit">/ DÍA</small>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-button
-                      variant="ghost"
-                      size="sm"
-                      icon="eye"
-                      [routerLink]="['/inventory', product.id]"
-                    ></ui-button>
-                    @if (config.enableEdit) {
-                      <ui-button
-                        variant="ghost"
-                        size="sm"
-                        icon="pencil"
-                        (clicked)="editProduct(product)"
-                      ></ui-button>
-                    }
-                  </div>
-                }
-                @default {
-                  {{ product[key] }}
-                }
-              }
-            </ng-template>
-          </ui-table>
-
-          <footer
-            class="table-footer"
-            [style.background]="currentTheme().primary + '05'"
-          >
-            <div class="table-info text-uppercase">
-              {{ products().length }} ACTIVOS EN VISTA ACTUAL
+        <ui-feature-grid>
+          @for (product of products(); track product.id) {
+            <ui-feature-card
+              [name]="product.name | uppercase"
+              [subtitle]="product.category | uppercase"
+              [avatarInitials]="getInitials(product.name)"
+              [avatarBackground]="product.type === 'serialized' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)'"
+              [status]="product.status === 'available' ? 'active' : product.status === 'reserved' ? 'warning' : 'danger'"
+              [badgeLabel]="getStatusLabel(product.status) | uppercase"
+              [badgeVariant]="getStatusVariant(product.status)"
+              (cardClicked)="onRowClick(product)"
+              (editClicked)="editProduct(product)"
+              [footerItems]="[
+                { icon: 'layers', label: 'Stock: ' + product.totalStock },
+                { icon: 'euro', label: (product.dailyRate | currency:'EUR') + ' / día' }
+              ]"
+            >
+              <div class="product-meta">
+                 <span class="sku">SKU: {{ product.sku || 'N/A' }}</span>
+              </div>
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon name="box" size="64" class="empty-icon"></lucide-icon>
+              <h3>No hay productos</h3>
+              <p>El inventario está vacío. Comienza registrando tu primer activo.</p>
+              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Registrar equipo</ui-button>
             </div>
-            <ui-pagination
-              [currentPage]="currentPage()"
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-pagination>
-          </footer>
-        </ui-card>
+          }
+        </ui-feature-grid>
+
+        <footer class="pagination-footer">
+           <ui-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          ></ui-pagination>
+        </footer>
       }
     </div>
 
-    <!-- Modals remain for logic but styled with glass variant -->
+    <!-- Modal para creación/edición -->
     <ui-modal
       [isOpen]="isModalOpen()"
-      [title]="
-        editingProduct()
-          ? 'MODIFICACIÓN DE ACTIVO'
-          : 'REGISTRO DE NUEVO RECURSO'
-      "
+      [title]="editingProduct() ? 'MODIFICACIÓN DE ACTIVO' : 'REGISTRO DE NUEVO RECURSO'"
       (closed)="closeModal()"
-      variant="dark"
+      variant="glass"
     >
       <div class="form-grid">
         <div class="form-section">
-          <h3
-            class="section-title text-uppercase"
-            [style.color]="currentTheme().primary"
-          >
-            Identificación Técnica
-          </h3>
-          <ui-input
-            label="Nombre del Producto"
-            [(ngModel)]="formData.name"
-            placeholder="DENOMINACIÓN COMERCIAL O TÉCNICA..."
-            icon="box"
-          ></ui-input>
-
-          <div class="input-row">
-            <ui-input
-              label="Referencia SKU"
-              [(ngModel)]="formData.sku"
-              icon="hash"
-            ></ui-input>
-            <ui-input
-              label="Categoría"
-              [(ngModel)]="formData.category"
-              icon="tag"
-            ></ui-input>
+          <h4 class="section-title">IDENTIFICACIÓN TÉCNICA</h4>
+          <ui-input label="Nombre del Producto" [(ngModel)]="formData.name" placeholder="Denominación..." icon="box"></ui-input>
+          <div class="row">
+            <ui-input label="Referencia SKU" [(ngModel)]="formData.sku" icon="hash"></ui-input>
+            <ui-input label="Categoría" [(ngModel)]="formData.category" icon="tag"></ui-input>
           </div>
         </div>
 
         <div class="form-section">
-          <h3
-            class="section-title text-uppercase"
-            [style.color]="currentTheme().primary"
-          >
-            Stock y tarifación
-          </h3>
-          <div class="input-row">
-            <ui-input
-              label="Unidades en stock"
-              type="number"
-              [placeholder]="'0'"
-              hint="Cantidad inicial de unidades disponibles del producto."
-              [(ngModel)]="formData.totalStock"
-              icon="layers"
-            ></ui-input>
-            <ui-input
-              label="Tarifa diaria (€)"
-              type="number"
-              [placeholder]="'0'"
-              hint="Precio de alquiler por día y unidad."
-              [(ngModel)]="formData.dailyRate"
-              icon="euro"
-            ></ui-input>
+          <h4 class="section-title">STOCK Y TARIFACIÓN</h4>
+          <div class="row">
+            <ui-input label="Unidades" type="number" [(ngModel)]="formData.totalStock" icon="layers"></ui-input>
+            <ui-input label="Tarifa diaria" type="number" [(ngModel)]="formData.dailyRate" icon="euro"></ui-input>
           </div>
         </div>
       </div>
 
-      <div modal-footer class="modal-actions">
-        <ui-button variant="ghost" (clicked)="closeModal()"
-          >CANCELAR</ui-button
-        >
-        <ui-button
-          variant="glass"
-          (clicked)="saveProduct()"
-          [disabled]="!formData.name"
-        >
-          {{ editingProduct() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
+      <div class="modal-actions">
+        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
+        <ui-button variant="solid" (clicked)="saveProduct()" [disabled]="!formData.name" icon="save">
+          {{ editingProduct() ? 'ACTUALIZAR' : 'RESTRIGAR' }}
         </ui-button>
       </div>
     </ui-modal>
   `,
-  styles: [
-    `
-      .page-container {
-        padding: 1.5rem;
-        max-width: 1400px;
-        margin: 0 auto;
-        box-sizing: border-box;
-      }
+  styles: [`
+    .inventory-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
 
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
+    .filters-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.5rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      gap: 2rem;
+    }
 
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
-      }
+    .flex-1 { flex: 1; }
+    .search-bar { width: 350px; }
 
-      .breadcrumb {
-        display: flex;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-      }
+    .loader-container { display: flex; justify-content: center; padding: 5rem; }
 
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
+    .product-meta {
+       margin-top: 0.5rem;
+       font-family: var(--font-mono);
+       font-size: 0.7rem;
+       color: var(--text-muted);
+       letter-spacing: 0.05em;
+    }
 
-      .navigation-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding: 0.25rem 1rem;
-        border-radius: 12px;
-        background: rgba(15, 15, 15, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
+    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
-      .search-bar {
-        width: 320px;
-      }
+    .pagination-footer {
+       margin-top: 3rem;
+       display: flex;
+       justify-content: center;
+    }
 
-      /* Table Luxe Refinement */
-      .table-card {
-        border-radius: 16px;
-        overflow: hidden;
-      }
-      .neon-glow {
-        box-shadow:
-          0 0 40px rgba(0, 0, 0, 0.4),
-          inset 0 0 1px rgba(255, 255, 255, 0.1);
-      }
+    /* Modal Styles */
+    .form-grid { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem 0; }
+    .section-title { font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-muted); opacity: 0.8; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
 
-      .product-cell {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .product-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .product-link {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 0.02em;
-        transition: 0.2s;
-      }
-      .product-link:hover {
-        color: var(--brand);
-        text-shadow: 0 0 10px var(--brand-glow);
-      }
-
-      .table-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1.25rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .form-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-      .section-title {
-        font-size: 0.7rem;
-        font-weight: 900;
-        letter-spacing: 0.15em;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-      .input-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-      }
-
-      @media (max-width: 1024px) {
-        .stats-row {
-          grid-template-columns: 1fr;
-        }
-        .navigation-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-          padding: 1rem;
-        }
-        .search-bar {
-          width: 100%;
-        }
-        .input-row {
-          grid-template-columns: 1fr;
-        }
-      }
-    `,
-  ],
+    @media (max-width: 900px) {
+       .filters-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
+       .search-bar { width: 100%; }
+       .row { grid-template-columns: 1fr; }
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryListComponent
@@ -602,6 +395,18 @@ export class InventoryListComponent
       reservedStock: 0,
     };
     this.isModalOpen.set(true);
+  }
+
+  onRowClick(product: Product) {
+    // Navigate or show details
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
   }
 
   editProduct(product: Product) {

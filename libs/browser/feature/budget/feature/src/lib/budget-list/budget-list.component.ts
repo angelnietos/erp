@@ -1,7 +1,16 @@
 import { Component, inject, OnInit, OnDestroy, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { UiTableComponent, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiStatCardComponent, UiSearchComponent } from '@josanz-erp/shared-ui-kit';
+import {
+  UiButtonComponent,
+  UiSearchComponent,
+  UiBadgeComponent,
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+} from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -15,45 +24,37 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
   imports: [
     CommonModule, 
     RouterModule, 
-    UiTableComponent, 
-    UiCardComponent, 
     UiButtonComponent, 
     UiBadgeComponent, 
     UiStatCardComponent,
     UiSearchComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-main">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'">
-            Gestión Comercial & Presupuestos
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">PIPELINE DE VENTAS</span>
-            <span class="separator">/</span>
-            <span>CENTRO DE OPERACIONES</span>
-          </div>
-        </div>
-        @if (config.enableCreate) {
-          <ui-button variant="app" size="md" routerLink="/budgets/create" icon="plus">
-            NUEVO PRESUPUESTO
-          </ui-button>
-        }
-      </header>
+    <div class="budgets-container">
+      <ui-feature-header
+        title="Presupuestos"
+        subtitle="Gestión comercial y pipeline de ventas"
+        icon="file-text"
+        actionLabel="NUEVO PRESUPUESTO"
+        routerLink="/budgets/create"
+      ></ui-feature-header>
 
-      <div class="stats-row">
+      <ui-feature-stats>
         <ui-stat-card 
           label="Pipeline Total" 
           [value]="formatCurrencyEu(totalPipeline())" 
-          icon="ChartPie" 
+          icon="bar-chart" 
           [accent]="true">
         </ui-stat-card>
         <ui-stat-card 
           label="Cerrados (Mes)" 
           [value]="formatCurrencyEu(totalAccepted())" 
-          icon="check-square" 
+          icon="check-circle" 
           [trend]="8">
         </ui-stat-card>
         <ui-stat-card 
@@ -61,112 +62,97 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
           [value]="pendingCount().toString()" 
           icon="clock">
         </ui-stat-card>
-      </div>
+        <ui-stat-card
+          label="Tasa de Cierre"
+          value="64%"
+          icon="trending-up"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="navigation-bar ui-glass-panel">
-        <div class="nav-spacer"></div>
+      <div class="filters-bar">
         <ui-search 
-          variant="filled"
+          variant="glass"
           placeholder="BUSCAR ID O CLIENTE..." 
           (searchChange)="onSearch($event)"
-          class="search-bar"
+          class="flex-1"
         ></ui-search>
       </div>
 
-      <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-        <ui-table [columns]="columns" [data]="filteredBudgets()" variant="default">
-          <ng-template #cellTemplate let-item let-key="key">
-            @switch (key) {
-              @case ('id') { 
-                <span class="mono-id text-uppercase" [style.color]="currentTheme().primary">
-                  #{{ item.id.slice(0, 8) }}
-                </span> 
-              }
-              @case ('status') { 
-                <ui-badge [variant]="getStatusVariant(item.status)">
-                  {{ item.status | uppercase }}
-                </ui-badge>
-              }
-              @case ('total') { <span class="currency-value">{{ item.total | currency:'EUR' }}</span> }
-              @case ('createdAt') { <span class="text-secondary font-mono">{{ item.createdAt | date:'dd/MM/yyyy' }}</span> }
-              @case ('actions') {
-                <div class="row-actions">
-                  <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]"></ui-button>
-                  @if (item.status === 'DRAFT') {
-                    <ui-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-button>
-                  }
-                  @if (config.enableDownload) {
-                    <ui-button variant="ghost" size="sm" icon="download" class="btn-success-overlay"></ui-button>
-                  }
-                </div>
-              }
-              @default { {{ item[key] }} }
-            }
-          </ng-template>
-        </ui-table>
-        
-        <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
-          <div class="table-info">
-            {{ store.budgets().length }} DOCUMENTOS EN VISTA ACTUAL
+      <ui-feature-grid>
+        @for (item of filteredBudgets(); track item.id) {
+          <ui-feature-card
+            [name]="'# ' + (item.id.slice(0, 8) | uppercase)"
+            [subtitle]="(item.clientId || 'Sin cliente') | uppercase"
+            [avatarInitials]="getInitials(item.id)"
+            [avatarBackground]="getStatusGradient(item.status)"
+            [status]="item.status === 'ACCEPTED' ? 'active' : 'offline'"
+            [badgeLabel]="item.status | uppercase"
+            [badgeVariant]="getStatusVariant(item.status)"
+            (cardClicked)="onRowClick(item)"
+            [routerLink]="['/budgets', item.id]"
+            [footerItems]="[
+              { icon: 'calendar', label: item.createdAt | date:'dd/MM/yyyy' },
+              { icon: 'euro', label: item.total | currency:'EUR' }
+            ]"
+          >
+            <div footer-extra class="card-actions">
+               <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]"></ui-button>
+               @if (item.status === 'DRAFT') {
+                 <ui-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-button>
+               }
+               @if (config.enableDownload) {
+                 <ui-button variant="ghost" size="sm" icon="download" class="text-success"></ui-button>
+               }
+            </div>
+          </ui-feature-card>
+        } @empty {
+          <div class="empty-state">
+            <lucide-icon name="file-text" size="64" class="empty-icon"></lucide-icon>
+            <h3>No hay presupuestos</h3>
+            <p>Comienza creando tu primera cotización para un cliente.</p>
+            <ui-button variant="solid" routerLink="/budgets/create" icon="CirclePlus">Crear presupuesto</ui-button>
           </div>
-        </footer>
-      </ui-card>
+        }
+      </ui-feature-grid>
     </div>
-
   `,
   styles: [`
-    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
-    
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .glow-text { 
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.05em; font-family: var(--font-main);
-    }
-    
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
+    .budgets-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
     }
 
-    .stats-row { 
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; 
+    .filters-bar {
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      display: flex;
     }
 
-    .mono-id { 
-      font-family: var(--font-mono, monospace); font-weight: 900; font-size: 0.75rem; letter-spacing: 0.05em;
+    .flex-1 { flex: 1; }
+
+    .card-actions { display: flex; gap: 0.25rem; }
+    .text-success { color: var(--success) !important; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
     }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
-    .currency-value { color: #fff; font-weight: 700; font-family: var(--font-main); font-size: 0.8rem; }
-    .row-actions { display: flex; gap: 4px; }
-    
-    /* Table Luxe Refinement */
-    .table-card { border-radius: 16px; overflow: hidden; }
-    .neon-glow { box-shadow: 0 0 40px rgba(0, 0, 0, 0.4), inset 0 0 1px rgba(255, 255, 255, 0.1); }
-
-    .table-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .table-info { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; }
-
-    .navigation-bar { 
-      display: flex; justify-content: space-between; align-items: center; 
-      margin-bottom: 1.5rem; padding: 0.5rem 1rem; border-radius: 12px;
-      background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
-    }
-    .search-bar { width: 320px; }
-    .nav-spacer { flex: 1; }
-
-    @media (max-width: 1024px) {
-      .page-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-      .stats-row { grid-template-columns: 1fr; }
-      .search-bar { width: 100%; }
-      .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; padding: 1rem; }
+    @media (max-width: 900px) {
+       .filters-bar { padding: 1rem; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -205,6 +191,24 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
 
   onSearch(term: string) {
     this.masterFilter.search(term);
+  }
+
+  onRowClick(item: Budget) {
+    // Navigate
+  }
+
+  getInitials(id: string): string {
+    return id.slice(0, 2).toUpperCase();
+  }
+
+  getStatusGradient(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'accepted': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'sent': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'rejected': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      case 'draft': return 'linear-gradient(135deg, #6b7280, #374151)';
+      default: return 'linear-gradient(135deg, #f59e0b, #d97706)';
+    }
   }
 
   /** Lógica de filtrado para el MasterFilterService */

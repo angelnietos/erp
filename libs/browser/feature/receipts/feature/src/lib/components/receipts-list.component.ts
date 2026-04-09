@@ -11,12 +11,16 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-angular';
-import {
-  UiCardComponent,
-  UiButtonComponent,
-  UiSelectComponent,
-  UiBadgeComponent,
+import { 
+  UiButtonComponent, 
+  UiSelectComponent, 
+  UiBadgeComponent, 
   UiSearchComponent,
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -36,41 +40,63 @@ interface Receipt {
     CommonModule,
     FormsModule,
     RouterModule,
-    UiCardComponent,
     UiButtonComponent,
     UiSelectComponent,
     UiBadgeComponent,
     UiSearchComponent,
+    UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="receipts-container animate-fade-in">
-      <header class="receipts-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-content">
-          <h1 class="receipts-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Recibos y Pagos
-          </h1>
-          <p class="receipts-subtitle text-friendly">
-            Gestión de pagos pendientes y realizados
-          </p>
-        </div>
-        <div class="header-actions">
-          <ui-button variant="glass" size="md" (clicked)="newReceipt()" icon="plus">
-            Nuevo Recibo
-          </ui-button>
-        </div>
-      </header>
+    <div class="receipts-container">
+      <ui-feature-header
+        title="Recibos"
+        subtitle="Gestión de cobros y conciliación de pagos"
+        icon="wallet"
+        actionLabel="NUECO RECIBO"
+        (actionClicked)="newReceipt()"
+      ></ui-feature-header>
 
-      <div class="navigation-bar ui-glass-panel">
+      <ui-feature-stats>
+        <ui-stat-card 
+          label="Total Cobrado" 
+          [value]="formatCurrencyEu(totalPaidAmount())" 
+          icon="check-circle" 
+          [accent]="true">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Pendiente" 
+          [value]="formatCurrencyEu(totalPendingAmount())" 
+          icon="clock" 
+          [trend]="-5">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Vencidos" 
+          [value]="overdueCount().toString()" 
+          icon="alert-triangle">
+        </ui-stat-card>
+        <ui-stat-card
+          label="Morosidad"
+          value="2.4%"
+          icon="trending-down"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
+
+      <div class="navigation-bar">
         <ui-search 
-          variant="filled"
-          placeholder="BUSCAR RECIBO POR FACTURA O IMPORTE..." 
+          variant="glass"
+          placeholder="BUSCAR POR FACTURA O IMPORTE..." 
           (searchChange)="onSearch($event)"
-          class="flex-1 max-w-md"
+          class="flex-1"
         ></ui-search>
         
         <ui-select
-          label="Estado"
+          label="ESTADO"
           [(ngModel)]="statusFilter"
           name="status"
           [options]="statusOptions"
@@ -78,208 +104,82 @@ interface Receipt {
         />
       </div>
 
-      <ui-card>
-        <div class="receipts-list">
-          <div
-            *ngFor="let receipt of filteredReceipts()"
-            class="receipt-item"
-            [class]="receipt.status.toLowerCase()"
+      <ui-feature-grid>
+        @for (receipt of filteredReceipts(); track receipt.id) {
+          <ui-feature-card
+            [name]="'FACTURA #' + receipt.invoiceId"
+            [subtitle]="(receipt.paymentMethod || 'SIN MÉTODO') | uppercase"
+            [avatarInitials]="getInitials(receipt.invoiceId)"
+            [avatarBackground]="getStatusGradient(receipt.status)"
+            [status]="receipt.status === 'PAID' ? 'active' : 'offline'"
+            [badgeLabel]="getStatusText(receipt.status) | uppercase"
+            [badgeVariant]="getStatusBadgeVariant(receipt.status)"
+            (cardClicked)="goToBilling(receipt)"
+            [footerItems]="[
+              { icon: 'calendar', label: 'Vence: ' + formatDate(receipt.dueDate) },
+              { icon: 'euro', label: receipt.amount | currency:'EUR' }
+            ]"
           >
-            <div class="receipt-icon">
-              <lucide-icon
-                [img]="getStatusIcon(receipt.status)"
-                size="20"
-              ></lucide-icon>
-            </div>
-
-            <div class="receipt-info">
-              <div class="receipt-header">
-                <span class="receipt-id"
-                  >Factura #{{ receipt.invoiceId }}</span
-                >
-                <ui-badge [variant]="getStatusVariant(receipt.status)">
-                  {{ getStatusText(receipt.status) }}
-                </ui-badge>
-              </div>
-              <div class="receipt-details">
-                <span class="receipt-amount"
-                  >€{{ receipt.amount.toFixed(2) }}</span
-                >
-                <span class="receipt-due"
-                  >Vence: {{ formatDate(receipt.dueDate) }}</span
-                >
-              </div>
-              <div class="receipt-meta" *ngIf="receipt.paymentDate">
-                <span class="receipt-paid"
-                  >Pagado: {{ formatDate(receipt.paymentDate) }}</span
-                >
-                <span class="receipt-method" *ngIf="receipt.paymentMethod">
-                  Método: {{ receipt.paymentMethod }}
-                </span>
-              </div>
-            </div>
-
-            <div class="receipt-actions">
-              <ui-button
-                variant="ghost"
-                size="sm"
-                (clicked)="goToBilling(receipt)"
-              >
-                Ver Detalles
-              </ui-button>
-              <ui-button
-                *ngIf="receipt.status === 'PENDING'"
-                variant="success"
-                size="sm"
-                (clicked)="markAsPaid(receipt)"
-              >
-                Marcar Pagado
-              </ui-button>
-            </div>
+             <div footer-extra class="card-actions">
+                <ui-button variant="ghost" size="sm" icon="eye" (click)="$event.stopPropagation(); goToBilling(receipt)"></ui-button>
+                @if (receipt.status === 'PENDING') {
+                   <ui-button variant="ghost" size="sm" icon="check" (click)="$event.stopPropagation(); markAsPaid(receipt)" class="text-success"></ui-button>
+                }
+             </div>
+          </ui-feature-card>
+        } @empty {
+          <div class="empty-state">
+            <lucide-icon name="wallet" size="64" class="empty-icon"></lucide-icon>
+            <h3>No hay recibos</h3>
+            <p>Todo está al día o no hay documentos de cobro registrados.</p>
+            <ui-button variant="solid" (clicked)="newReceipt()" icon="CirclePlus">Crear recibo</ui-button>
           </div>
-        </div>
-      </ui-card>
+        }
+      </ui-feature-grid>
     </div>
   `,
-  styles: [
-    `
-      .receipts-container {
-        padding: 1.5rem;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+  styles: [`
+    .receipts-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
 
-      .receipts-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-      }
+    .navigation-bar {
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.5rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
 
-      .receipts-title {
-        margin: 0;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #111827;
-      }
+    .flex-1 { flex: 1; }
+    .status-select { width: 250px; }
 
-      .receipts-subtitle {
-        margin: 0.5rem 0 0 0;
-        color: var(--text-secondary);
-        font-size: 1.125rem;
-      }
+    .card-actions { display: flex; gap: 0.25rem; }
+    .text-success { color: var(--success) !important; }
 
-      .navigation-bar { 
-        display: flex; justify-content: space-between; align-items: center; 
-        margin-bottom: 1.5rem; padding: 0.25rem 1rem; border-radius: 12px;
-        background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05); gap: 1rem;
-      }
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
+    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
-      .flex-1 { flex: 1; }
-      .max-w-md { max-width: 28rem; }
-      .status-select { width: 200px; }
-
-      .glow-text { 
-        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-        letter-spacing: 0.05em; font-family: var(--font-main);
-      }
-      
-      .text-uppercase { text-transform: uppercase; }
-
-      .receipts-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .filters-card {
-        padding: 1.5rem;
-      }
-
-      .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-      }
-
-      .receipts-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .receipt-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1.5rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        background: white;
-        transition: all 0.2s;
-      }
-
-      .receipt-item.pending {
-        border-left: 4px solid #f59e0b;
-      }
-
-      .receipt-item.paid {
-        border-left: 4px solid #10b981;
-        background: #f0fdf4;
-      }
-
-      .receipt-item.overdue {
-        border-left: 4px solid #ef4444;
-        background: #fef2f2;
-      }
-
-      .receipt-item.cancelled {
-        border-left: 4px solid #6b7280;
-        background: #f9fafb;
-        opacity: 0.7;
-      }
-
-      .receipt-icon {
-        padding: 0.75rem;
-        background: #f3f4f6;
-        border-radius: 0.5rem;
-        color: #374151;
-        flex-shrink: 0;
-      }
-
-      .receipt-info {
-        flex: 1;
-      }
-
-      .receipt-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-      }
-
-      .receipt-id {
-        font-weight: 600;
-        color: #111827;
-      }
-
-      .receipt-details {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .receipt-amount {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #111827;
-      }
-
-      .receipt-due {
-        color: #6b7280;
-      }
+    @media (max-width: 900px) {
+       .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
+       .status-select { width: 100%; }
+    }
+  `],
 
       .receipt-meta {
         display: flex;
@@ -341,6 +241,43 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
     { label: 'Vencido', value: 'OVERDUE' },
     { label: 'Cancelado', value: 'CANCELLED' },
   ];
+
+  totalPaidAmount = computed(() => 
+    this.receipts().filter(r => r.status === 'PAID').reduce((acc, r) => acc + r.amount, 0)
+  );
+  totalPendingAmount = computed(() => 
+    this.receipts().filter(r => r.status === 'PENDING' || r.status === 'OVERDUE').reduce((acc, r) => acc + r.amount, 0)
+  );
+  overdueCount = computed(() => 
+    this.receipts().filter(r => r.status === 'OVERDUE').length
+  );
+
+  formatCurrencyEu(amount: number): string {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
+  }
+
+  getInitials(id: string): string {
+    return id.slice(0, 2).toUpperCase();
+  }
+
+  getStatusGradient(status: string): string {
+    switch (status) {
+      case 'PAID': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'PENDING': return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      case 'OVERDUE': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      case 'CANCELLED': return 'linear-gradient(135deg, #6b7280, #374151)';
+      default: return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+    }
+  }
+
+  getStatusBadgeVariant(status: string): any {
+    switch (status) {
+      case 'PAID': return 'success';
+      case 'PENDING': return 'warning';
+      case 'OVERDUE': return 'error';
+      default: return 'default';
+    }
+  }
 
   receipts = signal<Receipt[]>([
     {

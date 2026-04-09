@@ -1,25 +1,17 @@
-import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
-import {
-  UiTableComponent,
-  UiButtonComponent,
-  UiSearchComponent,
-  UiPaginationComponent,
-  UiBadgeComponent,
-  UiLoaderComponent,
-  UiModalComponent,
-  UiCardComponent,
-  UiInputComponent,
-  UiTextareaComponent,
+import { 
+  UiButtonComponent, 
+  UiSearchComponent, 
+  UiBadgeComponent, 
+  UiLoaderComponent, 
+  UiModalComponent, 
+  UiInputComponent, 
+  UiTextareaComponent, 
   UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
-import { Observable, of } from 'rxjs';
-import { DeliveryNote, DeliveryFacade } from '@josanz-erp/delivery-data-access';
-import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 
 @Component({
   selector: 'lib-delivery-list',
@@ -28,42 +20,31 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
     CommonModule, 
     RouterModule, 
     FormsModule,
-    UiTableComponent, 
     UiButtonComponent, 
     UiSearchComponent, 
-    UiPaginationComponent, 
     UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiCardComponent,
     UiInputComponent,
     UiTextareaComponent,
     UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Logística / Albaranes
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">GESTIÓN OPERATIVA</span>
-            <span class="separator">/</span>
-            <span>MANIFIESTOS DE CARGA</span>
-          </div>
-        </div>
-        <div class="header-actions">
-           @if (config.enableCreate) {
-             <ui-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
-               NUEVO ALBARÁN
-             </ui-button>
-           }
-        </div>
-      </header>
+    <div class="delivery-container">
+      <ui-feature-header
+        title="Albaranes"
+        subtitle="Gestión de manifiestos logísticos y manifiestos de carga"
+        icon="truck"
+        actionLabel="NUEVO ALBARÁN"
+        (actionClicked)="openCreateModal()"
+      ></ui-feature-header>
 
-      <div class="stats-row">
+      <ui-feature-stats>
         <ui-stat-card 
           label="Salidas Hoy" 
           [value]="todayCount().toString()" 
@@ -77,78 +58,72 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
           [trend]="2">
         </ui-stat-card>
         <ui-stat-card 
-          label="Retornos Operativos" 
+          label="Retornos Realizados" 
           [value]="returnCount().toString()" 
           icon="rotate-ccw">
         </ui-stat-card>
-      </div>
+        <ui-stat-card
+          label="Entregas a Tiempo"
+          value="94%"
+          icon="timer"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="navigation-bar ui-glass-panel">
+      <div class="navigation-bar">
         <ui-search 
-          variant="filled"
+          variant="glass"
           placeholder="BUSCAR Nº ALBARÁN, CLIENTE O REFERENCIA..." 
           (searchChange)="onSearch($event)"
-          class="search-bar"
+          class="flex-1"
         ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-loader message="SINCRONIZANDO MANIFIESTOS LOGÍSTICOS..."></ui-loader>
+          <ui-loader message="SINCRONIZANDO MANIFIESTOS..."></ui-loader>
         </div>
       } @else {
-        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-table [columns]="columns" [data]="filteredDeliveryNotes()" variant="default">
-            <ng-template #cellTemplate let-delivery let-key="key">
-              @switch (key) {
-                @case ('id') {
-                  <a [routerLink]="['/delivery', delivery.id]" class="delivery-link" [style.color]="currentTheme().primary">
-                    #{{ delivery.id.slice(0, 8) | uppercase }}
-                  </a>
-                }
-                @case ('status') {
-                  <ui-badge [variant]="getStatusVariant(delivery.status)">
-                    {{ getStatusLabel(delivery.status) | uppercase }}
-                  </ui-badge>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]"></ui-button>
-                    @if (delivery.status === 'pending' && config.enableSign) {
-                       <ui-button variant="ghost" size="sm" icon="pen-tool" (clicked)="signDelivery(delivery)" [style.color]="currentTheme().success"></ui-button>
-                    }
-                    @if (delivery.status === 'signed') {
-                       <ui-button variant="ghost" size="sm" icon="check-circle" (clicked)="completeDelivery(delivery)" [style.color]="currentTheme().info"></ui-button>
-                    }
-                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editDelivery(delivery)"></ui-button>
-                  </div>
-                }
-                @default {
-                   {{ delivery[key] }}
-                }
-              }
-            </ng-template>
-          </ui-table>
-
-          <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
-            <div class="table-info uppercase">
-              {{ filteredDeliveryNotes().length }} ALBARANES ENCONTRADOS
+        <ui-feature-grid>
+          @for (delivery of filteredDeliveryNotes(); track delivery.id) {
+            <ui-feature-card
+              [name]="delivery.clientName || 'Sin cliente'"
+              [subtitle]="'Ref: ' + delivery.budgetId"
+              [avatarInitials]="getInitials(delivery.budgetId)"
+              [avatarBackground]="getStatusGradient(delivery.status)"
+              [status]="(delivery.status === 'signed' || delivery.status === 'completed') ? 'active' : 'offline'"
+              [badgeLabel]="getStatusLabel(delivery.status) | uppercase"
+              [badgeVariant]="getStatusVariant(delivery.status)"
+              (cardClicked)="onRowClick(delivery)"
+              [footerItems]="[
+                { icon: 'calendar', label: delivery.deliveryDate },
+                { icon: 'box', label: delivery.itemsCount + ' bultos' }
+              ]"
+            >
+               <div footer-extra class="card-actions">
+                  <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]"></ui-button>
+                  @if (delivery.status === 'pending') {
+                    <ui-button variant="ghost" size="sm" icon="pen-tool" (click)="$event.stopPropagation(); signDelivery(delivery)" class="text-success"></ui-button>
+                  }
+                  <ui-button variant="ghost" size="sm" icon="pencil" (click)="$event.stopPropagation(); editDelivery(delivery)"></ui-button>
+               </div>
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon name="truck" size="64" class="empty-icon"></lucide-icon>
+              <h3>Sin albaranes</h3>
+              <p>No hay registros logísticos que coincidan con la búsqueda.</p>
+              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Crear albarán</ui-button>
             </div>
-            <ui-pagination 
-              [currentPage]="currentPage()" 
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-pagination>
-          </footer>
-        </ui-card>
-      }
+          }
+        </ui-feature-grid>
+      </div>
     </div>
 
     <!-- Create/Edit Modal -->
     <ui-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingDelivery() ? 'MODIFICACIÓN DE MANIFIESTO' : 'REGISTRO DE NUEVA ENTREGA'"
+      [title]="editingDelivery() ? 'MODIFICACIÓN DE ALBARÁN' : 'NUEVO ALBARÁN'"
       (closed)="closeModal()"
       variant="dark"
     >
@@ -161,75 +136,56 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
          <ui-textarea label="Notas de Operación" [(ngModel)]="formData.notes" [rows]="3" placeholder="OBSERVACIONES..." variant="filled" class="full-width"></ui-textarea>
       </div>
       
-      <div modal-footer class="modal-footer">
+      <div modal-footer class="modal-footer-box">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
         <ui-button variant="glass" (clicked)="saveDelivery()" [disabled]="!formData.budgetId || !formData.clientName">
-           {{ editingDelivery() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR MANIFIESTO' }}
+           {{ editingDelivery() ? 'ACTUALIZAR' : 'CONFIRMAR' }}
         </ui-button>
       </div>
     </ui-modal>
-
   `,
   styles: [`
-    .page-container {
-      position: relative;
-      padding: 1.5rem;
+    .delivery-container {
       max-width: 1400px;
       margin: 0 auto;
-      min-height: calc(100vh - 80px);
-      box-sizing: border-box;
-    }
-    
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .glow-text { 
-      font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.04em; font-family: var(--font-display);
-    }
-    
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.75rem; font-weight: 800;
-      letter-spacing: 0.15em; color: var(--text-muted); margin-top: 0.5rem;
-      text-transform: uppercase;
-    }
-    
-    .stats-row { 
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; 
+      padding: 2rem;
     }
 
-    .navigation-bar { 
-      display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; border-radius: 12px;
-      background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
+    .navigation-bar {
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      display: flex;
     }
 
-    .search-bar { flex: 1; width: 100%; }
-    
-    .delivery-link { 
-      text-decoration: none; font-weight: 800; font-family: var(--font-mono); font-size: 0.75rem;
-      letter-spacing: 0.05em; transition: 0.2s;
-    }
-    .delivery-link:hover { color: #fff !important; text-shadow: 0 0 10px var(--brand-glow); }
-    
-    .row-actions { display: flex; gap: 4px; }
-    
-    .table-card { border-radius: 16px; overflow: hidden; }
-    .neon-glow { box-shadow: 0 0 40px rgba(0, 0, 0, 0.4), inset 0 0 1px rgba(255, 255, 255, 0.1); }
+    .flex-1 { flex: 1; }
+    .card-actions { display: flex; gap: 0.25rem; }
+    .text-success { color: var(--success) !important; }
 
-    .table-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.05);
-    }
+    .loader-container { display: flex; justify-content: center; padding: 5rem; }
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1rem 0; }
     .full-width { grid-column: 1 / -1; }
-    .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
+    .modal-footer-box { display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; }
 
-    @media (max-width: 1024px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
+    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+
+    @media (max-width: 900px) {
+       .navigation-bar { padding: 1rem; }
+       .form-grid { grid-template-columns: 1fr; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -242,7 +198,23 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
   private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
-  columns = this.config.defaultColumns;
+
+  onRowClick(delivery: DeliveryNote) {
+    // Navigate
+  }
+
+  getInitials(id: string): string {
+    return id.slice(0, 2).toUpperCase();
+  }
+
+  getStatusGradient(status: string): string {
+    switch (status) {
+      case 'signed': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'completed': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'pending': return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+    }
+  }
 
   deliveryNotes = this.facade.deliveryNotes;
   isLoading = this.facade.isLoading;

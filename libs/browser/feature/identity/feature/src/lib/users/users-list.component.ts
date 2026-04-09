@@ -1,7 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
-import { UiButtonComponent, UiCardComponent, UiSearchComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
+import { 
+  UiButtonComponent, 
+  UiSearchComponent, 
+  UiLoaderComponent,
+  UiBadgeComponent,
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+} from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
 import { Observable, of } from 'rxjs';
@@ -13,297 +20,138 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
   imports: [
     CommonModule,
     LucideAngularModule,
-    UiCardComponent,
     UiSearchComponent,
     UiLoaderComponent,
     UiButtonComponent,
+    UiBadgeComponent,
+    UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
   ],
   template: `
-    <div class="page-container animate-slide-up">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-main">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Directorio de Usuarios
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">GESTIÓN DE ACCESOS</span>
-            <span class="separator">/</span>
-            <span>IDENTIDAD Y ROLES</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          <ui-button variant="glass" size="md" icon="user-plus">
-            NUEVO USUARIO
-          </ui-button>
-        </div>
-      </header>
+    <div class="users-container">
+      <ui-feature-header
+        title="Usuarios"
+        subtitle="Gestión de identidades y control de acceso"
+        icon="users"
+        actionLabel="NUEVO USUARIO"
+      ></ui-feature-header>
 
-      <div class="navigation-bar ui-glass-panel">
+      <ui-feature-stats>
+        <ui-stat-card 
+          label="Total Usuarios" 
+          [value]="users().length.toString()" 
+          icon="user-group" 
+          [accent]="true">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Activos Ahora" 
+          [value]="activeUsersCount().toString()" 
+          icon="zap" 
+          [trend]="2">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Roles Definidos" 
+          [value]="rolesCount().toString()" 
+          icon="shield">
+        </ui-stat-card>
+        <ui-stat-card
+          label="Seguridad"
+          value="A+"
+          icon="lock"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
+
+      <div class="navigation-bar">
         <ui-search 
-          variant="filled"
-          placeholder="BUSCAR USUARIO POR NOMBRE, EMAIL O ROL..." 
+          variant="glass"
+          placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..." 
           (searchChange)="onSearch($event)"
-          class="flex-1 max-w-md"
+          class="flex-1"
         ></ui-search>
       </div>
 
-      <ui-card variant="glass" class="users-card">
-        <div class="users-list">
-          <div class="users-header">
-            <h3>Usuarios del Sistema</h3>
-            <span class="users-count"
-              >{{ filteredUsers().length }} usuarios</span
+      @if (isLoading()) {
+        <div class="loader-container">
+          <ui-loader message="SINCRONIZANDO IDENTIDADES..."></ui-loader>
+        </div>
+      } @else {
+        <ui-feature-grid>
+          @for (user of filteredUsers(); track user.id) {
+            <ui-feature-card
+              [name]="(user.firstName || '') + ' ' + (user.lastName || '')"
+              [subtitle]="user.email"
+              [avatarInitials]="getInitials(user.firstName, user.lastName)"
+              [avatarBackground]="getStatusGradient(user.isActive)"
+              [status]="user.isActive ? 'active' : 'offline'"
+              [badgeLabel]="user.roles[0] || 'SIN ROL'"
+              [badgeVariant]="user.isActive ? 'primary' : 'default'"
+              (cardClicked)="onRowClick(user)"
+              [footerItems]="[
+                { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
+                { icon: 'key', label: user.roles.length + ' permisos' }
+              ]"
             >
-          </div>
-
-          @if (isLoading()) {
-            <div class="loading-state">
-              <ui-loader message="SINCRONIZANDO IDENTIDADES..."></ui-loader>
-            </div>
-          } @else {
-            <div class="users-table">
-              <div class="table-header">
-                <div class="col-email">Email</div>
-                <div class="col-name">Nombre</div>
-                <div class="col-category">Categoría</div>
-                <div class="col-roles">Roles</div>
-                <div class="col-status">Estado</div>
-                <div class="col-actions">Acciones</div>
-              </div>
-
-              <div class="table-body">
-                @for (user of filteredUsers(); track user.id) {
-                  <div class="table-row">
-                    <div class="col-email">{{ user.email }}</div>
-                    <div class="col-name">
-                      {{ user.firstName || '' }} {{ user.lastName || '' }}
-                    </div>
-                    <div class="col-category">{{ user.category || '-' }}</div>
-                    <div class="col-roles">
-                      @for (role of user.roles; track role) {
-                        <span class="role-badge" [style.background]="currentTheme().primary">{{ role }}</span>
-                      }
-                    </div>
-                    <div class="col-status">
-                      <span
-                        class="status-badge"
-                        [class.active]="user.isActive"
-                        [class.inactive]="!user.isActive"
-                      >
-                        {{ user.isActive ? 'Activo' : 'Inactivo' }}
-                      </span>
-                    </div>
-                    <div class="col-actions">
-                      <ui-button variant="ghost" size="sm" icon="pencil">Editar</ui-button>
-                    </div>
-                  </div>
-                }
-              </div>
+               <div footer-extra class="card-actions">
+                  <ui-button variant="ghost" size="sm" icon="pencil"></ui-button>
+                  <ui-button variant="ghost" size="sm" icon="shield-alert" class="text-warning"></ui-button>
+               </div>
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+              <h3>No hay usuarios</h3>
+              <p>El directorio está vacío. Comienza invitando a un nuevo colaborador.</p>
+              <ui-button variant="solid" icon="UserPlus">Invitar usuario</ui-button>
             </div>
           }
-        </div>
-      </ui-card>
+        </ui-feature-grid>
+      }
     </div>
   `,
-  styles: [
-    `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
-      }
+  styles: [`
+    .users-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
 
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.85rem;
-        border-bottom: 1px solid var(--border-soft);
-      }
+    .navigation-bar {
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+    }
 
-      .page-title {
-        font-size: 1.35rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0 0 0.25rem 0;
-        letter-spacing: -0.02em;
-        font-family: var(--font-main);
-        line-height: 1.15;
-      }
+    .flex-1 { flex: 1; }
 
-      .breadcrumb {
-        display: flex;
-        gap: 6px;
-        font-size: 0.55rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-      }
-      .breadcrumb .active {
-        color: var(--brand);
-      }
-      .breadcrumb .separator {
-        opacity: 0.3;
-      }
+    .loader-container { display: flex; justify-content: center; padding: 5rem; }
 
-      .navigation-bar { 
-        display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; border-radius: 12px;
-        background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
-      }
+    .card-actions { display: flex; gap: 0.25rem; }
+    .text-warning { color: var(--warning) !important; }
 
-      .flex-1 { flex: 1; }
-      .max-w-md { max-width: 28rem; }
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
+    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
-      .glow-text { 
-        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-        letter-spacing: 0.05em; font-family: var(--font-main);
-      }
-
-      .users-card {
-        padding: 1.5rem;
-      }
-
-      .users-list {
-        width: 100%;
-      }
-
-      .users-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      .users-header h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-      }
-
-      .users-count {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        font-weight: 500;
-      }
-
-      .users-table {
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        overflow: hidden;
-        background: var(--surface);
-      }
-
-      .table-header {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr 1fr;
-        gap: 1rem;
-        padding: 1rem 1.5rem;
-        background: var(--surface-hover);
-        border-bottom: 1px solid var(--border-soft);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .table-body {
-        max-height: 600px;
-        overflow-y: auto;
-      }
-
-      .table-row {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr 1fr;
-        gap: 1rem;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-subtle);
-        align-items: center;
-        transition: background-color 0.2s ease;
-      }
-
-      .table-row:hover {
-        background: var(--surface-hover);
-      }
-
-      .col-email {
-        font-weight: 500;
-        color: var(--text-primary);
-      }
-
-      .col-name {
-        color: var(--text-primary);
-      }
-
-      .col-category {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-      }
-
-      .col-roles {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-      }
-
-      .role-badge {
-        background: var(--brand);
-        color: white;
-        padding: 0.125rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-
-      .col-status .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 16px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .status-badge.active {
-        background: var(--success);
-        color: white;
-      }
-
-      .status-badge.inactive {
-        background: var(--error);
-        color: white;
-      }
-
-      .col-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .loading-state {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 3rem;
-        color: var(--text-muted);
-      }
-
-      .animate-spin {
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    `,
-  ],
+    @media (max-width: 900px) {
+       .navigation-bar { padding: 1rem; }
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersListComponent implements OnInit, OnDestroy, FilterableService<User> {
@@ -314,6 +162,10 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
   isLoading = signal(true);
+
+  activeUsersCount = computed(() => this.users().filter(u => u.isActive).length);
+  rolesCount = computed(() => new Set(this.users().flatMap(u => u.roles)).size);
+
   filteredUsers = computed(() => {
     const list = this.users();
     const t = this.masterFilter.query().trim().toLowerCase();
@@ -325,6 +177,20 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
       u.roles.some(r => r.toLowerCase().includes(t))
     );
   });
+
+  onRowClick(user: User) {
+    // Navigate
+  }
+
+  getInitials(first: string | undefined, last: string | undefined): string {
+    return ((first?.charAt(0) || '') + (last?.charAt(0) || '')).toUpperCase() || 'U';
+  }
+
+  getStatusGradient(isActive: boolean): string {
+    return isActive 
+      ? 'linear-gradient(135deg, #10b981, #059669)' 
+      : 'linear-gradient(135deg, #6b7280, #374151)';
+  }
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
