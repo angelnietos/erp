@@ -102,7 +102,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-color-secondary { --btn-accent: #334155; --btn-text: #fff; }
     .btn-color-info { --btn-accent: var(--info, #3b82f6); --btn-text: #fff; }
     .btn-color-app { --btn-accent: var(--brand, #e60012); --btn-text: #fff; }
-    .btn-color-default { --btn-accent: rgba(255, 255, 255, 0.1); --btn-text: #fff; }
+    .btn-color-default { --btn-accent: rgba(255, 255, 255, 0.18); --btn-text: #fff; }
 
     /* SHAPES */
     .btn-shape-solid, .btn-shape-auto {

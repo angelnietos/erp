@@ -1302,19 +1302,25 @@ interface PluginDescriptor {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 1rem 1.25rem;
-        border-radius: 16px;
+        padding: 0.85rem 1.25rem;
+        border-radius: 12px;
         color: var(--text-muted);
-        font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 0.82rem;
         font-weight: 600;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-bottom: 0.25rem;
-        border: 1px solid transparent;
+        margin-bottom: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
       }
 
       .nav-item:hover {
         color: #fff;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
       }
 
       .nav-item.active {
