@@ -6,7 +6,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiLoaderComponent,
@@ -47,7 +47,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             </p>
           </div>
           <div class="ns-header-actions">
-            <ui-button variant="solid" size="sm" icon="edit">Editar</ui-button>
+            <ui-button variant="solid" size="sm" icon="edit" (click)="onEdit()">Editar</ui-button>
           </div>
         </div>
 
@@ -515,6 +515,7 @@ export class ClientsDetailComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly clientService = inject(ClientService);
 
   currentTheme = this.themeService.currentThemeData;
@@ -528,6 +529,11 @@ export class ClientsDetailComponent implements OnInit {
     if (id) {
       this.loadClient(id);
     }
+  }
+
+  onEdit() {
+    const id = this.client()?.id;
+    if (id) this.router.navigate(['/clients', id, 'edit']);
   }
 
   loadClient(id: string) {
