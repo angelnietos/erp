@@ -384,6 +384,7 @@ interface PluginDescriptor {
                             { value: 'tri', label: 'Triangular' },
                             { value: 'mushroom-cap', label: 'Seta (Sombrero)' },
                             { value: 'mushroom-full', label: 'Seta Completa' },
+                            { value: 'bonsai', label: 'Bonsai Zen' },
                           ]"
                           [ngModel]="bot.bodyShape"
                           (ngModelChange)="
@@ -784,6 +785,7 @@ interface PluginDescriptor {
                                 value: 'mushroom-full',
                                 label: 'Seta completa',
                               },
+                              { value: 'bonsai', label: 'Bonsai Zen' },
                             ]"
                             [ngModel]="pal.bodyShape"
                             (ngModelChange)="
