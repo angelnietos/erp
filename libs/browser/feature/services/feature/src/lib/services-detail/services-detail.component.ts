@@ -10,6 +10,7 @@ import {
   UiSelectComponent,
   UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { ToastService } from '@josanz-erp/shared-data-access';
 
 interface ServiceForm {
   name: string;
@@ -147,6 +148,7 @@ interface ServiceForm {
 export class ServicesDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   isNew = false;
   form: ServiceForm = {
@@ -168,10 +170,9 @@ export class ServicesDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.isNew = id === 'new';
-    if (!this.isNew) {
-      // Load service data
-      this.loadService(id!);
+    this.isNew = id === 'new' || !id;
+    if (!this.isNew && id) {
+      this.loadService(id);
     }
   }
 
@@ -180,15 +181,29 @@ export class ServicesDetailComponent implements OnInit {
   }
 
   onSave() {
-    // Implement save logic
-    console.log('Save service:', this.form);
+    const name = this.form.name?.trim();
+    if (!name) {
+      this.toast.show('El nombre del servicio es obligatorio', 'error');
+      return;
+    }
+    if (!this.form.type) {
+      this.toast.show('Selecciona un tipo de servicio', 'error');
+      return;
+    }
+    if (this.form.basePrice == null || this.form.basePrice < 0) {
+      this.toast.show('Indica un precio base válido (≥ 0)', 'error');
+      return;
+    }
+    this.toast.show(
+      this.isNew ? 'Servicio creado correctamente' : 'Servicio actualizado correctamente',
+      'success',
+    );
     this.goBack();
   }
 
   private loadService(id: string) {
-    // Mock data for now
     this.form = {
-      name: 'Servicio de Streaming Básico',
+      name: `Servicio ${id}`,
       description: 'Transmisión en vivo básica',
       type: 'STREAMING',
       basePrice: 500,

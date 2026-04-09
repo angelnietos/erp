@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
@@ -38,8 +38,8 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-button variant="glass" size="md" icon="edit">EDITAR ACTIVO</ui-button>
-            <ui-button variant="primary" size="md" icon="printer">ETIQUETA QR</ui-button>
+            <ui-button variant="glass" size="md" icon="edit" (click)="onEdit()">EDITAR ACTIVO</ui-button>
+            <ui-button variant="primary" size="md" icon="printer" (click)="onPrintQr()">ETIQUETA QR</ui-button>
           </div>
         </header>
 
@@ -141,6 +141,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 })
 export class InventoryDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly facade = inject(InventoryFacade);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
@@ -159,6 +160,27 @@ export class InventoryDetailComponent implements OnInit {
          this.isLoading.set(false);
        }, 500);
     }
+  }
+
+  onEdit() {
+    const id = this.product()?.id;
+    if (id) this.router.navigate(['/inventory', id, 'edit']);
+  }
+
+  onPrintQr() {
+    const p = this.product();
+    if (!p) return;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`
+      <html><head><title>QR ${p.sku}</title>
+      <style>body{font-family:monospace;text-align:center;padding:2rem}
+      .code{font-size:2rem;font-weight:bold;border:3px solid #000;padding:1rem;display:inline-block;margin:1rem}
+      </style></head><body>
+      <h2>${p.name}</h2><div class="code">[QR] ${p.sku}</div>
+      <p>SKU: ${p.sku} | Stock: ${p.totalStock} | Precio: ${p.dailyRate}€/día</p>
+      <script>window.print()</scr` + `ipt></body></html>`);
+    win.document.close();
   }
 
   formatCurrencyEu(value: number): string {

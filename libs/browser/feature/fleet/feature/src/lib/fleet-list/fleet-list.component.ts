@@ -17,7 +17,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService, ToastService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
@@ -251,6 +251,7 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   private readonly vehicleService = inject(VehicleService);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -366,7 +367,8 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   onDuplicate(vehicle: Vehicle) {
-    const { id, ...rest } = vehicle;
+    const { id: _omitId, ...rest } = vehicle;
+    void _omitId;
     this.vehicleService.createVehicle({
       ...rest,
       plate: `${vehicle.plate}-C`
@@ -378,17 +380,19 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   confirmDelete(vehicle: Vehicle) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el vehículo ${vehicle.plate}?`)) {
-      if ((this.vehicleService as any).deleteVehicle) {
-         (this.vehicleService as any).deleteVehicle(vehicle.id).subscribe({
-           next: () => {
-             this.vehicles.update(list => list.filter(v => v.id !== vehicle.id));
-           }
-         });
-      } else {
-         console.warn('deleteVehicle no está implementado en VehicleService');
-      }
+    if (!confirm(`¿Estás seguro de que deseas eliminar el vehículo ${vehicle.plate}?`)) {
+      return;
     }
+    this.vehicleService.deleteVehicle(vehicle.id).subscribe({
+      next: () => {
+        this.vehicles.update((list) => list.filter((v) => v.id !== vehicle.id));
+        this.updateTabBadges(this.vehicles());
+        this.toast.show(`Unidad ${vehicle.plate} eliminada`, 'success');
+      },
+      error: () => {
+        this.toast.show('No se pudo eliminar la unidad. Inténtalo de nuevo.', 'error');
+      },
+    });
   }
 
   closeModal() { this.isModalOpen.set(false); this.editingVehicle.set(null); }

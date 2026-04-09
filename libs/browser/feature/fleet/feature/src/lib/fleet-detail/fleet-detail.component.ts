@@ -6,7 +6,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
@@ -66,12 +66,8 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
             </div>
           </div>
           <div class="header-actions">
-            <ui-button variant="glass" size="md" icon="wrench"
-              >MANTENIMIENTO</ui-button
-            >
-            <ui-button variant="primary" size="md" icon="map-pin"
-              >RUTAS ACTIVAS</ui-button
-            >
+            <ui-button variant="glass" size="md" icon="wrench" (click)="onMaintenance()">MANTENIMIENTO</ui-button>
+            <ui-button variant="primary" size="md" icon="map-pin" (click)="onActiveRoutes()">RUTAS ACTIVAS</ui-button>
           </div>
         </header>
 
@@ -150,14 +146,14 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
 
             <ui-card variant="glass" title="Documentación Digital">
               <div class="doc-list">
-                <div class="doc-item" (click)="downloadTechnicalSheet()">
+                <button type="button" class="doc-item" (click)="downloadTechnicalSheet()">
                   <lucide-icon name="file-text" size="16"></lucide-icon>
                   <span>FICHA TÉCNICA.PDF</span>
-                </div>
-                <div class="doc-item" (click)="downloadInsurancePolicy()">
+                </button>
+                <button type="button" class="doc-item" (click)="downloadInsurancePolicy()">
                   <lucide-icon name="shield-check" size="16"></lucide-icon>
                   <span>PÓLIZA SEGURO.PDF</span>
-                </div>
+                </button>
               </div>
             </ui-card>
           </div>
@@ -308,16 +304,20 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
         display: flex;
         align-items: center;
         gap: 10px;
+        width: 100%;
+        margin: 0;
         padding: 12px;
         background: rgba(255, 255, 255, 0.02);
         border-radius: 8px;
         border: 1px solid rgba(255, 255, 255, 0.05);
+        font: inherit;
         font-size: 0.65rem;
         font-weight: 700;
         color: var(--text-secondary);
         cursor: pointer;
         transition: all 0.3s;
         user-select: none;
+        text-align: left;
       }
       .doc-item:hover {
         background: rgba(255, 255, 255, 0.08);
@@ -448,6 +448,7 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
 })
 export class FleetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly service = inject(VehicleService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
@@ -468,6 +469,15 @@ export class FleetDetailComponent implements OnInit {
         });
       }, 500);
     }
+  }
+
+  onMaintenance() {
+    const id = this.vehicle()?.id;
+    if (id) this.router.navigate(['/fleet', id, 'edit']);
+  }
+
+  onActiveRoutes() {
+    this.router.navigate(['/fleet'], { queryParams: { filter: 'in_use' } });
   }
 
   getStatusLabel(status: string | undefined): string {

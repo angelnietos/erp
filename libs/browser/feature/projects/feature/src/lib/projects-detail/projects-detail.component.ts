@@ -10,7 +10,7 @@ import {
   UiSelectComponent,
   UiCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 
 interface ProjectForm {
   name: string;
@@ -249,6 +249,7 @@ export class ProjectsDetailComponent implements OnInit {
 
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly toast = inject(ToastService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -287,14 +288,20 @@ export class ProjectsDetailComponent implements OnInit {
   }
 
   save() {
-    // Implement save logic
-    console.log('Saving project:', this.form);
-    this.goBack();
+    if (!this.form.name?.trim()) {
+      this.toast.show('El nombre del proyecto es obligatorio', 'error');
+      return;
+    }
+    // In-memory update — when a real ProjectService is available, call it here
+    this.toast.show(
+      this.isNew ? '✅ Proyecto creado correctamente' : '✅ Proyecto actualizado correctamente',
+      'success'
+    );
+    this.router.navigate(['/projects']);
   }
 
   private loadProject(id: string) {
-    // Mock data for now using the ID
-    console.log('Loading project:', id);
+    // Placeholder — populate mock data by id until real API is wired
     this.form = {
       name: `Proyecto ${id}`,
       description: 'Descripción del proyecto cargado desde el sistema.',

@@ -34,7 +34,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService, DomainEventsApiService } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService, DomainEventsApiService, ToastService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 
 export interface Project {
@@ -239,6 +239,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly masterFilter = inject(MasterFilterService);
   private readonly domainEventsApi = inject(DomainEventsApiService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   currentThemeData = this.themeService.currentThemeData;
 
@@ -336,8 +337,13 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
       aggregateType: 'PROJECT',
       aggregateId: project.id,
       payload: { name: project.name }
-    }).subscribe(() => {
-      console.log('Project duplicated:', project.name);
+    }).subscribe({
+      next: () => {
+        this.toast.show(`Evento de copia registrado: ${project.name}`, 'success');
+      },
+      error: () => {
+        this.toast.show('No se pudo registrar la copia del proyecto.', 'error');
+      },
     });
   }
 
@@ -347,10 +353,14 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
       aggregateType: 'PROJECT',
       aggregateId: project.id,
       payload: { name: project.name }
-    }).subscribe(() => {
-      console.log('Project deleted:', project.name);
-      // Remove from local list for immediate feedback
-      this.allProjects.update((list: Project[]) => list.filter((p: Project) => p.id !== project.id));
+    }).subscribe({
+      next: () => {
+        this.allProjects.update((list: Project[]) => list.filter((p: Project) => p.id !== project.id));
+        this.toast.show(`Proyecto eliminado: ${project.name}`, 'success');
+      },
+      error: () => {
+        this.toast.show('No se pudo eliminar el proyecto.', 'error');
+      },
     });
   }
 

@@ -190,7 +190,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
         <ui-button variant="solid" (clicked)="saveProduct()" [disabled]="!formData.name" icon="save">
-          {{ editingProduct() ? 'ACTUALIZAR' : 'RESTRIGAR' }}
+          {{ editingProduct() ? 'ACTUALIZAR' : 'GUARDAR' }}
         </ui-button>
       </div>
     </ui-modal>
@@ -459,7 +459,8 @@ export class InventoryListComponent
   }
 
   onDuplicate(product: Product) {
-    const { id, ...rest } = product;
+    const { id: _omitId, ...rest } = product;
+    void _omitId;
     this.facade.createProduct({
       ...rest,
       name: `${product.name} (COPIA)`,
