@@ -116,7 +116,7 @@ export interface Service {
               [showDuplicate]="true"
               [showDelete]="true"
               (cardClicked)="onRowClick(service)"
-              (editClicked)="editService(service)"
+              (editClicked)="onEdit(service)"
               (duplicateClicked)="onDuplicate(service)"
               (deleteClicked)="confirmDelete(service)"
               [footerItems]="[
