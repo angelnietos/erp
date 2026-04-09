@@ -732,6 +732,24 @@ interface PluginDescriptor {
                               </div>
                             }
                           </div>
+                          <div class="companion-custom-primary">
+                            <label class="form-label form-label-sub"
+                              >Cualquier color</label
+                            >
+                            <input
+                              type="color"
+                              class="color-input color-input-primary"
+                              [value]="pal.color"
+                              (input)="
+                                setCompanionPrimaryFromPicker(
+                                  pal.feature,
+                                  $any($event.target).value
+                                )
+                              "
+                              title="Elegir color principal personalizado"
+                            />
+                            <span class="color-hex-hint">{{ pal.color }}</span>
+                          </div>
                         </div>
 
                         <div class="form-group mb-4 companion-secondary-row">
@@ -1942,6 +1960,36 @@ interface PluginDescriptor {
         gap: 0.75rem;
       }
 
+      .companion-custom-primary {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      }
+
+      .form-label-sub {
+        margin-bottom: 0;
+        font-size: 0.7rem;
+        opacity: 0.9;
+      }
+
+      .color-input-primary {
+        width: 52px;
+        height: 44px;
+        padding: 2px;
+      }
+
+      .color-hex-hint {
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: ui-monospace, monospace;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+      }
+
       .color-swatch-item {
         width: 36px;
         height: 36px;
@@ -2333,6 +2381,31 @@ export class SettingsFeatureComponent implements OnInit {
     } else {
       this.aiBotStore.toggleSkill(feature, skill);
     }
+  }
+
+  /**
+   * Color principal libre: actualiza el secundario con un tono más oscuro
+   * (misma idea que los presets).
+   */
+  setCompanionPrimaryFromPicker(feature: string, primaryHex: string): void {
+    const secondary = SettingsFeatureComponent.darkenHex(primaryHex, 0.38);
+    this.aiBotStore.updateBotSkin(feature, {
+      color: primaryHex,
+      secondaryColor: secondary,
+    });
+  }
+
+  private static darkenHex(hex: string, factor: number): string {
+    const normalized = hex.trim().replace('#', '');
+    if (!/^[0-9a-fA-F]{6}$/.test(normalized)) {
+      return '#0f172a';
+    }
+    const r = parseInt(normalized.slice(0, 2), 16);
+    const g = parseInt(normalized.slice(2, 4), 16);
+    const b = parseInt(normalized.slice(4, 6), 16);
+    const mix = (c: number) =>
+      Math.max(0, Math.min(255, Math.round(c * (1 - factor))));
+    return `#${mix(r).toString(16).padStart(2, '0')}${mix(g).toString(16).padStart(2, '0')}${mix(b).toString(16).padStart(2, '0')}`;
   }
 
   /** Tipos de boca del modelo → entradas soportadas por `ui-mascot`. */
