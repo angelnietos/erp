@@ -209,7 +209,7 @@ export class AIBotStore {
   );
 
   readonly activeBotFeature = signal<string>(
-    localStorage.getItem('ai_active_bot_feature') || 'dashboard',
+    localStorage.getItem('ai_active_bot_feature') || 'buddy',
   );
 
   // --- NUEVAS PREFERENCIAS DE USUARIO ---
@@ -545,19 +545,50 @@ export class AIBotStore {
     },
     dashboard: {
       id: 'dash-bot',
-      name: 'Buddy',
+      name: 'Dash-Bot',
       feature: 'dashboard',
-      description: 'Tu compañero central de inteligencia y control general.',
+      description:
+        'Gestiona métricas y análisis del panel de control principal.',
       skills: [
-        'Global Analytics',
-        'Theme Morph',
-        'Voice Control',
-        'System Health',
+        'Dashboard Analytics',
+        'KPI Monitoring',
+        'Report Generation',
+        'Data Visualization',
+        'Performance Tracking',
+        'Alert Management',
+        'Trend Analysis',
+        'Custom Dashboards',
       ],
-      activeSkills: ['Global Analytics', 'Theme Morph'],
+      activeSkills: ['Dashboard Analytics', 'KPI Monitoring'],
       status: 'active',
       color: '#facc15',
       secondaryColor: '#ca8a04',
+      mascotType: 'dashboard',
+      personality: 'tech',
+      bodyShape: 'square',
+      eyesType: 'shades',
+      mouthType: 'line',
+    },
+    buddy: {
+      id: 'buddy-bot',
+      name: 'Buddy',
+      feature: 'buddy',
+      description:
+        'Tu compañero orquestador de IA que te acompaña en todos los dominios.',
+      skills: [
+        'Global Orchestration',
+        'Cross-Domain Coordination',
+        'Personal Assistance',
+        'Context Awareness',
+        'Multi-Feature Integration',
+        'Intelligent Routing',
+        'Knowledge Synthesis',
+        'Adaptive Learning',
+      ],
+      activeSkills: ['Global Orchestration', 'Cross-Domain Coordination'],
+      status: 'active',
+      color: '#6366f1',
+      secondaryColor: '#4f46e5',
       mascotType: 'universal',
       personality: 'happy',
       bodyShape: 'round',
@@ -1476,15 +1507,15 @@ export class AIBotStore {
 
   // ─── Bot Context Access ────────────────────────────────────────────
   getBotContext(feature: string): AIRangeMemory[] {
-    if (feature === 'dashboard') {
-      // Buddy bot (dashboard) and orchestrator: access to shared store data from all features
+    if (feature === 'buddy') {
+      // Buddy bot (orchestrator): access to shared store data from all features
       const globalMemories = this._globalMemories();
       const allBotMemories = Object.values(this._botWorkspaces()).flatMap(
         (ws) => ws.memories,
       );
       return [...globalMemories, ...allBotMemories];
     } else {
-      // Domain bots: access only to their own domain store data
+      // Domain bots (including dashboard): access only to their own domain store data
       return this.getWorkspace(feature).memories;
     }
   }

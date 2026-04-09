@@ -9,6 +9,7 @@ El sistema de bots de IA en Josanz ERP representa una innovación tecnológica q
 El sistema se basa en una arquitectura modular con los siguientes componentes principales:
 
 - **Bots Especializados**: Cada módulo del ERP cuenta con su propio bot con personalidad y habilidades únicas
+- **Buddy (Orquestador)**: Compañero IA que coordina y asiste en todos los dominios
 - **Sistema de Aprendizaje Continuo**: Los bots aprenden de las interacciones con usuarios para mejorar su efectividad
 - **Estados Emocionales**: Los bots tienen estados de ánimo que influyen en su comportamiento y respuestas
 - **Colaboración Inter-Bots**: Los bots pueden trabajar juntos en proyectos complejos
@@ -58,10 +59,16 @@ El sistema se basa en una arquitectura modular con los siguientes componentes pr
 - **Habilidades**: Fraud detection, compliance radar, risk matrix
 - **Personalidad**: Protector vigilante
 
-### 8. Buddy (Dashboard)
+### 8. Dash-Bot (Dashboard)
 
-- **Función**: Inteligencia general y control central
-- **Habilidades**: Global analytics, theme morphing, voice control
+- **Función**: Gestiona métricas y análisis del panel de control principal
+- **Habilidades**: Dashboard analytics, KPI monitoring, report generation
+- **Personalidad**: Técnico y analítico
+
+### 9. Buddy (Orquestador)
+
+- **Función**: Compañero orquestador de IA que acompaña en todos los dominios
+- **Habilidades**: Global orchestration, cross-domain coordination, personal assistance
 - **Personalidad**: Feliz y accesible
 
 ## Ventajas como Negocio
@@ -81,6 +88,7 @@ El sistema se basa en una arquitectura modular con los siguientes componentes pr
 ### 3. Experiencia de Usuario Superior
 
 - **Interfaz Conversacional**: Comunicación natural con el sistema ERP
+- **Buddy Orquestador**: Compañero IA personal que te acompaña en todos los módulos
 - **Personalización**: Los bots aprenden las preferencias de cada usuario
 - **Asistencia Contextual**: Ayuda inteligente basada en el contexto de trabajo
 

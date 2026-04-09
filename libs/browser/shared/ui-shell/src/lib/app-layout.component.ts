@@ -1,11 +1,25 @@
-import { Component, Input, output, inject, signal, computed, HostListener } from '@angular/core';
+import {
+  Component,
+  Input,
+  output,
+  inject,
+  signal,
+  computed,
+  HostListener,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { LucideAngularModule } from 'lucide-angular';
 import { SidebarComponent } from './sidebar.component';
-import { ThemeService, Theme, AuthStore, PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  Theme,
+  AuthStore,
+  PluginStore,
+  AIBotStore,
+} from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
@@ -16,15 +30,15 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
   selector: 'josanz-app-layout',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    LucideAngularModule, 
-    SidebarComponent, 
-    NotificationDrawerComponent, 
-    CommandPaletteComponent, 
-    CrmBackgroundComponent, 
+    CommonModule,
+    RouterModule,
+    LucideAngularModule,
+    SidebarComponent,
+    NotificationDrawerComponent,
+    CommandPaletteComponent,
+    CrmBackgroundComponent,
     ToastStackComponent,
-    UIAIChatComponent
+    UIAIChatComponent,
   ],
   template: `
     <josanz-crm-background></josanz-crm-background>
@@ -38,8 +52,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         <!-- Top Navbar -->
         <header class="top-nav">
           <div class="search-container">
-            <div class="search-box" (click)="toggleCommandPalette()" (keydown.enter)="toggleCommandPalette()" tabindex="0" role="button" aria-label="Abrir paleta de comandos">
-              <lucide-icon name="search" size="18" class="search-icon"></lucide-icon>
+            <div
+              class="search-box"
+              (click)="toggleCommandPalette()"
+              (keydown.enter)="toggleCommandPalette()"
+              tabindex="0"
+              role="button"
+              aria-label="Abrir paleta de comandos"
+            >
+              <lucide-icon
+                name="search"
+                size="18"
+                class="search-icon"
+              ></lucide-icon>
               <input type="text" placeholder="Buscar en el ERP..." readonly />
               <div class="search-shortcut">⌘K</div>
             </div>
@@ -60,7 +85,11 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
             </button>
 
             @if (premiumExperience()) {
-              <div class="premium-status animate-fade-in" [style.color]="currentThemeData().primary" [style.border-color]="currentThemeData().primary + '44'">
+              <div
+                class="premium-status animate-fade-in"
+                [style.color]="currentThemeData().primary"
+                [style.border-color]="currentThemeData().primary + '44'"
+              >
                 <lucide-icon name="sparkles" size="14"></lucide-icon>
                 <span>LUXE MODE</span>
               </div>
@@ -69,12 +98,26 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
             <!-- Theme Selector -->
             <div class="theme-selector">
               <button class="theme-btn" (click)="toggleThemeMenu()">
-                <lucide-icon [name]="currentTheme() === 'dark' ? 'moon' : 'sun'" size="20"></lucide-icon>
+                <lucide-icon
+                  [name]="currentTheme() === 'dark' ? 'moon' : 'sun'"
+                  size="20"
+                ></lucide-icon>
               </button>
               @if (showThemeMenu()) {
-                <div class="theme-menu" role="listbox" aria-label="Elegir tema visual">
-                  @for (section of themeService.themeMenuSections; track section.id) {
-                    <div class="theme-section" role="group" [attr.aria-label]="section.label">
+                <div
+                  class="theme-menu"
+                  role="listbox"
+                  aria-label="Elegir tema visual"
+                >
+                  @for (
+                    section of themeService.themeMenuSections;
+                    track section.id
+                  ) {
+                    <div
+                      class="theme-section"
+                      role="group"
+                      [attr.aria-label]="section.label"
+                    >
                       <div class="theme-section-label">{{ section.label }}</div>
                       @for (themeKey of section.keys; track themeKey) {
                         <button
@@ -85,8 +128,15 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                           [class.active]="currentTheme() === themeKey"
                           (click)="setTheme(themeKey)"
                         >
-                          <span class="theme-color" [style.background]="themeService.themes[themeKey].primary"></span>
-                          <span class="theme-option-name">{{ themeService.themes[themeKey].name }}</span>
+                          <span
+                            class="theme-color"
+                            [style.background]="
+                              themeService.themes[themeKey].primary
+                            "
+                          ></span>
+                          <span class="theme-option-name">{{
+                            themeService.themes[themeKey].name
+                          }}</span>
                         </button>
                       }
                     </div>
@@ -95,7 +145,14 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
               }
             </div>
 
-            <div class="user-profile" (click)="toggleUserMenu()" (keydown.enter)="toggleUserMenu()" tabindex="0" role="button" aria-label="Abrir panel de usuario">
+            <div
+              class="user-profile"
+              (click)="toggleUserMenu()"
+              (keydown.enter)="toggleUserMenu()"
+              tabindex="0"
+              role="button"
+              aria-label="Abrir panel de usuario"
+            >
               <div class="user-info">
                 <span class="user-name">Antonio Munias</span>
                 <span class="user-role">Administrador</span>
@@ -125,12 +182,16 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
         <!-- Notification Drawer -->
         @if (showNotifications()) {
-          <josanz-notification-drawer (closeDrawer)="toggleNotifications()"></josanz-notification-drawer>
+          <josanz-notification-drawer
+            (closeDrawer)="toggleNotifications()"
+          ></josanz-notification-drawer>
         }
 
         <!-- Command Palette -->
         @if (showCommandPalette()) {
-          <josanz-command-palette (closePalette)="closeCommandPalette()"></josanz-command-palette>
+          <josanz-command-palette
+            (closePalette)="closeCommandPalette()"
+          ></josanz-command-palette>
         }
 
         <!-- Dynamic Content -->
@@ -139,460 +200,482 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
             <router-outlet></router-outlet>
           </div>
         </main>
-        
+
         <!-- IA Assistances Ecosystem (Global & Contextual) -->
-        <ui-josanz-ai-assistant [feature]="aiBotStore.activeBotFeature()"></ui-josanz-ai-assistant>
-        
-        @if (currentFeature() !== 'dashboard' && currentFeature() !== aiBotStore.activeBotFeature()) {
-          <ui-josanz-ai-assistant [feature]="currentFeature()" class="secondary-assistant"></ui-josanz-ai-assistant>
+        <ui-josanz-ai-assistant
+          [feature]="currentFeature()"
+        ></ui-josanz-ai-assistant>
+
+        @if (aiBotStore.getBotByFeature('buddy')) {
+          <ui-josanz-ai-assistant
+            [feature]="'buddy'"
+            class="secondary-assistant"
+          ></ui-josanz-ai-assistant>
         }
       </div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-      height: 100vh;
-      overflow: hidden;
-      font-family: var(--font-main);
-      font-size: 14px; /* Scaled down base */
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100vh;
+        overflow: hidden;
+        font-family: var(--font-main);
+        font-size: 14px; /* Scaled down base */
+      }
 
-    .app-layout {
-      display: flex;
-      height: 100%;
-      background: transparent;
-      color: var(--text-primary);
-    }
+      .app-layout {
+        display: flex;
+        height: 100%;
+        background: transparent;
+        color: var(--text-primary);
+      }
 
-    .main-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
+      .main-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
 
-    .top-nav {
-      height: 42px; /* Reduced from 48px */
-      background: rgba(10, 10, 10, 0.82);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      flex-shrink: 0;
-      z-index: 100;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    }
+      .top-nav {
+        height: 42px; /* Reduced from 48px */
+        background: rgba(10, 10, 10, 0.82);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border-soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        flex-shrink: 0;
+        z-index: 100;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      }
 
-    .search-container {
-      flex: 1;
-      max-width: 400px;
-    }
+      .search-container {
+        flex: 1;
+        max-width: 400px;
+      }
 
-    .search-box {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 6px;
-      padding: 0 10px;
-      height: 30px; /* Reduced from 34px */
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      cursor: pointer;
-    }
+      .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 6px;
+        padding: 0 10px;
+        height: 30px; /* Reduced from 34px */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+      }
 
-    .search-box:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
+      .search-box:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
 
-    .search-box:focus-within {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--brand);
-      box-shadow: 0 0 15px var(--brand-glow);
-    }
+      .search-box:focus-within {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--brand);
+        box-shadow: 0 0 15px var(--brand-glow);
+      }
 
-    .search-icon {
-      color: var(--text-muted);
-      transition: color 0.3s ease;
-    }
+      .search-icon {
+        color: var(--text-muted);
+        transition: color 0.3s ease;
+      }
 
-    .search-box:focus-within .search-icon {
-      color: var(--brand);
-    }
+      .search-box:focus-within .search-icon {
+        color: var(--brand);
+      }
 
-    .search-box input {
-      background: none;
-      border: none;
-      width: 100%;
-      height: 100%;
-      padding-left: 8px;
-      color: var(--text-primary);
-      font-size: 0.78rem;
-      outline: none;
-      font-family: var(--font-main);
-      cursor: pointer;
-    }
-    
-    .search-box input::placeholder {
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 0.58rem;
-      font-weight: 600;
-    }
+      .search-box input {
+        background: none;
+        border: none;
+        width: 100%;
+        height: 100%;
+        padding-left: 8px;
+        color: var(--text-primary);
+        font-size: 0.78rem;
+        outline: none;
+        font-family: var(--font-main);
+        cursor: pointer;
+      }
 
-    .search-shortcut {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      pointer-events: none;
-      font-family: var(--font-display);
-    }
+      .search-box input::placeholder {
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.58rem;
+        font-weight: 600;
+      }
 
-    .actions-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+      .search-shortcut {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        pointer-events: none;
+        font-family: var(--font-display);
+      }
 
-    .tenant-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 10px;
-      background: color-mix(in srgb, var(--brand) 12%, transparent);
-      color: var(--brand);
-      border-radius: 6px;
-      font-size: 0.58rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      border: 1px solid var(--brand);
-      box-shadow: 0 0 10px var(--brand-glow);
-    }
+      .actions-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
 
-    .icon-btn {
-      position: relative;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      color: var(--text-secondary);
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+      .tenant-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        background: color-mix(in srgb, var(--brand) 12%, transparent);
+        color: var(--brand);
+        border-radius: 6px;
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border: 1px solid var(--brand);
+        box-shadow: 0 0 10px var(--brand-glow);
+      }
 
-    .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      border-color: var(--brand);
-      box-shadow: 0 0 10px var(--brand-glow);
-      transform: translateY(-1px);
-    }
+      .icon-btn {
+        position: relative;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
 
-    .notification-dot {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 8px;
-      height: 8px;
-      background: var(--brand);
-      border: 2px solid var(--bg-secondary);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--brand-glow);
-    }
+      .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border-color: var(--brand);
+        box-shadow: 0 0 10px var(--brand-glow);
+        transform: translateY(-1px);
+      }
 
-    .theme-selector {
-      position: relative;
-    }
+      .notification-dot {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        background: var(--brand);
+        border: 2px solid var(--bg-secondary);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--brand-glow);
+      }
 
-    .theme-btn {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      color: var(--text-secondary);
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+      .theme-selector {
+        position: relative;
+      }
 
-    .theme-btn:hover {
-      border-color: var(--brand);
-      color: #fff;
-      transform: scale(1.05);
-    }
+      .theme-btn {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
 
-    .theme-menu {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      margin-top: 12px;
-      background: rgba(15, 15, 15, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-soft);
-      border-radius: 8px;
-      padding: 6px 4px 8px;
-      min-width: 220px;
-      max-width: min(92vw, 280px);
-      max-height: min(calc(100vh - 5.5rem), 26rem);
-      overflow-x: hidden;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      scrollbar-width: thin;
-      scrollbar-color: color-mix(in srgb, var(--text-muted) 50%, transparent) transparent;
-      -webkit-overflow-scrolling: touch;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      z-index: 200;
-      animation: menuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+      .theme-btn:hover {
+        border-color: var(--brand);
+        color: #fff;
+        transform: scale(1.05);
+      }
 
-    .theme-menu::-webkit-scrollbar {
-      width: 6px;
-    }
+      .theme-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 12px;
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        padding: 6px 4px 8px;
+        min-width: 220px;
+        max-width: min(92vw, 280px);
+        max-height: min(calc(100vh - 5.5rem), 26rem);
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--text-muted) 50%, transparent)
+          transparent;
+        -webkit-overflow-scrolling: touch;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 200;
+        animation: menuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-    .theme-menu::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--text-muted) 45%, transparent);
-      border-radius: 10px;
-    }
+      .theme-menu::-webkit-scrollbar {
+        width: 6px;
+      }
 
-    .theme-menu::-webkit-scrollbar-track {
-      background: transparent;
-    }
+      .theme-menu::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--text-muted) 45%, transparent);
+        border-radius: 10px;
+      }
 
-    .theme-section:not(:first-child) {
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
+      .theme-menu::-webkit-scrollbar-track {
+        background: transparent;
+      }
 
-    .theme-section-label {
-      padding: 6px 12px 4px;
-      font-size: 0.58rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      opacity: 0.9;
-    }
+      .theme-section:not(:first-child) {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
 
-    .theme-option-name {
-      flex: 1;
-      min-width: 0;
-      text-align: left;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    @keyframes menuFadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+      .theme-section-label {
+        padding: 6px 12px 4px;
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        opacity: 0.9;
+      }
 
-    .theme-option {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      padding: 8px 12px;
-      background: transparent;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+      .theme-option-name {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-    .theme-option:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
+      @keyframes menuFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    .theme-option.active {
-      background: rgba(240, 62, 62, 0.1);
-      color: var(--brand);
-    }
+      .theme-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 8px 12px;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
 
-    .theme-color {
-      width: 14px;
-      height: 14px;
-      border-radius: 2px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+      .theme-option:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+      }
 
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding-left: 20px;
-      border-left: 1px solid var(--border-soft);
-      position: relative;
-      cursor: pointer;
-    }
+      .theme-option.active {
+        background: rgba(240, 62, 62, 0.1);
+        color: var(--brand);
+      }
 
-    .user-info {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
+      .theme-color {
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-    .user-name {
-      font-weight: 700;
-      font-size: 0.68rem;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-family: var(--font-main);
-      max-width: 140px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+      .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-left: 20px;
+        border-left: 1px solid var(--border-soft);
+        position: relative;
+        cursor: pointer;
+      }
 
-    .user-role {
-      font-size: 0.55rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
 
-    .avatar {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, var(--brand), #a00);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      box-shadow: 0 0 15px var(--brand-glow);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: transform 0.2s;
-    }
+      .user-name {
+        font-weight: 700;
+        font-size: 0.68rem;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-family: var(--font-main);
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-    .user-profile:hover .avatar {
-      transform: scale(1.05);
-    }
+      .user-role {
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
 
-    .user-menu {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      margin-top: 16px;
-      background: rgba(15, 15, 15, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-soft);
-      border-radius: 8px;
-      padding: 12px;
-      min-width: 220px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-      z-index: 200;
-    }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--brand), #a00);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        box-shadow: 0 0 15px var(--brand-glow);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.2s;
+      }
 
-    .menu-header {
-      padding: 8px 12px 16px;
-      border-bottom: 1px solid var(--border-soft);
-      margin-bottom: 8px;
-    }
+      .user-profile:hover .avatar {
+        transform: scale(1.05);
+      }
 
-    .menu-header span {
-      font-size: 0.65rem;
-      font-weight: 900;
-      color: var(--text-muted);
-      letter-spacing: 0.15em;
-    }
+      .user-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 16px;
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        padding: 12px;
+        min-width: 220px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        z-index: 200;
+      }
 
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      width: 100%;
-      padding: 12px 16px;
-      background: transparent;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+      .menu-header {
+        padding: 8px 12px 16px;
+        border-bottom: 1px solid var(--border-soft);
+        margin-bottom: 8px;
+      }
 
-    .menu-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
+      .menu-header span {
+        font-size: 0.65rem;
+        font-weight: 900;
+        color: var(--text-muted);
+        letter-spacing: 0.15em;
+      }
 
-    .menu-item.logout {
-      margin-top: 4px;
-    }
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 12px 16px;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
 
-    .menu-item.logout:hover {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-    }
+      .menu-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+      }
 
-    .content-scroll {
-      flex: 1;
-      overflow-y: auto;
-      /* Opaque bg would hide the fixed CRM canvas (josanz-crm-background) behind the layout */
-      background: transparent;
-    }
+      .menu-item.logout {
+        margin-top: 4px;
+      }
 
-    .content {
-      padding: 0 12px 120px; /* Increased bottom padding to prevent bots from covering content */
-      max-width: 100%;
-      margin: 0 auto;
-    }
+      .menu-item.logout:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
 
-    /* Premium Status Badge */
-    .premium-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid;
-      border-radius: 100px;
-      font-size: 0.58rem;
-      font-weight: 900;
-      letter-spacing: 0.1em;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-    
-    .premium-status lucide-icon { opacity: 0.8; }
+      .content-scroll {
+        flex: 1;
+        overflow-y: auto;
+        /* Opaque bg would hide the fixed CRM canvas (josanz-crm-background) behind the layout */
+        background: transparent;
+      }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 10px; }
-    ::-webkit-scrollbar-track { background: transparent; }
+      .content {
+        padding: 0 12px 120px; /* Increased bottom padding to prevent bots from covering content */
+        max-width: 100%;
+        margin: 0 auto;
+      }
 
-  `]
+      /* Premium Status Badge */
+      .premium-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid;
+        border-radius: 100px;
+        font-size: 0.58rem;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .premium-status lucide-icon {
+        opacity: 0.8;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-medium);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+    `,
+  ],
 })
 export class AppLayoutComponent {
   readonly logoutClick = output<void>();
@@ -602,12 +685,12 @@ export class AppLayoutComponent {
   readonly currentThemeData = this.themeService.currentThemeData;
   readonly aiBotStore = inject(AIBotStore);
   private readonly navEvents = toSignal(
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)),
   );
 
   readonly currentFeature = computed(() => {
     // Escuchamos el signal de navegación para forzar la re-evaluación
-    this.navEvents(); 
+    this.navEvents();
     const url = this.router.url;
     if (url.includes('/inventory')) return 'inventory';
     if (url.includes('/budgets')) return 'budgets';
@@ -648,15 +731,15 @@ export class AppLayoutComponent {
   }
 
   toggleThemeMenu() {
-    this.showThemeMenu.update(v => !v);
+    this.showThemeMenu.update((v) => !v);
   }
 
   toggleNotifications() {
-    this.showNotifications.update(v => !v);
+    this.showNotifications.update((v) => !v);
   }
 
   toggleCommandPalette() {
-    this.showCommandPalette.update(v => !v);
+    this.showCommandPalette.update((v) => !v);
   }
 
   closeCommandPalette() {
@@ -664,7 +747,7 @@ export class AppLayoutComponent {
   }
 
   toggleUserMenu() {
-    this.showUserMenu.update(v => !v);
+    this.showUserMenu.update((v) => !v);
   }
 
   logout() {
