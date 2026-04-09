@@ -64,6 +64,17 @@ export class AIBotStore {
   private readonly _pendingFilters = signal<Record<string, string>>({});
   readonly pendingFilters = this._pendingFilters.asReadonly();
 
+  // Dynamic HTML canvas per feature (AI-generated UI injection)
+  private readonly _dynamicCanvas = signal<Record<string, string>>(
+    JSON.parse(localStorage.getItem('ai_dynamic_canvas') || '{}')
+  );
+  readonly dynamicCanvas = this._dynamicCanvas.asReadonly();
+
+  setDynamicCanvas(feature: string, html: string) {
+    this._dynamicCanvas.update(c => ({ ...c, [feature]: html }));
+    localStorage.setItem('ai_dynamic_canvas', JSON.stringify(this._dynamicCanvas()));
+  }
+
   // --- Moods & Emotions ---
   private readonly _botMoods = signal<Record<string, { mood: BotMood; energy: number }>>(
     JSON.parse(localStorage.getItem('ai_bot_moods') || '{}')
