@@ -236,6 +236,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         (closed)="closeModal()"
         variant="glass"
         shape="auto"
+        [class]="editingClient() ? 'modal-xl' : ''"
       >
         @if (editingClient(); as client) {
           <div class="client-summary">
@@ -908,7 +909,13 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       margin-bottom: 0;
     }
 
-    /* Responsive */
+    /* Modal size overrides */
+    :host ::ng-deep ui-modal.modal-xl .modal-content {
+      max-width: 95vw;
+      min-width: 800px;
+    }
+
+    /* Responsive adjustments */
     @media (max-width: 768px) {
       .clients-container {
         padding: 1rem;
