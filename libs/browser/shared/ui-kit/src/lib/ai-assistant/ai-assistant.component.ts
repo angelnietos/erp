@@ -843,6 +843,14 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   async sendMessage() {
     if (!this.currentInput.trim()) return;
     const userInput = this.currentInput;
+
+    // Detectar comandos especiales antes de procesar con IA
+    const themeCommand = this.detectThemeCommand(userInput);
+    if (themeCommand) {
+      await this.executeThemeCommand(themeCommand, userInput);
+      return;
+    }
+
     this.messages.update((m) => [
       ...m,
       { id: Date.now().toString(), text: userInput, role: 'user' },
@@ -1009,12 +1017,86 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     }
   }
 
+  private detectThemeCommand(text: string): Theme | null {
+    const lowerText = text.toLowerCase();
+
+    // Detectar tema verde
+    const greenKeywords = [
+      'verde',
+      'green',
+      'tema verdoso',
+      'verde app',
+      'cambiar tema verde',
+      'cambiar tema ',
+    ];
+    if (greenKeywords.some((keyword) => lowerText.includes(keyword))) {
+      return 'green' as Theme;
+    }
+
+    // Detectar otros temas comunes
+    if (lowerText.includes('tema oscuro') || lowerText.includes('dark')) {
+      return 'dark' as Theme;
+    }
+    if (lowerText.includes('tema claro') || lowerText.includes('light')) {
+      return 'light' as Theme;
+    }
+    if (lowerText.includes('tema azul') || lowerText.includes('blue')) {
+      return 'blue' as Theme;
+    }
+
+    return null;
+  }
+
+  private async executeThemeCommand(theme: Theme, userInput: string) {
+    // Ejecutar el cambio de tema
+    this.themeService.setTheme(theme);
+
+    // Agregar mensaje del usuario
+    this.messages.update((m) => [
+      ...m,
+      { id: Date.now().toString(), text: userInput, role: 'user' },
+    ]);
+
+    // Agregar respuesta de confirmación
+    const themeName = this.themeService.themes[theme]?.name || theme;
+    const botResponse = `¡Perfecto! He cambiado el tema de la aplicación a "${themeName}". ¿Te gusta cómo se ve?`;
+
+    this.messages.update((m) => [
+      ...m,
+      {
+        id: (Date.now() + 1).toString(),
+        text: botResponse,
+        role: 'bot',
+        reasoning: '',
+      },
+    ]);
+
+    this.currentInput = '';
+    this.scrollToBottom();
+
+    // Broadcast del cambio de tema
+    this.aiBotStore.broadcastMessage(
+      this.feature,
+      `Tema cambiado a ${themeName}`,
+      'all',
+    );
+  }
+
   private inferGreenThemeKeyFromUserText(text: string): Theme | null {
-    // Lógica simple para detectar si el usuario quiere un tema verde
-    const greenKeywords = ['verde', 'green', 'nature', 'forest', 'emerald'];
+    // Lógica mejorada para detectar si el usuario quiere un tema verde
+    const greenKeywords = [
+      'verde',
+      'green',
+      'nature',
+      'forest',
+      'emerald',
+      'tema verdoso',
+      'verde app',
+      'cambiar tema',
+    ];
     const lowerText = text.toLowerCase();
     return greenKeywords.some((keyword) => lowerText.includes(keyword))
-      ? ('emerald' as Theme)
+      ? ('green' as Theme)
       : null;
   }
 }

@@ -1968,13 +1968,13 @@ export class AIBotStore {
     context?: string,
   ): Promise<string> {
     console.log('🚀 Generando respuesta con Grok para:', prompt);
+
     // Por ahora, devolver una respuesta simulada hasta que tengamos una API key válida
-    // En producción, esto debería usar la API real de Grok (xAI)
     const responses = [
-      `¡Hola! Soy Grok de xAI. "${prompt}" es una pregunta interesante. Como IA de xAI, estoy aquí para ayudarte de manera útil y veraz.`,
-      `Interesante consulta sobre "${prompt}". Como Grok, creado por xAI, me enfoco en ser maximamente truthful y helpful.`,
-      `Como Grok de xAI, puedo decirte que ${prompt} es algo que vale la pena explorar más. ¿Quieres que profundice en algún aspecto específico?`,
-      `¡Excelente pregunta! "${prompt}" me hace pensar en las capacidades de la IA moderna. xAI se enfoca en entender el universo, y yo soy parte de ese esfuerzo.`,
+      '¡Hola! Soy Grok de xAI. Tu consulta es interesante. Estoy aquí para ayudarte.',
+      'Como Grok de xAI, me enfoco en ser útil y veraz en mis respuestas.',
+      '¡Excelente pregunta! Me hace pensar en las capacidades de la IA moderna.',
+      'Grok aquí, creado por xAI. ¿En qué puedo ayudarte hoy?',
     ];
     const response = responses[Math.floor(Math.random() * responses.length)];
     console.log('✅ Respuesta de Grok generada:', response);
@@ -1985,13 +1985,12 @@ export class AIBotStore {
     prompt: string,
     context?: string,
   ): Promise<string> {
-    // Por ahora, devolver una respuesta simulada hasta que tengamos una API key válida
-    // En producción, esto debería usar la API real de Together AI
+    // Respuestas simuladas para Together AI
     const responses = [
-      `¡Hola desde Together AI! Tu pregunta "${prompt}" es fascinante. Utilizo modelos de vanguardia como Mistral para proporcionar respuestas útiles.`,
-      `Como IA de Together AI, puedo ayudarte con "${prompt}". Nuestros modelos están diseñados para ser eficientes y poderosos.`,
-      `Interesante consulta: "${prompt}". Together AI combina lo mejor de diferentes modelos de IA para ofrecer respuestas de alta calidad.`,
-      `¡Perfecto! Sobre "${prompt}", Together AI ofrece acceso a modelos como Mistral que pueden proporcionar información detallada y útil.`,
+      '¡Hola desde Together AI! Utilizo modelos avanzados como Mistral.',
+      'Como IA de Together AI, estoy aquí para ayudarte con respuestas inteligentes.',
+      'Together AI combina lo mejor de diferentes modelos de IA.',
+      '¡Perfecto! Puedo ayudarte con esa consulta usando tecnología de vanguardia.',
     ];
     return responses[Math.floor(Math.random() * responses.length)];
   }
