@@ -92,18 +92,19 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     /* SHAPES */
     .btn-shape-solid, .btn-shape-auto {
-      background: var(--btn-accent);
+      background: linear-gradient(135deg, var(--btn-accent) 0%, color-mix(in srgb, var(--btn-accent), #000 15%) 100%);
       color: var(--btn-text);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 
-        0 4px 15px -4px color-mix(in srgb, var(--btn-accent) 40%, transparent),
+        0 4px 15px -4px color-mix(in srgb, var(--btn-accent) 50%, transparent),
         inset 0 1px 0 rgba(255,255,255,0.2);
     }
     .btn-shape-solid:hover, .btn-shape-auto:hover {
-       filter: brightness(1.15);
        transform: translateY(-2px);
        box-shadow: 
-         0 12px 30px -8px color-mix(in srgb, var(--btn-accent) 60%, transparent),
-         0 0 15px color-mix(in srgb, var(--btn-accent) 30%, transparent);
+         0 12px 24px -8px color-mix(in srgb, var(--btn-accent) 60%, transparent),
+         0 0 20px color-mix(in srgb, var(--btn-accent) 30%, transparent);
+       filter: brightness(1.1);
     }
 
     .btn-shape-glass {

@@ -103,15 +103,17 @@ import { UiButtonComponent } from '../../button/button.component';
     }
 
     .primary-action {
-      background: linear-gradient(135deg, var(--brand), var(--brand-secondary));
-      border: none;
-      box-shadow: 0 4px 16px -4px var(--brand-glow);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 14px !important;
+      padding: 0.25rem;
+      background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand), #000 20%) 100%) !important;
+      box-shadow: 
+        0 8px 25px -10px var(--brand-glow),
+        inset 0 1px 0 rgba(255,255,255,0.2) !important;
+      transition: all 0.4s var(--ease-out-expo) !important;
     }
-
     .primary-action:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 8px 24px -4px var(--brand-glow);
+      transform: translateY(-3px) scale(1.05) !important;
+      filter: brightness(1.2);
     }
 
     @media (max-width: 768px) {
