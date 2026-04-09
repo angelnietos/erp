@@ -175,7 +175,10 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         <span class="doc-title">Oferta {{ formatCurrency(budget.total) }}</span>
                         <span class="doc-meta">Periodo: {{ formatDate(budget.startDate) }} — {{ formatDate(budget.endDate) }}</span>
                       </div>
-                      <ui-josanz-badge variant="info">{{ budget.status }}</ui-josanz-badge>
+                      <div style="display:flex; gap:10px; align-items:center;">
+                        <ui-josanz-badge variant="info">{{ budget.status }}</ui-josanz-badge>
+                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/budgets/{{ budget.id }}">VER</ui-josanz-button>
+                      </div>
                     </div>
                   } @empty {
                     <div class="placeholder-state">
@@ -187,7 +190,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
               </ui-josanz-card>
             }
             @case ('invoices') {
-              <ui-josanz-card variant="glass" title="Facturación Receptiva">
+              <ui-josanz-card variant="glass" title="Documentación (Facturas y Albaranes)">
                 <div class="document-list">
                   @for (inv of getAllInvoices(); track inv.id) {
                     <div class="document-item">
@@ -198,11 +201,32 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         <span class="doc-title">Factura {{ inv.invoiceNumber }}</span>
                         <span class="doc-meta">Emitida: {{ formatDate(inv.issueDate) }} · {{ formatCurrency(inv.total) }}</span>
                       </div>
-                      <ui-josanz-badge [variant]="inv.status === 'PAID' ? 'success' : 'warning'">{{ inv.status }}</ui-josanz-badge>
+                      <div style="display:flex; gap:10px; align-items:center;">
+                        <ui-josanz-badge [variant]="inv.status === 'PAID' ? 'success' : 'warning'">{{ inv.status }}</ui-josanz-badge>
+                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/invoices/{{ inv.id }}">VER</ui-josanz-button>
+                      </div>
                     </div>
-                  } @empty {
+                  }
+                  
+                  @for (dn of getAllDeliveryNotes(); track dn.id) {
+                    <div class="document-item">
+                      <div class="doc-icon">
+                        <lucide-icon name="file-text" size="20"></lucide-icon>
+                      </div>
+                      <div class="doc-info">
+                        <span class="doc-title">Albarán de Presupuesto</span>
+                        <span class="doc-meta">Firma: {{ dn.status }} · Alta: {{ formatDate(dn.createdAt) }}</span>
+                      </div>
+                      <div style="display:flex; gap:10px; align-items:center;">
+                        <ui-josanz-badge [variant]="dn.status === 'signed' ? 'success' : 'info'">{{ dn.status }}</ui-josanz-badge>
+                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/delivery/{{ dn.id }}">VER</ui-josanz-button>
+                      </div>
+                    </div>
+                  }
+
+                  @if (getAllInvoices().length === 0 && getAllDeliveryNotes().length === 0) {
                     <div class="placeholder-state">
-                      <p>No existen facturas vinculadas al circuito de este cliente.</p>
+                      <p>No existen facturas ni albaranes vinculados al circuito de este cliente.</p>
                     </div>
                   }
                 </div>
@@ -569,14 +593,16 @@ export class ClientsDetailComponent implements OnInit {
           this.client.set(c);
           
           let invoiceCount = 0;
+          let deliveryNoteCount = 0;
           c.budgets?.forEach(b => {
             if (b.invoices) invoiceCount += b.invoices.length;
+            if (b.deliveryNotes) deliveryNoteCount += b.deliveryNotes.length;
           });
 
           this.tabs.set([
             { id: 'general', label: 'Estrategia' },
             { id: 'budgets', label: 'Presupuestos', badge: c.budgets?.length || 0 },
-            { id: 'invoices', label: 'Facturas', badge: invoiceCount },
+            { id: 'invoices', label: 'Documental', badge: invoiceCount + deliveryNoteCount },
             { id: 'reports', label: 'Informes de Evento', badge: c.eventReports?.length || 0 },
             { id: 'commercial', label: 'Historial Comercial' },
           ]);
@@ -598,6 +624,19 @@ export class ClientsDetailComponent implements OnInit {
       });
     }
     return invoices;
+  }
+
+  getAllDeliveryNotes() {
+    const notes: any[] = [];
+    const c = this.client();
+    if (c?.budgets) {
+      c.budgets.forEach((b: any) => {
+        if (b.deliveryNotes) {
+          notes.push(...b.deliveryNotes);
+        }
+      });
+    }
+    return notes;
   }
 
   onTabChange(tabId: string) {

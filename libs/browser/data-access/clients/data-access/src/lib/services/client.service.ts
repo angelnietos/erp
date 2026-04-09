@@ -20,13 +20,20 @@ export interface EventReport {
   event?: { name: string, startDate: string };
 }
 
+export interface DeliveryNote {
+  id: string;
+  status: string;
+  createdAt: string;
+}
+
 export interface Budget {
   id: string;
   status: string;
   total: number;
   startDate: string;
   endDate: string;
-  invoices: Invoice[];
+  invoices?: Invoice[];
+  deliveryNotes?: DeliveryNote[];
 }
 
 export interface Invoice {

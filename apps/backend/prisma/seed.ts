@@ -344,6 +344,29 @@ async function main() {
     },
   });
 
+  const event2 = await prisma.event.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Producción Audiovisual Comercial',
+      clientId: clients[1].id,
+      startDate: new Date('2026-05-15T10:00:00Z'),
+      endDate: new Date('2026-05-15T22:00:00Z'),
+      location: 'Estudios Secundarios, Madrid',
+      status: 'PLANNED',
+    },
+  });
+
+  await (prisma as any).eventReport.create({
+    data: {
+      tenantId: tenant.id,
+      eventId: event2.id,
+      clientId: clients[1].id,
+      title: 'Desglose Técnico - Set de Rodaje Comercial',
+      content: 'Revisión final completada. Iluminación y plató listos para rodaje cerrado. Queda pendiente la calibración final del proyector láser en la escena nocturna. Cliente (Carlos) firmó el checklist.',
+      authorId: admin.id,
+    },
+  });
+
   const productDefs = [
     { name: 'Proyector Láser 4K', price: 1500, stock: 10, sku: 'PRJ-4K-001' },
     { name: 'Pantalla LED 100"', price: 800, stock: 5, sku: 'LED-100-001' },

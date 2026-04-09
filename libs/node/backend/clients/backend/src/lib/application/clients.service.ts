@@ -41,7 +41,8 @@ export class ClientsService {
         },
         budgets: {
           include: {
-            invoices: true
+            invoices: true,
+            deliveryNotes: true
           },
           orderBy: { createdAt: 'desc' }
         }
