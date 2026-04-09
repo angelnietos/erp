@@ -284,7 +284,7 @@ export class ClientsEditComponent implements OnInit {
   }
 
   onSave() {
-    if (!this.form['name']?.trim()) {
+    if (!this.form.name?.trim()) {
       this.toast.show('El nombre del cliente es obligatorio', 'error');
       return;
     }
@@ -292,10 +292,10 @@ export class ClientsEditComponent implements OnInit {
     this.isSaving.set(true);
 
     const patch: Partial<Client> = {
-      name: this.form['name'],
-      email: this.form['email'],
-      phone: this.form['phone'],
-      sector: this.form['sector'] as any,
+      name: this.form.name,
+      email: this.form.email,
+      phone: this.form.phone,
+      sector: this.form.sector as any,
     };
 
     if (this.isNew) {
