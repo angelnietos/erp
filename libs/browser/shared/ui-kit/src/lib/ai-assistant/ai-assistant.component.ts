@@ -22,6 +22,7 @@ import {
   MasterFilterService,
   InterBotMessage,
   OrchestrationBus,
+  TechnicianApiService,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -55,6 +56,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   aiBotStore = inject(AIBotStore);
   orchestrationBus = inject(OrchestrationBus);
+  private technicianApi = inject(TechnicianApiService);
   masterFilterService = inject(MasterFilterService);
   dashboardService = inject(DashboardAnalyticsService);
   themeService = inject(ThemeService);
@@ -412,6 +414,28 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       const userLayerBlock =
         userLayerExtras.length > 0 ? `\n\n${userLayerExtras.join('\n\n')}` : '';
 
+      let technicianSnapshot = '';
+      if (this.feature === 'users') {
+        try {
+          const techs = await firstValueFrom(this.technicianApi.getTechnicians());
+          const summary = techs.map((t) => ({
+            id: t.id,
+            nombre:
+              [t.user?.firstName, t.user?.lastName].filter(Boolean).join(' ').trim() ||
+              t.user?.email ||
+              '(sin nombre)',
+            email: t.user?.email,
+            skills: t.skills,
+            estado: t.status,
+          }));
+          technicianSnapshot =
+            `\n\nDatos actuales de técnicos (API /api/technicians). Usa estos ids y habilidades en tus respuestas:\n${JSON.stringify(summary, null, 2)}\n`;
+        } catch {
+          technicianSnapshot =
+            '\n\n(No se pudo cargar la lista de técnicos; sugiere comprobar sesión y API.)\n';
+        }
+      }
+
       const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
 
       const context =
@@ -425,7 +449,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                   `- ${m.text} (${new Date(m.timestamp).toLocaleDateString()})`,
               )
               .join('\n')}\n\n`
-          : '');
+          : '') +
+        technicianSnapshot;
 
       // Generar respuesta usando proveedores gratuitos con contexto
       const response = await this.aiBotStore.generateFreeResponse(
@@ -441,7 +466,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         const actionStr = parts[1].trim();
 
         // Ejecutar la acción técnica en el sistema (Workflow)
-        await this.aiBotStore.executeAction(actionStr);
+        await this.aiBotStore.executeAction(actionStr, {
+          sourceFeature: this.feature,
+        });
       }
 
       // Actualizar mensaje con respuesta (limpia de metadatos de acción)

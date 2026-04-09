@@ -1,7 +1,7 @@
 import { Route } from '@angular/router';
 import { MainAppShellComponent } from './main-app-shell.component';
 import { NotFoundComponent } from './not-found.component';
-import { pluginGuard } from '@josanz-erp/shared-data-access';
+import { pluginGuard, usersShellGuard } from '@josanz-erp/shared-data-access';
 
 export const appRoutes: Route[] = [
   {
@@ -121,6 +121,7 @@ export const appRoutes: Route[] = [
         path: 'users',
         loadChildren: () =>
           import('@josanz-erp/identity-shell').then((m) => m.usersRoutes),
+        canActivate: [usersShellGuard],
       },
       {
         path: 'clients',

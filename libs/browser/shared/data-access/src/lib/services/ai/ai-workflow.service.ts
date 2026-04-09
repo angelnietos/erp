@@ -7,7 +7,13 @@ import { TechnicianApiService } from '../technician-api.service';
 import { OrchestrationBus } from './orchestration-bus.service';
 
 // Delegate handler registered by AIBotStore to avoid circular dependency
-type DelegateHandler = (target: string, message: string, payload?: unknown) => void;
+type DelegateHandler = (
+  target: string,
+  message: string,
+  payload?: unknown,
+  /** Quién orquesta el workflow (buddy, events, …); no usar solo activeBotFeature de Ajustes */
+  orchestratorFeature?: string,
+) => void;
 
 @Injectable({ providedIn: 'root' })
 export class AIWorkflowService {
@@ -20,6 +26,12 @@ export class AIWorkflowService {
 
   // Registered by AIBotStore to handle delegate without circular dep
   private delegateHandler: DelegateHandler | null = null;
+
+  /**
+   * Asigna `AIBotStore.executeAction` antes de ejecutar pasos: identifica al bot que
+   * realmente lanza el workflow (p. ej. Buddy), no el «agente principal» de Ajustes.
+   */
+  workflowOrchestratorFeature: string | null = null;
 
   registerDelegateHandler(handler: DelegateHandler) {
     this.delegateHandler = handler;
@@ -199,10 +211,13 @@ export class AIWorkflowService {
         const followNavigate =
           (payload['followNavigate'] as boolean | undefined) !== false;
 
+        const orchestrator =
+          this.workflowOrchestratorFeature ?? 'buddy';
+
         if (delegatedActionObj) {
           // This is a structured action → dispatch to OrchestrationBus
           this.orchestrationBus.dispatch({
-            from: 'buddy',
+            from: orchestrator,
             to: target,
             type: this.mapActionToOrchType(delegatedActionObj['type'] as string),
             payload: (delegatedActionObj['payload'] as Record<string, unknown>) ?? delegatedActionObj,
@@ -210,10 +225,10 @@ export class AIWorkflowService {
           this.orchestrationBus.addLog(`📡 Tarea delegada a bot "${target}"`);
         } else if (instruction && this.delegateHandler) {
           // Plain text instruction → pass to the delegate handler (inter-bot messaging)
-          this.delegateHandler(target, instruction, { instruction });
+          this.delegateHandler(target, instruction, { instruction }, orchestrator);
         } else if (this.delegateHandler && target) {
           const message = JSON.stringify(delegatedActionObj ?? payload);
-          this.delegateHandler(target, message, delegatedActionObj ?? payload);
+          this.delegateHandler(target, message, delegatedActionObj ?? payload, orchestrator);
         } else {
           console.warn(`[Workflow] Delegate to "${target}" — no handler or target missing`);
         }

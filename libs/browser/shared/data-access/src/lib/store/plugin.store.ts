@@ -8,7 +8,7 @@ export interface PluginState {
 }
 
 const initialState: PluginState = {
-  enabledPlugins: ['dashboard', 'clients', 'projects', 'events', 'availability', 'services', 'reports', 'audit', 'inventory', 'budgets', 'delivery', 'fleet', 'rentals', 'billing', 'verifactu'],
+  enabledPlugins: ['dashboard', 'clients', 'projects', 'events', 'identity', 'availability', 'services', 'reports', 'audit', 'inventory', 'budgets', 'delivery', 'fleet', 'rentals', 'billing', 'verifactu'],
   realtimeSync: true,
   highPerformanceMode: false,
 };

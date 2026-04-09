@@ -115,9 +115,11 @@ export class AIBotStore {
   constructor() {
     // Register delegate handler in workflow service to enable inter-bot communication
     // without circular dependency (store → workflow, not workflow → store)
-    this.workflow.registerDelegateHandler((target: string, message: string, payload?: unknown) => {
-      this.handleBotDelegate(target, message, payload);
-    });
+    this.workflow.registerDelegateHandler(
+      (target: string, message: string, payload?: unknown, orchestratorFeature?: string) => {
+        this.handleBotDelegate(target, message, payload, orchestratorFeature);
+      },
+    );
 
     // Sincronización proactiva de filtros entre dominios
     effect(() => {
@@ -155,7 +157,13 @@ export class AIBotStore {
   }
 
   /** Handle a delegation request from a workflow action */
-  private handleBotDelegate(target: string, message: string, payload?: unknown): void {
+  private handleBotDelegate(
+    target: string,
+    message: string,
+    payload?: unknown,
+    /** Bot que ejecutó el workflow (p. ej. `buddy`). Si falta, se usa activeBotFeature (Ajustes). */
+    orchestratorFeature?: string,
+  ): void {
     // Map friendly target names to feature IDs
     const targetMap: Record<string, string> = {
       'budgets': 'budgets',
@@ -196,19 +204,21 @@ export class AIBotStore {
     const targetFeature = targetMap[target.toLowerCase().trim()] ?? target;
     const bot = this.getBotByFeature(targetFeature);
 
+    const fromFeature = orchestratorFeature ?? this.activeBotFeature();
+
     // Build an instruction message for the target bot
     const instructionText = typeof payload === 'object'
       ? `INSTRUCCIÓN AUTOMÁTICA DE BUDDY: ${JSON.stringify(payload)}`
       : message;
 
-    console.log(`📡 [Delegate] ${this.activeBotFeature()} → ${targetFeature}: ${instructionText}`);
+    console.log(`📡 [Delegate] ${fromFeature} → ${targetFeature}: ${instructionText}`);
 
     // 1) Send via inter-bot queue (for open chat windows)
-    this.sendInterBotMessage(this.activeBotFeature(), targetFeature, instructionText);
+    this.sendInterBotMessage(fromFeature, targetFeature, instructionText);
 
     // 2) Also publish to OrchestrationBus (for programmatic sub-bot reaction)
     this.orchestrationBus.dispatch({
-      from: this.activeBotFeature(),
+      from: fromFeature,
       to: targetFeature,
       type: 'custom_action',
       payload: typeof payload === 'object' ? (payload as Record<string, unknown>) : { instruction: message },
@@ -225,8 +235,16 @@ export class AIBotStore {
     return this.inference.generateResponse(prompt, context);
   }
 
-  async executeAction(actionStr: string): Promise<void> {
-    return this.workflow.executeAction(actionStr);
+  async executeAction(
+    actionStr: string,
+    opts?: { /** Bot cuyo chat ejecutó el [ACTION] (p. ej. buddy, events) */ sourceFeature?: string },
+  ): Promise<void> {
+    this.workflow.workflowOrchestratorFeature = opts?.sourceFeature ?? null;
+    try {
+      return await this.workflow.executeAction(actionStr);
+    } finally {
+      this.workflow.workflowOrchestratorFeature = null;
+    }
   }
 
   getActionSystemPrompt(): string {

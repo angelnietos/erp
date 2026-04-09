@@ -369,6 +369,12 @@ export class SidebarComponent {
     },
     { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events' },
     {
+      id: 'identity',
+      label: 'Identidad',
+      icon: 'id-card',
+      route: '/users',
+    },
+    {
       id: 'availability',
       label: 'Disponibilidad',
       icon: 'clock',

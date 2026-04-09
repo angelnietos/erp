@@ -2341,6 +2341,13 @@ export class SettingsFeatureComponent implements OnInit {
 
   readonly plugins: PluginDescriptor[] = [
     {
+      id: 'identity',
+      name: 'Identidad y usuarios',
+      description: 'Usuarios del tenant, roles y acceso al ERP.',
+      icon: 'id-card',
+      category: 'core',
+    },
+    {
       id: 'inventory',
       name: 'Inventario Pro',
       description: 'Control de stock y trazabilidad de material.',
