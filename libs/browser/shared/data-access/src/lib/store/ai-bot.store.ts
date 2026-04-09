@@ -204,7 +204,7 @@ export class AIBotStore {
   readonly selectedModelId = signal<string>(this.getInitialModelId());
 
   readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') || AI_CONFIG.xai_api_key || '',
+    localStorage.getItem('ai_api_key') || AI_CONFIG.openrouter_api_key || AI_CONFIG.xai_api_key || '',
   );
 
   readonly activeBotFeature = signal<string>(
@@ -635,8 +635,8 @@ export class AIBotStore {
 
   readonly needsApiKey = computed(() => {
     const provider = this.selectedProvider();
-    // Proveedores con claves por defecto o locales
-    const noKeyNeeded = ['ollama', 'free', 'openrouter', 'grok'];
+    const noKeyNeeded = ['ollama', 'free'];
+    // Grok y OpenRouter ahora mostrarán el input si no hay una clave global detectada para evitar el 401
     return !noKeyNeeded.includes(provider);
   });
 
@@ -2078,9 +2078,9 @@ export class AIBotStore {
     prompt: string,
     context?: string,
   ): Promise<string> {
-    // OpenRouter ofrece modelos GRATUITOS "de verdad" (como meta-llama/llama-3-8b-instruct:free)
+    // OpenRouter ofrece modelos GRATUITOS "de verdad"
     const apiKey = this.providerApiKey();
-    const model = 'meta-llama/llama-3-8b-instruct:free'; // Modelo gratuito por defecto
+    const model = AI_CONFIG.openrouter_model; 
 
     try {
       const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
