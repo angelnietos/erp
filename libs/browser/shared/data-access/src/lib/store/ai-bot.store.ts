@@ -90,6 +90,10 @@ export class AIBotStore {
   readonly language = signal<string>(localStorage.getItem('pref_lang') || 'es');
   readonly experimentalFeatures = signal<boolean>(localStorage.getItem('pref_labs') === 'true');
 
+  // Session and Archive Settings
+  readonly sessionTimeout = signal<number>(parseInt(localStorage.getItem('pref_session_timeout') || '30'));
+  readonly autoArchive = signal<boolean>(localStorage.getItem('pref_auto_archive') === 'true');
+
   // --- User Personality Profile ---
   private readonly _userPersonalities = signal<Record<string, UserPersonalityProfile>>(
     JSON.parse(localStorage.getItem('ai_user_personalities') || '{}')
@@ -125,6 +129,8 @@ export class AIBotStore {
       localStorage.setItem('pref_sound', String(this.soundEffects()));
       localStorage.setItem('pref_compact', String(this.compactMode()));
       localStorage.setItem('pref_lang', this.language());
+      localStorage.setItem('pref_session_timeout', String(this.sessionTimeout()));
+      localStorage.setItem('pref_auto_archive', String(this.autoArchive()));
       // Persist bot status and activeSkills overrides
       const botOverrides: Record<string, { status: string; activeSkills: string[] }> = {};
       Object.entries(this._bots()).forEach(([key, bot]) => {
@@ -323,12 +329,12 @@ export class AIBotStore {
     this.rageMode.set(enabled);
   }
   
-  setRageStyle(style: string) { 
+  setRageStyle(style: 'terror' | 'angry' | 'dark') { 
     this.rageStyle.set(style);
   }
 
   rageMode = signal(false);
-  rageStyle = signal('terror');
+  rageStyle = signal<'terror' | 'angry' | 'dark'>('terror');
 
   setAIModel(modelId: string) {
     this.inference.selectedModelId.set(modelId);
