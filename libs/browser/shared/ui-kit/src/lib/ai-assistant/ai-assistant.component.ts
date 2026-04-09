@@ -130,481 +130,527 @@ import { firstValueFrom } from 'rxjs';
                 }}** en tiempo real. ¿En qué puedo ayudarte hoy?
               </p>
               <div class="bot-skills-badges">
-                @for (skill of bot()!.activeSkills; track skill) {
-                  <span
-                    class="skill-badge"
-                    [style.background]="bot()!.color + '22'"
-                    [style.color]="bot()!.color"
-                  >
-                    {{ skill }}
-                  </span>
-                }
+                <span
+                  *ngFor="let skill of bot()!.activeSkills; trackBy: trackBySkill"
+                  class="skill-badge"
+                  [style.background]="bot()!.color + '22'"
+                  [style.color]="bot()!.color"
+                >
+                  {{ skill }}
+                </span>
+              </div>
+              <div class="commands-help" *ngIf="bot()!.feature === 'buddy'">
+                <p><strong>Comandos disponibles:</strong></p>
+                <ul>
+                  <li><code>calcula [expresión]</code> - Cálculos matemáticos</li>
+                  <li><code>busca [término]</code> - Búsqueda web</li>
+                  <li><code>genera imagen de [descripción]</code> - Generación de imágenes</li>
+                  <li><code>resume [texto]</code> - Resumen de texto</li>
+                  <li><code>qué hora es</code> - Hora actual</li>
+                  <li><code>qué fecha es</code> - Fecha actual</li>
+                  <li><code>cambiar tema</code> - Cambiar apariencia</li>
+                </ul>
               </div>
             </div>
 
-            @for (msg of messages(); track msg.id) {
+            <div
+              *ngFor="let msg of messages(); trackBy: trackByMsg"
+              class="message"
+              [class.user-msg]="msg.role === 'user'"
+              [class.bot-msg]="msg.role === 'bot'"
+            >
+              <!-- Reasoning Block -->
               <div
-                class="message"
-                [class.user-msg]="msg.role === 'user'"
-                [class.bot-msg]="msg.role === 'bot'"
+                class="msg-reasoning"
+                *ngIf="msg.reasoning"
+                [style.border-left-color]="bot()!.color"
               >
-                <!-- Reasoning Block -->
-                <div
-                  class="msg-reasoning"
-                  *ngIf="msg.reasoning"
-                  [style.border-left-color]="bot()!.color"
-                >
-                  <div class="reasoning-header">
-                    <div
-                      class="ai-pulse"
-                      [style.background]="bot()!.color"
-                    ></div>
-                    <span>TERMINAL DE PENSAMIENTO</span>
-                  </div>
-                  <p class="reasoning-text">{{ msg.reasoning }}</p>
-                </div>
-
-                <!-- Main Content -->
-                <p
-                  class="msg-content"
-                  *ngIf="msg.text"
-                  [innerHTML]="msg.text"
-                ></p>
-
-                <!-- Premium Typing Indicator -->
-                <div
-                  class="typing-indicator"
-                  *ngIf="!msg.text && msg.id.toString().startsWith('typing')"
-                >
-                  <span class="dot"></span>
-                  <span class="dot"></span>
-                  <span class="dot"></span>
-                </div>
-
-                <div
-                  class="msg-feedback"
-                  *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text"
-                >
-                  <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
-                    <button
-                      class="feedback-btn"
-                      (click)="submitFeedback(msg, 'positive')"
-                      title="Me gusta esta respuesta"
-                    >
-                      👍
-                    </button>
-                    <button
-                      class="feedback-btn"
-                      (click)="submitFeedback(msg, 'negative')"
-                      title="No me gusta esta respuesta"
-                    >
-                      👎
-                    </button>
-                  </div>
+                <div class="reasoning-header">
                   <div
-                    class="feedback-submitted text-friendly"
-                    *ngIf="msg.feedbackSubmitted"
+                    class="ai-pulse"
+                    [style.background]="bot()!.color"
+                  ></div>
+                  <span>TERMINAL DE PENSAMIENTO</span>
+                </div>
+                <p class="reasoning-text">{{ msg.reasoning }}</p>
+              </div>
+
+              <!-- Main Content -->
+              <p
+                class="msg-content"
+                *ngIf="msg.text"
+                [innerHTML]="msg.text"
+              ></p>
+
+              <!-- Typing Indicator -->
+              <div
+                class="typing-indicator"
+                *ngIf="!msg.text && msg.id.toString().startsWith('typing')"
+              >
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+
+              <div
+                class="msg-feedback"
+                *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text"
+              >
+                <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
+                  <button
+                    class="feedback-btn"
+                    (click)="submitFeedback(msg, 'positive')"
+                    title="Me gusta esta respuesta"
                   >
-                    <lucide-icon name="check" size="12"></lucide-icon> Guardado
-                    en Memoria
-                  </div>
+                    👍
+                  </button>
+                  <button
+                    class="feedback-btn"
+                    (click)="submitFeedback(msg, 'negative')"
+                    title="No me gusta esta respuesta"
+                  >
+                    👎
+                  </button>
+                </div>
+                <div
+                  class="feedback-submitted text-friendly"
+                  *ngIf="msg.feedbackSubmitted"
+                >
+                  <lucide-icon name="check" size="12"></lucide-icon> Guardado
+                  en Memoria
                 </div>
               </div>
-            }
-          </div>
-
-          <!-- Bot Status Bar -->
-          <div
-            class="bot-status-bar"
-            *ngIf="bot()"
-            [style.border-top-color]="bot()!.color"
-          >
-            <div class="status-item">
-              <span class="label">HUMOR:</span>
-              <span class="val">{{
-                (
-                  aiBotStore.botMoods()[this.feature]?.mood || 'NEUTRAL'
-                ).toUpperCase()
-              }}</span>
-            </div>
-            <div class="status-item">
-              <span class="label">ENERGÍA:</span>
-              <div class="energy-bar">
-                <div
-                  class="energy-fill"
-                  [style.width]="
-                    (aiBotStore.botMoods()[this.feature]?.energy || 100) + '%'
-                  "
-                  [style.background]="bot()!.color"
-                ></div>
-              </div>
             </div>
           </div>
 
+          <!-- Input Area -->
           <div class="chat-input-area">
             <button
               class="voice-btn"
-              [class.recording]="isListening()"
               (click)="toggleSpeech()"
+              [class.active]="isListening()"
+              [title]="isListening() ? 'Detener Dictado' : 'Iniciar Dictado'"
             >
               <lucide-icon
-                [name]="isListening() ? 'mic-off' : 'mic'"
-                size="18"
+                [name]="isListening() ? 'mic' : 'mic-off'"
+                [size]="20"
               ></lucide-icon>
             </button>
             <input
               type="text"
-              placeholder="Escribe aquí tu consulta..."
               [(ngModel)]="currentInput"
               (keyup.enter)="sendMessage()"
+              placeholder="Escribe un mensaje..."
             />
             <ui-josanz-button
-              variant="filled"
+              variant="ghost"
               size="sm"
-              (click)="sendMessage()"
+              icon="send"
+              (clicked)="sendMessage()"
+              [disabled]="!currentInput.trim()"
             >
-              <lucide-icon name="send" size="16"></lucide-icon>
             </ui-josanz-button>
           </div>
         </div>
       </div>
     </div>
   `,
-  styles: [
-    `
-      .ai-assistant-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 1.2rem;
-        z-index: 1000;
-        pointer-events: none;
-      }
+  styles: [`
+    :host {
+      display: block;
+    }
 
-      .ai-assistant-wrapper > * {
-        pointer-events: auto;
-      }
+    .ai-assistant-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 99999;
+    }
 
-      .ai-assistant-wrapper.secondary {
-        z-index: 999;
-      }
+    .ai-assistant-wrapper > * {
+      pointer-events: auto;
+    }
 
-      .mascot-trigger {
-        cursor: grab;
-        transition: all 0.4s var(--ease-out-expo);
-        opacity: 0.85;
-        transform: scale(0.9);
-        filter: saturate(0.9);
-        position: absolute;
-        user-select: none;
-      }
+    .ai-assistant-wrapper.secondary {
+      z-index: 10000;
+    }
 
-      .mascot-trigger:active,
-      .mascot-trigger.cdk-drag-dragging {
-        cursor: grabbing;
-        transform: scale(1.05);
-        z-index: 10002;
-      }
+    .mascot-trigger {
+      cursor: grab;
+      transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      opacity: 0.85;
+      transform: scale(0.9);
+      filter: saturate(0.9) drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+      position: absolute;
+      user-select: none;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      top: 0;
+      left: 0;
+    }
 
-      .mascot-trigger:hover,
-      .ai-assistant-wrapper.is-open .mascot-trigger {
+    .notification-dot {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 14px;
+      height: 14px;
+      background: #ff4757;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+      z-index: 10;
+    }
+
+    @keyframes animate-pulse {
+      0%,
+      100% {
         opacity: 1;
         transform: scale(1);
-        filter: saturate(1);
       }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+      }
+    }
 
-      .mascot-trigger:hover,
-      .ai-assistant-wrapper.is-open .mascot-trigger {
+    .animate-pulse {
+      animation: animate-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
         opacity: 1;
-        transform: scale(1);
-        filter: saturate(1);
+        transform: translateY(0) scale(1);
       }
+    }
 
-      .chat-window-container {
-        position: fixed;
-        width: 400px;
-        z-index: 10001;
-        margin: 0;
-      }
+    .animate-slide-up {
+      animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
 
-      .chat-window-container.cdk-drag-dragging {
-        transform: rotate(2deg);
-        z-index: 10003 !important;
-      }
+    .mascot-trigger:active,
+    .mascot-trigger.cdk-drag-dragging {
+      cursor: grabbing;
+      transform: scale(1.05);
+      z-index: 10002;
+    }
 
-      .chat-window-container.cdk-drag-dragging .chat-window {
-        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9);
-      }
+    .mascot-trigger:hover,
+    .ai-assistant-wrapper.is-open .mascot-trigger {
+      opacity: 1;
+      transform: scale(1);
+      filter: saturate(1);
+    }
 
-      .chat-window {
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        height: 550px;
-        overflow: hidden;
-        border-radius: 24px;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
-        background: #0f172a !important;
-        backdrop-filter: blur(25px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
+    .chat-window-container {
+      position: fixed;
+      width: 400px;
+      z-index: 10001;
+      margin: 0;
+    }
 
-      .chat-header {
-        flex-shrink: 0;
-        padding: 1.5rem;
-        background: rgba(255, 255, 255, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid transparent;
-        cursor: grab;
-      }
+    .chat-window-container.cdk-drag-dragging {
+      transform: rotate(2deg);
+      z-index: 10003 !important;
+    }
 
-      .bot-status-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
+    .chat-window-container.cdk-drag-dragging .chat-window {
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9);
+    }
 
-      .status-indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        box-shadow: 0 0 15px currentColor;
-      }
+    .chat-window {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 550px;
+      overflow: hidden;
+      border-radius: 24px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+      background: #0f172a !important;
+      backdrop-filter: blur(25px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-      .chat-header h4 {
-        margin: 0;
-        font-size: 1.1rem;
-        color: #fff;
-        font-weight: 800;
-      }
-      .chat-header p {
-        margin: 0;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        font-weight: 600;
-      }
+    .chat-header {
+      flex-shrink: 0;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      cursor: grab;
+    }
 
-      .window-actions {
-        display: flex;
-        gap: 0.25rem;
-      }
+    .bot-status-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-      .action-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 6px;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 15px currentColor;
+    }
 
-      .bot-status-bar {
-        padding: 0.5rem 1rem;
-        background: rgba(0, 0, 0, 0.3);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        gap: 1.5rem;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.65rem;
-      }
+    .chat-header h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #fff;
+      font-weight: 800;
+    }
+    .chat-header p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
 
-      .status-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
+    .window-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
 
-      .status-item .label {
-        color: var(--text-muted);
-        font-weight: 800;
-      }
-      .status-item .val {
-        color: #fff;
-        font-weight: 800;
-        text-shadow: 0 0 5px currentColor;
-      }
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .energy-bar {
-        width: 60px;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-        overflow: hidden;
-      }
+    .bot-status-bar {
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+    }
 
-      .energy-fill {
-        height: 100%;
-        transition: width 0.5s ease;
-      }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-      .ai-pulse {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        animation: scannerPulse 1.5s infinite;
-      }
+    .status-item .label {
+      color: var(--text-muted);
+      font-weight: 800;
+    }
+    .status-item .val {
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 0 5px currentColor;
+    }
 
-      @keyframes scannerPulse {
-        0% {
-          transform: scale(1);
-          opacity: 1;
-          box-shadow: 0 0 0 0 currentColor;
-        }
-        70% {
-          transform: scale(1.5);
-          opacity: 0.5;
-          box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-        }
-      }
+    .energy-bar {
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
 
-      .typing-indicator {
-        display: flex;
-        gap: 4px;
-        padding: 0.5rem 0;
-      }
+    .energy-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
 
-      .typing-indicator .dot {
-        width: 6px;
-        height: 6px;
-        background: var(--text-muted);
-        border-radius: 50%;
-        animation: typingDot 1.4s infinite;
+    .ai-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 0.5rem 0;
+    }
+
+    .typing-indicator .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typingDot 1.4s infinite;
+      opacity: 0.3;
+    }
+
+    .typing-indicator .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typingDot {
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
         opacity: 0.3;
       }
+      30% {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+    }
 
-      .typing-indicator .dot:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-      .typing-indicator .dot:nth-child(3) {
-        animation-delay: 0.4s;
-      }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      background: rgba(0, 0, 0, 0.1);
+    }
 
-      @keyframes typingDot {
-        0%,
-        60%,
-        100% {
-          transform: translateY(0);
-          opacity: 0.3;
-        }
-        30% {
-          transform: translateY(-4px);
-          opacity: 1;
-        }
-      }
+    .message {
+      max-width: 88%;
+      padding: 0.85rem 1.1rem;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
 
-      .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        background: rgba(0, 0, 0, 0.1);
-      }
+    .bot-msg {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #fafafa;
+      border-bottom-left-radius: 4px;
+    }
 
-      .message {
-        max-width: 88%;
-        padding: 0.85rem 1.1rem;
-        border-radius: 18px;
-        font-size: 0.95rem;
-        line-height: 1.5;
-      }
+    .user-msg {
+      align-self: flex-end;
+      background: var(--brand);
+      color: #000;
+      font-weight: 600;
+      border-bottom-right-radius: 4px;
+    }
 
-      .bot-msg {
-        align-self: flex-start;
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        color: #fafafa;
-        border-bottom-left-radius: 4px;
-      }
+    .msg-reasoning {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 2px solid var(--brand);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
 
-      .user-msg {
-        align-self: flex-end;
-        background: var(--brand);
-        color: #000;
-        font-weight: 600;
-        border-bottom-right-radius: 4px;
-      }
+    .reasoning-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-weight: 800;
+      margin-bottom: 4px;
+      opacity: 0.6;
+    }
 
-      .msg-reasoning {
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-left: 2px solid var(--brand);
-        border-radius: 4px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-      }
+    .reasoning-text {
+      color: var(--text-muted);
+      font-style: italic;
+      margin: 0 !important;
+      line-height: 1.3 !important;
+    }
 
-      .reasoning-header {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        color: var(--text-muted);
-        font-weight: 800;
-        margin-bottom: 4px;
-        opacity: 0.6;
-      }
+    .chat-input-area {
+      flex-shrink: 0;
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
 
-      .reasoning-text {
-        color: var(--text-muted);
-        font-style: italic;
-        margin: 0 !important;
-        line-height: 1.3 !important;
-      }
+    .voice-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
 
-      .chat-input-area {
-        flex-shrink: 0;
-        padding: 1.5rem;
-        border-top: 1px solid var(--border-soft);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        background: rgba(0, 0, 0, 0.2);
-      }
+    .voice-btn.active {
+      background: #ef4444;
+      border-color: #ef4444;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    }
 
-      .voice-btn {
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        cursor: pointer;
-      }
+    .chat-input-area input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 0.65rem 1.25rem;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.3s;
+    }
 
-      .chat-input-area input {
-        flex: 1;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--border-soft);
-        border-radius: 14px;
-        padding: 0.75rem 1.25rem;
-        color: #fff;
-        outline: none;
-      }
+    .chat-input-area input:focus {
+      border-color: var(--brand);
+    }
 
-      .chat-input-area input:focus {
-        border-color: var(--brand);
-      }
-    `,
-  ],
+    .commands-help {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .commands-help ul {
+      margin: 0.25rem 0 0 0;
+      padding-left: 1rem;
+    }
+
+    .commands-help li {
+      margin-bottom: 0.25rem;
+    }
+
+    .commands-help code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #fff;
+    }
+  `],
 })
 export class UIAIChatComponent implements OnInit, OnDestroy {
   private readonly _feature = signal<string>('');
@@ -691,6 +737,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   constructor() {
     this.initSpeechRecognition();
     effect(() => {
+      const b = this.bot();
+      console.log(`[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`);
+      
       this.aiBotStore.interBotTick();
       const items = this.aiBotStore.pullInterBotMessagesFor(this.feature);
       if (items.length === 0) return;
@@ -856,6 +905,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Detectar otros comandos útiles
+    const generalCommand = this.detectGeneralCommand(userInput);
+    if (generalCommand) {
+      await this.executeGeneralCommand(
+        generalCommand.type,
+        generalCommand.args,
+        userInput,
+      );
+      return;
+    }
+
     this.messages.update((m) => [
       ...m,
       { id: Date.now().toString(), text: userInput, role: 'user' },
@@ -880,10 +940,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
 
     try {
-      // Construir contexto basado en el rol del bot
+      // Construir contexto basado en el rol del bot y historial de conversación
       const botMemories = this.aiBotStore.getBotContext(this.feature);
+      const conversationHistory = this.messages()
+        .slice(-6) // Últimos 6 mensajes para mantener contexto relevante
+        .map((m) => `${m.role === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`)
+        .join('\n');
+
+      const systemPrompt = `Eres ${this.bot()!.name}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual.`;
+
       const context =
-        botMemories.length > 0
+        `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +
+        (botMemories.length > 0
           ? `Contexto relevante:\n${botMemories
               .sort((a, b) => b.importance - a.importance)
               .slice(0, 10)
@@ -892,7 +960,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                   `- ${m.text} (${new Date(m.timestamp).toLocaleDateString()})`,
               )
               .join('\n')}\n\n`
-          : '';
+          : '');
 
       // Generar respuesta usando proveedores gratuitos con contexto
       const response = await this.aiBotStore.generateFreeResponse(
@@ -1198,5 +1266,208 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       `Tema cambiado a ${themeName}`,
       'all',
     );
+  }
+
+  private detectGeneralCommand(
+    text: string,
+  ): { type: string; args: Record<string, any> } | null {
+    const lowerText = text.toLowerCase();
+
+    // Detección de cálculos matemáticos
+    const calcPatterns = [
+      /calcula?\s+(.+)/i,
+      /cuánto\s+es\s+(.+)/i,
+      /what\s+is\s+(.+)/i,
+      /calculate\s+(.+)/i,
+      /(\d+[\+\-\*\/\(\)\.\s]*\d+)/, // Expresiones con números y operadores
+    ];
+
+    for (const pattern of calcPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        const expression = match[1].trim();
+        // Verificar que contenga operadores matemáticos
+        if (/[\+\-\*\/]/.test(expression)) {
+          return { type: 'calculate', args: { expression } };
+        }
+      }
+    }
+
+    // Detección de búsqueda web
+    const searchPatterns = [
+      /busca\s+(.+)/i,
+      /buscar\s+(.+)/i,
+      /search\s+(.+)/i,
+      /investiga\s+(.+)/i,
+    ];
+
+    for (const pattern of searchPatterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        return { type: 'web_search', args: { query: match[1].trim() } };
+      }
+    }
+
+    // Detección de generación de imágenes
+    const imagePatterns = [
+      /genera\s+(?:una\s+)?imagen\s+de\s+(.+)/i,
+      /crea\s+(?:una\s+)?imagen\s+de\s+(.+)/i,
+      /generate\s+(?:an\s+)?image\s+of\s+(.+)/i,
+    ];
+
+    for (const pattern of imagePatterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        return { type: 'generate_image', args: { prompt: match[1].trim() } };
+      }
+    }
+
+    // Detección de resumen de texto
+    if (/resume\s+(.+)/i.test(text) || /resumir\s+(.+)/i.test(text)) {
+      const match = text.match(/(?:resume|resumir)\s+(.+)/i);
+      if (match) {
+        return { type: 'summarize', args: { text: match[1].trim() } };
+      }
+    }
+
+    // Detección de hora actual
+    if (
+      /qué\s+hora\s+es/i.test(lowerText) ||
+      /what\s+time\s+is\s+it/i.test(lowerText)
+    ) {
+      return { type: 'current_time', args: {} };
+    }
+
+    // Detección de fecha actual
+    if (
+      /qué\s+fecha\s+es/i.test(lowerText) ||
+      /what\s+date\s+is\s+it/i.test(lowerText) ||
+      /qué\s+día\s+es\s+hoy/i.test(lowerText)
+    ) {
+      return { type: 'current_date', args: {} };
+    }
+
+    return null;
+  }
+
+  private async executeGeneralCommand(
+    type: string,
+    args: Record<string, any>,
+    userInput: string,
+  ) {
+    // Agregar mensaje del usuario
+    this.messages.update((m) => [
+      ...m,
+      { id: Date.now().toString(), text: userInput, role: 'user' },
+    ]);
+    this.currentInput = '';
+    this.scrollToBottom();
+
+    let botResponse = '';
+    let reasoning = '';
+
+    try {
+      switch (type) {
+        case 'calculate':
+          reasoning = `Calculando la expresión matemática: ${args['expression']}`;
+          const result = this.safeEvaluateMath(args['expression']);
+          botResponse = `El resultado de ${args['expression']} es: **${result}**`;
+          break;
+
+        case 'web_search':
+          reasoning = `Realizando búsqueda web para: ${args['query']}`;
+          botResponse = `Buscando información sobre "${args['query']}"... Para búsquedas avanzadas, considera usar Gemini como proveedor de IA.`;
+          // Aquí podrías integrar una API de búsqueda si tienes acceso
+          break;
+
+        case 'generate_image':
+          reasoning = `Generando imagen con el prompt: ${args['prompt']}`;
+          botResponse = `Generando imagen de "${args['prompt']}"... Esta función requiere integración con servicios de IA como DALL-E o Stable Diffusion.`;
+          break;
+
+        case 'summarize':
+          reasoning = `Resumiendo el texto proporcionado`;
+          const summary = this.generateSummary(args['text']);
+          botResponse = `Resumen: ${summary}`;
+          break;
+
+        case 'current_time':
+          reasoning = `Consultando la hora actual`;
+          botResponse = `La hora actual es: **${new Date().toLocaleTimeString('es-ES')}**`;
+          break;
+
+        case 'current_date':
+          reasoning = `Consultando la fecha actual`;
+          botResponse = `La fecha actual es: **${new Date().toLocaleDateString('es-ES')}**`;
+          break;
+
+        default:
+          botResponse = `Comando "${type}" no reconocido.`;
+      }
+
+      this.messages.update((m) => [
+        ...m,
+        {
+          id: (Date.now() + 1).toString(),
+          text: botResponse,
+          role: 'bot',
+          reasoning: reasoning || undefined,
+        },
+      ]);
+    } catch (error) {
+      this.messages.update((m) => [
+        ...m,
+        {
+          id: (Date.now() + 1).toString(),
+          text: `Error ejecutando comando ${type}: ${error}`,
+          role: 'bot',
+        },
+      ]);
+    }
+
+    this.scrollToBottom();
+  }
+
+  private safeEvaluateMath(expression: string): string {
+    try {
+      // Limpiar la expresión para seguridad básica
+      const cleanExpr = expression
+        .replace(/[^0-9+\-*/().\s]/g, '') // Solo permitir números, operadores y paréntesis
+        .replace(/\s+/g, ''); // Remover espacios
+
+      // Evaluar con Function constructor para mayor seguridad
+      const result = new Function('return ' + cleanExpr)();
+      return typeof result === 'number'
+        ? result.toString()
+        : 'Resultado no numérico';
+    } catch (error) {
+      return `Error en cálculo: ${error}`;
+    }
+  }
+
+  private generateSummary(text: string): string {
+    // Implementación básica de resumen
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+    if (sentences.length <= 3) return text;
+
+    // Tomar primera y última oración, y una del medio si hay muchas
+    const summary =
+      [
+        sentences[0],
+        sentences[Math.floor(sentences.length / 2)],
+        sentences[sentences.length - 1],
+      ]
+        .filter((s, i, arr) => arr.indexOf(s) === i) // Remover duplicados
+        .join('. ') + '.';
+
+    return summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
+  }
+
+  trackBySkill(index: number, skill: string) {
+    return skill;
+  }
+
+  trackByMsg(index: number, msg: any) {
+    return msg.id;
   }
 }
