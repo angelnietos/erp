@@ -22,4 +22,11 @@ export const projectsFeatureRoutes: Route[] = [
         (m) => m.ProjectsDetailComponent,
       ),
   },
+  {
+    path: ':id/edit',
+    loadComponent: () =>
+      import('./projects-detail/projects-detail.component').then(
+        (m) => m.ProjectsDetailComponent,
+      ),
+  },
 ];

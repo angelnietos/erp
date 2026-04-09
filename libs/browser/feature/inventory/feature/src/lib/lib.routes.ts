@@ -5,6 +5,7 @@ import { InventoryDetailComponent } from './inventory-detail/inventory-detail.co
 export const inventoryFeatureRoutes: Route[] = [
   { path: '', component: InventoryListComponent },
   { path: ':id', component: InventoryDetailComponent },
+  { path: ':id/edit', component: InventoryDetailComponent },
 ];
 
 export * from './inventory-list/inventory-list.component';

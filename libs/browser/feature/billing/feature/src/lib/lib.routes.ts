@@ -5,6 +5,7 @@ import { BillingDetailComponent } from './billing-detail/billing-detail.componen
 export const billingFeatureRoutes: Route[] = [
   { path: '', component: BillingListComponent },
   { path: ':id', component: BillingDetailComponent },
+  { path: ':id/edit', component: BillingDetailComponent },
 ];
 
 export * from './billing-list/billing-list.component';
