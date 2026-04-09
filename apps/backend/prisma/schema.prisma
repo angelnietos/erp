@@ -13,8 +13,17 @@ model Client {
   description String?
   sector      String?
   type        String    @default("COMPANY") // COMPANY or INDIVIDUAL
+  taxId       String?   @map("tax_id")
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  zipCode     String?   @map("zip_code")
+  country     String?   @default("ES")
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
+  contacts    ClientContact[]
+  eventReports EventReport[]
   budgets     Budget[]
   events      Event[]
   projects    Project[]
@@ -22,6 +31,24 @@ model Client {
   rentals     Rental[]
 
   @@map("clients")
+}
+
+model ClientContact {
+  id        String   @id @default(uuid()) @db.Uuid
+  clientId  String   @map("client_id") @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  email     String?
+  phone     String?
+  position  String?
+  notes     String?
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@map("client_contacts")
 }
 
 model Product {
@@ -257,6 +284,8 @@ model Tenant {
   integrationWebhookDeliveries IntegrationWebhookDelivery[]
   integrationWebhookQueue      IntegrationWebhookQueueItem[]
   aiInsights                   AiInsight[]
+  clientContacts               ClientContact[]
+  eventReports                 EventReport[]
 
   @@map("tenants")
 }
@@ -439,11 +468,30 @@ model Event {
   budgets     Budget[]
   projects    ProjectEvent[]
   technicians EventTechnician[]
+  reports     EventReport[]
   client      Client?           @relation(fields: [clientId], references: [id])
   tenant      Tenant            @relation(fields: [tenantId], references: [id])
   createdAt   DateTime          @default(now()) @map("created_at")
 
   @@map("events")
+}
+
+model EventReport {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  eventId   String   @map("event_id") @db.Uuid
+  clientId  String   @map("client_id") @db.Uuid
+  title     String
+  content   String   @db.Text
+  authorId  String?  @map("author_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  author    User?    @relation(fields: [authorId], references: [id])
+
+  @@map("event_reports")
 }
 
 model Technician {
@@ -571,6 +619,7 @@ model User {
 
   @@unique([tenantId, email])
   @@map("users")
+  eventReports  EventReport[]
 }
 
 model Role {

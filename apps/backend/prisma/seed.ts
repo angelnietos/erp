@@ -106,6 +106,8 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.project.deleteMany({ where: { tenantId } });
   await prisma.technician.deleteMany({ where: { tenantId } });
   await prisma.driver.deleteMany({ where: { tenantId } });
+  await (prisma as any).eventReport.deleteMany({ where: { tenantId } });
+  await (prisma as any).clientContact.deleteMany({ where: { tenantId } });
   await prisma.client.deleteMany({ where: { tenantId } });
 
   await prisma.outboxEvent.deleteMany({});
@@ -216,35 +218,131 @@ async function main() {
       data: {
         tenantId: tenant.id,
         name: 'Eventos Global S.L.',
+        taxId: 'B12345678',
+        email: 'info@eventosglobal.es',
+        phone: '+34 912 345 678',
+        address: 'Calle Serrano 45',
+        city: 'Madrid',
+        zipCode: '28001',
         sector: 'Entertainment',
-        description: `Contacto: Ana López · ana@eventosglobal.es · +34 611 222 333 · C/ Serrano 45, Madrid`,
+        description: 'Cliente principal de eventos corporativos',
+        contacts: {
+          create: [
+            {
+              tenantId: tenant.id,
+              name: 'Ana López',
+              email: 'ana@eventosglobal.es',
+              phone: '+34 611 222 333',
+              position: 'Directora de Eventos',
+              isPrimary: true,
+            },
+          ],
+        },
       },
     }),
     prisma.client.create({
       data: {
         tenantId: tenant.id,
         name: 'Audiovisuales Madrid',
+        taxId: 'A87654321',
+        email: 'contacto@audiomadrid.es',
+        phone: '+34 913 456 789',
+        address: 'Polígono Vallecas, Nave 4',
+        city: 'Madrid',
+        zipCode: '28031',
         sector: 'Production',
-        description: `Contacto: Carlos Ruiz · produccion@audiomadrid.es · +34 622 333 444 · Polígono Vallecas`,
+        description: 'Partner para producciones a gran escala',
+        contacts: {
+          create: [
+            {
+              tenantId: tenant.id,
+              name: 'Carlos Ruiz',
+              email: 'produccion@audiomadrid.es',
+              phone: '+34 622 333 444',
+              position: 'Jefe de Producción',
+              isPrimary: true,
+            },
+          ],
+        },
       },
     }),
     prisma.client.create({
       data: {
         tenantId: tenant.id,
         name: 'Congresos S.A.',
+        taxId: 'B99887766',
+        email: 'info@congresos.es',
+        phone: '+34 914 567 890',
+        address: 'Avenida del Partenón, 5',
+        city: 'Madrid',
+        zipCode: '28042',
         sector: 'Corporate',
-        description: `Contacto: María Santos · msantos@congresos.es · +34 633 444 555 · IFEMA Norte`,
+        description: 'Organizador oficial de IFEMA',
+        contacts: {
+          create: [
+            {
+              tenantId: tenant.id,
+              name: 'María Santos',
+              email: 'msantos@congresos.es',
+              phone: '+34 633 444 555',
+              position: 'Account Manager',
+              isPrimary: true,
+            },
+          ],
+        },
       },
     }),
     prisma.client.create({
       data: {
         tenantId: tenant.id,
         name: 'Teatro Lírica Producciones',
+        taxId: 'B22334455',
+        email: 'admin@lirica.es',
+        phone: '+34 915 678 901',
+        address: 'Gran Vía 88',
+        city: 'Madrid',
+        zipCode: '28013',
         sector: 'Entertainment',
-        description: `Contacto: Pedro Vega · pedro@lirica.es · +34 644 555 666 · Gran Vía 88, Madrid`,
+        description: 'Producciones teatrales y musicales',
+        contacts: {
+          create: [
+            {
+              tenantId: tenant.id,
+              name: 'Pedro Vega',
+              email: 'pedro@lirica.es',
+              phone: '+34 644 555 666',
+              position: 'Director Artístico',
+              isPrimary: true,
+            },
+          ],
+        },
       },
     }),
   ]);
+
+  // Seed some event reports
+  const event1 = await prisma.event.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Lanzamiento de Producto Tech',
+      clientId: clients[0].id,
+      startDate: new Date('2026-04-10T09:00:00Z'),
+      endDate: new Date('2026-04-10T18:00:00Z'),
+      location: 'Palacio de Cristal, Madrid',
+      status: 'PLANNED',
+    },
+  });
+
+  await (prisma as any).eventReport.create({
+    data: {
+      tenantId: tenant.id,
+      eventId: event1.id,
+      clientId: clients[0].id,
+      title: 'Informe de Montaje - Lanzamiento Tech',
+      content: 'El montaje se completó según lo previsto. Todos los equipos de audio y video están operativos. Se recomienda personal adicional para el desmontaje.',
+      authorId: admin.id,
+    },
+  });
 
   const productDefs = [
     { name: 'Proyector Láser 4K', price: 1500, stock: 10, sku: 'PRJ-4K-001' },

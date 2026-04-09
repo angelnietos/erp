@@ -10,42 +10,91 @@ export class ClientsService {
   async findAll(tenantId: string) {
     const clients = await this.prisma.client.findMany({
       where: { tenantId, deletedAt: null },
+      include: {
+        contacts: {
+          where: { isPrimary: true },
+          take: 1
+        }
+      },
       orderBy: { createdAt: 'desc' },
     });
-    return clients.map(c => this.mapToDto(c as Record<string, unknown>));
+    return clients.map(c => this.mapToDto(c));
   }
 
   async findOne(tenantId: string, id: string) {
     const client = await this.prisma.client.findFirst({
       where: { id, tenantId, deletedAt: null },
+      include: {
+        contacts: true,
+        eventReports: {
+          include: {
+            event: true,
+            author: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        },
+        budgets: {
+          include: {
+            invoices: true
+          },
+          orderBy: { createdAt: 'desc' }
+        }
+      },
     });
     if (!client) throw new NotFoundException('Cliente no encontrado');
-    return this.mapToDto(client as Record<string, unknown>);
+    return this.mapToDto(client);
   }
 
-  async create(tenantId: string, data: ClientData) {
+  async create(tenantId: string, data: any) {
     const client = await this.prisma.client.create({
       data: {
         tenantId,
-        name: String(data['name'] || data['company'] || 'Nuevo Cliente'),
-        description: data['address'] ? String(data['address']) : data['email'] ? String(data['email']) : undefined,
-        sector: data['type'] ? String(data['type']) : 'corporate'
+        name: data.name || data.company || 'Nuevo Cliente',
+        taxId: data.taxId,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        zipCode: data.zipCode,
+        country: data.country || 'ES',
+        description: data.description,
+        sector: data.sector || data.type || 'corporate',
+        type: data.type || 'COMPANY'
       },
+      include: {
+        contacts: true
+      }
     });
-    return this.mapToDto(client as Record<string, unknown>);
+    return this.mapToDto(client);
   }
 
-  async update(tenantId: string, id: string, data: ClientData) {
-    const updateData: Record<string, unknown> = {};
-    if (data['name'] || data['company']) updateData['name'] = String(data['name'] || data['company']);
-    if (data['address'] || data['email']) updateData['description'] = String(data['address'] || data['email']);
-    if (data['type']) updateData['sector'] = String(data['type']);
-
+  async update(tenantId: string, id: string, data: any) {
     const client = await this.prisma.client.update({
       where: { id },
-      data: updateData as Parameters<typeof this.prisma.client.update>[0]['data'],
+      data: {
+        name: data.name || data.company,
+        taxId: data.taxId,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        zipCode: data.zipCode,
+        country: data.country,
+        description: data.description,
+        sector: data.sector || data.type,
+        type: data.type
+      },
+      include: {
+        contacts: true
+      }
     });
-    return this.mapToDto(client as Record<string, unknown>);
+    return this.mapToDto(client);
   }
 
   async delete(_tenantId: string, id: string) {
@@ -56,24 +105,29 @@ export class ClientsService {
     return { success: true };
   }
 
-  private mapToDto(client: Record<string, unknown>) {
-    const createdAt = client['createdAt'] as Date | undefined;
-    const desc = String(client['description'] ?? '');
+  private mapToDto(client: any) {
     return {
-      id: client['id'],
-      name: client['name'],
-      description: desc,
-      sector: String(client['sector'] ?? 'corporate'),
-      contact: 'Comercial',
-      email: 'info@cliente.com',
-      phone: '+34 600 000 000',
-      company: client['name'],
-      address: desc || 'Dirección no especificada',
-      status: 'active',
-      type: client['sector'] || 'corporate',
-      createdAt: createdAt?.toISOString(),
-      updatedAt: undefined,
-      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(String(client['name'] || ''))}&background=random`,
+      id: client.id,
+      name: client.name,
+      taxId: client.taxId,
+      email: client.email,
+      phone: client.phone,
+      address: client.address,
+      city: client.city,
+      zipCode: client.zipCode,
+      country: client.country,
+      description: client.description,
+      sector: client.sector,
+      type: client.type,
+      contacts: client.contacts || [],
+      eventReports: client.eventReports || [],
+      budgets: client.budgets || [],
+      // Compatibility fields
+      company: client.name,
+      status: client.deletedAt ? 'inactive' : 'active',
+      createdAt: client.createdAt?.toISOString(),
+      updatedAt: client.updatedAt?.toISOString(),
+      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(client.name)}&background=random`,
     };
   }
 }
