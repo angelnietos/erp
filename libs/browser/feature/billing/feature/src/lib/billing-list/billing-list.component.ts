@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   UiButtonComponent,
@@ -125,8 +125,13 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
               [status]="inv.status === 'paid' ? 'active' : 'offline'"
               [badgeLabel]="getStatusLabel(inv.status) | uppercase"
               [badgeVariant]="getStatusVariant(inv.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="inv.status === 'draft'"
               (cardClicked)="onRowClick(inv)"
               (editClicked)="editInvoice(inv)"
+              (duplicateClicked)="onDuplicate(inv)"
+              (deleteClicked)="confirmDelete(inv)"
               [footerItems]="[
                 { icon: 'calendar', label: formatDate(inv.issueDate) },
                 { icon: 'euro', label: ((inv.total || 0) | currency:'EUR') || '-' },
@@ -145,19 +150,19 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                  }
               </div>
 
-              <div footer-extra class="card-actions">
-                 <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/billing', inv.id]"></ui-button>
+              <div footer-extra class="billing-extra-actions">
+                 <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/billing', inv.id]" title="Detalles"></ui-button>
                  
                  @if (inv.status === 'draft') {
-                    <ui-button variant="ghost" size="sm" icon="play" (click)="$event.stopPropagation(); issueInvoice(inv)" class="text-success"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="play" (click)="$event.stopPropagation(); issueInvoice(inv)" class="text-success" title="Emitir Factura"></ui-button>
                  }
 
                  @if (inv.status !== 'draft' && config.enableVerifactu) {
                     @if (!inv.verifactuStatus || inv.verifactuStatus === 'pending' || inv.verifactuStatus === 'error') {
-                       <ui-button variant="ghost" size="sm" [icon]="inv.verifactuStatus === 'error' ? 'refresh-cw' : 'upload-cloud'" (click)="$event.stopPropagation(); sendToVerifactu(inv)" [class.text-warning]="inv.verifactuStatus !== 'error'" [class.text-danger]="inv.verifactuStatus === 'error'"></ui-button>
+                       <ui-button variant="ghost" size="sm" [icon]="inv.verifactuStatus === 'error' ? 'refresh-cw' : 'upload-cloud'" (click)="$event.stopPropagation(); sendToVerifactu(inv)" [class.text-warning]="inv.verifactuStatus !== 'error'" [class.text-danger]="inv.verifactuStatus === 'error'" title="Enviar AEAT"></ui-button>
                     }
                     @if (inv.verifactuStatus === 'sent') {
-                       <ui-button variant="ghost" size="sm" icon="qr-code" (click)="$event.stopPropagation(); viewVerifactuQr(inv)"></ui-button>
+                       <ui-button variant="ghost" size="sm" icon="qr-code" (click)="$event.stopPropagation(); viewVerifactuQr(inv)" title="Ver Certificado"></ui-button>
                     }
                  }
               </div>
@@ -357,8 +362,24 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
   isVerifactuQrModalOpen = signal(false);
   editingInvoice = signal<Invoice | null>(null);
 
+  private readonly router = inject(Router);
+
   onRowClick(inv: Invoice) {
-    // Navigate
+    this.router.navigate(['/billing', inv.id]);
+  }
+
+  onDuplicate(inv: Invoice) {
+    const { id, ...rest } = inv;
+    this.facade.createInvoice({
+      ...rest,
+      invoiceNumber: `${inv.invoiceNumber} (COPIA)`
+    });
+  }
+
+  confirmDelete(inv: Invoice) {
+    if (confirm(`¿Estás seguro de que deseas eliminar la factura ${inv.invoiceNumber}?`)) {
+      this.facade.deleteInvoice(inv.id);
+    }
   }
 
   getInitials(num: string): string {

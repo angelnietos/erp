@@ -111,8 +111,13 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
               [status]="rental.status === 'ACTIVE' ? 'active' : 'offline'"
               [badgeLabel]="getStatusLabel(rental.status) | uppercase"
               [badgeVariant]="getStatusVariant(rental.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
               (cardClicked)="onRowClick(rental)"
               (editClicked)="editRental(rental)"
+              (duplicateClicked)="onDuplicate(rental)"
+              (deleteClicked)="confirmDelete(rental)"
               [footerItems]="[
                 { icon: 'calendar', label: ((rental.startDate || '') | date:'dd/MM/yy') || '-' },
                 { icon: 'package', label: rental.itemsCount + ' unid.' },
@@ -133,10 +138,23 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
                  </div>
               </div>
 
-              <div footer-extra class="card-actions">
-                 <ui-button variant="ghost" size="sm" icon="pen-tool" (click)="$event.stopPropagation(); openSignatureModal(rental)"></ui-button>
+              <div footer-extra class="card-extra-actions">
+                 <ui-button 
+                   variant="ghost" 
+                   size="sm" 
+                   icon="pen-tool" 
+                   (click)="$event.stopPropagation(); openSignatureModal(rental)"
+                   title="Gestionar firma"
+                 ></ui-button>
                  @if (rental.status === 'DRAFT') {
-                    <ui-button variant="ghost" size="sm" icon="play" (click)="$event.stopPropagation(); activateRental(rental)" class="text-success"></ui-button>
+                    <ui-button 
+                      variant="ghost" 
+                      size="sm" 
+                      icon="play" 
+                      (click)="$event.stopPropagation(); activateRental(rental)" 
+                      class="text-success"
+                      title="Activar expediente"
+                    ></ui-button>
                  }
               </div>
             </ui-feature-card>
@@ -419,6 +437,24 @@ export class RentalsListComponent implements OnInit, OnDestroy, FilterableServic
     this.rentalService.activateRental(rental.id).subscribe({
       next: (upd) => this.rentals.update(list => list.map(r => r.id === upd.id ? upd : r))
     });
+  }
+
+  onDuplicate(rental: Rental) {
+    const { id, createdAt, ...rest } = rental;
+    this.rentalService.createRental({
+      ...rest,
+      clientName: `${rental.clientName} (COPIA)`
+    }).subscribe(newR => {
+      this.rentals.update(list => [...list, newR]);
+    });
+  }
+
+  confirmDelete(rental: Rental) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el expediente de ${rental.clientName}?`)) {
+      this.rentalService.deleteRental(rental.id).subscribe(() => {
+        this.rentals.update(list => list.filter(r => r.id !== rental.id));
+      });
+    }
   }
 
   openSignatureModal(rental: Rental) {

@@ -112,16 +112,19 @@ interface Receipt {
             [status]="receipt.status === 'PAID' ? 'active' : 'offline'"
             [badgeLabel]="getStatusText(receipt.status) | uppercase"
             [badgeVariant]="getStatusBadgeVariant(receipt.status)"
+            [showEdit]="false"
+            [showDuplicate]="false"
+            [showDelete]="false"
             (cardClicked)="goToBilling(receipt)"
             [footerItems]="[
               { icon: 'calendar', label: (receipt.dueDate | date:'dd/MM/yyyy') || '-' },
               { icon: 'euro', label: ((receipt.amount || 0) | currency:'EUR') || '-' }
             ]"
           >
-             <div footer-extra class="card-actions">
-                <ui-button variant="ghost" size="sm" icon="eye" (click)="$event.stopPropagation(); goToBilling(receipt)"></ui-button>
+             <div footer-extra class="receipt-extra-actions">
+                <ui-button variant="ghost" size="sm" icon="eye" (click)="$event.stopPropagation(); goToBilling(receipt)" title="Ver Factura"></ui-button>
                 @if (receipt.status === 'PENDING') {
-                   <ui-button variant="ghost" size="sm" icon="check" (click)="$event.stopPropagation(); markAsPaid(receipt)" class="text-success"></ui-button>
+                   <ui-button variant="ghost" size="sm" icon="check" (click)="$event.stopPropagation(); markAsPaid(receipt)" class="text-success" title="Marcar como pagado"></ui-button>
                 }
              </div>
           </ui-feature-card>

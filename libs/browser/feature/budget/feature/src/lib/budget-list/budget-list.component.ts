@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import {
   UiButtonComponent,
   UiSearchComponent,
@@ -87,20 +87,22 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             [status]="item.status === 'ACCEPTED' ? 'active' : 'offline'"
             [badgeLabel]="item.status | uppercase"
             [badgeVariant]="getStatusVariant(item.status)"
+            [showEdit]="item.status === 'DRAFT'"
+            [showDuplicate]="true"
+            [showDelete]="true"
             (cardClicked)="onRowClick(item)"
-            [routerLink]="['/budgets', item.id]"
+            (editClicked)="onEdit(item)"
+            (duplicateClicked)="onDuplicate(item)"
+            (deleteClicked)="onDelete(item)"
             [footerItems]="[
               { icon: 'calendar', label: ((item.createdAt || '') | date:'dd/MM/yyyy') || '-' },
               { icon: 'euro', label: ((item.total || 0) | currency:'EUR') || '-' }
             ]"
           >
-            <div footer-extra class="card-actions">
-               <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]"></ui-button>
-               @if (item.status === 'DRAFT') {
-                 <ui-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-button>
-               }
+            <div footer-extra class="budget-extra-actions">
+               <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]" title="Ver detalles"></ui-button>
                @if (config.enableDownload) {
-                 <ui-button variant="ghost" size="sm" icon="download" class="text-success"></ui-button>
+                 <ui-button variant="ghost" size="sm" icon="download" class="text-success" title="Descargar PDF"></ui-button>
                }
             </div>
           </ui-feature-card>
@@ -161,6 +163,8 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly router = inject(Router);
+  
   
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;
@@ -192,8 +196,34 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
   }
 
   onRowClick(item: Budget) {
-    // Navigate
-    void item;
+    this.router.navigate(['/budgets', item.id]);
+  }
+
+  onEdit(item: Budget) {
+    this.router.navigate(['/budgets', item.id, 'edit']);
+  }
+
+  onDuplicate(item: Budget) {
+    const { id, ...rest } = item;
+    try {
+      if ((this.store as any).createBudget) {
+        (this.store as any).createBudget({ ...rest, status: 'DRAFT', createdAt: new Date().toISOString() });
+      }
+    } catch (e) {
+      console.warn('createBudget no implementado en BudgetStore', e);
+    }
+  }
+
+  onDelete(item: Budget) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el presupuesto #${item.id.slice(0, 8).toUpperCase()}?`)) {
+      try {
+        if ((this.store as any).deleteBudget) {
+          (this.store as any).deleteBudget(item.id);
+        }
+      } catch (e) {
+        console.warn('deleteBudget no implementado en BudgetStore', e);
+      }
+    }
   }
 
   getInitials(id: string | undefined): string {

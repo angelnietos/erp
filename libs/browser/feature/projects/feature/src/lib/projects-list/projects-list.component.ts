@@ -7,7 +7,7 @@ import {
   computed,
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -135,17 +135,18 @@ export interface Project {
             [badgeVariant]="project.status === 'ACTIVE' ? 'success' : project.status === 'COMPLETED' ? 'info' : 'danger'"
             (cardClicked)="onRowClick()"
             [routerLink]="['/projects', project.id]"
+            [showEdit]="true"
+            [showDuplicate]="true"
+            [showDelete]="true"
+            (editClicked)="onEdit(project)"
+            (duplicateClicked)="onDuplicate(project)"
+            (deleteClicked)="onDelete(project)"
             [footerItems]="[
               { icon: 'calendar', label: 'Inicio: ' + (project.startDate | date: 'dd/MM/yy') },
               { icon: 'clock', label: 'Fin: ' + (project.endDate | date: 'dd/MM/yy') }
             ]"
           >
             <p class="description">{{ project.description }}</p>
-            
-            <div footer-extra class="card-actions">
-               <ui-button variant="ghost" size="sm" icon="Copy" (click)="$event.stopPropagation(); onDuplicate(project)"></ui-button>
-               <ui-button variant="ghost" size="sm" icon="Trash2" (click)="$event.stopPropagation(); onDelete(project)" class="text-danger"></ui-button>
-            </div>
           </ui-feature-card>
         } @empty {
           <div class="empty-state">
@@ -237,6 +238,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly domainEventsApi = inject(DomainEventsApiService);
+  private readonly router = inject(Router);
 
   currentThemeData = this.themeService.currentThemeData;
 
@@ -321,7 +323,11 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   onRowClick() {
-    // Navigate to detail - implement when table supports rowClick
+    // Navigate to detail
+  }
+
+  onEdit(project: Project) {
+    this.router.navigate(['/projects', project.id, 'edit']);
   }
 
   onDuplicate(project: Project) {

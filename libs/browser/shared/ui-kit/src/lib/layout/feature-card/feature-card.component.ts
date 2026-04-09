@@ -29,29 +29,50 @@ import { UiBadgeComponent } from '../../badge/badge.component';
              </div>
           </div>
         </div>
-        <div class="card-actions">
-           <ui-button
-              variant="ghost"
-              size="sm"
-              icon="Pencil"
-              (click)="$event.stopPropagation(); editClicked.emit()"
-              class="edit-btn"
-            >
-            </ui-button>
-        </div>
       </div>
 
       <div class="card-body">
          <ng-content></ng-content>
       </div>
 
-      <div class="card-footer" *ngIf="footerItems && footerItems.length > 0">
-         <div class="footer-item" *ngFor="let item of footerItems">
-            <lucide-icon [name]="item.icon" size="14"></lucide-icon>
-            <span>{{ item.label }}</span>
+      <div class="card-footer" *ngIf="(footerItems && footerItems.length > 0) || showEdit || showDelete || showDuplicate">
+         <div class="footer-main">
+            <div class="footer-item" *ngFor="let item of footerItems">
+               <lucide-icon [name]="item.icon" size="14"></lucide-icon>
+               <span>{{ item.label }}</span>
+            </div>
+            <div class="footer-extra">
+               <ng-content select="[footer-extra]"></ng-content>
+            </div>
          </div>
-         <div class="footer-extra">
-            <ng-content select="[footer-extra]"></ng-content>
+
+         <div class="footer-actions">
+            <ui-button
+              *ngIf="showDuplicate"
+              variant="ghost"
+              size="sm"
+              icon="Copy"
+              (click)="$event.stopPropagation(); duplicateClicked.emit()"
+              title="Duplicar"
+            ></ui-button>
+            <ui-button
+              *ngIf="showEdit"
+              variant="ghost"
+              size="sm"
+              icon="Pencil"
+              (click)="$event.stopPropagation(); editClicked.emit()"
+              class="edit-btn"
+              title="Editar"
+            ></ui-button>
+            <ui-button
+              *ngIf="showDelete"
+              variant="ghost"
+              size="sm"
+              icon="Trash2"
+              (click)="$event.stopPropagation(); deleteClicked.emit()"
+              class="delete-btn"
+              title="Eliminar"
+            ></ui-button>
          </div>
       </div>
     </div>
@@ -187,7 +208,14 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       align-items: center;
       border-top: 1px solid var(--border-soft);
       background: var(--surface-secondary);
-      opacity: 0.8;
+      min-height: 64px;
+    }
+
+    .footer-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1;
     }
 
     .footer-item {
@@ -201,18 +229,25 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       letter-spacing: 0.02em;
     }
 
-    .footer-extra {
-       display: flex;
-       align-items: center;
-       gap: 0.5rem;
+    .footer-actions {
+      display: flex;
+      gap: 0.25rem;
+      margin-left: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .delete-btn:hover {
+      color: var(--danger) !important;
+      background: color-mix(in srgb, var(--danger) 10%, transparent) !important;
+    }
+
+    .edit-btn:hover {
+      color: var(--brand) !important;
     }
 
     @media (max-width: 480px) {
-       .avatar-bg {
-          width: 48px;
-          height: 48px;
-          font-size: 1rem;
-       }
+       .card-footer { flex-direction: column; gap: 1rem; align-items: flex-start; }
+       .footer-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
     }
   `]
 })
@@ -226,7 +261,14 @@ export class UiFeatureCardComponent {
   @Input() badgeVariant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'secondary';
   @Input() isFavorite = false;
   @Input() footerItems: { icon: string, label: string }[] = [];
+  
+  // Action toggles
+  @Input() showEdit = true;
+  @Input() showDelete = false;
+  @Input() showDuplicate = false;
 
   @Output() cardClicked = new EventEmitter<void>();
   @Output() editClicked = new EventEmitter<void>();
+  @Output() deleteClicked = new EventEmitter<void>();
+  @Output() duplicateClicked = new EventEmitter<void>();
 }

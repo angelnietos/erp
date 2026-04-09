@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiButtonComponent, 
@@ -90,15 +91,19 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
               [status]="user.isActive ? 'active' : 'offline'"
               [badgeLabel]="user.roles[0] || 'SIN ROL'"
               [badgeVariant]="user.isActive ? 'primary' : 'secondary'"
+              [showEdit]="true"
+              [showDuplicate]="false"
+              [showDelete]="true"
               (cardClicked)="onRowClick(user)"
+              (editClicked)="onEdit(user)"
+              (deleteClicked)="onDelete(user)"
               [footerItems]="[
                 { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
                 { icon: 'key', label: user.roles.length + ' permisos' }
               ]"
             >
-               <div footer-extra class="card-actions">
-                  <ui-button variant="ghost" size="sm" icon="pencil"></ui-button>
-                  <ui-button variant="ghost" size="sm" icon="shield-alert" class="text-warning"></ui-button>
+               <div footer-extra class="users-extra-actions">
+                  <ui-button variant="ghost" size="sm" icon="shield-alert" class="text-warning" title="Gestionar Permisos"></ui-button>
                </div>
             </ui-feature-card>
           } @empty {
@@ -159,6 +164,7 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   private readonly usersService = inject(UsersService);
   private readonly themeService = inject(ThemeService);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly router = inject(Router);
 
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
@@ -180,7 +186,23 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   });
 
   onRowClick(user: User) {
-    // Navigate
+    this.router.navigate(['/identity', user.id]);
+  }
+
+  onEdit(user: User) {
+    this.router.navigate(['/identity', user.id, 'edit']);
+  }
+
+  onDelete(user: User) {
+    if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.email}?`)) {
+       try {
+         (this.usersService as any).remove(user.id).subscribe({
+           next: () => this.users.update(list => list.filter(u => u.id !== user.id))
+         });
+       } catch(e) {
+         console.warn('Función remove() no implementada en UsersService para borrado', e);
+       }
+    }
   }
 
   getInitials(first: string | undefined, last: string | undefined): string {

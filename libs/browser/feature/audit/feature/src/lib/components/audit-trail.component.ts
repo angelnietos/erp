@@ -20,12 +20,13 @@ import {
   Clock,
 } from 'lucide-angular';
 import {
-  UiCardComponent,
-  UiBadgeComponent,
   UiStatCardComponent,
   UiSearchComponent,
   UiFeatureHeaderComponent,
-  UiFeatureStatsComponent
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+  UiPaginationComponent
 } from '@josanz-erp/shared-ui-kit';
 import {
   DomainEventsApiService,
@@ -85,8 +86,9 @@ interface DomainEventPayload {
   standalone: true,
   imports: [
     CommonModule,
-    UiCardComponent,
-    UiBadgeComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
+    UiPaginationComponent,
     UiStatCardComponent,
     UiSearchComponent,
     UiFeatureHeaderComponent,
@@ -133,82 +135,66 @@ interface DomainEventPayload {
       </div>
 
       <div class="audit-content">
-        <ui-card class="logs-card">
-          <div class="logs-header">
-            <h2>Historial de Actividades</h2>
-            <span class="logs-count"
-              >{{ filteredLogs().length }} registros</span
+        <ui-feature-grid>
+          @for (log of paginatedLogs(); track log.id) {
+            <ui-feature-card
+              [name]="log.userName | uppercase"
+              [subtitle]="getEntityText(log.entity) | uppercase"
+              [avatarInitials]="log.userName.slice(0, 2).toUpperCase()"
+              [avatarBackground]="getActionOrbColor(log.action)"
+              status="active"
+              [badgeLabel]="getActionText(log.action) | uppercase"
+              [badgeVariant]="getActionVariant(log.action)"
+              [showEdit]="false"
+              [showDuplicate]="false"
+              [showDelete]="false"
+              (cardClicked)="toggleLogExpansion(log.id)"
+              [footerItems]="[
+                { icon: 'clock', label: formatTimestamp(log.timestamp) },
+                { icon: 'shield', label: log.action }
+              ]"
             >
-          </div>
-
-          <div class="logs-list">
-            @for (log of filteredLogs(); track log.id) {
-              <div
-                class="log-item"
-                [class.expanded]="expandedLog() === log.id"
-              >
-                <div class="log-summary" (click)="toggleLogExpansion(log.id)" (keydown.enter)="toggleLogExpansion(log.id)" (keydown.space)="toggleLogExpansion(log.id); $event.preventDefault()" tabindex="0">
-                  <div class="log-icon">
-                    <div class="icon-orb" [style.background]="getActionOrbColor(log.action)">
-                      <lucide-icon
-                        [img]="getActionIcon(log.action)"
-                        size="18"
-                      ></lucide-icon>
-                    </div>
-                  </div>
-
-                  <div class="log-info">
-                    <div class="log-primary">
-                      <span class="log-user">{{ log.userName }}</span>
-                      <span class="log-action">{{ getActionText(log.action) }}</span>
-                      <span class="log-entity">{{ getEntityText(log.entity) }}</span>
-                      @if (log.entityName) {
-                        <span class="log-entity-name"
-                          >"{{ log.entityName }}"</span
-                        >
+              @if (log.entityName) {
+                <div class="log-entity-target" style="margin-top: 0.5rem; font-size: 0.8rem; font-weight: 700; color: var(--brand);">
+                  OBJETIVO: {{ log.entityName }}
+                </div>
+              }
+              
+              @if (expandedLog() === log.id) {
+                <div class="log-details-block" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border-soft);">
+                  @if (log.details) {
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">{{ log.details }}</p>
+                  }
+                  @if (hasChanges(log.changes || {})) {
+                    <div class="changes-list" style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                      @for (change of getChangesArray(log.changes || {}); track change.field) {
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                          <strong style="color: var(--text-primary);">{{ change.field }}:</strong> 
+                          <span style="opacity: 0.6; text-decoration: line-through;">{{ change.old | json }}</span> &rarr; 
+                          <span style="color: var(--success);">{{ change.new | json }}</span>
+                        </div>
                       }
                     </div>
-                    <div class="log-meta">
-                      <span class="log-timestamp">
-                        <lucide-icon [img]="Clock" size="12"></lucide-icon>
-                        {{ formatTimestamp(log.timestamp) }}
-                      </span>
-                      <span class="tag-status" [attr.data-variant]="getActionVariant(log.action)">
-                        {{ log.action }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="log-toggle">
-                    <lucide-icon
-                      [img]="History"
-                      size="14"
-                      [class.rotated]="expandedLog() === log.id"
-                    ></lucide-icon>
-                  </div>
+                  }
                 </div>
+              }
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon name="history" size="64" class="empty-icon"></lucide-icon>
+              <h3>No hay registros</h3>
+              <p>El registro de auditoría está vacío para los filtros seleccionados.</p>
+            </div>
+          }
+        </ui-feature-grid>
 
-                @if (expandedLog() === log.id) {
-                  <div class="log-details">
-                    @if (log.details) {
-                      <div class="details-section">
-                        <h4>Detalles</h4>
-                        <p>{{ log.details }}</p>
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            }
-
-            @if (filteredLogs().length === 0) {
-              <div class="no-logs">
-                <lucide-icon [img]="History" size="48"></lucide-icon>
-                <p>No se encontraron registros de auditoría</p>
-              </div>
-            }
-          </div>
-        </ui-card>
+        <footer class="pagination-footer">
+          <ui-pagination 
+            [currentPage]="currentPage()" 
+            [totalPages]="totalPages()"
+            (pageChange)="goToPage($any($event))"
+          ></ui-pagination>
+        </footer>
       </div>
     </div>
   `,
@@ -219,29 +205,20 @@ interface DomainEventPayload {
       gap: 1.5rem;
     }
 
-    .logs-card {
-      padding: 0 !important;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.05) !important;
-    }
+    .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
 
-    .logs-header {
-      padding: 1.5rem 2rem;
+    .empty-state {
+      grid-column: 1 / -1;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      background: rgba(255,255,255,0.02);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 5rem;
+      text-align: center;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 2px dashed var(--border-soft);
     }
-
-    .logs-header h2 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-    }
+    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
     .logs-count {
       color: var(--brand);
@@ -249,117 +226,6 @@ interface DomainEventPayload {
       font-weight: 900;
       font-family: var(--font-gaming);
     }
-
-    .logs-list {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .log-item {
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-      transition: all 0.3s ease;
-    }
-    .log-item:last-child { border-bottom: none; }
-
-    .log-summary {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      padding: 1.25rem 2rem;
-      cursor: pointer;
-    }
-
-    .log-summary:hover {
-      background: rgba(255,255,255,0.02);
-      transform: translateX(4px);
-    }
-
-    .log-icon {
-      flex-shrink: 0;
-    }
-
-    .icon-orb {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .log-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .log-primary {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .log-user {
-      font-weight: 700;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-    }
-
-    .log-action {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .log-entity {
-      color: var(--text-primary);
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    .log-entity-name {
-      color: var(--success);
-      font-family: var(--font-gaming);
-      font-size: 0.85rem;
-    }
-
-    .log-meta {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .log-timestamp {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .tag-status {
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.6rem;
-      font-weight: 900;
-      font-family: var(--font-gaming);
-      letter-spacing: 0.05em;
-      background: rgba(255,255,255,0.05);
-      color: var(--text-muted);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .tag-status[data-variant="success"] { color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
-    .tag-status[data-variant="primary"] { color: var(--info); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
-    .tag-status[data-variant="danger"] { color: var(--brand); background: rgba(230,0,18,0.1); border-color: rgba(230,0,18,0.2); }
 
     .log-toggle {
       color: var(--text-muted);
@@ -371,51 +237,8 @@ interface DomainEventPayload {
       color: var(--brand);
     }
 
-    .log-details {
-      padding: 1.5rem 2rem;
-      background: color-mix(in srgb, var(--bg-primary) 98%, black);
-      border-top: 1px solid var(--border-soft);
-      animation: slideDown 0.3s ease-out;
-    }
-
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .details-section h4 {
-      margin: 0 0 0.75rem 0;
-      font-size: 0.75rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-    }
-
-    .details-section p {
-      margin: 0;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    .no-logs {
-      text-align: center;
-      padding: 5rem 2rem;
-      color: var(--text-muted);
-    }
-
-    .no-logs p {
-      margin: 1.5rem 0 0 0;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
     @media (max-width: 768px) {
-      .log-summary { padding: 1.25rem 1rem; gap: 1rem; }
-      .log-primary { gap: 0.4rem; }
       .log-meta { gap: 1rem; flex-wrap: wrap; }
-      .icon-orb { width: 36px; height: 36px; }
     }
   `],
 })
@@ -587,7 +410,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       const fromDomain: AuditLog[] = events.map((e) => {
         const payload = e.payload as DomainEventPayload;
         const userName = payload?.name || payload?.userName || payload?.email || 'Sistema';
-        const entityName = payload?.name || payload?.email || `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`;
+        const entityName = payload?.name || payload?.email || `${e.aggregateType} - ${e.aggregateId.slice(0, 8)}`;
 
         const validActions: AuditLog['action'][] = ['CREATE', 'UPDATE', 'DELETE', 'COPY', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT'];
         const validEntities: AuditLog['entity'][] = ['USER', 'PROJECT', 'SERVICE', 'EVENT', 'CLIENT', 'INVOICE', 'RECEIPT', 'EQUIPMENT'];
@@ -661,10 +484,10 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
   getActionOrbColor(action: string): string {
     switch (action) {
-      case 'CREATE': return 'rgba(16, 185, 129, 0.15)';
-      case 'UPDATE': return 'rgba(59, 130, 246, 0.15)';
-      case 'DELETE': return 'rgba(239, 68, 68, 0.15)';
-      default: return 'rgba(255, 255, 255, 0.08)';
+      case 'CREATE': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'UPDATE': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'DELETE': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      default: return 'linear-gradient(135deg, #6b7280, #374151)';
     }
   }
 
@@ -714,7 +537,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     return texts[entity] || entity.toLowerCase();
   }
 
-  getActionVariant(action: string): string {
+  getActionVariant(action: string): 'warning' | 'danger' | 'primary' | 'secondary' | 'success' | 'info' {
     switch (action) {
       case 'CREATE':
         return 'success';

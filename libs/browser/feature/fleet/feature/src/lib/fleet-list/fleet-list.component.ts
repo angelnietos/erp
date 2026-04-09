@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -111,8 +111,13 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
               [status]="vehicle.status === 'available' ? 'active' : 'offline'"
               [badgeLabel]="getStatusLabel(vehicle.status) | uppercase"
               [badgeVariant]="getStatusVariant(vehicle.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
               (cardClicked)="onRowClick(vehicle)"
               (editClicked)="editVehicle(vehicle)"
+              (duplicateClicked)="onDuplicate(vehicle)"
+              (deleteClicked)="confirmDelete(vehicle)"
               [footerItems]="[
                 { icon: 'calendar', label: 'Año: ' + vehicle.year },
                 { icon: 'shield', label: 'Seguro: ' + formatDate(vehicle.insuranceExpiry) },
@@ -245,6 +250,7 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   public readonly pluginStore = inject(PluginStore);
   private readonly vehicleService = inject(VehicleService);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly router = inject(Router);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -338,7 +344,7 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   onRowClick(vehicle: Vehicle) {
-     // Navigate
+    this.router.navigate(['/fleet', vehicle.id]);
   }
 
   getInitials(plate: string): string {
@@ -357,6 +363,32 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     this.editingVehicle.set(vehicle);
     this.formData = { ...vehicle };
     this.isModalOpen.set(true);
+  }
+
+  onDuplicate(vehicle: Vehicle) {
+    const { id, ...rest } = vehicle;
+    this.vehicleService.createVehicle({
+      ...rest,
+      plate: `${vehicle.plate}-C`
+    } as Omit<Vehicle, 'id'>).subscribe({
+      next: (newV: Vehicle) => { 
+        this.vehicles.update(list => [...list, newV]);
+      }
+    });
+  }
+
+  confirmDelete(vehicle: Vehicle) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el vehículo ${vehicle.plate}?`)) {
+      if ((this.vehicleService as any).deleteVehicle) {
+         (this.vehicleService as any).deleteVehicle(vehicle.id).subscribe({
+           next: () => {
+             this.vehicles.update(list => list.filter(v => v.id !== vehicle.id));
+           }
+         });
+      } else {
+         console.warn('deleteVehicle no está implementado en VehicleService');
+      }
+    }
   }
 
   closeModal() { this.isModalOpen.set(false); this.editingVehicle.set(null); }

@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -125,8 +125,13 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
               [status]="product.status === 'available' ? 'active' : product.status === 'reserved' ? 'warning' : 'danger'"
               [badgeLabel]="getStatusLabel(product.status) | uppercase"
               [badgeVariant]="getStatusVariant(product.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
               (cardClicked)="onRowClick(product)"
               (editClicked)="editProduct(product)"
+              (duplicateClicked)="onDuplicate(product)"
+              (deleteClicked)="confirmDelete(product)"
               [footerItems]="[
                 { icon: 'layers', label: 'Stock: ' + product.totalStock },
                 { icon: 'euro', label: (product.dailyRate | currency:'EUR') + ' / día' }
@@ -264,6 +269,7 @@ export class InventoryListComponent
   private readonly facade = inject(InventoryFacade);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
+  private readonly router = inject(Router);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -396,8 +402,7 @@ export class InventoryListComponent
   }
 
   onRowClick(product: Product) {
-    // Navigate or show details
-    void product;
+    this.router.navigate(['/inventory', product.id]);
   }
 
   getInitials(name: string | undefined): string {
@@ -453,19 +458,18 @@ export class InventoryListComponent
     this.closeModal();
   }
 
+  onDuplicate(product: Product) {
+    const { id, ...rest } = product;
+    this.facade.createProduct({
+      ...rest,
+      name: `${product.name} (COPIA)`,
+      sku: product.sku ? `${product.sku}-COPY` : ''
+    });
+  }
+
   confirmDelete(product: Product) {
-    this.productToDelete.set(product);
-    this.isDeleteModalOpen.set(true);
-  }
-  closeDeleteModal() {
-    this.isDeleteModalOpen.set(false);
-    this.productToDelete.set(null);
-  }
-  deleteProduct() {
-    const p = this.productToDelete();
-    if (p) {
-      this.facade.deleteProduct(p.id);
-      this.closeDeleteModal();
+    if (confirm(`¿Estás seguro de que deseas eliminar el producto ${product.name}?`)) {
+      this.facade.deleteProduct(product.id);
     }
   }
 

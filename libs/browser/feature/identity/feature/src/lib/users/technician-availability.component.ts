@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { TechnicianApiService, ToastService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
+import { UiCardComponent, UiBadgeComponent, UiSearchComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
 
@@ -24,7 +24,7 @@ interface CalendarCell {
 @Component({
   selector: 'josanz-technician-availability',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent],
+  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiBadgeComponent, UiSearchComponent],
   template: `
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
@@ -101,18 +101,23 @@ import { Observable, of } from 'rxjs';
               [status]="(delivery.status === 'signed' || delivery.status === 'completed') ? 'active' : 'offline'"
               [badgeLabel]="getStatusLabel(delivery.status) | uppercase"
               [badgeVariant]="getStatusVariant(delivery.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
               (cardClicked)="onRowClick(delivery)"
+              (editClicked)="editDelivery(delivery)"
+              (duplicateClicked)="onDuplicate(delivery)"
+              (deleteClicked)="confirmDelete(delivery)"
               [footerItems]="[
                 { icon: 'calendar', label: delivery.deliveryDate },
                 { icon: 'box', label: delivery.itemsCount + ' bultos' }
               ]"
             >
-               <div footer-extra class="card-actions">
-                  <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]"></ui-button>
+               <div footer-extra class="delivery-extra-actions">
+                  <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]" title="Detalles"></ui-button>
                   @if (delivery.status === 'pending') {
-                    <ui-button variant="ghost" size="sm" icon="pen-tool" (click)="$event.stopPropagation(); signDelivery(delivery)" class="text-success"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="pen-tool" (click)="$event.stopPropagation(); signDelivery(delivery)" class="text-success" title="Firmar"></ui-button>
                   }
-                  <ui-button variant="ghost" size="sm" icon="pencil" (click)="$event.stopPropagation(); editDelivery(delivery)"></ui-button>
                </div>
             </ui-feature-card>
           } @empty {
@@ -206,8 +211,24 @@ export class DeliveryListComponent implements OnInit, OnDestroy, FilterableServi
 
   currentTheme = this.themeService.currentThemeData;
 
+  private readonly router = inject(Router);
+
   onRowClick(delivery: DeliveryNote) {
-    // Navigate
+    this.router.navigate(['/delivery', delivery.id]);
+  }
+
+  onDuplicate(delivery: DeliveryNote) {
+    const { id, ...rest } = delivery;
+    this.facade.createDeliveryNote({
+      ...rest,
+      budgetId: `${delivery.budgetId} (CLON)`
+    });
+  }
+
+  confirmDelete(delivery: DeliveryNote) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el albarán ${delivery.budgetId}?`)) {
+      this.facade.deleteDeliveryNote(delivery.id);
+    }
   }
 
   getInitials(id: string): string {

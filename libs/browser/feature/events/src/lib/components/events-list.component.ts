@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -22,23 +22,19 @@ import {
   Zap,
   CirclePlus
 } from 'lucide-angular';
-import { 
-  UiButtonComponent, 
+import { take } from 'rxjs/operators';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { Observable, of } from 'rxjs';
+import {
+  UiButtonComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiSearchComponent,
-  UiSelectComponent,
-  UiInputComponent,
-  UiModalComponent,
-  UiLoaderComponent,
-  UiTextareaComponent,
+  UiSelectComponent
 } from '@josanz-erp/shared-ui-kit';
-import { take } from 'rxjs/operators';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
-import { Observable, of } from 'rxjs';
 
 interface Event {
   id: string;
@@ -86,10 +82,6 @@ interface EventFilter {
     UiFeatureCardComponent,
     UiSearchComponent,
     UiSelectComponent,
-    UiInputComponent,
-    UiModalComponent,
-    UiLoaderComponent,
-    UiTextareaComponent,
     LucideAngularModule,
   ],
   template: `
@@ -163,15 +155,20 @@ interface EventFilter {
             [status]="event.status === 'active' ? 'active' : 'offline'"
             [badgeLabel]="getStatusText(event.status) | uppercase"
             [badgeVariant]="getStatusVariant(event.status)"
+            [showEdit]="true"
+            [showDuplicate]="true"
+            [showDelete]="true"
             (cardClicked)="onRowClick(event)"
+            (editClicked)="onEdit(event)"
+            (duplicateClicked)="onDuplicate(event)"
+            (deleteClicked)="onDelete(event)"
             [footerItems]="[
               { icon: 'calendar', label: formatDate(event.date) },
               { icon: 'users', label: event.attendees + '/' + event.capacity }
             ]"
           >
-             <div footer-extra class="card-actions">
-                <ui-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/events', event.id, 'edit']"></ui-button>
-                <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/events', event.id]"></ui-button>
+             <div footer-extra class="event-actions">
+                <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/events', event.id]" title="Ver detalles"></ui-button>
              </div>
           </ui-feature-card>
         } @empty {
@@ -192,7 +189,7 @@ interface EventFilter {
       padding: 2rem;
     }
 
-    .card-actions { display: flex; gap: 0.25rem; }
+    .event-actions { display: flex; gap: 0.25rem; }
 
     .empty-state {
       grid-column: 1 / -1;
@@ -216,24 +213,11 @@ interface EventFilter {
 export class EventsListComponent implements OnInit, OnDestroy, FilterableService<Event> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
 
   currentTheme = this.themeService.currentThemeData;
-  readonly CalendarIcon = Calendar;
-  readonly PlusIcon = Plus;
-  readonly SearchIcon = Search;
-  readonly FilterIcon = Filter;
-  readonly MoreVerticalIcon = MoreVertical;
-  readonly EditIcon = Edit;
-  readonly Trash2Icon = Trash2;
-  readonly UsersIcon = Users;
-  readonly MapPinIcon = MapPin;
-  readonly HistoryIcon = History;
-  readonly TrendingUpIcon = TrendingUp;
-  readonly ActivityIcon = Activity;
-  readonly ClockIcon = Clock;
-  readonly EyeIcon = Eye;
 
   expandedEvent = signal<string | null>(null);
   currentPage = signal(1);
@@ -373,7 +357,29 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
   ];
 
   onRowClick(event: Event) {
-    // Navigate
+    this.router.navigate(['/events', event.id]);
+  }
+
+  onEdit(event: Event) {
+    this.router.navigate(['/events', event.id, 'edit']);
+  }
+
+  onDuplicate(event: Event) {
+    const newEvent: Event = {
+      ...event,
+      id: Math.random().toString(36).substring(7),
+      title: `${event.title} (COPIA)`,
+      createdAt: new Date().toISOString()
+    };
+    this.events.update(list => [newEvent, ...list]);
+    this.applyFilters();
+  }
+
+  onDelete(event: Event) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el evento ${event.title}?`)) {
+      this.events.update(list => list.filter(e => e.id !== event.id));
+      this.applyFilters();
+    }
   }
 
   getInitials(title: string): string {
@@ -415,7 +421,6 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
     this.applyFilters();
   }
 
-  /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Event[]> {
     const term = query.toLowerCase();
     const matches = this.events().filter((e: Event) => 
@@ -461,7 +466,6 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
       filtered = filtered.filter((event: Event) => new Date(event.date) <= toDate);
     }
 
-    // Sort by date (most recent first)
     filtered.sort(
       (a: Event, b: Event) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );

@@ -130,8 +130,13 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
               [avatarBackground]="getClientColor(client)"
               [status]="getClientStatus(client) === 'active' ? 'active' : 'offline'"
               [badgeLabel]="client.sector || 'General'"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
               (cardClicked)="goToDetail(client)"
               (editClicked)="editClient(client)"
+              (duplicateClicked)="onDuplicate(client)"
+              (deleteClicked)="confirmDelete(client)"
               [footerItems]="[
                 { icon: 'briefcase', label: getClientProjects(client) + ' proyectos' },
                 { icon: 'dollar-sign', label: (getClientRevenue(client) | number:'1.0-0') + '€' }
@@ -472,6 +477,14 @@ export class ClientsListComponent
       this.isSaving.set(false);
       this.closeModal();
     }, 1000);
+  }
+
+  onDuplicate(client: Client) {
+    const { id, createdAt, ...rest } = client;
+    this.facade.createClient({
+      ...rest,
+      name: `${client.name} (Copia)`
+    });
   }
 
   confirmDelete(client: Client) {

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
@@ -112,16 +112,20 @@ export interface Service {
               [status]="service.isActive ? 'active' : 'offline'"
               [badgeLabel]="service.type"
               [badgeVariant]="getTypeBadgeVariant(service.type)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
               (cardClicked)="onRowClick(service)"
               (editClicked)="editService(service)"
+              (duplicateClicked)="onDuplicate(service)"
+              (deleteClicked)="confirmDelete(service)"
               [footerItems]="[
                 { icon: 'euro', label: 'Base: ' + (service.basePrice | currency:'EUR') },
                 { icon: 'clock', label: 'Hora: ' + (service.hourlyRate ? (service.hourlyRate | currency:'EUR') : '-') }
               ]"
             >
-              <div footer-extra class="card-actions">
-                 <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/services', service.id]"></ui-button>
-                 <ui-button variant="ghost" size="sm" icon="trash-2" (clicked)="$event.stopPropagation(); confirmDelete(service)" class="text-danger"></ui-button>
+              <div footer-extra class="service-extra-actions">
+                 <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/services', service.id]" title="Ver detalles"></ui-button>
               </div>
             </ui-feature-card>
           } @empty {
@@ -187,8 +191,24 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
   services = signal<Service[]>([]);
   isLoading = signal(false);
 
+  private readonly router = inject(Router);
+
   onRowClick(service: Service) {
-    // Navigate
+    this.router.navigate(['/services', service.id]);
+  }
+
+  onDuplicate(service: Service) {
+    const newService: Service = {
+      ...service,
+      id: Math.random().toString(36).substring(7),
+      name: `${service.name} (COPIA)`,
+      createdAt: new Date().toISOString()
+    };
+    this.services.update(list => [newService, ...list]);
+  }
+
+  onEdit(service: Service) {
+    this.router.navigate(['/services', service.id, 'edit']);
   }
 
   getInitials(name: string | undefined): string {
