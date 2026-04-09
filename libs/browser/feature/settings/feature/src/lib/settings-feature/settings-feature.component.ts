@@ -271,16 +271,18 @@ interface PluginDescriptor {
                     ></ui-josanz-select>
                   </div>
 
-                  <div class="form-group">
-                    <ui-josanz-input
-                      label="Clave de Autenticación API (Token)"
-                      type="password"
-                      placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
-                      hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
-                      [ngModel]="aiBotStore.providerApiKey()"
-                      (ngModelChange)="aiBotStore.providerApiKey.set($event)"
-                    ></ui-josanz-input>
-                  </div>
+                  @if (aiBotStore.needsApiKey()) {
+                    <div class="form-group">
+                      <ui-josanz-input
+                        label="Clave de Autenticación API (Token)"
+                        type="password"
+                        placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
+                        hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
+                        [ngModel]="aiBotStore.providerApiKey()"
+                        (ngModelChange)="aiBotStore.providerApiKey.set($event)"
+                      ></ui-josanz-input>
+                    </div>
+                  }
                 </div>
               </ui-josanz-card>
 

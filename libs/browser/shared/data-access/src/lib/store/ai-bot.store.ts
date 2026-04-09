@@ -612,6 +612,7 @@ export class AIBotStore {
     const options = [
       { value: 'grok', label: 'Grok (xAI) - Gratuito' },
       { value: 'together', label: 'Together AI - Gratuito' },
+      { value: 'openrouter', label: 'OpenRouter (Llama 3 FREE) - Gratuito' },
       { value: 'gemini', label: 'Google Gemini 2.5 Flash (Recomendado)' },
       { value: 'openai', label: 'OpenAI GPT-4o' },
       { value: 'anthropic', label: 'Anthropic Claude 3.5' },
@@ -630,6 +631,13 @@ export class AIBotStore {
     }
 
     return options;
+  });
+
+  readonly needsApiKey = computed(() => {
+    const provider = this.selectedProvider();
+    // Proveedores con claves por defecto o locales
+    const noKeyNeeded = ['ollama', 'free', 'openrouter', 'grok'];
+    return !noKeyNeeded.includes(provider);
   });
 
   setAIModel(modelId: string) {
