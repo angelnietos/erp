@@ -65,7 +65,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
               variant="solid"
               size="md"
               (clicked)="openCreateModal()"
-              icon="plus-circle"
+              icon="CirclePlus"
               class="create-btn"
             >
               Nuevo Cliente
@@ -147,7 +147,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           <ui-button variant="ghost" size="sm" icon="filter" class="filter-btn">
             Filtros
           </ui-button>
-          <ui-button variant="ghost" size="sm" icon="sort-asc" class="sort-btn">
+          <ui-button variant="ghost" size="sm" icon="arrow-up" class="sort-btn">
             Ordenar
           </ui-button>
         </div>
@@ -171,7 +171,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                   <ui-button
                     variant="ghost"
                     size="sm"
-                    icon="more-vertical"
+                    icon="EllipsisVertical"
                     (click)="$event.stopPropagation(); openClientMenu(client, $event)"
                     class="menu-btn"
                   ></ui-button>

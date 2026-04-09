@@ -375,7 +375,7 @@ export class SidebarComponent {
       route: '/users/availability',
     },
     { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
-    { id: 'reports', label: 'Reportes', icon: 'pie-chart', route: '/reports' },
+    { id: 'reports', label: 'Reportes', icon: 'ChartPie', route: '/reports' },
     { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },
     {
       id: 'inventory',

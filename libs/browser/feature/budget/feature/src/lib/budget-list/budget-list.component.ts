@@ -47,7 +47,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         <ui-stat-card 
           label="Pipeline Total" 
           [value]="formatCurrencyEu(totalPipeline())" 
-          icon="pie-chart" 
+          icon="ChartPie" 
           [accent]="true">
         </ui-stat-card>
         <ui-stat-card 
