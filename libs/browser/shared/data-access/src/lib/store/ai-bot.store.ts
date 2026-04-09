@@ -21,6 +21,7 @@ import { ALL_BOTS } from './bots';
 export class AIBotStore {
   private router = inject(Router);
   private themeService = inject(ThemeService);
+  private masterFilterService = inject(MasterFilterService);
   private _isCheckingProviders = false;
   private _lastCheckTime = 0;
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
@@ -1709,7 +1710,12 @@ export class AIBotStore {
     try {
       const action = JSON.parse(actionStr) as {
         type: string;
-        payload?: { url?: string; theme?: string; message?: string };
+        payload?: {
+          url?: string;
+          theme?: string;
+          message?: string;
+          query?: string;
+        };
       };
       console.log('🤖 Bot executing action:', action);
 
@@ -1729,12 +1735,17 @@ export class AIBotStore {
             this.themeService.setTheme(action.payload.theme as Theme);
           }
           break;
-        case 'logout':
-          // We don't want bots logging out the user unless explicitly asked
-          console.warn('Bot tried to logout.');
+        case 'applyFilter':
+          if (action.payload?.query) {
+            this.masterFilterService.search(action.payload.query);
+          }
+          break;
+        case 'goBack':
+          window.history.back();
           break;
         case 'showNotification':
-          // Notification logic could go here
+          // El chat ya muestra el texto del bot, esto es para algo extra si se requiere
+          console.log('Bot Notification:', action.payload?.message);
           break;
         default:
           console.warn('Unknown bot action:', action.type);
@@ -1746,18 +1757,26 @@ export class AIBotStore {
 
   getActionSystemPrompt(): string {
     return `
-[CAPACIDADES TÉCNICAS]
-Puedes ejecutar acciones en el ERP Josanz emitiendo bloques JSON especiales.
-Para ejecutar una acción, tu respuesta DEBE terminar con: [ACTION] {"type": "...", "payload": {...}}
+[CAPACIDADES TÉCNICAS AUTÓNOMAS]
+Como agente inteligente de Josanz ERP, tienes autorización para realizar acciones en el sistema.
+Para ejecutar un comando, añade al FINAL de tu respuesta: [ACTION] {"type": "...", "payload": {...}}
 
-Acciones permitidas:
+ACCIONES DISPONIBLES:
 1. Navegación: {"type": "navigate", "payload": {"url": "/inventory"}}
-   (Etiquetas válidas: /dashboard, /inventory, /budgets, /projects, /clients, /fleet, /rentals, /audit, /settings)
-2. Cambiar Tema: {"type": "setTheme", "payload": {"theme": "dark" | "light" | "blue" | "cyberpunk-2077" | "onyx-premium" | "emerald-grid"}}
-3. Alternar Modo Oscuro/Claro: {"type": "toggleTheme"}
-4. Notificación: {"type": "showNotification", "payload": {"message": "Tu mensaje aquí", "type": "info"}}
+   (Secciones: /dashboard, /inventory, /budgets, /projects, /clients, /fleet, /rentals, /audit, /settings)
+2. Ver Detalle: {"type": "navigate", "payload": {"url": "/[modulo]/detail/[id]"}}
+   (Ejemplo: {"type": "navigate", "payload": {"url": "/inventory/detail/item-123"}})
+3. Filtrar Datos: {"type": "applyFilter", "payload": {"query": "texto a buscar"}}
+   (Usa esto para buscar equipos, técnicos o facturas específicas por el usuario)
+4. Cambiar Tema: {"type": "setTheme", "payload": {"theme": "nombre-tema"}}
+   (Temas: dark, light, blue, cyberpunk-2077, onyx-premium, emerald-grid)
+5. Volver Atrás: {"type": "goBack"}
 
-IMPORTANTE: El bloque [ACTION] debe ir al final de todo tu mensaje. Solo usa una acción por mensaje.
+REGLAS DE CONDUCTA:
+- Solo puedes ejecutar UNA acción por mensaje.
+- El bloque [ACTION] debe ser válido JSON.
+- No inventes IDs de detalles; solo úsalos si están en el contexto previo.
+- Si el usuario dice "ayúdame a buscar...", usa 'applyFilter'.
 `;
   }
 }
