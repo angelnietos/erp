@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UiCardComponent, UiButtonComponent, UiBadgeComponent, UiSearchComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
+
 interface Technician {
   id: string;
   name: string;
