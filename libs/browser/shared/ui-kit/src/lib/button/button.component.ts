@@ -95,14 +95,14 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-lg { padding: 1rem 2.25rem; font-size: 0.85rem; }
 
     /* CORE COLOR TOKENS */
-    .btn-color-primary { --btn-accent: var(--brand, #e60012); --btn-text: #fff; }
-    .btn-color-danger { --btn-accent: var(--danger, #ef4444); --btn-text: #fff; }
-    .btn-color-success { --btn-accent: var(--success, #10b981); --btn-text: #fff; }
-    .btn-color-warning { --btn-accent: var(--warning, #f59e0b); --btn-text: #fff; }
-    .btn-color-secondary { --btn-accent: #334155; --btn-text: #fff; }
-    .btn-color-info { --btn-accent: var(--info, #3b82f6); --btn-text: #fff; }
-    .btn-color-app { --btn-accent: var(--brand, #e60012); --btn-text: #fff; }
-    .btn-color-default { --btn-accent: rgba(255, 255, 255, 0.18); --btn-text: #fff; }
+    .btn-color-primary { --btn-accent: var(--brand, #e60012); --btn-text: var(--text-on-brand, #fff); }
+    .btn-color-danger { --btn-accent: var(--danger, #ef4444); --btn-text: var(--text-on-brand, #fff); }
+    .btn-color-success { --btn-accent: var(--success, #10b981); --btn-text: var(--text-on-brand, #fff); }
+    .btn-color-warning { --btn-accent: var(--warning, #f59e0b); --btn-text: var(--text-on-brand, #fff); }
+    .btn-color-secondary { --btn-accent: var(--bg-tertiary, #334155); --btn-text: var(--text-primary); }
+    .btn-color-info { --btn-accent: var(--info, #3b82f6); --btn-text: var(--text-on-brand, #fff); }
+    .btn-color-app { --btn-accent: var(--brand, #e60012); --btn-text: var(--text-on-brand, #fff); }
+    .btn-color-default { --btn-accent: var(--surface-secondary, rgba(255, 255, 255, 0.1)); --btn-text: var(--text-primary); }
 
     /* SHAPES */
     .btn-shape-solid, .btn-shape-auto {
@@ -141,7 +141,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
     .btn-shape-outline:hover {
       background: var(--btn-accent);
-      color: #fff;
+      color: var(--btn-text);
       box-shadow: 0 0 20px -5px var(--btn-accent);
     }
 
@@ -151,7 +151,8 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
     .btn-shape-ghost:hover {
       background: color-mix(in srgb, var(--btn-accent) 12%, transparent);
-      color: #fff;
+      color: var(--btn-accent);
+      filter: brightness(1.2);
     }
 
     .btn-shape-link {

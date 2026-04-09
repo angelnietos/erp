@@ -75,8 +75,38 @@
   --border-soft: rgba(15, 23, 42, 0.08);
   --border-vibrant: rgba(15, 23, 42, 0.14);
   --shadow-inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --bg-primary: #f1f5f9;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --brand-ambient: rgba(230, 0, 18, 0.04);
+  --brand-ambient-strong: rgba(230, 0, 18, 0.08);
+  --text-on-brand: #ffffff;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.18);
 }
+
+:root {
+  --text-on-brand: #ffffff;
+  --surface-secondary: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme*="light"] {
+  --surface-secondary: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme*="light"] input::placeholder {
+  opacity: 0.75 !important;
+}
+
+[data-theme*="light"] .ui-glass {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+
 
 *,
 *::before,
@@ -163,14 +193,8 @@ h6 {
 
 /* Premium Typography Patterns */
 .glow-text {
-  background: linear-gradient(
-    to bottom,
-    #fff 40%,
-    rgba(255, 255, 255, 0.7) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
+  text-shadow: 0 0 15px color-mix(in srgb, var(--brand-glow) 40%, transparent);
 }
 
 .text-uppercase {
@@ -213,7 +237,7 @@ h6 {
 
 /* Enhanced Text Effects */
 .text-gradient-primary {
-  background: linear-gradient(135deg, var(--brand), var(--accent));
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -46,16 +46,16 @@ import { LucideAngularModule } from 'lucide-angular';
         overflow: hidden;
         cursor: pointer;
         transition: all 0.4s var(--ease-out-expo);
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-sm);
       }
 
       .stat-card:hover {
         transform: translateY(-8px);
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--surface-hover);
         border-color: var(--brand);
-        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px var(--brand-glow);
+        box-shadow: var(--shadow-md), 0 0 20px -5px var(--brand-glow);
       }
 
       .stat-header {
@@ -67,8 +67,8 @@ import { LucideAngularModule } from 'lucide-angular';
       .stat-icon-wrapper {
         width: 3.5rem;
         height: 3.5rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--brand-ambient);
+        border: 1px solid var(--border-soft);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -109,7 +109,7 @@ import { LucideAngularModule } from 'lucide-angular';
         font-weight: 900;
         margin: 0;
         letter-spacing: -0.02em;
-        color: #fff;
+        color: var(--text-primary);
         font-family: var(--font-gaming, inherit);
       }
 

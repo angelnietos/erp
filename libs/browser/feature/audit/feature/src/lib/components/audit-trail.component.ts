@@ -306,7 +306,7 @@ interface DomainEventPayload {
 
     .log-user {
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary);
       font-size: 0.95rem;
     }
 
@@ -319,7 +319,7 @@ interface DomainEventPayload {
     }
 
     .log-entity {
-      color: #fff;
+      color: var(--text-primary);
       font-weight: 700;
       font-size: 0.9rem;
     }
@@ -373,8 +373,8 @@ interface DomainEventPayload {
 
     .log-details {
       padding: 1.5rem 2rem;
-      background: rgba(0,0,0,0.2);
-      border-top: 1px solid rgba(255,255,255,0.03);
+      background: color-mix(in srgb, var(--bg-primary) 98%, black);
+      border-top: 1px solid var(--border-soft);
       animation: slideDown 0.3s ease-out;
     }
 

@@ -41,7 +41,7 @@ import { LucideAngularModule } from 'lucide-angular';
       gap: 1rem;
       margin-bottom: 0.5rem;
       cursor: pointer;
-      opacity: 0.6;
+      opacity: 0.85;
       transition: opacity 0.3s ease;
     }
 
@@ -56,10 +56,10 @@ import { LucideAngularModule } from 'lucide-angular';
     }
 
     .collapse-btn {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--surface);
       border: 1px solid var(--border-soft);
       border-radius: 20px;
-      padding: 4px 12px;
+      padding: 4px 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -70,12 +70,15 @@ import { LucideAngularModule } from 'lucide-angular';
       letter-spacing: 0.05em;
       cursor: pointer;
       transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
     }
 
     .collapse-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-primary);
+      background: var(--surface-hover);
+      color: var(--brand);
       border-color: var(--brand);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
     .stats-container {

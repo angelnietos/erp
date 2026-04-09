@@ -80,7 +80,7 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     
     .badge-shape-solid {
       --badge-bg: var(--badge-color);
-      --badge-color: #fff;
+      --badge-color: var(--text-on-brand, #fff);
       --badge-border-width: 0px;
       --badge-shadow: 0 4px 10px color-mix(in srgb, var(--badge-bg) 40%, transparent);
     }
