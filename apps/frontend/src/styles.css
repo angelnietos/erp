@@ -67,13 +67,15 @@
 [data-theme="animal-crossing"],
 [data-theme="corporate-light"],
 [data-theme="icy-phantom"],
+[data-theme="platinum-luxe"],
 [data-theme="overwatch-pulse"] {
-  --text-primary: #1a1a1a;
-  --text-secondary: #4a4a4a;
-  --text-muted: #7a7a7a;
-  --border-soft: rgba(0, 0, 0, 0.08);
-  --border-vibrant: rgba(0, 0, 0, 0.12);
-  --shadow-inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-soft: rgba(15, 23, 42, 0.08);
+  --border-vibrant: rgba(15, 23, 42, 0.14);
+  --shadow-inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --bg-primary: #f1f5f9;
 }
 
 *,
@@ -130,12 +132,20 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--bg-tertiary) 80%, var(--brand));
+  background: var(--brand);
+  opacity: 0.5;
   border-radius: 20px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--brand);
+  opacity: 1;
+}
+
+[data-theme*="light"] ::-webkit-scrollbar-thumb,
+[data-theme="pearl"] ::-webkit-scrollbar-thumb,
+[data-theme="latte"] ::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
 }
 
 h1,

@@ -57,34 +57,34 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     select {
       width: 100%; 
       padding: 0.9rem 2.5rem 0.9rem 1.25rem;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      color: #fff;
+      background: var(--theme-input-bg, rgba(255, 255, 255, 0.05));
+      border: 1px solid var(--theme-input-border, rgba(255, 255, 255, 0.1));
+      border-radius: var(--theme-input-radius, 14px);
+      color: var(--text-primary, #fff);
       font-size: 0.85rem; font-weight: 600;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
       outline: none; 
       font-family: inherit;
       appearance: none; 
       cursor: pointer;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: var(--theme-input-shadow, inset 0 2px 4px rgba(0,0,0,0.2));
     }
 
     .select-sm { padding: 0.5rem 2.25rem 0.5rem 0.85rem !important; font-size: 0.75rem !important; }
 
     select:focus {
-      background: color-mix(in srgb, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.05));
+      background: color-mix(in srgb, var(--theme-input-bg, rgba(255,255,255,0.05)) 80%, var(--text-primary, #fff));
       border-color: var(--brand, #3b82f6);
       box-shadow:
         0 0 0 4px color-mix(in srgb, var(--brand, #3b82f6) 15%, transparent),
-        0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent);
+        var(--theme-input-shadow, 0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent));
     }
 
     /* Variants */
     .select-glass {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--theme-input-bg, rgba(255, 255, 255, 0.03));
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-color: rgba(255, 255, 255, 0.06);
+      border-color: var(--theme-input-border, rgba(255, 255, 255, 0.06));
     }
 
     select.invalid { border-color: var(--danger, #ef4444); }
@@ -109,7 +109,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       filter: drop-shadow(0 0 8px color-mix(in srgb, var(--brand, #3b82f6) 60%, transparent));
     }
 
-    option { background: #0c0d12; color: #fff; }
+    option { background: var(--bg-secondary, #0c0d12); color: var(--text-primary, #fff); }
   `],
 })
 export class UiSelectComponent implements ControlValueAccessor {

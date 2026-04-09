@@ -63,10 +63,10 @@ export type InputVariant = string;
 
     .input-wrapper { 
       position: relative; display: flex; align-items: center; 
-      --input-bg: rgba(255, 255, 255, 0.02);
-      --input-border: rgba(255, 255, 255, 0.08);
-      --input-radius: 14px;
-      --input-color: #fff;
+      --input-bg: var(--theme-input-bg, rgba(255, 255, 255, 0.05));
+      --input-border: var(--theme-input-border, rgba(255, 255, 255, 0.1));
+      --input-radius: var(--theme-input-radius, 14px);
+      --input-color: var(--text-primary, #fff);
       --input-accent: var(--brand, #3b82f6);
     }
 
@@ -81,8 +81,8 @@ export type InputVariant = string;
     .input-wrapper.has-error { --input-border: var(--danger); --input-accent: var(--danger); }
 
     .input-shape-glass {
-      --input-bg: rgba(255, 255, 255, 0.03);
-      --input-border: rgba(255, 255, 255, 0.06);
+      --input-bg: var(--theme-input-bg, rgba(255, 255, 255, 0.03));
+      --input-border: var(--theme-input-border, rgba(255, 255, 255, 0.06));
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
 
@@ -96,21 +96,21 @@ export type InputVariant = string;
       font-size: 0.85rem; font-weight: 600; 
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none; font-family: inherit;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: var(--theme-input-shadow, inset 0 2px 4px rgba(0,0,0,0.2));
     }
 
     /* FOCUS STATES */
     input:focus {
-      background: color-mix(in srgb, var(--input-bg) 80%, rgba(255,255,255,0.05));
+      background: color-mix(in srgb, var(--input-bg) 80%, var(--text-primary, #fff));
       border-color: var(--input-accent);
       box-shadow:
         0 0 0 4px color-mix(in srgb, var(--input-accent) 15%, transparent),
-        0 8px 30px -10px color-mix(in srgb, var(--input-accent) 40%, transparent);
+        var(--theme-input-shadow, 0 8px 30px -10px color-mix(in srgb, var(--input-accent) 40%, transparent));
     }
 
     input::placeholder {
       color: var(--text-muted); padding-left: 2px;
-      opacity: 0.4;
+      opacity: 0.5;
       font-weight: 500;
     }
     

@@ -107,15 +107,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Modern Silk',
     primary: '#4f46e5',
     secondary: '#64748b',
-    background: '#f8fafc',
+    background: '#f1f5f9',
     surface: '#ffffff',
     text: '#0f172a',
-    textMuted: '#64748b',
-    border: '#e2e8f0',
+    textMuted: '#475569',
+    border: 'rgba(15, 23, 42, 0.12)',
     brand: '#4f46e5',
     brandGlow: 'rgba(79, 70, 229, 0.15)',
-    bgSecondary: '#f1f5f9',
-    bgTertiary: '#e2e8f0',
+    bgSecondary: '#e2e8f0',
+    bgTertiary: '#cbd5e1',
     bgStyle: 'bokeh',
     success: '#10b981',
     warning: '#f59e0b',
@@ -507,15 +507,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Corporate Light',
     primary: '#0ea5e9',
     secondary: '#475569',
-    background: '#f8fafc',
+    background: '#f1f5f9',
     surface: '#ffffff',
     text: '#0f172a',
-    textMuted: '#64748b',
-    border: '#e2e8f0',
+    textMuted: '#475569',
+    border: 'rgba(15, 23, 42, 0.12)',
     brand: '#0ea5e9',
     brandGlow: 'rgba(14, 165, 233, 0.15)',
-    bgSecondary: '#f1f5f9',
-    bgTertiary: '#e2e8f0',
+    bgSecondary: '#e2e8f0',
+    bgTertiary: '#cbd5e1',
     bgStyle: 'spot',
     success: '#059669',
     warning: '#f59e0b',
@@ -567,15 +567,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Vanilla Latte',
     primary: '#d97706',
     secondary: '#57534e',
-    background: '#fafaf9',
+    background: '#f5f5f4',
     surface: '#ffffff',
     text: '#292524',
-    textMuted: '#78716c',
-    border: '#e7e5e4',
+    textMuted: '#57534e',
+    border: 'rgba(41, 37, 36, 0.12)',
     brand: '#d97706',
     brandGlow: 'rgba(217, 119, 6, 0.1)',
-    bgSecondary: '#f5f5f4',
-    bgTertiary: '#e7e5e4',
+    bgSecondary: '#e7e5e4',
+    bgTertiary: '#d6d3d1',
     bgStyle: 'spot',
     success: '#15803d',
     warning: '#c2410c',
@@ -687,15 +687,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Island Life',
     primary: '#6bb33b',
     secondary: '#f9f5d7',
-    background: '#f1f8e9',
+    background: '#e8f5e9',
     surface: '#ffffff',
     text: '#2d4a22',
-    textMuted: '#7ca668',
-    border: '#c5e1a5',
+    textMuted: '#4a7c33',
+    border: 'rgba(45, 74, 34, 0.15)',
     brand: '#6bb33b',
     brandGlow: 'rgba(107, 179, 59, 0.15)',
-    bgSecondary: '#e8f5e9',
-    bgTertiary: '#c5e1a5',
+    bgSecondary: '#c5e1a5',
+    bgTertiary: '#aed581',
     bgStyle: 'spot',
     success: '#43a047',
     warning: '#fbc02d',
@@ -807,15 +807,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '✦ Pearl White',
     primary: '#6366f1',
     secondary: '#8b5cf6',
-    background: '#fafafa',
+    background: '#f3f4f6',
     surface: '#ffffff',
     text: '#111827',
-    textMuted: '#6b7280',
-    border: '#e5e7eb',
+    textMuted: '#4b5563',
+    border: 'rgba(17, 24, 39, 0.1)',
     brand: '#6366f1',
     brandGlow: 'rgba(99, 102, 241, 0.12)',
-    bgSecondary: '#f3f4f6',
-    bgTertiary: '#e5e7eb',
+    bgSecondary: '#e5e7eb',
+    bgTertiary: '#d1d5db',
     bgStyle: 'spot',
     success: '#059669',
     warning: '#d97706',
@@ -827,15 +827,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌤 Sky Day',
     primary: '#0ea5e9',
     secondary: '#38bdf8',
-    background: '#f0f9ff',
+    background: '#e0f2fe',
     surface: '#ffffff',
     text: '#0c4a6e',
     textMuted: '#0369a1',
-    border: '#bae6fd',
+    border: 'rgba(12, 74, 110, 0.15)',
     brand: '#0ea5e9',
     brandGlow: 'rgba(14, 165, 233, 0.15)',
-    bgSecondary: '#e0f2fe',
-    bgTertiary: '#bae6fd',
+    bgSecondary: '#bae6fd',
+    bgTertiary: '#7dd3fc',
     bgStyle: 'bokeh',
     success: '#059669',
     warning: '#d97706',
@@ -847,15 +847,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌸 Rose Quartz',
     primary: '#e11d48',
     secondary: '#fb7185',
-    background: '#fff1f2',
+    background: '#ffe4e6',
     surface: '#ffffff',
     text: '#4c0519',
     textMuted: '#be123c',
-    border: '#fecdd3',
+    border: 'rgba(76, 5, 25, 0.15)',
     brand: '#e11d48',
     brandGlow: 'rgba(225, 29, 72, 0.12)',
-    bgSecondary: '#ffe4e6',
-    bgTertiary: '#fecdd3',
+    bgSecondary: '#fecdd3',
+    bgTertiary: '#fda4af',
     bgStyle: 'bokeh',
     success: '#059669',
     warning: '#d97706',
@@ -867,15 +867,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌿 Sage Garden',
     primary: '#16a34a',
     secondary: '#86efac',
-    background: '#f0fdf4',
+    background: '#dcfce7',
     surface: '#ffffff',
     text: '#14532d',
     textMuted: '#15803d',
-    border: '#bbf7d0',
+    border: 'rgba(20, 83, 45, 0.15)',
     brand: '#16a34a',
     brandGlow: 'rgba(74, 222, 128, 0.12)',
-    bgSecondary: '#dcfce7',
-    bgTertiary: '#bbf7d0',
+    bgSecondary: '#bbf7d0',
+    bgTertiary: '#86efac',
     bgStyle: 'spot',
     success: '#15803d',
     warning: '#a16207',
@@ -887,15 +887,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '💜 Lavender Mist',
     primary: '#7c3aed',
     secondary: '#a78bfa',
-    background: '#faf5ff',
+    background: '#ede9fe',
     surface: '#ffffff',
     text: '#3b0764',
     textMuted: '#6d28d9',
-    border: '#ddd6fe',
+    border: 'rgba(59, 7, 100, 0.15)',
     brand: '#7c3aed',
     brandGlow: 'rgba(124, 58, 237, 0.12)',
-    bgSecondary: '#ede9fe',
-    bgTertiary: '#ddd6fe',
+    bgSecondary: '#ddd6fe',
+    bgTertiary: '#c4b5fd',
     bgStyle: 'bokeh',
     success: '#059669',
     warning: '#d97706',
@@ -907,15 +907,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌅 Sunrise Glow',
     primary: '#ea580c',
     secondary: '#fb923c',
-    background: '#fff7ed',
+    background: '#ffedd5',
     surface: '#ffffff',
     text: '#431407',
     textMuted: '#c2410c',
-    border: '#fed7aa',
+    border: 'rgba(67, 20, 7, 0.18)',
     brand: '#ea580c',
     brandGlow: 'rgba(234, 88, 12, 0.12)',
-    bgSecondary: '#ffedd5',
-    bgTertiary: '#fed7aa',
+    bgSecondary: '#fed7aa',
+    bgTertiary: '#fdba74',
     bgStyle: 'spot',
     success: '#15803d',
     warning: '#b45309',
@@ -1307,15 +1307,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Platinum Luxe',
     primary: '#111827',
     secondary: '#d1d5db',
-    background: '#f3f4f6',
+    background: '#e5e7eb',
     surface: '#ffffff',
     text: '#111827',
     textMuted: '#374151',
-    border: '#e5e7eb',
+    border: 'rgba(17, 24, 39, 0.15)',
     brand: '#111827',
     brandGlow: 'rgba(17, 24, 39, 0.15)',
-    bgSecondary: '#f9fafb',
-    bgTertiary: '#f3f4f6',
+    bgSecondary: '#d1d5db',
+    bgTertiary: '#9ca3af',
     bgStyle: 'bokeh',
     success: '#10b981',
     warning: '#f59e0b',
@@ -1385,17 +1385,17 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   'icy-phantom': {
     name: 'Icy Phantom',
-    primary: '#e2e8f0',
-    secondary: '#cbd5e1',
-    background: '#f8fafc',
+    primary: '#334155',
+    secondary: '#475569',
+    background: '#ebf0f5',
     surface: '#ffffff',
     text: '#0f172a',
-    textMuted: '#64748b',
-    border: '#e2e8f0',
+    textMuted: '#334155',
+    border: 'rgba(15, 23, 42, 0.1)',
     brand: '#334155',
     brandGlow: 'rgba(51, 65, 85, 0.15)',
-    bgSecondary: '#f1f5f9',
-    bgTertiary: '#f8fafc',
+    bgSecondary: '#cbd5e1',
+    bgTertiary: '#94a3b8',
     bgStyle: 'spot',
     success: '#059669',
     warning: '#f59e0b',
@@ -1598,8 +1598,14 @@ export class ThemeService {
 
     root.style.setProperty('--surface', hexToRgba(config.surface, 0.78));
     const brandRgb = hexToRgbTriplet(config.brand);
+    // ── LIGHT THEME DETECTION ──────────────────────────────────────
+    const t = hexToRgbTriplet(config.background).split(',').map(Number);
+    const brightness = (t[0] * 299 + t[1] * 587 + t[2] * 114) / 1000;
+    const isLight = brightness > 180;
+
     root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.12)`);
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
+    root.style.setProperty('--surface-opacity', isLight ? '0.94' : '0.78');
 
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-ui-variant', variant);
@@ -1609,7 +1615,7 @@ export class ThemeService {
     // Angular ViewEncapsulation (encapsulated component styles cannot see
     // CSS-rule-level html[data-ui-variant] overrides, but they CAN inherit
     // inline CSS variables from :root / documentElement).
-    this.applyStructuralTokens(root, variant, config);
+    this.applyStructuralTokens(root, variant, config, isLight);
   }
 
   /**
@@ -1622,6 +1628,7 @@ export class ThemeService {
     root: HTMLElement,
     variant: string,
     config: ThemeConfig,
+    isLight: boolean = false,
   ): void {
     // Reset all structural tokens first
     const structuralTokens = [
@@ -1655,48 +1662,77 @@ export class ThemeService {
     ];
     structuralTokens.forEach((t) => root.style.removeProperty(t));
 
+    // Core surface used by .ui-glass
+    root.style.setProperty(
+      '--surface',
+      hexToRgba(config.surface, isLight ? 0.94 : 0.78),
+    );
+
     switch (variant) {
       case 'glass':
-        root.style.setProperty('--variant-blur', '28px');
+        root.style.setProperty('--variant-blur', isLight ? '12px' : '28px');
         root.style.setProperty('--radius-lg', '16px');
         root.style.setProperty('--radius-md', '10px');
         root.style.setProperty('--radius-xl', '24px');
         root.style.setProperty(
           '--border-vibrant',
-          `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`,
+          isLight
+            ? `rgba(${hexToRgbTriplet(config.brand)}, 0.35)`
+            : `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`,
         );
         root.style.setProperty(
           '--shadow-inset-shine',
-          'inset 0 1px 0 rgba(255,255,255,0.08)',
+          isLight
+            ? 'inset 0 1px 0 rgba(255,255,255,0.8)'
+            : 'inset 0 1px 0 rgba(255,255,255,0.08)',
         );
-        root.style.setProperty('--shadow-md', '0 8px 32px rgba(0,0,0,0.4)');
+        root.style.setProperty(
+          '--shadow-md',
+          isLight
+            ? '0 8px 32px rgba(0,0,0,0.08)'
+            : '0 8px 32px rgba(0,0,0,0.4)',
+        );
         // Card
         root.style.setProperty(
           '--card-bg',
-          `color-mix(in srgb, ${config.surface} 70%, transparent)`,
+          `color-mix(in srgb, ${config.surface} ${isLight ? '95%' : '70%'}, transparent)`,
         );
         root.style.setProperty(
           '--card-border',
-          `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`,
+          isLight
+            ? `rgba(${hexToRgbTriplet(config.brand)}, 0.3)`
+            : `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`,
         );
-        root.style.setProperty('--card-shadow', '0 8px 32px rgba(0,0,0,0.4)');
+        root.style.setProperty(
+          '--card-shadow',
+          isLight
+            ? '0 8px 32px rgba(0,0,0,0.08)'
+            : '0 8px 32px rgba(0,0,0,0.4)',
+        );
         // Input
         root.style.setProperty(
           '--input-bg',
-          `color-mix(in srgb, ${config.surface} 50%, transparent)`,
+          isLight
+            ? `color-mix(in srgb, ${config.surface} 98%, transparent)`
+            : `color-mix(in srgb, ${config.surface} 50%, transparent)`,
         );
+        root.style.setProperty('--input-border', isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
         root.style.setProperty('--input-radius', '10px');
         // Modal
         root.style.setProperty('--modal-radius', '24px');
         root.style.setProperty(
           '--modal-bg',
-          `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`,
+          isLight
+            ? `color-mix(in srgb, ${config.bgSecondary} 95%, transparent)`
+            : `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`,
         );
         // Button
         root.style.setProperty('--btn-radius', '10px');
         root.style.setProperty(
           '--btn-shadow',
-          `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
+          isLight
+            ? `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.15)`
+            : `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
         );
         break;
 
@@ -1707,21 +1743,30 @@ export class ThemeService {
         root.style.setProperty('--radius-xl', '14px');
         root.style.setProperty('--border-vibrant', config.border);
         root.style.setProperty('--shadow-inset-shine', 'none');
-        root.style.setProperty('--shadow-md', '0 4px 12px rgba(0,0,0,0.25)');
+        root.style.setProperty(
+          '--shadow-md',
+          isLight ? '0 4px 12px rgba(0,0,0,0.06)' : '0 4px 12px rgba(0,0,0,0.25)',
+        );
         // Card
-        root.style.setProperty('--card-bg', config.bgSecondary);
+        root.style.setProperty('--card-bg', config.surface);
         root.style.setProperty('--card-border', config.border);
-        root.style.setProperty('--card-shadow', '0 2px 8px rgba(0,0,0,0.2)');
+        root.style.setProperty(
+          '--card-shadow',
+          isLight ? '0 2px 8px rgba(0,0,0,0.04)' : '0 2px 8px rgba(0,0,0,0.2)',
+        );
         // Input
-        root.style.setProperty('--input-bg', config.bgTertiary);
+        root.style.setProperty('--input-bg', config.bgSecondary);
+        root.style.setProperty('--input-border', config.border);
         root.style.setProperty('--input-radius', '6px');
         root.style.setProperty(
           '--input-shadow',
-          'inset 0 1px 3px rgba(0,0,0,0.2)',
+          isLight
+            ? 'inset 0 1px 2px rgba(0,0,0,0.05)'
+            : 'inset 0 1px 3px rgba(0,0,0,0.2)',
         );
         // Modal
         root.style.setProperty('--modal-radius', '10px');
-        root.style.setProperty('--modal-bg', config.bgSecondary);
+        root.style.setProperty('--modal-bg', config.surface);
         // Button
         root.style.setProperty('--btn-radius', '6px');
         root.style.setProperty('--btn-shadow', 'none');

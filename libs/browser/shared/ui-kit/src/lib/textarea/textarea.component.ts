@@ -42,43 +42,42 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
 
     textarea {
       width: 100%; padding: 1rem 1.25rem;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      color: #fff;
+      background: var(--theme-input-bg, rgba(255, 255, 255, 0.05));
+      border: 1px solid var(--theme-input-border, rgba(255, 255, 255, 0.1));
+      border-radius: var(--theme-input-radius, 14px);
+      color: var(--text-primary, #fff);
       font-size: 0.85rem; font-weight: 600;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none; font-family: inherit;
       resize: vertical; min-height: 120px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+      box-shadow: var(--theme-input-shadow, inset 0 2px 4px rgba(0,0,0,0.2));
     }
 
     textarea:focus {
-      background: color-mix(in srgb, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.05));
+      background: color-mix(in srgb, var(--theme-input-bg, rgba(255, 255, 255, 0.05)) 80%, var(--text-primary, #fff));
       border-color: var(--brand, #3b82f6);
       box-shadow:
         0 0 0 4px color-mix(in srgb, var(--brand, #3b82f6) 15%, transparent),
-        0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent);
+        var(--theme-input-shadow, 0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent));
     }
 
     .textarea-glass {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--theme-input-bg, rgba(255, 255, 255, 0.03));
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-color: rgba(255, 255, 255, 0.06);
+      border-color: var(--theme-input-border, rgba(255, 255, 255, 0.06));
     }
 
     .textarea-minimal {
-      --input-bg: transparent;
-      --input-border: transparent;
-      --input-radius: 0;
-      --input-shadow: none;
       border-bottom: 2px solid var(--border-soft) !important;
       padding-left: 0; padding-right: 0;
+      background: transparent !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
     }
 
     .textarea-error {
-      --input-border: var(--danger);
-      background: rgba(239, 68, 68, 0.05);
+      border-color: var(--danger) !important;
+      background: color-mix(in srgb, var(--danger) 5%, var(--theme-input-bg, transparent)) !important;
     }
 
     textarea:disabled {
