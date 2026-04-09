@@ -72,7 +72,8 @@ export class BillingFacade {
     ];
   });
 
-  loadInvoices(): void {
+  loadInvoices(force = false): void {
+    if (!force && this._allInvoices().length > 0) return;
     this._isLoading.set(true);
     this.service.getInvoices().subscribe({
       next: (data) => {

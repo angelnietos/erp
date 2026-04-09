@@ -57,7 +57,8 @@ export class InventoryFacade {
     ];
   });
 
-  loadProducts(): void {
+  loadProducts(force = false): void {
+    if (!force && this._allProducts().length > 0) return;
     this._isLoading.set(true);
     this.service.getProducts().subscribe({
       next: (data) => {

@@ -561,6 +561,12 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
       await Promise.all(allTechs.map(async (tech) => {
         try {
+          // Ignorar llamadas al API para los técnicos de relleno (mocks locales)
+          // que usan IDs como 't1', 't2' ya que Postgres lanzará 500 al esperar UUIDs.
+          if (tech.id.startsWith('t') && tech.id.length < 5) {
+            throw new Error('Local mock tech, skip API');
+          }
+
           // Intentar obtener datos reales del API
           const avail = await firstValueFrom(
             this.api.getAvailability(tech.id, startDate, endDate)
@@ -581,7 +587,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
             data[tech.id][dayNum] = a.type;
           });
         } catch {
-          // Si falla el API para este técnico, fallback total al mock inteligente
+          // Si falla el API para este técnico o es un mock, fallback total al mock inteligente
           data[tech.id] = {};
           for (let d = 1; d <= 31; d++) {
              data[tech.id][d] = this.getRandomMockAvailability(d, tech.id, monthSeed).type;

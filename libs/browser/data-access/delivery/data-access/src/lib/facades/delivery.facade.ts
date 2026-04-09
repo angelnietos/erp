@@ -13,7 +13,8 @@ export class DeliveryFacade {
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
 
-  loadDeliveryNotes(): void {
+  loadDeliveryNotes(force = false): void {
+    if (!force && this._deliveryNotes().length > 0) return;
     this._isLoading.set(true);
     this.service.getDeliveryNotes().subscribe({
       next: (data) => {

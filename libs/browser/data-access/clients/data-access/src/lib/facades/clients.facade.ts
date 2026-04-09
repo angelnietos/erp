@@ -18,7 +18,8 @@ export class ClientsFacade {
   readonly error = this._error.asReadonly();
 
   // Actions
-  loadClients(): void {
+  loadClients(force = false): void {
+    if (!force && this._clients().length > 0) return;
     this._isLoading.set(true);
     this._error.set(null);
     this.clientService.getClients().subscribe({

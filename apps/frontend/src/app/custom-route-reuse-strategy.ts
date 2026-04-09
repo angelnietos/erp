@@ -11,18 +11,22 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
   shouldDetach(route: ActivatedRouteSnapshot): boolean {
     const url = this.getFullRouteUrl(route);
     
-    // Don't cache auth, new creations, edits, or empty strings
+    // 1) ONLY cache if the route has an actual component (avoid infinite loops caching lazy parents)
+    if (!route.routeConfig || !route.routeConfig.component) {
+      return false;
+    }
+
+    // 2) Don't cache auth, new creations, edits, or empty strings
     if (url.includes('login') || url.includes('new') || url.includes('edit') || !url) {
       return false;
     }
 
-    // Don't cache components with parameter bindings (like detail pages: /inventory/1)
-    // We only want to cache the Heavy List Views (the module root views).
+    // 3) Don't cache detail pages
     if (Object.keys(route.params).length > 0) {
       return false;
     }
 
-    // Cache the lists!
+    // We only cache the root list components
     return true;
   }
 

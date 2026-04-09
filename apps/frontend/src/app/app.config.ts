@@ -140,15 +140,14 @@ import {
   Navigation,
   AlertCircle,
   CheckSquare,
+  AlertOctagon,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
-import { CustomRouteReuseStrategy } from './custom-route-reuse-strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
-    { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
     provideHttpClient(
       withInterceptors([
         apiOriginInterceptor,
@@ -285,6 +284,7 @@ export const appConfig: ApplicationConfig = {
         Navigation,
         AlertCircle,
         CheckSquare,
+        AlertOctagon,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },

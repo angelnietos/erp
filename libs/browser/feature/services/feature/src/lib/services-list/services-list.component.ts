@@ -359,6 +359,7 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
   ];
 
   private loadServices() {
+    if (this.services().length > 0) return;
     this.isLoading.set(true);
     // Simulate loading
     setTimeout(() => {
