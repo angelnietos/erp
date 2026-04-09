@@ -2,6 +2,7 @@ import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AI_CONFIG } from '../configs/ai.config';
 import { ThemeService, Theme } from '../services/theme.service';
+import { MasterFilterService } from '../services/master-filter.service';
 import {
   AIBot,
   AIRangeMemory,
