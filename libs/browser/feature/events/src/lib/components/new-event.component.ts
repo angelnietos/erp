@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AIFormBridgeService } from '@josanz-erp/shared-data-access';
 import {
   FormBuilder,
   FormGroup,
@@ -358,9 +359,10 @@ import {
     `,
   ],
 })
-export class NewEventComponent {
-  private readonly fb = new FormBuilder();
-  private readonly router = new Router();
+export class NewEventComponent implements OnInit, OnDestroy {
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly aiFormBridge = inject(AIFormBridgeService);
 
   // Icon references
   readonly ArrowLeftIcon = ArrowLeft;
@@ -390,6 +392,7 @@ export class NewEventComponent {
     currency: ['EUR'],
   });
 
+  // ... rest of the properties ...
   eventTypes = [
     { label: 'Conferencia', value: 'conference' },
     { label: 'Taller', value: 'workshop' },
@@ -416,6 +419,14 @@ export class NewEventComponent {
     { label: 'USD', value: 'USD' },
     { label: 'GBP', value: 'GBP' },
   ];
+
+  ngOnInit() {
+    this.aiFormBridge.registerForm(this.eventForm);
+  }
+
+  ngOnDestroy() {
+    this.aiFormBridge.unregisterForm(this.eventForm);
+  }
 
   onSubmit() {
     if (this.eventForm.valid) {

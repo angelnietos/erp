@@ -14,3 +14,4 @@ export * from './lib/services/dashboard-analytics.service';
 
 export { AIBotStore } from './lib/store/ai-bot.store';
 export * from './lib/models/ai-bot.model';
+export { AIFormBridgeService } from './lib/services/ai-form-bridge.service';

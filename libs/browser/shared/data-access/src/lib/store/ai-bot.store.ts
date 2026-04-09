@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AI_CONFIG } from '../configs/ai.config';
 import { ThemeService, Theme } from '../services/theme.service';
 import { MasterFilterService } from '../services/master-filter.service';
+import { AIFormBridgeService } from '../services/ai-form-bridge.service';
 import {
   AIBot,
   AIRangeMemory,
@@ -23,6 +24,7 @@ export class AIBotStore {
   private router = inject(Router);
   private themeService = inject(ThemeService);
   private masterFilterService = inject(MasterFilterService);
+  private aiFormBridge = inject(AIFormBridgeService);
   private _isCheckingProviders = false;
   private _lastCheckTime = 0;
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
@@ -1787,10 +1789,17 @@ export class AIBotStore {
                 this.setPendingFilter(target, subAction.payload?.query || '');
               } else if (subAction.type === 'navigate') {
                 this.router.navigateByUrl(subAction.payload.url);
+              } else if (subAction.type === 'fillForm') {
+                this.aiFormBridge.fillActiveForm(subAction.payload.data);
               }
             }
             break;
           }
+          case 'fillForm':
+            if (action.payload?.data) {
+              this.aiFormBridge.fillActiveForm(action.payload.data);
+            }
+            break;
           case 'showNotification':
             console.log('Bot Notification:', action.payload?.message);
             break;
@@ -1822,9 +1831,12 @@ ACCIONES MOTOR:
 2. 'applyFilter': {query: string} -> Filtra datos en tiempo real.
 3. 'wait': {ms: number} -> Pausa entre pasos del workflow.
 4. 'delegate': {target: string, action: object} -> DELEGA una acción a otro bot.
-   (Ejemplo: Buddy dice a inventario que busque algo: {"type": "delegate", "payload": {"target": "inventory", "action": {"type": "applyFilter", "payload": {"query": "foco"}}}} )
+5. 'fillForm': {data: object} -> RELLENA el formulario activo en pantalla.
+   (Ejemplo: [ACTION] {"type": "fillForm", "payload": {"data": {"name": "Jose", "id": "123"}}})
 
 REGLAS CRÍTICAS:
+- Usa 'fillForm' cuando el usuario te pida rellenar datos, crear algo o editar un perfil.
+- Si delegas un 'fillForm' a un target, el bot target intentará rellenarlo cuando el usuario navegue allí.
 - Como Buddy (Orquestador), usa 'delegate' para que los otros bots preparen el terreno antes de navegar.
 - Si delegas un filtro a un target, el usuario verá ese filtro aplicado en cuanto entre en esa sección.
 - El JSON debe ser impecable.
