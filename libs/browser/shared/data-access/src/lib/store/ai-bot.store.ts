@@ -176,7 +176,8 @@ export class AIBotStore {
 
   clearPendingFilter(feature: string) {
     this._pendingFilters.update((prev) => {
-      const { [feature]: _unused, ...rest } = prev;
+      const rest = { ...prev };
+      delete rest[feature];
       return rest;
     });
   }
@@ -1775,10 +1776,11 @@ export class AIBotStore {
           case 'goBack':
             window.history.back();
             break;
-          case 'wait':
+          case 'wait': {
             const ms = action.payload?.ms || 1000;
             await new Promise((resolve) => setTimeout(resolve, ms));
             break;
+          }
           case 'delegate': {
             if (action.payload?.target && action.payload?.action) {
               const target = action.payload.target;

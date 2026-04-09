@@ -17,7 +17,7 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService, AIFormBridgeService } from '@josanz-erp/shared-data-access';
 import { Observable, of, map } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
@@ -234,6 +234,7 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
   private readonly facade = inject(ClientsFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly aiFormBridge = inject(AIFormBridgeService);
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
 
   currentTheme = this.themeService.currentThemeData;
@@ -272,6 +273,7 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
   activeSectorsCount = computed(() => new Set(this.clients().map(c => c.sector).filter(Boolean)).size);
 
   ngOnInit() {
+    this.aiFormBridge.registerDataProxy(this.formData as Record<string, unknown>);
     this.masterFilter.registerProvider(this);
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
@@ -283,6 +285,7 @@ export class ClientsListComponent implements OnInit, OnDestroy, FilterableServic
   }
 
   ngOnDestroy() {
+    this.aiFormBridge.unregisterDataProxy(this.formData as Record<string, unknown>);
     this.masterFilter.unregisterProvider();
   }
 

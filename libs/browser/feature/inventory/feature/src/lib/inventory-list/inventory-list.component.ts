@@ -30,6 +30,7 @@ import {
   PluginStore,
   MasterFilterService,
   FilterableService,
+  AIFormBridgeService,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -471,6 +472,7 @@ export class InventoryListComponent
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(InventoryFacade);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly aiFormBridge = inject(AIFormBridgeService);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -502,11 +504,13 @@ export class InventoryListComponent
   };
 
   ngOnInit() {
+    this.aiFormBridge.registerDataProxy(this.formData as Record<string, unknown>);
     this.masterFilter.registerProvider(this);
     this.loadProducts();
   }
 
   ngOnDestroy() {
+    this.aiFormBridge.unregisterDataProxy(this.formData as Record<string, unknown>);
     this.masterFilter.unregisterProvider();
   }
 

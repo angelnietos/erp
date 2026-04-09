@@ -1,57 +1,72 @@
 import { Injectable, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-/**
- * Service to bridge AI actions with Angular Reactive Forms.
- * Allows AI bots to "see" and "fill" the active form in the UI.
- */
 @Injectable({ providedIn: 'root' })
 export class AIFormBridgeService {
   private _activeForm = signal<FormGroup | null>(null);
+  private _activeDataProxy = signal<Record<string, unknown> | null>(null);
+  
   readonly activeForm = this._activeForm.asReadonly();
 
   /**
-   * Components should call this in ngOnInit to expose their form to the AI.
+   * For Reactive Forms (FormGroup)
    */
   registerForm(form: FormGroup) {
     console.log('📝 AI Form Bridge: Form registered');
     this._activeForm.set(form);
+    this._activeDataProxy.set(null);
   }
 
   /**
-   * Components should call this in ngOnDestroy.
+   * For Template Forms or simple objects (ngModel)
    */
+  registerDataProxy(data: Record<string, unknown> | object) {
+    console.log('📝 AI Form Bridge: Data Proxy registered');
+    this._activeDataProxy.set(data as Record<string, unknown>);
+    this._activeForm.set(null);
+  }
+
   unregisterForm(form: FormGroup) {
     if (this._activeForm() === form) {
-      console.log('📝 AI Form Bridge: Form unregistered');
       this._activeForm.set(null);
     }
   }
 
+  unregisterDataProxy(data: Record<string, unknown> | object) {
+    if (this._activeDataProxy() === data) {
+      this._activeDataProxy.set(null);
+    }
+  }
+
   /**
-   * Directly fills the active form with the provided data.
+   * Directly fills the active form or data proxy with the provided data.
    */
   fillActiveForm(data: Record<string, any>) {
     const form = this._activeForm();
-    if (!form) {
-      console.warn('⚠️ AI Form Bridge: No active form found to fill.');
-      return false;
+    const proxy = this._activeDataProxy();
+
+    if (form) {
+      try {
+        form.patchValue(data);
+        form.markAsDirty();
+        form.updateValueAndValidity();
+        console.log('✅ AI Form Bridge: Form filled (Reactive)', data);
+        return true;
+      } catch (e) { console.error(e); return false; }
     }
 
-    try {
-      // We use patchValue to support partial data
-      form.patchValue(data);
-      
-      // Ensure Angular detects the changes
-      form.markAsDirty();
-      form.updateValueAndValidity();
-      
-      console.log('✅ AI Form Bridge: Form filled successfully', data);
-      return true;
-    } catch (error) {
-      console.error('❌ AI Form Bridge: Error filling form', error);
-      return false;
+    if (proxy) {
+      try {
+        Object.keys(data).forEach(key => {
+          proxy[key] = data[key];
+        });
+        console.log('✅ AI Form Bridge: Data Proxy filled (Template)', data);
+        return true;
+      } catch (e) { console.error(e); return false; }
     }
+
+    console.warn('⚠️ AI Form Bridge: No active form or proxy found.');
+    return false;
   }
 
   /**

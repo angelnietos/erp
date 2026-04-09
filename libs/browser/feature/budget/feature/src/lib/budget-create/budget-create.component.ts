@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BudgetStore, BudgetService } from '@josanz-erp/budget-data-access';
 import { CreateBudgetDTO } from '@josanz-erp/budget-api';
@@ -8,6 +8,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
 import { InventoryService, Product } from '@josanz-erp/inventory-data-access';
 import { UiCardComponent, UiInputComponent, UiButtonComponent, UiSelectComponent, SelectMapperPipe } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, Plus, Trash2, Save } from 'lucide-angular';
+import { AIFormBridgeService } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-budget-create',
@@ -34,6 +35,7 @@ export class BudgetCreateComponent implements OnInit {
   private budgetService = inject(BudgetService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private aiFormBridge = inject(AIFormBridgeService);
 
   Plus = Plus; Trash2 = Trash2; Save = Save;
 
@@ -55,6 +57,7 @@ export class BudgetCreateComponent implements OnInit {
   get items() { return this.budgetForm.get('items') as FormArray; }
 
   ngOnInit() {
+    this.aiFormBridge.registerForm(this.budgetForm as FormGroup);
     this.clientService.getClients().subscribe((c) => this.clients.set(c));
     this.inventoryService.getProducts().subscribe((p) => this.products.set(p));
 
