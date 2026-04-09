@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { Product, InventoryService } from '../services/inventory.service';
 
 export interface BaseTabs {
@@ -80,12 +81,12 @@ export class InventoryFacade {
     this._searchTerm.set(term);
   }
 
-  createProduct(product: Omit<Product, 'id'>): void {
-    this.service.createProduct(product).subscribe({
-      next: (newItem) => {
+  createProduct(product: Omit<Product, 'id'>): Observable<Product> {
+    return this.service.createProduct(product).pipe(
+      tap((newItem) => {
         this._allProducts.update((items) => [...items, newItem]);
-      },
-    });
+      }),
+    );
   }
 
   updateProduct(id: string, updates: Partial<Product>): void {
@@ -95,13 +96,13 @@ export class InventoryFacade {
     });
   }
 
-  deleteProduct(id: string): void {
-    this.service.deleteProduct(id).subscribe({
-      next: (success) => {
+  deleteProduct(id: string): Observable<boolean> {
+    return this.service.deleteProduct(id).pipe(
+      tap((success) => {
         if (success) {
           this._allProducts.update((items) => items.filter((i) => i.id !== id));
         }
-      },
-    });
+      }),
+    );
   }
 }

@@ -152,10 +152,10 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
       }
     </div>
 
-    <!-- Modals -->
+    <!-- Modal solo para alta; la edición completa está en /fleet/:id/edit -->
     <ui-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingVehicle() ? 'MODIFICACIÓN DE FICHA TÉCNICA' : 'REGISTRO DE NUEVA UNIDAD'"
+      title="REGISTRO DE NUEVA UNIDAD"
       (closed)="closeModal()"
       variant="glass"
     >
@@ -282,8 +282,7 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   searchFilter = signal('');
   
   isModalOpen = signal(false);
-  editingVehicle = signal<Vehicle | null>(null);
-  
+
   formData: Partial<Vehicle> = {
     plate: '', brand: '', model: '', year: new Date().getFullYear(),
     type: 'van', status: 'available', insuranceExpiry: '', itvExpiry: ''
@@ -339,8 +338,18 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   onPageChange(page: number) { this.currentPage.set(page); this.loadVehicles(); }
 
   openCreateModal() {
-    this.editingVehicle.set(null);
-    this.formData = { plate: '', brand: '', model: '', year: new Date().getFullYear(), type: 'van', status: 'available' };
+    this.formData = {
+      plate: '',
+      brand: '',
+      model: '',
+      year: new Date().getFullYear(),
+      type: 'van',
+      status: 'available',
+      insuranceExpiry: '',
+      itvExpiry: '',
+      mileage: 0,
+      capacity: 0,
+    };
     this.isModalOpen.set(true);
   }
 
@@ -361,22 +370,26 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   editVehicle(vehicle: Vehicle) {
-    this.editingVehicle.set(vehicle);
-    this.formData = { ...vehicle };
-    this.isModalOpen.set(true);
+    this.router.navigate(['/fleet', vehicle.id, 'edit']);
   }
 
   onDuplicate(vehicle: Vehicle) {
     const { id: _omitId, ...rest } = vehicle;
     void _omitId;
-    this.vehicleService.createVehicle({
-      ...rest,
-      plate: `${vehicle.plate}-C`
-    } as Omit<Vehicle, 'id'>).subscribe({
-      next: (newV: Vehicle) => { 
-        this.vehicles.update(list => [...list, newV]);
-      }
-    });
+    this.vehicleService
+      .createVehicle({
+        ...rest,
+        plate: `${vehicle.plate}-C`,
+      } as Omit<Vehicle, 'id'>)
+      .subscribe({
+        next: (newV: Vehicle) => {
+          this.vehicles.update((list) => [...list, newV]);
+          this.updateTabBadges(this.vehicles());
+          this.toast.show(`Unidad duplicada: ${newV.plate}`, 'success');
+        },
+        error: () =>
+          this.toast.show('No se pudo duplicar la unidad.', 'error'),
+      });
   }
 
   confirmDelete(vehicle: Vehicle) {
@@ -395,26 +408,27 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     });
   }
 
-  closeModal() { this.isModalOpen.set(false); this.editingVehicle.set(null); }
+  closeModal() {
+    this.isModalOpen.set(false);
+  }
 
   saveVehicle() {
-    if (!this.formData.plate) return;
-    const vehicleToEdit = this.editingVehicle();
-    if (vehicleToEdit) {
-      this.vehicleService.updateVehicle(vehicleToEdit.id, this.formData).subscribe({
-        next: (updated: Vehicle) => {
-          this.vehicles.update(list => list.map(v => v.id === updated.id ? updated : v));
-          this.closeModal();
-        }
-      });
-    } else {
-      this.vehicleService.createVehicle(this.formData as Omit<Vehicle, 'id'>).subscribe({
-        next: (newV: Vehicle) => { 
-          this.vehicles.update(list => [...list, newV]);
-          this.closeModal();
-        }
-      });
+    if (!this.formData.plate?.trim()) {
+      this.toast.show('Indica una matrícula válida', 'error');
+      return;
     }
+    this.vehicleService
+      .createVehicle(this.formData as Omit<Vehicle, 'id'>)
+      .subscribe({
+        next: (newV: Vehicle) => {
+          this.vehicles.update((list) => [...list, newV]);
+          this.updateTabBadges(this.vehicles());
+          this.toast.show(`Unidad ${newV.plate} registrada`, 'success');
+          this.closeModal();
+        },
+        error: () =>
+          this.toast.show('No se pudo registrar la unidad.', 'error'),
+      });
   }
 
   getTypeLabel(type: string): string {

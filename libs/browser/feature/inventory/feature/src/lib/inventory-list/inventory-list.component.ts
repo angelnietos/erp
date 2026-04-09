@@ -32,6 +32,7 @@ import {
   MasterFilterService,
   FilterableService,
   AIFormBridgeService,
+  ToastService,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -161,10 +162,10 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       }
     </div>
 
-    <!-- Modal para creación/edición -->
+    <!-- Modal solo para alta rápida; la edición se hace en /inventory/:id/edit -->
     <ui-modal
       [isOpen]="isModalOpen()"
-      [title]="editingProduct() ? 'MODIFICACIÓN DE ACTIVO' : 'REGISTRO DE NUEVO RECURSO'"
+      title="REGISTRO DE NUEVO RECURSO"
       (closed)="closeModal()"
       variant="glass"
     >
@@ -190,7 +191,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
         <ui-button variant="solid" (clicked)="saveProduct()" [disabled]="!formData.name" icon="save">
-          {{ editingProduct() ? 'ACTUALIZAR' : 'GUARDAR' }}
+          GUARDAR
         </ui-button>
       </div>
     </ui-modal>
@@ -270,6 +271,7 @@ export class InventoryListComponent
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -284,9 +286,6 @@ export class InventoryListComponent
   searchTerm = '';
 
   isModalOpen = signal(false);
-  isDeleteModalOpen = signal(false);
-  editingProduct = signal<Product | null>(null);
-  productToDelete = signal<Product | null>(null);
 
   formData: Partial<Product> = {
     name: '',
@@ -386,7 +385,6 @@ export class InventoryListComponent
   }
 
   openCreateModal() {
-    this.editingProduct.set(null);
     this.formData = {
       name: '',
       sku: '',
@@ -414,14 +412,11 @@ export class InventoryListComponent
   }
 
   editProduct(product: Product) {
-    this.editingProduct.set(product);
-    this.formData = { ...product };
-    this.isModalOpen.set(true);
+    this.router.navigate(['/inventory', product.id, 'edit']);
   }
 
   closeModal() {
     this.isModalOpen.set(false);
-    this.editingProduct.set(null);
   }
 
   saveProduct() {
@@ -434,16 +429,8 @@ export class InventoryListComponent
     );
     const dailyRate = Math.max(0, Number(this.formData.dailyRate ?? 0));
 
-    const productToEdit = this.editingProduct();
-    if (productToEdit) {
-      this.facade.updateProduct(productToEdit.id, {
-        ...this.formData,
-        name,
-        totalStock,
-        dailyRate,
-      });
-    } else {
-      this.facade.createProduct({
+    this.facade
+      .createProduct({
         name,
         sku: (this.formData.sku ?? '').trim(),
         category: (this.formData.category ?? '').trim() || 'Varios',
@@ -453,25 +440,48 @@ export class InventoryListComponent
         availableStock: totalStock,
         reservedStock: 0,
         dailyRate,
+      })
+      .subscribe({
+        next: () => {
+          this.toast.show(`Producto «${name}» registrado`, 'success');
+          this.closeModal();
+        },
+        error: () =>
+          this.toast.show('No se pudo registrar el producto.', 'error'),
       });
-    }
-    this.closeModal();
   }
 
   onDuplicate(product: Product) {
     const { id: _omitId, ...rest } = product;
     void _omitId;
-    this.facade.createProduct({
-      ...rest,
-      name: `${product.name} (COPIA)`,
-      sku: product.sku ? `${product.sku}-COPY` : ''
-    });
+    this.facade
+      .createProduct({
+        ...rest,
+        name: `${product.name} (COPIA)`,
+        sku: product.sku ? `${product.sku}-COPY` : '',
+      })
+      .subscribe({
+        next: () =>
+          this.toast.show(`Copia creada a partir de «${product.name}»`, 'success'),
+        error: () =>
+          this.toast.show('No se pudo duplicar el producto.', 'error'),
+      });
   }
 
   confirmDelete(product: Product) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el producto ${product.name}?`)) {
-      this.facade.deleteProduct(product.id);
+    if (!confirm(`¿Estás seguro de que deseas eliminar el producto ${product.name}?`)) {
+      return;
     }
+    this.facade.deleteProduct(product.id).subscribe({
+      next: (ok) => {
+        if (ok) {
+          this.toast.show(`«${product.name}» eliminado del inventario`, 'success');
+        } else {
+          this.toast.show('No se pudo eliminar el producto.', 'error');
+        }
+      },
+      error: () => this.toast.show('Error al eliminar. Inténtalo de nuevo.', 'error'),
+    });
   }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
