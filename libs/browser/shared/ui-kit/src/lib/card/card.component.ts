@@ -6,7 +6,7 @@ export type CardShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumo
 export type CardVariant = string;
 
 @Component({
-  selector: 'ui-josanz-card',
+  selector: 'ui-card',
   standalone: true,
   imports: [CommonModule],
   template: `

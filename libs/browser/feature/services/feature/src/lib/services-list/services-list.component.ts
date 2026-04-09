@@ -64,48 +64,48 @@ export interface Service {
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" routerLink="/services/new" icon="plus">
+          <ui-button variant="glass" size="md" routerLink="/services/new" icon="plus">
             NUEVO SERVICIO
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Total Servicios" 
           [value]="services().length.toString()" 
           icon="wrench" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Servicios Activos" 
           [value]="activeServicesCount().toString()" 
           icon="check-circle" 
           [trend]="15">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Tipos de Servicio" 
           [value]="serviceTypesCount().toString()" 
           icon="layers">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="filters-bar ui-glass-panel">
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR SERVICIOS POR NOMBRE O TIPO..." 
           (searchChange)="onSearchChange($event)"
           class="flex-1 max-w-md"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader message="CARGANDO CATÁLOGO DE SERVICIOS..."></ui-josanz-loader>
+          <ui-loader message="CARGANDO CATÁLOGO DE SERVICIOS..."></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="filteredServices()" variant="default">
+        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-table [columns]="columns" [data]="filteredServices()" variant="default">
             <ng-template #cellTemplate let-service let-key="key">
               @switch (key) {
                 @case ('name') {
@@ -114,14 +114,14 @@ export interface Service {
                   </a>
                 }
                 @case ('type') {
-                  <ui-josanz-badge [variant]="getTypeVariant(service.type)" [color]="getTypeColor(service.type)">
+                  <ui-badge [variant]="getTypeVariant(service.type)" [color]="getTypeColor(service.type)">
                     {{ service.type }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('isActive') {
-                  <ui-josanz-badge [variant]="service.isActive ? 'filled' : 'outline'" [color]="service.isActive ? 'success' : 'default'">
+                  <ui-badge [variant]="service.isActive ? 'filled' : 'outline'" [color]="service.isActive ? 'success' : 'default'">
                     {{ service.isActive ? 'ACTIVO' : 'INACTIVO' }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('basePrice') {
                   <span class="price-text">{{ service.basePrice | currency:'EUR':'symbol':'1.2-2' }}</span>
@@ -131,9 +131,9 @@ export interface Service {
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/services', service.id]"></ui-josanz-button>
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editService(service)"></ui-josanz-button>
-                    <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(service)" [style.color]="currentTheme().danger"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/services', service.id]"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editService(service)"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(service)" [style.color]="currentTheme().danger"></ui-button>
                   </div>
                 }
                 @default {
@@ -141,8 +141,8 @@ export interface Service {
                 }
               }
             </ng-template>
-          </ui-josanz-table>
-        </ui-josanz-card>
+          </ui-table>
+        </ui-card>
       }
     </div>
 

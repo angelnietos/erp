@@ -15,7 +15,7 @@ export const Error: Story = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-josanz-alert [type]="type">Este es un mensaje de error.</ui-josanz-alert>`,
+    template: `<ui-alert [type]="type">Este es un mensaje de error.</ui-alert>`,
   }),
 };
 
@@ -25,6 +25,6 @@ export const Success: Story = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-josanz-alert [type]="type">Acción completada con éxito.</ui-josanz-alert>`,
+    template: `<ui-alert [type]="type">Acción completada con éxito.</ui-alert>`,
   }),
 };

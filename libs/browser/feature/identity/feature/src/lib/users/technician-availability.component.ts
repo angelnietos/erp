@@ -64,7 +64,7 @@ interface CalendarCell {
               </button>
            </div>
            
-           <ui-josanz-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()" [class.animate-spin]="isLoading()"></ui-josanz-button>
+           <ui-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()" [class.animate-spin]="isLoading()"></ui-button>
         </div>
       </header>
 
@@ -73,14 +73,14 @@ interface CalendarCell {
         <aside class="team-sidebar ui-glass animate-slide-right">
           <div class="sidebar-header">
             <h3>Equipo Técnico</h3>
-            <ui-josanz-badge variant="info">{{ technicians().length }}</ui-josanz-badge>
+            <ui-badge variant="info">{{ technicians().length }}</ui-badge>
           </div>
           <div class="sidebar-search">
-            <ui-josanz-search 
+            <ui-search 
               variant="filled" 
               placeholder="Buscar operario..." 
               (searchChange)="onSearch($event)"
-            ></ui-josanz-search>
+            ></ui-search>
           </div>
           <div class="technician-list">
             @for (tech of technicians(); track tech.id) {
@@ -105,7 +105,7 @@ interface CalendarCell {
         <!-- MAIN CALENDAR / TEAM BOARD -->
         <main class="main-content animate-slide-up">
           @if (viewMode() === 'personal') {
-            <ui-josanz-card shape="auto" class="calendar-card ui-glass">
+            <ui-card shape="auto" class="calendar-card ui-glass">
               <div class="calendar-header">
                 <div class="header-main">
                   <h2 class="text-uppercase">{{ getMonthName() }} <span class="year-val">{{ currentYear() }}</span></h2>
@@ -149,10 +149,10 @@ interface CalendarCell {
                   </div>
                 }
               </div>
-            </ui-josanz-card>
+            </ui-card>
           } @else {
             <!-- TEAM BOARD VIEW -->
-            <ui-josanz-card shape="auto" class="team-board-card ui-glass">
+            <ui-card shape="auto" class="team-board-card ui-glass">
               <div class="board-container">
                 <div class="board-header-sticky">
                    <div class="tech-col-header">Persona / Día</div>
@@ -186,7 +186,7 @@ interface CalendarCell {
                    }
                 </div>
               </div>
-            </ui-josanz-card>
+            </ui-card>
           }
         </main>
       </div>

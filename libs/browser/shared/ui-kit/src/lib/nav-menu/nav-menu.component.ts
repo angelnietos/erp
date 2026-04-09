@@ -15,7 +15,7 @@ export interface NavMenuItem {
 export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' | 'bordered' | 'compact';
 
 @Component({
-  selector: 'ui-josanz-nav-menu',
+  selector: 'ui-nav-menu',
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `

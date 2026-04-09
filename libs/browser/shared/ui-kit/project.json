@@ -1,7 +1,7 @@
 {
   "name": "ui-kit",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/ui-kit/src",
+  "sourceRoot": "libs/browser/shared/ui-kit/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": ["scope:shared", "type:ui"],
@@ -10,15 +10,15 @@
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "tsConfig": "libs/shared/ui-kit/tsconfig.lib.json"
+        "tsConfig": "libs/browser/shared/ui-kit/tsconfig.lib.json"
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/shared/ui-kit/jest.config.cts",
-        "tsConfig": "libs/shared/ui-kit/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shared/ui-kit/jest.config.cts",
+        "tsConfig": "libs/browser/shared/ui-kit/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -28,7 +28,7 @@
       "executor": "@storybook/angular:start-storybook",
       "options": {
         "port": 4400,
-        "configDir": "libs/shared/ui-kit/.storybook",
+        "configDir": "libs/browser/shared/ui-kit/.storybook",
         "browserTarget": "ui-kit:build-storybook",
         "compodoc": false
       },
@@ -43,7 +43,7 @@
       "outputs": ["{options.outputDir}"],
       "options": {
         "outputDir": "dist/storybook/ui-kit",
-        "configDir": "libs/shared/ui-kit/.storybook",
+        "configDir": "libs/browser/shared/ui-kit/.storybook",
         "browserTarget": "ui-kit:build-storybook",
         "compodoc": false
       },
@@ -75,7 +75,3 @@
     }
   }
 }
-
-
-
-

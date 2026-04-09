@@ -6,7 +6,7 @@ export type MascotType = 'inventory' | 'budget' | 'clients' | 'projects' | 'flee
 export type MascotPersonality = 'happy' | 'tech' | 'mystic' | 'worker' | 'explorer' | 'ninja' | 'queen';
 
 @Component({
-  selector: 'ui-josanz-mascot',
+  selector: 'ui-mascot',
   standalone: true,
   imports: [CommonModule],
   template: `

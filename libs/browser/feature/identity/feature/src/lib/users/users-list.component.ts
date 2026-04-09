@@ -32,22 +32,22 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" icon="user-plus">
+          <ui-button variant="glass" size="md" icon="user-plus">
             NUEVO USUARIO
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR USUARIO POR NOMBRE, EMAIL O ROL..." 
           (searchChange)="onSearch($event)"
           class="flex-1 max-w-md"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
-      <ui-josanz-card variant="glass" class="users-card">
+      <ui-card variant="glass" class="users-card">
         <div class="users-list">
           <div class="users-header">
             <h3>Usuarios del Sistema</h3>
@@ -58,7 +58,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
 
           @if (isLoading()) {
             <div class="loading-state">
-              <ui-josanz-loader message="SINCRONIZANDO IDENTIDADES..."></ui-josanz-loader>
+              <ui-loader message="SINCRONIZANDO IDENTIDADES..."></ui-loader>
             </div>
           } @else {
             <div class="users-table">
@@ -94,7 +94,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
                       </span>
                     </div>
                     <div class="col-actions">
-                      <ui-josanz-button variant="ghost" size="sm" icon="pencil">Editar</ui-josanz-button>
+                      <ui-button variant="ghost" size="sm" icon="pencil">Editar</ui-button>
                     </div>
                   </div>
                 }
@@ -102,7 +102,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
             </div>
           }
         </div>
-      </ui-josanz-card>
+      </ui-card>
     </div>
   `,
   styles: [

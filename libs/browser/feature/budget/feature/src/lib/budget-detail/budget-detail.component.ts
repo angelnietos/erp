@@ -44,9 +44,9 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       [class.high-perf]="pluginStore.highPerformanceMode()"
     >
       @if (isLoading()) {
-        <ui-josanz-loader
+        <ui-loader
           message="Sincronizando expediente fiscal..."
-        ></ui-josanz-loader>
+        ></ui-loader>
       } @else if (budget()) {
         <header
           class="page-header"
@@ -72,48 +72,48 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button
+            <ui-button
               variant="glass"
               size="md"
               icon="file-text"
               (clicked)="downloadPDF()"
-              >GENERAR PDF</ui-josanz-button
+              >GENERAR PDF</ui-button
             >
-            <ui-josanz-button
+            <ui-button
               variant="primary"
               size="md"
               icon="send"
               (clicked)="sendToClient()"
-              >ENVIAR FIRMA</ui-josanz-button
+              >ENVIAR FIRMA</ui-button
             >
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card
+          <ui-stat-card
             label="Total Presupuestado"
             [value]="formatCurrencyEu(budget()?.total || 0)"
             icon="wallet"
             [accent]="true"
           >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
+          </ui-stat-card>
+          <ui-stat-card
             label="Estado Actual"
             [value]="getStatusLabel(budget()?.status)"
             [icon]="getStatusIcon(budget()?.status)"
           >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
+          </ui-stat-card>
+          <ui-stat-card
             label="Vencimiento Oferta"
             [value]="formatDate(budget()?.endDate)"
             icon="calendar-clock"
           >
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="main-content">
-          <ui-josanz-card variant="glass" title="Detalle de Líneas Comerciales">
-            <ui-josanz-table
+          <ui-card variant="glass" title="Detalle de Líneas Comerciales">
+            <ui-table
               [columns]="itemColumns"
               [data]="budget()?.items || []"
             >
@@ -135,18 +135,18 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
                   }
                 }
               </ng-template>
-            </ui-josanz-table>
-          </ui-josanz-card>
+            </ui-table>
+          </ui-card>
 
           <div class="sidebar-info">
-            <ui-josanz-card variant="glass" title="Servicios para presupuestar">
+            <ui-card variant="glass" title="Servicios para presupuestar">
               <p class="catalog-hint">
                 Referencia el catálogo tipificado al redactar líneas; precios orientativos.
               </p>
               @if (servicesLoading()) {
-                <ui-josanz-loader
+                <ui-loader
                   message="Cargando catálogo..."
-                ></ui-josanz-loader>
+                ></ui-loader>
               } @else if (catalogServices().length === 0) {
                 <p class="catalog-empty">Sin datos de catálogo (revisa API o tenant).</p>
               } @else {
@@ -162,17 +162,17 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
                   }
                 </ul>
               }
-              <ui-josanz-button
+              <ui-button
                 variant="glass"
                 size="sm"
                 class="full-width catalog-link"
                 routerLink="/services"
               >
                 Abrir catálogo completo
-              </ui-josanz-button>
-            </ui-josanz-card>
+              </ui-button>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Información Logística">
+            <ui-card variant="glass" title="Información Logística">
               <div class="info-list">
                 <div class="info-item">
                   <span class="label">CREADO</span>
@@ -191,37 +191,37 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
                   }}</span>
                 </div>
               </div>
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Acciones de Seguimiento">
+            <ui-card variant="glass" title="Acciones de Seguimiento">
               <div class="actions-grid">
                 @if (budget()?.status === 'ACCEPTED') {
-                  <ui-josanz-button
+                  <ui-button
                     variant="primary"
                     class="full-width"
                     icon="truck"
                     (clicked)="createDelivery()"
                   >
                     GENERAR ALBARÁN
-                  </ui-josanz-button>
-                  <ui-josanz-button
+                  </ui-button>
+                  <ui-button
                     variant="glass"
                     class="full-width"
                     icon="history"
                     (clicked)="createInvoice()"
                   >
                     EMITIR FACTURA
-                  </ui-josanz-button>
+                  </ui-button>
                 } @else {
-                  <ui-josanz-button
+                  <ui-button
                     variant="glass"
                     class="full-width"
                     (clicked)="approveBudget()"
-                    >FORZAR ACEPTACIÓN</ui-josanz-button
+                    >FORZAR ACEPTACIÓN</ui-button
                   >
                 }
               </div>
-            </ui-josanz-card>
+            </ui-card>
           </div>
         </div>
       }

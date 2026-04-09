@@ -36,13 +36,13 @@ interface ServiceForm {
     <div class="page-container page-container--skip-horizontal-inset">
       <header class="page-header">
         <div class="header-actions">
-          <ui-josanz-button
+          <ui-button
             variant="ghost"
             icon="arrow-left"
             (click)="goBack()"
           >
             Volver
-          </ui-josanz-button>
+          </ui-button>
         </div>
         <div class="header-content">
           <h1 class="page-title">
@@ -50,32 +50,32 @@ interface ServiceForm {
           </h1>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="secondary" icon="x" (click)="goBack()">
+          <ui-button variant="secondary" icon="x" (click)="goBack()">
             Cancelar
-          </ui-josanz-button>
-          <ui-josanz-button variant="primary" icon="save" (click)="onSave()">
+          </ui-button>
+          <ui-button variant="primary" icon="save" (click)="onSave()">
             Guardar
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="content-section">
-        <ui-josanz-card>
+        <ui-card>
           <form class="form-grid">
-            <ui-josanz-input
+            <ui-input
               label="Nombre"
               [(ngModel)]="form.name"
               name="name"
               required
             />
 
-            <ui-josanz-textarea
+            <ui-textarea
               label="Descripción"
               [(ngModel)]="form.description"
               name="description"
             />
 
-            <ui-josanz-select
+            <ui-select
               label="Tipo de Servicio"
               [(ngModel)]="form.type"
               name="type"
@@ -83,7 +83,7 @@ interface ServiceForm {
               required
             />
 
-            <ui-josanz-input
+            <ui-input
               label="Precio Base (€)"
               type="number"
               [(ngModel)]="form.basePrice"
@@ -91,14 +91,14 @@ interface ServiceForm {
               required
             />
 
-            <ui-josanz-input
+            <ui-input
               label="Tarifa Horaria (€)"
               type="number"
               [(ngModel)]="form.hourlyRate"
               name="hourlyRate"
             />
           </form>
-        </ui-josanz-card>
+        </ui-card>
       </div>
     </div>
   `,
@@ -138,7 +138,7 @@ interface ServiceForm {
         grid-template-columns: 1fr 1fr;
       }
 
-      .form-grid ui-josanz-textarea {
+      .form-grid ui-textarea {
         grid-column: 1 / -1;
       }
     `,

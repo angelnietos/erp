@@ -30,7 +30,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'ui-josanz-ai-assistant',
+  selector: 'ui-ai-assistant',
   standalone: true,
   imports: [
     CommonModule,

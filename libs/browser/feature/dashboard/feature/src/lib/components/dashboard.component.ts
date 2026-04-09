@@ -113,14 +113,14 @@ interface QuickAction {
       <!-- Metrics Cards -->
       <div class="metrics-grid">
         @for (metric of metrics(); track metric.title) {
-          <ui-josanz-stat-card
+          <ui-stat-card
             [label]="metric.title"
             [value]="metric.value"
             [icon]="metric.icon"
             [trend]="parsePercentage(metric.change)"
             [accent]="metric.changeType === 'positive'"
             (click)="onMetricNavigate(metric)"
-          ></ui-josanz-stat-card>
+          ></ui-stat-card>
         }
       </div>
 
@@ -130,7 +130,7 @@ interface QuickAction {
       ) {
         <div class="charts-section">
           @if (charts().revenueByClient.length > 0) {
-            <ui-josanz-card class="chart-card">
+            <ui-card class="chart-card">
               <h3 class="chart-title">Facturación por cliente (top 10)</h3>
               @for (row of charts().revenueByClient; track row.clientId) {
                 <div class="bar-line">
@@ -146,10 +146,10 @@ interface QuickAction {
                   <span class="bar-eur">{{ formatEuro(row.revenue) }}</span>
                 </div>
               }
-            </ui-josanz-card>
+            </ui-card>
           }
           @if (charts().revenueByProject.length > 0) {
-            <ui-josanz-card class="chart-card">
+            <ui-card class="chart-card">
               <h3 class="chart-title">
                 Ingresos por proyecto (vía eventos vinculados)
               </h3>
@@ -167,7 +167,7 @@ interface QuickAction {
                   <span class="bar-eur">{{ formatEuro(row.revenue) }}</span>
                 </div>
               }
-            </ui-josanz-card>
+            </ui-card>
           }
         </div>
       }
@@ -175,13 +175,13 @@ interface QuickAction {
       <div class="dashboard-content">
         <!-- Recent Activities -->
         <div class="activities-section">
-          <ui-josanz-card class="gaming-card activities-card">
+          <ui-card class="gaming-card activities-card">
             <div class="section-header">
               <div class="section-title-section">
                 <span class="section-icon">📈</span>
                 <h2 class="section-title">Actividad Reciente</h2>
               </div>
-              <ui-josanz-button
+              <ui-button
                 variant="ghost"
                 size="sm"
                 class="view-all-btn"
@@ -189,7 +189,7 @@ interface QuickAction {
               >
                 <span class="btn-icon">👁️</span>
                 Ver todo
-              </ui-josanz-button>
+              </ui-button>
             </div>
             <div class="activities-list">
               @for (activity of recentActivities(); track activity.id) {
@@ -220,7 +220,7 @@ interface QuickAction {
                   </div>
                   @if (activity.status) {
                     <div class="activity-status">
-                      <ui-josanz-badge
+                      <ui-badge
                         [variant]="getStatusVariant(activity.status)"
                         class="gaming-badge"
                       >
@@ -228,19 +228,19 @@ interface QuickAction {
                           getStatusIcon(activity.status)
                         }}</span>
                         {{ activity.status }}
-                      </ui-josanz-badge>
+                      </ui-badge>
                     </div>
                   }
                   <div class="activity-hover-effect"></div>
                 </div>
               }
             </div>
-          </ui-josanz-card>
+          </ui-card>
         </div>
 
         <!-- Quick Actions -->
         <div class="actions-section">
-          <ui-josanz-card class="gaming-card actions-card">
+          <ui-card class="gaming-card actions-card">
             <div class="section-header">
               <div class="section-title-section">
                 <span class="section-icon">🚀</span>
@@ -249,7 +249,7 @@ interface QuickAction {
             </div>
             <div class="actions-grid gaming-actions-grid">
               @for (action of quickActions(); track action.title) {
-                <ui-josanz-button
+                <ui-button
                   [variant]="action.color"
                   class="action-button gaming-action-btn"
                   [class]="getActionClass(action.color)"
@@ -268,10 +268,10 @@ interface QuickAction {
                     </div>
                   </div>
                   <div class="action-bg-effect"></div>
-                </ui-josanz-button>
+                </ui-button>
               }
             </div>
-          </ui-josanz-card>
+          </ui-card>
         </div>
       </div>
     </div>

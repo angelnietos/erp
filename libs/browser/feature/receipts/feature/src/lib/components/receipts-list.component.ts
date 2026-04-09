@@ -55,21 +55,21 @@ interface Receipt {
           </p>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" (clicked)="newReceipt()" icon="plus">
+          <ui-button variant="glass" size="md" (clicked)="newReceipt()" icon="plus">
             Nuevo Recibo
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR RECIBO POR FACTURA O IMPORTE..." 
           (searchChange)="onSearch($event)"
           class="flex-1 max-w-md"
-        ></ui-josanz-search>
+        ></ui-search>
         
-        <ui-josanz-select
+        <ui-select
           label="Estado"
           [(ngModel)]="statusFilter"
           name="status"
@@ -78,7 +78,7 @@ interface Receipt {
         />
       </div>
 
-      <ui-josanz-card>
+      <ui-card>
         <div class="receipts-list">
           <div
             *ngFor="let receipt of filteredReceipts()"
@@ -97,9 +97,9 @@ interface Receipt {
                 <span class="receipt-id"
                   >Factura #{{ receipt.invoiceId }}</span
                 >
-                <ui-josanz-badge [variant]="getStatusVariant(receipt.status)">
+                <ui-badge [variant]="getStatusVariant(receipt.status)">
                   {{ getStatusText(receipt.status) }}
-                </ui-josanz-badge>
+                </ui-badge>
               </div>
               <div class="receipt-details">
                 <span class="receipt-amount"
@@ -120,25 +120,25 @@ interface Receipt {
             </div>
 
             <div class="receipt-actions">
-              <ui-josanz-button
+              <ui-button
                 variant="ghost"
                 size="sm"
                 (clicked)="goToBilling(receipt)"
               >
                 Ver Detalles
-              </ui-josanz-button>
-              <ui-josanz-button
+              </ui-button>
+              <ui-button
                 *ngIf="receipt.status === 'PENDING'"
                 variant="success"
                 size="sm"
                 (clicked)="markAsPaid(receipt)"
               >
                 Marcar Pagado
-              </ui-josanz-button>
+              </ui-button>
             </div>
           </div>
         </div>
-      </ui-josanz-card>
+      </ui-card>
     </div>
   `,
   styles: [

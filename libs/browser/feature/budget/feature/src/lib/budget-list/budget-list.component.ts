@@ -37,44 +37,44 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
           </div>
         </div>
         @if (config.enableCreate) {
-          <ui-josanz-button variant="app" size="md" routerLink="/budgets/create" icon="plus">
+          <ui-button variant="app" size="md" routerLink="/budgets/create" icon="plus">
             NUEVO PRESUPUESTO
-          </ui-josanz-button>
+          </ui-button>
         }
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Pipeline Total" 
           [value]="formatCurrencyEu(totalPipeline())" 
           icon="pie-chart" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Cerrados (Mes)" 
           [value]="formatCurrencyEu(totalAccepted())" 
           icon="check-square" 
           [trend]="8">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Cotizaciones en Curso" 
           [value]="pendingCount().toString()" 
           icon="clock">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="navigation-bar ui-glass-panel">
         <div class="nav-spacer"></div>
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR ID O CLIENTE..." 
           (searchChange)="onSearch($event)"
           class="search-bar"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
-      <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-        <ui-josanz-table [columns]="columns" [data]="filteredBudgets()" variant="default">
+      <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+        <ui-table [columns]="columns" [data]="filteredBudgets()" variant="default">
           <ng-template #cellTemplate let-item let-key="key">
             @switch (key) {
               @case ('id') { 
@@ -83,34 +83,34 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 </span> 
               }
               @case ('status') { 
-                <ui-josanz-badge [variant]="getStatusVariant(item.status)">
+                <ui-badge [variant]="getStatusVariant(item.status)">
                   {{ item.status | uppercase }}
-                </ui-josanz-badge>
+                </ui-badge>
               }
               @case ('total') { <span class="currency-value">{{ item.total | currency:'EUR' }}</span> }
               @case ('createdAt') { <span class="text-secondary font-mono">{{ item.createdAt | date:'dd/MM/yyyy' }}</span> }
               @case ('actions') {
                 <div class="row-actions">
-                  <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]"></ui-josanz-button>
+                  <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/budgets', item.id]"></ui-button>
                   @if (item.status === 'DRAFT') {
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="pencil" [routerLink]="['/budgets', item.id, 'edit']"></ui-button>
                   }
                   @if (config.enableDownload) {
-                    <ui-josanz-button variant="ghost" size="sm" icon="download" class="btn-success-overlay"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="download" class="btn-success-overlay"></ui-button>
                   }
                 </div>
               }
               @default { {{ item[key] }} }
             }
           </ng-template>
-        </ui-josanz-table>
+        </ui-table>
         
         <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
           <div class="table-info">
             {{ store.budgets().length }} DOCUMENTOS EN VISTA ACTUAL
           </div>
         </footer>
-      </ui-josanz-card>
+      </ui-card>
     </div>
 
   `,

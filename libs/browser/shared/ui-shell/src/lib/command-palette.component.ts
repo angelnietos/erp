@@ -29,12 +29,12 @@ export interface CommandItem {
       aria-label="Paleta de comandos"
     >
       <div class="palette-container animate-scale-in" (click)="$event.stopPropagation()" role="none">
-        <ui-josanz-search 
+        <ui-search 
           variant="glass" 
           placeholder="¿QUÉ DESEAS ENCONTRAR O HACER?" 
           (searchChange)="onSearch($event)"
           id="cmd-search"
-        ></ui-josanz-search>
+        ></ui-search>
 
         <div class="results-area">
           @if (filteredItems().length === 0 && contextResults().length === 0) {

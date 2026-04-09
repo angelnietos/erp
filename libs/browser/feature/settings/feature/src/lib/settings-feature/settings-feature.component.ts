@@ -158,7 +158,7 @@ interface PluginDescriptor {
 
               <div class="plugin-grid">
                 @for (plugin of plugins; track plugin.id) {
-                  <ui-josanz-card
+                  <ui-card
                     variant="glass"
                     class="plugin-card"
                     [class.disabled]="!isPluginEnabled(plugin.id)"
@@ -186,14 +186,14 @@ interface PluginDescriptor {
                     <p class="plugin-desc">{{ plugin.description }}</p>
 
                     <div class="plugin-footer">
-                      <ui-josanz-badge
+                      <ui-badge
                         [variant]="
                           isPluginEnabled(plugin.id) ? 'success' : 'neutral'
                         "
                       >
                         {{ isPluginEnabled(plugin.id) ? 'Activo' : 'Inactivo' }}
-                      </ui-josanz-badge>
-                      <ui-josanz-button
+                      </ui-badge>
+                      <ui-button
                         [variant]="
                           isPluginEnabled(plugin.id) ? 'outline' : 'filled'
                         "
@@ -203,9 +203,9 @@ interface PluginDescriptor {
                         {{
                           isPluginEnabled(plugin.id) ? 'Desactivar' : 'Activar'
                         }}
-                      </ui-josanz-button>
+                      </ui-button>
                     </div>
-                  </ui-josanz-card>
+                  </ui-card>
                 }
               </div>
             </section>
@@ -222,7 +222,7 @@ interface PluginDescriptor {
               </div>
 
               <!-- NUEVO: Panel global de configuración del LLM -->
-              <ui-josanz-card
+              <ui-card
                 variant="glass"
                 class="ai-global-config-card mb-6"
               >
@@ -231,7 +231,7 @@ interface PluginDescriptor {
                     <lucide-icon name="cpu" size="20"></lucide-icon>
                     <h3>Motor de Inferencia (LLM)</h3>
                   </div>
-                  <ui-josanz-badge
+                  <ui-badge
                     [variant]="
                       aiBotStore.providerApiKey() ? 'success' : 'warning'
                     "
@@ -241,17 +241,17 @@ interface PluginDescriptor {
                         ? 'Conectado a la Nube'
                         : 'Falta API Key'
                     }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 </div>
 
                 <div class="config-body">
                   <div class="form-group mb-4">
-                    <ui-josanz-select
+                    <ui-select
                       label="Proveedor de IA Base"
                       [options]="aiBotStore.aiModelOptions()"
                       [ngModel]="aiBotStore.selectedModelId()"
                       (ngModelChange)="aiBotStore.setAIModel($event)"
-                    ></ui-josanz-select>
+                    ></ui-select>
                     <button
                       class="mt-2 text-xs text-muted hover:text-brand transition-colors flex items-center gap-1"
                       (click)="aiBotStore.checkOllamaAvailability(true)"
@@ -263,66 +263,66 @@ interface PluginDescriptor {
                   </div>
 
                   <div class="form-group mb-4">
-                    <ui-josanz-select
+                    <ui-select
                       label="Agente Principal Activo"
                       [options]="botOptions()"
                       [ngModel]="aiBotStore.activeBotFeature()"
                       (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
-                    ></ui-josanz-select>
+                    ></ui-select>
                   </div>
 
                   @if (aiBotStore.needsApiKey()) {
                     <div class="form-group">
-                      <ui-josanz-input
+                      <ui-input
                         label="Clave de Autenticación API (Token)"
                         type="password"
                         placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
                         hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
                         [ngModel]="aiBotStore.providerApiKey()"
                         (ngModelChange)="aiBotStore.providerApiKey.set($event)"
-                      ></ui-josanz-input>
+                      ></ui-input>
                     </div>
                   }
                 </div>
-              </ui-josanz-card>
+              </ui-card>
 
               <div class="ai-grid">
                 @for (bot of aiBotStore.bots(); track bot.id) {
-                  <ui-josanz-card
+                  <ui-card
                     variant="glass"
                     class="ai-bot-card"
                     [class.inactive]="bot.status === 'inactive'"
                   >
                     <div class="bot-visual">
-                      <ui-josanz-mascot
+                      <ui-mascot
                         [type]="$any(bot.mascotType)"
                         [color]="bot.color"
                         [personality]="$any(bot.personality)"
                         [bodyShape]="$any(bot.bodyShape)"
                         [eyesType]="$any(bot.eyesType)"
                         [mouthType]="$any(bot.mouthType)"
-                      ></ui-josanz-mascot>
+                      ></ui-mascot>
                     </div>
 
                     <div class="bot-info">
                       <div class="bot-header">
                         <div class="bot-name-edit">
-                          <ui-josanz-input
+                          <ui-input
                             [ngModel]="bot.name"
                             (ngModelChange)="
                               aiBotStore.updateBotName(bot.feature, $event)
                             "
                             size="sm"
                             placeholder="Nombre del Bot"
-                          ></ui-josanz-input>
+                          ></ui-input>
                         </div>
                         <div class="bot-labels">
                           @if (aiBotStore.activeBotFeature() === bot.feature) {
-                            <ui-josanz-badge variant="success" class="mr-2"
-                              >AGENTE PRINCIPAL</ui-josanz-badge
+                            <ui-badge variant="success" class="mr-2"
+                              >AGENTE PRINCIPAL</ui-badge
                             >
                           }
-                          <ui-josanz-badge
+                          <ui-badge
                             [variant]="
                               bot.status === 'active' ? 'success' : 'neutral'
                             "
@@ -332,7 +332,7 @@ interface PluginDescriptor {
                                 ? 'SUSCRIPCIÓN ACTIVA'
                                 : 'SaaS INACTIVO'
                             }}
-                          </ui-josanz-badge>
+                          </ui-badge>
                         </div>
                       </div>
                       <p class="bot-feature">{{ bot.feature }}</p>
@@ -340,7 +340,7 @@ interface PluginDescriptor {
 
                       <!-- Personalidad y Estética -->
                       <div class="bot-meta-config row mb-4">
-                        <ui-josanz-select
+                        <ui-select
                           label="Mascota"
                           size="sm"
                           [options]="[
@@ -360,9 +360,9 @@ interface PluginDescriptor {
                               mascotType: $event,
                             })
                           "
-                        ></ui-josanz-select>
+                        ></ui-select>
 
-                        <ui-josanz-select
+                        <ui-select
                           label="Personalidad"
                           size="sm"
                           [options]="[
@@ -379,7 +379,7 @@ interface PluginDescriptor {
                               personality: $event,
                             })
                           "
-                        ></ui-josanz-select>
+                        ></ui-select>
                       </div>
 
                       <div class="skills-list">
@@ -395,7 +395,7 @@ interface PluginDescriptor {
                       </div>
 
                       <div class="bot-actions-row">
-                        <ui-josanz-button
+                        <ui-button
                           [variant]="
                             bot.status === 'active' ? 'outline' : 'filled'
                           "
@@ -407,10 +407,10 @@ interface PluginDescriptor {
                               ? 'CANCELAR SaaS'
                               : 'ACTIVAR (SaaS)'
                           }}
-                        </ui-josanz-button>
+                        </ui-button>
 
                         @if (bot.status === 'active') {
-                          <ui-josanz-button
+                          <ui-button
                             [variant]="
                               managingBotId() === bot.feature
                                 ? 'filled'
@@ -430,10 +430,10 @@ interface PluginDescriptor {
                                 ? 'CERRAR PANEL'
                                 : 'GESTIONAR SKILLS'
                             }}
-                          </ui-josanz-button>
+                          </ui-button>
 
                           @if (aiBotStore.activeBotFeature() !== bot.feature) {
-                            <ui-josanz-button
+                            <ui-button
                               variant="outline"
                               size="sm"
                               (click)="
@@ -441,7 +441,7 @@ interface PluginDescriptor {
                               "
                             >
                               USAR COMO PRINCIPAL
-                            </ui-josanz-button>
+                            </ui-button>
                           }
                         }
                       </div>
@@ -475,7 +475,7 @@ interface PluginDescriptor {
                         </div>
                       }
                     </div>
-                  </ui-josanz-card>
+                  </ui-card>
                 }
               </div>
             </section>
@@ -501,13 +501,13 @@ interface PluginDescriptor {
               ) {
                 <div class="buddy-customizer">
                   <div class="buddy-visual-col">
-                    <ui-josanz-card
+                    <ui-card
                       variant="glass"
                       class="buddy-preview-card"
                       [class.is-rage-preview]="aiBotStore.rageMode()"
                     >
                       <div class="preview-glow"></div>
-                      <ui-josanz-mascot
+                      <ui-mascot
                         [type]="$any(buddy.mascotType)"
                         [color]="buddy.color"
                         [personality]="$any(buddy.personality)"
@@ -517,22 +517,22 @@ interface PluginDescriptor {
                         [rageMode]="aiBotStore.rageMode()"
                         [rageStyle]="aiBotStore.rageStyle()"
                       >
-                      </ui-josanz-mascot>
-                    </ui-josanz-card>
+                      </ui-mascot>
+                    </ui-card>
                   </div>
 
                   <div class="buddy-config-col">
-                    <ui-josanz-card variant="glass" class="buddy-options-card">
+                    <ui-card variant="glass" class="buddy-options-card">
                       <div class="card-header-with-toggle">
                         <div class="buddy-name-edit flex-1">
-                          <ui-josanz-input
+                          <ui-input
                             label="Nombre del Compañero"
                             [ngModel]="buddy.name"
                             (ngModelChange)="
                               aiBotStore.updateBotName(buddy.feature, $event)
                             "
                             placeholder="Ej: Buddy, Pato, etc."
-                          ></ui-josanz-input>
+                          ></ui-input>
                         </div>
                         <div
                           class="rage-toggle"
@@ -593,7 +593,7 @@ interface PluginDescriptor {
                         </div>
 
                         <div class="form-group mb-4">
-                          <ui-josanz-select
+                          <ui-select
                             label="Forma del Cuerpo"
                             [options]="[
                               { value: 'capsule', label: 'Cápsula Plana' },
@@ -607,11 +607,11 @@ interface PluginDescriptor {
                                 bodyShape: $event,
                               })
                             "
-                          ></ui-josanz-select>
+                          ></ui-select>
                         </div>
 
                         <div class="form-group mb-4">
-                          <ui-josanz-select
+                          <ui-select
                             label="Ojos"
                             [options]="[
                               { value: 'joy', label: 'Feliz / Kawaii' },
@@ -624,7 +624,7 @@ interface PluginDescriptor {
                                 eyesType: $event,
                               })
                             "
-                          ></ui-josanz-select>
+                          ></ui-select>
                         </div>
                       </div>
 
@@ -632,7 +632,7 @@ interface PluginDescriptor {
                         <div class="rage-options animate-slide-up">
                           <h3 class="rage-text">🔥 Configuración Tóxica</h3>
                           <div class="form-group">
-                            <ui-josanz-select
+                            <ui-select
                               label="Nivel de Psicopatía"
                               [options]="[
                                 { value: 'angry', label: 'Enfadado (Rojo)' },
@@ -644,7 +644,7 @@ interface PluginDescriptor {
                               ]"
                               [ngModel]="aiBotStore.rageStyle()"
                               (ngModelChange)="aiBotStore.setRageStyle($event)"
-                            ></ui-josanz-select>
+                            ></ui-select>
                           </div>
                           <p class="rage-hint">
                             Cuidado: Con este modo activo, Buddy no tendrá
@@ -652,9 +652,9 @@ interface PluginDescriptor {
                           </p>
                         </div>
                       }
-                    </ui-josanz-card>
+                    </ui-card>
 
-                    <ui-josanz-card
+                    <ui-card
                       variant="glass"
                       class="buddy-skills-card mt-6"
                     >
@@ -677,7 +677,7 @@ interface PluginDescriptor {
                           </div>
                         }
                       </div>
-                    </ui-josanz-card>
+                    </ui-card>
                   </div>
                 </div>
               }
@@ -694,13 +694,13 @@ interface PluginDescriptor {
               </div>
 
               <div class="prefs-container grid-config">
-                <ui-josanz-card variant="glass" class="prefs-card">
+                <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
                     <lucide-icon name="globe" size="16"></lucide-icon> Idioma y
                     Localización
                   </h3>
                   <div class="form-group mb-4">
-                    <ui-josanz-select
+                    <ui-select
                       label="Idioma del Sistema"
                       [options]="[
                         { value: 'es', label: 'Español (Castellano)' },
@@ -709,11 +709,11 @@ interface PluginDescriptor {
                       ]"
                       [ngModel]="aiBotStore.language()"
                       (ngModelChange)="aiBotStore.language.set($event)"
-                    ></ui-josanz-select>
+                    ></ui-select>
                   </div>
-                </ui-josanz-card>
+                </ui-card>
 
-                <ui-josanz-card variant="glass" class="prefs-card">
+                <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
                     <lucide-icon name="layout" size="16"></lucide-icon> Interfaz
                     y Diseño
@@ -751,7 +751,7 @@ interface PluginDescriptor {
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
-                </ui-josanz-card>
+                </ui-card>
               </div>
             </section>
           }
@@ -763,7 +763,7 @@ interface PluginDescriptor {
                 <p>Gestiona cómo y cuándo quieres recibir avisos</p>
               </div>
 
-              <ui-josanz-card variant="glass" class="prefs-card">
+              <ui-card variant="glass" class="prefs-card">
                 <div class="pref-row">
                   <div class="pref-text">
                     <h4>Notificaciones Globales</h4>
@@ -797,7 +797,7 @@ interface PluginDescriptor {
                     <div class="toggle-handle"></div>
                   </div>
                 </div>
-              </ui-josanz-card>
+              </ui-card>
             </section>
           }
 
@@ -809,12 +809,12 @@ interface PluginDescriptor {
               </div>
 
               <div class="grid-config">
-                <ui-josanz-card variant="glass" class="prefs-card">
+                <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
                     <lucide-icon name="clock" size="16"></lucide-icon> Sesión
                   </h3>
                   <div class="form-group">
-                    <ui-josanz-select
+                    <ui-select
                       label="Tiempo de espera de sesión"
                       [options]="[
                         { value: 15, label: '15 Minutos' },
@@ -824,11 +824,11 @@ interface PluginDescriptor {
                       ]"
                       [ngModel]="aiBotStore.sessionTimeout()"
                       (ngModelChange)="aiBotStore.sessionTimeout.set($event)"
-                    ></ui-josanz-select>
+                    ></ui-select>
                   </div>
-                </ui-josanz-card>
+                </ui-card>
 
-                <ui-josanz-card variant="glass" class="prefs-card">
+                <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
                     <lucide-icon name="trash2" size="16"></lucide-icon> Gestión
                     de Datos
@@ -851,7 +851,7 @@ interface PluginDescriptor {
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
-                </ui-josanz-card>
+                </ui-card>
               </div>
             </section>
           }
@@ -866,7 +866,7 @@ interface PluginDescriptor {
                 </p>
               </div>
 
-              <ui-josanz-card variant="glass" class="labs-card">
+              <ui-card variant="glass" class="labs-card">
                 <div class="labs-header">
                   <lucide-icon
                     name="flask-conical"
@@ -895,7 +895,7 @@ interface PluginDescriptor {
                     <div class="toggle-handle"></div>
                   </div>
                 </div>
-              </ui-josanz-card>
+              </ui-card>
             </section>
           }
         </main>
@@ -1166,7 +1166,7 @@ interface PluginDescriptor {
         margin-top: auto;
       }
 
-      .bot-actions-row ui-josanz-button {
+      .bot-actions-row ui-button {
         flex: 1;
       }
 
@@ -1473,7 +1473,7 @@ interface PluginDescriptor {
         border-radius: 50%;
       }
 
-      .buddy-preview-card ui-josanz-mascot {
+      .buddy-preview-card ui-mascot {
         width: 180px;
         height: 180px;
         transform: scale(1.5);

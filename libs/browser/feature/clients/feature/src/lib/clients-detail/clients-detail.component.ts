@@ -8,6 +8,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import {
+  UiLoaderComponent,
+  UiButtonComponent,
+  UiBadgeComponent,
+} from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 import { ClientService, Client } from '@josanz-erp/clients-data-access';
@@ -15,12 +20,19 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
 @Component({
   selector: 'lib-clients-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    LucideAngularModule,
+    UiLoaderComponent,
+    UiButtonComponent,
+    UiBadgeComponent,
+  ],
   template: `
     <div class="ns-detail">
       @if (isLoading()) {
         <div class="ns-loading">
-          <ui-josanz-loader message="Cargando..."></ui-josanz-loader>
+          <ui-loader message="Cargando..."></ui-loader>
         </div>
       } @else if (client()) {
         <div class="ns-header-bar">
@@ -35,9 +47,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             </p>
           </div>
           <div class="ns-header-actions">
-            <ui-josanz-button variant="solid" size="sm" icon="edit"
-              >Editar</ui-josanz-button
-            >
+            <ui-button variant="solid" size="sm" icon="edit">Editar</ui-button>
           </div>
         </div>
 
@@ -82,9 +92,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                   </div>
                   <div class="ns-info-row">
                     <span class="ns-info-label">Sector</span>
-                    <ui-josanz-badge variant="info">{{
-                      client()?.sector
-                    }}</ui-josanz-badge>
+                    <ui-badge variant="info">{{ client()?.sector }}</ui-badge>
                   </div>
                   <div class="ns-info-row">
                     <span class="ns-info-label">Email</span>
@@ -117,9 +125,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         {{ formatDate(budget.endDate) }}</span
                       >
                     </div>
-                    <ui-josanz-badge variant="info">{{
-                      budget.status
-                    }}</ui-josanz-badge>
+                    <ui-badge variant="info">{{ budget.status }}</ui-badge>
                   </a>
                 } @empty {
                   <div class="ns-empty">
@@ -144,9 +150,9 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         formatCurrency(inv.total)
                       }}</span>
                     </div>
-                    <ui-josanz-badge
+                    <ui-badge
                       [variant]="inv.status === 'PAID' ? 'success' : 'warning'"
-                      >{{ inv.status }}</ui-josanz-badge
+                      >{{ inv.status }}</ui-badge
                     >
                   </a>
                 } @empty {
@@ -166,9 +172,9 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         >{{ dn.status }} · {{ formatDate(dn.createdAt) }}</span
                       >
                     </div>
-                    <ui-josanz-badge
+                    <ui-badge
                       [variant]="dn.status === 'signed' ? 'success' : 'info'"
-                      >{{ dn.status }}</ui-josanz-badge
+                      >{{ dn.status }}</ui-badge
                     >
                   </a>
                 }
@@ -229,11 +235,11 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         {{ formatCurrency(rental.totalPrice || 0) }}</span
                       >
                     </div>
-                    <ui-josanz-badge
+                    <ui-badge
                       [variant]="
                         rental.status === 'COMPLETED' ? 'success' : 'info'
                       "
-                      >{{ rental.status }}</ui-josanz-badge
+                      >{{ rental.status }}</ui-badge
                     >
                   </a>
                 } @empty {
@@ -454,11 +460,11 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         background: #f59e0b;
       }
 
-      .ns-doc-card ui-josanz-button {
+      .ns-doc-card ui-button {
         opacity: 0.7;
         transition: opacity 0.15s;
       }
-      .ns-doc-card ui-josanz-button:hover {
+      .ns-doc-card ui-button:hover {
         opacity: 1;
       }
       .ns-doc-icon.ns-orange {

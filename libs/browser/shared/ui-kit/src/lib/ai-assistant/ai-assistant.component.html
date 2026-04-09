@@ -17,7 +17,7 @@
     (click)="toggleChat()"
     (cdkDragEnded)="onMascotDragEnd($event)"
   >
-    <ui-josanz-mascot
+    <ui-mascot
       [type]="$any(bot()!.mascotType)"
       [color]="bot()!.color"
       [personality]="$any(bot()!.personality)"
@@ -26,7 +26,7 @@
       [mouthType]="$any(bot()!.mouthType)"
       [rageMode]="aiBotStore.rageMode()"
       [rageStyle]="aiBotStore.rageStyle()"
-    ></ui-josanz-mascot>
+    ></ui-mascot>
     <div class="notification-dot animate-pulse"></div>
   </div>
 
@@ -199,14 +199,14 @@
           (keyup.enter)="sendMessage()"
           placeholder="Escribe un mensaje..."
         />
-        <ui-josanz-button
+        <ui-button
           variant="ghost"
           size="sm"
           icon="send"
           (clicked)="sendMessage()"
           [disabled]="!currentInput.trim()"
         >
-        </ui-josanz-button>
+        </ui-button>
       </div>
     </div>
   </div>

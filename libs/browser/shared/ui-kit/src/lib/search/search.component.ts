@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export type SearchVariant = 'default' | 'filled' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-search',
+  selector: 'ui-search',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
-  selector: 'ui-josanz-dynamic-canvas',
+  selector: 'ui-dynamic-canvas',
   standalone: true,
   imports: [CommonModule],
   template: `

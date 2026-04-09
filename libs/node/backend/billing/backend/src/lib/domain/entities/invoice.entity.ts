@@ -1,4 +1,4 @@
-﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
+import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
 
 export type InvoiceStatus = 'DRAFT' | 'PENDING' | 'EMITTED' | 'PAID' | 'CANCELLED';
 export type VerifactuStatus = 'PENDING' | 'SENT' | 'ERROR';
@@ -14,7 +14,7 @@ export interface InvoiceProps {
 }
 
 /**
- * Invoice Aggregate Root (ADR â€” Billing / Verifactu)
+ * Invoice Aggregate Root (ADR — Billing / Verifactu)
  * Enforces that invoices originate strictly from accepted Delivery Notes (POD).
  */
 export class Invoice extends AggregateRoot {

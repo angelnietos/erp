@@ -94,7 +94,7 @@ interface Report {
         <!-- Report Types Grid -->
         <div class="report-types-grid">
           @for (reportType of reportTypes(); track reportType.id) {
-            <ui-josanz-card
+            <ui-card
               class="report-type-card"
               (click)="selectReportType(reportType)"
             >
@@ -110,14 +110,14 @@ interface Report {
                   }}</span>
                 </div>
               </div>
-            </ui-josanz-card>
+            </ui-card>
           }
         </div>
 
         <!-- Report Generation Form -->
         @if (selectedReportType()) {
           <div class="report-form-section">
-            <ui-josanz-card>
+            <ui-card>
               <div class="form-header">
                 <h2>Generar Reporte: {{ selectedReportType()?.name }}</h2>
                 <p class="text-friendly">Configura los filtros y genera tu reporte</p>
@@ -125,7 +125,7 @@ interface Report {
 
               <form class="report-form" (ngSubmit)="generateReport()">
                 <div class="form-grid">
-                  <ui-josanz-input
+                  <ui-input
                     label="Fecha Desde"
                     type="date"
                     [(ngModel)]="filters.dateFrom"
@@ -133,7 +133,7 @@ interface Report {
                     required
                   />
 
-                  <ui-josanz-input
+                  <ui-input
                     label="Fecha Hasta"
                     type="date"
                     [(ngModel)]="filters.dateTo"
@@ -145,7 +145,7 @@ interface Report {
                     selectedReportType()?.category === 'events' ||
                     selectedReportType()?.category === 'projects'
                   ) {
-                    <ui-josanz-select
+                    <ui-select
                       label="Estado"
                       [(ngModel)]="filters.status"
                       name="status"
@@ -154,7 +154,7 @@ interface Report {
                   }
 
                   @if (selectedReportType()?.category === 'events') {
-                    <ui-josanz-input
+                    <ui-input
                       label="ID Cliente (opcional)"
                       [(ngModel)]="filters.clientId"
                       name="clientId"
@@ -164,32 +164,32 @@ interface Report {
                 </div>
 
                 <div class="form-actions">
-                  <ui-josanz-button
+                  <ui-button
                     type="button"
                     variant="secondary"
                     icon="sliders-horizontal"
                     (click)="clearFilters()"
                   >
                     Limpiar Filtros
-                  </ui-josanz-button>
-                  <ui-josanz-button
+                  </ui-button>
+                  <ui-button
                     type="submit"
                     variant="primary"
                     icon="download"
                     [disabled]="generating()"
                   >
                     {{ generating() ? 'Generando...' : 'Generar Reporte' }}
-                  </ui-josanz-button>
+                  </ui-button>
                 </div>
               </form>
-            </ui-josanz-card>
+            </ui-card>
           </div>
         }
 
         <!-- Generated Reports List -->
         @if (generatedReports().length > 0) {
           <div class="reports-list-section">
-            <ui-josanz-card>
+            <ui-card>
               <div class="section-header">
                 <h2>Reportes Generados</h2>
               </div>
@@ -212,49 +212,49 @@ interface Report {
                       </div>
                     </div>
                     <div class="report-actions">
-                      <ui-josanz-button
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         (clicked)="downloadReportJson(report)"
                       >
                         <lucide-icon [name]="'download'" size="16"></lucide-icon>
                         JSON
-                      </ui-josanz-button>
-                      <ui-josanz-button
+                      </ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         (clicked)="downloadReportCsv(report)"
                       >
                         Excel (CSV)
-                      </ui-josanz-button>
-                      <ui-josanz-button
+                      </ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         (clicked)="downloadReportPdf(report)"
                       >
                         PDF
-                      </ui-josanz-button>
-                      <ui-josanz-button
+                      </ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         [disabled]="serverExportBusy()"
                         (clicked)="downloadServerXlsx(report, $event)"
                       >
                         Excel (API)
-                      </ui-josanz-button>
-                      <ui-josanz-button
+                      </ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         [disabled]="serverExportBusy()"
                         (clicked)="downloadServerPdf(report, $event)"
                       >
                         PDF (API)
-                      </ui-josanz-button>
+                      </ui-button>
                     </div>
                   </div>
                 }
               </div>
-            </ui-josanz-card>
+            </ui-card>
           </div>
         }
       </div>

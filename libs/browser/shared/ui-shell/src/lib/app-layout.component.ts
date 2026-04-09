@@ -202,15 +202,15 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         </main>
 
         <!-- IA Assistances Ecosystem (Global & Contextual) -->
-        <ui-josanz-ai-assistant
+        <ui-ai-assistant
           [feature]="currentFeature()"
-        ></ui-josanz-ai-assistant>
+        ></ui-ai-assistant>
 
         @if (aiBotStore.getBotByFeature('buddy')) {
-          <ui-josanz-ai-assistant
+          <ui-ai-assistant
             [feature]="'buddy'"
             class="secondary-assistant"
-          ></ui-josanz-ai-assistant>
+          ></ui-ai-assistant>
         }
       </div>
     </div>

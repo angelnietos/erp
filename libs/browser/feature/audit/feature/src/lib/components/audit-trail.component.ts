@@ -106,36 +106,36 @@ interface DomainEventPayload {
       </header>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
           (searchChange)="onSearch($event)"
           class="flex-1 max-w-md"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Total Registros" 
           [value]="auditLogs().length.toString()" 
           icon="history" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Acciones Hoy" 
           [value]="todayActionsCount().toString()" 
           icon="activity" 
           [trend]="8">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Usuarios Activos" 
           [value]="activeUsersCount().toString()" 
           icon="users">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="audit-content">
-        <ui-josanz-card class="logs-card">
+        <ui-card class="logs-card">
           <div class="logs-header">
             <h2>Historial de Actividades</h2>
             <span class="logs-count"
@@ -173,9 +173,9 @@ interface DomainEventPayload {
                         <lucide-icon [img]="Clock" size="14"></lucide-icon>
                         {{ log.timestamp | date:'short' }}
                       </span>
-                      <ui-josanz-badge [variant]="getActionVariant(log.action)">
+                      <ui-badge [variant]="getActionVariant(log.action)">
                         {{ log.action }}
-                      </ui-josanz-badge>
+                      </ui-badge>
                     </div>
                   </div>
 
@@ -208,7 +208,7 @@ interface DomainEventPayload {
               </div>
             }
           </div>
-        </ui-josanz-card>
+        </ui-card>
       </div>
     </div>
 

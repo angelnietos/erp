@@ -58,32 +58,32 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
            @if (!tenantId()) {
              <span class="tenant-hint">Sin tenant en sesión: inicia sesión o pega el UUID del tenant.</span>
            }
-           <ui-josanz-button variant="primary" size="md" icon="file-up" (clicked)="submitInvoice()">REPORTE DIRECTO</ui-josanz-button>
+           <ui-button variant="primary" size="md" icon="file-up" (clicked)="submitInvoice()">REPORTE DIRECTO</ui-button>
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Facturas Reportadas" 
           [value]="store.records().length.toString()" 
           icon="shield-check" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Estado Servicio" 
           value="OPERATIVO" 
           icon="activity"
           [trend]="1">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Latencia Media" 
           value="124ms" 
           icon="timer">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="dashboard-grid">
-         <ui-josanz-card variant="glass" title="Registro de Operaciones Fiscales">
+         <ui-card variant="glass" title="Registro de Operaciones Fiscales">
             <div class="table-container">
                <table class="luxe-table">
                   <thead>
@@ -102,9 +102,9 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                           <td>{{ formatDate(record.createdAt) }}</td>
                           <td class="font-mono">{{ formatCurrency(record.total) }}</td>
                           <td>
-                             <ui-josanz-badge [variant]="getStatusVariant(record.status)">
+                             <ui-badge [variant]="getStatusVariant(record.status)">
                                 {{ record.status }}
-                             </ui-josanz-badge>
+                             </ui-badge>
                           </td>
                           <td>
                              <button class="icon-btn" (click)="viewInvoiceDetail(record)">
@@ -123,20 +123,20 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                   </tbody>
                </table>
             </div>
-         </ui-josanz-card>
+         </ui-card>
 
          <div class="side-panel">
-            <ui-josanz-card variant="glass" title="Envío Manual">
+            <ui-card variant="glass" title="Envío Manual">
                <div class="manual-form">
                   <div class="form-group">
                      <label>ID FACTURA</label>
                      <input type="text" [ngModel]="invoiceIdToSubmit()" (ngModelChange)="invoiceIdToSubmit.set($event)" placeholder="INV-2026-XXXX">
                   </div>
-                  <ui-josanz-button variant="glass" class="full-width" (clicked)="submitInvoice()">ENVIAR A VERIFACTU</ui-josanz-button>
+                  <ui-button variant="glass" class="full-width" (clicked)="submitInvoice()">ENVIAR A VERIFACTU</ui-button>
                </div>
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Certificados Activos">
+            <ui-card variant="glass" title="Certificados Activos">
                <div class="cert-item">
                   <div class="cert-icon" [style.background]="currentTheme().primary + '22'">
                      <lucide-icon name="shield-check" [style.color]="currentTheme().primary" size="16"></lucide-icon>
@@ -146,12 +146,12 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                      <span class="cert-expiry">VENCE: 12/2026</span>
                   </div>
                </div>
-            </ui-josanz-card>
+            </ui-card>
          </div>
       </div>
     </div>
 
-    <ui-josanz-modal
+    <ui-modal
       class="verifactu-detail-modal"
       [isOpen]="isDetailModalOpen()"
       title="Detalle factura VeriFactu"
@@ -209,9 +209,9 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         </div>
       }
       <div modal-footer>
-        <ui-josanz-button variant="ghost" (clicked)="closeDetailModal()">Cerrar</ui-josanz-button>
+        <ui-button variant="ghost" (clicked)="closeDetailModal()">Cerrar</ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
 
   `,
 	styles: [`

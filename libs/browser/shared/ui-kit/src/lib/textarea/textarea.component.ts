@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'rounded' | 'minimal' | 'soft' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-textarea',
+  selector: 'ui-textarea',
   standalone: true,
   imports: [CommonModule],
   providers: [

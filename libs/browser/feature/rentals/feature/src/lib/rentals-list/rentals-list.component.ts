@@ -54,55 +54,55 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
+          <ui-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
             NUEVO EXPEDIENTE
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Expedientes Activos" 
           [value]="activeCount().toString()" 
           icon="play-circle" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Pendientes Inicio" 
           [value]="draftCount().toString()" 
           icon="clock" 
           [trend]="1">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Facturación Ciclo" 
           [value]="formatCurrencyEu(totalRevenue())" 
           icon="trending-up">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs 
+        <ui-tabs 
           [tabs]="tabs" 
           [activeTab]="activeTab()" 
           variant="underline" 
           (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
+        ></ui-tabs>
         
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR EXPEDIENTE O CLIENTE..." 
           (searchChange)="onSearch($event)"
           class="search-bar"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader message="SINCRONIZANDO REGISTROS DE OPERACIÓN..."></ui-josanz-loader>
+          <ui-loader message="SINCRONIZANDO REGISTROS DE OPERACIÓN..."></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="displayedRentals()" variant="default">
+        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-table [columns]="columns" [data]="displayedRentals()" variant="default">
             <ng-template #cellTemplate let-rental let-key="key">
               @switch (key) {
                 @case ('id') {
@@ -111,9 +111,9 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
                   </a>
                 }
                 @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(rental.status)">
+                  <ui-badge [variant]="getStatusVariant(rental.status)">
                     {{ getStatusLabel(rental.status) | uppercase }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('totalAmount') {
                   <span class="currency-value">{{ rental.totalAmount | currency:'EUR' }}</span>
@@ -131,14 +131,14 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/rentals', rental.id]"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/rentals', rental.id]"></ui-button>
                     @if (rental.status === 'DRAFT') {
-                      <ui-josanz-button variant="ghost" size="sm" icon="play" (clicked)="activateRental(rental)" [style.color]="currentTheme().success"></ui-josanz-button>
+                      <ui-button variant="ghost" size="sm" icon="play" (clicked)="activateRental(rental)" [style.color]="currentTheme().success"></ui-button>
                     }
                     @if (rental.status !== 'CANCELLED' && rental.status !== 'COMPLETED') {
-                      <ui-josanz-button variant="ghost" size="sm" icon="pen-tool" (clicked)="openSignatureModal(rental)" title="Firma digital del contrato"></ui-josanz-button>
+                      <ui-button variant="ghost" size="sm" icon="pen-tool" (clicked)="openSignatureModal(rental)" title="Firma digital del contrato"></ui-button>
                     }
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editRental(rental)"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editRental(rental)"></ui-button>
                   </div>
                 }
                 @default {
@@ -146,75 +146,75 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
                 }
               }
             </ng-template>
-          </ui-josanz-table>
+          </ui-table>
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info uppercase">
               {{ displayedRentals().length }} EXPEDIENTES EN LISTADO ACTUAL
             </div>
-            <ui-josanz-pagination 
+            <ui-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
               variant="default"
               (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
+            ></ui-pagination>
           </footer>
-        </ui-josanz-card>
+        </ui-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
-    <ui-josanz-modal
+    <ui-modal
       [isOpen]="isModalOpen()"
       [title]="editingRental() ? 'EDITAR EXPEDIENTE' : 'NUEVO EXPEDIENTE'"
       variant="dark"
       (closed)="closeModal()"
     >
       <div class="form-container">
-        <ui-josanz-input 
+        <ui-input 
           label="NOMBRE DEL CLIENTE/PRODUCCIÓN" 
           [(ngModel)]="formData.clientName" 
           placeholder="Ej: Producciones Audiovisuales S.L."
-        ></ui-josanz-input>
+        ></ui-input>
         
         <div class="form-row">
-          <ui-josanz-input 
+          <ui-input 
             label="FECHA DE INICIO" 
             type="date" 
             [(ngModel)]="formData.startDate"
-          ></ui-josanz-input>
+          ></ui-input>
           
-          <ui-josanz-input 
+          <ui-input 
             label="FECHA DE RETORNO" 
             type="date" 
             [(ngModel)]="formData.endDate"
-          ></ui-josanz-input>
+          ></ui-input>
         </div>
 
         <div class="form-row">
-          <ui-josanz-input 
+          <ui-input 
             label="UNIDADES TÉCNICAS" 
             type="number" 
             [(ngModel)]="formData.itemsCount"
-          ></ui-josanz-input>
+          ></ui-input>
           
-          <ui-josanz-input 
+          <ui-input 
             label="IMPORTE ESTIMADO (€)" 
             type="number" 
             [(ngModel)]="formData.totalAmount"
-          ></ui-josanz-input>
+          ></ui-input>
         </div>
       </div>
       
       <div modal-footer class="modal-footer-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
-        <ui-josanz-button variant="app" (clicked)="saveRental()" [disabled]="!formData.clientName">
+        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
+        <ui-button variant="app" (clicked)="saveRental()" [disabled]="!formData.clientName">
           GUARDAR EXPEDIENTE
-        </ui-josanz-button>
+        </ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
 
-    <ui-josanz-modal
+    <ui-modal
       [isOpen]="isSignatureModalOpen()"
       title="FIRMA DIGITAL DEL CONTRATO"
       variant="dark"
@@ -229,22 +229,22 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
             Estado actual:
             <strong>{{ getSignatureLabel(rs.signatureStatus) }}</strong>
           </p>
-          <ui-josanz-input
+          <ui-input
             label="Email del firmante (opcional)"
             [(ngModel)]="signatureEmail"
             placeholder="cliente@empresa.com"
             hint="En producción aquí se enviaría el enlace al proveedor de firma (ej. integración Verifactu / tercero)."
-          ></ui-josanz-input>
+          ></ui-input>
         </div>
       }
       <div modal-footer class="modal-footer-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-josanz-button>
+        <ui-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-button>
         @if (rentalForSignature()?.signatureStatus !== 'SIGNED') {
-          <ui-josanz-button variant="glass" (clicked)="markSignaturePending()">ENVIAR SOLICITUD DE FIRMA</ui-josanz-button>
-          <ui-josanz-button variant="app" (clicked)="markSignatureSigned()">MARCAR COMO FIRMADO</ui-josanz-button>
+          <ui-button variant="glass" (clicked)="markSignaturePending()">ENVIAR SOLICITUD DE FIRMA</ui-button>
+          <ui-button variant="app" (clicked)="markSignatureSigned()">MARCAR COMO FIRMADO</ui-button>
         }
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
   `,
   styles: [`
     .form-container { display: flex; flex-direction: column; gap: 1.5rem; padding: 0.5rem 0; }

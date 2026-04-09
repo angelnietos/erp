@@ -5,7 +5,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 export type TableVariant = 'default' | 'striped' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-table',
+  selector: 'ui-table',
   standalone: true,
   imports: [CommonModule, ScrollingModule],
   template: `

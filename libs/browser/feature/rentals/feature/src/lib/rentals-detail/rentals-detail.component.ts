@@ -30,7 +30,7 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando contrato de alquiler..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando contrato de alquiler..."></ui-loader>
       } @else if (rental()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
@@ -49,40 +49,40 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
           </div>
           <div class="header-actions">
             @if (rental()?.status === 'DRAFT') {
-              <ui-josanz-button variant="glass" size="md" icon="check" (clicked)="activate()">ACTIVAR ALQUILER</ui-josanz-button>
+              <ui-button variant="glass" size="md" icon="check" (clicked)="activate()">ACTIVAR ALQUILER</ui-button>
             }
             @if (rental()?.status === 'ACTIVE') {
-              <ui-josanz-button variant="primary" size="md" icon="archive" (clicked)="complete()">FINALIZAR Y RECIBIR</ui-josanz-button>
+              <ui-button variant="primary" size="md" icon="archive" (clicked)="complete()">FINALIZAR Y RECIBIR</ui-button>
             }
-            <ui-josanz-button variant="glass" size="md" icon="printer">IMPRIMIR CONTRATO</ui-josanz-button>
+            <ui-button variant="glass" size="md" icon="printer">IMPRIMIR CONTRATO</ui-button>
             @if (rental()?.status !== 'CANCELLED' && rental()?.status !== 'COMPLETED') {
-              <ui-josanz-button variant="glass" size="md" icon="pen-tool" (clicked)="openSignatureModal()">FIRMA DIGITAL</ui-josanz-button>
+              <ui-button variant="glass" size="md" icon="pen-tool" (clicked)="openSignatureModal()">FIRMA DIGITAL</ui-button>
             }
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Monto Total" 
             [value]="formatCurrencyEu(rental()?.totalAmount || 0)" 
             icon="credit-card" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Días Transcurridos" 
             [value]="getDaysElapsed(rental()?.startDate) + ' DÍAS'" 
             icon="clock">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Ítems en Alquiler" 
             [value]="rental()?.itemsCount?.toString() || '0'" 
             icon="layers">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="content-grid">
            <div class="main-column">
-              <ui-josanz-card variant="glass" title="Detalles del Alquiler">
+              <ui-card variant="glass" title="Detalles del Alquiler">
                 <div class="info-grid">
                    <div class="info-item">
                       <span class="label">FECHA INICIO</span>
@@ -94,18 +94,18 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                    </div>
                    <div class="info-item">
                       <span class="label">ESTADO DEL CONTRATO</span>
-                      <ui-josanz-badge [variant]="getStatusVariant(rental()?.status)">
+                      <ui-badge [variant]="getStatusVariant(rental()?.status)">
                         {{ rental()?.status }}
-                      </ui-josanz-badge>
+                      </ui-badge>
                    </div>
                    <div class="info-item">
                       <span class="label">IDENTIFICADOR CLIENTE</span>
                       <span class="value">ID: {{ rental()?.clientId }}</span>
                    </div>
                 </div>
-              </ui-josanz-card>
+              </ui-card>
 
-              <ui-josanz-card variant="glass" title="Anexos al contrato">
+              <ui-card variant="glass" title="Anexos al contrato">
                 @if (rental()?.annexes?.length) {
                   <ul class="annex-list">
                     @for (a of rental()!.annexes!; track a.id) {
@@ -121,9 +121,9 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                 } @else {
                   <p class="annex-empty text-friendly">No hay anexos. Usa «Añadir anexo» en el panel lateral.</p>
                 }
-              </ui-josanz-card>
+              </ui-card>
 
-              <ui-josanz-card variant="glass" title="Registro de Actividad">
+              <ui-card variant="glass" title="Registro de Actividad">
                  <div class="activity-timeline">
                     <div class="timeline-item">
                        <span class="dot" [style.background]="currentTheme().primary"></span>
@@ -140,11 +140,11 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                        </div>
                     </div>
                  </div>
-              </ui-josanz-card>
+              </ui-card>
            </div>
 
            <div class="side-column">
-              <ui-josanz-card variant="glass" title="Garantías y Depósitos">
+              <ui-card variant="glass" title="Garantías y Depósitos">
                  <div class="deposit-box">
                     <lucide-icon name="shield-check" size="24" [style.color]="currentTheme().primary"></lucide-icon>
                     <div class="deposit-info">
@@ -152,15 +152,15 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                        <span class="deposit-value">{{ formatCurrencyEu((rental()?.totalAmount || 0) * 0.2) }}</span>
                     </div>
                  </div>
-              </ui-josanz-card>
+              </ui-card>
 
-              <ui-josanz-card variant="glass" title="Firma digital">
+              <ui-card variant="glass" title="Firma digital">
                  <div class="sig-detail">
                     <div class="sig-row">
                       <span class="lbl">ESTADO</span>
-                      <ui-josanz-badge [variant]="signatureBadgeVariant(rental()?.signatureStatus)">
+                      <ui-badge [variant]="signatureBadgeVariant(rental()?.signatureStatus)">
                         {{ getSignatureLabel(rental()?.signatureStatus) | uppercase }}
-                      </ui-josanz-badge>
+                      </ui-badge>
                     </div>
                     @if (rental()?.signedAt) {
                       <div class="sig-row">
@@ -170,26 +170,26 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
                     }
                     @if (rental()?.signatureStatus !== 'SIGNED' && rental()?.status !== 'CANCELLED' && rental()?.status !== 'COMPLETED') {
                       <div class="sig-actions">
-                        <ui-josanz-button variant="glass" class="full-width" icon="send" (clicked)="signatureRequest()">SOLICITAR FIRMA</ui-josanz-button>
-                        <ui-josanz-button variant="primary" class="full-width" icon="check" (clicked)="signatureComplete()">MARCAR FIRMADO</ui-josanz-button>
+                        <ui-button variant="glass" class="full-width" icon="send" (clicked)="signatureRequest()">SOLICITAR FIRMA</ui-button>
+                        <ui-button variant="primary" class="full-width" icon="check" (clicked)="signatureComplete()">MARCAR FIRMADO</ui-button>
                       </div>
                     }
                  </div>
-              </ui-josanz-card>
+              </ui-card>
 
-              <ui-josanz-card variant="glass" title="Acciones Rápidas">
+              <ui-card variant="glass" title="Acciones Rápidas">
                  <div class="quick-actions">
-                    <ui-josanz-button variant="glass" class="full-width" icon="file-plus" (clicked)="openAnnexModal()">AÑADIR ANEXO</ui-josanz-button>
+                    <ui-button variant="glass" class="full-width" icon="file-plus" (clicked)="openAnnexModal()">AÑADIR ANEXO</ui-button>
                     @if (rental()?.status !== 'CANCELLED' && rental()?.status !== 'COMPLETED') {
-                      <ui-josanz-button variant="glass" class="full-width danger-btn" icon="trash-2" (clicked)="cancel()">ANULAR CONTRATO</ui-josanz-button>
+                      <ui-button variant="glass" class="full-width danger-btn" icon="trash-2" (clicked)="cancel()">ANULAR CONTRATO</ui-button>
                     }
                  </div>
-              </ui-josanz-card>
+              </ui-card>
            </div>
         </div>
       }
 
-      <ui-josanz-modal
+      <ui-modal
         [isOpen]="isSignatureModalOpen()"
         title="FIRMA DIGITAL"
         variant="dark"
@@ -198,33 +198,33 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
         @if (rental(); as r) {
           <div class="sig-modal-body">
             <p class="muted text-friendly">Gestiona el flujo de firma electrónica del contrato. El email sirve como referencia para el envío al firmante.</p>
-            <ui-josanz-input label="Email del firmante" [(ngModel)]="signatureEmail" placeholder="firma@cliente.com"></ui-josanz-input>
+            <ui-input label="Email del firmante" [(ngModel)]="signatureEmail" placeholder="firma@cliente.com"></ui-input>
           </div>
         }
         <div modal-footer class="sig-modal-footer">
-          <ui-josanz-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-josanz-button>
+          <ui-button variant="ghost" (clicked)="closeSignatureModal()">CERRAR</ui-button>
           @if (rental()?.signatureStatus !== 'SIGNED') {
-            <ui-josanz-button variant="glass" (clicked)="signatureRequestFromModal()">ENVIAR SOLICITUD</ui-josanz-button>
-            <ui-josanz-button variant="app" (clicked)="signatureCompleteFromModal()">MARCAR FIRMADO</ui-josanz-button>
+            <ui-button variant="glass" (clicked)="signatureRequestFromModal()">ENVIAR SOLICITUD</ui-button>
+            <ui-button variant="app" (clicked)="signatureCompleteFromModal()">MARCAR FIRMADO</ui-button>
           }
         </div>
-      </ui-josanz-modal>
+      </ui-modal>
 
-      <ui-josanz-modal
+      <ui-modal
         [isOpen]="isAnnexModalOpen()"
         title="AÑADIR ANEXO"
         variant="dark"
         (closed)="closeAnnexModal()"
       >
         <div class="annex-modal-body">
-          <ui-josanz-input label="Título del anexo" [(ngModel)]="annexTitle" placeholder="Ej. Condiciones de uso"></ui-josanz-input>
-          <ui-josanz-textarea label="Descripción (opcional)" [(ngModel)]="annexDescription" placeholder="Detalle del anexo..." variant="dark"></ui-josanz-textarea>
+          <ui-input label="Título del anexo" [(ngModel)]="annexTitle" placeholder="Ej. Condiciones de uso"></ui-input>
+          <ui-textarea label="Descripción (opcional)" [(ngModel)]="annexDescription" placeholder="Detalle del anexo..." variant="dark"></ui-textarea>
         </div>
         <div modal-footer class="sig-modal-footer">
-          <ui-josanz-button variant="ghost" (clicked)="closeAnnexModal()">CANCELAR</ui-josanz-button>
-          <ui-josanz-button variant="app" [disabled]="!annexTitle.trim()" (clicked)="submitAnnex()">GUARDAR ANEXO</ui-josanz-button>
+          <ui-button variant="ghost" (clicked)="closeAnnexModal()">CANCELAR</ui-button>
+          <ui-button variant="app" [disabled]="!annexTitle.trim()" (clicked)="submitAnnex()">GUARDAR ANEXO</ui-button>
         </div>
-      </ui-josanz-modal>
+      </ui-modal>
     </div>
   `,
   styles: [`

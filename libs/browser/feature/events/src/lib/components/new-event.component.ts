@@ -44,14 +44,14 @@ import {
     <div class="page-container animate-fade-in">
       <header class="page-header">
         <div class="header-breadcrumb">
-          <ui-josanz-button
+          <ui-button
             variant="ghost"
             [routerLink]="['/events']"
             class="back-button"
           >
             <lucide-icon [img]="ArrowLeftIcon" size="16"></lucide-icon>
             Volver
-          </ui-josanz-button>
+          </ui-button>
           <h1 class="page-title text-uppercase">Nuevo Evento</h1>
           <div class="breadcrumb">
             <span class="active">GESTIÓN</span>
@@ -68,39 +68,39 @@ import {
         (ngSubmit)="onSubmit()"
         class="form-container"
       >
-        <ui-josanz-card>
+        <ui-card>
           <div class="form-content">
             <div class="form-section">
               <h2 class="section-title">Información General</h2>
 
               <div class="form-grid">
-                <ui-josanz-input
+                <ui-input
                   label="Título del Evento"
                   placeholder="Ingrese el título del evento"
                   formControlName="title"
                   required
-                ></ui-josanz-input>
+                ></ui-input>
 
-                <ui-josanz-textarea
+                <ui-textarea
                   label="Descripción"
                   placeholder="Describa el evento..."
                   formControlName="description"
                   [rows]="4"
-                ></ui-josanz-textarea>
+                ></ui-textarea>
 
-                <ui-josanz-select
+                <ui-select
                   label="Tipo de Evento"
                   formControlName="type"
                   [options]="eventTypes"
                   placeholder="Seleccione el tipo"
-                ></ui-josanz-select>
+                ></ui-select>
 
-                <ui-josanz-select
+                <ui-select
                   label="Estado"
                   formControlName="status"
                   [options]="statusOptions"
                   placeholder="Seleccione el estado"
-                ></ui-josanz-select>
+                ></ui-select>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ import {
               <h2 class="section-title">Fecha y Hora</h2>
 
               <div class="form-grid">
-                <ui-josanz-input
+                <ui-input
                   label="Fecha"
                   type="date"
                   formControlName="date"
@@ -119,9 +119,9 @@ import {
                     size="16"
                     slot="prefix"
                   ></lucide-icon>
-                </ui-josanz-input>
+                </ui-input>
 
-                <ui-josanz-input
+                <ui-input
                   label="Hora de Inicio"
                   type="time"
                   formControlName="startTime"
@@ -132,9 +132,9 @@ import {
                     size="16"
                     slot="prefix"
                   ></lucide-icon>
-                </ui-josanz-input>
+                </ui-input>
 
-                <ui-josanz-input
+                <ui-input
                   label="Hora de Fin"
                   type="time"
                   formControlName="endTime"
@@ -144,7 +144,7 @@ import {
                     size="16"
                     slot="prefix"
                   ></lucide-icon>
-                </ui-josanz-input>
+                </ui-input>
 
                 <div class="form-spacer"></div>
               </div>
@@ -154,7 +154,7 @@ import {
               <h2 class="section-title">Ubicación y Capacidad</h2>
 
               <div class="form-grid">
-                <ui-josanz-input
+                <ui-input
                   label="Ubicación"
                   placeholder="Sala, dirección, enlace virtual..."
                   formControlName="location"
@@ -164,9 +164,9 @@ import {
                     size="16"
                     slot="prefix"
                   ></lucide-icon>
-                </ui-josanz-input>
+                </ui-input>
 
-                <ui-josanz-input
+                <ui-input
                   label="Capacidad Máxima"
                   type="number"
                   placeholder="0"
@@ -177,14 +177,14 @@ import {
                     size="16"
                     slot="prefix"
                   ></lucide-icon>
-                </ui-josanz-input>
+                </ui-input>
 
-                <ui-josanz-select
+                <ui-select
                   label="Tipo de Ubicación"
                   formControlName="locationType"
                   [options]="locationTypes"
                   placeholder="Seleccione el tipo"
-                ></ui-josanz-select>
+                ></ui-select>
 
                 <div class="form-spacer"></div>
               </div>
@@ -194,55 +194,55 @@ import {
               <h2 class="section-title">Información Adicional</h2>
 
               <div class="form-grid">
-                <ui-josanz-input
+                <ui-input
                   label="Organizador"
                   placeholder="Nombre del organizador"
                   formControlName="organizer"
-                ></ui-josanz-input>
+                ></ui-input>
 
-                <ui-josanz-input
+                <ui-input
                   label="Contacto"
                   placeholder="Email o teléfono de contacto"
                   formControlName="contact"
-                ></ui-josanz-input>
+                ></ui-input>
 
-                <ui-josanz-input
+                <ui-input
                   label="Costo"
                   type="number"
                   step="0.01"
                   placeholder="0.00"
                   formControlName="cost"
-                ></ui-josanz-input>
+                ></ui-input>
 
-                <ui-josanz-select
+                <ui-select
                   label="Moneda"
                   formControlName="currency"
                   [options]="currencyOptions"
                   placeholder="Seleccione moneda"
-                ></ui-josanz-select>
+                ></ui-select>
               </div>
             </div>
           </div>
-        </ui-josanz-card>
+        </ui-card>
 
         <div class="form-actions">
-          <ui-josanz-button
+          <ui-button
             variant="ghost"
             type="button"
             [routerLink]="['/events']"
           >
             <lucide-icon [img]="XIcon" size="16"></lucide-icon>
             Cancelar
-          </ui-josanz-button>
+          </ui-button>
 
-          <ui-josanz-button
+          <ui-button
             variant="primary"
             type="submit"
             [disabled]="eventForm.invalid || isSubmitting()"
           >
             <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
             {{ isSubmitting() ? 'Guardando...' : 'Guardar Evento' }}
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </form>
     </div>

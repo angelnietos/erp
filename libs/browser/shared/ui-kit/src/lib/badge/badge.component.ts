@@ -6,7 +6,7 @@ export type BadgeShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neum
 export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'dark' | 'light' | 'app' | string;
 
 @Component({
-  selector: 'ui-josanz-badge',
+  selector: 'ui-badge',
   standalone: true,
   imports: [CommonModule],
   template: `

@@ -79,70 +79,70 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         </div>
         <div class="header-actions">
           @if (config.enableCreate) {
-            <ui-josanz-button
+            <ui-button
               variant="app"
               size="md"
               (clicked)="openCreateModal()"
               icon="plus"
             >
               EMITIR FACTURA
-            </ui-josanz-button>
+            </ui-button>
           }
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card
+        <ui-stat-card
           label="Total Operado"
           [value]="formatCurrencyEu(totalInvoiced())"
           icon="trending-up"
           [accent]="true"
         >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        </ui-stat-card>
+        <ui-stat-card
           label="Pendiente Cobro"
           [value]="formatCurrencyEu(totalPending())"
           icon="clock"
           [trend]="5"
         >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        </ui-stat-card>
+        <ui-stat-card
           label="Documentos AEAT"
           [value]="allInvoices().length.toString()"
           icon="shield-check"
         >
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs
+        <ui-tabs
           [tabs]="tabs()"
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
+        ></ui-tabs>
 
-        <ui-josanz-search
+        <ui-search
           variant="filled"
           placeholder="BUSCAR NIF, CLIENTE O Nº..."
           (searchChange)="onSearch($event)"
           class="search-bar"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader
+          <ui-loader
             message="SINCRONIZANDO REGISTROS FISCALES..."
-          ></ui-josanz-loader>
+          ></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card
+        <ui-card
           variant="glass"
           class="table-card"
           [class.neon-glow]="!pluginStore.highPerformanceMode()"
         >
-          <ui-josanz-table
+          <ui-table
             [columns]="columns"
             [data]="invoices()"
             variant="default"
@@ -160,18 +160,18 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                   </a>
                 }
                 @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(inv.status)">
+                  <ui-badge [variant]="getStatusVariant(inv.status)">
                     {{ getStatusLabel(inv.status) | uppercase }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('verifactuStatus') {
                   @if (inv.verifactuStatus) {
                     <div class="vf-status-cell">
-                      <ui-josanz-badge
+                      <ui-badge
                         [variant]="getVerifactuVariant(inv.verifactuStatus)"
                       >
                         {{ getVerifactuLabel(inv.verifactuStatus) | uppercase }}
-                      </ui-josanz-badge>
+                      </ui-badge>
                       @if (inv.verifactuStatus === 'sent') {
                         <lucide-icon
                           name="shield-check"
@@ -191,30 +191,30 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button
+                    <ui-button
                       variant="ghost"
                       size="sm"
                       icon="eye"
                       [routerLink]="['/billing', inv.id]"
                       title="Ver Detalle"
-                    ></ui-josanz-button>
+                    ></ui-button>
 
                     @if (inv.status === 'draft') {
-                      <ui-josanz-button
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         icon="pencil"
                         (clicked)="editInvoice(inv)"
                         title="Editar Borrador"
-                      ></ui-josanz-button>
-                      <ui-josanz-button
+                      ></ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         icon="play"
                         (clicked)="issueInvoice(inv)"
                         [style.color]="currentTheme().success"
                         title="Emitir Factura"
-                      ></ui-josanz-button>
+                      ></ui-button>
                     }
 
                     @if (inv.status !== 'draft' && config.enableVerifactu) {
@@ -222,40 +222,40 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                         !inv.verifactuStatus ||
                         inv.verifactuStatus === 'pending'
                       ) {
-                        <ui-josanz-button
+                        <ui-button
                           variant="ghost"
                           size="sm"
                           icon="upload-cloud"
                           (clicked)="sendToVerifactu(inv)"
                           [style.color]="currentTheme().warning"
                           title="Firmar y Enviar a AEAT"
-                        ></ui-josanz-button>
+                        ></ui-button>
                       }
                       @if (inv.verifactuStatus === 'sent') {
-                        <ui-josanz-button
+                        <ui-button
                           variant="ghost"
                           size="sm"
                           icon="file-warning"
                           (clicked)="rectifyInvoice(inv)"
                           title="Rectificar Anulación AEAT"
-                        ></ui-josanz-button>
-                        <ui-josanz-button
+                        ></ui-button>
+                        <ui-button
                           variant="ghost"
                           size="sm"
                           icon="qr-code"
                           (clicked)="viewVerifactuQr(inv)"
                           title="Ver Certificado Legal"
-                        ></ui-josanz-button>
+                        ></ui-button>
                       }
                       @if (inv.verifactuStatus === 'error') {
-                        <ui-josanz-button
+                        <ui-button
                           variant="ghost"
                           size="sm"
                           icon="refresh-cw"
                           (clicked)="sendToVerifactu(inv)"
                           [style.color]="currentTheme().danger"
                           title="Reintentar Envío AEAT"
-                        ></ui-josanz-button>
+                        ></ui-button>
                       }
                     }
                   </div>
@@ -265,7 +265,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 }
               }
             </ng-template>
-          </ui-josanz-table>
+          </ui-table>
 
           <footer
             class="table-footer"
@@ -274,18 +274,18 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             <div class="table-info uppercase">
               {{ invoices().length }} DOCUMENTOS LEGALES EN VISTA
             </div>
-            <ui-josanz-pagination
+            <ui-pagination
               [currentPage]="currentPage()"
               [totalPages]="totalPages()"
               variant="default"
               (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
+            ></ui-pagination>
           </footer>
-        </ui-josanz-card>
+        </ui-card>
       }
     </div>
 
-    <ui-josanz-modal
+    <ui-modal
       [isOpen]="isModalOpen()"
       [title]="editingInvoice() ? 'EDITAR FACTURA' : 'EMITIR FACTURA'"
       variant="dark"
@@ -297,52 +297,52 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             Selecciona un presupuesto aceptado o enviado; el importe y el
             cliente salen del presupuesto.
           </p>
-          <ui-josanz-select
+          <ui-select
             label="Presupuesto origen"
             placeholder="Elegir presupuesto…"
             [options]="budgetSelectOptions()"
             [(ngModel)]="formData.budgetId"
-          ></ui-josanz-select>
+          ></ui-select>
         } @else {
           <div class="readonly-client">
             <span class="lbl">Cliente</span>
             <span class="val">{{ editingInvoice()?.clientName }}</span>
           </div>
         }
-        <ui-josanz-input
+        <ui-input
           label="Número de factura (opcional)"
           [(ngModel)]="formData.invoiceNumber"
           placeholder="F/2026/XXXX"
-        ></ui-josanz-input>
+        ></ui-input>
         <div class="form-row-dates">
-          <ui-josanz-input
+          <ui-input
             label="Emisión"
             type="date"
             [(ngModel)]="formData.issueDate"
-          ></ui-josanz-input>
-          <ui-josanz-input
+          ></ui-input>
+          <ui-input
             label="Vencimiento"
             type="date"
             [(ngModel)]="formData.dueDate"
-          ></ui-josanz-input>
+          ></ui-input>
         </div>
       </div>
       <div modal-footer class="modal-footer-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()"
-          >CANCELAR</ui-josanz-button
+        <ui-button variant="ghost" (clicked)="closeModal()"
+          >CANCELAR</ui-button
         >
-        <ui-josanz-button
+        <ui-button
           variant="app"
           (clicked)="saveInvoice()"
           [disabled]="!editingInvoice() && !formData.budgetId"
         >
           {{ editingInvoice() ? 'GUARDAR' : 'CREAR BORRADOR' }}
-        </ui-josanz-button>
+        </ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
 
     <!-- Verifactu QR Modal -->
-    <ui-josanz-modal
+    <ui-modal
       [isOpen]="isVerifactuQrModalOpen()"
       title="SISTEMA CENTRAL: VERIFICACIÓN FISCAL"
       variant="dark"
@@ -351,9 +351,9 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     >
       <div class="verifactu-container">
         @if (verifactuStore.loading()) {
-          <ui-josanz-loader
+          <ui-loader
             message="Sincronizando con AEAT..."
-          ></ui-josanz-loader>
+          ></ui-loader>
         } @else if (verifactuStore.selectedInvoice(); as inv) {
           <div class="vf-detail-premium">
             <header
@@ -406,7 +406,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
           </div>
         }
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
 
   `,
   styles: [

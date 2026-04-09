@@ -1,6 +1,6 @@
 <div class="auth-wrapper">
   <lib-animated-background [theme]="backgroundTheme()"></lib-animated-background>
-  <ui-josanz-dynamic-canvas [htmlRef]="dynamicHtml()"></ui-josanz-dynamic-canvas>
+  <ui-dynamic-canvas [htmlRef]="dynamicHtml()"></ui-dynamic-canvas>
 
   <div class="auth-card glass">
     <div class="auth-header">
@@ -33,13 +33,13 @@
     </div>
 
     @if (store.error()) {
-      <ui-josanz-alert type="error">
+      <ui-alert type="error">
         {{ store.error() }}
-      </ui-josanz-alert>
+      </ui-alert>
     }
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <ui-josanz-input
+      <ui-input
         id="email"
         label="E-mail"
         type="email"
@@ -48,9 +48,9 @@
         formControlName="email"
         [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
         class="animate-in stagger-4"
-      ></ui-josanz-input>
+      ></ui-input>
 
-      <ui-josanz-input
+      <ui-input
         id="password"
         label="Contraseña"
         type="password"
@@ -59,9 +59,9 @@
         formControlName="password"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
         class="animate-in stagger-4"
-      ></ui-josanz-input>
+      ></ui-input>
 
-      <ui-josanz-button 
+      <ui-button 
         type="submit" 
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
@@ -69,7 +69,7 @@
         class="animate-in stagger-5"
       >
         Acceder
-      </ui-josanz-button>
+      </ui-button>
     </form>
 
     <div class="auth-footer animate-in stagger-5">
@@ -78,5 +78,5 @@
   </div>
   
   <!-- Buddy Assistant accessible from Login! -->
-  <ui-josanz-ai-assistant feature="dashboard"></ui-josanz-ai-assistant>
+  <ui-ai-assistant feature="dashboard"></ui-ai-assistant>
 </div>

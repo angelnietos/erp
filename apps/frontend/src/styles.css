@@ -480,7 +480,7 @@ html[data-ui-variant='minimal'] .card {
 .page-container:not(.page-container--skip-horizontal-inset) > .metrics-grid,
 .page-container:not(.page-container--skip-horizontal-inset) > .dashboard-content,
 .page-container:not(.page-container--skip-horizontal-inset) > .events-content,
-.page-container:not(.page-container--skip-horizontal-inset) > ui-josanz-card.table-card {
+.page-container:not(.page-container--skip-horizontal-inset) > ui-card.table-card {
   padding-left: clamp(1rem, 2.5vw, 2rem);
   padding-right: clamp(1rem, 2.5vw, 2rem);
   box-sizing: border-box;
@@ -708,7 +708,7 @@ main .content a:not(.nav-link):not(.theme-option):not(.menu-item):hover {
   box-shadow: 0 0 15px var(--brand-glow) !important;
 }
 
-.premium-mode .ui-josanz-button:hover {
+.premium-mode .ui-button:hover {
   filter: brightness(1.2) contrast(1.1) !important;
   box-shadow: 0 0 20px var(--brand-glow) !important;
 }

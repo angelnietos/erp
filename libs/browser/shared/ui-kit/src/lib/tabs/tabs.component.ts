@@ -12,7 +12,7 @@ export interface TabItem {
 export type TabsVariant = 'default' | 'underline' | 'pills' | 'boxed' | 'bordered' | 'soft' | 'minimal' | 'icon' | 'animated' | 'gradient';
 
 @Component({
-  selector: 'ui-josanz-tabs',
+  selector: 'ui-tabs',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
-  selector: 'ui-josanz-stat-card',
+  selector: 'ui-stat-card',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

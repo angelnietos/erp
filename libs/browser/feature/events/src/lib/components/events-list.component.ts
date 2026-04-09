@@ -111,48 +111,48 @@ interface EventFilter {
       </div>
 
       <div class="stats-row gaming-stats">
-        <ui-josanz-stat-card
+        <ui-stat-card
           label="Total Eventos"
           [value]="events().length.toString()"
           icon="calendar"
           [accent]="true"
           class="stat-card-animated"
         >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        </ui-stat-card>
+        <ui-stat-card
           label="Eventos Activos"
           [value]="activeEventsCount().toString()"
           icon="activity"
           [trend]="15"
           class="stat-card-animated"
         >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        </ui-stat-card>
+        <ui-stat-card
           label="Próximo Evento"
           [value]="nextEventDays().toString() + ' días'"
           icon="clock"
           class="stat-card-animated"
         >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        </ui-stat-card>
+        <ui-stat-card
           label="Asistentes Totales"
           [value]="totalAttendees().toString()"
           icon="users"
           [trend]="8"
           class="stat-card-animated"
         >
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="events-content">
         <!-- Filters -->
-        <ui-josanz-card class="filters-card gaming-card">
+        <ui-card class="filters-card gaming-card">
           <div class="filters-header">
             <div class="filters-title-section">
               <span class="filters-icon">🔍</span>
               <h2>Filtros de Búsqueda Avanzada</h2>
             </div>
-            <ui-josanz-button
+            <ui-button
               variant="ghost"
               size="sm"
               icon="filter"
@@ -161,11 +161,11 @@ interface EventFilter {
             >
               <span class="btn-icon">🗑️</span>
               Limpiar
-            </ui-josanz-button>
+            </ui-button>
           </div>
 
           <div class="filters-grid">
-            <ui-josanz-input
+            <ui-input
               label="Buscar"
               [(ngModel)]="filters.search"
               (ngModelChange)="onSearchChange($event)"
@@ -174,28 +174,28 @@ interface EventFilter {
               icon="search"
             />
 
-            <ui-josanz-select
+            <ui-select
               label="Estado"
               [(ngModel)]="filters.status"
               name="status"
               [options]="statusOptions"
             />
 
-            <ui-josanz-select
+            <ui-select
               label="Tipo"
               [(ngModel)]="filters.type"
               name="type"
               [options]="typeOptions"
             />
 
-            <ui-josanz-input
+            <ui-input
               label="Fecha Desde"
               type="date"
               [(ngModel)]="filters.dateFrom"
               name="dateFrom"
             />
 
-            <ui-josanz-input
+            <ui-input
               label="Fecha Hasta"
               type="date"
               [(ngModel)]="filters.dateTo"
@@ -203,26 +203,26 @@ interface EventFilter {
             />
 
             <div class="filter-actions">
-              <ui-josanz-button
+              <ui-button
                 variant="primary"
                 icon="search"
                 (click)="applyFilters()"
               >
                 Aplicar Filtros
-              </ui-josanz-button>
-              <ui-josanz-button
+              </ui-button>
+              <ui-button
                 variant="primary"
                 [routerLink]="['/events/new']"
               >
                 <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
                 Nuevo Evento
-              </ui-josanz-button>
+              </ui-button>
             </div>
           </div>
-        </ui-josanz-card>
+        </ui-card>
 
         <!-- Events List -->
-        <ui-josanz-card class="events-card gaming-card">
+        <ui-card class="events-card gaming-card">
           <div class="events-header">
             <div class="events-title-section">
               <span class="events-icon">📋</span>
@@ -285,11 +285,11 @@ interface EventFilter {
                         <lucide-icon [img]="UsersIcon" size="14"></lucide-icon>
                         {{ event.attendees }}/{{ event.capacity }} asistentes
                       </span>
-                      <ui-josanz-badge
+                      <ui-badge
                         [variant]="getStatusVariant(event.status)"
                       >
                         {{ getStatusText(event.status) }}
-                      </ui-josanz-badge>
+                      </ui-badge>
                     </div>
                   </div>
 
@@ -342,7 +342,7 @@ interface EventFilter {
                     </div>
 
                     <div class="event-actions gaming-actions">
-                      <ui-josanz-button
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         [routerLink]="['/events', event.id]"
@@ -352,8 +352,8 @@ interface EventFilter {
                         <span class="action-icon">👁️</span>
                         <lucide-icon [img]="EyeIcon" size="14"></lucide-icon>
                         Ver Detalles
-                      </ui-josanz-button>
-                      <ui-josanz-button
+                      </ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         [routerLink]="['/events', event.id, 'edit']"
@@ -363,8 +363,8 @@ interface EventFilter {
                         <span class="action-icon">✏️</span>
                         <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
                         Editar
-                      </ui-josanz-button>
-                      <ui-josanz-button
+                      </ui-button>
+                      <ui-button
                         variant="ghost"
                         size="sm"
                         class="danger action-btn delete-btn"
@@ -373,7 +373,7 @@ interface EventFilter {
                         <span class="action-icon">🗑️</span>
                         <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
                         Eliminar
-                      </ui-josanz-button>
+                      </ui-button>
                     </div>
                   </div>
                 }
@@ -387,13 +387,13 @@ interface EventFilter {
                 <p class="text-friendly">
                   No hay eventos que coincidan con los filtros aplicados.
                 </p>
-                <ui-josanz-button
+                <ui-button
                   variant="primary"
                   [routerLink]="['/events/new']"
                 >
                   <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
                   Crear Nuevo Evento
-                </ui-josanz-button>
+                </ui-button>
               </div>
             }
           </div>
@@ -401,30 +401,30 @@ interface EventFilter {
           <!-- Pagination -->
           @if (totalPages() > 1) {
             <div class="pagination">
-              <ui-josanz-button
+              <ui-button
                 variant="ghost"
                 size="sm"
                 [disabled]="currentPage() === 1"
                 (click)="goToPage(currentPage() - 1)"
               >
                 Anterior
-              </ui-josanz-button>
+              </ui-button>
 
               <span class="page-info text-friendly">
                 Página {{ currentPage() }} de {{ totalPages() }}
               </span>
 
-              <ui-josanz-button
+              <ui-button
                 variant="ghost"
                 size="sm"
                 [disabled]="currentPage() === totalPages()"
                 (click)="goToPage(currentPage() + 1)"
               >
                 Siguiente
-              </ui-josanz-button>
+              </ui-button>
             </div>
           }
-        </ui-josanz-card>
+        </ui-card>
       </div>
     </div>
   `,

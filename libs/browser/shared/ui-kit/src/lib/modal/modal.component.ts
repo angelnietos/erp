@@ -6,7 +6,7 @@ export type ModalShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neum
 export type ModalVariant = string;
 
 @Component({
-  selector: 'ui-josanz-modal',
+  selector: 'ui-modal',
   standalone: true,
   imports: [CommonModule],
   template: `

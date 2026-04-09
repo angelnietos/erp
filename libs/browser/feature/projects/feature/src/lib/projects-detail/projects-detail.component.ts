@@ -37,13 +37,13 @@ interface ProjectForm {
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
       <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
         <div class="header-actions">
-          <ui-josanz-button
+          <ui-button
             variant="ghost"
             icon="arrow-left"
             (click)="goBack()"
           >
             Volver
-          </ui-josanz-button>
+          </ui-button>
         </div>
         <div class="header-breadcrumb">
           <h1 class="page-title text-uppercase glow-text">
@@ -56,39 +56,39 @@ interface ProjectForm {
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="secondary" icon="x" (click)="goBack()">
+          <ui-button variant="secondary" icon="x" (click)="goBack()">
             Cancelar
-          </ui-josanz-button>
-          <ui-josanz-button variant="primary" icon="save" (click)="save()">
+          </ui-button>
+          <ui-button variant="primary" icon="save" (click)="save()">
             Guardar
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="content-section">
-        <ui-josanz-card shape="auto" class="form-card">
+        <ui-card shape="auto" class="form-card">
           <div class="card-section">
             <div class="section-info">
               <h3 class="section-title">Información General</h3>
               <p class="section-desc">Detalles básicos para identificar y describir el proyecto.</p>
             </div>
             <div class="form-grid">
-              <ui-josanz-input
+              <ui-input
                 label="Nombre del Proyecto"
                 [(ngModel)]="form.name"
                 placeholder="Ej: Revestimiento Fachada Josanz"
                 icon="briefcase"
                 required
               >
-              </ui-josanz-input>
+              </ui-input>
   
-              <ui-josanz-textarea
+              <ui-textarea
                 label="Descripción Detallada"
                 [(ngModel)]="form.description"
                 placeholder="Describe los objetivos y alcance del proyecto..."
                 [rows]="4"
               >
-              </ui-josanz-textarea>
+              </ui-textarea>
             </div>
           </div>
 
@@ -100,32 +100,32 @@ interface ProjectForm {
               <p class="section-desc">Define los plazos temporales y el cliente asignado.</p>
             </div>
             <div class="form-grid grid-2">
-              <ui-josanz-input
+              <ui-input
                 label="Fecha de Inicio"
                 type="date"
                 icon="calendar"
                 [(ngModel)]="form.startDate"
               >
-              </ui-josanz-input>
+              </ui-input>
   
-              <ui-josanz-input
+              <ui-input
                 label="Fecha de Fin Estimada"
                 type="date"
                 icon="calendar"
                 [(ngModel)]="form.endDate"
               >
-              </ui-josanz-input>
+              </ui-input>
   
-              <ui-josanz-select
+              <ui-select
                 label="Cliente Asociado"
                 icon="users"
                 [(ngModel)]="form.clientId"
                 [options]="clientOptions"
               >
-              </ui-josanz-select>
+              </ui-select>
             </div>
           </div>
-        </ui-josanz-card>
+        </ui-card>
       </div>
     </div>
   `,

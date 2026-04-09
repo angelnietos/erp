@@ -51,14 +51,14 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           <h1 class="ns-title">Clientes</h1>
           <p class="ns-subtitle">Gestión comercial · Base de datos</p>
         </div>
-        <ui-josanz-button
+        <ui-button
           variant="solid"
           size="md"
           (clicked)="openCreateModal()"
           icon="plus"
         >
           Nuevo
-        </ui-josanz-button>
+        </ui-button>
       </div>
 
       <div class="ns-stats">
@@ -92,16 +92,16 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       </div>
 
       <div class="ns-search-bar">
-        <ui-josanz-search
+        <ui-search
           variant="filled"
           placeholder="Buscar clientes..."
           (searchChange)="onSearch($event)"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="ns-loading">
-          <ui-josanz-loader message="Cargando..."></ui-josanz-loader>
+          <ui-loader message="Cargando..."></ui-loader>
         </div>
       } @else {
         <div class="ns-list">
@@ -118,24 +118,24 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 </div>
               </div>
               <div class="ns-card-actions">
-                <ui-josanz-button
+                <ui-button
                   variant="ghost"
                   size="sm"
                   icon="eye"
                   [routerLink]="['/clients', client.id]"
-                ></ui-josanz-button>
-                <ui-josanz-button
+                ></ui-button>
+                <ui-button
                   variant="ghost"
                   size="sm"
                   icon="pencil"
                   (clicked)="editClient(client)"
-                ></ui-josanz-button>
-                <ui-josanz-button
+                ></ui-button>
+                <ui-button
                   variant="ghost"
                   size="sm"
                   icon="trash-2"
                   (clicked)="confirmDelete(client)"
-                ></ui-josanz-button>
+                ></ui-button>
               </div>
             </div>
           } @empty {
@@ -148,61 +148,61 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       }
     </div>
 
-    <ui-josanz-modal
+    <ui-modal
       [isOpen]="isModalOpen()"
       [title]="editingClient() ? 'Editar' : 'Nuevo cliente'"
       (closed)="closeModal()"
       variant="dark"
     >
       <div class="ns-form">
-        <ui-josanz-input
+        <ui-input
           label="Nombre"
           [(ngModel)]="formData.name"
           icon="user"
           placeholder="Nombre"
           class="ns-full"
-        ></ui-josanz-input>
-        <ui-josanz-input
+        ></ui-input>
+        <ui-input
           label="Sector"
           [(ngModel)]="formData.sector"
           icon="briefcase"
           placeholder="Sector"
-        ></ui-josanz-input>
-        <ui-josanz-input
+        ></ui-input>
+        <ui-input
           label="Contacto"
           [(ngModel)]="formData.contact"
           icon="phone"
           placeholder="Contacto"
-        ></ui-josanz-input>
-        <ui-josanz-input
+        ></ui-input>
+        <ui-input
           label="Email"
           [(ngModel)]="formData.email"
           icon="mail"
           placeholder="Email"
-        ></ui-josanz-input>
-        <ui-josanz-input
+        ></ui-input>
+        <ui-input
           label="Teléfono"
           [(ngModel)]="formData.phone"
           icon="phone"
           placeholder="Teléfono"
-        ></ui-josanz-input>
-        <ui-josanz-input
+        ></ui-input>
+        <ui-input
           label="Dirección"
           [(ngModel)]="formData.address"
           icon="map-pin"
           placeholder="Dirección"
           class="ns-full"
-        ></ui-josanz-input>
+        ></ui-input>
       </div>
       <div class="ns-form-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()"
-          >Cancelar</ui-josanz-button
+        <ui-button variant="ghost" (clicked)="closeModal()"
+          >Cancelar</ui-button
         >
-        <ui-josanz-button variant="solid" (clicked)="saveClient()">{{
+        <ui-button variant="solid" (clicked)="saveClient()">{{
           editingClient() ? 'Guardar' : 'Crear'
-        }}</ui-josanz-button>
+        }}</ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
   `,
   styles: [
     `

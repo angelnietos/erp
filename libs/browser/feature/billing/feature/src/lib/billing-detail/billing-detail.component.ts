@@ -30,7 +30,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
   template: `
     <div class="page-container page-container--skip-horizontal-inset animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando registros fiscales con AEAT..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando registros fiscales con AEAT..."></ui-loader>
       } @else if (invoice(); as inv) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
@@ -48,50 +48,50 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" icon="printer" (clicked)="printInvoice()">IMPRIMIR</ui-josanz-button>
+            <ui-button variant="glass" icon="printer" (clicked)="printInvoice()">IMPRIMIR</ui-button>
             @if (inv.status === 'draft') {
-              <ui-josanz-button variant="primary" icon="play" (clicked)="issueInvoice()">EMITIR FACTURA</ui-josanz-button>
+              <ui-button variant="primary" icon="play" (clicked)="issueInvoice()">EMITIR FACTURA</ui-button>
             }
             @if (inv.status === 'pending') {
-              <ui-josanz-button variant="primary" icon="check-circle" (clicked)="markAsPaid()">NOTIFICAR PAGO</ui-josanz-button>
+              <ui-button variant="primary" icon="check-circle" (clicked)="markAsPaid()">NOTIFICAR PAGO</ui-button>
             }
             @if (inv.status !== 'draft') {
                @if (!inv.verifactuStatus || inv.verifactuStatus === 'pending') {
-                 <ui-josanz-button variant="app" icon="shield-check" (clicked)="sendToAEAT()">ENVIAR AEAT</ui-josanz-button>
+                 <ui-button variant="app" icon="shield-check" (clicked)="sendToAEAT()">ENVIAR AEAT</ui-button>
                }
                @if (inv.verifactuStatus === 'sent') {
-                 <ui-josanz-button variant="outline" icon="file-warning" (clicked)="rectifyInvoice()">RECTIFICAR FACTURA</ui-josanz-button>
+                 <ui-button variant="outline" icon="file-warning" (clicked)="rectifyInvoice()">RECTIFICAR FACTURA</ui-button>
                }
                @if (inv.verifactuStatus === 'error') {
-                 <ui-josanz-button variant="app" icon="refresh-cw" (clicked)="sendToAEAT()">REINTENTAR AEAT</ui-josanz-button>
+                 <ui-button variant="app" icon="refresh-cw" (clicked)="sendToAEAT()">REINTENTAR AEAT</ui-button>
                }
             }
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Total Facturado" 
             [value]="formatCurrencyEu(inv.total)" 
             icon="wallet" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Integridad VeriFactu" 
             [value]="getVerifactuLabel(inv.verifactuStatus)" 
             [icon]="getVerifactuIcon(inv.verifactuStatus)">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Fecha Emisión" 
             [value]="formatDate(inv.issueDate)" 
             icon="calendar">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="main-content">
           <div class="detail-cards">
-            <ui-josanz-card variant="glass" title="Líneas de Facturación">
-              <ui-josanz-table [columns]="itemColumns" [data]="inv.items || []">
+            <ui-card variant="glass" title="Líneas de Facturación">
+              <ui-table [columns]="itemColumns" [data]="inv.items || []">
                 <ng-template #cellTemplate let-item let-key="key">
                   @switch (key) {
                     @case ('unitPrice') { <span class="font-mono">{{ formatCurrencyEu(item.unitPrice) }}</span> }
@@ -99,7 +99,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                     @default { {{ item[key] }} }
                   }
                 </ng-template>
-              </ui-josanz-table>
+              </ui-table>
 
               <footer slot="footer" class="invoice-summary" [style.border-top-color]="currentTheme().primary + '22'">
                 <div class="summary-line">
@@ -115,11 +115,11 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                   <span>{{ formatCurrencyEu(inv.total) }}</span>
                 </div>
               </footer>
-            </ui-josanz-card>
+            </ui-card>
           </div>
 
           <aside class="sidebar">
-            <ui-josanz-card variant="glass" title="Vigilancia Fiscal (AEAT)">
+            <ui-card variant="glass" title="Vigilancia Fiscal (AEAT)">
                <div class="vf-status-box" [style.background]="getVerifactuBg()">
                  <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28"></lucide-icon>
                  <div class="vf-text">
@@ -133,11 +133,11 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                     <p class="text-uppercase" style="font-size: 0.5rem; margin-top: 8px;">Código HASH Certificado</p>
                  </div>
                }
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Notas del Expediente">
+            <ui-card variant="glass" title="Notas del Expediente">
                <p class="notes-text text-friendly">{{ inv.notes || 'No hay notas adicionales para este documento fiscal.' }}</p>
-            </ui-josanz-card>
+            </ui-card>
           </aside>
         </div>
       } @else {
@@ -145,7 +145,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().danger"></lucide-icon>
           <h3>Expediente No Encontrado</h3>
           <p>El documento solicitado no existe o no tiene permisos de acceso.</p>
-          <ui-josanz-button variant="glass" routerLink="/billing">VOLVER AL LISTADO</ui-josanz-button>
+          <ui-button variant="glass" routerLink="/billing">VOLVER AL LISTADO</ui-button>
         </div>
       }
     </div>

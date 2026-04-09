@@ -8,7 +8,7 @@ export type InputShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neum
 export type InputVariant = string;
 
 @Component({
-  selector: 'ui-josanz-input',
+  selector: 'ui-input',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   providers: [

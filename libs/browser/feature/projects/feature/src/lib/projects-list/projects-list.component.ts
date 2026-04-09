@@ -91,24 +91,24 @@ export interface Project {
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button
+          <ui-button
             variant="glass"
             icon="plus"
             routerLink="/projects/new"
           >
             Nuevo Proyecto
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="filters-bar ui-glass-panel">
-        <ui-josanz-search
+        <ui-search
           variant="filled"
           placeholder="Buscar proyectos..."
           (searchChange)="onSearchChange($event)"
           class="flex-1 max-w-md"
-        ></ui-josanz-search>
-        <ui-josanz-select
+        ></ui-search>
+        <ui-select
           label="Estado"
           [options]="statusFilterOptions"
           [ngModel]="statusFilter()"
@@ -118,12 +118,12 @@ export interface Project {
         />
       </div>
 
-      <ui-josanz-card
+      <ui-card
         variant="glass"
         class="table-card"
         [class.neon-glow]="!pluginStore.highPerformanceMode()"
       >
-        <ui-josanz-table
+        <ui-table
           [data]="filteredProjects()"
           [columns]="columns"
           [virtualScroll]="filteredProjects().length > 24"
@@ -187,7 +187,7 @@ export interface Project {
               }
               @case ('actions') {
                 <div class="actions-wrapper">
-                  <ui-josanz-button
+                  <ui-button
                     variant="ghost"
                     size="sm"
                     class="action-btn"
@@ -195,8 +195,8 @@ export interface Project {
                     title="Editar"
                   >
                     <i-lucide [img]="Edit" size="14" />
-                  </ui-josanz-button>
-                  <ui-josanz-button
+                  </ui-button>
+                  <ui-button
                     variant="ghost"
                     size="sm"
                     class="action-btn"
@@ -204,8 +204,8 @@ export interface Project {
                     title="Duplicar"
                   >
                     <i-lucide [img]="Copy" size="14" />
-                  </ui-josanz-button>
-                  <ui-josanz-button
+                  </ui-button>
+                  <ui-button
                     variant="ghost"
                     size="sm"
                     class="action-btn text-danger"
@@ -213,7 +213,7 @@ export interface Project {
                     title="Eliminar"
                   >
                     <i-lucide [img]="Trash2" size="14" />
-                  </ui-josanz-button>
+                  </ui-button>
                 </div>
               }
               @default {
@@ -221,8 +221,8 @@ export interface Project {
               }
             }
           </ng-template>
-        </ui-josanz-table>
-      </ui-josanz-card>
+        </ui-table>
+      </ui-card>
     </div>
   `,
   styles: [

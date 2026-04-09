@@ -66,7 +66,7 @@ export interface DeliveryDetailView {
   template: `
     <div class="page-container page-container--skip-horizontal-inset">
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando albarán..."></ui-josanz-loader>
+        <ui-loader message="Cargando albarán..."></ui-loader>
       } @else if (delivery(); as d) {
         <div class="page-header">
           <button type="button" class="back-btn" routerLink="/delivery">
@@ -79,16 +79,16 @@ export interface DeliveryDetailView {
           <div class="delivery-info">
             <h1>Albarán #{{ d.id.slice(0, 8) }}</h1>
             <div class="badges">
-              <ui-josanz-badge [variant]="getStatusVariant(d.status)">
+              <ui-badge [variant]="getStatusVariant(d.status)">
                 {{ getStatusLabel(d.status) }}
-              </ui-josanz-badge>
+              </ui-badge>
               <span class="client-name">{{ d.clientName }}</span>
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button icon="download" (clicked)="downloadPDF()">Descargar PDF</ui-josanz-button>
+            <ui-button icon="download" (clicked)="downloadPDF()">Descargar PDF</ui-button>
             @if (d.status === 'pending') {
-              <ui-josanz-button icon="pen-tool" (clicked)="openSignature()">Firmar</ui-josanz-button>
+              <ui-button icon="pen-tool" (clicked)="openSignature()">Firmar</ui-button>
             }
           </div>
         </div>
@@ -112,25 +112,25 @@ export interface DeliveryDetailView {
           </div>
         </div>
 
-        <ui-josanz-card title="Material Entregado">
-          <ui-josanz-table [columns]="itemColumns" [data]="d.items">
+        <ui-card title="Material Entregado">
+          <ui-table [columns]="itemColumns" [data]="d.items">
             <ng-template #cellTemplate let-item let-key="key">
               @switch (key) {
                 @case ('condition') {
-                  <ui-josanz-badge [variant]="getConditionVariant(item.condition)">
+                  <ui-badge [variant]="getConditionVariant(item.condition)">
                     {{ getConditionLabel(item.condition) }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @default {
                   {{ item[key] }}
                 }
               }
             </ng-template>
-          </ui-josanz-table>
-        </ui-josanz-card>
+          </ui-table>
+        </ui-card>
 
         @if (d.status === 'signed' || d.status === 'completed') {
-          <ui-josanz-card title="Firma del receptor">
+          <ui-card title="Firma del receptor">
             <div class="signature-box">
               @if (d.signatureImageSrc) {
                 <img
@@ -151,7 +151,7 @@ export interface DeliveryDetailView {
               }
               <span class="signature-name">{{ d.recipientName }}</span>
             </div>
-          </ui-josanz-card>
+          </ui-card>
         }
       } @else {
         <p class="not-found text-friendly">No se encontró el albarán.</p>
