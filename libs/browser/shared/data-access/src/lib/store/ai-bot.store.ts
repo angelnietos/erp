@@ -533,6 +533,7 @@ export class AIBotStore {
       eyesType: 'dots',
       mouthType: 'smile',
     },
+    
     audit: {
       id: 'audit-bot',
       name: 'Shield-Bot',
