@@ -17,6 +17,7 @@ import { AIInferenceService } from '../services/ai/ai-inference.service';
 import { AIMemoryService } from '../services/ai/ai-memory.service';
 import { AIWorkflowService } from '../services/ai/ai-workflow.service';
 import { AIPredictiveService } from '../services/ai/ai-predictive.service';
+import { OrchestrationBus } from '../services/ai/orchestration-bus.service';
 
 @Injectable({ providedIn: 'root' })
 export class AIBotStore {
@@ -26,6 +27,7 @@ export class AIBotStore {
   private workflow = inject(AIWorkflowService);
   private predictive = inject(AIPredictiveService);
   private masterFilterService = inject(MasterFilterService);
+  private orchestrationBus = inject(OrchestrationBus);
 
   // Expose Service Signals for Backward Compatibility or Direct Access
   readonly selectedProvider = this.inference.selectedProvider;
@@ -164,23 +166,39 @@ export class AIBotStore {
       'bot de inventario': 'inventory',
       'clients': 'clients',
       'clientes': 'clients',
+      'events': 'events',
+      'eventos': 'events',
+      'identity': 'identity',
+      'hr': 'identity',
+      'rrhh': 'identity',
+      'fleet': 'fleet',
+      'flota': 'fleet',
     };
 
     const targetFeature = targetMap[target.toLowerCase().trim()] ?? target;
     const bot = this.getBotByFeature(targetFeature);
 
-    if (!bot || bot.status !== 'active') {
-      console.warn(`[Delegate] Target bot "${targetFeature}" not found or inactive`);
-      return;
-    }
-
     // Build an instruction message for the target bot
     const instructionText = typeof payload === 'object'
-      ? `INSTRUCCIÓN AUTOMÁTICA: Ejecuta el siguiente flujo de trabajo: ${JSON.stringify(payload)}`
+      ? `INSTRUCCIÓN AUTOMÁTICA DE BUDDY: ${JSON.stringify(payload)}`
       : message;
 
     console.log(`📡 [Delegate] ${this.activeBotFeature()} → ${targetFeature}: ${instructionText}`);
+
+    // 1) Send via inter-bot queue (for open chat windows)
     this.sendInterBotMessage(this.activeBotFeature(), targetFeature, instructionText);
+
+    // 2) Also publish to OrchestrationBus (for programmatic sub-bot reaction)
+    this.orchestrationBus.dispatch({
+      from: this.activeBotFeature(),
+      to: targetFeature,
+      type: 'custom_action',
+      payload: typeof payload === 'object' ? (payload as Record<string, unknown>) : { instruction: message },
+    });
+
+    if (bot && bot.status !== 'active') {
+      console.warn(`[Delegate] Target bot "${targetFeature}" is inactive — task queued anyway`);
+    }
   }
 
   // ─── Delegation Methods to Services ──────────────────────────────────────────

@@ -21,6 +21,7 @@ import {
   THEMES,
   MasterFilterService,
   InterBotMessage,
+  OrchestrationBus,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -53,6 +54,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   aiBotStore = inject(AIBotStore);
+  orchestrationBus = inject(OrchestrationBus);
   masterFilterService = inject(MasterFilterService);
   dashboardService = inject(DashboardAnalyticsService);
   themeService = inject(ThemeService);
@@ -129,6 +131,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.initSpeechRecognition();
+
+    // React to inter-bot queue messages
     effect(() => {
       const b = this.bot();
       console.log(`[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`);
@@ -147,6 +151,46 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             }
           });
         }, delay);
+      });
+    });
+
+    // React to OrchestrationBus tasks dispatched to this bot
+    effect(() => {
+      const feature = this._feature();
+      if (!feature) return;
+      const pending = this.orchestrationBus.getPendingFor(feature);
+      if (pending.length === 0) return;
+
+      pending.forEach(task => {
+        const claimed = this.orchestrationBus.claimTask(task.id);
+        if (!claimed) return;
+
+        this.ngZone.run(async () => {
+          try {
+            const instruction = (task.payload['instruction'] as string) ||
+              `Ejecuta: ${task.type} — ${JSON.stringify(task.payload)}`;
+
+            // Show in chat that a task was received
+            this.messages.update(m => [
+              ...m,
+              {
+                id: `${Date.now()}-orch`,
+                text: `🎯 **Tarea de Buddy recibida:** ${instruction}`,
+                role: 'bot',
+              },
+            ]);
+            this.scrollToBottom();
+
+            // Execute the instruction via AI
+            await this.triggerAIResponse(
+              `INSTRUCCIÓN AUTOMÁTICA DEL ORQUESTADOR BUDDY:\n${instruction}\n\nEjecuta esta tarea en el contexto de tu dominio (${feature}). Responde brevemente qué hiciste y ejecuta las acciones de sistema correspondientes.`,
+            );
+
+            this.orchestrationBus.complete(task.id, `Bot ${feature} procesó la tarea`);
+          } catch (e: any) {
+            this.orchestrationBus.fail(task.id, e?.message ?? String(e));
+          }
+        });
       });
     });
   }
