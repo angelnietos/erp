@@ -310,13 +310,43 @@ export type MascotPersonality =
       }
 
       /* Bonsai Zen Ecosystem */
-      .mascot-body.bonsai {
+      .mascot-body.bonsai, .mascot-body.bonsai-sakura, .mascot-body.bonsai-maple {
         border-radius: 45% 55% 30% 70% / 60% 30% 70% 40% ;
-        background: radial-gradient(circle at 35% 25%, #22c55e, #14532d);
+        background: radial-gradient(circle at 35% 25%, var(--mascot-color), var(--mascot-secondary));
         box-shadow: 
           inset 0 8px 15px rgba(255,255,255,0.2),
           0 10px 30px rgba(0,0,0,0.3);
         animation: sway 6s ease-in-out infinite alternate !important;
+      }
+      
+      .mascot-body.bonsai-sakura {
+        border-radius: 55% 45% 50% 50% / 50% 60% 40% 50%;
+      }
+      
+      .mascot-body.bonsai-maple {
+        border-radius: 65% 35% 55% 45% / 40% 45% 55% 60%;
+        clip-path: polygon(50% 0%, 80% 20%, 100% 40%, 85% 70%, 100% 100%, 50% 90%, 0 100%, 15% 70%, 0 40%, 20% 20%);
+      }
+
+      /* Luminescent Mushroom */
+      .mascot-body.mushroom-luminescent {
+        border-radius: 40% 40% 60% 60% / 60% 60% 40% 40%;
+        background: radial-gradient(circle at 50% 30%, var(--mascot-color), var(--mascot-secondary));
+        box-shadow: 0 0 35px var(--mascot-color), inset 0 0 25px rgba(255,255,255,0.7);
+        animation: pulseLuminescent 2.5s infinite alternate;
+      }
+      
+      @keyframes pulseLuminescent {
+        from { box-shadow: 0 0 20px var(--mascot-color), inset 0 0 15px rgba(255,255,255,0.5); }
+        to { box-shadow: 0 0 50px var(--mascot-color), inset 0 0 35px rgba(255,255,255,0.9); filter: brightness(1.2); }
+      }
+
+      /* Morel Mushroom */
+      .mascot-body.mushroom-morel {
+        border-radius: 40% 40% 20% 20% / 70% 70% 10% 10%;
+        background: radial-gradient(circle at 40% 40%, var(--mascot-color), var(--mascot-secondary));
+        height: 120%;
+        margin-top: -10px;
       }
 
       .bonsai-decoration {
@@ -832,7 +862,11 @@ export class UIMascotComponent {
     | 'tri'
     | 'mushroom-cap'
     | 'mushroom-full'
-    | 'bonsai' = 'round';
+    | 'mushroom-luminescent'
+    | 'mushroom-morel'
+    | 'bonsai'
+    | 'bonsai-sakura'
+    | 'bonsai-maple' = 'round';
   @Input() eyesType: 'dots' | 'joy' | 'shades' | 'angry' | 'insane' = 'dots';
   @Input() mouthType: 'smile' | 'line' | 'o' | 'mean' = 'line';
 

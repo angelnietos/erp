@@ -382,9 +382,13 @@ interface PluginDescriptor {
                             { value: 'square', label: 'Cuadrada' },
                             { value: 'capsule', label: 'Cápsula' },
                             { value: 'tri', label: 'Triangular' },
-                            { value: 'mushroom-cap', label: 'Seta (Sombrero)' },
+                            { value: 'mushroom-cap', label: 'Seta (Sombrero clásico)' },
                             { value: 'mushroom-full', label: 'Seta Completa' },
-                            { value: 'bonsai', label: 'Bonsai Zen' },
+                            { value: 'mushroom-luminescent', label: 'Seta Bioluminiscente' },
+                            { value: 'mushroom-morel', label: 'Seta Colmenilla (Morel)' },
+                            { value: 'bonsai', label: 'Bonsái Zen (Pino)' },
+                            { value: 'bonsai-sakura', label: 'Bonsái Sakura (Cerezo)' },
+                            { value: 'bonsai-maple', label: 'Bonsái Maple (Arce Rojo)' },
                           ]"
                           [ngModel]="bot.bodyShape"
                           (ngModelChange)="
@@ -779,13 +783,23 @@ interface PluginDescriptor {
                               { value: 'star', label: 'Estrella' },
                               {
                                 value: 'mushroom-cap',
-                                label: 'Seta (sombrero)',
+                                label: 'Seta (Sombrero clásico)',
                               },
                               {
                                 value: 'mushroom-full',
                                 label: 'Seta completa',
                               },
-                              { value: 'bonsai', label: 'Bonsai Zen' },
+                              {
+                                value: 'mushroom-luminescent',
+                                label: 'Seta Bioluminiscente',
+                              },
+                              {
+                                value: 'mushroom-morel',
+                                label: 'Seta Colmenilla (Morel)',
+                              },
+                              { value: 'bonsai', label: 'Bonsái Zen (Pino)' },
+                              { value: 'bonsai-sakura', label: 'Bonsái Sakura (Cerezo)' },
+                              { value: 'bonsai-maple', label: 'Bonsái Arce' },
                             ]"
                             [ngModel]="pal.bodyShape"
                             (ngModelChange)="

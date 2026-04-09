@@ -161,7 +161,7 @@ export interface AIBot {
   secondaryColor: string;
   mascotType: MascotType;
   personality: MascotPersonality;
-  bodyShape: 'round' | 'square' | 'tri' | 'capsule' | 'star';
+  bodyShape: 'round' | 'square' | 'tri' | 'capsule' | 'star' | 'mushroom-cap' | 'mushroom-full' | 'mushroom-luminescent' | 'mushroom-morel' | 'bonsai' | 'bonsai-sakura' | 'bonsai-maple';
   eyesType: 'dots' | 'joy' | 'shades' | 'glow' | 'angry';
   mouthType: 'smile' | 'line' | 'o' | 'none' | 'grin';
 }
