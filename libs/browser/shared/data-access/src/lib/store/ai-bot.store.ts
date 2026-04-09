@@ -1,4 +1,6 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
+import { environment } from '../../../../../../../apps/frontend/src/environments/environment';
+
 
 export type MascotType =
   | 'inventory'
@@ -195,7 +197,7 @@ export class AIBotStore {
   readonly selectedModelId = signal<string>(this.getInitialModelId());
 
   readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') || '',
+    localStorage.getItem('ai_api_key') || environment.aiApiKey || '',
   );
 
   readonly activeBotFeature = signal<string>(
