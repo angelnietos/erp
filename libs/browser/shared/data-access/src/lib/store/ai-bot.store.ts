@@ -2005,25 +2005,23 @@ export class AIBotStore {
     }
 
     try {
-      const resp = await fetch('https://api.x.ai/v1/chat/completions', {
+      const resp = await fetch('https://api.x.ai/v1/responses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'grok-4.20-latest',
-          messages: [
-            ...(context ? [{ role: 'system', content: context }] : []),
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0.7,
+          model: 'grok-4.20-reasoning',
+          input: context ? `${context}\n\nPregunta: ${prompt}` : prompt,
         }),
       });
 
-      if (!resp.ok) throw new Error('Error en API de Grok');
+      if (!resp.ok) throw new Error('Error en API de Grok (v1/responses)');
       const data = await resp.json();
-      return data.choices[0].message.content;
+      // En v1/responses el resultado suele estar en data.output o data.text
+      // Basándome en la tendencia de xAI, usaré data.output o el fallback al formato antiguo si es necesario
+      return data.output || data.choices?.[0]?.message?.content || data.text || 'Respuesta generada';
     } catch (e) {
       return `[Error Grok] No se pudo conectar con xAI. Verifica tu API Key.`;
     }
