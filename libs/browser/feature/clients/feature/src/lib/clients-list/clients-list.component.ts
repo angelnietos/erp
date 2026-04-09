@@ -12,15 +12,10 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiTableComponent,
   UiButtonComponent,
   UiSearchComponent,
-  UiPaginationComponent,
-  UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
-  UiCardComponent,
-  UiStatCardComponent,
   UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
@@ -42,357 +37,375 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     CommonModule,
     RouterModule,
     FormsModule,
-    UiTableComponent,
     UiButtonComponent,
     UiSearchComponent,
-    UiPaginationComponent,
-    UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
-    UiCardComponent,
-    UiStatCardComponent,
     UiInputComponent,
     LucideAngularModule,
   ],
   template: `
-    <div
-      class="clients-page"
-      [class.perf-optimized]="pluginStore.highPerformanceMode()"
-    >
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
-      >
-        <div class="header-content">
-          <h1 class="page-title">Directorio CRM / Clientes</h1>
-          <nav class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >Gestión comercial</span
-            >
-            <span class="sep">/</span>
-            <span>Base de datos operativa</span>
-          </nav>
+    <div class="ns-clients">
+      <div class="ns-header">
+        <div class="ns-title-group">
+          <h1 class="ns-title">Clientes</h1>
+          <p class="ns-subtitle">Gestión comercial · Base de datos</p>
         </div>
-        <div class="header-actions">
-          <ui-josanz-button
-            variant="glass"
-            size="md"
-            (clicked)="openCreateModal()"
-            icon="plus"
-          >
-            Nuevo cliente
-          </ui-josanz-button>
-        </div>
-      </header>
-
-      <div class="stats-row">
-        <ui-josanz-stat-card
-          label="Total Clientes"
-          [value]="clients().length.toString()"
-          icon="users"
-          [accent]="true"
+        <ui-josanz-button
+          variant="solid"
+          size="md"
+          (clicked)="openCreateModal()"
+          icon="plus"
         >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
-          label="Nuevos este mes"
-          [value]="newClientsCount().toString()"
-          icon="user-plus"
-          [trend]="12"
-        >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
-          label="Sectores Activos"
-          [value]="activeSectorsCount().toString()"
-          icon="briefcase"
-        >
-        </ui-josanz-stat-card>
+          Nuevo
+        </ui-josanz-button>
       </div>
 
-      <div class="filters-bar">
+      <div class="ns-stats">
+        <div class="ns-stat">
+          <div class="ns-stat-icon ns-blue">
+            <lucide-icon name="users" size="20"></lucide-icon>
+          </div>
+          <div class="ns-stat-info">
+            <span class="ns-stat-value">{{ clients().length }}</span>
+            <span class="ns-stat-label">Clientes</span>
+          </div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-icon ns-green">
+            <lucide-icon name="user-plus" size="20"></lucide-icon>
+          </div>
+          <div class="ns-stat-info">
+            <span class="ns-stat-value">{{ newClientsCount() }}</span>
+            <span class="ns-stat-label">Nuevos mes</span>
+          </div>
+        </div>
+        <div class="ns-stat">
+          <div class="ns-stat-icon ns-orange">
+            <lucide-icon name="briefcase" size="20"></lucide-icon>
+          </div>
+          <div class="ns-stat-info">
+            <span class="ns-stat-value">{{ activeSectorsCount() }}</span>
+            <span class="ns-stat-label">Sectores</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ns-search-bar">
         <ui-josanz-search
           variant="filled"
-          placeholder="Buscar por nombre, sector o contacto..."
+          placeholder="Buscar clientes..."
           (searchChange)="onSearch($event)"
-          class="search-input"
         ></ui-josanz-search>
       </div>
 
       @if (isLoading()) {
-        <div class="loader-wrapper">
-          <ui-josanz-loader
-            message="Sincronizando directorio de clientes..."
-          ></ui-josanz-loader>
+        <div class="ns-loading">
+          <ui-josanz-loader message="Cargando..."></ui-josanz-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card">
-          <ui-josanz-table
-            [columns]="columns"
-            [data]="filteredClients()"
-            variant="default"
-            [virtualScroll]="filteredClients().length > 24"
-          >
-            <ng-template #cellTemplate let-client let-key="key">
-              @switch (key) {
-                @case ('name') {
-                  <a
-                    [routerLink]="['/clients', client.id]"
-                    class="client-link"
-                    [style.color]="currentTheme().primary"
-                  >
-                    {{ client.name }}
-                  </a>
-                }
-                @case ('sector') {
-                  <ui-josanz-badge variant="info">{{
-                    client.sector || 'General'
-                  }}</ui-josanz-badge>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-josanz-button
-                      variant="ghost"
-                      size="sm"
-                      icon="eye"
-                      [routerLink]="['/clients', client.id]"
-                      title="Ver"
-                    ></ui-josanz-button>
-                    <ui-josanz-button
-                      variant="ghost"
-                      size="sm"
-                      icon="pencil"
-                      (clicked)="editClient(client)"
-                      title="Editar"
-                    ></ui-josanz-button>
-                    <ui-josanz-button
-                      variant="ghost"
-                      size="sm"
-                      icon="trash-2"
-                      (clicked)="confirmDelete(client)"
-                      [style.color]="currentTheme().danger"
-                      title="Eliminar"
-                    ></ui-josanz-button>
-                  </div>
-                }
-                @default {
-                  {{ client[key] }}
-                }
-              }
-            </ng-template>
-          </ui-josanz-table>
-
-          <footer
-            class="table-footer"
-            [style.background]="currentTheme().primary + '05'"
-          >
-            <div class="table-info">
-              {{ filteredClients().length }} registros en directorio
+        <div class="ns-list">
+          @for (client of filteredClients(); track client.id) {
+            <div class="ns-card-item">
+              <div class="ns-card-left">
+                <div class="ns-avatar">{{ client.name.charAt(0) }}</div>
+                <div class="ns-card-details">
+                  <h3 class="ns-card-name">{{ client.name }}</h3>
+                  <p class="ns-card-meta">
+                    {{ client.sector || 'General' }} ·
+                    {{ client.contact || 'Sin contacto' }}
+                  </p>
+                </div>
+              </div>
+              <div class="ns-card-actions">
+                <ui-josanz-button
+                  variant="ghost"
+                  size="sm"
+                  icon="eye"
+                  [routerLink]="['/clients', client.id]"
+                ></ui-josanz-button>
+                <ui-josanz-button
+                  variant="ghost"
+                  size="sm"
+                  icon="pencil"
+                  (clicked)="editClient(client)"
+                ></ui-josanz-button>
+                <ui-josanz-button
+                  variant="ghost"
+                  size="sm"
+                  icon="trash-2"
+                  (clicked)="confirmDelete(client)"
+                ></ui-josanz-button>
+              </div>
             </div>
-            <ui-josanz-pagination
-              [currentPage]="currentPage()"
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
-          </footer>
-        </ui-josanz-card>
+          } @empty {
+            <div class="ns-empty">
+              <lucide-icon name="users" size="48"></lucide-icon>
+              <p>No hay clientes</p>
+            </div>
+          }
+        </div>
       }
     </div>
 
-    <!-- Create/Edit Modal -->
     <ui-josanz-modal
       [isOpen]="isModalOpen()"
-      [title]="editingClient() ? 'Modificar cliente' : 'Nuevo cliente'"
+      [title]="editingClient() ? 'Editar' : 'Nuevo cliente'"
       (closed)="closeModal()"
       variant="dark"
     >
-      <div class="form-container">
-        <div class="form-grid">
-          <ui-josanz-input
-            label="Nombre del cliente *"
-            [(ngModel)]="formData.name"
-            icon="user"
-            placeholder="Nombre completo"
-            class="full-width"
-          ></ui-josanz-input>
-          <ui-josanz-input
-            label="Sector industrial"
-            [(ngModel)]="formData.sector"
-            icon="briefcase"
-            placeholder="Sector"
-          ></ui-josanz-input>
-          <ui-josanz-input
-            label="Contacto principal"
-            [(ngModel)]="formData.contact"
-            icon="phone"
-            placeholder="Nombre de contacto"
-          ></ui-josanz-input>
-          <ui-josanz-input
-            label="Email corporativo"
-            [(ngModel)]="formData.email"
-            icon="mail"
-            placeholder="email@empresa.com"
-          ></ui-josanz-input>
-          <ui-josanz-input
-            label="Teléfono directo"
-            [(ngModel)]="formData.phone"
-            icon="smartphone"
-            placeholder="+34 000 000 000"
-          ></ui-josanz-input>
-          <ui-josanz-input
-            label="Sede comercial"
-            [(ngModel)]="formData.address"
-            icon="map-pin"
-            placeholder="Dirección física"
-            class="full-width"
-          ></ui-josanz-input>
-        </div>
+      <div class="ns-form">
+        <ui-josanz-input
+          label="Nombre"
+          [(ngModel)]="formData.name"
+          icon="user"
+          placeholder="Nombre"
+          class="ns-full"
+        ></ui-josanz-input>
+        <ui-josanz-input
+          label="Sector"
+          [(ngModel)]="formData.sector"
+          icon="briefcase"
+          placeholder="Sector"
+        ></ui-josanz-input>
+        <ui-josanz-input
+          label="Contacto"
+          [(ngModel)]="formData.contact"
+          icon="phone"
+          placeholder="Contacto"
+        ></ui-josanz-input>
+        <ui-josanz-input
+          label="Email"
+          [(ngModel)]="formData.email"
+          icon="mail"
+          placeholder="Email"
+        ></ui-josanz-input>
+        <ui-josanz-input
+          label="Teléfono"
+          [(ngModel)]="formData.phone"
+          icon="phone"
+          placeholder="Teléfono"
+        ></ui-josanz-input>
+        <ui-josanz-input
+          label="Dirección"
+          [(ngModel)]="formData.address"
+          icon="map-pin"
+          placeholder="Dirección"
+          class="ns-full"
+        ></ui-josanz-input>
       </div>
-
-      <div modal-footer class="modal-footer">
+      <div class="ns-form-actions">
         <ui-josanz-button variant="ghost" (clicked)="closeModal()"
           >Cancelar</ui-josanz-button
         >
-        <ui-josanz-button
-          variant="glass"
-          (clicked)="saveClient()"
-          [disabled]="!formData.name"
-        >
-          {{ editingClient() ? 'Actualizar' : 'Crear cliente' }}
-        </ui-josanz-button>
+        <ui-josanz-button variant="solid" (clicked)="saveClient()">{{
+          editingClient() ? 'Guardar' : 'Crear'
+        }}</ui-josanz-button>
       </div>
     </ui-josanz-modal>
   `,
   styles: [
     `
-      .clients-page {
+      .ns-clients {
         padding: 1.5rem;
-        max-width: 1400px;
+        max-width: 900px;
         margin: 0 auto;
-        box-sizing: border-box;
       }
 
-      .page-header {
+      .ns-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        align-items: center;
+        margin-bottom: 2rem;
       }
 
-      .header-content {
+      .ns-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .ns-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-primary);
+      }
+
+      .ns-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 0;
+      }
+
+      .ns-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .ns-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+
+      .ns-stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
+
+      .ns-blue {
+        background: #3b82f6;
+      }
+      .ns-green {
+        background: #10b981;
+      }
+      .ns-orange {
+        background: #f59e0b;
+      }
+
+      .ns-stat-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ns-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.1;
+      }
+
+      .ns-stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .ns-search-bar {
+        margin-bottom: 1.5rem;
+      }
+
+      .ns-list {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
       }
 
-      .page-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.02em;
-      }
-
-      .breadcrumb {
+      .ns-card-item {
         display: flex;
-        gap: 8px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: var(--text-muted);
-      }
-
-      .breadcrumb .sep {
-        opacity: 0.5;
-      }
-
-      .breadcrumb .active {
-        font-weight: 600;
-      }
-
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .filters-bar {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .search-input {
-        max-width: 400px;
-        width: 100%;
-      }
-
-      .client-link {
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.2s;
-      }
-      .client-link:hover {
-        color: #fff !important;
-      }
-
-      .row-actions {
-        display: flex;
-        gap: 6px;
-      }
-
-      .table-card {
-        border-radius: 12px;
-        overflow: hidden;
-      }
-
-      .table-footer {
-        display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.25rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+        transition: all 0.15s ease;
       }
 
-      .table-info {
-        font-size: 0.85rem;
-        color: var(--text-muted);
+      .ns-card-item:hover {
+        border-color: var(--text-muted);
+        transform: translateX(4px);
       }
 
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        padding: 1rem 0;
-      }
-      .full-width {
-        grid-column: 1 / -1;
-      }
-      .modal-footer {
+      .ns-card-left {
         display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        padding-top: 1rem;
+        align-items: center;
+        gap: 0.875rem;
       }
 
-      .loader-wrapper {
+      .ns-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .ns-card-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .ns-card-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--text-primary);
+      }
+
+      .ns-card-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 0;
+      }
+
+      .ns-card-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .ns-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: var(--text-muted);
+        gap: 1rem;
+      }
+
+      .ns-loading {
         display: flex;
         justify-content: center;
         padding: 3rem;
       }
 
-      @media (max-width: 1024px) {
-        .stats-row {
+      .ns-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding: 1rem 0;
+      }
+
+      .ns-full {
+        grid-column: 1 / -1;
+      }
+
+      .ns-form-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        padding-top: 1rem;
+      }
+
+      @media (max-width: 640px) {
+        .ns-stats {
           grid-template-columns: 1fr;
         }
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
-        .page-header {
+        .ns-header {
           flex-direction: column;
           align-items: flex-start;
           gap: 1rem;
+        }
+        .ns-form {
+          grid-template-columns: 1fr;
         }
       }
     `,
