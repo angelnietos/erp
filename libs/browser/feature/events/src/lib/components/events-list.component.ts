@@ -24,15 +24,17 @@ import {
 } from 'lucide-angular';
 import { 
   UiButtonComponent, 
-  UiBadgeComponent, 
-  UiInputComponent, 
-  UiSelectComponent, 
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
-  UiSearchComponent
+  UiSearchComponent,
+  UiSelectComponent,
+  UiInputComponent,
+  UiModalComponent,
+  UiLoaderComponent,
+  UiTextareaComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
@@ -77,15 +79,17 @@ interface EventFilter {
     ReactiveFormsModule,
     FormsModule,
     UiButtonComponent,
-    UiBadgeComponent,
-    UiInputComponent,
-    UiSelectComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     UiSearchComponent,
+    UiSelectComponent,
+    UiInputComponent,
+    UiModalComponent,
+    UiLoaderComponent,
+    UiTextareaComponent,
     LucideAngularModule,
   ],
   template: `

@@ -13,14 +13,13 @@ import {
 } from 'lucide-angular';
 import { 
   UiButtonComponent, 
-  UiSelectComponent, 
-  UiBadgeComponent, 
-  UiSearchComponent,
+  UiSearchComponent, 
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -41,14 +40,13 @@ interface Receipt {
     FormsModule,
     RouterModule,
     UiButtonComponent,
-    UiSelectComponent,
-    UiBadgeComponent,
     UiSearchComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
+    UiSelectComponent,
     LucideAngularModule,
   ],
   template: `

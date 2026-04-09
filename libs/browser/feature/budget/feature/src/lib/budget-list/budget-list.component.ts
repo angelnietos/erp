@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import {
   UiButtonComponent,
   UiSearchComponent,
-  UiBadgeComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -25,7 +24,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     CommonModule, 
     RouterModule, 
     UiButtonComponent, 
-    UiBadgeComponent, 
     UiStatCardComponent,
     UiSearchComponent,
     UiFeatureHeaderComponent,

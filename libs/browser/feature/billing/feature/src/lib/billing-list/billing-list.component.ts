@@ -44,7 +44,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiButtonComponent,
     UiSearchComponent,
     UiPaginationComponent,
-    UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,

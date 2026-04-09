@@ -6,7 +6,6 @@ import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiButtonComponent, 
   UiSearchComponent, 
-  UiBadgeComponent, 
   UiLoaderComponent, 
   UiModalComponent, 
   UiInputComponent, 
@@ -31,7 +30,6 @@ import { Observable, of } from 'rxjs';
     FormsModule,
     UiButtonComponent, 
     UiSearchComponent, 
-    UiBadgeComponent,
     UiLoaderComponent,
     UiModalComponent,
     UiInputComponent,

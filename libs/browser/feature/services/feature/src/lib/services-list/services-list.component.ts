@@ -8,7 +8,6 @@ import {
 import {
   UiButtonComponent,
   UiSearchComponent,
-  UiBadgeComponent,
   UiStatCardComponent,
   UiLoaderComponent,
   UiFeatureHeaderComponent,
@@ -46,7 +45,6 @@ export interface Service {
     UiButtonComponent,
     UiSearchComponent,
     UiStatCardComponent,
-    UiBadgeComponent,
     UiLoaderComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
