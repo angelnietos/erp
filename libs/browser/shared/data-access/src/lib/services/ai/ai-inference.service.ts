@@ -20,11 +20,7 @@ export class AIInferenceService {
   readonly selectedProvider = signal<AIProvider>(this.getInitialProvider());
   readonly selectedModelId = signal<string>(this.getInitialModelId());
   readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') ||
-      AI_CONFIG.google_api_key ||
-      AI_CONFIG.openrouter_api_key ||
-      AI_CONFIG.xai_api_key ||
-      '',
+    localStorage.getItem('ai_api_key') || this.getInitialApiKey()
   );
 
   readonly ollamaConfig = signal<{
