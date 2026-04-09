@@ -17,7 +17,13 @@ import {
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { DeliveryFacade, DeliveryNote } from '@josanz-erp/delivery-data-access';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FilterableService,
+  ToastService,
+} from '@josanz-erp/shared-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 import { Observable, of } from 'rxjs';
 
@@ -116,7 +122,7 @@ import { Observable, of } from 'rxjs';
                <div footer-extra class="delivery-extra-actions">
                   <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]" title="Detalles"></ui-button>
                   @if (delivery.status === 'pending') {
-                    <ui-button variant="ghost" size="sm" icon="pen-tool" (click)="$event.stopPropagation(); signDelivery(delivery)" class="text-success" title="Firmar"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="pen-tool" (clicked)="signDelivery($event, delivery)" class="text-success" title="Firmar"></ui-button>
                   }
                </div>
             </ui-feature-card>
@@ -132,10 +138,10 @@ import { Observable, of } from 'rxjs';
       }
     </div>
 
-    <!-- Create/Edit Modal -->
+    <!-- Modal solo para alta; la edición está en /delivery/:id/edit -->
     <ui-modal 
       [isOpen]="isModalOpen()" 
-      [title]="editingDelivery() ? 'MODIFICACIÓN DE ALBARÁN' : 'NUEVO ALBARÁN'"
+      title="NUEVO ALBARÁN"
       (closed)="closeModal()"
       variant="dark"
     >
@@ -151,7 +157,7 @@ import { Observable, of } from 'rxjs';
       <div modal-footer class="modal-footer-box">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
         <ui-button variant="glass" (clicked)="saveDelivery()" [disabled]="!formData.budgetId || !formData.clientName">
-           {{ editingDelivery() ? 'ACTUALIZAR' : 'CONFIRMAR' }}
+           CONFIRMAR
         </ui-button>
       </div>
     </ui-modal>
@@ -208,6 +214,7 @@ export class DeliveryListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly facade = inject(DeliveryFacade);
   public readonly config = inject(DELIVERY_FEATURE_CONFIG);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly toast = inject(ToastService);
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -218,17 +225,40 @@ export class DeliveryListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   onDuplicate(delivery: DeliveryNote) {
-    const { id, ...rest } = delivery;
-    this.facade.createDeliveryNote({
-      ...rest,
-      budgetId: `${delivery.budgetId} (CLON)`
-    });
+    const { id: _omitId, ...rest } = delivery;
+    void _omitId;
+    this.facade
+      .createDeliveryNote({
+        ...rest,
+        budgetId: `${delivery.budgetId} (CLON)`,
+      })
+      .subscribe({
+        next: () =>
+          this.toast.show(`Copia creada a partir de ${delivery.budgetId}`, 'success'),
+        error: () =>
+          this.toast.show('No se pudo duplicar el albarán.', 'error'),
+      });
   }
 
   confirmDelete(delivery: DeliveryNote) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el albarán ${delivery.budgetId}?`)) {
-      this.facade.deleteDeliveryNote(delivery.id);
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar el albarán ${delivery.budgetId}?`,
+      )
+    ) {
+      return;
     }
+    this.facade.deleteDeliveryNote(delivery.id).subscribe({
+      next: (ok) => {
+        if (ok) {
+          this.toast.show(`Albarán ${delivery.budgetId} eliminado`, 'success');
+        } else {
+          this.toast.show('No se pudo eliminar el albarán.', 'error');
+        }
+      },
+      error: () =>
+        this.toast.show('Error al eliminar. Inténtalo de nuevo.', 'error'),
+    });
   }
 
   getInitials(id: string): string {
@@ -250,8 +280,7 @@ export class DeliveryListComponent implements OnInit, OnDestroy, FilterableServi
   totalPages = signal(1);
   
   isModalOpen = signal(false);
-  editingDelivery = signal<DeliveryNote | null>(null);
-  
+
   formData: Partial<DeliveryNote> = {
     budgetId: '', clientName: '', status: 'draft', deliveryDate: '', returnDate: '', itemsCount: 0, notes: ''
   };
@@ -295,33 +324,55 @@ export class DeliveryListComponent implements OnInit, OnDestroy, FilterableServi
   onPageChange(page: number) { this.currentPage.set(page); this.loadDeliveryNotes(); }
 
   openCreateModal() {
-    this.editingDelivery.set(null);
-    this.formData = { budgetId: '', clientName: '', status: 'draft', deliveryDate: new Date().toISOString().split('T')[0], returnDate: '', itemsCount: 0, notes: '' };
+    this.formData = {
+      budgetId: '',
+      clientName: '',
+      status: 'draft',
+      deliveryDate: new Date().toISOString().split('T')[0],
+      returnDate: '',
+      itemsCount: 0,
+      notes: '',
+    };
     this.isModalOpen.set(true);
   }
 
   editDelivery(delivery: DeliveryNote) {
-    this.editingDelivery.set(delivery);
-    this.formData = { ...delivery };
-    this.isModalOpen.set(true);
+    this.router.navigate(['/delivery', delivery.id, 'edit']);
   }
 
-  closeModal() { this.isModalOpen.set(false); this.editingDelivery.set(null); }
+  closeModal() {
+    this.isModalOpen.set(false);
+  }
 
   saveDelivery() {
-    if (!this.formData.budgetId || !this.formData.clientName) return;
-    const toEdit = this.editingDelivery();
-    if (toEdit) this.facade.updateDeliveryNote(toEdit.id, this.formData);
-    else this.facade.createDeliveryNote(this.formData as Omit<DeliveryNote, 'id'>);
-    this.closeModal();
+    if (!this.formData.budgetId?.trim() || !this.formData.clientName?.trim()) {
+      this.toast.show('Indica presupuesto y cliente', 'error');
+      return;
+    }
+    this.facade
+      .createDeliveryNote(this.formData as Omit<DeliveryNote, 'id'>)
+      .subscribe({
+        next: () => {
+          this.toast.show('Albarán registrado', 'success');
+          this.closeModal();
+        },
+        error: () =>
+          this.toast.show('No se pudo crear el albarán.', 'error'),
+      });
   }
 
-  signDelivery(delivery: DeliveryNote) {
+  signDelivery(ev: Event, delivery: DeliveryNote) {
+    ev.stopPropagation();
     const signature = prompt('Introduzca firma de conformidad (Digital ID):');
-    if (signature) this.facade.signDeliveryNote(delivery.id, signature);
+    if (signature) {
+      this.facade.signDeliveryNote(delivery.id, signature).subscribe({
+        next: () =>
+          this.toast.show('Albarán firmado correctamente', 'success'),
+        error: () =>
+          this.toast.show('No se pudo registrar la firma.', 'error'),
+      });
+    }
   }
-
-  completeDelivery(delivery: DeliveryNote) { this.facade.completeDeliveryNote(delivery.id); }
 
   getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' {
     switch (status) {

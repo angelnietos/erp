@@ -7,7 +7,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
@@ -86,6 +86,7 @@ export interface DeliveryDetailView {
             </div>
           </div>
           <div class="header-actions">
+            <ui-button variant="secondary" icon="pencil" (clicked)="goToEdit(d.id)">Editar</ui-button>
             <ui-button icon="download" (clicked)="downloadPDF()">Descargar PDF</ui-button>
             @if (d.status === 'pending') {
               <ui-button icon="pen-tool" (clicked)="openSignature()">Firmar</ui-button>
@@ -281,6 +282,7 @@ export class DeliveryDetailComponent implements OnInit {
   @Input() id?: string;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly deliveryNoteService = inject(DeliveryNoteService);
 
   delivery = signal<DeliveryDetailView | null>(null);
@@ -418,6 +420,10 @@ export class DeliveryDetailComponent implements OnInit {
   formatDate(date: string | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
+  }
+
+  goToEdit(id: string) {
+    void this.router.navigate(['/delivery', id, 'edit']);
   }
 
   downloadPDF() {
