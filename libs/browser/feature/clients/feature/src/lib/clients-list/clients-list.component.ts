@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, PlusCircle, ArrowUp } from 'lucide-angular';
 import {
@@ -171,10 +171,12 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                   <ui-button
                     variant="ghost"
                     size="sm"
-                    icon="EllipsisVertical"
-                    (click)="$event.stopPropagation(); openClientMenu(client, $event)"
-                    class="menu-btn"
-                  ></ui-button>
+                    icon="Pencil"
+                    (click)="$event.stopPropagation(); editClient(client)"
+                    class="edit-btn"
+                  >
+                    Editar
+                  </ui-button>
                 </div>
               </div>
 
@@ -233,59 +235,153 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         [title]="editingClient() ? 'Editar cliente' : 'Nuevo cliente'"
         (closed)="closeModal()"
         variant="glass"
-        size="lg"
+        shape="auto"
       >
+        @if (editingClient(); as client) {
+          <div class="client-summary">
+            <div class="summary-header">
+              <div class="client-avatar">
+                <div class="avatar-initials">{{ getInitials(client.name) }}</div>
+              </div>
+              <div class="client-info">
+                <h3 class="client-name">{{ client.name }}</h3>
+                <p class="client-meta">{{ client.sector || 'Sin sector' }} · ID: {{ client.id?.slice(0, 8) }}</p>
+                <p class="client-updated">Última modificación: {{ formatDate(client.updatedAt || client.createdAt) }}</p>
+                <div class="client-status">
+                  <ui-badge variant="success" size="sm">Cliente activo</ui-badge>
+                </div>
+              </div>
+            </div>
+            <div class="summary-stats">
+              <div class="stat">
+                <span class="stat-label">Proyectos</span>
+                <span class="stat-value">{{ getClientProjects(client) }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Ingresos</span>
+                <span class="stat-value">{{ getClientRevenue(client) | number:'1.0-0' }}€</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Última actividad</span>
+                <span class="stat-value">{{ formatDate(client.updatedAt || client.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+        }
+
         <div class="modal-form">
-          <div class="form-grid">
-            <ui-input
-              label="Nombre completo"
-              [(ngModel)]="formData.name"
-              icon="user"
-              placeholder="Nombre del cliente"
-              class="form-input"
-            ></ui-input>
+          <!-- Información General -->
+          <div class="form-section">
+            <h4 class="section-title">Información General</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Nombre completo *"
+                [(ngModel)]="formData.name"
+                icon="user"
+                placeholder="Nombre del cliente"
+                class="form-input"
+                required
+              ></ui-input>
+
+              <ui-input
+                label="CIF/NIF"
+                [(ngModel)]="formData.taxId"
+                icon="hash"
+                placeholder="B12345678"
+              ></ui-input>
+
+              <ui-input
+                label="Tipo de cliente"
+                [(ngModel)]="formData.type"
+                icon="building-2"
+                placeholder="Empresa, Particular..."
+              ></ui-input>
+
+              <ui-input
+                label="Sector de actividad"
+                [(ngModel)]="formData.sector"
+                icon="briefcase"
+                placeholder="Ej: Tecnología, Construcción..."
+              ></ui-input>
+            </div>
 
             <ui-input
-              label="Sector de actividad"
-              [(ngModel)]="formData.sector"
-              icon="briefcase"
-              placeholder="Ej: Tecnología, Construcción..."
-            ></ui-input>
-
-            <ui-input
-              label="Persona de contacto"
-              [(ngModel)]="formData.contact"
-              icon="user-check"
-              placeholder="Nombre del contacto principal"
-            ></ui-input>
-
-            <ui-input
-              label="Email principal"
-              [(ngModel)]="formData.email"
-              icon="mail"
-              placeholder="cliente@empresa.com"
-              type="email"
-            ></ui-input>
-
-            <ui-input
-              label="Teléfono"
-              [(ngModel)]="formData.phone"
-              icon="phone"
-              placeholder="+34 600 000 000"
-            ></ui-input>
-
-            <ui-input
-              label="Dirección fiscal"
-              [(ngModel)]="formData.address"
-              icon="map-pin"
-              placeholder="Dirección completa"
+              label="Descripción"
+              [(ngModel)]="formData.description"
+              icon="file-text"
+              placeholder="Breve descripción del cliente..."
               class="full-width"
             ></ui-input>
           </div>
 
-          <div class="form-notes">
+          <!-- Información de Contacto -->
+          <div class="form-section">
+            <h4 class="section-title">Información de Contacto</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Persona de contacto"
+                [(ngModel)]="formData.contact"
+                icon="user-check"
+                placeholder="Nombre del contacto principal"
+              ></ui-input>
+
+              <ui-input
+                label="Email principal"
+                [(ngModel)]="formData.email"
+                icon="mail"
+                placeholder="cliente@empresa.com"
+                type="email"
+              ></ui-input>
+
+              <ui-input
+                label="Teléfono"
+                [(ngModel)]="formData.phone"
+                icon="phone"
+                placeholder="+34 600 000 000"
+              ></ui-input>
+            </div>
+          </div>
+
+          <!-- Dirección -->
+          <div class="form-section">
+            <h4 class="section-title">Dirección Fiscal</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Dirección"
+                [(ngModel)]="formData.address"
+                icon="map-pin"
+                placeholder="Calle, número, piso..."
+                class="full-width"
+              ></ui-input>
+
+              <ui-input
+                label="Ciudad"
+                [(ngModel)]="formData.city"
+                icon="building"
+                placeholder="Madrid"
+              ></ui-input>
+
+              <ui-input
+                label="Código postal"
+                [(ngModel)]="formData.zipCode"
+                icon="hash"
+                placeholder="28001"
+              ></ui-input>
+
+              <ui-input
+                label="País"
+                [(ngModel)]="formData.country"
+                icon="globe"
+                placeholder="España"
+              ></ui-input>
+            </div>
+          </div>
+
+          <!-- Notas -->
+          <div class="form-section">
+            <h4 class="section-title">Notas Adicionales</h4>
             <ui-input
-              label="Notas adicionales"
+              label="Observaciones"
               [(ngModel)]="formData.notes"
               icon="file-text"
               placeholder="Información adicional sobre el cliente..."
@@ -293,6 +389,17 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
             ></ui-input>
           </div>
         </div>
+
+        @if (formErrors().length > 0) {
+          <div class="form-errors">
+            @for (error of formErrors(); track error) {
+              <div class="error-message">
+                <lucide-icon name="alert-triangle" size="16"></lucide-icon>
+                <span>{{ error }}</span>
+              </div>
+            }
+          </div>
+        }
 
         <div class="modal-actions">
           <ui-button variant="ghost" (clicked)="closeModal()">
@@ -304,7 +411,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
             [loading]="isSaving()"
             icon="save"
           >
-            {{ editingClient() ? 'Actualizar' : 'Crear' }} cliente
+            {{ editingClient() ? 'Guardar cambios' : 'Crear cliente' }}
           </ui-button>
         </div>
       </ui-modal>
@@ -659,19 +766,118 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       padding: 1rem 0;
     }
 
+    .client-summary {
+      background: var(--surface-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-soft);
+    }
+
+    .summary-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .client-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.125rem;
+      flex-shrink: 0;
+    }
+
+    .client-info h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .client-meta {
+      margin: 0.25rem 0;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .client-updated {
+      margin: 0.25rem 0;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-style: italic;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--surface-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-secondary));
+      border-radius: 2px;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .full-width {
       grid-column: 1 / -1;
-    }
-
-    .form-notes {
-      margin-bottom: 1rem;
     }
 
     .modal-actions {
@@ -679,6 +885,27 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       gap: 0.75rem;
       justify-content: flex-end;
       padding-top: 1rem;
+    }
+
+    .form-errors {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--error-background, #fef2f2);
+      border: 1px solid var(--error-border, #fecaca);
+      border-radius: 8px;
+    }
+
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--error-text, #dc2626);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-message:last-child {
+      margin-bottom: 0;
     }
 
     /* Responsive */
@@ -741,6 +968,7 @@ export class ClientsListComponent
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(ClientsFacade);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
@@ -756,15 +984,21 @@ export class ClientsListComponent
   isModalOpen = signal(false);
   editingClient = signal<Client | null>(null);
   isSaving = signal(false);
+  formErrors = signal<string[]>([]);
 
   formData: Partial<Client & { notes?: string }> = {
     name: '',
     description: '',
+    taxId: '',
     sector: '',
     contact: '',
     email: '',
     phone: '',
     address: '',
+    city: '',
+    zipCode: '',
+    country: 'España',
+    type: 'company',
     notes: '',
   };
   filteredClients = computed(() => {
@@ -855,29 +1089,56 @@ export class ClientsListComponent
     this.formData = {
       name: '',
       description: '',
+      taxId: '',
       sector: '',
       contact: '',
       email: '',
       phone: '',
       address: '',
+      city: '',
+      zipCode: '',
+      country: 'España',
+      type: 'company',
+      notes: '',
     };
+    this.formErrors.set([]);
     this.isModalOpen.set(true);
   }
 
   editClient(client: Client) {
     this.editingClient.set(client);
     this.formData = { ...client };
+    this.formErrors.set([]);
     this.isModalOpen.set(true);
   }
 
   closeModal() {
     this.isModalOpen.set(false);
     this.editingClient.set(null);
+    this.formErrors.set([]);
   }
 
   saveClient() {
-    if (!this.formData.name) return;
+    // Validation
+    const errors: string[] = [];
+    if (!this.formData.name?.trim()) {
+      errors.push('El nombre del cliente es obligatorio');
+    }
+    if (this.formData.email && !this.isValidEmail(this.formData.email)) {
+      errors.push('El email no tiene un formato válido');
+    }
+    if (this.formData.phone && !this.isValidPhone(this.formData.phone)) {
+      errors.push('El teléfono no tiene un formato válido');
+    }
+
+    if (errors.length > 0) {
+      this.formErrors.set(errors);
+      return;
+    }
+
+    this.formErrors.set([]);
     this.isSaving.set(true);
+
     const clientToEdit = this.editingClient();
     if (clientToEdit) {
       this.facade.updateClient(clientToEdit.id, this.formData);
@@ -886,6 +1147,7 @@ export class ClientsListComponent
         this.formData as Omit<Client, 'id' | 'createdAt'>,
       );
     }
+
     // Simulate async operation
     setTimeout(() => {
       this.isSaving.set(false);
@@ -944,7 +1206,7 @@ export class ClientsListComponent
 
   goToDetail(client: Client) {
     // Navigate to client detail page
-    this.editClient(client);
+    this.router.navigate([client.id], { relativeTo: this.route });
   }
 
   getInitials(name: string): string {
@@ -980,5 +1242,15 @@ export class ClientsListComponent
   getClientRating(client: Client): number {
     // Return client rating (1-5)
     return Math.floor(Math.random() * 3) + 3; // Placeholder: 3-5 stars
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  private isValidPhone(phone: string): boolean {
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{9,}$/;
+    return phoneRegex.test(phone);
   }
 }
