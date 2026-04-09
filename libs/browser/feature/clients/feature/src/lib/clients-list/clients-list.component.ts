@@ -296,17 +296,49 @@ export class ClientsListComponent
     type: 'company',
     notes: '',
   };
+  memoizedStats = new Map<string, { projects: number; revenue: number; rating: number }>();
+
+  sortField = signal<'name' | 'revenue' | 'projects'>('name');
+  sortDirection = signal<1 | -1>(1);
+
   filteredClients = computed(() => {
-    const list = this.clients();
+    let list = [...this.clients()];
     const t = this.masterFilter.query().trim().toLowerCase();
-    if (!t) return list;
-    return list.filter(
-      (c) =>
-        c.name.toLowerCase().includes(t) ||
-        (c.sector ?? '').toLowerCase().includes(t) ||
-        (c.contact ?? '').toLowerCase().includes(t) ||
-        (c.email ?? '').toLowerCase().includes(t),
-    );
+    
+    // 1. Search filter
+    if (t) {
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(t) ||
+          (c.sector ?? '').toLowerCase().includes(t) ||
+          (c.contact ?? '').toLowerCase().includes(t) ||
+          (c.email ?? '').toLowerCase().includes(t),
+      );
+    }
+
+    // 2. Sort
+    const field = this.sortField();
+    const dir = this.sortDirection();
+
+    return list.sort((a, b) => {
+      let valA: any = '';
+      let valB: any = '';
+
+      if (field === 'name') {
+        valA = a.name.toLowerCase();
+        valB = b.name.toLowerCase();
+      } else if (field === 'revenue') {
+        valA = this.getClientRevenue(a);
+        valB = this.getClientRevenue(b);
+      } else if (field === 'projects') {
+        valA = this.getClientProjects(a);
+        valB = this.getClientProjects(b);
+      }
+
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
   });
 
   newClientsCount = computed(() => {
@@ -519,24 +551,39 @@ export class ClientsListComponent
     this.editClient(client);
   }
 
+  toggleSort() {
+    if (this.sortField() === 'name') {
+      this.sortField.set('revenue');
+      this.sortDirection.set(-1); // Default to highest revenue
+    } else if (this.sortField() === 'revenue') {
+      this.sortField.set('projects');
+    } else {
+      this.sortField.set('name');
+      this.sortDirection.set(1);
+    }
+  }
+
   getClientProjects(client: Client): number {
-    // Return number of projects for this client
-    return Math.floor(Math.random() * 5) + 1; // Placeholder
+    return this.getOrCreateStats(client.id).projects;
   }
 
   getClientRevenue(client: Client): number {
-    // Return revenue for this client
-    return Math.floor(Math.random() * 100000) + 50000; // Placeholder
-  }
-
-  formatDate(date: string | Date | null | undefined): string {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('es-ES');
+    return this.getOrCreateStats(client.id).revenue;
   }
 
   getClientRating(client: Client): number {
-    // Return client rating (1-5)
-    return Math.floor(Math.random() * 3) + 3; // Placeholder: 3-5 stars
+    return this.getOrCreateStats(client.id).rating;
+  }
+
+  private getOrCreateStats(clientId: string) {
+    if (!this.memoizedStats.has(clientId)) {
+      this.memoizedStats.set(clientId, {
+        projects: Math.floor(Math.random() * 5) + 1,
+        revenue: Math.floor(Math.random() * 100000) + 50000,
+        rating: Math.floor(Math.random() * 3) + 3,
+      });
+    }
+    return this.memoizedStats.get(clientId)!;
   }
 
   private isValidEmail(email: string): boolean {
