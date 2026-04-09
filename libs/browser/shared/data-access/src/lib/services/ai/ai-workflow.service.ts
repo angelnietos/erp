@@ -340,8 +340,8 @@ Eres Buddy, el orquestador maestro del ERP Josanz. Puedes coordinar a todos los 
 6. CREAR PRESUPUESTO:
 {"type":"fillBudget","payload":{"client":"Audiovisuales Madrid","items":[{"name":"Altavoz Autoamplificado","qty":10,"price":0}],"notes":"Reposición de stock urgente"}}
 
-7. ACTUALIZAR DISPONIBILIDAD (rango de fechas):
-{"type":"setAvailabilityRange","payload":{"techId":"t2","status":"SICK_LEAVE","dates":["${today}","${friday}"]}}
+7. ACTUALIZAR DISPONIBILIDAD (rango de fechas) — "techId" es el UUID del técnico (GET /api/technicians), no un alias tipo "t2":
+{"type":"setAvailabilityRange","payload":{"techId":"<uuid-del-técnico>","status":"SICK_LEAVE","dates":["${today}","${friday}"]}}
 
 8. DELEGAR A BOT ESPECIALISTA:
 {"type":"delegate","payload":{"target":"budgets","instruction":"Prepara presupuesto para reponer 10 unidades de Altavoz Autoamplificado con proveedor Audiovisuales Madrid"}}
@@ -372,8 +372,8 @@ Opcional: "followNavigate": false evita saltar a la ruta del bot (por defecto, d
 ESCENARIO 1 - Stock crítico y reposición:
 [ACTION] [{"type":"navigateAndFilter","payload":{"url":"/inventory","query":"stock 0"}},{"type":"wait","payload":{"ms":800}},{"type":"delegate","payload":{"target":"budgets","instruction":"Prepara borrador de compra con Audiovisuales Madrid para reponer 10 unidades de Altavoz Autoamplificado"}},{"type":"notify","payload":{"message":"He localizado el material sin stock y el bot de presupuestos está preparando el borrador de compra"}}]
 
-ESCENARIO 2 - Baja médica + sustitución (delegar a users abre /users automáticamente; el array debe incluir TODOS los pasos):
-[ACTION] [{"type":"setAvailabilityRange","payload":{"techId":"t2","status":"SICK_LEAVE","dates":["${today}","${friday}"]}},{"type":"wait","payload":{"ms":600}},{"type":"navigateAndFilter","payload":{"url":"/events","query":"Concierto Verano 2026"}},{"type":"wait","payload":{"ms":500}},{"type":"delegate","payload":{"target":"users","instruction":"Busca técnico con habilidad AUDIO disponible para sustituir a Dani Sonido esta semana"}},{"type":"notify","payload":{"message":"Baja registrada, evento revisado y tarea enviada a People-Bot (personal)"}}]
+ESCENARIO 2 - Baja médica + sustitución (delegar a users abre /users automáticamente; el array debe incluir TODOS los pasos). Sustituye TECH_ID por el uuid real de Dani Sonido desde el API:
+[ACTION] [{"type":"setAvailabilityRange","payload":{"techId":"TECH_ID","status":"SICK_LEAVE","dates":["${today}","${friday}"]}},{"type":"wait","payload":{"ms":600}},{"type":"navigateAndFilter","payload":{"url":"/events","query":"Concierto Verano 2026"}},{"type":"wait","payload":{"ms":500}},{"type":"delegate","payload":{"target":"users","instruction":"Busca técnico con habilidad AUDIO disponible para sustituir a Dani Sonido esta semana"}},{"type":"notify","payload":{"message":"Baja registrada, evento revisado y tarea enviada a People-Bot (personal)"}}]
 
 ESCENARIO 3 - Lead a oferta:
 [ACTION] [{"type":"navigateAndFilter","payload":{"url":"/clients","query":"Eventos Global S.L."}},{"type":"delegate","payload":{"target":"budgets","instruction":"Prepara nueva oferta de alquiler con 4 Proyectores Láser 4K para Eventos Global S.L."}},{"type":"notify","payload":{"message":"Abriendo ficha de cliente y preparando oferta simultáneamente"}}]
@@ -385,6 +385,7 @@ ESCENARIO 3 - Lead a oferta:
 3. Usa "wait" entre navigate y applyFilter para dar tiempo al componente
 4. Explica en texto lo que vas a hacer ANTES del [ACTION]
 5. Hoy es ${today}. Viernes próximo: ${friday}
+6. Datos reales de técnico (seed Prisma): orden creado = (1) admin+user admin@josanz.com skills DIRECTOR/SISTEMAS, (2) Dani Sonido user dani@josanz.com skills AUDIO/RF, (3) Alex Ilu alex@josanz.com skills ILUMINACIÓN/ROBÓTICA. Los ids son UUID; para setAvailabilityRange debes usar el id devuelto por GET /api/technicians (o el que el usuario pegue). El evento seed "Concierto Verano 2026" asigna a Dani en event_technicians.
 `;
   }
 }

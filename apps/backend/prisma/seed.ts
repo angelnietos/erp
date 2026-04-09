@@ -902,6 +902,7 @@ async function main() {
     },
   });
 
+  /** Índices: [0] admin, [1] Dani Sonido (dani@josanz.com, AUDIO/RF), [2] Alex Ilu (iluminación). Ids = UUID al insertar. */
   const technicians = await prisma.$transaction([
     prisma.technician.create({
       data: {
@@ -993,11 +994,11 @@ async function main() {
   ]);
   console.log('- Created events');
 
-  // Assign technicians to events
+  // Assign technicians to events (Concierto Verano 2026 → Dani Sonido, skills AUDIO/RF)
   await prisma.eventTechnician.create({
     data: {
       eventId: events[0].id,
-      technicianId: technicians[0].id,
+      technicianId: technicians[1].id,
     },
   });
   console.log('- Assigned technicians to events');
