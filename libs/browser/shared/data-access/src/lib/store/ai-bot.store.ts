@@ -1,5 +1,7 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AI_CONFIG } from '../configs/ai.config';
+import { ThemeService } from '../services/theme.service';
 
 
 export type MascotType =
@@ -186,6 +188,8 @@ export interface AIBot {
 
 @Injectable({ providedIn: 'root' })
 export class AIBotStore {
+  private router = inject(Router);
+  private themeService = inject(ThemeService);
   private _isCheckingProviders = false;
   private _lastCheckTime = 0;
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
@@ -2121,16 +2125,60 @@ export class AIBotStore {
     return responses[Math.floor(Math.random() * responses.length)];
   }
 
-  /** Send inter-bot display message */
-  sendInterBotDisplay(
-    fromFeature: string,
-    toFeature: string,
-    displayData: unknown,
-  ) {
-    console.log(
-      `Display message from ${fromFeature} to ${toFeature}:`,
-      displayData,
-    );
-    // Could trigger UI updates or notifications
+  /** Execution Engine for Bot Commands */
+  executeAction(actionStr: string) {
+    try {
+      const action = JSON.parse(actionStr) as {
+        type: string;
+        payload?: { url?: string; theme?: string; message?: string };
+      };
+      console.log('🤖 Bot executing action:', action);
+
+      switch (action.type) {
+        case 'navigate':
+          if (action.payload?.url) {
+            this.router.navigateByUrl(action.payload.url);
+          }
+          break;
+        case 'toggleTheme': {
+          const current = this.themeService.currentTheme();
+          this.themeService.setTheme(current === 'dark' ? 'light' : 'dark');
+          break;
+        }
+        case 'setTheme':
+          if (action.payload?.theme) {
+            this.themeService.setTheme(action.payload.theme as Theme);
+          }
+          break;
+        case 'logout':
+          // We don't want bots logging out the user unless explicitly asked
+          console.warn('Bot tried to logout.');
+          break;
+        case 'showNotification':
+          // Notification logic could go here
+          break;
+        default:
+          console.warn('Unknown bot action:', action.type);
+      }
+    } catch (_err) {
+      console.error('Failed to parse/execute bot action:', actionStr);
+    }
+  }
+
+  getActionSystemPrompt(): string {
+    return `
+[CAPACIDADES TÉCNICAS]
+Puedes ejecutar acciones en el ERP Josanz emitiendo bloques JSON especiales.
+Para ejecutar una acción, tu respuesta DEBE terminar con: [ACTION] {"type": "...", "payload": {...}}
+
+Acciones permitidas:
+1. Navegación: {"type": "navigate", "payload": {"url": "/inventory"}}
+   (Etiquetas válidas: /dashboard, /inventory, /budgets, /projects, /clients, /fleet, /rentals, /audit, /settings)
+2. Cambiar Tema: {"type": "setTheme", "payload": {"theme": "dark" | "light" | "blue" | "cyberpunk-2077" | "onyx-premium" | "emerald-grid"}}
+3. Alternar Modo Oscuro/Claro: {"type": "toggleTheme"}
+4. Notificación: {"type": "showNotification", "payload": {"message": "Tu mensaje aquí", "type": "info"}}
+
+IMPORTANTE: El bloque [ACTION] debe ir al final de todo tu mensaje. Solo usa una acción por mensaje.
+`;
   }
 }

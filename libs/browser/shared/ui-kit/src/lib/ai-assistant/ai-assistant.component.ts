@@ -947,7 +947,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         .map((m) => `${m.role === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`)
         .join('\n');
 
-      const systemPrompt = `Eres ${this.bot()!.name}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual.`;
+      const systemPrompt = `Eres ${this.bot()!.name}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}`;
 
       const context =
         `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +
@@ -968,11 +968,22 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         context,
       );
 
-      // Actualizar mensaje con respuesta
+      // Detectar y procesar acciones del bot
+      let displayResponse = response;
+      if (response.includes('[ACTION]')) {
+        const parts = response.split('[ACTION]');
+        displayResponse = parts[0].trim();
+        const actionStr = parts[1].trim();
+
+        // Ejecutar la acción técnica en el sistema
+        this.aiBotStore.executeAction(actionStr);
+      }
+
+      // Actualizar mensaje con respuesta (limpia de metadatos de acción)
       this.messages.update((m) =>
         m.map((msg) =>
           msg.id === typingId
-            ? { ...msg, text: response, id: Date.now().toString() }
+            ? { ...msg, text: displayResponse, id: Date.now().toString() }
             : msg,
         ),
       );
