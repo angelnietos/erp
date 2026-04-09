@@ -612,7 +612,7 @@ export class AIBotStore {
     const options = [
       { value: 'grok', label: 'Grok (xAI) - Gratuito' },
       { value: 'together', label: 'Together AI - Gratuito' },
-      { value: 'openrouter', label: 'OpenRouter (Llama 3 FREE) - Gratuito' },
+      { value: 'openrouter', label: 'OpenRouter (Gemma 4 FREE) - Gratuito' },
       { value: 'gemini', label: 'Google Gemini 2.5 Flash (Recomendado)' },
       { value: 'openai', label: 'OpenAI GPT-4o' },
       { value: 'anthropic', label: 'Anthropic Claude 3.5' },
