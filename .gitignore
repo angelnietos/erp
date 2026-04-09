@@ -49,3 +49,9 @@ Thumbs.db
 
 # Compodoc (generado con npm run docs:frontend)
 /documentation/compodoc
+
+# Secrets
+.env
+*.env
+environment.secret.ts
+secrets.json
