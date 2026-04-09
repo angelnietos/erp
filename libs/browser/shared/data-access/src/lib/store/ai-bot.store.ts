@@ -96,6 +96,12 @@ export class AIBotStore {
   );
 
   constructor() {
+    // Register delegate handler in workflow service to enable inter-bot communication
+    // without circular dependency (store → workflow, not workflow → store)
+    this.workflow.registerDelegateHandler((target: string, message: string, payload?: unknown) => {
+      this.handleBotDelegate(target, message, payload);
+    });
+
     // Sincronización proactiva de filtros entre dominios
     effect(() => {
       const feature = this.activeBotFeature();
@@ -126,6 +132,37 @@ export class AIBotStore {
       });
       localStorage.setItem('ai_bot_overrides', JSON.stringify(botOverrides));
     });
+  }
+
+  /** Handle a delegation request from a workflow action */
+  private handleBotDelegate(target: string, message: string, payload?: unknown): void {
+    // Map friendly target names to feature IDs
+    const targetMap: Record<string, string> = {
+      'budgets': 'budgets',
+      'presupuestos': 'budgets',
+      'bot de presupuestos': 'budgets',
+      'inventory': 'inventory',
+      'inventario': 'inventory',
+      'bot de inventario': 'inventory',
+      'clients': 'clients',
+      'clientes': 'clients',
+    };
+
+    const targetFeature = targetMap[target.toLowerCase().trim()] ?? target;
+    const bot = this.getBotByFeature(targetFeature);
+
+    if (!bot || bot.status !== 'active') {
+      console.warn(`[Delegate] Target bot "${targetFeature}" not found or inactive`);
+      return;
+    }
+
+    // Build an instruction message for the target bot
+    const instructionText = typeof payload === 'object'
+      ? `INSTRUCCIÓN AUTOMÁTICA: Ejecuta el siguiente flujo de trabajo: ${JSON.stringify(payload)}`
+      : message;
+
+    console.log(`📡 [Delegate] ${this.activeBotFeature()} → ${targetFeature}: ${instructionText}`);
+    this.sendInterBotMessage(this.activeBotFeature(), targetFeature, instructionText);
   }
 
   // ─── Delegation Methods to Services ──────────────────────────────────────────
