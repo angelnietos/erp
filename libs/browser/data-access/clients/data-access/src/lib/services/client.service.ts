@@ -13,6 +13,7 @@ export interface ClientContact {
 
 export interface EventReport {
   id: string;
+  eventId: string;
   title: string;
   content: string;
   createdAt: string;

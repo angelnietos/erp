@@ -203,7 +203,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                       </div>
                       <div style="display:flex; gap:10px; align-items:center;">
                         <ui-josanz-badge [variant]="inv.status === 'PAID' ? 'success' : 'warning'">{{ inv.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/invoices/{{ inv.id }}">VER</ui-josanz-button>
+                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/billing/{{ inv.id }}">VER</ui-josanz-button>
                       </div>
                     </div>
                   }
@@ -243,8 +243,10 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                           <span class="doc-title">{{ report.title }}</span>
                           <span class="doc-meta">Fecha: {{ formatDate(report.createdAt) }} · Autor: {{ report.author?.firstName || 'Sistema' }}</span>
                         </div>
+                        <div style="flex-grow: 1;"></div>
+                        <ui-josanz-button variant="ghost" size="sm" icon="calendar" routerLink="/events/{{ report.eventId }}">VER EVENTO</ui-josanz-button>
                       </div>
-                      <div style="padding-left: 50px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-top: 10px;">
+                      <div style="padding-left: 50px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-top: 10px; width: 100%;">
                         {{ report.content }}
                       </div>
                     </div>
