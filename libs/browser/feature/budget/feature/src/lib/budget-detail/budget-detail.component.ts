@@ -42,7 +42,7 @@ export interface Budget {
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando expediente fiscal..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando expediente fiscal..."></ui-loader>
       } @else if (budget()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
@@ -60,33 +60,33 @@ export interface Budget {
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="file-text" (clicked)="downloadPDF()">GENERAR PDF</ui-josanz-button>
-            <ui-josanz-button variant="primary" size="md" icon="send" (clicked)="sendToClient()">ENVIAR FIRMA</ui-josanz-button>
+            <ui-button variant="glass" size="md" icon="file-text" (clicked)="downloadPDF()">GENERAR PDF</ui-button>
+            <ui-button variant="primary" size="md" icon="send" (clicked)="sendToClient()">ENVIAR FIRMA</ui-button>
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Total Presupuestado" 
             [value]="formatCurrencyEu(budget()?.total || 0)" 
             icon="wallet" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Estado Actual" 
             [value]="getStatusLabel(budget()?.status)" 
             [icon]="getStatusIcon(budget()?.status)">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Vencimiento Oferta" 
             [value]="formatDate(budget()?.validUntil)" 
             icon="calendar-clock">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="main-content">
-          <ui-josanz-card variant="glass" title="Detalle de Líneas Comerciales">
-            <ui-josanz-table [columns]="itemColumns" [data]="budget()?.items || []">
+          <ui-card variant="glass" title="Detalle de Líneas Comerciales">
+            <ui-table [columns]="itemColumns" [data]="budget()?.items || []">
               <ng-template #cellTemplate let-item let-key="key">
                 @switch (key) {
                   @case ('unitPrice') { <span class="font-mono">{{ formatCurrencyEu(item.unitPrice) }}</span> }
@@ -94,11 +94,11 @@ export interface Budget {
                   @default { {{ item[key] }} }
                 }
               </ng-template>
-            </ui-josanz-table>
-          </ui-josanz-card>
+            </ui-table>
+          </ui-card>
 
           <div class="sidebar-info">
-             <ui-josanz-card variant="glass" title="Información Logística">
+             <ui-card variant="glass" title="Información Logística">
                 <div class="info-list">
                    <div class="info-item">
                       <span class="label">INICIO PREVISTO</span>
@@ -113,22 +113,22 @@ export interface Budget {
                       <span class="value">{{ formatDate(budget()?.validUntil) }}</span>
                    </div>
                 </div>
-             </ui-josanz-card>
+             </ui-card>
 
-             <ui-josanz-card variant="glass" title="Acciones de Seguimiento">
+             <ui-card variant="glass" title="Acciones de Seguimiento">
                 <div class="actions-grid">
                   @if (budget()?.status === 'accepted') {
-                    <ui-josanz-button variant="primary" class="full-width" icon="truck" (clicked)="createDelivery()">
+                    <ui-button variant="primary" class="full-width" icon="truck" (clicked)="createDelivery()">
                       GENERAR ALBARÁN
-                    </ui-josanz-button>
-                    <ui-josanz-button variant="glass" class="full-width" icon="history" (clicked)="createInvoice()">
+                    </ui-button>
+                    <ui-button variant="glass" class="full-width" icon="history" (clicked)="createInvoice()">
                       EMITIR FACTURA
-                    </ui-josanz-button>
+                    </ui-button>
                   } @else {
-                    <ui-josanz-button variant="glass" class="full-width" (clicked)="approveBudget()">FORZAR ACEPTACIÓN</ui-josanz-button>
+                    <ui-button variant="glass" class="full-width" (clicked)="approveBudget()">FORZAR ACEPTACIÓN</ui-button>
                   }
                 </div>
-             </ui-josanz-card>
+             </ui-card>
           </div>
         </div>
       }

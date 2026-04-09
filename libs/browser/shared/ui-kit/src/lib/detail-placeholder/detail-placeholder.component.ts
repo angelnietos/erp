@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
 
 @Component({
-  selector: 'ui-josanz-detail-placeholder',
+  selector: 'ui-detail-placeholder',
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule, UiButtonComponent, UiCardComponent],
   template: `
@@ -19,9 +19,9 @@ import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
             <span>MODO CONSULTA</span>
           </div>
         </div>
-        <ui-josanz-button variant="ghost" size="md" (clicked)="goBack()" icon="arrow-left">
+        <ui-button variant="ghost" size="md" (clicked)="goBack()" icon="arrow-left">
           VOLVER AL LISTADO
-        </ui-josanz-button>
+        </ui-button>
       </header>
 
       <div class="feature-msg">
@@ -33,25 +33,25 @@ import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
             <span>> SYS: BINDING_DATA_SOURCE...</span>
             <span class="blink">_</span>
           </div>
-          <ui-josanz-button variant="primary" (clicked)="goBack()">
+          <ui-button variant="primary" (clicked)="goBack()">
             RETORNAR A LA CENTRAL
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </div>
 
       <div class="stats-preview">
-        <ui-josanz-card variant="glass">
+        <ui-card variant="glass">
           <div class="stat-lbl text-uppercase">Trazabilidad</div>
           <div class="stat-val font-mono">OP-{{ id()?.slice(0, 8) | uppercase }}</div>
-        </ui-josanz-card>
-        <ui-josanz-card variant="glass">
+        </ui-card>
+        <ui-card variant="glass">
           <div class="stat-lbl text-uppercase">Estado Servidor</div>
           <div class="stat-val text-success text-uppercase">Sincronizado</div>
-        </ui-josanz-card>
-        <ui-josanz-card variant="glass">
+        </ui-card>
+        <ui-card variant="glass">
           <div class="stat-lbl text-uppercase">Permisos</div>
           <div class="stat-val text-uppercase">Administrador</div>
-        </ui-josanz-card>
+        </ui-card>
       </div>
     </div>
   `,

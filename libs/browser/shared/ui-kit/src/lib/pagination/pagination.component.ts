@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export type PaginationVariant = 'default' | 'minimal' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-pagination',
+  selector: 'ui-pagination',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

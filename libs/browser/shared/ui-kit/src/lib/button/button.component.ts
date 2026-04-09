@@ -8,7 +8,7 @@ export type ButtonVariant = string;
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
-  selector: 'ui-josanz-button',
+  selector: 'ui-button',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

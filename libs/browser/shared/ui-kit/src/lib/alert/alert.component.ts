@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' | 'secondary' | 'dark' | 'light' | 'ghost' | 'outline' | 'theme' | 'purple' | 'indigo' | 'teal' | 'orange' | 'pink' | 'rose' | 'violet' | 'fuchsia' | 'app';
 
 @Component({
-  selector: 'ui-josanz-alert',
+  selector: 'ui-alert',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

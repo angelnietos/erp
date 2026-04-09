@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'theme' | 'primary' | 'secondary' | 'transparent' | 'minimal' | 'rounded' | 'glass' | 'soft';
 
 @Component({
-  selector: 'ui-josanz-select',
+  selector: 'ui-select',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   providers: [

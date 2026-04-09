@@ -55,49 +55,49 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
         </div>
         <div class="header-actions">
            @if (config.enableCreate) {
-             <ui-josanz-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
+             <ui-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
                NUEVO ALBARÁN
-             </ui-josanz-button>
+             </ui-button>
            }
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Salidas Hoy" 
           [value]="todayCount().toString()" 
           icon="truck" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Pendientes Firma" 
           [value]="pendingCount().toString()" 
           icon="pen-tool" 
           [trend]="2">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Retornos Operativos" 
           [value]="returnCount().toString()" 
           icon="rotate-ccw">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR Nº ALBARÁN, CLIENTE O REFERENCIA..." 
           (searchChange)="onSearch($event)"
           class="search-bar"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader message="SINCRONIZANDO MANIFIESTOS LOGÍSTICOS..."></ui-josanz-loader>
+          <ui-loader message="SINCRONIZANDO MANIFIESTOS LOGÍSTICOS..."></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="deliveryNotes()" variant="default">
+        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-table [columns]="columns" [data]="deliveryNotes()" variant="default">
             <ng-template #cellTemplate let-delivery let-key="key">
               @switch (key) {
                 @case ('id') {
@@ -106,20 +106,20 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
                   </a>
                 }
                 @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(delivery.status)">
+                  <ui-badge [variant]="getStatusVariant(delivery.status)">
                     {{ getStatusLabel(delivery.status) | uppercase }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/delivery', delivery.id]"></ui-button>
                     @if (delivery.status === 'pending' && config.enableSign) {
-                       <ui-josanz-button variant="ghost" size="sm" icon="pen-tool" (clicked)="signDelivery(delivery)" [style.color]="currentTheme().success"></ui-josanz-button>
+                       <ui-button variant="ghost" size="sm" icon="pen-tool" (clicked)="signDelivery(delivery)" [style.color]="currentTheme().success"></ui-button>
                     }
                     @if (delivery.status === 'signed') {
-                       <ui-josanz-button variant="ghost" size="sm" icon="check-circle" (clicked)="completeDelivery(delivery)" [style.color]="currentTheme().info"></ui-josanz-button>
+                       <ui-button variant="ghost" size="sm" icon="check-circle" (clicked)="completeDelivery(delivery)" [style.color]="currentTheme().info"></ui-button>
                     }
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editDelivery(delivery)"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editDelivery(delivery)"></ui-button>
                   </div>
                 }
                 @default {
@@ -127,46 +127,46 @@ import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
                 }
               }
             </ng-template>
-          </ui-josanz-table>
+          </ui-table>
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info uppercase">
               {{ deliveryNotes().length }} ALBARANES DISPONIBLES
             </div>
-            <ui-josanz-pagination 
+            <ui-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
               variant="default"
               (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
+            ></ui-pagination>
           </footer>
-        </ui-josanz-card>
+        </ui-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
-    <ui-josanz-modal 
+    <ui-modal 
       [isOpen]="isModalOpen()" 
       [title]="editingDelivery() ? 'MODIFICACIÓN DE MANIFIESTO' : 'REGISTRO DE NUEVA ENTREGA'"
       (closed)="closeModal()"
       variant="dark"
     >
       <div class="form-grid">
-         <ui-josanz-input label="Referencia Presupuesto" [(ngModel)]="formData.budgetId" placeholder="#PR-0000" icon="file-text"></ui-josanz-input>
-         <ui-josanz-input label="Cliente Receptor" [(ngModel)]="formData.clientName" placeholder="RAZÓN SOCIAL..." icon="user"></ui-josanz-input>
-         <ui-josanz-input label="Fecha de Salida" type="date" [(ngModel)]="formData.deliveryDate" icon="calendar"></ui-josanz-input>
-         <ui-josanz-input label="Retorno Previsto" type="date" [(ngModel)]="formData.returnDate" icon="rotate-ccw"></ui-josanz-input>
-         <ui-josanz-input label="Unidades Consignadas" type="number" [(ngModel)]="formData.itemsCount" icon="box" class="full-width"></ui-josanz-input>
-         <ui-josanz-textarea label="Notas de Operación" [(ngModel)]="formData.notes" [rows]="3" placeholder="OBSERVACIONES..." variant="filled" class="full-width"></ui-josanz-textarea>
+         <ui-input label="Referencia Presupuesto" [(ngModel)]="formData.budgetId" placeholder="#PR-0000" icon="file-text"></ui-input>
+         <ui-input label="Cliente Receptor" [(ngModel)]="formData.clientName" placeholder="RAZÓN SOCIAL..." icon="user"></ui-input>
+         <ui-input label="Fecha de Salida" type="date" [(ngModel)]="formData.deliveryDate" icon="calendar"></ui-input>
+         <ui-input label="Retorno Previsto" type="date" [(ngModel)]="formData.returnDate" icon="rotate-ccw"></ui-input>
+         <ui-input label="Unidades Consignadas" type="number" [(ngModel)]="formData.itemsCount" icon="box" class="full-width"></ui-input>
+         <ui-textarea label="Notas de Operación" [(ngModel)]="formData.notes" [rows]="3" placeholder="OBSERVACIONES..." variant="filled" class="full-width"></ui-textarea>
       </div>
       
       <div modal-footer class="modal-footer">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
-        <ui-josanz-button variant="glass" (clicked)="saveDelivery()" [disabled]="!formData.budgetId || !formData.clientName">
+        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
+        <ui-button variant="glass" (clicked)="saveDelivery()" [disabled]="!formData.budgetId || !formData.clientName">
            {{ editingDelivery() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR MANIFIESTO' }}
-        </ui-josanz-button>
+        </ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }

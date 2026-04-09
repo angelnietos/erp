@@ -20,7 +20,7 @@ import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando unidad móvil..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando unidad móvil..."></ui-loader>
       } @else if (vehicle()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
@@ -38,38 +38,38 @@ import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="wrench">MANTENIMIENTO</ui-josanz-button>
-            <ui-josanz-button variant="primary" size="md" icon="map-pin">RUTAS ACTIVAS</ui-josanz-button>
+            <ui-button variant="glass" size="md" icon="wrench">MANTENIMIENTO</ui-button>
+            <ui-button variant="primary" size="md" icon="map-pin">RUTAS ACTIVAS</ui-button>
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Kilometraje Total" 
             [value]="vehicle()?.mileage?.toLocaleString() + ' KM'" 
             icon="gauge" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="ITV Vence" 
             [value]="formatDate(vehicle()?.itvExpiry)" 
             icon="calendar-check"
             [trend]="isExpired(vehicle()?.itvExpiry) ? -1 : 1">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Conductor Actual" 
             [value]="vehicle()?.currentDriver || 'SIN ASIGNAR'" 
             icon="user-check">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="content-grid">
            <div class="main-column">
-              <ui-josanz-card variant="glass" title="Especificaciones del Vehículo">
+              <ui-card variant="glass" title="Especificaciones del Vehículo">
                 <div class="spec-grid">
                    <div class="spec-item">
                       <span class="label">TIPO UNIDAD</span>
-                      <ui-josanz-badge variant="info">{{ vehicle()?.type | uppercase }}</ui-josanz-badge>
+                      <ui-badge variant="info">{{ vehicle()?.type | uppercase }}</ui-badge>
                    </div>
                    <div class="spec-item">
                       <span class="label">CAPACIDAD CARGA</span>
@@ -84,15 +84,15 @@ import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
                       <span class="value">{{ formatDate(vehicle()?.insuranceExpiry) }}</span>
                    </div>
                 </div>
-              </ui-josanz-card>
+              </ui-card>
 
-              <ui-josanz-card variant="glass" title="Historial de Movimientos">
+              <ui-card variant="glass" title="Historial de Movimientos">
                  <p class="empty-text">No hay movimientos operativos registrados en las últimas 24h.</p>
-              </ui-josanz-card>
+              </ui-card>
            </div>
 
            <div class="side-column">
-              <ui-josanz-card variant="glass" title="Monitor de Estado">
+              <ui-card variant="glass" title="Monitor de Estado">
                  <div class="status-monitor">
                     <div class="status-indicator" [class]="vehicle()?.status"></div>
                     <div class="status-details">
@@ -100,9 +100,9 @@ import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
                        <span class="status-subtext">Actualizado: hace 12 min</span>
                     </div>
                  </div>
-              </ui-josanz-card>
+              </ui-card>
 
-              <ui-josanz-card variant="glass" title="Documentación Digital">
+              <ui-card variant="glass" title="Documentación Digital">
                  <div class="doc-list">
                     <div class="doc-item">
                        <lucide-icon name="file-text" size="16"></lucide-icon>
@@ -113,7 +113,7 @@ import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
                        <span>PÓLIZA SEGURO.PDF</span>
                     </div>
                  </div>
-              </ui-josanz-card>
+              </ui-card>
            </div>
         </div>
       }

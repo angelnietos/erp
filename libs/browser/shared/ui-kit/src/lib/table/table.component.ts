@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 export type TableVariant = 'default' | 'striped' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-table',
+  selector: 'ui-table',
   standalone: true,
   imports: [CommonModule],
   template: `

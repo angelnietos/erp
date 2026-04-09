@@ -35,7 +35,7 @@ interface PluginDescriptor {
           
           <div class="plugin-cards">
             @for (plugin of plugins; track plugin.id) {
-              <ui-josanz-card variant="glass" class="plugin-card" [class.disabled]="!isPluginEnabled(plugin.id)">
+              <ui-card variant="glass" class="plugin-card" [class.disabled]="!isPluginEnabled(plugin.id)">
                 <div class="plugin-info">
                   <div class="plugin-icon-wrapper" [style.color]="isPluginEnabled(plugin.id) ? 'var(--brand)' : 'var(--text-muted)'">
                     <lucide-icon [name]="plugin.icon" size="24"></lucide-icon>
@@ -50,15 +50,15 @@ interface PluginDescriptor {
                   <div class="status-badge" [class.active]="isPluginEnabled(plugin.id)">
                     {{ isPluginEnabled(plugin.id) ? 'ACTIVO' : 'DESACTIVADO' }}
                   </div>
-                  <ui-josanz-button 
+                  <ui-button 
                     [variant]="isPluginEnabled(plugin.id) ? 'outline' : 'filled'" 
                     size="sm"
                     (click)="togglePlugin(plugin.id)"
                   >
                     {{ isPluginEnabled(plugin.id) ? 'Desactivar' : 'Activar' }}
-                  </ui-josanz-button>
+                  </ui-button>
                 </div>
-              </ui-josanz-card>
+              </ui-card>
             }
           </div>
         </section>
@@ -69,7 +69,7 @@ interface PluginDescriptor {
             <lucide-icon name="sliders" size="18"></lucide-icon>
             <h2>Preferencias Globales</h2>
           </div>
-          <ui-josanz-card variant="glass" class="prefs-card">
+          <ui-card variant="glass" class="prefs-card">
             <div class="pref-item">
               <div class="pref-info">
                 <span>Sincronización en tiempo real</span>
@@ -100,7 +100,7 @@ interface PluginDescriptor {
                 (keydown.enter)="togglePremium()"
               ></div>
             </div>
-          </ui-josanz-card>
+          </ui-card>
         </section>
       </div>
     </div>

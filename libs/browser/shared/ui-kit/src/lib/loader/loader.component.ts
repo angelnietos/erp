@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'gradient';
 
 @Component({
-  selector: 'ui-josanz-loader',
+  selector: 'ui-loader',
   standalone: true,
   imports: [CommonModule],
   template: `

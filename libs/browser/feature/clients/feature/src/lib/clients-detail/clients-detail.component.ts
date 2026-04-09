@@ -32,7 +32,7 @@ export interface Client {
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando expediente de cliente..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando expediente de cliente..."></ui-loader>
       } @else if (client()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
@@ -50,43 +50,43 @@ export interface Client {
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="mail">CONTACTAR</ui-josanz-button>
-            <ui-josanz-button variant="primary" size="md" icon="edit">EDITAR PERFIL</ui-josanz-button>
+            <ui-button variant="glass" size="md" icon="mail">CONTACTAR</ui-button>
+            <ui-button variant="primary" size="md" icon="edit">EDITAR PERFIL</ui-button>
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Inversión Total" 
             value="12.450 €" 
             icon="line-chart" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Proyectos Activos" 
             value="3" 
             icon="briefcase"
             [trend]="1">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Rating Fidelidad" 
             value="9.8" 
             icon="star">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
-        <ui-josanz-tabs 
+        <ui-tabs 
           [tabs]="tabs" 
           [activeTab]="activeTab()" 
           variant="underline"
           (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
+        ></ui-tabs>
 
         <div class="main-content">
           @switch (activeTab()) {
             @case ('general') {
               <div class="detail-grid">
-                <ui-josanz-card variant="glass" title="Información Corporativa">
+                <ui-card variant="glass" title="Información Corporativa">
                   <div class="info-list">
                     <div class="info-item">
                       <span class="label">RAZÓN SOCIAL</span>
@@ -98,16 +98,16 @@ export interface Client {
                     </div>
                     <div class="info-item">
                       <span class="label">SECTOR ACTUACIÓN</span>
-                      <ui-josanz-badge variant="info">{{ client()?.sector }}</ui-josanz-badge>
+                      <ui-badge variant="info">{{ client()?.sector }}</ui-badge>
                     </div>
                     <div class="info-item">
                       <span class="label">ALTA SISTEMA</span>
                       <span class="value font-mono">{{ formatDate(client()?.createdAt) }}</span>
                     </div>
                   </div>
-                </ui-josanz-card>
+                </ui-card>
 
-                <ui-josanz-card variant="glass" title="Puntos de Contacto">
+                <ui-card variant="glass" title="Puntos de Contacto">
                    <div class="info-list">
                     <div class="info-item">
                       <span class="label">KEY ACCOUNT MANAGER</span>
@@ -126,25 +126,25 @@ export interface Client {
                       <span class="value">{{ client()?.address || 'Dirección no consignada.' }}</span>
                     </div>
                   </div>
-                </ui-josanz-card>
+                </ui-card>
               </div>
             }
             @case ('budgets') {
-              <ui-josanz-card variant="glass" title="Historial Comercial">
+              <ui-card variant="glass" title="Historial Comercial">
                 <div class="placeholder-state">
                   <lucide-icon name="file-search" size="48" class="text-muted"></lucide-icon>
                   <p>Accediendo a la bóveda de presupuestos del cliente...</p>
-                  <ui-josanz-button variant="glass" size="sm" icon="plus" routerLink="/budgets">NUEVA OFERTA</ui-josanz-button>
+                  <ui-button variant="glass" size="sm" icon="plus" routerLink="/budgets">NUEVA OFERTA</ui-button>
                 </div>
-              </ui-josanz-card>
+              </ui-card>
             }
             @default {
-              <ui-josanz-card variant="glass" title="Módulo en Sincronización">
+              <ui-card variant="glass" title="Módulo en Sincronización">
                  <div class="placeholder-state">
                    <lucide-icon name="activity" size="48" class="text-muted"></lucide-icon>
                    <p>Este módulo modular está siendo actualizado con datos en tiempo real.</p>
                  </div>
-              </ui-josanz-card>
+              </ui-card>
             }
           }
         </div>

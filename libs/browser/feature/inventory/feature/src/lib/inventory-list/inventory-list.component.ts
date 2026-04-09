@@ -55,56 +55,56 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         </div>
         <div class="header-actions">
           @if (config.enableCreate) {
-            <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
+            <ui-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
               NUEVO PRODUCTO
-            </ui-josanz-button>
+            </ui-button>
           }
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Total Equipos" 
           [value]="allProducts().length.toString()" 
           icon="package" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Stock Crítico" 
           [value]="criticalCount().toString()" 
           icon="alert-octagon" 
           [trend]="-1">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Valoración Flota" 
           [value]="formatCurrencyEu(totalValue())" 
           icon="bar-chart-3">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs 
+        <ui-tabs 
           [tabs]="tabs()" 
           [activeTab]="activeTab()" 
           variant="underline" 
           (tabChange)="onTabChange($any($event))"
-        ></ui-josanz-tabs>
+        ></ui-tabs>
         
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR EQUIPAMIENTO O SKU..." 
           (searchChange)="onSearch($any($event))"
           class="search-bar"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader message="SINCRONIZANDO INVENTARIO GLOBAL..."></ui-josanz-loader>
+          <ui-loader message="SINCRONIZANDO INVENTARIO GLOBAL..."></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="products()" variant="default">
+        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-table [columns]="columns" [data]="products()" variant="default">
             <ng-template #cellTemplate let-product let-key="key">
               @switch (key) {
                 @case ('name') {
@@ -118,9 +118,9 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                   </div>
                 }
                 @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(product.status)">
+                  <ui-badge [variant]="getStatusVariant(product.status)">
                     {{ getStatusLabel(product.status) | uppercase }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('totalStock') {
                   <div class="stock-info">
@@ -136,9 +136,9 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/inventory', product.id]"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/inventory', product.id]"></ui-button>
                     @if (config.enableEdit) {
-                      <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editProduct(product)"></ui-josanz-button>
+                      <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editProduct(product)"></ui-button>
                     }
                   </div>
                 }
@@ -147,25 +147,25 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                 }
               }
             </ng-template>
-          </ui-josanz-table>
+          </ui-table>
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info text-uppercase">
               {{ products().length }} ACTIVOS EN VISTA ACTUAL
             </div>
-            <ui-josanz-pagination 
+            <ui-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
               variant="default"
               (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
+            ></ui-pagination>
           </footer>
-        </ui-josanz-card>
+        </ui-card>
       }
     </div>
 
     <!-- Modals remain for logic but styled with glass variant -->
-    <ui-josanz-modal 
+    <ui-modal 
       [isOpen]="isModalOpen()" 
       [title]="editingProduct() ? 'MODIFICACIÓN DE ACTIVO' : 'REGISTRO DE NUEVO RECURSO'"
       (closed)="closeModal()"
@@ -174,49 +174,49 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       <div class="form-grid">
         <div class="form-section">
           <h3 class="section-title text-uppercase" [style.color]="currentTheme().primary">Identificación Técnica</h3>
-          <ui-josanz-input 
+          <ui-input 
             label="Nombre del Producto" 
             [(ngModel)]="formData.name" 
             placeholder="DENOMINACIÓN COMERCIAL O TÉCNICA..."
             icon="box"
-          ></ui-josanz-input>
+          ></ui-input>
           
           <div class="input-row">
-            <ui-josanz-input label="Referencia SKU" [(ngModel)]="formData.sku" icon="hash"></ui-josanz-input>
-            <ui-josanz-input label="Categoría" [(ngModel)]="formData.category" icon="tag"></ui-josanz-input>
+            <ui-input label="Referencia SKU" [(ngModel)]="formData.sku" icon="hash"></ui-input>
+            <ui-input label="Categoría" [(ngModel)]="formData.category" icon="tag"></ui-input>
           </div>
         </div>
 
         <div class="form-section">
           <h3 class="section-title text-uppercase" [style.color]="currentTheme().primary">Stock y tarifación</h3>
           <div class="input-row">
-            <ui-josanz-input
+            <ui-input
               label="Unidades en stock"
               type="number"
               [placeholder]="'0'"
               hint="Cantidad inicial de unidades disponibles del producto."
               [(ngModel)]="formData.totalStock"
               icon="layers"
-            ></ui-josanz-input>
-            <ui-josanz-input
+            ></ui-input>
+            <ui-input
               label="Tarifa diaria (€)"
               type="number"
               [placeholder]="'0'"
               hint="Precio de alquiler por día y unidad."
               [(ngModel)]="formData.dailyRate"
               icon="euro"
-            ></ui-josanz-input>
+            ></ui-input>
           </div>
         </div>
       </div>
       
       <div modal-footer class="modal-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
-        <ui-josanz-button variant="glass" (clicked)="saveProduct()" [disabled]="!formData.name">
+        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
+        <ui-button variant="glass" (clicked)="saveProduct()" [disabled]="!formData.name">
           {{ editingProduct() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
-        </ui-josanz-button>
+        </ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }

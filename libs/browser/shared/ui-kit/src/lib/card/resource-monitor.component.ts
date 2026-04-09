@@ -12,7 +12,7 @@ export interface ResourceItem {
 }
 
 @Component({
-  selector: 'ui-josanz-resource-monitor',
+  selector: 'ui-resource-monitor',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `

@@ -18,23 +18,23 @@ import { UiButtonComponent, UiCardComponent } from '@josanz-erp/shared-ui-kit';
             <span>IDENTIDAD Y ROLES</span>
           </div>
         </div>
-        <ui-josanz-button variant="primary" size="md" icon="user-plus">
+        <ui-button variant="primary" size="md" icon="user-plus">
           NUEVO USUARIO
-        </ui-josanz-button>
+        </ui-button>
       </header>
 
-      <ui-josanz-card variant="glass" class="empty-state-card">
+      <ui-card variant="glass" class="empty-state-card">
         <div class="empty-state">
           <lucide-icon name="users" size="48" class="text-muted"></lucide-icon>
           <h2 class="text-uppercase text-brand">Próximamente</h2>
           <p class="text-secondary text-center max-w-lg">
             El módulo de identidad avanzada y control de acceso (ACL) basado en roles estará disponible en la próxima actualización del sistema core.
           </p>
-          <ui-josanz-button variant="ghost" icon="shield" class="mt-4">
+          <ui-button variant="ghost" icon="shield" class="mt-4">
             VER POLÍTICAS DE SEGURIDAD
-          </ui-josanz-button>
+          </ui-button>
         </div>
-      </ui-josanz-card>
+      </ui-card>
     </div>
   `,
   styles: [`

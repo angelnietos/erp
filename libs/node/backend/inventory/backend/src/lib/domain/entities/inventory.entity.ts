@@ -1,4 +1,4 @@
-﻿import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
+import { AggregateRoot, EntityId, DomainEvent } from '@josanz-erp/shared-model';
 
 export type InventoryStatus = 'AVAILABLE' | 'MAINTENANCE' | 'RETIRED';
 
@@ -6,7 +6,7 @@ export interface InventoryProps {
   productId: EntityId;
   totalStock: number;
   status: InventoryStatus;
-  /** Optimistic locking version â€” incremented on every write */
+  /** Optimistic locking version — incremented on every write */
   version: number;
 }
 
@@ -20,12 +20,12 @@ export class InsufficientStockError extends Error {
 
 export class InvalidStateTransitionError extends Error {
   constructor(entity: string, from: string, to: string) {
-    super(`Invalid state transition for ${entity}: ${from} â†’ ${to}`);
+    super(`Invalid state transition for ${entity}: ${from} → ${to}`);
   }
 }
 
 /**
- * Inventory Aggregate Root â€” single source of truth for stock availability.
+ * Inventory Aggregate Root — single source of truth for stock availability.
  * Rentals request reservations here; they NEVER modify stock directly (ADR rule).
  */
 export class Inventory extends AggregateRoot {

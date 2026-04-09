@@ -52,48 +52,48 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
+          <ui-button variant="glass" size="md" (clicked)="openCreateModal()" icon="plus">
             NUEVO REGISTRO
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Total Clientes" 
           [value]="clients().length.toString()" 
           icon="users" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Nuevos este mes" 
           [value]="newClientsCount().toString()" 
           icon="user-plus" 
           [trend]="12">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Sectores Activos" 
           [value]="activeSectorsCount().toString()" 
           icon="briefcase">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="filters-bar ui-glass-panel">
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR CLIENTES POR NOMBRE, SECTOR O CONTACTO..." 
           (searchChange)="onSearch($event)"
           class="flex-1 max-w-md"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader message="SINCRONIZANDO DIRECTORIO DE CLIENTES..."></ui-josanz-loader>
+          <ui-loader message="SINCRONIZANDO DIRECTORIO DE CLIENTES..."></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="clients()" variant="default">
+        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-table [columns]="columns" [data]="clients()" variant="default">
             <ng-template #cellTemplate let-client let-key="key">
               @switch (key) {
                 @case ('name') {
@@ -102,13 +102,13 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                   </a>
                 }
                 @case ('sector') {
-                  <ui-josanz-badge variant="info">{{ (client.sector || 'GENERAL') | uppercase }}</ui-josanz-badge>
+                  <ui-badge variant="info">{{ (client.sector || 'GENERAL') | uppercase }}</ui-badge>
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/clients', client.id]"></ui-josanz-button>
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editClient(client)"></ui-josanz-button>
-                    <ui-josanz-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(client)" [style.color]="currentTheme().danger"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/clients', client.id]"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editClient(client)"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="trash-2" (clicked)="confirmDelete(client)" [style.color]="currentTheme().danger"></ui-button>
                   </div>
                 }
                 @default {
@@ -116,25 +116,25 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 }
               }
             </ng-template>
-          </ui-josanz-table>
+          </ui-table>
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info uppercase">
               {{ clients().length }} REGISTROS EN DIRECTORIO
             </div>
-            <ui-josanz-pagination 
+            <ui-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
               variant="default"
               (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
+            ></ui-pagination>
           </footer>
-        </ui-josanz-card>
+        </ui-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
-    <ui-josanz-modal 
+    <ui-modal 
       [isOpen]="isModalOpen()" 
       [title]="editingClient() ? 'MODIFICACIÓN DE PERFIL CLIENTE' : 'ALTA DE NUEVO CLIENTE'"
       (closed)="closeModal()"
@@ -142,22 +142,22 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     >
       <div class="form-container">
         <div class="form-grid">
-           <ui-josanz-input label="Nombre del Cliente *" [(ngModel)]="formData.name" icon="user" placeholder="NOMBRE COMPLETO" class="full-width"></ui-josanz-input>
-           <ui-josanz-input label="Sector Industrial" [(ngModel)]="formData.sector" icon="briefcase" placeholder="SECTOR"></ui-josanz-input>
-           <ui-josanz-input label="Contacto Principal" [(ngModel)]="formData.contact" icon="phone" placeholder="NOMBRE DE CONTACTO"></ui-josanz-input>
-           <ui-josanz-input label="Email Corporativo" [(ngModel)]="formData.email" icon="mail" placeholder="EMAIL@SISTEMA.COM"></ui-josanz-input>
-           <ui-josanz-input label="Teléfono Directo" [(ngModel)]="formData.phone" icon="smartphone" placeholder="+34 000 000 000"></ui-josanz-input>
-           <ui-josanz-input label="Sede Comercial" [(ngModel)]="formData.address" icon="map-pin" placeholder="DIRECCIÓN FÍSICA" class="full-width"></ui-josanz-input>
+           <ui-input label="Nombre del Cliente *" [(ngModel)]="formData.name" icon="user" placeholder="NOMBRE COMPLETO" class="full-width"></ui-input>
+           <ui-input label="Sector Industrial" [(ngModel)]="formData.sector" icon="briefcase" placeholder="SECTOR"></ui-input>
+           <ui-input label="Contacto Principal" [(ngModel)]="formData.contact" icon="phone" placeholder="NOMBRE DE CONTACTO"></ui-input>
+           <ui-input label="Email Corporativo" [(ngModel)]="formData.email" icon="mail" placeholder="EMAIL@SISTEMA.COM"></ui-input>
+           <ui-input label="Teléfono Directo" [(ngModel)]="formData.phone" icon="smartphone" placeholder="+34 000 000 000"></ui-input>
+           <ui-input label="Sede Comercial" [(ngModel)]="formData.address" icon="map-pin" placeholder="DIRECCIÓN FÍSICA" class="full-width"></ui-input>
         </div>
       </div>
       
       <div modal-footer class="modal-footer">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">ABORTAR</ui-josanz-button>
-        <ui-josanz-button variant="glass" (clicked)="saveClient()" [disabled]="!formData.name">
+        <ui-button variant="ghost" (clicked)="closeModal()">ABORTAR</ui-button>
+        <ui-button variant="glass" (clicked)="saveClient()" [disabled]="!formData.name">
           {{ editingClient() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
-        </ui-josanz-button>
+        </ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }

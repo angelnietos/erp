@@ -20,7 +20,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
   template: `
     <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando ficha de activo..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando ficha de activo..."></ui-loader>
       } @else if (product()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
@@ -38,59 +38,59 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="edit">EDITAR ACTIVO</ui-josanz-button>
-            <ui-josanz-button variant="primary" size="md" icon="printer">ETIQUETA QR</ui-josanz-button>
+            <ui-button variant="glass" size="md" icon="edit">EDITAR ACTIVO</ui-button>
+            <ui-button variant="primary" size="md" icon="printer">ETIQUETA QR</ui-button>
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Existencias" 
             [value]="product()?.totalStock?.toString() || '0'" 
             icon="box" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Precio Unitario" 
             [value]="formatCurrencyEu(product()?.dailyRate || 0)" 
             icon="tag">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Valor Stock" 
             [value]="formatCurrencyEu((product()?.totalStock || 0) * (product()?.dailyRate || 0))" 
             icon="trending-up">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="content-grid">
-          <ui-josanz-card variant="glass" title="Especificaciones Generales">
+          <ui-card variant="glass" title="Especificaciones Generales">
             <div class="spec-list">
               <div class="spec-item">
                 <span class="label">CATEGORÍA</span>
-                <ui-josanz-badge variant="info">{{ product()?.category | uppercase }}</ui-josanz-badge>
+                <ui-badge variant="info">{{ product()?.category | uppercase }}</ui-badge>
               </div>
               <div class="spec-item">
                 <span class="label">ESTADO DE STOCK</span>
-                <ui-josanz-badge [variant]="(product()?.totalStock || 0) < 5 ? 'warning' : 'success'">
+                <ui-badge [variant]="(product()?.totalStock || 0) < 5 ? 'warning' : 'success'">
                   {{ (product()?.totalStock || 0) < 5 ? 'CRÍTICO' : 'OPTIMO' }}
-                </ui-josanz-badge>
+                </ui-badge>
               </div>
               <div class="spec-item">
                 <span class="label">ÚLTIMA ACTUALIZACIÓN</span>
                 <span class="value font-mono">01/04/2026</span>
               </div>
             </div>
-          </ui-josanz-card>
+          </ui-card>
 
-          <ui-josanz-card variant="glass" title="Descripción del Producto">
+          <ui-card variant="glass" title="Descripción del Producto">
              <p class="description-text">{{ product()?.description || 'Sin descripción técnica disponible.' }}</p>
-          </ui-josanz-card>
+          </ui-card>
         </div>
       } @else {
         <div class="error-state">
            <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
            <h2>ACTIVO NO ENCONTRADO</h2>
-           <ui-josanz-button variant="primary" routerLink="/inventory">VOLVER AL INVENTARIO</ui-josanz-button>
+           <ui-button variant="primary" routerLink="/inventory">VOLVER AL INVENTARIO</ui-button>
         </div>
       }
     </div>

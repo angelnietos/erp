@@ -24,7 +24,7 @@ export interface AppNotification {
           <h2 class="text-uppercase text-brand">Centro de Notificaciones</h2>
           <span class="text-muted text-uppercase font-mono">Terminal v2.0.4.core</span>
         </div>
-        <ui-josanz-button variant="ghost" size="sm" (clicked)="closeDrawer.emit()" icon="x"></ui-josanz-button>
+        <ui-button variant="ghost" size="sm" (clicked)="closeDrawer.emit()" icon="x"></ui-button>
       </header>
 
       <div class="content-area">
@@ -63,9 +63,9 @@ export interface AppNotification {
       </div>
 
       <footer class="drawer-footer">
-        <ui-josanz-button variant="primary" class="w-full" (clicked)="closeDrawer.emit()">
+        <ui-button variant="primary" class="w-full" (clicked)="closeDrawer.emit()">
           OCULTAR TERMINAL
-        </ui-josanz-button>
+        </ui-button>
       </footer>
     </div>
   `,

@@ -32,58 +32,58 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
           </div>
         </div>
         <div class="header-actions">
-           <ui-josanz-button
+           <ui-button
             variant="glass"
             size="md"
             icon="refresh-cw"
             [loading]="isSyncing()"
             (clicked)="syncDashboard()"
-          >SINCRONIZAR</ui-josanz-button>
-          <ui-josanz-button variant="primary" size="md" icon="plus" (clicked)="goNewRental()">
+          >SINCRONIZAR</ui-button>
+          <ui-button variant="primary" size="md" icon="plus" (clicked)="goNewRental()">
             EXPEDIENTE RNT
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="stats-grid">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Facturación Mensual" 
           value="€42,850.00" 
           icon="trending-up" 
           [trend]="12.5" 
           [accent]="true">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
 
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Alquileres Activos" 
           value="24" 
           icon="key" 
           [trend]="8">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
 
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Presupuestos Pendientes" 
           value="15" 
           icon="alert-circle" 
           [trend]="-2">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
 
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Disponibilidad Flota" 
           value="92%" 
           icon="truck">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="main-content-grid">
-        <ui-josanz-card 
+        <ui-card 
           variant="glass" 
           title="Registro de Actividad" 
           class="recent-card"
           [class.neon-glow]="!pluginStore.highPerformanceMode()">
           
           <div slot="header-actions">
-            <ui-josanz-button variant="ghost" size="sm" [style.color]="currentTheme().primary">VER HISTORIAL</ui-josanz-button>
+            <ui-button variant="ghost" size="sm" [style.color]="currentTheme().primary">VER HISTORIAL</ui-button>
           </div>
           
           <div class="activity-list">
@@ -94,19 +94,19 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                   <span class="activity-user" [style.color]="currentTheme().primary">{{ act.user }}</span>
                   <span class="activity-msg">{{ act.msg }}</span>
                 </div>
-                <ui-josanz-badge [variant]="act.type === 'billing' ? 'success' : 'info'">{{ act.type | uppercase }}</ui-josanz-badge>
+                <ui-badge [variant]="act.type === 'billing' ? 'success' : 'info'">{{ act.type | uppercase }}</ui-badge>
               </div>
             }
           </div>
-        </ui-josanz-card>
+        </ui-card>
 
         <div class="sidebar-grid">
-          <ui-josanz-resource-monitor 
+          <ui-resource-monitor 
             title="Sistemas de Captación" 
             [items]="resourceItems">
-          </ui-josanz-resource-monitor>
+          </ui-resource-monitor>
 
-          <ui-josanz-card variant="glass" title="Rendimiento Global" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-card variant="glass" title="Rendimiento Global" [class.neon-glow]="!pluginStore.highPerformanceMode()">
             <div class="performance-summary">
               <div class="perf-stat">
                 <span class="p-lbl text-uppercase">UPTIME GARANTIZADO</span>
@@ -121,7 +121,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
               <lucide-icon name="shield-check" size="14" class="mr-2"></lucide-icon>
               CONEXIÓN SEGURA ACTIVA
             </div>
-          </ui-josanz-card>
+          </ui-card>
         </div>
       </div>
     </div>

@@ -53,56 +53,56 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           </div>
         </div>
         <div class="header-actions">
-          <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
+          <ui-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
             NUEVA UNIDAD
-          </ui-josanz-button>
+          </ui-button>
         </div>
       </header>
 
       <div class="stats-row">
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Unidades Activas" 
           [value]="vehicles().length.toString()" 
           icon="truck" 
           [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="En Mantenimiento" 
           [value]="maintenanceCount().toString()" 
           icon="wrench" 
           [trend]="-2">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+        </ui-stat-card>
+        <ui-stat-card 
           label="Alertas Técnicas" 
           [value]="alertCount().toString()" 
           icon="alert-triangle" 
           [class.text-danger]="alertCount() > 0">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
       </div>
 
       <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs 
+        <ui-tabs 
           [tabs]="tabs" 
           [activeTab]="activeTab()" 
           variant="underline" 
           (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
+        ></ui-tabs>
         
-        <ui-josanz-search 
+        <ui-search 
           variant="filled"
           placeholder="BUSCAR MATRÍCULA O CONDUCTOR..." 
           (searchChange)="onSearch($event)"
           class="search-bar"
-        ></ui-josanz-search>
+        ></ui-search>
       </div>
 
       @if (isLoading()) {
         <div class="loader-container">
-          <ui-josanz-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-josanz-loader>
+          <ui-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-loader>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="displayedVehicles()" variant="default">
+        <ui-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-table [columns]="columns" [data]="displayedVehicles()" variant="default">
             <ng-template #cellTemplate let-vehicle let-key="key">
               @switch (key) {
                 @case ('plate') {
@@ -116,12 +116,12 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                   </div>
                 }
                 @case ('type') {
-                  <ui-josanz-badge variant="info">{{ getTypeLabel(vehicle.type) | uppercase }}</ui-josanz-badge>
+                  <ui-badge variant="info">{{ getTypeLabel(vehicle.type) | uppercase }}</ui-badge>
                 }
                 @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(vehicle.status)">
+                  <ui-badge [variant]="getStatusVariant(vehicle.status)">
                     {{ getStatusLabel(vehicle.status) | uppercase }}
-                  </ui-josanz-badge>
+                  </ui-badge>
                 }
                 @case ('insuranceExpiry') {
                   <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.insuranceExpiry)">
@@ -135,8 +135,8 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                 }
                 @case ('actions') {
                   <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/fleet', vehicle.id]"></ui-josanz-button>
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editVehicle(vehicle)"></ui-josanz-button>
+                    <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/fleet', vehicle.id]"></ui-button>
+                    <ui-button variant="ghost" size="sm" icon="pencil" (clicked)="editVehicle(vehicle)"></ui-button>
                   </div>
                 }
                 @default {
@@ -144,25 +144,25 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                 }
               }
             </ng-template>
-          </ui-josanz-table>
+          </ui-table>
 
           <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
             <div class="table-info uppercase">
               {{ displayedVehicles().length }} UNIDADES EN RANGO OPERATIVO
             </div>
-            <ui-josanz-pagination 
+            <ui-pagination 
               [currentPage]="currentPage()" 
               [totalPages]="totalPages()"
               variant="default"
               (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
+            ></ui-pagination>
           </footer>
-        </ui-josanz-card>
+        </ui-card>
       }
     </div>
 
     <!-- Create/Edit Modal -->
-    <ui-josanz-modal 
+    <ui-modal 
       [isOpen]="isModalOpen()" 
       [title]="editingVehicle() ? 'MODIFICACIÓN DE FICHA TÉCNICA' : 'REGISTRO DE NUEVA UNIDAD'"
       (closed)="closeModal()"
@@ -172,21 +172,21 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
         <div class="form-section">
           <h3 class="section-title text-uppercase" [style.color]="currentTheme().primary">Especificaciones Técnicas</h3>
           <div class="input-grid">
-            <ui-josanz-input label="Matrícula" [(ngModel)]="formData.plate" icon="hash"></ui-josanz-input>
-            <ui-josanz-input label="Marca" [(ngModel)]="formData.brand" icon="car"></ui-josanz-input>
-            <ui-josanz-input label="Modelo" [(ngModel)]="formData.model" icon="box"></ui-josanz-input>
-            <ui-josanz-input label="Año" type="number" [(ngModel)]="formData.year" icon="calendar"></ui-josanz-input>
+            <ui-input label="Matrícula" [(ngModel)]="formData.plate" icon="hash"></ui-input>
+            <ui-input label="Marca" [(ngModel)]="formData.brand" icon="car"></ui-input>
+            <ui-input label="Modelo" [(ngModel)]="formData.model" icon="box"></ui-input>
+            <ui-input label="Año" type="number" [(ngModel)]="formData.year" icon="calendar"></ui-input>
           </div>
         </div>
       </div>
       
       <div modal-footer class="modal-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
-        <ui-josanz-button variant="glass" (clicked)="saveVehicle()" [disabled]="!formData.plate">
+        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
+        <ui-button variant="glass" (clicked)="saveVehicle()" [disabled]="!formData.plate">
           {{ editingVehicle() ? 'ACTUALIZAR FICHA' : 'REGISTRAR UNIDAD' }}
-        </ui-josanz-button>
+        </ui-button>
       </div>
-    </ui-josanz-modal>
+    </ui-modal>
   `,
   styles: [`
     .page-container { padding: 0; max-width: 100%; margin: 0 auto; }

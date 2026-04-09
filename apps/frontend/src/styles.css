@@ -381,7 +381,7 @@ html[data-ui-variant="minimal"] {
   box-shadow: 0 0 15px var(--brand-glow) !important;
 }
 
-.premium-mode .ui-josanz-button:hover {
+.premium-mode .ui-button:hover {
   filter: brightness(1.2) contrast(1.1) !important;
   box-shadow: 0 0 20px var(--brand-glow) !important;
 }

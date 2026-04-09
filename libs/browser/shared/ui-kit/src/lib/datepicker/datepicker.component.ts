@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info';
 
 @Component({
-  selector: 'ui-josanz-datepicker',
+  selector: 'ui-datepicker',
   standalone: true,
   imports: [CommonModule],
   providers: [

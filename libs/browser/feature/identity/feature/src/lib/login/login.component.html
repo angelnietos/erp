@@ -33,13 +33,13 @@
     </div>
 
     @if (store.error()) {
-      <ui-josanz-alert type="error">
+      <ui-alert type="error">
         {{ store.error() }}
-      </ui-josanz-alert>
+      </ui-alert>
     }
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <ui-josanz-input
+      <ui-input
         id="email"
         label="E-mail"
         type="email"
@@ -47,9 +47,9 @@
         icon="user"
         formControlName="email"
         [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
-      ></ui-josanz-input>
+      ></ui-input>
 
-      <ui-josanz-input
+      <ui-input
         id="password"
         label="Contraseña"
         type="password"
@@ -57,16 +57,16 @@
         icon="lock"
         formControlName="password"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
-      ></ui-josanz-input>
+      ></ui-input>
 
-      <ui-josanz-button 
+      <ui-button 
         type="submit" 
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
         icon="arrow-right"
       >
         Acceder
-      </ui-josanz-button>
+      </ui-button>
     </form>
 
     <div class="auth-footer">
