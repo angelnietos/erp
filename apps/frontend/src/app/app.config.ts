@@ -135,6 +135,7 @@ import {
   Banknote,
   CheckCheck,
   UploadCloud,
+  RotateCw,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
@@ -273,6 +274,7 @@ export const appConfig: ApplicationConfig = {
         Banknote,
         CheckCheck,
         UploadCloud,
+        RotateCw,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
