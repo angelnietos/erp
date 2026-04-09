@@ -23,7 +23,9 @@ import {
   UiCardComponent,
   UiBadgeComponent,
   UiStatCardComponent,
-  UiSearchComponent
+  UiSearchComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent
 } from '@josanz-erp/shared-ui-kit';
 import {
   DomainEventsApiService,
@@ -87,36 +89,22 @@ interface DomainEventPayload {
     UiBadgeComponent,
     UiStatCardComponent,
     UiSearchComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
     LucideAngularModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Auditoría de Sistema
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">CONTROL Y SEGURIDAD</span>
-            <span class="separator">/</span>
-            <span>TRAZABILIDAD DE OPERACIONES</span>
-          </div>
-        </div>
-      </header>
+      <ui-feature-header
+        title="Auditoría de Sistema"
+        subtitle="Trazabilidad completa de operaciones y seguridad"
+        icon="shield-check"
+      ></ui-feature-header>
 
-      <div class="navigation-bar ui-glass-panel">
-        <ui-search 
-          variant="filled"
-          placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
-          (searchChange)="onSearch($event)"
-          class="flex-1 max-w-md"
-        ></ui-search>
-      </div>
-
-      <div class="stats-row">
+      <ui-feature-stats>
         <ui-stat-card 
-          label="Total Registros" 
+          label="Registros Totales" 
           [value]="auditLogs().length.toString()" 
           icon="history" 
           [accent]="true">
@@ -132,6 +120,15 @@ interface DomainEventPayload {
           [value]="activeUsersCount().toString()" 
           icon="users">
         </ui-stat-card>
+      </ui-feature-stats>
+
+      <div class="navigation-bar ui-glass">
+        <ui-search 
+          variant="glass"
+          placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
+          (searchChange)="onSearch($event)"
+          class="flex-1 max-w-lg"
+        ></ui-search>
       </div>
 
       <div class="audit-content">
@@ -151,17 +148,19 @@ interface DomainEventPayload {
               >
                 <div class="log-summary" (click)="toggleLogExpansion(log.id)" (keydown.enter)="toggleLogExpansion(log.id)" (keydown.space)="toggleLogExpansion(log.id); $event.preventDefault()" tabindex="0">
                   <div class="log-icon">
-                    <lucide-icon
-                      [img]="getActionIcon(log.action)"
-                      size="20"
-                    ></lucide-icon>
+                    <div class="icon-orb" [style.background]="getActionOrbColor(log.action)">
+                      <lucide-icon
+                        [img]="getActionIcon(log.action)"
+                        size="18"
+                      ></lucide-icon>
+                    </div>
                   </div>
 
                   <div class="log-info">
                     <div class="log-primary">
                       <span class="log-user">{{ log.userName }}</span>
-                      <span class="log-action">{{ log.action }}</span>
-                      <span class="log-entity">{{ log.entity }}</span>
+                      <span class="log-action">{{ getActionText(log.action) }}</span>
+                      <span class="log-entity">{{ getEntityText(log.entity) }}</span>
                       @if (log.entityName) {
                         <span class="log-entity-name"
                           >"{{ log.entityName }}"</span
@@ -170,19 +169,19 @@ interface DomainEventPayload {
                     </div>
                     <div class="log-meta">
                       <span class="log-timestamp">
-                        <lucide-icon [img]="Clock" size="14"></lucide-icon>
-                        {{ log.timestamp | date:'short' }}
+                        <lucide-icon [img]="Clock" size="12"></lucide-icon>
+                        {{ formatTimestamp(log.timestamp) }}
                       </span>
-                      <ui-badge [variant]="getActionVariant(log.action)">
+                      <span class="tag-status" [attr.data-variant]="getActionVariant(log.action)">
                         {{ log.action }}
-                      </ui-badge>
+                      </span>
                     </div>
                   </div>
 
                   <div class="log-toggle">
                     <lucide-icon
                       [img]="History"
-                      size="16"
+                      size="14"
                       [class.rotated]="expandedLog() === log.id"
                     ></lucide-icon>
                   </div>
@@ -712,6 +711,15 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
   toggleLogExpansion(logId: string) {
     this.expandedLog.set(this.expandedLog() === logId ? null : logId);
+  }
+
+  getActionOrbColor(action: string): string {
+    switch (action) {
+      case 'CREATE': return 'rgba(16, 185, 129, 0.15)';
+      case 'UPDATE': return 'rgba(59, 130, 246, 0.15)';
+      case 'DELETE': return 'rgba(239, 68, 68, 0.15)';
+      default: return 'rgba(255, 255, 255, 0.08)';
+    }
   }
 
   getActionIcon(action: string) {
