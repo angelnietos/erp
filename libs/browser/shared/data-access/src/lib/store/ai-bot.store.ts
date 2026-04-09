@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
-import { environment } from '../../../../../../../apps/frontend/src/environments/environment';
+import { AI_CONFIG } from '../configs/ai.config';
 
 
 export type MascotType =
@@ -191,13 +191,20 @@ export class AIBotStore {
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
 
   readonly selectedProvider = signal<
-    'gemini' | 'openai' | 'anthropic' | 'grok' | 'together' | 'ollama' | 'free'
+    | 'gemini'
+    | 'openai'
+    | 'anthropic'
+    | 'grok'
+    | 'together'
+    | 'openrouter'
+    | 'ollama'
+    | 'free'
   >(this.getInitialProvider());
 
   readonly selectedModelId = signal<string>(this.getInitialModelId());
 
   readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') || environment.aiApiKey || '',
+    localStorage.getItem('ai_api_key') || AI_CONFIG.xai_api_key || '',
   );
 
   readonly activeBotFeature = signal<string>(
@@ -1546,6 +1553,7 @@ export class AIBotStore {
     | 'anthropic'
     | 'grok'
     | 'together'
+    | 'openrouter'
     | 'ollama'
     | 'free' {
     const persisted = localStorage.getItem('ai_provider');
@@ -1556,20 +1564,13 @@ export class AIBotStore {
       'anthropic',
       'grok',
       'together',
+      'openrouter',
       'ollama',
       'free',
     ];
     const isValid = validProviders.includes(persisted || '');
 
-    if (!isValid && persisted) {
-      console.warn(
-        `⚠️ Proveedor inválido en localStorage: '${persisted}'. Reseteando a 'grok'.`,
-      );
-      localStorage.removeItem('ai_provider');
-      return 'grok';
-    }
-
-    return (persisted as any) || 'grok';
+    return (persisted as any) || 'openrouter';
   }
 
   private getInitialModelId(): string {
@@ -1581,7 +1582,7 @@ export class AIBotStore {
   resetAIPreferences() {
     localStorage.removeItem('ai_provider');
     localStorage.removeItem('ai_selected_model_id');
-    this.selectedProvider.set('grok');
+    this.selectedProvider.set('openrouter');
     this.selectedModelId.set('grok');
     console.log('🔄 Preferencias de IA reseteadas a valores por defecto');
   }
@@ -1728,10 +1729,12 @@ export class AIBotStore {
           return await this.generateWithGrok(prompt, context);
         case 'together':
           return await this.generateWithTogether(prompt, context);
+        case 'openrouter':
+          return await this.generateWithOpenRouter(prompt, context);
         case 'free':
-          return this.generateBasicResponse(prompt);
+          return this.generateSmartFallback(prompt, context);
         default:
-          return this.generateBasicResponse(prompt);
+          return this.generateSmartFallback(prompt, context);
       }
     } catch (error) {
       console.warn(`Error con ${provider}, intentando fallback:`, error);
@@ -1818,7 +1821,7 @@ export class AIBotStore {
     return 'Lo siento, no pude generar una respuesta.';
   }
 
-  private generateBasicResponse(prompt: string): string {
+  private generateBasicResponse(_prompt: string): string {
     // Respuesta básica cuando no hay APIs configuradas
     const responses = [
       '¡Hola! Actualmente estoy usando respuestas básicas. Las APIs premium (Gemini, OpenAI, etc.) requieren configuración de claves API.',
@@ -2024,7 +2027,7 @@ export class AIBotStore {
       // En v1/responses el resultado suele estar en data.output o data.text
       // Basándome en la tendencia de xAI, usaré data.output o el fallback al formato antiguo si es necesario
       return data.output || data.choices?.[0]?.message?.content || data.text || 'Respuesta generada';
-    } catch (e) {
+    } catch (_e) {
       return `[Error Grok] No se pudo conectar con xAI. Verifica tu API Key.`;
     }
   }
@@ -2058,9 +2061,56 @@ export class AIBotStore {
       if (!resp.ok) throw new Error('Error en API de Together');
       const data = await resp.json();
       return data.choices[0].message.content;
-    } catch (e) {
+    } catch (_e) {
       return `[Error Together] Hubo un problema con la conexión.`;
     }
+  }
+
+  private async generateWithOpenRouter(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
+    // OpenRouter ofrece modelos GRATUITOS "de verdad" (como meta-llama/llama-3-8b-instruct:free)
+    const apiKey = this.providerApiKey();
+    const model = 'meta-llama/llama-3-8b-instruct:free'; // Modelo gratuito por defecto
+
+    try {
+      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey || ''}`, // OpenRouter a veces permite modelos free sin key, pero mejor con una
+          'HTTP-Referer': 'http://localhost:4200',
+          'X-Title': 'Josanz ERP',
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            ...(context ? [{ role: 'system', content: context }] : []),
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Error en OpenRouter');
+      const data = await resp.json();
+      return data.choices[0].message.content;
+    } catch (_e) {
+      return this.generateSmartFallback(prompt, context);
+    }
+  }
+
+  private generateSmartFallback(prompt: string, context?: string): string {
+    const isBuddy = context?.toLowerCase().includes('buddy');
+    const feature =
+      context?.match(/especializado en ([\w-]+)/)?.[1] || 'general';
+
+    const responses = [
+      `[Modo Offline] Soy tu asistente de ${feature}. Entiendo que necesitas ayuda con "${prompt}". Para una respuesta real de IA, usa un proveedor gratuito como OpenRouter (Llama 3 FREE).`,
+      `[Modo Offline] ${isBuddy ? 'Hola, soy Buddy.' : 'Asistente listo.'} Estoy en modo limitado. Configura una API de Gemini o OpenRouter para que pueda razonar de verdad sobre tus datos de ${feature}.`,
+      `[Modo Offline] Recibido: "${prompt}". Actualmente funciono sin conexión a la nube de IA. ¿Quieres que te ayude con algo de la interfaz de ${feature} mientras tanto?`,
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
   }
 
   /** Send inter-bot display message */
