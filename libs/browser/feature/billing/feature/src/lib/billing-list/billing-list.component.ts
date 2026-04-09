@@ -92,7 +92,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="navigation-bar">
+      <div class="feature-controls">
         <ui-tabs
           [tabs]="tabs()"
           [activeTab]="activeTab()"
@@ -101,12 +101,13 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
           class="flex-1"
         ></ui-tabs>
 
-        <ui-search
-          variant="glass"
-          placeholder="BUSCAR NIF, CLIENTE O Nº..."
-          (searchChange)="onSearch($event)"
-          class="search-bar"
-        ></ui-search>
+        <div class="search-container">
+          <ui-search
+            variant="glass"
+            placeholder="BUSCAR NIF, CLIENTE O Nº..."
+            (searchChange)="onSearch($event)"
+          ></ui-search>
+        </div>
       </div>
 
       @if (isLoading()) {
@@ -265,20 +266,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       padding: 2rem;
     }
 
-    .navigation-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      background: var(--surface);
-      padding: 0.5rem 1.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      gap: 2rem;
-    }
-
     .flex-1 { flex: 1; }
-    .search-bar { width: 350px; }
 
     .loader-container { display: flex; justify-content: center; padding: 5rem; }
 

@@ -122,13 +122,14 @@ interface DomainEventPayload {
         </ui-stat-card>
       </ui-feature-stats>
 
-      <div class="navigation-bar ui-glass">
-        <ui-search 
-          variant="glass"
-          placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
-          (searchChange)="onSearch($event)"
-          class="flex-1 max-w-lg"
-        ></ui-search>
+      <div class="feature-controls">
+        <div class="search-container">
+          <ui-search 
+            variant="glass"
+            placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
+            (searchChange)="onSearch($event)"
+          ></ui-search>
+        </div>
       </div>
 
       <div class="audit-content">
@@ -212,17 +213,6 @@ interface DomainEventPayload {
     </div>
   `,
   styles: [`
-    .navigation-bar {
-      margin-bottom: 2rem;
-      padding: 1rem;
-      border-radius: 16px;
-      display: flex;
-      gap: 1rem;
-    }
-
-    .flex-1 { flex: 1; }
-    .max-w-lg { max-width: 32rem; }
-
     .audit-content {
       display: flex;
       flex-direction: column;

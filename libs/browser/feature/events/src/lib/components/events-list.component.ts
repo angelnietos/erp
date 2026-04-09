@@ -128,15 +128,16 @@ interface EventFilter {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="filters-bar">
-        <ui-search 
-          variant="glass"
-          placeholder="BUSCAR EVENTOS..." 
-          (searchChange)="onSearchChange($event)"
-          class="flex-1"
-        ></ui-search>
+      <div class="feature-controls">
+        <div class="search-container">
+          <ui-search 
+            variant="glass"
+            placeholder="BUSCAR EVENTOS..." 
+            (searchChange)="onSearchChange($event)"
+          ></ui-search>
+        </div>
         
-        <div class="quick-filters">
+        <div class="actions-group">
            <ui-select
               label="ESTADO"
               [(ngModel)]="filters.status"
@@ -190,20 +191,6 @@ interface EventFilter {
       margin: 0 auto;
       padding: 2rem;
     }
-
-    .filters-bar {
-      margin-bottom: 2rem;
-      background: var(--surface);
-      padding: 0.75rem 1.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .flex-1 { flex: 1; }
-    .quick-filters { display: flex; gap: 1rem; width: 450px; }
 
     .card-actions { display: flex; gap: 0.25rem; }
 

@@ -94,14 +94,15 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       </ui-feature-stats>
 
       <!-- Search and Filters -->
-      <div class="controls-section">
-        <ui-search
-          variant="glass"
-          placeholder="Buscar por nombre, sector o contacto..."
-          (searchChange)="onSearch($event)"
-          class="flex-1"
-        ></ui-search>
-        <div class="filter-actions">
+      <div class="feature-controls">
+        <div class="search-container">
+          <ui-search
+            variant="glass"
+            placeholder="Buscar por nombre, sector o contacto..."
+            (searchChange)="onSearch($event)"
+          ></ui-search>
+        </div>
+        <div class="actions-group">
            <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
             <ui-button 
               variant="ghost" 
@@ -200,24 +201,8 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       min-height: 100vh;
     }
 
-    .controls-section {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      align-items: center;
-      background: var(--surface);
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--border-soft);
-    }
-
     .flex-1 { flex: 1; }
-
-    .filter-actions {
-       display: flex;
-       gap: 0.5rem;
-    }
-
+    
     .loading-container {
       display: flex;
       justify-content: center;
