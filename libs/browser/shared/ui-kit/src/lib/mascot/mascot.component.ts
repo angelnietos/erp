@@ -29,12 +29,22 @@ export type MascotPersonality =
     <div
       class="mascot-container"
       [class]="'personality-' + personality"
+      [class]="'type-' + type"
+      [class.is-mushroom]="bodyShape.includes('mushroom')"
+      [class.is-rage]="rageMode"
       [style.--mascot-color]="effectiveColor"
       [style.--mascot-secondary]="effectiveSecondary"
     >
       <div class="mascot-body-wrapper">
         <!-- Ambient Aura -->
         <div class="mascot-glow"></div>
+
+        <!-- Bioluminescent Spores -->
+        <div class="spores-container" *ngIf="bodyShape.includes('mushroom')">
+           <div class="spore p1"></div>
+           <div class="spore p2"></div>
+           <div class="spore p3"></div>
+        </div>
 
         <!-- Accessories behind the body (Wings, Capes) -->
         <div class="ears-container" *ngIf="personality !== 'tech'">
@@ -52,8 +62,17 @@ export type MascotPersonality =
         </div>
 
         <!-- Main Body -->
-        <div class="mascot-body" [class]="bodyShape">
+        <div class="mascot-body" [class]="bodyShape" [class.is-mushroom]="bodyShape.includes('mushroom')">
           <div class="glass-highlight"></div>
+
+          <!-- Mushroom Texture / Spots -->
+          <div class="mushroom-texture" *ngIf="bodyShape.includes('mushroom')">
+            <div class="mush-spot s1"></div>
+            <div class="mush-spot s2"></div>
+            <div class="mush-spot s3"></div>
+            <div class="mush-spot s4"></div>
+            <div class="mush-gills" *ngIf="personality === 'tech'"></div>
+          </div>
 
           <!-- Kawaii Anatomy -->
           <div class="face-container">
@@ -196,24 +215,91 @@ export type MascotPersonality =
         border-radius: 10px;
       }
       .mascot-body.mushroom-cap {
-        border-radius: 50% 50% 20% 20%;
-        clip-path: ellipse(80% 60% at 50% 35%);
+        border-radius: 50% 50% 25% 25%;
+        height: 85%;
+        margin-top: 5%;
+        background: radial-gradient(circle at 50% 0%, var(--mascot-color), var(--mascot-secondary));
+        box-shadow: 
+          inset 0 10px 20px rgba(255,255,255,0.3),
+          inset 0 -5px 15px rgba(0,0,0,0.4),
+          0 15px 35px color-mix(in srgb, var(--mascot-secondary) 40%, transparent);
       }
+      
       .mascot-body.mushroom-full {
-        border-radius: 50% 50% 10% 10%;
+        border-radius: 60% 60% 40% 40% / 100% 100% 20% 20%;
         position: relative;
+        background: radial-gradient(circle at 50% 5%, var(--mascot-color), var(--mascot-secondary));
       }
+      
       .mascot-body.mushroom-full::before {
         content: '';
         position: absolute;
-        bottom: -10px;
-        left: 40%;
-        width: 20%;
-        height: 15px;
-        background: var(--mascot-secondary);
-        border-radius: 50%;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        bottom: -25px;
+        left: 30%;
+        width: 40%;
+        height: 35px;
+        background: linear-gradient(to bottom, #f3f4f6, #d1d5db);
+        border-radius: 40% 40% 45% 45% / 20% 20% 80% 80%;
+        box-shadow: 
+          inset 0 2px 5px rgba(255,255,255,0.5),
+          0 8px 20px rgba(0, 0, 0, 0.4);
+        z-index: -1;
       }
+
+      /* Mushroom Texture System */
+      .mushroom-texture {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        overflow: hidden;
+        border-radius: inherit;
+      }
+
+      .mush-spot {
+        position: absolute;
+        background: var(--spot-color, rgba(255,255,255,0.5));
+        border-radius: 50%;
+        filter: blur(1px);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      /* Feature-Specific Species */
+      .type-dashboard { --spot-color: #fff; --mascot-color: #ef4444; --mascot-secondary: #991b1b; }
+      .type-inventory { --spot-color: #00f2ad; --mascot-color: #7c3aed; --mascot-secondary: #4c1d95; }
+      .type-clients   { --spot-color: #fff; --mascot-color: #ec4899; --mascot-secondary: #9d174d; }
+      .type-audit     { --spot-color: #3fc1ff; --mascot-color: #1e293b; --mascot-secondary: #0f172a; }
+      .type-budget    { --spot-color: rgba(0,0,0,0.1); --mascot-color: #eab308; --mascot-secondary: #854d0e; }
+      .type-rentals   { --spot-color: rgba(255,255,255,0.3); --mascot-color: #10b981; --mascot-secondary: #064e3b; }
+      .type-projects  { --spot-color: rgba(255,255,255,0.2); --mascot-color: #3b82f6; --mascot-secondary: #1e3a8a; }
+
+      .mush-spot.s1 { width: 30%; height: 30%; top: 5%; left: 10%; transform: rotate(15deg); }
+      .mush-spot.s2 { width: 20%; height: 20%; top: 40%; left: 65%; transform: rotate(-10deg); }
+      .mush-spot.s3 { width: 25%; height: 25%; top: 15%; left: 55%; transform: rotate(45deg); }
+      .mush-spot.s4 { width: 15%; height: 15%; top: 60%; left: 15%; transform: rotate(-20deg); }
+
+      /* Special Textures */
+      .type-projects .mushroom-texture { 
+        background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.1) 1px, transparent 0);
+        background-size: 8px 8px;
+      }
+
+      .is-rage .mush-spot {
+        background: #ff0000;
+        box-shadow: 0 0 10px #ff0000;
+        animation: pulse 0.5s infinite alternate;
+      }
+
+      .mush-gills {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 10px;
+        background: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 4px);
+        mask-image: radial-gradient(circle at 50% 0%, black 70%, transparent 100%);
+        border-radius: 0 0 50% 50%;
+      }
+
 
       /* Rage / Toxic Core */
       .mascot-container.is-rage .mascot-glow {
@@ -630,6 +716,33 @@ export type MascotPersonality =
         95% {
           transform: translate(0, 1px);
         }
+      }
+
+      /* Spore Particles */
+      .spores-container {
+        position: absolute;
+        inset: -20px;
+        z-index: 10;
+        pointer-events: none;
+      }
+      .spore {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--mascot-color);
+        border-radius: 50%;
+        filter: blur(1px);
+        box-shadow: 0 0 8px var(--mascot-color);
+        opacity: 0;
+      }
+      .spore.p1 { top: 10%; left: 20%; animation: drift 4s infinite linear; }
+      .spore.p2 { top: 60%; left: 80%; animation: drift 5s infinite 1s reverse; }
+      .spore.p3 { top: 80%; left: 10%; animation: drift 3s infinite 0.5s; }
+
+      @keyframes drift {
+        0% { transform: translate(0, 0) scale(0); opacity: 0; }
+        50% { transform: translate(15px, -20px) scale(1); opacity: 0.8; }
+        100% { transform: translate(30px, -40px) scale(0); opacity: 0; }
       }
 
       @keyframes floatLimbs {
