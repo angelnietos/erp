@@ -62,7 +62,10 @@ export type MascotPersonality =
         </div>
 
         <!-- Main Body -->
-        <div class="mascot-body" [class]="bodyShape" [class.is-mushroom]="bodyShape.includes('mushroom')">
+        <div class="mascot-body" [class]="bodyShape" 
+          [class.is-mushroom]="bodyShape.includes('mushroom')"
+          [class.is-bonsai]="bodyShape.includes('bonsai')"
+        >
           <div class="glass-highlight"></div>
 
           <!-- Mushroom Texture / Spots -->
@@ -72,6 +75,12 @@ export type MascotPersonality =
             <div class="mush-spot s3"></div>
             <div class="mush-spot s4"></div>
             <div class="mush-gills" *ngIf="personality === 'tech'"></div>
+          </div>
+
+          <!-- Bonsai Structure -->
+          <div class="bonsai-decoration" *ngIf="bodyShape.includes('bonsai')">
+             <div class="bonsai-trunk"></div>
+             <div class="bonsai-pot"></div>
           </div>
 
           <!-- Kawaii Anatomy -->
@@ -298,6 +307,51 @@ export type MascotPersonality =
         background: repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 4px);
         mask-image: radial-gradient(circle at 50% 0%, black 70%, transparent 100%);
         border-radius: 0 0 50% 50%;
+      }
+
+      /* Bonsai Zen Ecosystem */
+      .mascot-body.bonsai {
+        border-radius: 45% 55% 30% 70% / 60% 30% 70% 40% ;
+        background: radial-gradient(circle at 35% 25%, #22c55e, #14532d);
+        box-shadow: 
+          inset 0 8px 15px rgba(255,255,255,0.2),
+          0 10px 30px rgba(0,0,0,0.3);
+        animation: sway 6s ease-in-out infinite alternate !important;
+      }
+
+      .bonsai-decoration {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+      }
+
+      .bonsai-trunk {
+        position: absolute;
+        bottom: -45px;
+        left: 42%;
+        width: 14px;
+        height: 55px;
+        background: linear-gradient(to right, #78350f, #451a03);
+        border-radius: 5px;
+        transform: rotate(-5deg);
+        z-index: -2;
+      }
+
+      .bonsai-pot {
+        position: absolute;
+        bottom: -55px;
+        left: 10%;
+        width: 80%;
+        height: 20px;
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        border-radius: 2px 2px 8px 8px;
+        border: 1.5px solid #334155;
+        box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+      }
+
+      @keyframes sway {
+        from { transform: rotate(-2deg) translateY(0); }
+        to { transform: rotate(2deg) translateY(-2px); }
       }
 
 
@@ -777,7 +831,8 @@ export class UIMascotComponent {
     | 'capsule'
     | 'tri'
     | 'mushroom-cap'
-    | 'mushroom-full' = 'round';
+    | 'mushroom-full'
+    | 'bonsai' = 'round';
   @Input() eyesType: 'dots' | 'joy' | 'shades' | 'angry' | 'insane' = 'dots';
   @Input() mouthType: 'smile' | 'line' | 'o' | 'mean' = 'line';
 
