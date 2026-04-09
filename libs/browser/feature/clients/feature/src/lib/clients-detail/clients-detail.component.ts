@@ -260,49 +260,28 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             @case ('commercial') {
               <ui-josanz-card variant="glass" title="Historial Comercial">
                 <div class="commercial-history">
-                  <div class="history-item">
-                    <div class="history-header">
-                      <span class="project-title">Congreso Anual 2026</span>
-                      <ui-josanz-badge variant="success"
-                        >Completado</ui-josanz-badge
-                      >
+                  @for (rental of client()?.rentals; track rental.id) {
+                    <div class="history-item">
+                      <div class="history-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                        <span class="project-title" style="font-weight: 600;">Expediente {{ rental.reference || rental.id.substring(0,8) }}</span>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                          <ui-josanz-badge [variant]="rental.status === 'COMPLETED' ? 'success' : (rental.status === 'ACTIVE' ? 'info' : 'warning')">
+                            {{ rental.status }}
+                          </ui-josanz-badge>
+                          <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/rentals/{{ rental.id }}">VER</ui-josanz-button>
+                        </div>
+                      </div>
+                      <div class="history-details">
+                        <span class="detail">Período: {{ formatDate(rental.startDate) }} — {{ formatDate(rental.endDate) }}</span>
+                        <span class="detail">Valor: {{ formatCurrency(rental.totalPrice || 0) }}</span>
+                        <span class="detail">Equipos: {{ rental.rentalItems?.length || 0 }} elementos</span>
+                      </div>
                     </div>
-                    <div class="history-details">
-                      <span class="detail">Período: 01-30 Abril 2026</span>
-                      <span class="detail">Valor: 3.200 €</span>
-                      <span class="detail"
-                        >Equipos: Proyector 4K + Pantalla LED</span
-                      >
+                  } @empty {
+                    <div class="placeholder-state">
+                      <p>Aún no existen proyectos ni alquileres registrados para esta entidad.</p>
                     </div>
-                  </div>
-                  <div class="history-item">
-                    <div class="history-header">
-                      <span class="project-title">Feria Tecnológica</span>
-                      <ui-josanz-badge variant="info">En curso</ui-josanz-badge>
-                    </div>
-                    <div class="history-details">
-                      <span class="detail">Período: 15-20 Julio 2026</span>
-                      <span class="detail">Valor: 2.850 €</span>
-                      <span class="detail"
-                        >Equipos: Set completo audiovisual</span
-                      >
-                    </div>
-                  </div>
-                  <div class="history-item">
-                    <div class="history-header">
-                      <span class="project-title"
-                        >Presentación Corporativa</span
-                      >
-                      <ui-josanz-badge variant="success"
-                        >Completado</ui-josanz-badge
-                      >
-                    </div>
-                    <div class="history-details">
-                      <span class="detail">Período: 10-12 Febrero 2026</span>
-                      <span class="detail">Valor: 1.200 €</span>
-                      <span class="detail">Equipos: Proyector + Pantalla</span>
-                    </div>
-                  </div>
+                  }
                 </div>
               </ui-josanz-card>
             }
@@ -604,7 +583,7 @@ export class ClientsDetailComponent implements OnInit {
             { id: 'budgets', label: 'Presupuestos', badge: c.budgets?.length || 0 },
             { id: 'invoices', label: 'Documental', badge: invoiceCount + deliveryNoteCount },
             { id: 'reports', label: 'Informes de Evento', badge: c.eventReports?.length || 0 },
-            { id: 'commercial', label: 'Historial Comercial' },
+            { id: 'commercial', label: 'Historial Comercial', badge: c.rentals?.length || 0 },
           ]);
         }
         this.isLoading.set(false);

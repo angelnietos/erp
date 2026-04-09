@@ -45,6 +45,19 @@ export class ClientsService {
             deliveryNotes: true
           },
           orderBy: { createdAt: 'desc' }
+        },
+        projects: {
+          orderBy: { createdAt: 'desc' }
+        },
+        rentals: {
+          include: {
+            rentalItems: {
+              include: {
+                product: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
         }
       },
     });
@@ -123,6 +136,8 @@ export class ClientsService {
       contacts: client.contacts || [],
       eventReports: client.eventReports || [],
       budgets: client.budgets || [],
+      projects: client.projects || [],
+      rentals: client.rentals || [],
       // Compatibility fields
       company: client.name,
       status: client.deletedAt ? 'inactive' : 'active',

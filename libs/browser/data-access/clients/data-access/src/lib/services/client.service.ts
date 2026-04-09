@@ -45,6 +45,24 @@ export interface Invoice {
   verifactuStatus: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  status: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface Rental {
+  id: string;
+  reference: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  totalPrice?: number;
+  rentalItems?: any[];
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -62,6 +80,8 @@ export interface Client {
   contacts?: ClientContact[];
   eventReports?: EventReport[];
   budgets?: Budget[];
+  projects?: Project[];
+  rentals?: Rental[];
   createdAt?: string;
   updatedAt?: string;
   avatarUrl?: string;
