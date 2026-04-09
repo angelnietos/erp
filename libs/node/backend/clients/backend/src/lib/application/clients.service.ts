@@ -138,6 +138,7 @@ export class ClientsService {
       budgets: client.budgets || [],
       projects: client.projects || [],
       rentals: client.rentals || [],
+      test_ping: 'pong',
       // Compatibility fields
       company: client.name,
       status: client.deletedAt ? 'inactive' : 'active',
