@@ -141,18 +141,13 @@ export class AIInferenceService {
     if (!apiKey) throw new Error('API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.');
 
     const model = AI_CONFIG.gemini_model;
-    const body: {
-      contents: Array<{ role: string; parts: Array<{ text: string }> }>;
-      generationConfig: { temperature: number; topK: number; topP: number; maxOutputTokens: number };
-      systemInstruction?: { parts: Array<{ text: string }> };
-    } = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    // Prepend context as part of the user message — works universally across all API versions
+    const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
+
+    const body = {
+      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
       generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 2048 }
     };
-
-    if (context) {
-      body.systemInstruction = { parts: [{ text: context }] };
-    }
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`, {
       method: 'POST',
