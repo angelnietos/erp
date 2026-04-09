@@ -29,8 +29,8 @@ export type MascotPersonality =
     <div
       class="mascot-container"
       [class]="'personality-' + personality"
-      [style.--mascot-color]="color"
-      [style.--mascot-secondary]="secondaryColor"
+      [style.--mascot-color]="effectiveColor"
+      [style.--mascot-secondary]="effectiveSecondary"
     >
       <div class="mascot-body-wrapper">
         <!-- Ambient Aura -->
@@ -131,7 +131,7 @@ export type MascotPersonality =
         background: radial-gradient(
           circle,
           var(--mascot-color) 0%,
-          var(--mascot-secondary) 50%,
+          var(--mascot-secondary) 30%,
           transparent 70%
         );
         opacity: 0.3;
@@ -146,14 +146,17 @@ export type MascotPersonality =
         background: radial-gradient(
           circle at 30% 20%,
           color-mix(in srgb, var(--mascot-color) 30%, white) 0%,
-          var(--mascot-color) 45%,
+          var(--mascot-color) 30%,
           var(--mascot-secondary) 100%
         );
         box-shadow:
-          inset -10px -10px 20px rgba(0, 0, 0, 0.5),
+          inset -10px -10px 22px
+            color-mix(in srgb, var(--mascot-secondary) 45%, rgba(0, 0, 0, 0.75)),
           inset 10px 10px 20px rgba(255, 255, 255, 0.4),
           0 15px 35px
-            color-mix(in srgb, var(--mascot-secondary) 50%, rgba(0, 0, 0, 0.4));
+            color-mix(in srgb, var(--mascot-secondary) 55%, rgba(0, 0, 0, 0.45)),
+          0 28px 50px -12px
+            color-mix(in srgb, var(--mascot-secondary) 35%, transparent);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -308,7 +311,8 @@ export type MascotPersonality =
         );
         border-radius: 50% 50% 20px 20px;
         box-shadow:
-          inset -4px -4px 10px rgba(0, 0, 0, 0.4),
+          inset -4px -4px 10px
+            color-mix(in srgb, var(--mascot-secondary) 40%, rgba(0, 0, 0, 0.55)),
           inset 4px 4px 10px rgba(255, 255, 255, 0.4);
       }
 
@@ -489,7 +493,7 @@ export type MascotPersonality =
         background: radial-gradient(
           circle at 30% 30%,
           color-mix(in srgb, var(--mascot-color) 40%, white) 0%,
-          var(--mascot-color) 70%,
+          var(--mascot-color) 50%,
           var(--mascot-secondary) 100%
         );
         border-radius: 50%;
@@ -512,7 +516,10 @@ export type MascotPersonality =
         top: -20px;
         right: -15px;
         font-size: 2rem;
-        filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.4));
+        filter: drop-shadow(
+          0 8px 14px
+            color-mix(in srgb, var(--mascot-secondary) 45%, rgba(0, 0, 0, 0.5))
+        );
         animation: handItemHover 2.5s ease-in-out infinite alternate;
       }
 
@@ -521,13 +528,16 @@ export type MascotPersonality =
         bottom: -35px;
         left: 15%;
         width: 70%;
-        height: 15px;
-        background: color-mix(
-          in srgb,
-          var(--mascot-secondary) 50%,
-          rgba(0, 0, 0, 0.5)
+        height: 18px;
+        background: radial-gradient(
+          ellipse at center,
+          color-mix(in srgb, var(--mascot-secondary) 65%, rgba(0, 0, 0, 0.55))
+            0%,
+          color-mix(in srgb, var(--mascot-secondary) 25%, rgba(0, 0, 0, 0.35))
+            55%,
+          transparent 100%
         );
-        filter: blur(10px);
+        filter: blur(12px);
         border-radius: 50%;
         animation: shadowMove 4s ease-in-out infinite;
       }

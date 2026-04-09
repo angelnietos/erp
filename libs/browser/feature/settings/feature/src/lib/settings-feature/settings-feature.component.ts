@@ -294,6 +294,7 @@ interface PluginDescriptor {
                       <ui-mascot
                         [type]="$any(bot.mascotType)"
                         [color]="bot.color"
+                        [secondaryColor]="bot.secondaryColor"
                         [personality]="$any(bot.personality)"
                         [bodyShape]="$any(bot.bodyShape)"
                         [eyesType]="$any(bot.eyesType)"
@@ -554,6 +555,7 @@ interface PluginDescriptor {
                       <ui-mascot
                         [type]="$any(buddy.mascotType)"
                         [color]="buddy.color"
+                        [secondaryColor]="buddy.secondaryColor"
                         [personality]="$any(buddy.personality)"
                         [bodyShape]="$any(buddy.bodyShape)"
                         [eyesType]="$any(buddy.eyesType)"
