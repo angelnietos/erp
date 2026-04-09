@@ -249,12 +249,8 @@ async function main() {
   const productDefs = [
     { name: 'Proyector Láser 4K', price: 1500, stock: 10, sku: 'PRJ-4K-001' },
     { name: 'Pantalla LED 100"', price: 800, stock: 5, sku: 'LED-100-001' },
-    {
-      name: 'Set de Sonido Premium',
-      price: 600,
-      stock: 15,
-      sku: 'SND-PRM-001',
-    },
+    { name: 'Set de Sonido Premium', price: 600, stock: 15, sku: 'SND-PRM-001' },
+    { name: 'Altavoz Autoamplificado', price: 300, stock: 0, sku: 'SPK-AUTO-000' }, // Low stock for tests
     { name: 'Lote de Cableado HDMI', price: 50, stock: 50, sku: 'CBL-HDMI-50' },
   ];
 
@@ -763,13 +759,51 @@ async function main() {
   console.log('- Created categories');
 
   // Seed technicians
+  const userDani = await prisma.user.create({
+    data: {
+      tenantId: tenant.id,
+      email: 'dani@josanz.com',
+      password: hashedPassword,
+      firstName: 'Dani',
+      lastName: 'Sonido',
+    },
+  });
+
+  const userAlex = await prisma.user.create({
+    data: {
+      tenantId: tenant.id,
+      email: 'alex@josanz.com',
+      password: hashedPassword,
+      firstName: 'Alex',
+      lastName: 'Ilu',
+    },
+  });
+
   const technicians = await prisma.$transaction([
     prisma.technician.create({
       data: {
         tenantId: tenant.id,
         userId: admin.id,
         hourlyRate: 50,
-        skills: ['Audio', 'Video'],
+        skills: ['DIRECTOR', 'SISTEMAS'],
+      },
+    }),
+    prisma.technician.create({
+      data: {
+        tenantId: tenant.id,
+        userId: userDani.id,
+        hourlyRate: 40,
+        skills: ['AUDIO', 'RF'],
+        status: 'ACTIVE',
+      },
+    }),
+    prisma.technician.create({
+      data: {
+        tenantId: tenant.id,
+        userId: userAlex.id,
+        hourlyRate: 35,
+        skills: ['ILUMINACIÓN', 'ROBÓTICA'],
+        status: 'ACTIVE',
       },
     }),
   ]);
