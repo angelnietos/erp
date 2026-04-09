@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { AI_CONFIG } from '../../configs/ai.config';
 
 export type AIProvider =
@@ -99,7 +99,7 @@ export class AIInferenceService {
         case 'free': return this.generateSmartFallback(prompt, context);
         default: return this.generateSmartFallback(prompt, context);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`🔴 Error crítico con ${provider}:`, error);
       await this.autoSelectProvider();
       return this.generateBasicResponse();
@@ -111,7 +111,11 @@ export class AIInferenceService {
     if (!apiKey) throw new Error('API Key de Gemini no configurada');
 
     const model = AI_CONFIG.gemini_model;
-    const body: any = {
+    const body: {
+      contents: Array<{ role: string; parts: Array<{ text: string }> }>;
+      generationConfig: { temperature: number; topK: number; topP: number; maxOutputTokens: number };
+      system_instruction?: { parts: Array<{ text: string }> };
+    } = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 2048 }
     };
@@ -231,12 +235,14 @@ export class AIInferenceService {
       const response = await fetch(`${this.ollamaConfig().baseUrl}/api/tags`);
       if (response.ok) {
         const data = await response.json();
-        const availableModels = data.models?.map((m: any) => m.name) || [];
+        const availableModels = (data.models as Array<{name: string}>)?.map((m) => m.name) || [];
         this.freeModels.update(c => ({ ...c, localModels: availableModels }));
-        this.ollamaConfig.update(c => ({ ...config, available: true }));
+        this.ollamaConfig.update(c => ({ ...c, available: true }));
         return true;
       }
-    } catch {}
+    } catch (e) {
+      console.warn('Ollama not available', e);
+    }
     this.ollamaConfig.update(c => ({ ...c, available: false }));
     return false;
   }
@@ -245,9 +251,9 @@ export class AIInferenceService {
     if (this._isCheckingProviders) return;
     this._isCheckingProviders = true;
     const providers = [
-      { name: 'ollama', check: () => this.checkOllamaAvailability() },
-      { name: 'grok', check: () => Promise.resolve(!!this.providerApiKey()) },
-      { name: 'gemini', check: () => Promise.resolve(!!this.providerApiKey()) },
+      { name: 'ollama' as const, check: () => this.checkOllamaAvailability() },
+      { name: 'grok' as const, check: () => Promise.resolve(!!this.providerApiKey()) },
+      { name: 'gemini' as const, check: () => Promise.resolve(!!this.providerApiKey()) },
     ];
     for (const p of providers) {
       if (await p.check()) {
@@ -265,6 +271,8 @@ export class AIInferenceService {
   }
 
   private generateSmartFallback(prompt: string, context?: string): string {
+    console.debug('Generating smart fallback for:', prompt, 'with context:', context?.length);
     return `[Modo Offline] Entiendo que preguntas sobre "${prompt}". Configura una API para una respuesta real.`;
   }
 }
+
