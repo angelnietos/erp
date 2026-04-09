@@ -68,8 +68,15 @@ interface CalendarCell {
               </button>
            </div>
            
-           <div class="refresh-action">
-              <ui-button variant="primary" icon="rotate-cw" (clicked)="loadMonth()" [class.animate-spin]="isLoading()" class="ui-bloom"></ui-button>
+           <div class="header-actions-extra">
+              <button 
+                class="nav-btn ripple refresh-btn" 
+                (click)="loadMonth()" 
+                [class.animate-spin]="isLoading()" 
+                title="Sincronizar datos"
+              >
+                <lucide-icon name="rotate-cw" size="18"></lucide-icon>
+              </button>
            </div>
         </div>
       </header>
@@ -242,6 +249,19 @@ interface CalendarCell {
        transition: var(--transition-base);
     }
     .nav-btn:hover { background: var(--brand-ambient); color: var(--brand); transform: scale(1.1); }
+    
+    .header-actions-extra { display: flex; align-items: center; padding-left: 0.5rem; }
+    .refresh-btn { 
+      background: var(--bg-secondary); 
+      border: 1px solid var(--border-soft); 
+      color: var(--text-muted);
+      box-shadow: var(--shadow-sm);
+    }
+    .refresh-btn:hover {
+      color: var(--brand);
+      border-color: var(--brand-border-soft);
+      box-shadow: var(--shadow-glow-soft);
+    }
     
     .current-month-display { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
     .m-name { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; color: var(--text-primary); letter-spacing: 0.05em; }
