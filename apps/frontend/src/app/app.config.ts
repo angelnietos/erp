@@ -154,6 +154,7 @@ export const appConfig: ApplicationConfig = {
         Building2,
         Bell,
         LayoutDashboard,
+        Layout,
         Users,
         Package,
         Receipt,
