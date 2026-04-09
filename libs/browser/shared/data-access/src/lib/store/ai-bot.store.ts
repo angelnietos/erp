@@ -1474,6 +1474,21 @@ export class AIBotStore {
     );
   }
 
+  // ─── Bot Context Access ────────────────────────────────────────────
+  getBotContext(feature: string): AIRangeMemory[] {
+    if (feature === 'dashboard') {
+      // Buddy bot (dashboard) and orchestrator: access to shared store data from all features
+      const globalMemories = this._globalMemories();
+      const allBotMemories = Object.values(this._botWorkspaces()).flatMap(
+        (ws) => ws.memories,
+      );
+      return [...globalMemories, ...allBotMemories];
+    } else {
+      // Domain bots: access only to their own domain store data
+      return this.getWorkspace(feature).memories;
+    }
+  }
+
   // ─── Sistema de Proveedores Gratuitos ─────────────────────────────────────────
 
   async checkOllamaAvailability(force = false): Promise<boolean> {

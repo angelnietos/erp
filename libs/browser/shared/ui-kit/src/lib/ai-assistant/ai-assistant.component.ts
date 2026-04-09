@@ -782,8 +782,25 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
 
     try {
-      // Generar respuesta usando proveedores gratuitos
-      const response = await this.aiBotStore.generateFreeResponse(userInput);
+      // Construir contexto basado en el rol del bot
+      const botMemories = this.aiBotStore.getBotContext(this.feature);
+      const context =
+        botMemories.length > 0
+          ? `Contexto relevante:\n${botMemories
+              .sort((a, b) => b.importance - a.importance)
+              .slice(0, 10)
+              .map(
+                (m) =>
+                  `- ${m.text} (${new Date(m.timestamp).toLocaleDateString()})`,
+              )
+              .join('\n')}\n\n`
+          : '';
+
+      // Generar respuesta usando proveedores gratuitos con contexto
+      const response = await this.aiBotStore.generateFreeResponse(
+        userInput,
+        context,
+      );
 
       // Actualizar mensaje con respuesta
       this.messages.update((m) =>
