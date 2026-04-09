@@ -131,6 +131,7 @@ export type MascotPersonality =
         background: radial-gradient(
           circle,
           var(--mascot-color) 0%,
+          var(--mascot-secondary) 50%,
           transparent 70%
         );
         opacity: 0.3;
@@ -151,7 +152,8 @@ export type MascotPersonality =
         box-shadow:
           inset -10px -10px 20px rgba(0, 0, 0, 0.5),
           inset 10px 10px 20px rgba(255, 255, 255, 0.4),
-          0 15px 35px rgba(0, 0, 0, 0.4);
+          0 15px 35px
+            color-mix(in srgb, var(--mascot-secondary) 50%, rgba(0, 0, 0, 0.4));
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -487,12 +489,14 @@ export type MascotPersonality =
         background: radial-gradient(
           circle at 30% 30%,
           color-mix(in srgb, var(--mascot-color) 40%, white) 0%,
-          var(--mascot-color) 100%
+          var(--mascot-color) 70%,
+          var(--mascot-secondary) 100%
         );
         border-radius: 50%;
         box-shadow:
           inset -4px -4px 8px rgba(0, 0, 0, 0.4),
-          0 8px 15px rgba(0, 0, 0, 0.3);
+          0 8px 15px
+            color-mix(in srgb, var(--mascot-secondary) 40%, rgba(0, 0, 0, 0.3));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -518,7 +522,11 @@ export type MascotPersonality =
         left: 15%;
         width: 70%;
         height: 15px;
-        background: rgba(0, 0, 0, 0.5);
+        background: color-mix(
+          in srgb,
+          var(--mascot-secondary) 50%,
+          rgba(0, 0, 0, 0.5)
+        );
         filter: blur(10px);
         border-radius: 50%;
         animation: shadowMove 4s ease-in-out infinite;
