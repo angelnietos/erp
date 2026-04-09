@@ -4,6 +4,7 @@ import { AI_CONFIG } from '../configs/ai.config';
 import { ThemeService, Theme } from '../services/theme.service';
 import { MasterFilterService } from '../services/master-filter.service';
 import { AIFormBridgeService } from '../services/ai-form-bridge.service';
+import { TechnicianApiService } from '../services/technician-api.service';
 import {
   AIBot,
   AIRangeMemory,
@@ -25,6 +26,7 @@ export class AIBotStore {
   private themeService = inject(ThemeService);
   private masterFilterService = inject(MasterFilterService);
   private aiFormBridge = inject(AIFormBridgeService);
+  private technicianApiService = inject(TechnicianApiService);
   private _isCheckingProviders = false;
   private _lastCheckTime = 0;
   private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
@@ -1802,6 +1804,25 @@ export class AIBotStore {
               this.aiFormBridge.fillActiveForm(action.payload.data);
             }
             break;
+          case 'setAvailability': {
+            if (action.payload?.techId && action.payload?.status) {
+              const techId = action.payload.techId;
+              const status = action.payload.status;
+              const date = action.payload.date;
+              const startDate = action.payload.startDate;
+              const endDate = action.payload.endDate;
+
+              if (date) {
+                this.technicianApiService.setFullDayAvailability(techId, date, status).subscribe();
+                console.log(`📅 Tech Availability: ${techId} -> ${date} : ${status}`);
+              } else if (startDate && endDate) {
+                // Bulk range simulate
+                 this.technicianApiService.setFullDayAvailability(techId, startDate, status).subscribe();
+                 console.log(`📅 Tech Availability Range: ${techId} from ${startDate} to ${endDate} : ${status}`);
+              }
+            }
+            break;
+          }
           case 'showNotification':
             console.log('Bot Notification:', action.payload?.message);
             break;
@@ -1834,7 +1855,8 @@ ACCIONES MOTOR:
 3. 'wait': {ms: number} -> Pausa entre pasos del workflow.
 4. 'delegate': {target: string, action: object} -> DELEGA una acción a otro bot.
 5. 'fillForm': {data: object} -> RELLENA el formulario activo en pantalla.
-   (Ejemplo: [ACTION] {"type": "fillForm", "payload": {"data": {"name": "Jose", "id": "123"}}})
+6. 'setAvailability': {techId: string, status: string, date?: string, startDate?: string, endDate?: string} -> Gestiona calendarios.
+   (Ejemplo: [ACTION] {"type": "setAvailability", "payload": {"techId": "me", "status": "HOLIDAY", "startDate": "2024-08-01", "endDate": "2024-08-15"}})
 
 REGLAS CRÍTICAS:
 - Usa 'fillForm' cuando el usuario te pida rellenar datos, crear algo o editar un perfil.
