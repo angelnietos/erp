@@ -88,7 +88,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
               routerLinkActive="active"
             >
               <div class="icon-wrapper">
-                <lucide-icon name="settings" size="18"></lucide-icon>
+                <lucide-icon name="cog" size="18"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Configuración</span>

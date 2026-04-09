@@ -45,7 +45,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
         <ui-stat-card 
           label="Total Usuarios" 
           [value]="users().length.toString()" 
-          icon="user-group" 
+          icon="users"
           [accent]="true">
         </ui-stat-card>
         <ui-stat-card 
@@ -103,7 +103,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
               ]"
             >
                <div footer-extra class="users-extra-actions">
-                  <ui-button variant="ghost" size="sm" icon="shield-alert" class="text-warning" title="Gestionar Permisos"></ui-button>
+                  <ui-button variant="ghost" size="sm" icon="triangle-alert" class="text-warning" title="Gestionar Permisos"></ui-button>
                </div>
             </ui-feature-card>
           } @empty {
