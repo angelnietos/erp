@@ -210,268 +210,224 @@ interface DomainEventPayload {
         </ui-card>
       </div>
     </div>
-
   `,
   styles: [`
-    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
+    .navigation-bar {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border-radius: 16px;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .flex-1 { flex: 1; }
+    .max-w-lg { max-width: 32rem; }
 
     .audit-content {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
-    }
-
-    .filters-card {
-      padding: 1.5rem;
-    }
-
-    .filters-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .filters-header h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      align-items: end;
-    }
-
-    .filter-actions {
-      display: flex;
-      justify-content: flex-end;
+      gap: 1.5rem;
     }
 
     .logs-card {
-      padding: 1.5rem;
+      padding: 0 !important;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.05) !important;
     }
 
     .logs-header {
+      padding: 1.5rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .logs-header h2 {
       margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
     }
 
     .logs-count {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
+      color: var(--brand);
+      font-size: 0.75rem;
+      font-weight: 900;
+      font-family: var(--font-gaming);
     }
 
     .logs-list {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
     }
 
     .log-item {
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.5rem;
-      background: rgba(255,255,255,0.05);
-      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: all 0.3s ease;
     }
+    .log-item:last-child { border-bottom: none; }
 
     .log-summary {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1rem;
+      gap: 1.5rem;
+      padding: 1.25rem 2rem;
       cursor: pointer;
-      transition: background-color 0.2s;
     }
 
     .log-summary:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.02);
+      transform: translateX(4px);
     }
 
     .log-icon {
-      padding: 0.5rem;
-      background: rgba(var(--primary-rgb), 0.1);
-      border-radius: 0.375rem;
-      color: var(--primary);
       flex-shrink: 0;
+    }
+
+    .icon-orb {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
     .log-info {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
     }
 
     .log-primary {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
-      margin-bottom: 0.5rem;
     }
 
     .log-user {
-      font-weight: 600;
-      color: var(--text-primary);
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.95rem;
     }
 
     .log-action {
-      color: var(--text-secondary);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .log-entity {
-      color: var(--accent);
-      font-weight: 500;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
     }
 
     .log-entity-name {
       color: var(--success);
-      font-style: italic;
+      font-family: var(--font-gaming);
+      font-size: 0.85rem;
     }
 
     .log-meta {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
     }
 
     .log-timestamp {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
-      color: var(--text-secondary);
-      font-size: 0.875rem;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
     }
 
+    .tag-status {
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      font-weight: 900;
+      font-family: var(--font-gaming);
+      letter-spacing: 0.05em;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .tag-status[data-variant="success"] { color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+    .tag-status[data-variant="primary"] { color: var(--info); background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
+    .tag-status[data-variant="danger"] { color: var(--brand); background: rgba(230,0,18,0.1); border-color: rgba(230,0,18,0.2); }
+
     .log-toggle {
-      transition: transform 0.2s;
+      color: var(--text-muted);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .log-toggle .rotated {
       transform: rotate(180deg);
+      color: var(--brand);
     }
 
     .log-details {
-      padding: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
+      padding: 1.5rem 2rem;
+      background: rgba(0,0,0,0.2);
+      border-top: 1px solid rgba(255,255,255,0.03);
+      animation: slideDown 0.3s ease-out;
     }
 
-    .details-section {
-      margin-bottom: 1rem;
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .details-section h4 {
-      margin: 0 0 0.5rem 0;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-primary);
+      margin: 0 0 0.75rem 0;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
     }
 
-    .changes-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .change-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 0.25rem;
-      font-family: monospace;
-      font-size: 0.875rem;
-    }
-
-    .change-field {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .change-old {
-      color: var(--danger);
-      text-decoration: line-through;
-    }
-
-    .change-arrow {
+    .details-section p {
+      margin: 0;
       color: var(--text-secondary);
-    }
-
-    .change-new {
-      color: var(--success);
+      font-size: 0.9rem;
+      line-height: 1.6;
     }
 
     .no-logs {
       text-align: center;
-      padding: 3rem;
-      color: var(--text-secondary);
+      padding: 5rem 2rem;
+      color: var(--text-muted);
     }
 
     .no-logs p {
-      margin: 1rem 0 0 0;
-      font-size: 1.125rem;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .page-info {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    .text-uppercase {
-      text-transform: uppercase;
-    }
-
-    .glow-text {
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0;
-      letter-spacing: 0.05em; font-family: var(--font-main);
+      margin: 1.5rem 0 0 0;
+      font-size: 1rem;
+      font-weight: 600;
     }
 
     @media (max-width: 768px) {
-      .filters-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .log-primary {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-      }
-
-      .log-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-
-      .pagination {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
+      .log-summary { padding: 1.25rem 1rem; gap: 1rem; }
+      .log-primary { gap: 0.4rem; }
+      .log-meta { gap: 1rem; flex-wrap: wrap; }
+      .icon-orb { width: 36px; height: 36px; }
     }
-  `,
-  ],
+  `],
 })
 export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService<AuditLog> {
   public readonly themeService = inject(ThemeService);
