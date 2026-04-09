@@ -21,7 +21,6 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 import { ClientService, Client } from '@josanz-erp/clients-data-access';
 
-
 @Component({
   selector: 'lib-clients-detail',
   standalone: true,
@@ -38,43 +37,40 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
   ],
   template: `
     <div
-      class="page-container animate-fade-in"
+      class="detail-page"
       [class.high-perf]="pluginStore.highPerformanceMode()"
     >
       @if (isLoading()) {
         <ui-josanz-loader
-          message="Sincronizando expediente de cliente..."
+          message="Cargando expediente de cliente..."
         ></ui-josanz-loader>
       } @else if (client()) {
         <header
           class="page-header"
           [style.border-bottom-color]="currentTheme().primary + '33'"
         >
-          <div class="header-breadcrumb">
+          <div class="header-content">
             <button class="back-btn" routerLink="/clients">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
-              VOLVER AL CRM
+              <lucide-icon name="arrow-left" size="16"></lucide-icon>
+              Volver al CRM
             </button>
-            <h1
-              class="page-title text-uppercase glow-text"
-              [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
-            >
+            <h1 class="page-title">
               {{ client()?.name }}
             </h1>
-            <div class="breadcrumb">
+            <nav class="breadcrumb">
               <span class="active" [style.color]="currentTheme().primary"
-                >SECTOR: {{ client()?.sector | uppercase }}</span
+                >Sector: {{ client()?.sector }}</span
               >
-              <span class="separator">/</span>
+              <span class="sep">/</span>
               <span>ID: {{ client()?.id?.slice(0, 8) }}</span>
-            </div>
+            </nav>
           </div>
           <div class="header-actions">
             <ui-josanz-button variant="glass" size="md" icon="mail"
-              >CONTACTAR</ui-josanz-button
+              >Contactar</ui-josanz-button
             >
             <ui-josanz-button variant="primary" size="md" icon="edit"
-              >EDITAR PERFIL</ui-josanz-button
+              >Editar perfil</ui-josanz-button
             >
           </div>
         </header>
@@ -112,24 +108,24 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                 <ui-josanz-card variant="glass" title="Información Corporativa">
                   <div class="info-list">
                     <div class="info-item">
-                      <span class="label">RAZÓN SOCIAL</span>
+                      <span class="label">Razón social</span>
                       <span class="value">{{ client()?.name }}</span>
                     </div>
                     <div class="info-item">
-                      <span class="label">DESCRIPCIÓN</span>
+                      <span class="label">Descripción</span>
                       <span class="value text-muted">{{
                         client()?.description || 'Sin descripción corporativa.'
                       }}</span>
                     </div>
                     <div class="info-item">
-                      <span class="label">SECTOR ACTUACIÓN</span>
+                      <span class="label">Sector</span>
                       <ui-josanz-badge variant="info">{{
                         client()?.sector
                       }}</ui-josanz-badge>
                     </div>
                     <div class="info-item">
-                      <span class="label">ALTA SISTEMA</span>
-                      <span class="value font-mono">{{
+                      <span class="label">Alta en sistema</span>
+                      <span class="value">{{
                         formatDate(client()?.createdAt)
                       }}</span>
                     </div>
@@ -140,24 +136,30 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                   <div class="info-list">
                     @for (contact of client()?.contacts; track contact.id) {
                       <div class="info-item">
-                        <span class="label">{{ contact.isPrimary ? 'PRINCIPAL / ' : '' }}{{ contact.position | uppercase }}</span>
+                        <span class="label"
+                          >{{ contact.isPrimary ? 'Principal / ' : ''
+                          }}{{ contact.position }}</span
+                        >
                         <span class="value">{{ contact.name }}</span>
                       </div>
                       @if (contact.email) {
                         <div class="info-item">
-                          <span class="label">EMAIL</span>
-                          <span class="value text-brand-link">{{ contact.email }}</span>
+                          <span class="label">Email</span>
+                          <span class="value text-brand-link">{{
+                            contact.email
+                          }}</span>
                         </div>
                       }
                       @if (contact.phone) {
                         <div class="info-item">
-                          <span class="label">TELÉFONO</span>
+                          <span class="label">Teléfono</span>
                           <span class="value">{{ contact.phone }}</span>
                         </div>
                       }
-                    }
-                    @empty {
-                      <div class="info-item text-muted">Módulo de contactos en sincronización o sin datos.</div>
+                    } @empty {
+                      <div class="empty-state">
+                        <p>Sin contactos registrados.</p>
+                      </div>
                     }
                   </div>
                 </ui-josanz-card>
@@ -172,17 +174,30 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         <lucide-icon name="calculator" size="20"></lucide-icon>
                       </div>
                       <div class="doc-info">
-                        <span class="doc-title">Oferta {{ formatCurrency(budget.total) }}</span>
-                        <span class="doc-meta">Periodo: {{ formatDate(budget.startDate) }} — {{ formatDate(budget.endDate) }}</span>
+                        <span class="doc-title"
+                          >Oferta {{ formatCurrency(budget.total) }}</span
+                        >
+                        <span class="doc-meta"
+                          >Periodo: {{ formatDate(budget.startDate) }} —
+                          {{ formatDate(budget.endDate) }}</span
+                        >
                       </div>
-                      <div style="display:flex; gap:10px; align-items:center;">
-                        <ui-josanz-badge variant="info">{{ budget.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/budgets/{{ budget.id }}">VER</ui-josanz-button>
+                      <div class="doc-actions">
+                        <ui-josanz-badge variant="info">{{
+                          budget.status
+                        }}</ui-josanz-badge>
+                        <ui-josanz-button
+                          variant="ghost"
+                          size="sm"
+                          icon="external-link"
+                          routerLink="/budgets/{{ budget.id }}"
+                          >Ver</ui-josanz-button
+                        >
                       </div>
                     </div>
                   } @empty {
-                    <div class="placeholder-state">
-                      <lucide-icon name="file-search" size="48" class="text-muted"></lucide-icon>
+                    <div class="empty-state">
+                      <lucide-icon name="file-search" size="48"></lucide-icon>
                       <p>Sin presupuestos registrados.</p>
                     </div>
                   }
@@ -190,7 +205,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
               </ui-josanz-card>
             }
             @case ('invoices') {
-              <ui-josanz-card variant="glass" title="Documentación (Facturas y Albaranes)">
+              <ui-josanz-card variant="glass" title="Documentación">
                 <div class="document-list">
                   @for (inv of getAllInvoices(); track inv.id) {
                     <div class="document-item">
@@ -198,35 +213,68 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                         <lucide-icon name="receipt" size="20"></lucide-icon>
                       </div>
                       <div class="doc-info">
-                        <span class="doc-title">Factura {{ inv.invoiceNumber }}</span>
-                        <span class="doc-meta">Emitida: {{ formatDate(inv.issueDate) }} · {{ formatCurrency(inv.total) }}</span>
+                        <span class="doc-title"
+                          >Factura {{ inv.invoiceNumber }}</span
+                        >
+                        <span class="doc-meta"
+                          >Emitida: {{ formatDate(inv.issueDate) }} ·
+                          {{ formatCurrency(inv.total) }}</span
+                        >
                       </div>
-                      <div style="display:flex; gap:10px; align-items:center;">
-                        <ui-josanz-badge [variant]="inv.status === 'PAID' ? 'success' : 'warning'">{{ inv.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/billing/{{ inv.id }}">VER</ui-josanz-button>
+                      <div class="doc-actions">
+                        <ui-josanz-badge
+                          [variant]="
+                            inv.status === 'PAID' ? 'success' : 'warning'
+                          "
+                          >{{ inv.status }}</ui-josanz-badge
+                        >
+                        <ui-josanz-button
+                          variant="ghost"
+                          size="sm"
+                          icon="external-link"
+                          routerLink="/billing/{{ inv.id }}"
+                          >Ver</ui-josanz-button
+                        >
                       </div>
                     </div>
                   }
-                  
+
                   @for (dn of getAllDeliveryNotes(); track dn.id) {
                     <div class="document-item">
                       <div class="doc-icon">
                         <lucide-icon name="file-text" size="20"></lucide-icon>
                       </div>
                       <div class="doc-info">
-                        <span class="doc-title">Albarán de Presupuesto</span>
-                        <span class="doc-meta">Firma: {{ dn.status }} · Alta: {{ formatDate(dn.createdAt) }}</span>
+                        <span class="doc-title">Albarán</span>
+                        <span class="doc-meta"
+                          >Firma: {{ dn.status }} · Alta:
+                          {{ formatDate(dn.createdAt) }}</span
+                        >
                       </div>
-                      <div style="display:flex; gap:10px; align-items:center;">
-                        <ui-josanz-badge [variant]="dn.status === 'signed' ? 'success' : 'info'">{{ dn.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/delivery/{{ dn.id }}">VER</ui-josanz-button>
+                      <div class="doc-actions">
+                        <ui-josanz-badge
+                          [variant]="
+                            dn.status === 'signed' ? 'success' : 'info'
+                          "
+                          >{{ dn.status }}</ui-josanz-badge
+                        >
+                        <ui-josanz-button
+                          variant="ghost"
+                          size="sm"
+                          icon="external-link"
+                          routerLink="/delivery/{{ dn.id }}"
+                          >Ver</ui-josanz-button
+                        >
                       </div>
                     </div>
                   }
 
-                  @if (getAllInvoices().length === 0 && getAllDeliveryNotes().length === 0) {
-                    <div class="placeholder-state">
-                      <p>No existen facturas ni albaranes vinculados al circuito de este cliente.</p>
+                  @if (
+                    getAllInvoices().length === 0 &&
+                    getAllDeliveryNotes().length === 0
+                  ) {
+                    <div class="empty-state">
+                      <p>No existen facturas ni albaranes vinculados.</p>
                     </div>
                   }
                 </div>
@@ -236,24 +284,37 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
               <ui-josanz-card variant="glass" title="Informes de Evento">
                 <div class="document-list">
                   @for (report of client()?.eventReports; track report.id) {
-                    <div class="document-item" style="align-items: flex-start; flex-direction: column;">
-                      <div style="display: flex; gap: 10px; width: 100%;">
-                        <div class="doc-icon"><lucide-icon name="clipboard-check" size="20"></lucide-icon></div>
+                    <div class="report-item">
+                      <div class="report-header">
+                        <div class="doc-icon">
+                          <lucide-icon
+                            name="clipboard-check"
+                            size="20"
+                          ></lucide-icon>
+                        </div>
                         <div class="doc-info">
                           <span class="doc-title">{{ report.title }}</span>
-                          <span class="doc-meta">Fecha: {{ formatDate(report.createdAt) }} · Autor: {{ report.author?.firstName || 'Sistema' }}</span>
+                          <span class="doc-meta"
+                            >Fecha: {{ formatDate(report.createdAt) }} · Autor:
+                            {{ report.author?.firstName || 'Sistema' }}</span
+                          >
                         </div>
-                        <div style="flex-grow: 1;"></div>
-                        <ui-josanz-button variant="ghost" size="sm" icon="calendar" routerLink="/events/{{ report.eventId }}">VER EVENTO</ui-josanz-button>
+                        <ui-josanz-button
+                          variant="ghost"
+                          size="sm"
+                          icon="calendar"
+                          routerLink="/events/{{ report.eventId }}"
+                          >Ver evento</ui-josanz-button
+                        >
                       </div>
-                      <div style="padding-left: 50px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-top: 10px; width: 100%;">
+                      <div class="report-content">
                         {{ report.content }}
                       </div>
                     </div>
                   } @empty {
-                    <div class="placeholder-state">
-                      <lucide-icon name="clipboard-x" size="48" class="text-muted"></lucide-icon>
-                      <p>Aún no hay informes técnicos de eventos asociados.</p>
+                    <div class="empty-state">
+                      <lucide-icon name="clipboard-x" size="48"></lucide-icon>
+                      <p>Aún no hay informes de eventos asociados.</p>
                     </div>
                   }
                 </div>
@@ -264,41 +325,62 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                 <div class="commercial-history">
                   @for (rental of client()?.rentals; track rental.id) {
                     <div class="history-item">
-                      <div class="history-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                        <span class="project-title" style="font-weight: 600;">Expediente {{ rental.reference || rental.id.substring(0,8) }}</span>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                          <ui-josanz-badge [variant]="rental.status === 'COMPLETED' ? 'success' : (rental.status === 'ACTIVE' ? 'info' : 'warning')">
+                      <div class="history-header">
+                        <span class="project-title"
+                          >Expediente
+                          {{
+                            rental.reference || rental.id.substring(0, 8)
+                          }}</span
+                        >
+                        <div class="history-actions">
+                          <ui-josanz-badge
+                            [variant]="
+                              rental.status === 'COMPLETED'
+                                ? 'success'
+                                : rental.status === 'ACTIVE'
+                                  ? 'info'
+                                  : 'warning'
+                            "
+                          >
                             {{ rental.status }}
                           </ui-josanz-badge>
-                          <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/rentals/{{ rental.id }}">VER</ui-josanz-button>
+                          <ui-josanz-button
+                            variant="ghost"
+                            size="sm"
+                            icon="external-link"
+                            routerLink="/rentals/{{ rental.id }}"
+                            >Ver</ui-josanz-button
+                          >
                         </div>
                       </div>
                       <div class="history-details">
-                        <span class="detail">Período: {{ formatDate(rental.startDate) }} — {{ formatDate(rental.endDate) }}</span>
-                        <span class="detail">Valor: {{ formatCurrency(rental.totalPrice || 0) }}</span>
-                        <span class="detail">Equipos: {{ rental.rentalItems?.length || 0 }} elementos</span>
+                        <span class="detail"
+                          >Período: {{ formatDate(rental.startDate) }} —
+                          {{ formatDate(rental.endDate) }}</span
+                        >
+                        <span class="detail"
+                          >Valor:
+                          {{ formatCurrency(rental.totalPrice || 0) }}</span
+                        >
+                        <span class="detail"
+                          >Equipos:
+                          {{ rental.rentalItems?.length || 0 }} elementos</span
+                        >
                       </div>
                     </div>
                   } @empty {
-                    <div class="placeholder-state">
-                      <p>Aún no existen proyectos ni alquileres registrados para esta entidad.</p>
+                    <div class="empty-state">
+                      <p>Aún no existen proyectos ni alquileres registrados.</p>
                     </div>
                   }
                 </div>
               </ui-josanz-card>
             }
             @default {
-              <ui-josanz-card variant="glass" title="Módulo en Sincronización">
-                <div class="placeholder-state">
-                  <lucide-icon
-                    name="activity"
-                    size="48"
-                    class="text-muted"
-                  ></lucide-icon>
-                  <p>
-                    Este módulo modular está siendo actualizado con datos en
-                    tiempo real.
-                  </p>
+              <ui-josanz-card variant="glass" title="Cargando...">
+                <div class="empty-state">
+                  <lucide-icon name="activity" size="48"></lucide-icon>
+                  <p>Cargando módulo...</p>
                 </div>
               </ui-josanz-card>
             }
@@ -309,9 +391,9 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
+      .detail-page {
+        padding: 1.5rem;
+        max-width: 1200px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
@@ -324,13 +406,13 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         color: var(--text-muted);
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 800;
+        gap: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
         cursor: pointer;
         padding: 0;
-        margin-bottom: 0.5rem;
-        transition: color 0.3s;
+        margin-bottom: 0.75rem;
+        transition: color 0.2s;
       }
       .back-btn:hover {
         color: #fff;
@@ -341,26 +423,35 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         justify-content: space-between;
         align-items: flex-end;
         padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 900;
+      .header-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
         color: #fff;
         margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
       }
 
       .breadcrumb {
         display: flex;
         gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
+        font-size: 0.8rem;
         color: var(--text-muted);
-        margin-top: 0.5rem;
+      }
+
+      .breadcrumb .sep {
+        opacity: 0.5;
+      }
+
+      .breadcrumb .active {
+        font-weight: 600;
       }
 
       .stats-row {
@@ -373,7 +464,6 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
-        margin-top: 1rem;
       }
 
       .info-list {
@@ -386,21 +476,21 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         display: flex;
         flex-direction: column;
         gap: 4px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 0.75rem;
       }
       .info-item:last-child {
         border-bottom: none;
       }
       .info-item .label {
-        font-size: 0.55rem;
-        font-weight: 700;
+        font-size: 0.75rem;
+        font-weight: 600;
         color: var(--text-muted);
-        letter-spacing: 0.1em;
+        letter-spacing: 0.03em;
       }
       .info-item .value {
-        font-size: 0.72rem;
-        font-weight: 800;
+        font-size: 0.9rem;
+        font-weight: 500;
         color: #fff;
       }
       .text-brand-link {
@@ -409,30 +499,29 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         cursor: pointer;
       }
 
-      .placeholder-state {
+      .empty-state {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 200px;
-        gap: 1.5rem;
+        min-height: 150px;
+        gap: 1rem;
         text-align: center;
         color: var(--text-muted);
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 0.85rem;
       }
 
       .document-list {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
       }
       .document-item {
         display: flex;
         align-items: center;
         gap: 1rem;
         padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.02);
       }
@@ -441,85 +530,61 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         height: 40px;
         background: var(--brand-surface);
         border: 1px solid var(--brand-border);
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--brand);
-      }
-      .doc-info {
-        flex: 1;
-      }
-      .doc-title {
-        display: block;
-        font-weight: 700;
-        color: #fff;
-        font-size: 0.85rem;
-      }
-      .doc-meta {
-        display: block;
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        margin-top: 2px;
-      }
-
-      .timeline {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-      .timeline-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        position: relative;
-      }
-      .timeline-item:not(:last-child)::before {
-        content: '';
-        position: absolute;
-        left: 12px;
-        top: 32px;
-        bottom: -24px;
-        width: 2px;
-        background: rgba(255, 255, 255, 0.1);
-      }
-      .timeline-marker {
-        width: 24px;
-        height: 24px;
-        background: var(--brand-surface);
-        border: 2px solid var(--brand);
-        border-radius: 50%;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: var(--brand);
         flex-shrink: 0;
       }
-      .timeline-content {
+      .doc-info {
         flex: 1;
-        margin-top: 2px;
       }
-      .timeline-title {
+      .doc-title {
         display: block;
         font-weight: 600;
         color: #fff;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
       }
-      .timeline-meta {
+      .doc-meta {
         display: block;
-        font-size: 0.7rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
         margin-top: 2px;
+      }
+      .doc-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .report-item {
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .report-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .report-content {
+        padding-left: 52px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-top: 0.75rem;
       }
 
       .commercial-history {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1rem;
       }
       .history-item {
         padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.02);
       }
@@ -530,18 +595,38 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         margin-bottom: 0.75rem;
       }
       .project-title {
-        font-weight: 700;
+        font-weight: 600;
         color: #fff;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+      }
+      .history-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
       }
       .history-details {
         display: flex;
         flex-direction: column;
         gap: 4px;
+        padding-left: 0.5rem;
       }
       .detail {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: var(--text-secondary);
+      }
+
+      @media (max-width: 768px) {
+        .stats-row {
+          grid-template-columns: 1fr;
+        }
+        .detail-grid {
+          grid-template-columns: 1fr;
+        }
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
       }
     `,
   ],
@@ -572,25 +657,41 @@ export class ClientsDetailComponent implements OnInit {
       next: (c) => {
         if (c) {
           this.client.set(c);
-          
+
           let invoiceCount = 0;
           let deliveryNoteCount = 0;
-          c.budgets?.forEach(b => {
+          c.budgets?.forEach((b) => {
             if (b.invoices) invoiceCount += b.invoices.length;
             if (b.deliveryNotes) deliveryNoteCount += b.deliveryNotes.length;
           });
 
           this.tabs.set([
             { id: 'general', label: 'Estrategia' },
-            { id: 'budgets', label: 'Presupuestos', badge: c.budgets?.length || 0 },
-            { id: 'invoices', label: 'Documental', badge: invoiceCount + deliveryNoteCount },
-            { id: 'reports', label: 'Informes de Evento', badge: c.eventReports?.length || 0 },
-            { id: 'commercial', label: 'Historial Comercial', badge: c.rentals?.length || 0 },
+            {
+              id: 'budgets',
+              label: 'Presupuestos',
+              badge: c.budgets?.length || 0,
+            },
+            {
+              id: 'invoices',
+              label: 'Documental',
+              badge: invoiceCount + deliveryNoteCount,
+            },
+            {
+              id: 'reports',
+              label: 'Informes de Evento',
+              badge: c.eventReports?.length || 0,
+            },
+            {
+              id: 'commercial',
+              label: 'Historial Comercial',
+              badge: c.rentals?.length || 0,
+            },
           ]);
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 
@@ -630,6 +731,9 @@ export class ClientsDetailComponent implements OnInit {
   }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(value);
   }
 }
