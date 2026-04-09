@@ -25,7 +25,7 @@ import {
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { FormsModule } from '@angular/forms';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
@@ -45,13 +45,20 @@ import { firstValueFrom } from 'rxjs';
       class="ai-assistant-wrapper"
       [class]="'feature-' + feature"
       [class.is-open]="isOpen()"
+      [class.secondary]="feature === 'buddy'"
       *ngIf="bot() && bot()!.status === 'active'"
     >
       <!-- Floating Mascot Bubble -->
       <div
         class="mascot-trigger"
         [class.open]="isOpen()"
+        cdkDrag
+        cdkDragBoundary="body"
+        [style.transform]="
+          'translate3d(' + botPosition().x + 'px, ' + botPosition().y + 'px, 0)'
+        "
         (click)="toggleChat()"
+        (cdkDragEnded)="onMascotDragEnd($event)"
       >
         <ui-josanz-mascot
           [type]="$any(bot()!.mascotType)"
@@ -71,8 +78,11 @@ import { firstValueFrom } from 'rxjs';
         class="chat-window-container"
         *ngIf="isOpen()"
         cdkDrag
-        cdkDragBoundary=".page-container"
+        cdkDragBoundary="body"
+        [style.left.px]="chatWindowPosition().x"
+        [style.top.px]="chatWindowPosition().y"
         (click)="$event.stopPropagation()"
+        (cdkDragEnded)="onChatWindowDragEnd($event)"
       >
         <div class="chat-window animate-slide-up">
           <div
@@ -264,27 +274,46 @@ import { firstValueFrom } from 'rxjs';
     `
       .ai-assistant-wrapper {
         position: fixed;
-        bottom: 2rem;
-        right: 1.5rem;
+        top: 0;
+        left: 0;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
         gap: 1.2rem;
         z-index: 1000;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
       }
 
-      .ai-assistant-wrapper:not(.feature-dashboard) {
-        right: 12rem;
+      .ai-assistant-wrapper > * {
+        pointer-events: auto;
+      }
+
+      .ai-assistant-wrapper.secondary {
+        z-index: 999;
       }
 
       .mascot-trigger {
-        cursor: pointer;
+        cursor: grab;
         transition: all 0.4s var(--ease-out-expo);
-        opacity: 0.75;
-        transform: scale(0.85);
+        opacity: 0.85;
+        transform: scale(0.9);
         filter: saturate(0.9);
-        position: relative;
+        position: absolute;
+        user-select: none;
+      }
+
+      .mascot-trigger:active,
+      .mascot-trigger.cdk-drag-dragging {
+        cursor: grabbing;
+        transform: scale(1.05);
+        z-index: 10002;
+      }
+
+      .mascot-trigger:hover,
+      .ai-assistant-wrapper.is-open .mascot-trigger {
+        opacity: 1;
+        transform: scale(1);
+        filter: saturate(1);
       }
 
       .mascot-trigger:hover,
@@ -295,11 +324,19 @@ import { firstValueFrom } from 'rxjs';
       }
 
       .chat-window-container {
-        position: absolute;
-        bottom: 100px;
-        right: 0;
+        position: fixed;
         width: 400px;
         z-index: 10001;
+        margin: 0;
+      }
+
+      .chat-window-container.cdk-drag-dragging {
+        transform: rotate(2deg);
+        z-index: 10003 !important;
+      }
+
+      .chat-window-container.cdk-drag-dragging .chat-window {
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9);
       }
 
       .chat-window {
@@ -598,6 +635,24 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   );
 
   readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
+  readonly botPosition = computed(() =>
+    this.aiBotStore.getBotPosition(this.feature),
+  );
+
+  // Calculate chat window position based on mascot position
+  readonly chatWindowPosition = computed(() => {
+    const mascotPos = this.botPosition();
+    // Position chat window to the left of the mascot, or adjust if too close to edge
+    let x = mascotPos.x - 420; // 400px width + 20px margin
+    let y = mascotPos.y;
+
+    // Keep within viewport bounds
+    if (x < 20) x = mascotPos.x + 80; // Position to the right instead
+    if (y < 20) y = 20;
+    if (y > window.innerHeight - 570) y = window.innerHeight - 570; // 550px height + 20px margin
+
+    return { x, y };
+  });
   readonly isOpen = signal(false);
   readonly messages = signal<
     {
@@ -753,6 +808,33 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   toggleChat() {
     this.isOpen.update((v) => !v);
+  }
+
+  onMascotDragEnd(event: CdkDragEnd) {
+    const element = event.source.element.nativeElement;
+    const rect = element.getBoundingClientRect();
+    const newPosition = {
+      x: rect.left,
+      y: rect.top,
+    };
+    this.aiBotStore.updateBotPosition(this.feature, newPosition);
+  }
+
+  onChatWindowDragEnd(event: CdkDragEnd) {
+    // Optional: could save chat window positions separately if needed
+    // For now, just ensure it stays within bounds
+    const element = event.source.element.nativeElement;
+    const rect = element.getBoundingClientRect();
+    // Keep chat windows within viewport
+    if (
+      rect.left < 0 ||
+      rect.top < 0 ||
+      rect.right > window.innerWidth ||
+      rect.bottom > window.innerHeight
+    ) {
+      // Reset to a safe position if dragged outside viewport
+      element.style.transform = 'translate3d(20px, 100px, 0)';
+    }
   }
 
   async sendMessage() {
