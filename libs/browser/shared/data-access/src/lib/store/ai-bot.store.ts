@@ -1372,8 +1372,8 @@ export class AIBotStore {
         default:
           return this.generateSmartFallback(prompt, context);
       }
-    } catch (error) {
-      console.warn(`Error con ${provider}, intentando fallback:`, error);
+    } catch (error: any) {
+      console.error(`🔴 Error crítico con ${provider}:`, error);
       await this.autoSelectProvider();
       return this.generateBasicResponse();
     }
@@ -1476,7 +1476,29 @@ export class AIBotStore {
     if (!apiKey) throw new Error('API Key de Gemini no configurada');
 
     const model = AI_CONFIG.gemini_model;
-    const fullPrompt = context ? `${context}\n\nPregunta: ${prompt}` : prompt;
+    
+    // In our system, 'context' contains the systemPrompt + history
+    // For Gemini, it's better to put system instructions in the specific field
+    const body: any = {
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      }
+    };
+
+    if (context) {
+      body.system_instruction = {
+        parts: [{ text: context }]
+      };
+    }
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
@@ -1485,17 +1507,7 @@ export class AIBotStore {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: fullPrompt,
-                },
-              ],
-            },
-          ],
-        }),
+        body: JSON.stringify(body),
       },
     );
 
@@ -1864,11 +1876,15 @@ ACCIONES MOTOR:
    (Ejemplo: [ACTION] {"type": "setAvailability", "payload": {"techId": "me", "status": "HOLIDAY", "startDate": "2024-08-01", "endDate": "2024-08-15"}})
 
 REGLAS CRÍTICAS:
+- Tu respuesta DEBE incluir obligatoriamente el tag [ACTION] seguido del JSON si necesitas que el sistema ejecute algo. No te limites a decir qué vas a hacer, ¡hazlo!
 - Usa 'fillForm' cuando el usuario te pida rellenar datos, crear algo o editar un perfil.
 - Si delegas un 'fillForm' a un target, el bot target intentará rellenarlo cuando el usuario navegue allí.
 - Como Buddy (Orquestador), usa 'delegate' para que los otros bots preparen el terreno antes de navegar.
 - Si delegas un filtro a un target, el usuario verá ese filtro aplicado en cuanto entre en esa sección.
-- El JSON debe ser impecable.
+- El JSON debe ser impecable y estar al final de tu respuesta tras el tag [ACTION].
+- Si el usuario te pide una tarea compleja que involucra varios pasos, usa un workflow (array de acciones).
+- MUY IMPORTANTE: Si vas a delegar una tarea al bot de presupuestos para que cree un borrador, usa la acción 'delegate' dirigida al bot 'budgets' con el tipo 'fillForm'.
+- Si vas a buscar en el inventario, usa la acción 'navigate' a '/inventory' con un 'applyFilter' delegado al bot 'inventory'.
 `;
   }
 }
