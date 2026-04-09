@@ -71,7 +71,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.aiBotStore.getUserPersonality(this.feature, this.currentUserId()),
   );
 
-  readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
+  readonly bot = computed(() =>
+    this.aiBotStore.getEffectiveBotForCurrentUser(this.feature),
+  );
   readonly botPosition = computed(() =>
     this.aiBotStore.getBotPosition(this.feature),
   );
@@ -338,7 +340,35 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         .map((m) => `${m.role === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`)
         .join('\n');
 
-      const systemPrompt = `Eres ${this.bot()!.name}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}`;
+      const displayName = this.aiBotStore.getBotDisplayName(this.feature);
+      const userLayer = this.aiBotStore.getUserAgentConfig(this.feature);
+      const userLayerExtras: string[] = [];
+      if (userLayer.rules.trim()) {
+        userLayerExtras.push(
+          `Reglas que el usuario quiere que respetes:\n${userLayer.rules.trim()}`,
+        );
+      }
+      if (userLayer.systemInstructions.trim()) {
+        userLayerExtras.push(
+          `Instrucciones adicionales del usuario:\n${userLayer.systemInstructions.trim()}`,
+        );
+      }
+      if (userLayer.promptPresets.length > 0) {
+        userLayerExtras.push(
+          `Comportamientos / prompts definidos por el usuario:\n${userLayer.promptPresets
+            .map((p) => `- **${p.title}**: ${p.content}`)
+            .join('\n')}`,
+        );
+      }
+      if (userLayer.activeSkills.length > 0) {
+        userLayerExtras.push(
+          `Capacidades que este usuario tiene activas (prioriza ayudar en estas áreas): ${userLayer.activeSkills.join(', ')}.`,
+        );
+      }
+      const userLayerBlock =
+        userLayerExtras.length > 0 ? `\n\n${userLayerExtras.join('\n\n')}` : '';
+
+      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
 
       const context =
         `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +

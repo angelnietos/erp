@@ -854,6 +854,13 @@ interface PluginDescriptor {
                         Habilidades de confianza ·
                         {{ aiBotStore.getBotDisplayName(pal.feature) }}
                       </h3>
+                      @if (pal.feature === 'dashboard') {
+                        <p class="buddy-skills-lead">
+                          Estas activaciones son solo para tu usuario en este
+                          navegador. El catálogo global del bot sigue en
+                          «Asistentes de IA».
+                        </p>
+                      }
                       <div class="skills-config-list mt-4">
                         @for (skill of pal.skills; track skill) {
                           <div class="skill-config-item">
@@ -861,10 +868,10 @@ interface PluginDescriptor {
                             <div
                               class="toggle-wrapper"
                               [class.active]="
-                                isSkillActive(pal.feature, skill)
+                                companionSkillActive(pal.feature, skill)
                               "
                               (click)="
-                                aiBotStore.toggleSkill(pal.feature, skill)
+                                companionToggleSkill(pal.feature, skill)
                               "
                             >
                               <div class="toggle-handle"></div>
@@ -873,6 +880,127 @@ interface PluginDescriptor {
                         }
                       </div>
                     </ui-card>
+
+                    @if (pal.feature === 'dashboard') {
+                      <ui-card
+                        variant="glass"
+                        class="jaime-user-layer-card mt-6"
+                      >
+                        <h3>Tu JAIME (cuenta actual)</h3>
+                        <p class="user-layer-lead">
+                          Reglas, instrucciones extra y comportamientos con
+                          nombre. Se guardan para tu usuario y se inyectan en
+                          el contexto del asistente del panel.
+                        </p>
+
+                        <div class="form-group mb-4">
+                          <label class="form-label">Reglas (texto libre)</label>
+                          <textarea
+                            class="user-agent-textarea"
+                            rows="4"
+                            [ngModel]="aiBotStore.dashboardUserLayer().rules"
+                            (ngModelChange)="
+                              aiBotStore.updateUserAgentConfig('dashboard', {
+                                rules: $event,
+                              })
+                            "
+                            placeholder="Ej.: Prioriza KPIs de facturación; nunca inventes datos de clientes."
+                          ></textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                          <label class="form-label"
+                            >Instrucciones de sistema adicionales</label
+                          >
+                          <textarea
+                            class="user-agent-textarea"
+                            rows="4"
+                            [ngModel]="
+                              aiBotStore.dashboardUserLayer().systemInstructions
+                            "
+                            (ngModelChange)="
+                              aiBotStore.updateUserAgentConfig('dashboard', {
+                                systemInstructions: $event,
+                              })
+                            "
+                            placeholder="Tono, formato de respuestas, tablas cuando haya números…"
+                          ></textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                          <div class="preset-header">
+                            <label class="form-label mb-0"
+                              >Prompts por comportamiento</label
+                            >
+                            <ui-button
+                              variant="outline"
+                              size="sm"
+                              (click)="
+                                aiBotStore.addUserAgentPromptPreset(
+                                  'dashboard'
+                                )
+                              "
+                            >
+                              Añadir
+                            </ui-button>
+                          </div>
+                          <p class="preset-hint">
+                            Úsalos para escenarios concretos (informes, saludo
+                            formal, checklist de revisión…).
+                          </p>
+                          @for (
+                            preset of aiBotStore.dashboardUserLayer()
+                              .promptPresets;
+                            track preset.id
+                          ) {
+                            <div class="prompt-preset-block">
+                              <div class="preset-row-head">
+                                <input
+                                  class="preset-title-input"
+                                  type="text"
+                                  [ngModel]="preset.title"
+                                  (ngModelChange)="
+                                    aiBotStore.updateUserAgentPromptPreset(
+                                      'dashboard',
+                                      preset.id,
+                                      { title: $event }
+                                    )
+                                  "
+                                />
+                                <button
+                                  type="button"
+                                  class="preset-remove"
+                                  (click)="
+                                    aiBotStore.removeUserAgentPromptPreset(
+                                      'dashboard',
+                                      preset.id
+                                    )
+                                  "
+                                  aria-label="Quitar comportamiento"
+                                >
+                                  <lucide-icon
+                                    name="trash-2"
+                                    size="16"
+                                  ></lucide-icon>
+                                </button>
+                              </div>
+                              <textarea
+                                class="user-agent-textarea preset-body"
+                                rows="3"
+                                [ngModel]="preset.content"
+                                (ngModelChange)="
+                                  aiBotStore.updateUserAgentPromptPreset(
+                                    'dashboard',
+                                    preset.id,
+                                    { content: $event }
+                                  )
+                                "
+                              ></textarea>
+                            </div>
+                          }
+                        </div>
+                      </ui-card>
+                    }
                   </div>
                 </div>
               }
@@ -1961,6 +2089,117 @@ interface PluginDescriptor {
         padding: 1.5rem;
       }
 
+      .buddy-skills-lead {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.45;
+        margin: -0.25rem 0 0.75rem 0;
+      }
+
+      .jaime-user-layer-card {
+        padding: 1.5rem;
+      }
+
+      .jaime-user-layer-card h3 {
+        font-size: 1.05rem;
+        font-weight: 800;
+        margin: 0 0 0.35rem 0;
+        color: #fff;
+      }
+
+      .user-layer-lead {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        line-height: 1.45;
+        margin: 0 0 1.25rem 0;
+      }
+
+      .user-agent-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(15, 23, 42, 0.55);
+        color: #e2e8f0;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        resize: vertical;
+        min-height: 88px;
+        font-family: inherit;
+      }
+
+      .user-agent-textarea:focus {
+        outline: none;
+        border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.45);
+        box-shadow: 0 0 0 2px rgba(var(--brand-rgb, 16, 185, 129), 0.15);
+      }
+
+      .preset-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.35rem;
+      }
+
+      .preset-hint {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        margin: 0 0 0.75rem 0;
+      }
+
+      .prompt-preset-block {
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.75rem;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .preset-row-head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .preset-title-input {
+        flex: 1;
+        min-width: 0;
+        padding: 0.45rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(15, 23, 42, 0.5);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .preset-remove {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(220, 38, 38, 0.12);
+        color: #f87171;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .preset-remove:hover {
+        background: rgba(220, 38, 38, 0.22);
+      }
+
+      .user-agent-textarea.preset-body {
+        min-height: 72px;
+        margin: 0;
+      }
+
       @media (max-width: 1200px) {
         .ai-bot-card {
           grid-template-columns: 1fr;
@@ -2078,6 +2317,22 @@ export class SettingsFeatureComponent implements OnInit {
   isSkillActive(botId: string, skill: string) {
     const bot = this.aiBotStore.getBotByFeature(botId);
     return bot?.activeSkills.includes(skill) || false;
+  }
+
+  /** JAIME (`dashboard`) usa capa por usuario; el resto sigue el bot global. */
+  companionSkillActive(feature: string, skill: string): boolean {
+    if (feature === 'dashboard') {
+      return this.aiBotStore.isUserAgentSkillActive('dashboard', skill);
+    }
+    return this.isSkillActive(feature, skill);
+  }
+
+  companionToggleSkill(feature: string, skill: string): void {
+    if (feature === 'dashboard') {
+      this.aiBotStore.toggleUserAgentSkill('dashboard', skill);
+    } else {
+      this.aiBotStore.toggleSkill(feature, skill);
+    }
   }
 
   /** Tipos de boca del modelo → entradas soportadas por `ui-mascot`. */

@@ -7,6 +7,7 @@ import {
   BotMood,
   InterBotMessage,
   PredictiveModel,
+  UserAgentCustomConfig,
   UserPersonalityProfile,
 } from '../models/ai-bot.model';
 import { MasterFilterService } from '../services/master-filter.service';
@@ -99,6 +100,16 @@ export class AIBotStore {
     JSON.parse(localStorage.getItem('ai_user_personalities') || '{}')
   );
 
+  /** userId (o email) → feature → configuración personal (JAIME/dashboard, etc.) */
+  private readonly _userAgentConfigs = signal<
+    Record<string, Record<string, UserAgentCustomConfig>>
+  >(this.loadUserAgentConfigs());
+
+  /** Reactivo para plantillas (p. ej. Ajustes → JAIME). */
+  readonly dashboardUserLayer = computed(() =>
+    this.getUserAgentConfig('dashboard'),
+  );
+
   constructor() {
     // Register delegate handler in workflow service to enable inter-bot communication
     // without circular dependency (store → workflow, not workflow → store)
@@ -126,6 +137,7 @@ export class AIBotStore {
       localStorage.setItem('ai_bot_moods', JSON.stringify(this._botMoods()));
       localStorage.setItem('ai_bot_emotional_states', JSON.stringify(this._botEmotionalStates()));
       localStorage.setItem('ai_user_personalities', JSON.stringify(this._userPersonalities()));
+      localStorage.setItem('ai_user_agent_configs', JSON.stringify(this._userAgentConfigs()));
       localStorage.setItem('pref_sound', String(this.soundEffects()));
       localStorage.setItem('pref_compact', String(this.compactMode()));
       localStorage.setItem('pref_lang', this.language());
@@ -221,6 +233,126 @@ export class AIBotStore {
 
   getBotByFeature(feature: string): AIBot | undefined {
     return this._bots()[feature];
+  }
+
+  /** Igual que `auth_user` en localStorage (alineado con el chat de IA). */
+  private currentUserKey(): string {
+    try {
+      const raw = localStorage.getItem('auth_user');
+      if (!raw) return 'anonymous';
+      const u = JSON.parse(raw) as { id?: string; email?: string };
+      return (u?.id || u?.email || 'anonymous') as string;
+    } catch {
+      return 'anonymous';
+    }
+  }
+
+  private loadUserAgentConfigs(): Record<
+    string,
+    Record<string, UserAgentCustomConfig>
+  > {
+    try {
+      return JSON.parse(localStorage.getItem('ai_user_agent_configs') || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Configuración persistida por usuario para un agente (skills, reglas, prompts).
+   * Si no hay entrada guardada, devuelve defaults tomados del bot global.
+   */
+  getUserAgentConfig(feature: string): UserAgentCustomConfig {
+    const uid = this.currentUserKey();
+    const stored = this._userAgentConfigs()[uid]?.[feature];
+    const bot = this.getBotByFeature(feature);
+    if (stored) return stored;
+    return {
+      activeSkills: [...(bot?.activeSkills ?? [])],
+      rules: '',
+      systemInstructions: '',
+      promptPresets: [],
+    };
+  }
+
+  updateUserAgentConfig(
+    feature: string,
+    patch: Partial<UserAgentCustomConfig>,
+  ) {
+    const uid = this.currentUserKey();
+    const prev = this.getUserAgentConfig(feature);
+    const next: UserAgentCustomConfig = {
+      activeSkills: patch.activeSkills ?? prev.activeSkills,
+      rules: patch.rules !== undefined ? patch.rules : prev.rules,
+      systemInstructions:
+        patch.systemInstructions !== undefined
+          ? patch.systemInstructions
+          : prev.systemInstructions,
+      promptPresets:
+        patch.promptPresets !== undefined ? patch.promptPresets : prev.promptPresets,
+    };
+    this._userAgentConfigs.update((all) => ({
+      ...all,
+      [uid]: { ...(all[uid] || {}), [feature]: next },
+    }));
+  }
+
+  toggleUserAgentSkill(feature: string, skill: string) {
+    const catalog = this.getBotByFeature(feature);
+    if (!catalog?.skills.includes(skill)) return;
+    const cfg = this.getUserAgentConfig(feature);
+    const next = cfg.activeSkills.includes(skill)
+      ? cfg.activeSkills.filter((s) => s !== skill)
+      : [...cfg.activeSkills, skill];
+    this.updateUserAgentConfig(feature, { activeSkills: next });
+  }
+
+  isUserAgentSkillActive(feature: string, skill: string): boolean {
+    return this.getUserAgentConfig(feature).activeSkills.includes(skill);
+  }
+
+  /**
+   * Bot efectivo para el usuario actual: para agentes con capa personal (p. ej. dashboard),
+   * `activeSkills` refleja solo a esta cuenta cuando ya guardó preferencias.
+   */
+  getEffectiveBotForCurrentUser(feature: string): AIBot | undefined {
+    const base = this.getBotByFeature(feature);
+    if (!base) return undefined;
+    const uid = this.currentUserKey();
+    const userStored = this._userAgentConfigs()[uid]?.[feature];
+    if (!userStored) return base;
+    return { ...base, activeSkills: [...userStored.activeSkills] };
+  }
+
+  addUserAgentPromptPreset(feature: string) {
+    const cfg = this.getUserAgentConfig(feature);
+    const id = `preset-${Date.now()}`;
+    this.updateUserAgentConfig(feature, {
+      promptPresets: [
+        ...cfg.promptPresets,
+        { id, title: 'Nuevo comportamiento', content: '' },
+      ],
+    });
+  }
+
+  updateUserAgentPromptPreset(
+    feature: string,
+    id: string,
+    patch: Partial<{ title: string; content: string }>,
+  ) {
+    const cfg = this.getUserAgentConfig(feature);
+    this.updateUserAgentConfig(feature, {
+      promptPresets: cfg.promptPresets.map((p) =>
+        p.id === id ? { ...p, ...patch } : p,
+      ),
+    });
+  }
+
+  removeUserAgentPromptPreset(feature: string, id: string) {
+    const cfg = this.getUserAgentConfig(feature);
+    this.updateUserAgentConfig(feature, {
+      promptPresets: cfg.promptPresets.filter((p) => p.id !== id),
+    });
   }
 
   private getInitialBots(): Record<string, AIBot> {

@@ -165,3 +165,21 @@ export interface AIBot {
   eyesType: 'dots' | 'joy' | 'shades' | 'glow' | 'angry';
   mouthType: 'smile' | 'line' | 'o' | 'none' | 'grin';
 }
+
+/** Prompts con nombre para comportamientos concretos (p. ej. informes, tono formal). */
+export interface UserAgentPromptPreset {
+  id: string;
+  title: string;
+  content: string;
+}
+
+/**
+ * Capa por usuario y por agente (p. ej. JAIME / dashboard): skills activas para esa cuenta,
+ * reglas en texto libre e instrucciones extra que se inyectan en el contexto del LLM.
+ */
+export interface UserAgentCustomConfig {
+  activeSkills: string[];
+  rules: string;
+  systemInstructions: string;
+  promptPresets: UserAgentPromptPreset[];
+}
