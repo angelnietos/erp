@@ -17,23 +17,7 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
-
-export interface Service {
-  id: string;
-  name: string;
-  description?: string;
-  type:
-    | 'STREAMING'
-    | 'PRODUCCIÓN'
-    | 'LED'
-    | 'TRANSPORTE'
-    | 'PERSONAL_TÉCNICO'
-    | 'VIDEO_TÉCNICO';
-  basePrice: number;
-  hourlyRate?: number;
-  isActive: boolean;
-  createdAt: string;
-}
+import { ServicesStore, Service } from '../services.store';
 
 @Component({
   selector: 'lib-services-list',
@@ -65,19 +49,19 @@ export interface Service {
       <ui-feature-stats>
         <ui-stat-card 
           label="Total Servicios" 
-          [value]="services().length.toString()" 
+          [value]="store.services().length.toString()" 
           icon="layers" 
           [accent]="true">
         </ui-stat-card>
         <ui-stat-card 
           label="Servicios Activos" 
-          [value]="activeServicesCount().toString()" 
+          [value]="store.activeCount().toString()" 
           icon="check-circle" 
           [trend]="15">
         </ui-stat-card>
         <ui-stat-card 
           label="Tipos de Oferta" 
-          [value]="serviceTypesCount().toString()" 
+          [value]="store.typesCount().toString()" 
           icon="layout">
         </ui-stat-card>
         <ui-stat-card
@@ -97,7 +81,7 @@ export interface Service {
         ></ui-search>
       </div>
 
-      @if (isLoading()) {
+      @if (store.isLoading()) {
         <div class="loader-container">
           <ui-loader message="CARGANDO CATÁLOGO DE SERVICIOS..."></ui-loader>
         </div>
@@ -186,29 +170,61 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly masterFilter = inject(MasterFilterService);
-
-  currentTheme = this.themeService.currentThemeData;
-  services = signal<Service[]>([]);
-  isLoading = signal(false);
+  readonly store = inject(ServicesStore);
 
   private readonly router = inject(Router);
+  private readonly _searchQuery = signal('');
+
+  readonly filteredServices = computed(() => {
+    const list = this.store.services();
+    const t = this._searchQuery().trim().toLowerCase();
+    if (!t) return list;
+    return list.filter((s: Service) =>
+      s.name.toLowerCase().includes(t) ||
+      (s.description ?? '').toLowerCase().includes(t) ||
+      s.type.toLowerCase().includes(t)
+    );
+  });
+
+  ngOnInit() {
+    this.masterFilter.registerProvider(this);
+    this.store.load();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  onSearchChange(term: string) {
+    this._searchQuery.set(term);
+    this.masterFilter.search(term);
+  }
+
+  filter(query: string): Observable<Service[]> {
+    const term = query.toLowerCase();
+    const matches = this.store.services().filter((s: Service) =>
+      s.name.toLowerCase().includes(term) ||
+      (s.description ?? '').toLowerCase().includes(term)
+    );
+    return of(matches);
+  }
 
   onRowClick(service: Service) {
     this.router.navigate(['/services', service.id]);
   }
 
-  onDuplicate(service: Service) {
-    const newService: Service = {
-      ...service,
-      id: Math.random().toString(36).substring(7),
-      name: `${service.name} (COPIA)`,
-      createdAt: new Date().toISOString()
-    };
-    this.services.update(list => [newService, ...list]);
-  }
-
   onEdit(service: Service) {
     this.router.navigate(['/services', service.id, 'edit']);
+  }
+
+  onDuplicate(service: Service) {
+    this.store.duplicate(service.id);
+  }
+
+  confirmDelete(service: Service) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el servicio ${service.name}?`)) {
+      this.store.remove(service.id);
+    }
   }
 
   getInitials(name: string | undefined): string {
@@ -235,136 +251,5 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
       case 'PERSONAL_TÉCNICO': return 'danger';
       default: return 'secondary';
     }
-  }
-
-  activeServicesCount = computed(() => this.services().filter((s: Service) => s.isActive).length);
-  serviceTypesCount = computed(() => new Set(this.services().map((s: Service) => s.type)).size);
-
-  filteredServices = computed(() => {
-    const list = this.services();
-    const t = this.masterFilter.query().trim().toLowerCase();
-    if (!t) return list;
-    return list.filter((s: Service) => 
-      s.name.toLowerCase().includes(t) || 
-      (s.description ?? '').toLowerCase().includes(t) || 
-      s.type.toLowerCase().includes(t)
-    );
-  });
-
-  ngOnInit() {
-    this.masterFilter.registerProvider(this);
-    this.loadServices();
-  }
-
-  ngOnDestroy() {
-    this.masterFilter.unregisterProvider();
-  }
-
-  onSearchChange(term: string) {
-    this.masterFilter.search(term);
-  }
-
-  filter(query: string): Observable<Service[]> {
-    const term = query.toLowerCase();
-    const matches = this.services().filter((s: Service) => 
-      s.name.toLowerCase().includes(term) || 
-      (s.description ?? '').toLowerCase().includes(term)
-    );
-    return of(matches);
-  }
-
-  onDelete(service: Service) {
-    // Implement delete logic
-    console.log('Delete service:', service);
-  }
-
-  editService(service: Service) {
-    // Implement edit logic
-    console.log('Edit service:', service);
-  }
-
-  confirmDelete(service: Service) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el servicio ${service.name}?`)) {
-      this.onDelete(service);
-    }
-  }
-
-  getTypeVariant(type: string): 'filled' | 'outline' | 'ghost' {
-    switch (type) {
-      case 'STREAMING':
-      case 'PRODUCCIÓN':
-      case 'LED':
-      case 'TRANSPORTE':
-      case 'PERSONAL_TÉCNICO':
-      case 'VIDEO_TÉCNICO':
-        return 'filled';
-      default:
-        return 'outline';
-    }
-  }
-
-  getTypeColor(type: string): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' {
-    switch (type) {
-      case 'STREAMING': return 'primary';
-      case 'PRODUCCIÓN': return 'success';
-      case 'LED': return 'warning';
-      case 'TRANSPORTE': return 'info';
-      case 'PERSONAL_TÉCNICO': return 'danger';
-      case 'VIDEO_TÉCNICO': return 'info';
-      default: return 'default';
-    }
-  }
-
-  private initialServices: Service[] = [
-    {
-      id: '1',
-      name: 'Servicio de Streaming Básico',
-      description: 'Transmisión en vivo básica',
-      type: 'STREAMING',
-      basePrice: 500,
-      hourlyRate: 50,
-      isActive: true,
-      createdAt: '2024-01-01',
-    },
-    {
-      id: '2',
-      name: 'Producción Audio/Video Completa',
-      description: 'Producción completa de eventos',
-      type: 'PRODUCCIÓN',
-      basePrice: 2000,
-      hourlyRate: 150,
-      isActive: true,
-      createdAt: '2024-01-02',
-    },
-    {
-      id: '3',
-      name: 'Pantalla LED 4x3m Exterior',
-      description: 'Instalación y soporte de pantalla LED P3.9',
-      type: 'LED',
-      basePrice: 1200,
-      hourlyRate: 0,
-      isActive: true,
-      createdAt: '2024-02-10',
-    },
-    {
-      id: '4',
-      name: 'Transporte Logístico Pesado',
-      description: 'Camión 12t para material audiovisual',
-      type: 'TRANSPORTE',
-      basePrice: 300,
-      hourlyRate: 40,
-      isActive: true,
-      createdAt: '2024-02-15',
-    },
-  ];
-
-  private loadServices() {
-    if (this.services().length > 0) return;
-    this.isLoading.set(true);
-    // Simulate loading
-    setTimeout(() => {
-      this.services.set(this.initialServices);
-      this.isLoading.set(false);
-    }, 600);
   }
 }
