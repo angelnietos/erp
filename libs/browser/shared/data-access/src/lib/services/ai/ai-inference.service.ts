@@ -61,6 +61,16 @@ export class AIInferenceService {
     return localStorage.getItem('ai_selected_model_id') || 'gemini';
   }
 
+  private getInitialApiKey(): string {
+    const provider = this.getInitialProvider();
+    switch (provider) {
+      case 'gemini': return AI_CONFIG.google_api_key || '';
+      case 'grok': return AI_CONFIG.xai_api_key || '';
+      case 'openrouter': return AI_CONFIG.openrouter_api_key || '';
+      default: return AI_CONFIG.google_api_key || AI_CONFIG.openrouter_api_key || AI_CONFIG.xai_api_key || '';
+    }
+  }
+
   readonly aiModelOptions = computed(() => {
     const options = [
       { value: 'grok', label: 'Grok (xAI) - Gratuito' },
