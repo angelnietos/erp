@@ -27,7 +27,7 @@ import { AIFormBridgeService } from '@josanz-erp/shared-data-access';
   templateUrl: './budget-create.component.html',
   styleUrl: './budget-create.component.css'
 })
-export class BudgetCreateComponent implements OnInit {
+export class BudgetCreateComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   readonly store = inject(BudgetStore);
   private clientService = inject(ClientService);
@@ -115,6 +115,10 @@ export class BudgetCreateComponent implements OnInit {
     } else {
       this.addItem();
     }
+  }
+
+  ngOnDestroy() {
+    this.aiFormBridge.unregisterForm(this.budgetForm as FormGroup);
   }
 
   private toDateInputValue(value: string): string {
