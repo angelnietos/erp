@@ -2,17 +2,62 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface ClientContact {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  position?: string;
+  isPrimary: boolean;
+}
+
+export interface EventReport {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  author?: { firstName: string, lastName: string, email: string };
+  event?: { name: string, startDate: string };
+}
+
+export interface Budget {
+  id: string;
+  status: string;
+  total: number;
+  startDate: string;
+  endDate: string;
+  invoices: Invoice[];
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  status: string;
+  total: number;
+  issueDate: string;
+  verifactuStatus: string;
+}
+
 export interface Client {
   id: string;
   name: string;
+  taxId?: string;
   description: string;
   sector: string;
   contact: string;
   email: string;
   phone: string;
   address?: string;
+  city?: string;
+  zipCode?: string;
+  country?: string;
+  type?: string;
+  contacts?: ClientContact[];
+  eventReports?: EventReport[];
+  budgets?: Budget[];
   createdAt?: string;
   updatedAt?: string;
+  avatarUrl?: string;
 }
 
 @Injectable({ providedIn: 'root' })

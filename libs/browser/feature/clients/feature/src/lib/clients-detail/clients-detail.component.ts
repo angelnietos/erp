@@ -19,18 +19,8 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
-export interface Client {
-  id: string;
-  name: string;
-  description: string;
-  sector: string;
-  contact: string;
-  email: string;
-  phone: string;
-  address: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { ClientService, Client } from '@josanz-erp/clients-data-access';
+
 
 @Component({
   selector: 'lib-clients-detail',
@@ -109,7 +99,7 @@ export interface Client {
         </div>
 
         <ui-josanz-tabs
-          [tabs]="tabs"
+          [tabs]="tabs()"
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($event)"
@@ -148,153 +138,98 @@ export interface Client {
 
                 <ui-josanz-card variant="glass" title="Puntos de Contacto">
                   <div class="info-list">
-                    <div class="info-item">
-                      <span class="label">KEY ACCOUNT MANAGER</span>
-                      <span class="value">{{ client()?.contact }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">EMAIL CORPORATIVO</span>
-                      <span class="value text-brand-link">{{
-                        client()?.email
-                      }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">TELÉFONO DIRECTO</span>
-                      <span class="value">{{ client()?.phone }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">SEDE CENTRAL</span>
-                      <span class="value">{{
-                        client()?.address || 'Dirección no consignada.'
-                      }}</span>
-                    </div>
+                    @for (contact of client()?.contacts; track contact.id) {
+                      <div class="info-item">
+                        <span class="label">{{ contact.isPrimary ? 'PRINCIPAL / ' : '' }}{{ contact.position | uppercase }}</span>
+                        <span class="value">{{ contact.name }}</span>
+                      </div>
+                      @if (contact.email) {
+                        <div class="info-item">
+                          <span class="label">EMAIL</span>
+                          <span class="value text-brand-link">{{ contact.email }}</span>
+                        </div>
+                      }
+                      @if (contact.phone) {
+                        <div class="info-item">
+                          <span class="label">TELÉFONO</span>
+                          <span class="value">{{ contact.phone }}</span>
+                        </div>
+                      }
+                    }
+                    @empty {
+                      <div class="info-item text-muted">Módulo de contactos en sincronización o sin datos.</div>
+                    }
                   </div>
                 </ui-josanz-card>
               </div>
             }
             @case ('budgets') {
-              <ui-josanz-card variant="glass" title="Historial Financiero">
-                <div class="placeholder-state">
-                  <lucide-icon
-                    name="file-search"
-                    size="48"
-                    class="text-muted"
-                  ></lucide-icon>
-                  <p>Accediendo a la bóveda de presupuestos del cliente...</p>
-                  <ui-josanz-button
-                    variant="glass"
-                    size="sm"
-                    icon="plus"
-                    routerLink="/budgets"
-                    >NUEVA OFERTA</ui-josanz-button
-                  >
+              <ui-josanz-card variant="glass" title="Presupuestos">
+                <div class="document-list">
+                  @for (budget of client()?.budgets; track budget.id) {
+                    <div class="document-item">
+                      <div class="doc-icon">
+                        <lucide-icon name="calculator" size="20"></lucide-icon>
+                      </div>
+                      <div class="doc-info">
+                        <span class="doc-title">Oferta {{ formatCurrency(budget.total) }}</span>
+                        <span class="doc-meta">Periodo: {{ formatDate(budget.startDate) }} — {{ formatDate(budget.endDate) }}</span>
+                      </div>
+                      <ui-josanz-badge variant="info">{{ budget.status }}</ui-josanz-badge>
+                    </div>
+                  } @empty {
+                    <div class="placeholder-state">
+                      <lucide-icon name="file-search" size="48" class="text-muted"></lucide-icon>
+                      <p>Sin presupuestos registrados.</p>
+                    </div>
+                  }
                 </div>
               </ui-josanz-card>
             }
             @case ('invoices') {
-              <ui-josanz-card variant="glass" title="Documentación Fiscal">
+              <ui-josanz-card variant="glass" title="Facturación Receptiva">
                 <div class="document-list">
-                  <div class="document-item">
-                    <div class="doc-icon">
-                      <lucide-icon name="file-text" size="20"></lucide-icon>
+                  @for (inv of getAllInvoices(); track inv.id) {
+                    <div class="document-item">
+                      <div class="doc-icon">
+                        <lucide-icon name="receipt" size="20"></lucide-icon>
+                      </div>
+                      <div class="doc-info">
+                        <span class="doc-title">Factura {{ inv.invoiceNumber }}</span>
+                        <span class="doc-meta">Emitida: {{ formatDate(inv.issueDate) }} · {{ formatCurrency(inv.total) }}</span>
+                      </div>
+                      <ui-josanz-badge [variant]="inv.status === 'PAID' ? 'success' : 'warning'">{{ inv.status }}</ui-josanz-badge>
                     </div>
-                    <div class="doc-info">
-                      <span class="doc-title">Factura F/2026/0001</span>
-                      <span class="doc-meta"
-                        >Emitida: 15/03/2026 · 2.300,00 €</span
-                      >
+                  } @empty {
+                    <div class="placeholder-state">
+                      <p>No existen facturas vinculadas al circuito de este cliente.</p>
                     </div>
-                    <ui-josanz-button variant="ghost" size="sm" icon="download"
-                      >PDF</ui-josanz-button
-                    >
-                  </div>
-                  <div class="document-item">
-                    <div class="doc-icon">
-                      <lucide-icon name="receipt" size="20"></lucide-icon>
-                    </div>
-                    <div class="doc-info">
-                      <span class="doc-title">Albarán ALB-2026-001</span>
-                      <span class="doc-meta"
-                        >Entregado: 10/03/2026 · Equipos audiovisuales</span
-                      >
-                    </div>
-                    <ui-josanz-button variant="ghost" size="sm" icon="download"
-                      >PDF</ui-josanz-button
-                    >
-                  </div>
-                  <div class="document-item">
-                    <div class="doc-icon">
-                      <lucide-icon name="shield-check" size="20"></lucide-icon>
-                    </div>
-                    <div class="doc-info">
-                      <span class="doc-title">Certificado VeriFactu</span>
-                      <span class="doc-meta"
-                        >Validado: 15/03/2026 · Estado: ACEPTADO</span
-                      >
-                    </div>
-                    <ui-josanz-button variant="ghost" size="sm" icon="download"
-                      >XML</ui-josanz-button
-                    >
-                  </div>
+                  }
                 </div>
               </ui-josanz-card>
             }
-            @case ('history') {
-              <ui-josanz-card
-                variant="glass"
-                title="Telemetría de Interacciones"
-              >
-                <div class="timeline">
-                  <div class="timeline-item">
-                    <div class="timeline-marker">
-                      <lucide-icon name="mail" size="16"></lucide-icon>
+            @case ('reports') {
+              <ui-josanz-card variant="glass" title="Informes de Evento">
+                <div class="document-list">
+                  @for (report of client()?.eventReports; track report.id) {
+                    <div class="document-item" style="align-items: flex-start; flex-direction: column;">
+                      <div style="display: flex; gap: 10px; width: 100%;">
+                        <div class="doc-icon"><lucide-icon name="clipboard-check" size="20"></lucide-icon></div>
+                        <div class="doc-info">
+                          <span class="doc-title">{{ report.title }}</span>
+                          <span class="doc-meta">Fecha: {{ formatDate(report.createdAt) }} · Autor: {{ report.author?.firstName || 'Sistema' }}</span>
+                        </div>
+                      </div>
+                      <div style="padding-left: 50px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-top: 10px;">
+                        {{ report.content }}
+                      </div>
                     </div>
-                    <div class="timeline-content">
-                      <span class="timeline-title"
-                        >Email de seguimiento enviado</span
-                      >
-                      <span class="timeline-meta"
-                        >Hace 2 días · Por: Ana López</span
-                      >
+                  } @empty {
+                    <div class="placeholder-state">
+                      <lucide-icon name="clipboard-x" size="48" class="text-muted"></lucide-icon>
+                      <p>Aún no hay informes técnicos de eventos asociados.</p>
                     </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker">
-                      <lucide-icon name="phone" size="16"></lucide-icon>
-                    </div>
-                    <div class="timeline-content">
-                      <span class="timeline-title"
-                        >Llamada telefónica realizada</span
-                      >
-                      <span class="timeline-meta"
-                        >Hace 5 días · Duración: 15 min</span
-                      >
-                    </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker">
-                      <lucide-icon name="calendar" size="16"></lucide-icon>
-                    </div>
-                    <div class="timeline-content">
-                      <span class="timeline-title"
-                        >Reunión presencial agendada</span
-                      >
-                      <span class="timeline-meta"
-                        >Hace 1 semana · IFEMA Madrid</span
-                      >
-                    </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker">
-                      <lucide-icon name="briefcase" size="16"></lucide-icon>
-                    </div>
-                    <div class="timeline-content">
-                      <span class="timeline-title">Proyecto completado</span>
-                      <span class="timeline-meta"
-                        >Hace 2 semanas · Presupuesto: 12.450 €</span
-                      >
-                    </div>
-                  </div>
+                  }
                 </div>
               </ui-josanz-card>
             }
@@ -611,19 +546,13 @@ export class ClientsDetailComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
+  private readonly clientService = inject(ClientService);
 
   currentTheme = this.themeService.currentThemeData;
   client = signal<Client | null>(null);
   isLoading = signal(true);
   activeTab = signal('general');
-
-  tabs: TabItem[] = [
-    { id: 'general', label: 'Estrategia' },
-    { id: 'budgets', label: 'Financiero' },
-    { id: 'invoices', label: 'Documental', badge: 3 },
-    { id: 'history', label: 'Telemetría', badge: 4 },
-    { id: 'commercial', label: 'Historial Comercial', badge: 3 },
-  ];
+  tabs = signal<TabItem[]>([]);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -634,22 +563,41 @@ export class ClientsDetailComponent implements OnInit {
 
   loadClient(id: string) {
     this.isLoading.set(true);
-    setTimeout(() => {
-      this.client.set({
-        id,
-        name: 'Producciones Audiovisuales Madrid',
-        description:
-          'Líder en producción de contenido digital para el sector broadcast y streaming.',
-        sector: 'Broadcast Media',
-        contact: 'Juan García-Cortés',
-        email: 'j.cortes@broadmadrid.com',
-        phone: '+34 612 345 678',
-        address: 'Paseo de la Castellana 200, 28046 Madrid',
-        createdAt: '2026-01-15',
-        updatedAt: '2026-03-20',
+    this.clientService.getClient(id).subscribe({
+      next: (c) => {
+        if (c) {
+          this.client.set(c);
+          
+          let invoiceCount = 0;
+          c.budgets?.forEach(b => {
+            if (b.invoices) invoiceCount += b.invoices.length;
+          });
+
+          this.tabs.set([
+            { id: 'general', label: 'Estrategia' },
+            { id: 'budgets', label: 'Presupuestos', badge: c.budgets?.length || 0 },
+            { id: 'invoices', label: 'Facturas', badge: invoiceCount },
+            { id: 'reports', label: 'Informes de Evento', badge: c.eventReports?.length || 0 },
+            { id: 'commercial', label: 'Historial Comercial' },
+          ]);
+        }
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
+    });
+  }
+
+  getAllInvoices() {
+    const invoices: any[] = [];
+    const c = this.client();
+    if (c?.budgets) {
+      c.budgets.forEach((b: any) => {
+        if (b.invoices) {
+          invoices.push(...b.invoices);
+        }
       });
-      this.isLoading.set(false);
-    }, 450);
+    }
+    return invoices;
   }
 
   onTabChange(tabId: string) {
@@ -659,5 +607,9 @@ export class ClientsDetailComponent implements OnInit {
   formatDate(date: string | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
+  }
+
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
   }
 }
