@@ -113,6 +113,7 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.outboxEvent.deleteMany({});
   await prisma.idempotencyKey.deleteMany({});
   await prisma.auditLog.deleteMany({});
+  await prisma.user.deleteMany({ where: { tenantId, email: { not: 'admin@josanz.com' } } });
 }
 
 async function main() {
