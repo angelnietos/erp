@@ -37,7 +37,7 @@ import {
   UiInputComponent,
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { PluginStore, AIBotStore } from '@josanz-erp/shared-data-access';
+import { PluginStore, AIBotStore, type AIBot } from '@josanz-erp/shared-data-access';
 import { FormsModule } from '@angular/forms';
 
 interface PluginDescriptor {
@@ -111,12 +111,7 @@ interface PluginDescriptor {
               (click)="activeTab.set('buddy')"
             >
               <lucide-icon name="smile" size="18"></lucide-icon>
-              <span
-                >Personalizar
-                {{
-                  aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature())
-                }}</span
-              >
+              <span>Compañeros IA</span>
             </button>
 
             <div class="nav-divider">Otros</div>
@@ -529,20 +524,58 @@ interface PluginDescriptor {
           @if (activeTab() === 'buddy') {
             <section class="content-section animate-slide-up">
               <div class="section-title">
-                <h2>
-                  Customización de
-                  {{
-                    aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature())
-                  }}
-                </h2>
+                <h2>Compañeros IA</h2>
                 <p>
-                  Configura la estética y habilidades de tu agente principal
+                  Personaliza la apariencia y las habilidades de Buddy y del
+                  agente del panel (JAIME). Es independiente del agente
+                  principal del hub.
                 </p>
               </div>
 
+              <div class="companion-toolbar">
+                <div
+                  class="companion-subtabs"
+                  role="tablist"
+                  aria-label="Compañero a personalizar"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    class="companion-subtab"
+                    [class.active]="companionEditorFeature() === 'buddy'"
+                    (click)="companionEditorFeature.set('buddy')"
+                  >
+                    Buddy
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    class="companion-subtab"
+                    [class.active]="companionEditorFeature() === 'dashboard'"
+                    (click)="companionEditorFeature.set('dashboard')"
+                  >
+                    JAIME · panel
+                  </button>
+                </div>
+                <div class="companion-context-block">
+                  <span class="primary-agent-pill">
+                    Agente principal:
+                    {{
+                      aiBotStore.getBotDisplayName(
+                        aiBotStore.activeBotFeature()
+                      )
+                    }}
+                  </span>
+                  <p class="companion-context-hint">
+                    Cambiar de pestaña solo elige qué compañero editas aquí; el
+                    agente principal se define en «Asistentes de IA».
+                  </p>
+                </div>
+              </div>
+
               @if (
-                aiBotStore.getBotByFeature(aiBotStore.activeBotFeature());
-                as buddy
+                aiBotStore.getBotByFeature(companionEditorFeature());
+                as pal
               ) {
                 <div class="buddy-customizer">
                   <div class="buddy-visual-col">
@@ -553,13 +586,13 @@ interface PluginDescriptor {
                     >
                       <div class="preview-glow"></div>
                       <ui-mascot
-                        [type]="$any(buddy.mascotType)"
-                        [color]="buddy.color"
-                        [secondaryColor]="buddy.secondaryColor"
-                        [personality]="$any(buddy.personality)"
-                        [bodyShape]="$any(buddy.bodyShape)"
-                        [eyesType]="$any(buddy.eyesType)"
-                        [mouthType]="$any(buddy.mouthType)"
+                        [type]="$any(pal.mascotType)"
+                        [color]="pal.color"
+                        [secondaryColor]="pal.secondaryColor"
+                        [personality]="$any(pal.personality)"
+                        [bodyShape]="$any(pal.bodyShape)"
+                        [eyesType]="$any(pal.eyesType)"
+                        [mouthType]="mascotMouthFor(pal)"
                         [rageMode]="aiBotStore.rageMode()"
                         [rageStyle]="$any(aiBotStore.rageStyle())"
                       >
@@ -572,12 +605,14 @@ interface PluginDescriptor {
                       <div class="card-header-with-toggle">
                         <div class="buddy-name-edit flex-1">
                           <ui-input
-                            label="Nombre del Compañero"
-                            [ngModel]="buddy.name"
-                            (ngModelChange)="
-                              aiBotStore.updateBotName(buddy.feature, $event)
+                            label="Nombre del compañero"
+                            [ngModel]="
+                              aiBotStore.getBotDisplayName(pal.feature)
                             "
-                            placeholder="Ej: Buddy, Pato, etc."
+                            (ngModelChange)="
+                              aiBotStore.updateBotName(pal.feature, $event)
+                            "
+                            placeholder="Ej: Buddy, JAIME, Pato…"
                           ></ui-input>
                         </div>
                         <div
@@ -601,8 +636,69 @@ interface PluginDescriptor {
                         class="standard-options"
                         [class.dimmed]="aiBotStore.rageMode()"
                       >
+                        <div class="companion-form-grid">
+                          <div class="form-group mb-4">
+                            <ui-select
+                              label="Mascota (accesorio)"
+                              [options]="[
+                                {
+                                  value: 'inventory',
+                                  label: 'Cubo Invernadero',
+                                },
+                                {
+                                  value: 'projects',
+                                  label: 'Hexágono Proyectos',
+                                },
+                                { value: 'budget', label: 'Cápsula Fiscal' },
+                                { value: 'clients', label: 'Esfera Social' },
+                                { value: 'fleet', label: 'Vehículo Drive' },
+                                { value: 'rentals', label: 'Cubo Alquiler' },
+                                { value: 'audit', label: 'Domo Auditor' },
+                                {
+                                  value: 'dashboard',
+                                  label: 'Panel de Control',
+                                },
+                                {
+                                  value: 'universal',
+                                  label: 'Droide Universal',
+                                },
+                              ]"
+                              [ngModel]="pal.mascotType"
+                              (ngModelChange)="
+                                aiBotStore.updateBotSkin(pal.feature, {
+                                  mascotType: $event,
+                                })
+                              "
+                            ></ui-select>
+                          </div>
+
+                          <div class="form-group mb-4">
+                            <ui-select
+                              label="Personalidad"
+                              [options]="[
+                                { value: 'tech', label: 'Tecnocrático' },
+                                { value: 'worker', label: 'Productor' },
+                                { value: 'happy', label: 'Optimista' },
+                                { value: 'mystic', label: 'Místico / oculto' },
+                                {
+                                  value: 'explorer',
+                                  label: 'Explorador',
+                                },
+                                { value: 'ninja', label: 'Sigiloso / ninja' },
+                                { value: 'queen', label: 'Regio / reina' },
+                              ]"
+                              [ngModel]="pal.personality"
+                              (ngModelChange)="
+                                aiBotStore.updateBotSkin(pal.feature, {
+                                  personality: $event,
+                                })
+                              "
+                            ></ui-select>
+                          </div>
+                        </div>
+
                         <div class="form-group mb-4">
-                          <label class="form-label">Color Principal</label>
+                          <label class="form-label">Color principal</label>
                           <div class="color-picker-grid">
                             @for (
                               c of [
@@ -621,9 +717,9 @@ interface PluginDescriptor {
                             ) {
                               <div
                                 class="color-swatch-item"
-                                [class.active]="buddy.color === c.m"
+                                [class.active]="pal.color === c.m"
                                 (click)="
-                                  aiBotStore.updateBotSkin(buddy.feature, {
+                                  aiBotStore.updateBotSkin(pal.feature, {
                                     color: c.m,
                                     secondaryColor: c.s,
                                   })
@@ -638,18 +734,42 @@ interface PluginDescriptor {
                           </div>
                         </div>
 
+                        <div class="form-group mb-4 companion-secondary-row">
+                          <label class="form-label">Color secundario (sombra)</label>
+                          <input
+                            type="color"
+                            class="color-input"
+                            [value]="pal.secondaryColor"
+                            (input)="
+                              aiBotStore.updateBotSkin(pal.feature, {
+                                secondaryColor: $any($event.target).value,
+                              })
+                            "
+                            title="Color secundario"
+                          />
+                        </div>
+
                         <div class="form-group mb-4">
                           <ui-select
-                            label="Forma del Cuerpo"
+                            label="Forma del cuerpo"
                             [options]="[
-                              { value: 'capsule', label: 'Cápsula Plana' },
-                              { value: 'round', label: 'Esfera Gordita' },
-                              { value: 'square', label: 'Cubo Bloque' },
-                              { value: 'tri', label: 'Triángulo Puntiagudo' },
+                              { value: 'round', label: 'Esfera gordita' },
+                              { value: 'square', label: 'Cubo bloque' },
+                              { value: 'capsule', label: 'Cápsula' },
+                              { value: 'tri', label: 'Triángulo' },
+                              { value: 'star', label: 'Estrella' },
+                              {
+                                value: 'mushroom-cap',
+                                label: 'Seta (sombrero)',
+                              },
+                              {
+                                value: 'mushroom-full',
+                                label: 'Seta completa',
+                              },
                             ]"
-                            [ngModel]="buddy.bodyShape"
+                            [ngModel]="pal.bodyShape"
                             (ngModelChange)="
-                              aiBotStore.updateBotSkin(buddy.feature, {
+                              aiBotStore.updateBotSkin(pal.feature, {
                                 bodyShape: $event,
                               })
                             "
@@ -660,14 +780,38 @@ interface PluginDescriptor {
                           <ui-select
                             label="Ojos"
                             [options]="[
-                              { value: 'joy', label: 'Feliz / Kawaii' },
-                              { value: 'dots', label: 'Puntos Simples' },
-                              { value: 'shades', label: 'Gafas de Sol' },
+                              { value: 'joy', label: 'Feliz / kawaii' },
+                              { value: 'dots', label: 'Puntos simples' },
+                              { value: 'shades', label: 'Gafas de sol' },
+                              { value: 'glow', label: 'Brillo neón' },
+                              { value: 'angry', label: 'Cejudo / serio' },
                             ]"
-                            [ngModel]="buddy.eyesType"
+                            [ngModel]="pal.eyesType"
                             (ngModelChange)="
-                              aiBotStore.updateBotSkin(buddy.feature, {
+                              aiBotStore.updateBotSkin(pal.feature, {
                                 eyesType: $event,
+                              })
+                            "
+                          ></ui-select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                          <ui-select
+                            label="Boca"
+                            [options]="[
+                              { value: 'smile', label: 'Sonrisa' },
+                              { value: 'line', label: 'Neutra (línea)' },
+                              { value: 'o', label: 'Boca en O' },
+                              { value: 'grin', label: 'Sonrisa ancha' },
+                              {
+                                value: 'none',
+                                label: 'Discreta / mínima',
+                              },
+                            ]"
+                            [ngModel]="pal.mouthType"
+                            (ngModelChange)="
+                              aiBotStore.updateBotSkin(pal.feature, {
+                                mouthType: $event,
                               })
                             "
                           ></ui-select>
@@ -693,26 +837,34 @@ interface PluginDescriptor {
                             ></ui-select>
                           </div>
                           <p class="rage-hint">
-                            Cuidado: Con este modo activo, Buddy no tendrá
-                            filtros y será grosero contigo.
+                            Cuidado: con este modo activo,
+                            {{
+                              aiBotStore.getBotDisplayName(
+                                companionEditorFeature()
+                              )
+                            }}
+                            no tendrá filtros y puede ser grosero contigo.
                           </p>
                         </div>
                       }
                     </ui-card>
 
                     <ui-card variant="glass" class="buddy-skills-card mt-6">
-                      <h3>Habilidades de Confianza</h3>
+                      <h3>
+                        Habilidades de confianza ·
+                        {{ aiBotStore.getBotDisplayName(pal.feature) }}
+                      </h3>
                       <div class="skills-config-list mt-4">
-                        @for (skill of buddy.skills; track skill) {
+                        @for (skill of pal.skills; track skill) {
                           <div class="skill-config-item">
                             <span class="skill-name">{{ skill }}</span>
                             <div
                               class="toggle-wrapper"
                               [class.active]="
-                                isSkillActive(buddy.feature, skill)
+                                isSkillActive(pal.feature, skill)
                               "
                               (click)="
-                                aiBotStore.toggleSkill(buddy.feature, skill)
+                                aiBotStore.toggleSkill(pal.feature, skill)
                               "
                             >
                               <div class="toggle-handle"></div>
@@ -1144,6 +1296,95 @@ interface PluginDescriptor {
         font-size: 0.85rem;
         color: var(--text-muted);
         margin: 0.4rem 0 0 0;
+      }
+
+      .companion-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.25rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .companion-subtabs {
+        display: inline-flex;
+        padding: 4px;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        gap: 4px;
+      }
+
+      .companion-subtab {
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0.55rem 1.1rem;
+        border-radius: 10px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition:
+          color 0.2s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .companion-subtab:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .companion-subtab.active {
+        background: rgba(var(--brand-rgb, 16, 185, 129), 0.28);
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+      }
+
+      .companion-context-block {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+        text-align: right;
+        max-width: min(100%, 440px);
+      }
+
+      .primary-agent-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 0.4rem 0.85rem;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+      }
+
+      .companion-context-hint {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      .companion-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0 1rem;
+      }
+
+      .companion-secondary-row {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
       }
 
       /* Plugin Grid */
@@ -1733,6 +1974,11 @@ interface PluginDescriptor {
         .buddy-preview-card {
           height: 250px;
         }
+        .companion-context-block {
+          align-items: flex-start;
+          text-align: left;
+          max-width: 100%;
+        }
       }
     `,
   ],
@@ -1752,6 +1998,31 @@ export class SettingsFeatureComponent implements OnInit {
     | 'labs'
   >('general');
   readonly managingBotId = signal<string | null>(null);
+
+  private static readonly COMPANION_EDITOR_STORAGE_KEY =
+    'settings_companion_editor_feature';
+
+  /** Qué compañero se edita en la pestaña «Compañeros IA» (Buddy vs panel). */
+  readonly companionEditorFeature = signal<'buddy' | 'dashboard'>(
+    SettingsFeatureComponent.readStoredCompanionEditor(),
+  );
+
+  private static readStoredCompanionEditor(): 'buddy' | 'dashboard' {
+    if (typeof localStorage === 'undefined') {
+      return 'buddy';
+    }
+    try {
+      const v = localStorage.getItem(
+        SettingsFeatureComponent.COMPANION_EDITOR_STORAGE_KEY,
+      );
+      if (v === 'buddy' || v === 'dashboard') {
+        return v;
+      }
+    } catch {
+      /* ignore */
+    }
+    return 'buddy';
+  }
 
   // Expose signals explicitly for better template inference
   public readonly realtimeSync = this._pluginStore.realtimeSync;
@@ -1809,6 +2080,22 @@ export class SettingsFeatureComponent implements OnInit {
     return bot?.activeSkills.includes(skill) || false;
   }
 
+  /** Tipos de boca del modelo → entradas soportadas por `ui-mascot`. */
+  mascotMouthFor(bot: AIBot): 'smile' | 'line' | 'o' | 'mean' {
+    switch (bot.mouthType) {
+      case 'smile':
+      case 'line':
+      case 'o':
+        return bot.mouthType;
+      case 'grin':
+        return 'smile';
+      case 'none':
+        return 'line';
+      default:
+        return 'line';
+    }
+  }
+
   isPluginEnabled(id: string) {
     return this.enabledPlugins().includes(id);
   }
@@ -1831,11 +2118,10 @@ export class SettingsFeatureComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      console.log(
-        'SettingsFeature initialized. Bots in store:',
-        this.aiBotStore.bots(),
+      localStorage.setItem(
+        SettingsFeatureComponent.COMPANION_EDITOR_STORAGE_KEY,
+        this.companionEditorFeature(),
       );
-      console.log('Buddy bot:', this.aiBotStore.getBotByFeature('dashboard'));
     });
   }
 }
