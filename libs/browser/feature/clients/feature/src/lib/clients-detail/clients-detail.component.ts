@@ -8,11 +8,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  UiButtonComponent,
-  UiBadgeComponent,
-  UiLoaderComponent,
-} from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 import { ClientService, Client } from '@josanz-erp/clients-data-access';
@@ -20,14 +15,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
 @Component({
   selector: 'lib-clients-detail',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    LucideAngularModule,
-    UiButtonComponent,
-    UiBadgeComponent,
-    UiLoaderComponent,
-  ],
+  imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `
     <div class="ns-detail">
       @if (isLoading()) {
@@ -116,7 +104,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             @case ('budgets') {
               <div class="ns-list">
                 @for (budget of client()?.budgets; track budget.id) {
-                  <div class="ns-doc-card">
+                  <a [routerLink]="['/budgets', budget.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-blue">
                       <lucide-icon name="calculator" size="20"></lucide-icon>
                     </div>
@@ -132,7 +120,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                     <ui-josanz-badge variant="info">{{
                       budget.status
                     }}</ui-josanz-badge>
-                  </div>
+                  </a>
                 } @empty {
                   <div class="ns-empty">
                     <lucide-icon name="file-x" size="40"></lucide-icon>
@@ -144,7 +132,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             @case ('invoices') {
               <div class="ns-list">
                 @for (inv of getAllInvoices(); track inv.id) {
-                  <div class="ns-doc-card">
+                  <a [routerLink]="['/billing', inv.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-green">
                       <lucide-icon name="receipt" size="20"></lucide-icon>
                     </div>
@@ -160,7 +148,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                       [variant]="inv.status === 'PAID' ? 'success' : 'warning'"
                       >{{ inv.status }}</ui-josanz-badge
                     >
-                  </div>
+                  </a>
                 } @empty {
                   <div class="ns-empty">
                     <lucide-icon name="file-x" size="40"></lucide-icon>
@@ -168,7 +156,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                   </div>
                 }
                 @for (dn of getAllDeliveryNotes(); track dn.id) {
-                  <div class="ns-doc-card">
+                  <a [routerLink]="['/delivery', dn.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-orange">
                       <lucide-icon name="file-text" size="20"></lucide-icon>
                     </div>
@@ -182,14 +170,15 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                       [variant]="dn.status === 'signed' ? 'success' : 'info'"
                       >{{ dn.status }}</ui-josanz-badge
                     >
-                  </div>
+                  </a>
                 }
               </div>
             }
             @case ('reports') {
               <div class="ns-list">
                 @for (report of client()?.eventReports; track report.id) {
-                  <div
+                  <a
+                    [routerLink]="['/events', report.eventId]"
                     class="ns-doc-card"
                     style="flex-direction: column; align-items: flex-start;"
                   >
@@ -215,7 +204,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                     >
                       {{ report.content }}
                     </p>
-                  </div>
+                  </a>
                 } @empty {
                   <div class="ns-empty">
                     <lucide-icon name="file-x" size="40"></lucide-icon>
@@ -227,7 +216,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             @case ('commercial') {
               <div class="ns-list">
                 @for (rental of client()?.rentals; track rental.id) {
-                  <div class="ns-doc-card">
+                  <a [routerLink]="['/rentals', rental.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-orange">
                       <lucide-icon name="package" size="20"></lucide-icon>
                     </div>
@@ -246,7 +235,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                       "
                       >{{ rental.status }}</ui-josanz-badge
                     >
-                  </div>
+                  </a>
                 } @empty {
                   <div class="ns-empty">
                     <lucide-icon name="file-x" size="40"></lucide-icon>
@@ -437,6 +426,13 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         background: var(--surface);
         border-radius: 12px;
         border: 1px solid var(--border-soft);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .ns-doc-card:hover {
+        border-color: var(--text-muted);
+        transform: translateX(4px);
       }
 
       .ns-doc-icon {
