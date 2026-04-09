@@ -58,6 +58,12 @@ export { UIMascotComponent } from './lib/mascot/mascot.component';
 export { UIAIChatComponent } from './lib/ai-assistant/ai-assistant.component';
 export { DynamicCanvasComponent } from './lib/dynamic-canvas/dynamic-canvas.component';
 
+// Layout
+export { UiFeatureHeaderComponent } from './lib/layout/feature-header/feature-header.component';
+export { UiFeatureStatsComponent } from './lib/layout/feature-stats/feature-stats.component';
+export { UiFeatureGridComponent } from './lib/layout/feature-grid/feature-grid.component';
+export { UiFeatureCardComponent } from './lib/layout/feature-card/feature-card.component';
+
 // Pipes
 export { SelectMapperPipe } from './lib/pipes/select-mapper.pipe';
 

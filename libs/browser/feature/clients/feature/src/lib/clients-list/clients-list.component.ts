@@ -18,6 +18,11 @@ import {
   UiModalComponent,
   UiInputComponent,
   UiBadgeComponent,
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
@@ -44,112 +49,63 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
     UiModalComponent,
     UiInputComponent,
     UiBadgeComponent,
+    UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
   ],
   template: `
     <div class="clients-container">
-      <!-- Header Section -->
-      <div class="clients-header">
-        <div class="header-content">
-          <div class="header-title-section">
-            <div class="title-icon">
-              <lucide-icon name="building-2" size="32"></lucide-icon>
-            </div>
-            <div class="title-text">
-              <h1 class="main-title">Clientes</h1>
-              <p class="subtitle">Gestión completa de tu cartera de clientes</p>
-            </div>
-          </div>
-          <div class="header-actions">
-            <ui-button
-              variant="solid"
-              size="md"
-              (clicked)="openCreateModal()"
-              icon="CirclePlus"
-              class="create-btn"
-            >
-              Nuevo Cliente
-            </ui-button>
-          </div>
-        </div>
-      </div>
+      <!-- Standard Header -->
+      <ui-feature-header
+        title="Clientes"
+        subtitle="Gestión completa de tu cartera de clientes"
+        icon="building-2"
+        actionLabel="Nuevo Cliente"
+        (actionClicked)="openCreateModal()"
+      ></ui-feature-header>
 
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="stat-card stat-primary">
-          <div class="stat-icon">
-            <lucide-icon name="users" size="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ clients().length }}</div>
-            <div class="stat-label">Total Clientes</div>
-            <div class="stat-trend">
-              <lucide-icon name="trending-up" size="14"></lucide-icon>
-              <span>+12% este mes</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-card stat-success">
-          <div class="stat-icon">
-            <lucide-icon name="user-plus" size="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ newClientsCount() }}</div>
-            <div class="stat-label">Nuevos este mes</div>
-            <div class="stat-trend">
-              <lucide-icon name="trending-up" size="14"></lucide-icon>
-              <span>+8% vs mes anterior</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-card stat-warning">
-          <div class="stat-icon">
-            <lucide-icon name="briefcase" size="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ activeSectorsCount() }}</div>
-            <div class="stat-label">Sectores activos</div>
-            <div class="stat-trend">
-              <lucide-icon name="activity" size="14"></lucide-icon>
-              <span>Diversificación</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-card stat-info">
-          <div class="stat-icon">
-            <lucide-icon name="dollar-sign" size="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ totalRevenue() | number:'1.0-0' }}€</div>
-            <div class="stat-label">Ingresos totales</div>
-            <div class="stat-trend">
-              <lucide-icon name="trending-up" size="14"></lucide-icon>
-              <span>+15% crecimiento</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Standard Stats -->
+      <ui-feature-stats>
+        <ui-stat-card
+          label="Total Clientes"
+          [value]="clients().length.toString()"
+          icon="users"
+          [trend]="12"
+          [accent]="true"
+        ></ui-stat-card>
+        <ui-stat-card
+          label="Nuevos este mes"
+          [value]="newClientsCount().toString()"
+          icon="user-plus"
+          [trend]="8"
+        ></ui-stat-card>
+        <ui-stat-card
+          label="Sectores activos"
+          [value]="activeSectorsCount().toString()"
+          icon="briefcase"
+        ></ui-stat-card>
+        <ui-stat-card
+          label="Ingresos totales"
+          [value]="(totalRevenue() | number:'1.0-0') + '€'"
+          icon="dollar-sign"
+          [trend]="15"
+        ></ui-stat-card>
+      </ui-feature-stats>
 
       <!-- Search and Filters -->
       <div class="controls-section">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por nombre, sector o contacto..."
-            (searchChange)="onSearch($event)"
-            class="search-input"
-          ></ui-search>
-        </div>
-        <div class="filter-buttons">
-          <ui-button variant="ghost" size="sm" icon="filter" class="filter-btn">
-            Filtros
-          </ui-button>
-          <ui-button variant="ghost" size="sm" icon="arrow-up" class="sort-btn">
-            Ordenar
-          </ui-button>
+        <ui-search
+          variant="glass"
+          placeholder="Buscar por nombre, sector o contacto..."
+          (searchChange)="onSearch($event)"
+          class="flex-1"
+        ></ui-search>
+        <div class="filter-actions">
+           <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+           <ui-button variant="ghost" size="sm" icon="ArrowUp">Ordenar</ui-button>
         </div>
       </div>
 
@@ -159,74 +115,38 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           <ui-loader message="Cargando clientes..."></ui-loader>
         </div>
       } @else {
-        <div class="clients-grid">
+        <ui-feature-grid>
           @for (client of filteredClients(); track client.id) {
-            <div class="client-card" (click)="goToDetail(client)">
-              <div class="card-header">
-                <div class="client-avatar">
-                  <div class="avatar-initials">{{ getInitials(client.name) }}</div>
-                  <div class="avatar-status" [class.active]="getClientStatus(client) === 'active'"></div>
-                </div>
-                <div class="client-actions">
-                  <ui-button
-                    variant="ghost"
-                    size="sm"
-                    icon="Pencil"
-                    (click)="$event.stopPropagation(); editClient(client)"
-                    class="edit-btn"
-                  >
-                    Editar
-                  </ui-button>
-                </div>
+            <ui-feature-card
+              [name]="client.name"
+              [subtitle]="client.contact || 'Sin contacto'"
+              [avatarInitials]="getInitials(client.name)"
+              [avatarBackground]="getClientColor(client)"
+              [status]="getClientStatus(client) === 'active' ? 'active' : 'offline'"
+              [badgeLabel]="client.sector || 'General'"
+              (cardClicked)="goToDetail(client)"
+              (editClicked)="editClient(client)"
+              [footerItems]="[
+                { icon: 'briefcase', label: getClientProjects(client) + ' proyectos' },
+                { icon: 'dollar-sign', label: (getClientRevenue(client) | number:'1.0-0') + '€' }
+              ]"
+            >
+              <div footer-extra class="client-rating">
+                 <lucide-icon name="star" size="12" class="filled"></lucide-icon>
+                 <span>{{ getClientRating(client) }}/5</span>
               </div>
-
-              <div class="card-content">
-                <div class="client-info">
-                  <h3 class="client-name">{{ client.name }}</h3>
-                  <div class="client-meta">
-                    <ui-badge variant="secondary" size="sm">{{ client.sector || 'General' }}</ui-badge>
-                    <span class="client-contact">{{ client.contact || 'Sin contacto' }}</span>
-                  </div>
-                </div>
-
-                <div class="client-stats">
-                  <div class="stat-item">
-                    <lucide-icon name="briefcase" size="16"></lucide-icon>
-                    <span>{{ getClientProjects(client) }} proyectos</span>
-                  </div>
-                  <div class="stat-item">
-                    <lucide-icon name="dollar-sign" size="16"></lucide-icon>
-                    <span>{{ getClientRevenue(client) | number:'1.0-0' }}€</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card-footer">
-                <div class="client-date">
-                  <lucide-icon name="calendar" size="14"></lucide-icon>
-                  <span>Cliente desde {{ formatDate(client.createdAt) }}</span>
-                </div>
-                <div class="client-rating">
-                  <lucide-icon name="star" size="14" [class.filled]="true"></lucide-icon>
-                  <span>{{ getClientRating(client) }}/5</span>
-                </div>
-              </div>
-            </div>
+            </ui-feature-card>
           } @empty {
             <div class="empty-state">
-              <div class="empty-icon">
-                <lucide-icon name="users" size="64"></lucide-icon>
-              </div>
-              <div class="empty-content">
-                <h3 class="empty-title">No hay clientes</h3>
-                <p class="empty-description">Comienza añadiendo tu primer cliente para gestionar tu cartera comercial.</p>
-                <ui-button variant="solid" (clicked)="openCreateModal()" icon="plus">
-                  Añadir primer cliente
-                </ui-button>
-              </div>
+              <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+              <h3>No hay clientes</h3>
+              <p>Comienza añadiendo tu primer cliente para gestionar tu cartera comercial.</p>
+              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
+                Añadir primer cliente
+              </ui-button>
             </div>
           }
-        </div>
+        </ui-feature-grid>
       }
 
       <!-- Create/Edit Modal -->
@@ -235,183 +155,32 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         [title]="editingClient() ? 'Editar cliente' : 'Nuevo cliente'"
         (closed)="closeModal()"
         variant="glass"
-        shape="auto"
-        [class]="editingClient() ? 'modal-xl' : ''"
       >
-        @if (editingClient(); as client) {
-          <div class="client-summary">
-            <div class="summary-header">
-              <div class="client-avatar">
-                <div class="avatar-initials">{{ getInitials(client.name) }}</div>
-              </div>
-              <div class="client-info">
-                <h3 class="client-name">{{ client.name }}</h3>
-                <p class="client-meta">{{ client.sector || 'Sin sector' }} · ID: {{ client.id?.slice(0, 8) }}</p>
-                <p class="client-updated">Última modificación: {{ formatDate(client.updatedAt || client.createdAt) }}</p>
-                <div class="client-status">
-                  <ui-badge variant="success" size="sm">Cliente activo</ui-badge>
-                </div>
-              </div>
-            </div>
-            <div class="summary-stats">
-              <div class="stat">
-                <span class="stat-label">Proyectos</span>
-                <span class="stat-value">{{ getClientProjects(client) }}</span>
-              </div>
-              <div class="stat">
-                <span class="stat-label">Ingresos</span>
-                <span class="stat-value">{{ getClientRevenue(client) | number:'1.0-0' }}€</span>
-              </div>
-              <div class="stat">
-                <span class="stat-label">Última actividad</span>
-                <span class="stat-value">{{ formatDate(client.updatedAt || client.createdAt) }}</span>
-              </div>
-            </div>
-          </div>
-        }
-
         <div class="modal-form">
-          <!-- Información General -->
+          <!-- Form sections as before, but simplified if possible -->
           <div class="form-section">
-            <h4 class="section-title">Información General</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Nombre completo *"
-                [(ngModel)]="formData.name"
-                icon="user"
-                placeholder="Nombre del cliente"
-                class="form-input"
-                required
-              ></ui-input>
-
-              <ui-input
-                label="CIF/NIF"
-                [(ngModel)]="formData.taxId"
-                icon="hash"
-                placeholder="B12345678"
-              ></ui-input>
-
-              <ui-input
-                label="Tipo de cliente"
-                [(ngModel)]="formData.type"
-                icon="building-2"
-                placeholder="Empresa, Particular..."
-              ></ui-input>
-
-              <ui-input
-                label="Sector de actividad"
-                [(ngModel)]="formData.sector"
-                icon="briefcase"
-                placeholder="Ej: Tecnología, Construcción..."
-              ></ui-input>
-            </div>
-
-            <ui-input
-              label="Descripción"
-              [(ngModel)]="formData.description"
-              icon="file-text"
-              placeholder="Breve descripción del cliente..."
-              class="full-width"
-            ></ui-input>
+             <h4 class="section-title">Información General</h4>
+             <div class="form-grid">
+               <ui-input label="Nombre completo *" [(ngModel)]="formData.name" icon="user" placeholder="Nombre del cliente" required></ui-input>
+               <ui-input label="CIF/NIF" [(ngModel)]="formData.taxId" icon="hash" placeholder="B12345678"></ui-input>
+               <ui-input label="Sector" [(ngModel)]="formData.sector" icon="briefcase" placeholder="Ej: Tecnología"></ui-input>
+               <ui-input label="Tipo" [(ngModel)]="formData.type" icon="building-2" placeholder="Empresa, Particular..."></ui-input>
+             </div>
           </div>
-
-          <!-- Información de Contacto -->
+          
           <div class="form-section">
-            <h4 class="section-title">Información de Contacto</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Persona de contacto"
-                [(ngModel)]="formData.contact"
-                icon="user-check"
-                placeholder="Nombre del contacto principal"
-              ></ui-input>
-
-              <ui-input
-                label="Email principal"
-                [(ngModel)]="formData.email"
-                icon="mail"
-                placeholder="cliente@empresa.com"
-                type="email"
-              ></ui-input>
-
-              <ui-input
-                label="Teléfono"
-                [(ngModel)]="formData.phone"
-                icon="phone"
-                placeholder="+34 600 000 000"
-              ></ui-input>
-            </div>
-          </div>
-
-          <!-- Dirección -->
-          <div class="form-section">
-            <h4 class="section-title">Dirección Fiscal</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Dirección"
-                [(ngModel)]="formData.address"
-                icon="map-pin"
-                placeholder="Calle, número, piso..."
-                class="full-width"
-              ></ui-input>
-
-              <ui-input
-                label="Ciudad"
-                [(ngModel)]="formData.city"
-                icon="building"
-                placeholder="Madrid"
-              ></ui-input>
-
-              <ui-input
-                label="Código postal"
-                [(ngModel)]="formData.zipCode"
-                icon="hash"
-                placeholder="28001"
-              ></ui-input>
-
-              <ui-input
-                label="País"
-                [(ngModel)]="formData.country"
-                icon="globe"
-                placeholder="España"
-              ></ui-input>
-            </div>
-          </div>
-
-          <!-- Notas -->
-          <div class="form-section">
-            <h4 class="section-title">Notas Adicionales</h4>
-            <ui-input
-              label="Observaciones"
-              [(ngModel)]="formData.notes"
-              icon="file-text"
-              placeholder="Información adicional sobre el cliente..."
-              class="full-width"
-            ></ui-input>
+             <h4 class="section-title">Información de Contacto</h4>
+             <div class="form-grid">
+               <ui-input label="Persona contacto" [(ngModel)]="formData.contact" icon="user-check"></ui-input>
+               <ui-input label="Email" [(ngModel)]="formData.email" icon="mail" type="email"></ui-input>
+               <ui-input label="Teléfono" [(ngModel)]="formData.phone" icon="phone"></ui-input>
+             </div>
           </div>
         </div>
 
-        @if (formErrors().length > 0) {
-          <div class="form-errors">
-            @for (error of formErrors(); track error) {
-              <div class="error-message">
-                <lucide-icon name="alert-triangle" size="16"></lucide-icon>
-                <span>{{ error }}</span>
-              </div>
-            }
-          </div>
-        }
-
         <div class="modal-actions">
-          <ui-button variant="ghost" (clicked)="closeModal()">
-            Cancelar
-          </ui-button>
-          <ui-button
-            variant="solid"
-            (clicked)="saveClient()"
-            [loading]="isSaving()"
-            icon="save"
-          >
+          <ui-button variant="ghost" (clicked)="closeModal()">Cancelar</ui-button>
+          <ui-button variant="solid" (clicked)="saveClient()" [loading]="isSaving()" icon="save">
             {{ editingClient() ? 'Guardar cambios' : 'Crear cliente' }}
           </ui-button>
         </div>
@@ -426,284 +195,68 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       min-height: 100vh;
     }
 
-    /* Header Styles */
-    .clients-header {
-      margin-bottom: 2rem;
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 2rem;
-      background: var(--surface);
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.1);
-    }
-
-    .header-title-section {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .title-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--brand), var(--brand-secondary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      box-shadow: 0 8px 24px -8px var(--brand-glow);
-    }
-
-    .title-text h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
-      margin: 0;
-      color: var(--text-primary);
-      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .title-text p {
-      font-size: 1rem;
-      color: var(--text-muted);
-      margin: 0.5rem 0 0 0;
-    }
-
-    .create-btn {
-      background: linear-gradient(135deg, var(--brand), var(--brand-secondary));
-      border: none;
-      box-shadow: 0 4px 16px -4px var(--brand-glow);
-      transition: all 0.3s ease;
-    }
-
-    .create-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px -4px var(--brand-glow);
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 1.5rem;
-      border: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.15);
-      border-color: var(--border-hover);
-    }
-
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      flex-shrink: 0;
-    }
-
-    .stat-primary .stat-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-    .stat-success .stat-icon { background: linear-gradient(135deg, #10b981, #059669); }
-    .stat-warning .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .stat-info .stat-icon { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-
-    .stat-content {
-      flex: 1;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1;
-      margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-trend {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.75rem;
-      color: var(--success);
-      font-weight: 500;
-    }
-
-    /* Controls Section */
     .controls-section {
       display: flex;
       gap: 1rem;
       margin-bottom: 2rem;
       align-items: center;
+      background: var(--surface);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
     }
 
-    .search-container {
-      flex: 1;
+    .flex-1 { flex: 1; }
+
+    .filter-actions {
+       display: flex;
+       gap: 0.5rem;
     }
 
-    .search-input {
-      width: 100%;
-    }
-
-    .filter-buttons {
+    .loading-container {
       display: flex;
-      gap: 0.5rem;
+      justify-content: center;
+      padding: 4rem;
     }
 
-    /* Clients Grid */
-    .clients-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .client-card {
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem;
+      text-align: center;
       background: var(--surface);
       border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      overflow: hidden;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.1);
+      border: 2px dashed var(--border-soft);
     }
 
-    .client-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.2);
-      border-color: var(--brand);
+    .empty-icon { color: var(--text-muted); margin-bottom: 1rem; opacity: 0.5; }
+
+    .client-rating {
+       display: flex;
+       align-items: center;
+       gap: 0.25rem;
+       font-size: 0.75rem;
+       color: var(--text-muted);
+       font-weight: 600;
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 1.5rem 0 1.5rem;
-    }
+    .client-rating .filled { color: #fbbf24; fill: currentColor; }
 
-    .client-avatar {
-      position: relative;
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 1.25rem;
-      box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.4);
-    }
+    /* Modal Form Styles */
+    .modal-form { padding: 1rem 0; }
+    .form-section { margin-bottom: 1.5rem; }
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
 
-    .avatar-status {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      border: 3px solid var(--surface);
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .controls-section { flex-direction: column; align-items: stretch; }
     }
-
-    .avatar-status.active {
-      background: var(--success);
-    }
-
-    .client-actions {
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .client-card:hover .client-actions {
-      opacity: 1;
-    }
-
-    .menu-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      padding: 0;
-    }
-
-    .card-content {
-      padding: 1rem 1.5rem;
-    }
-
-    .client-info {
-      margin-bottom: 1rem;
-    }
-
-    .client-name {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0 0 0.5rem 0;
-      line-height: 1.3;
-    }
-
-    .client-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .client-contact {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
-    .client-stats {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 0.375rem;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .card-footer {
-      padding: 0 1.5rem 1.5rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+  `],
+  align-items: center;
     }
 
     .client-date,
