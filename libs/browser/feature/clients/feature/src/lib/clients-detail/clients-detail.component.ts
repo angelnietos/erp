@@ -167,6 +167,61 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                     <p>Sin facturas</p>
                   </div>
                 }
+                @for (dn of getAllDeliveryNotes(); track dn.id) {
+                  <div class="ns-doc-card">
+                    <div class="ns-doc-icon ns-orange">
+                      <lucide-icon name="file-text" size="20"></lucide-icon>
+                    </div>
+                    <div class="ns-doc-info">
+                      <span class="ns-doc-title">Albarán</span>
+                      <span class="ns-doc-meta"
+                        >{{ dn.status }} · {{ formatDate(dn.createdAt) }}</span
+                      >
+                    </div>
+                    <ui-josanz-badge
+                      [variant]="dn.status === 'signed' ? 'success' : 'info'"
+                      >{{ dn.status }}</ui-josanz-badge
+                    >
+                  </div>
+                }
+              </div>
+            }
+            @case ('reports') {
+              <div class="ns-list">
+                @for (report of client()?.eventReports; track report.id) {
+                  <div
+                    class="ns-doc-card"
+                    style="flex-direction: column; align-items: flex-start;"
+                  >
+                    <div
+                      style="display: flex; align-items: center; gap: 0.875rem; width: 100%;"
+                    >
+                      <div class="ns-doc-icon ns-blue">
+                        <lucide-icon
+                          name="clipboard-check"
+                          size="20"
+                        ></lucide-icon>
+                      </div>
+                      <div class="ns-doc-info">
+                        <span class="ns-doc-title">{{ report.title }}</span>
+                        <span class="ns-doc-meta"
+                          >{{ formatDate(report.createdAt) }} ·
+                          {{ report.author?.firstName || 'Sistema' }}</span
+                        >
+                      </div>
+                    </div>
+                    <p
+                      style="margin: 0.5rem 0 0 2.5rem; color: var(--text-muted); font-size: 0.85rem;"
+                    >
+                      {{ report.content }}
+                    </p>
+                  </div>
+                } @empty {
+                  <div class="ns-empty">
+                    <lucide-icon name="file-x" size="40"></lucide-icon>
+                    <p>Sin informes</p>
+                  </div>
+                }
               </div>
             }
             @case ('commercial') {
@@ -398,6 +453,17 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
       }
       .ns-doc-icon.ns-green {
         background: #10b981;
+      }
+      .ns-doc-icon.ns-orange {
+        background: #f59e0b;
+      }
+
+      .ns-doc-card ui-josanz-button {
+        opacity: 0.7;
+        transition: opacity 0.15s;
+      }
+      .ns-doc-card ui-josanz-button:hover {
+        opacity: 1;
       }
       .ns-doc-icon.ns-orange {
         background: #f59e0b;
