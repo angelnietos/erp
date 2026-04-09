@@ -56,155 +56,80 @@ export type InputVariant = string;
     .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.12em; color: var(--text-muted);
-      margin-left: 12px; font-family: var(--font-display);
+      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--text-muted, #888);
+      margin-left: 8px; font-family: inherit;
     }
 
     .input-wrapper { 
       position: relative; display: flex; align-items: center; 
-      /* DOM inherited defaults */
-      --input-bg: var(--surface, rgba(255, 255, 255, 0.02));
-      --input-border: var(--border-soft);
-      --input-radius: var(--radius-md, 8px);
-      --input-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-      --input-color: var(--text-primary);
-      --input-glow: var(--brand-glow);
-      --input-focus: var(--brand);
+      --input-bg: rgba(255, 255, 255, 0.02);
+      --input-border: rgba(255, 255, 255, 0.08);
+      --input-radius: 14px;
+      --input-color: #fff;
+      --input-accent: var(--brand, #3b82f6);
     }
 
     /* THEMATIC COLOR TOKENS */
-    .input-color-default { --input-focus: var(--brand); --input-glow: var(--brand-glow); }
-    .input-color-primary { --input-bg: color-mix(in srgb, var(--brand) 10%, transparent); --input-border: color-mix(in srgb, var(--brand) 40%, transparent); --input-focus: var(--brand); --input-glow: var(--brand-glow); }
-    .input-color-danger { --input-border: var(--danger); --input-focus: var(--danger); --input-glow: rgba(239, 68, 68, 0.4); }
-    .input-color-success { --input-border: var(--success); --input-focus: var(--success); --input-glow: rgba(16, 185, 129, 0.4); }
-    .input-color-warning { --input-border: var(--warning); --input-focus: var(--warning); --input-glow: rgba(245, 158, 11, 0.4); }
-    .input-color-info { --input-border: var(--info); --input-focus: var(--info); --input-glow: rgba(59, 130, 246, 0.4); }
+    .input-color-default { --input-accent: var(--brand); }
+    .input-color-primary { --input-accent: var(--brand); }
+    .input-color-danger { --input-accent: var(--danger, #ef4444); }
+    .input-color-success { --input-accent: var(--success, #10b981); }
+    .input-color-warning { --input-accent: var(--warning, #f59e0b); }
+    .input-color-info { --input-accent: var(--info, #3b82f6); }
 
-    /* ERROR OVERRIDE */
-    .input-wrapper.has-error { --input-border: var(--danger); --input-focus: var(--danger); --input-glow: rgba(239, 68, 68, 0.4); }
-
-    /* STRUCTURAL SHAPES */
-    .input-shape-auto {
-      /* Adopts native HTML Token variables */
-    }
-
-    .input-shape-solid {
-      --input-bg: var(--bg-secondary);
-      --input-border: var(--brand);
-      --input-radius: 0px;
-      --input-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-    }
+    .input-wrapper.has-error { --input-border: var(--danger); --input-accent: var(--danger); }
 
     .input-shape-glass {
-      --input-bg: rgba(255, 255, 255, 0.05);
-      --input-border: var(--border-vibrant);
-      --input-radius: var(--radius-md);
+      --input-bg: rgba(255, 255, 255, 0.03);
+      --input-border: rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
 
-    .input-shape-flat {
-      --input-bg: var(--bg-secondary);
-      --input-border: var(--text-primary);
-      --input-radius: 0px;
-      --input-shadow: none;
-      border-width: 2px;
-    }
-
-    .input-shape-neumorphic {
-      --input-bg: var(--bg-primary);
-      --input-border: transparent;
-      --input-radius: 30px;
-      --input-shadow: inset -4px -4px 10px rgba(255,255,255,0.02), inset 4px 4px 10px rgba(0,0,0,0.4);
-    }
-
-    .input-shape-minimal {
-      --input-bg: transparent;
-      --input-border: transparent;
-      --input-radius: 0;
-      --input-shadow: none;
-      border-bottom: 2px solid var(--border-soft) !important;
-    }
-
-    .input-shape-rounded {
-      --input-radius: 50px;
-    }
-    
-    .input-sm input { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
-    .input-sm .field-icon { left: 0.75rem; width: 0.9rem; height: 0.9rem; }
-    .input-sm.has-icon input { padding-left: 2.2rem; }
-
     /* ELEMENT BASE RULES */
     input {
-      width: 100%; padding: 0.8rem 1.25rem;
-      background: var(--input-bg, rgba(255, 255, 255, 0.02)); 
-      border: 1px solid var(--input-border, var(--border-soft));
-      border-radius: var(--input-radius, var(--radius-md, 8px)); 
-      color: var(--input-color, var(--text-primary));
-      font-size: 0.8rem; font-weight: 600; 
-      transition: all var(--transition-base, 0.3s ease);
-      outline: none; font-family: var(--font-main);
-      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
-      box-sizing: border-box;
+      width: 100%; padding: 0.9rem 1.25rem;
+      background: var(--input-bg); 
+      border: 1px solid var(--input-border);
+      border-radius: var(--input-radius); 
+      color: var(--input-color);
+      font-size: 0.85rem; font-weight: 600; 
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none; font-family: inherit;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
-
-    /* shape-auto: reads JS-injected tokens from ThemeService */
-    .input-shape-auto input {
-      background: var(--input-bg, rgba(255, 255, 255, 0.02));
-      border: 1px solid var(--input-border, var(--border-soft));
-      border-radius: var(--input-radius, var(--radius-md, 8px));
-      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
-    }
-
-    .input-shape-underline input { border-bottom: 2px solid var(--border-soft); }
-    .input-shape-minimal input { border-bottom: 1px solid var(--border-soft); padding-left: 0; padding-right: 0; }
-    .input-shape-rounded input { padding-left: 1.5rem; padding-right: 1.5rem; }
 
     /* FOCUS STATES */
     input:focus {
-      background: color-mix(in srgb, var(--input-bg) 92%, #fff);
-      border-color: var(--input-focus);
+      background: color-mix(in srgb, var(--input-bg) 80%, rgba(255,255,255,0.05));
+      border-color: var(--input-accent);
       box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--input-focus) 22%, transparent),
-        0 12px 28px -8px var(--input-glow);
+        0 0 0 4px color-mix(in srgb, var(--input-accent) 15%, transparent),
+        0 8px 30px -10px color-mix(in srgb, var(--input-accent) 40%, transparent);
     }
 
-    input:focus-visible {
-      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--input-focus) 50%, transparent));
-      outline-offset: 2px;
-    }
-
-    .input-shape-underline input:focus {
-      box-shadow: none; border-bottom-color: var(--input-focus); background: transparent;
-    }
-    .input-shape-minimal input:focus {
-      box-shadow: none; border-bottom-color: var(--input-focus); background: transparent;
-    }
-    .input-shape-neumorphic input:focus {
-      box-shadow: inset -6px -6px 12px rgba(255,255,255,0.02), inset 6px 6px 12px rgba(0,0,0,0.6);
-      border-color: var(--input-focus);
-    }
-    
     input::placeholder {
-      color: var(--text-muted);
-      opacity: 0.62;
+      color: var(--text-muted); padding-left: 2px;
+      opacity: 0.4;
       font-weight: 500;
     }
     
-    .has-icon input { padding-left: 2.75rem; }
+    .has-icon input { padding-left: 3rem; }
     .field-icon { 
-      position: absolute; left: 1rem; width: 1.1rem; height: 1.1rem; 
-      color: var(--text-muted); pointer-events: none; transition: 0.3s;
+      position: absolute; left: 1.15rem; width: 1.2rem; height: 1.2rem; 
+      color: var(--text-muted); pointer-events: none; transition: all 0.3s;
+      filter: drop-shadow(0 0 5px transparent);
     }
-    input:focus ~ .field-icon,
-    input:not(:placeholder-shown) ~ .field-icon { color: var(--input-focus); }
+    input:focus ~ .field-icon { 
+       color: var(--input-accent);
+       transform: scale(1.1);
+       filter: drop-shadow(0 0 8px color-mix(in srgb, var(--input-accent) 60%, transparent));
+    }
 
-    .input-wrapper.has-error .field-icon { color: var(--danger); }
+    input:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    input:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); }
-
-    .hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; margin-left: 4px; font-weight: 500; }
-    .hint.error { color: var(--danger); font-weight: 600; }
+    .hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; margin-left: 8px; font-weight: 600; letter-spacing: 0.02em; }
+    .hint.error { color: var(--danger); text-transform: uppercase; font-size: 0.6rem; }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {

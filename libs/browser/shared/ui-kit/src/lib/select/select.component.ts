@@ -44,160 +44,72 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
   styles: [`
     .form-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
     label { 
-      font-size: 0.75rem; 
-      font-weight: 700; 
+      font-size: 0.65rem; 
+      font-weight: 900; 
       text-transform: uppercase; 
-      letter-spacing: 0.05em; 
-      color: var(--text-secondary); 
-      margin-left: 2px; 
+      letter-spacing: 0.15em; 
+      color: var(--text-muted, #888); 
+      margin-left: 8px; 
     }
     .select-wrapper { position: relative; display: flex; align-items: center; }
 
     /* Base Select Styles */
     select {
       width: 100%; 
-      padding: 8px 32px 8px 12px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 0.8rem;
-      transition: var(--transition-base, 280ms ease); 
+      padding: 0.9rem 2.5rem 0.9rem 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      color: #fff;
+      font-size: 0.85rem; font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
       outline: none; 
-      font-family: var(--font-main);
+      font-family: inherit;
       appearance: none; 
       cursor: pointer;
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    .select-sm { padding: 4px 28px 4px 10px !important; font-size: 0.72rem !important; }
-    .select-sm + .chevron { right: 10px; width: 6px; height: 6px; margin-top: -4px; }
+    .select-sm { padding: 0.5rem 2.25rem 0.5rem 0.85rem !important; font-size: 0.75rem !important; }
 
     select:focus {
-      border-color: color-mix(in srgb, var(--brand) 70%, var(--border-soft));
-      background: color-mix(in srgb, var(--bg-secondary) 90%, var(--brand) 3%);
+      background: color-mix(in srgb, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.05));
+      border-color: var(--brand, #3b82f6);
       box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--brand-glow) 38%, transparent),
-        0 10px 26px -10px var(--brand-glow);
-    }
-
-    select:focus-visible {
-      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
-      outline-offset: 2px;
+        0 0 0 4px color-mix(in srgb, var(--brand, #3b82f6) 15%, transparent),
+        0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent);
     }
 
     /* Variants */
-    .select-theme, .select-default {
-      background: var(--bg-tertiary);
-      border-color: var(--border-vibrant);
-    }
-
-    .select-filled {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: transparent;
-    }
-
-    .select-outlined {
-      background: transparent;
-      border: 2px solid var(--border-vibrant);
-    }
-
-    .select-ghost {
-      background: transparent;
-      border: 1px solid transparent;
-    }
-    .select-ghost:focus {
-      background: rgba(255, 255, 255, 0.03);
-      border-color: var(--brand);
-    }
-
-    .select-dark {
-      background: #000;
-      border-color: #222;
-    }
-
-    .select-error {
-      border-color: var(--danger) !important;
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .select-error:focus {
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
-    }
-
-    .select-success {
-      border-color: var(--success);
-    }
-
-    /* Additional variants */
-    .select-primary {
-      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
-      border-color: var(--brand);
-    }
-
-    .select-secondary {
-      background: rgba(99, 102, 241, 0.1);
-      border-color: #6366f1;
-    }
-
-    .select-transparent {
-      background: transparent;
-      border: none;
-    }
-
-    .select-minimal {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid var(--border-soft);
-      border-radius: 0;
-    }
-
-    .select-rounded {
-      border-radius: 50px;
-      padding-left: 1.5rem;
-    }
-
     .select-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-color: rgba(255, 255, 255, 0.06);
     }
 
-    .select-soft {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #e2e8f0;
-    }
-
-    select.invalid { border-color: var(--danger); }
-    select:disabled { 
-      opacity: 0.4; 
-      cursor: not-allowed; 
-      filter: grayscale(1);
-    }
+    select.invalid { border-color: var(--danger, #ef4444); }
+    select:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .chevron {
       position: absolute; 
-      right: 12px; /* Adjusted from 16px */
-      width: 8px; /* Slightly smaller chevron */
-      height: 8px;
-      border-right: 2px solid var(--text-muted); 
-      border-bottom: 2px solid var(--text-muted);
+      right: 1.15rem;
+      width: 0.65rem;
+      height: 0.65rem;
+      border-right: 2px solid var(--text-muted, #888); 
+      border-bottom: 2px solid var(--text-muted, #888);
       transform: rotate(45deg); 
       pointer-events: none; 
-      margin-top: -6px;
-      transition: all 0.3s ease;
+      margin-top: -5px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     select:focus + .chevron {
-      border-color: var(--brand);
+      border-color: var(--brand, #3b82f6);
       transform: rotate(225deg) translateY(-2px);
+      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--brand, #3b82f6) 60%, transparent));
     }
 
-    option { 
-      background: var(--bg-secondary); 
-      color: var(--text-primary); 
-    }
+    option { background: #0c0d12; color: #fff; }
   `],
 })
 export class UiSelectComponent implements ControlValueAccessor {

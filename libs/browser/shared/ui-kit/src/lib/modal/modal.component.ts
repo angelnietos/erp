@@ -54,186 +54,143 @@ export type ModalVariant = string;
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       display: flex; align-items: center;
       justify-content: center; z-index: 1000; 
-      animation: modalFadeIn 0.3s ease;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(var(--variant-blur, 16px)) saturate(1.1);
-      -webkit-backdrop-filter: blur(var(--variant-blur, 16px)) saturate(1.1);
+      animation: modalFadeIn 0.35s ease-out;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px) saturate(1.2);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
     }
 
     @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes modalSlideUp { 
-      from { opacity: 0; transform: translateY(20px) scale(0.95); } 
+      from { opacity: 0; transform: translateY(30px) scale(0.96); } 
       to { opacity: 1; transform: translateY(0) scale(1); } 
     }
 
-    /* Modal Content Base - Integrates with DOM Theme Mixins */
+    /* Modal Content Base */
     .modal-content {
-      --modal-radius: var(--radius-xl, 28px);
-      --modal-bg: var(--bg-secondary);
-      --modal-border: var(--border-soft);
+      --modal-radius: 28px;
+      --modal-bg: var(--bg-secondary, #111);
+      --modal-border: var(--border-soft, rgba(255, 255, 255, 0.1));
       --modal-border-width: 1px;
-      --modal-shadow: var(--shadow-lg, 0 24px 64px rgba(0, 0, 0, 0.55));
-      --modal-header-color: var(--text-primary);
+      --modal-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+      --modal-header-color: var(--text-primary, #fff);
+      --modal-accent: var(--brand, #3b82f6);
       
-      /* Read JS-injected tokens — these override the defaults above */
       border-radius: var(--modal-radius); 
-      min-width: 480px;
-      max-width: 90vw; 
-      max-height: 90vh; 
+      min-width: 520px;
+      max-width: 95vw; 
+      max-height: 92vh; 
       overflow: hidden;
       background: var(--modal-bg);
       border: var(--modal-border-width) solid var(--modal-border);
       box-shadow:
         var(--modal-shadow),
-        0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent),
-        var(--shadow-inset-shine, none);
-      animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        0 0 0 1px color-mix(in srgb, var(--modal-accent) 15%, transparent),
+        0 0 40px -10px color-mix(in srgb, var(--modal-accent) 25%, transparent);
+      animation: modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
     }
 
-    /* shape-auto: reads ThemeService-injected tokens directly */
-    .modal-shape-auto {
-      border-radius: var(--modal-radius);
-      background: var(--modal-bg);
-      border-width: var(--modal-border-width);
-      box-shadow: var(--modal-shadow), 0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent);
-    }
-    .modal-color-default { --modal-border: var(--border-soft); }
-    .modal-color-primary { border-top: 4px solid var(--brand); --modal-header-color: var(--brand); }
-    .modal-color-danger { border-top: 4px solid var(--danger); --modal-header-color: var(--danger); }
-    .modal-color-success { border-top: 4px solid var(--success); --modal-header-color: var(--success); }
-    .modal-color-warning { border-top: 4px solid var(--warning); --modal-header-color: var(--warning); }
-    .modal-color-info { border-top: 4px solid var(--info); --modal-header-color: var(--info); }
+    /* COLORS & GLOWS */
+    .modal-color-default { --modal-accent: var(--brand); }
+    .modal-color-primary { --modal-accent: var(--brand); }
+    .modal-color-danger { --modal-accent: var(--danger, #ef4444); }
+    .modal-color-success { --modal-accent: var(--success, #10b981); }
+    .modal-color-warning { --modal-accent: var(--warning, #f59e0b); }
+    .modal-color-info { --modal-accent: var(--info, #3b82f6); }
 
-    /* STRUCTURAL SHAPES */
-    .modal-shape-auto {
-      /* Relies on the default native injection from HTML tokens */
+    .modal-color-primary, .modal-color-danger, .modal-color-success, .modal-color-warning, .modal-color-info {
+       --modal-header-color: var(--modal-accent);
     }
     
-    .modal-shape-solid {
-      --modal-bg: var(--bg-secondary);
-      --modal-radius: 12px;
-      --modal-border: var(--border-soft);
-      --modal-shadow: 0 16px 40px rgba(0,0,0,0.4);
-    }
-
     .modal-shape-glass {
-      --modal-bg: color-mix(in srgb, var(--bg-secondary) 75%, transparent);
-      backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-      --modal-border: var(--border-vibrant);
-    }
-    .overlay-shape-glass {
-      background: color-mix(in srgb, var(--bg-primary) 40%, transparent);
-    }
-
-    .modal-shape-flat {
-      --modal-bg: var(--bg-tertiary);
-      --modal-border-width: 0px;
-      --modal-radius: 4px;
-      --modal-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      --modal-bg: color-mix(in srgb, var(--bg-secondary, #111) 68%, transparent);
+      backdrop-filter: blur(40px) saturate(1.8); -webkit-backdrop-filter: blur(40px) saturate(1.8);
+      --modal-border: color-mix(in srgb, var(--modal-accent) 30%, rgba(255,255,255,0.1));
+      box-shadow: 
+        var(--modal-shadow),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 0 50px -15px color-mix(in srgb, var(--modal-accent) 40%, transparent);
     }
 
-    .modal-shape-outline {
-      --modal-bg: var(--bg-primary);
-      --modal-border-width: 2px;
-      --modal-border: var(--border-soft);
-      --modal-shadow: none;
-    }
+    .modal-shape-solid { --modal-radius: 16px; --modal-border-width: 2px; }
 
-    .modal-shape-neumorphic {
-      --modal-bg: var(--bg-primary);
-      --modal-border-width: 0px;
-      --modal-radius: 30px;
-      --modal-shadow: -12px -12px 30px rgba(255,255,255,0.02), 12px 12px 30px rgba(0,0,0,0.6);
-    }
-
-    .modal-shape-minimal {
-      --modal-bg: var(--bg-primary);
-      --modal-border-width: 0px;
-      --modal-radius: 0px;
-      --modal-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
-
-    .modal-shape-fullscreen {
-      width: 100vw; height: 100vh; max-width: 100%; border-radius: 0; margin: 0;
-      border: none;
-    }
-
-    /* Modal Innards */
+    /* Header & Action Refinement */
     .modal-header {
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 1.5rem 2rem;
-      background: color-mix(in srgb, var(--bg-primary) 50%, transparent);
-      border-bottom: 1px solid var(--border-soft);
+      padding: 1.75rem 2.5rem;
+      background: linear-gradient(to bottom, color-mix(in srgb, var(--modal-accent) 8%, transparent), transparent);
+      border-bottom: 1px solid var(--modal-border);
     }
 
     .modal-header h3 {
       margin: 0;
-      font-size: 1.05rem;
-      font-weight: 800;
+      font-size: 1.15rem;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       color: var(--modal-header-color);
-      font-family: var(--font-display);
+      font-family: inherit;
+      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--modal-accent) 40%, transparent));
     }
 
     .close-btn {
-      width: 2.25rem;
-      height: 2.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: color-mix(in srgb, var(--text-muted) 12%, transparent);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      font-size: 1.35rem;
+      width: 2.5rem; height: 2.5rem;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--modal-border);
+      border-radius: 12px;
+      font-size: 1.5rem;
       cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      color: var(--text-secondary);
-      transition:
-        color 0.25s ease,
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        background 0.25s ease,
-        border-color 0.25s ease;
+      color: var(--text-muted, #888);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .close-btn:hover {
-      color: var(--brand);
-      background: color-mix(in srgb, var(--brand) 14%, transparent);
-      border-color: color-mix(in srgb, var(--brand) 35%, transparent);
-      transform: rotate(90deg) scale(1.05);
-    }
-
-    .close-btn:focus-visible {
-      outline: 2px solid var(--ring-focus);
-      outline-offset: 2px;
+      color: #fff;
+      background: color-mix(in srgb, var(--modal-accent) 20%, transparent);
+      border-color: var(--modal-accent);
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 0 20px -5px var(--modal-accent);
     }
 
     .modal-body {
-      padding: 1.75rem 2rem;
-      max-height: min(60vh, 32rem);
+      padding: 2rem 2.5rem;
+      max-height: 70vh;
       overflow-y: auto;
-      font-size: 0.92rem;
+      scrollbar-gutter: stable;
     }
 
     .modal-footer {
-      padding: 1.25rem 2rem;
+      padding: 1.5rem 2.5rem;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
       justify-content: flex-end;
-      background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
-      border-top: 1px solid var(--border-soft);
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid var(--modal-border);
     }
 
-    /* Custom Scrollbar for Modal Body */
-    .modal-body::-webkit-scrollbar { width: 6px; }
+    /* Form Specific Spacing inside Modal Body */
+    ::ng-content .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    ::ng-content .form-section { margin-bottom: 2.5rem; }
+    ::ng-content .section-title { 
+      font-size: 0.75rem; font-weight: 900; color: var(--modal-accent);
+      text-transform: uppercase; letter-spacing: 0.2em;
+      margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;
+    }
+    ::ng-content .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--modal-border), transparent); }
+
+    /* Custom Scrollbar */
+    .modal-body::-webkit-scrollbar { width: 4px; }
     .modal-body::-webkit-scrollbar-track { background: transparent; }
-    .modal-body::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 3px; }
-    .modal-body::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+    .modal-body::-webkit-scrollbar-thumb { 
+      background: var(--modal-border); 
+      border-radius: 10px; 
+      transition: background 0.3s;
+    }
+    .modal-body::-webkit-scrollbar-thumb:hover { background: var(--modal-accent); }
   `],
 })
 export class UiModalComponent {

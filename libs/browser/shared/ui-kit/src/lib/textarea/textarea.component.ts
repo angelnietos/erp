@@ -35,51 +35,36 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
   styles: [`
     .textarea-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
     .label {
-      font-size: 0.65rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      margin-left: 12px;
-      font-family: var(--font-display);
+      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--text-muted, #888);
+      margin-left: 8px; font-family: inherit;
     }
 
     textarea {
-      width: 100%;
-      padding: 1rem 1.25rem;
-      background: var(--input-bg, var(--bg-tertiary));
-      border: 1px solid var(--input-border, var(--border-soft));
-      border-radius: var(--input-radius, var(--radius-md));
-      color: var(--text-primary);
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: all 0.3s var(--ease-out-expo);
-      outline: none;
-      font-family: var(--font-main);
-      resize: vertical;
-      min-height: 120px;
-      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
-      box-sizing: border-box;
-    }
-
-    textarea::placeholder {
-      color: var(--text-muted);
-      opacity: 0.5;
+      width: 100%; padding: 1rem 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      color: #fff;
+      font-size: 0.85rem; font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none; font-family: inherit;
+      resize: vertical; min-height: 120px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
 
     textarea:focus {
-      background: color-mix(in srgb, var(--input-bg, var(--bg-tertiary)) 92%, #fff);
-      border-color: var(--brand);
+      background: color-mix(in srgb, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.05));
+      border-color: var(--brand, #3b82f6);
       box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent),
-        0 12px 28px -8px var(--brand-glow);
+        0 0 0 4px color-mix(in srgb, var(--brand, #3b82f6) 15%, transparent),
+        0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent);
     }
 
-    /* Variants mapping to tokens */
     .textarea-glass {
-      --input-bg: rgba(255, 255, 255, 0.05);
-      --input-border: var(--border-vibrant);
+      background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-color: rgba(255, 255, 255, 0.06);
     }
 
     .textarea-minimal {
