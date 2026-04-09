@@ -1014,8 +1014,39 @@ async function main() {
         clientId: clients[0].id,
       },
     }),
+    prisma.project.create({
+      data: {
+        tenantId: tenant.id,
+        name: 'Campaña Broadcast 2026',
+        description: 'Renovación de equipos de transmisión',
+        startDate: new Date('2026-04-01'),
+        endDate: new Date('2026-12-31'),
+        clientId: clients[1].id,
+      },
+    }),
   ]);
   console.log('- Created projects');
+
+  await prisma.rental.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: clients[1].id,
+      reference: 'EXP-2026-AUTO-MAD',
+      startDate: new Date('2026-04-05'),
+      endDate: new Date('2026-04-15'),
+      status: 'ACTIVE',
+      pickupLocation: 'Sede Madrid',
+      dropoffLocation: 'Estudio Audiovisuales',
+      totalPrice: 4500,
+      notes: 'Alquiler de equipos de cámara y lentes',
+      rentalItems: {
+        create: [
+          { productId: insertedProducts[0].id, quantity: 2 },
+          { productId: insertedProducts[1].id, quantity: 1 }
+        ]
+      }
+    }
+  });
 
   // Link events to projects
   await prisma.projectEvent.create({
