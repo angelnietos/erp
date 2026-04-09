@@ -1,0 +1,213 @@
+<div
+  class="ai-assistant-wrapper"
+  [class]="'feature-' + feature"
+  [class.is-open]="isOpen()"
+  [class.secondary]="feature === 'buddy'"
+  *ngIf="bot() && bot()!.status === 'active'"
+>
+  <!-- Floating Mascot Bubble -->
+  <div
+    class="mascot-trigger"
+    [class.open]="isOpen()"
+    cdkDrag
+    cdkDragBoundary="body"
+    [style.transform]="
+      'translate3d(' + botPosition().x + 'px, ' + botPosition().y + 'px, 0)'
+    "
+    (click)="toggleChat()"
+    (cdkDragEnded)="onMascotDragEnd($event)"
+  >
+    <ui-josanz-mascot
+      [type]="$any(bot()!.mascotType)"
+      [color]="bot()!.color"
+      [personality]="$any(bot()!.personality)"
+      [bodyShape]="$any(bot()!.bodyShape)"
+      [eyesType]="$any(bot()!.eyesType)"
+      [mouthType]="$any(bot()!.mouthType)"
+      [rageMode]="aiBotStore.rageMode()"
+      [rageStyle]="aiBotStore.rageStyle()"
+    ></ui-josanz-mascot>
+    <div class="notification-dot animate-pulse"></div>
+  </div>
+
+  <!-- Chat Window -->
+  <div
+    class="chat-window-container"
+    *ngIf="isOpen()"
+    cdkDrag
+    cdkDragBoundary="body"
+    [style.left.px]="chatWindowPosition().x"
+    [style.top.px]="chatWindowPosition().y"
+    (click)="$event.stopPropagation()"
+    (cdkDragEnded)="onChatWindowDragEnd($event)"
+  >
+    <div class="chat-window animate-slide-up">
+      <div
+        class="chat-header"
+        cdkDragHandle
+        [style.border-bottom-color]="bot()!.color"
+      >
+        <div class="bot-status-info">
+          <lucide-icon
+            name="grip-vertical"
+            size="14"
+            class="drag-handle-icon"
+          ></lucide-icon>
+          <span
+            class="status-indicator"
+            [style.background]="bot()!.color"
+          ></span>
+          <div>
+            <h4>{{ bot()!.name }}</h4>
+            <p>Tu asistente de {{ bot()!.feature }}</p>
+          </div>
+        </div>
+        <div class="window-actions">
+          <button
+            class="action-btn minimize"
+            (click)="minimize()"
+            title="Minimizar"
+          >
+            <lucide-icon name="minus" size="18"></lucide-icon>
+          </button>
+          <button
+            class="action-btn close"
+            (click)="closeSession()"
+            title="Finalizar Sesión"
+          >
+            <lucide-icon name="x" size="18"></lucide-icon>
+          </button>
+        </div>
+      </div>
+      <div class="chat-messages">
+        <div class="message bot-msg">
+          <p>
+            ¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de **{{
+              bot()!.feature
+            }}** en tiempo real. ¿En qué puedo ayudarte hoy?
+          </p>
+          <div class="bot-skills-badges">
+            <span
+              *ngFor="let skill of bot()!.activeSkills; trackBy: trackBySkill"
+              class="skill-badge"
+              [style.background]="bot()!.color + '22'"
+              [style.color]="bot()!.color"
+            >
+              {{ skill }}
+            </span>
+          </div>
+          <div class="commands-help" *ngIf="bot()!.feature === 'buddy'">
+            <p><strong>Comandos disponibles:</strong></p>
+            <ul>
+              <li><code>calcula [expresión]</code> - Cálculos matemáticos</li>
+              <li><code>busca [término]</code> - Búsqueda web</li>
+              <li>
+                <code>genera imagen de [descripción]</code> - Generación de
+                imágenes
+              </li>
+              <li><code>resume [texto]</code> - Resumen de texto</li>
+              <li><code>qué hora es</code> - Hora actual</li>
+              <li><code>qué fecha es</code> - Fecha actual</li>
+              <li><code>cambiar tema</code> - Cambiar apariencia</li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          *ngFor="let msg of messages(); trackBy: trackByMsg"
+          class="message"
+          [class.user-msg]="msg.role === 'user'"
+          [class.bot-msg]="msg.role === 'bot'"
+        >
+          <!-- Reasoning Block -->
+          <div
+            class="msg-reasoning"
+            *ngIf="msg.reasoning"
+            [style.border-left-color]="bot()!.color"
+          >
+            <div class="reasoning-header">
+              <div class="ai-pulse" [style.background]="bot()!.color"></div>
+              <span>TERMINAL DE PENSAMIENTO</span>
+            </div>
+            <p class="reasoning-text">{{ msg.reasoning }}</p>
+          </div>
+
+          <!-- Main Content -->
+          <p
+            class="msg-content"
+            *ngIf="msg.text"
+            [innerHTML]="msg.text"
+          ></p>
+
+          <!-- Typing Indicator -->
+          <div
+            class="typing-indicator"
+            *ngIf="!msg.text && msg.id.toString().startsWith('typing')"
+          >
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+
+          <div
+            class="msg-feedback"
+            *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text"
+          >
+            <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
+              <button
+                class="feedback-btn"
+                (click)="submitFeedback(msg, 'positive')"
+                title="Me gusta esta respuesta"
+              >
+                👍
+              </button>
+              <button
+                class="feedback-btn"
+                (click)="submitFeedback(msg, 'negative')"
+                title="No me gusta esta respuesta"
+              >
+                👎
+              </button>
+            </div>
+            <div
+              class="feedback-submitted text-friendly"
+              *ngIf="msg.feedbackSubmitted"
+            >
+              <lucide-icon name="check" size="12"></lucide-icon> Guardado en
+              Memoria
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="chat-input-area">
+        <button
+          class="voice-btn"
+          (click)="toggleSpeech()"
+          [class.active]="isListening()"
+          [title]="isListening() ? 'Detener Dictado' : 'Iniciar Dictado'"
+        >
+          <lucide-icon
+            [name]="isListening() ? 'mic' : 'mic-off'"
+            [size]="20"
+          ></lucide-icon>
+        </button>
+        <input
+          type="text"
+          [(ngModel)]="currentInput"
+          (keyup.enter)="sendMessage()"
+          placeholder="Escribe un mensaje..."
+        />
+        <ui-josanz-button
+          variant="ghost"
+          size="sm"
+          icon="send"
+          (clicked)="sendMessage()"
+          [disabled]="!currentInput.trim()"
+        >
+        </ui-josanz-button>
+      </div>
+    </div>
+  </div>
+</div>
