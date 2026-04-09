@@ -116,8 +116,8 @@ interface Receipt {
             [badgeVariant]="getStatusBadgeVariant(receipt.status)"
             (cardClicked)="goToBilling(receipt)"
             [footerItems]="[
-              { icon: 'calendar', label: 'Vence: ' + formatDate(receipt.dueDate) },
-              { icon: 'euro', label: receipt.amount | currency:'EUR' }
+              { icon: 'calendar', label: (receipt.dueDate | date:'dd/MM/yyyy') || '-' },
+              { icon: 'euro', label: ((receipt.amount || 0) | currency:'EUR') || '-' }
             ]"
           >
              <div footer-extra class="card-actions">
@@ -180,46 +180,6 @@ interface Receipt {
        .status-select { width: 100%; }
     }
   `],
-
-      .receipt-meta {
-        display: flex;
-        gap: 1rem;
-        font-size: 0.875rem;
-      }
-
-      .receipt-paid {
-        color: #059669;
-      }
-
-      .receipt-method {
-        color: #6b7280;
-      }
-
-      .receipt-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        flex-shrink: 0;
-      }
-
-      @media (max-width: 768px) {
-        .receipt-item {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-
-        .receipt-header {
-          width: 100%;
-        }
-
-        .receipt-actions {
-          flex-direction: row;
-          width: 100%;
-        }
-      }
-    `,
-  ],
 })
 export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableService<Receipt> {
   private readonly router = inject(Router);
@@ -243,13 +203,13 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   ];
 
   totalPaidAmount = computed(() => 
-    this.receipts().filter(r => r.status === 'PAID').reduce((acc, r) => acc + r.amount, 0)
+    this.receipts().filter((r: Receipt) => r.status === 'PAID').reduce((acc: number, r: Receipt) => acc + r.amount, 0)
   );
   totalPendingAmount = computed(() => 
-    this.receipts().filter(r => r.status === 'PENDING' || r.status === 'OVERDUE').reduce((acc, r) => acc + r.amount, 0)
+    this.receipts().filter((r: Receipt) => r.status === 'PENDING' || r.status === 'OVERDUE').reduce((acc: number, r: Receipt) => acc + r.amount, 0)
   );
   overdueCount = computed(() => 
-    this.receipts().filter(r => r.status === 'OVERDUE').length
+    this.receipts().filter((r: Receipt) => r.status === 'OVERDUE').length
   );
 
   formatCurrencyEu(amount: number): string {
@@ -270,12 +230,12 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
     }
   }
 
-  getStatusBadgeVariant(status: string): any {
+  getStatusBadgeVariant(status: string): 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'primary' {
     switch (status) {
       case 'PAID': return 'success';
       case 'PENDING': return 'warning';
-      case 'OVERDUE': return 'error';
-      default: return 'default';
+      case 'OVERDUE': return 'danger';
+      default: return 'secondary';
     }
   }
 
@@ -315,11 +275,11 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   filteredReceipts = computed(() => {
     let list = this.receipts();
     if (this.statusFilter) {
-      list = list.filter(r => r.status === this.statusFilter);
+      list = list.filter((r: Receipt) => r.status === this.statusFilter);
     }
     const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
-    return list.filter(r => 
+    return list.filter((r: Receipt) => 
       r.invoiceId.toLowerCase().includes(t) || 
       r.amount.toString().includes(t) ||
       (r.paymentMethod ?? '').toLowerCase().includes(t)
@@ -341,7 +301,7 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
 
   filter(query: string): Observable<Receipt[]> {
     const term = query.toLowerCase();
-    const result = this.receipts().filter(r => 
+    const result = this.receipts().filter((r: Receipt) => 
       r.invoiceId.toLowerCase().includes(term) || 
       r.amount.toString().includes(term)
     );
@@ -349,10 +309,10 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   private loadReceipts() {
-    this.receiptsApi.list().subscribe((rows) => {
+    this.receiptsApi.list().subscribe((rows: any[]) => {
       if (rows.length > 0) {
         this.receipts.set(
-          rows.map((r) => ({
+          rows.map((r: any) => ({
             id: r.id,
             invoiceId: r.invoiceId,
             amount: r.amount,
@@ -441,8 +401,8 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
         paymentDate: new Date().toISOString(),
       })
       .subscribe(() => {
-        this.receipts.update((list) =>
-          list.map((r) =>
+        this.receipts.set(
+          this.receipts().map((r: Receipt) =>
             r.id === receipt.id
               ? {
                   ...r,

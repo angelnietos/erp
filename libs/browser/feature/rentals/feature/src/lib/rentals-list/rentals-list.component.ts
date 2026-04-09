@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -115,9 +115,9 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
               (cardClicked)="onRowClick(rental)"
               (editClicked)="editRental(rental)"
               [footerItems]="[
-                { icon: 'calendar', label: (rental.startDate | date:'dd/MM/yy') },
+                { icon: 'calendar', label: ((rental.startDate || '') | date:'dd/MM/yy') || '-' },
                 { icon: 'package', label: rental.itemsCount + ' unid.' },
-                { icon: 'euro', label: rental.totalAmount | currency:'EUR' }
+                { icon: 'euro', label: ((rental.totalAmount || 0) | currency:'EUR') || '-' }
               ]"
             >
               <div class="rental-extras">
@@ -275,11 +275,9 @@ import { Rental, RentalService, RentalSignatureStatus } from '@josanz-erp/rental
        .row { grid-template-columns: 1fr; }
     }
   `],
-    }
-  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RentalsListComponent implements OnInit, FilterableService<Rental> {
+export class RentalsListComponent implements OnInit, OnDestroy, FilterableService<Rental> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly rentalService = inject(RentalService);
@@ -350,13 +348,13 @@ export class RentalsListComponent implements OnInit, FilterableService<Rental> {
   }
 
   updateTabs(list: Rental[]) {
-    const counts = {
+    const counts: Record<string, number> = {
       all: list.length,
-      DRAFT: list.filter(r => r.status === 'DRAFT').length,
-      ACTIVE: list.filter(r => r.status === 'ACTIVE').length,
-      COMPLETED: list.filter(r => r.status === 'COMPLETED').length,
+      DRAFT: list.filter((r: Rental) => r.status === 'DRAFT').length,
+      ACTIVE: list.filter((r: Rental) => r.status === 'ACTIVE').length,
+      COMPLETED: list.filter((r: Rental) => r.status === 'COMPLETED').length,
     };
-    this.tabs = this.tabs.map(t => ({ ...t, badge: (counts as Record<string, number>)[t.id] || 0 }));
+    this.tabs = this.tabs.map(t => ({ ...t, badge: counts[t.id] || 0 }));
   }
 
   onTabChange(id: string) { this.activeTab.set(id); }
@@ -367,7 +365,7 @@ export class RentalsListComponent implements OnInit, FilterableService<Rental> {
 
   filter(query: string): Observable<Rental[]> {
     const term = query.toLowerCase();
-    const result = this.rentals().filter(r => 
+    const result = this.rentals().filter((r: Rental) => 
       r.id.toLowerCase().includes(term) || 
       (r.clientName ?? '').toLowerCase().includes(term)
     );
@@ -471,21 +469,21 @@ export class RentalsListComponent implements OnInit, FilterableService<Rental> {
     const r = this.rentalForSignature();
     if (!r) return;
     this.rentalService.updateRental(r.id, { signatureStatus: 'SIGNED' }).subscribe({
-      next: (upd) => {
-        this.rentals.update((list) => list.map((x) => (x.id === upd.id ? upd : x)));
+      next: (upd: Rental) => {
+        this.rentals.update((list: Rental[]) => list.map((x: Rental) => (x.id === upd.id ? upd : x)));
         this.rentalForSignature.set(upd);
         this.closeSignatureModal();
       },
     });
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'error' | 'default' {
+  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'danger' | 'secondary' | 'primary' {
     switch (status) {
       case 'ACTIVE': return 'success';
       case 'COMPLETED': return 'info';
       case 'DRAFT': return 'warning';
-      case 'CANCELLED': return 'error';
-      default: return 'default';
+      case 'CANCELLED': return 'danger';
+      default: return 'secondary';
     }
   }
 
@@ -502,16 +500,16 @@ export class RentalsListComponent implements OnInit, FilterableService<Rental> {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(amount);
   }
 
-  activeCount = computed(() => this.rentals().filter(r => r.status === 'ACTIVE').length);
-  draftCount = computed(() => this.rentals().filter(r => r.status === 'DRAFT').length);
-  totalRevenue = computed(() => this.rentals().filter(r => r.status === 'ACTIVE' || r.status === 'COMPLETED').reduce((acc, r) => acc + r.totalAmount, 0));
+  activeCount = computed(() => this.rentals().filter((r: Rental) => r.status === 'ACTIVE').length);
+  draftCount = computed(() => this.rentals().filter((r: Rental) => r.status === 'DRAFT').length);
+  totalRevenue = computed(() => this.rentals().filter((r: Rental) => r.status === 'ACTIVE' || r.status === 'COMPLETED').reduce((acc: number, r: Rental) => acc + r.totalAmount, 0));
 
   displayedRentals = computed(() => {
     let list = this.rentals();
     const tab = this.activeTab();
-    if (tab !== 'all') list = list.filter((r) => r.status === tab);
+    if (tab !== 'all') list = list.filter((r: Rental) => r.status === tab);
     const s = this.searchFilter().trim().toLowerCase();
-    if (s) list = list.filter((r) => (r.clientName || '').toLowerCase().includes(s) || r.id.toLowerCase().includes(s));
+    if (s) list = list.filter((r: Rental) => (r.clientName || '').toLowerCase().includes(s) || r.id.toLowerCase().includes(s));
     return list;
   });
 }

@@ -193,8 +193,8 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
     // Navigate
   }
 
-  getInitials(name: string): string {
-    return name.slice(0, 2).toUpperCase();
+  getInitials(name: string | undefined): string {
+    return (name || 'S').slice(0, 2).toUpperCase();
   }
 
   getTypeGradient(type: string): string {
@@ -208,23 +208,25 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
     }
   }
 
-  getTypeBadgeVariant(type: string): any {
+  getTypeBadgeVariant(type: string): 'info' | 'success' | 'warning' | 'danger' | 'primary' | 'secondary' {
     switch (type) {
       case 'STREAMING': return 'info';
       case 'PRODUCCIÓN': return 'success';
       case 'LED': return 'warning';
-      default: return 'default';
+      case 'TRANSPORTE': return 'info';
+      case 'PERSONAL_TÉCNICO': return 'danger';
+      default: return 'secondary';
     }
   }
 
-  activeServicesCount = computed(() => this.services().filter(s => s.isActive).length);
-  serviceTypesCount = computed(() => new Set(this.services().map(s => s.type)).size);
+  activeServicesCount = computed(() => this.services().filter((s: Service) => s.isActive).length);
+  serviceTypesCount = computed(() => new Set(this.services().map((s: Service) => s.type)).size);
 
   filteredServices = computed(() => {
     const list = this.services();
     const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
-    return list.filter(s => 
+    return list.filter((s: Service) => 
       s.name.toLowerCase().includes(t) || 
       (s.description ?? '').toLowerCase().includes(t) || 
       s.type.toLowerCase().includes(t)
@@ -246,16 +248,11 @@ export class ServicesListComponent implements OnInit, FilterableService<Service>
 
   filter(query: string): Observable<Service[]> {
     const term = query.toLowerCase();
-    const matches = this.services().filter(s => 
+    const matches = this.services().filter((s: Service) => 
       s.name.toLowerCase().includes(term) || 
       (s.description ?? '').toLowerCase().includes(term)
     );
     return of(matches);
-  }
-
-  onRowClick(service: Service) {
-    void service;
-    // Navigate to detail - implement when table supports rowClick
   }
 
   onDelete(service: Service) {

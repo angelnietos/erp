@@ -1,4 +1,16 @@
 import {
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import {
   UiButtonComponent,
   UiSearchComponent,
   UiPaginationComponent,
@@ -117,7 +129,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
               (editClicked)="editInvoice(inv)"
               [footerItems]="[
                 { icon: 'calendar', label: formatDate(inv.issueDate) },
-                { icon: 'euro', label: inv.total | currency:'EUR' },
+                { icon: 'euro', label: ((inv.total || 0) | currency:'EUR') || '-' },
                 { icon: 'shield', label: inv.verifactuStatus ? (getVerifactuLabel(inv.verifactuStatus) | uppercase) : 'PENDIENTE' }
               ]"
             >
@@ -352,6 +364,7 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
   budgets = this.facade.budgets;
   currentPage = signal(1);
   totalPages = signal(1);
+  searchTerm = '';
 
   isModalOpen = signal(false);
   isVerifactuQrModalOpen = signal(false);
@@ -387,10 +400,10 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
 
   budgetSelectOptions = computed(() => {
     const eligible = this.budgets().filter(
-      (b) => b.status === 'ACCEPTED' || b.status === 'SENT',
+      (b: Budget) => b.status === 'ACCEPTED' || b.status === 'SENT',
     );
-    return eligible.map((b) => ({
-      label: `#${b.id.slice(0, 8).toUpperCase()} · ${b.total.toFixed(2)} € · ${b.status}`,
+    return eligible.map((b: Budget) => ({
+      label: `#${b.id.slice(0, 8).toUpperCase()} · ${(b.total || 0).toFixed(2)} € · ${b.status}`,
       value: b.id,
     }));
   });
@@ -517,13 +530,13 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
 
   getStatusVariant(
     status: string,
-  ): 'success' | 'warning' | 'info' | 'error' | 'default' {
-    const s = status.toLowerCase();
+  ): 'success' | 'warning' | 'info' | 'danger' | 'secondary' | 'primary' {
+    const s = (status || '').toLowerCase();
     if (s === 'paid') return 'success';
     if (s === 'pending') return 'warning';
     if (s === 'sent') return 'info';
-    if (s === 'cancelled') return 'error';
-    return 'default';
+    if (s === 'cancelled') return 'danger';
+    return 'secondary';
   }
 
   getStatusLabel(status: string): string {
@@ -543,16 +556,16 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
     }
   }
 
-  getVerifactuVariant(status: string | undefined): string {
+  getVerifactuVariant(status: string | undefined): 'success' | 'warning' | 'danger' | 'secondary' {
     switch (status) {
       case 'sent':
         return 'success';
       case 'pending':
         return 'warning';
       case 'error':
-        return 'error';
+        return 'danger';
       default:
-        return 'default';
+        return 'secondary';
     }
   }
 
@@ -583,12 +596,12 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
   }
 
   totalInvoiced = computed(() =>
-    this.allInvoices().reduce((acc, inv) => acc + (inv.total || 0), 0),
+    this.allInvoices().reduce((acc: number, inv: Invoice) => acc + (inv.total || 0), 0),
   );
 
   totalPending = computed(() =>
     this.allInvoices()
-      .filter((i) => i.status === 'pending')
-      .reduce((acc, inv) => acc + (inv.total || 0), 0),
+      .filter((i: Invoice) => i.status === 'pending')
+      .reduce((acc: number, inv: Invoice) => acc + (inv.total || 0), 0),
   );
 }

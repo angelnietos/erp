@@ -296,7 +296,7 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Vehicle[]> {
     const term = query.toLowerCase();
-    const matches = this.vehicles().filter(v => 
+    const matches = this.vehicles().filter((v: Vehicle) => 
       v.plate.toLowerCase().includes(term) || 
       (v.brand ?? '').toLowerCase().includes(term) ||
       (v.model ?? '').toLowerCase().includes(term)
@@ -317,13 +317,13 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   updateTabBadges(vehicles: Vehicle[]) {
-    const counts = {
+    const counts: Record<string, number> = {
       all: vehicles.length,
-      available: vehicles.filter(v => v.status === 'available').length,
-      in_use: vehicles.filter(v => v.status === 'in_use').length,
-      maintenance: vehicles.filter(v => v.status === 'maintenance').length,
+      available: vehicles.filter((v: Vehicle) => v.status === 'available').length,
+      in_use: vehicles.filter((v: Vehicle) => v.status === 'in_use').length,
+      maintenance: vehicles.filter((v: Vehicle) => v.status === 'maintenance').length,
     };
-    this.tabs = this.tabs.map(tab => ({ ...tab, badge: counts[tab.id as keyof typeof counts] }));
+    this.tabs = this.tabs.map(tab => ({ ...tab, badge: counts[tab.id] || 0 }));
   }
 
   onTabChange(tabId: string) { this.activeTab.set(tabId); }
@@ -344,7 +344,7 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   getInitials(plate: string): string {
-    return plate.slice(0, 2).toUpperCase();
+    return (plate || 'V').slice(0, 2).toUpperCase();
   }
 
   getVehicleGradient(type: string): string {
@@ -368,14 +368,14 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     const vehicleToEdit = this.editingVehicle();
     if (vehicleToEdit) {
       this.vehicleService.updateVehicle(vehicleToEdit.id, this.formData).subscribe({
-        next: (updated) => {
+        next: (updated: Vehicle) => {
           this.vehicles.update(list => list.map(v => v.id === updated.id ? updated : v));
           this.closeModal();
         }
       });
     } else {
       this.vehicleService.createVehicle(this.formData as Omit<Vehicle, 'id'>).subscribe({
-        next: (newV) => { 
+        next: (newV: Vehicle) => { 
           this.vehicles.update(list => [...list, newV]);
           this.closeModal();
         }
@@ -399,12 +399,12 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     }
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
+  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
     switch (status) {
       case 'available': return 'success';
       case 'in_use': return 'warning';
       case 'maintenance': return 'info';
-      default: return 'default';
+      default: return 'secondary';
     }
   }
 
@@ -417,25 +417,25 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     }
   }
 
-  isExpired(date: string): boolean {
+  isExpired(date: string | undefined): boolean {
     if (!date) return false;
     return new Date(date) < new Date();
   }
 
-  formatDate(date: string): string {
+  formatDate(date: string | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
 
-  maintenanceCount = computed(() => this.vehicles().filter(v => v.status === 'maintenance').length);
-  alertCount = computed(() => this.vehicles().filter(v => this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry)).length);
+  maintenanceCount = computed(() => this.vehicles().filter((v: Vehicle) => v.status === 'maintenance').length);
+  alertCount = computed(() => this.vehicles().filter((v: Vehicle) => this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry)).length);
 
   displayedVehicles = computed(() => {
     let list = this.vehicles();
     const tab = this.activeTab();
-    if (tab !== 'all') list = list.filter((v) => v.status === tab);
+    if (tab !== 'all') list = list.filter((v: Vehicle) => v.status === tab);
     const t = this.searchFilter().trim().toLowerCase();
-    if (t) list = list.filter((v) => v.plate.toLowerCase().includes(t) || (v.brand || '').toLowerCase().includes(t));
+    if (t) list = list.filter((v: Vehicle) => v.plate.toLowerCase().includes(t) || (v.brand || '').toLowerCase().includes(t));
     return list;
   });
 }

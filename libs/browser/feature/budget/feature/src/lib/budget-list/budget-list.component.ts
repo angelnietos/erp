@@ -92,8 +92,8 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             (cardClicked)="onRowClick(item)"
             [routerLink]="['/budgets', item.id]"
             [footerItems]="[
-              { icon: 'calendar', label: item.createdAt | date:'dd/MM/yyyy' },
-              { icon: 'euro', label: item.total | currency:'EUR' }
+              { icon: 'calendar', label: ((item.createdAt || '') | date:'dd/MM/yyyy') || '-' },
+              { icon: 'euro', label: ((item.total || 0) | currency:'EUR') || '-' }
             ]"
           >
             <div footer-extra class="card-actions">
@@ -166,15 +166,15 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
   
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;
-  totalPipeline = computed(() => this.store.budgets().reduce((acc, b) => acc + (b.total || 0), 0));
-  totalAccepted = computed(() => this.store.budgets().filter(b => b.status === 'ACCEPTED').reduce((acc, b) => acc + (b.total || 0), 0));
-  pendingCount = computed(() => this.store.budgets().filter(b => b.status === 'DRAFT' || b.status === 'SENT').length);
+  totalPipeline = computed(() => this.store.budgets().reduce((acc: number, b: Budget) => acc + (b.total || 0), 0));
+  totalAccepted = computed(() => this.store.budgets().filter((b: Budget) => b.status === 'ACCEPTED').reduce((acc: number, b: Budget) => acc + (b.total || 0), 0));
+  pendingCount = computed(() => this.store.budgets().filter((b: Budget) => b.status === 'DRAFT' || b.status === 'SENT').length);
 
   filteredBudgets = computed(() => {
     const list = this.store.budgets();
     const t = this.masterFilter.query().toLowerCase().trim();
     if (!t) return list;
-    return list.filter(b => 
+    return list.filter((b: Budget) => 
       b.id.toLowerCase().includes(t) || 
       (b.clientId ?? '').toLowerCase().includes(t)
     );
@@ -195,14 +195,15 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
 
   onRowClick(item: Budget) {
     // Navigate
+    void item;
   }
 
-  getInitials(id: string): string {
-    return id.slice(0, 2).toUpperCase();
+  getInitials(id: string | undefined): string {
+    return (id || 'B').slice(0, 2).toUpperCase();
   }
 
   getStatusGradient(status: string): string {
-    switch (status.toLowerCase()) {
+    switch ((status || 'draft').toLowerCase()) {
       case 'accepted': return 'linear-gradient(135deg, #10b981, #059669)';
       case 'sent': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
       case 'rejected': return 'linear-gradient(135deg, #ef4444, #dc2626)';
@@ -214,7 +215,7 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Budget[]> {
     const term = query.toLowerCase();
-    const matches = this.store.budgets().filter(b => 
+    const matches = this.store.budgets().filter((b: Budget) => 
       b.id.toLowerCase().includes(term) || 
       (b.clientId ?? '').toLowerCase().includes(term)
     );
@@ -226,12 +227,12 @@ export class BudgetListComponent implements OnInit, OnDestroy, FilterableService
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'error' | 'default' {
-    const s = status.toLowerCase();
+  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'danger' | 'secondary' {
+    const s = (status || 'draft').toLowerCase();
     if (s === 'accepted') return 'success';
     if (s === 'sent') return 'info';
-    if (s === 'rejected') return 'error';
-    if (s === 'draft') return 'default';
+    if (s === 'rejected') return 'danger';
+    if (s === 'draft') return 'secondary';
     return 'warning';
   }
 }

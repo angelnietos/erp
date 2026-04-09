@@ -1,3 +1,8 @@
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiButtonComponent, 
   UiSearchComponent, 
@@ -12,6 +17,10 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { DeliveryFacade, DeliveryNote } from '@josanz-erp/delivery-data-access';
+import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'lib-delivery-list',
@@ -117,7 +126,7 @@ import {
             </div>
           }
         </ui-feature-grid>
-      </div>
+      }
     </div>
 
     <!-- Create/Edit Modal -->
@@ -190,7 +199,7 @@ import {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeliveryListComponent implements OnInit, FilterableService<DeliveryNote> {
+export class DeliveryListComponent implements OnInit, OnDestroy, FilterableService<DeliveryNote> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(DeliveryFacade);
@@ -232,7 +241,7 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
     const list = this.deliveryNotes();
     const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
-    return list.filter(d => 
+    return list.filter((d: DeliveryNote) => 
       d.budgetId.toLowerCase().includes(t) || 
       (d.clientName ?? '').toLowerCase().includes(t) ||
       (d.notes ?? '').toLowerCase().includes(t)
@@ -257,7 +266,7 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
 
   filter(query: string): Observable<DeliveryNote[]> {
     const term = query.toLowerCase();
-    const matches = this.deliveryNotes().filter(d => 
+    const matches = this.deliveryNotes().filter((d: DeliveryNote) => 
       d.budgetId.toLowerCase().includes(term) || 
       (d.clientName ?? '').toLowerCase().includes(term)
     );
@@ -295,12 +304,12 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
 
   completeDelivery(delivery: DeliveryNote) { this.facade.completeDeliveryNote(delivery.id); }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
+  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' {
     switch (status) {
       case 'signed': return 'success';
       case 'completed': return 'info';
       case 'pending': return 'warning';
-      default: return 'default';
+      default: return 'secondary';
     }
   }
 
@@ -316,9 +325,9 @@ export class DeliveryListComponent implements OnInit, FilterableService<Delivery
 
   todayCount = computed(() => {
     const today = new Date().toISOString().split('T')[0];
-    return this.deliveryNotes().filter(d => d.deliveryDate === today).length;
+    return this.deliveryNotes().filter((d: DeliveryNote) => d.deliveryDate === today).length;
   });
   
-  pendingCount = computed(() => this.deliveryNotes().filter(d => d.status === 'pending').length);
-  returnCount = computed(() => this.deliveryNotes().filter(d => d.status === 'signed' || d.status === 'completed').length);
+  pendingCount = computed(() => this.deliveryNotes().filter((d: DeliveryNote) => d.status === 'pending').length);
+  returnCount = computed(() => this.deliveryNotes().filter((d: DeliveryNote) => d.status === 'signed' || d.status === 'completed').length);
 }

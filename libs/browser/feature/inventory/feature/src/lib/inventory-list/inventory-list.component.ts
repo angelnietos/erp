@@ -312,7 +312,7 @@ export class InventoryListComponent
     const term = query.toLowerCase().trim();
     if (!term) return of(this.allProducts());
 
-    const matches = this.allProducts().filter((p) => {
+    const matches = this.allProducts().filter((p: Product) => {
       const searchableText = [
         p.name,
         p.sku ?? '',
@@ -399,10 +399,11 @@ export class InventoryListComponent
 
   onRowClick(product: Product) {
     // Navigate or show details
+    void product;
   }
 
-  getInitials(name: string): string {
-    return name
+  getInitials(name: string | undefined): string {
+    return (name || 'P')
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase())
       .slice(0, 2)
@@ -470,7 +471,7 @@ export class InventoryListComponent
     }
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
+  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
     switch (status) {
       case 'available':
         return 'success';
@@ -479,7 +480,7 @@ export class InventoryListComponent
       case 'maintenance':
         return 'info';
       default:
-        return 'default';
+        return 'secondary';
     }
   }
 
@@ -506,14 +507,14 @@ export class InventoryListComponent
 
   totalValue = computed(() =>
     this.allProducts().reduce(
-      (acc: number, p: Product) => acc + p.dailyRate * p.totalStock,
+      (acc: number, p: Product) => acc + (p.dailyRate ?? 0) * (p.totalStock ?? 0),
       0,
     ),
   );
   criticalCount = computed(
     () =>
       this.allProducts().filter(
-        (p: Product) => p.availableStock < p.totalStock * 0.2,
+        (p: Product) => (p.availableStock ?? 0) < (p.totalStock ?? 0) * 0.2,
       ).length,
   );
 }

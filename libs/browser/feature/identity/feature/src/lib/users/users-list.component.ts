@@ -1,3 +1,6 @@
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiButtonComponent, 
   UiSearchComponent, 
@@ -88,7 +91,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
               [avatarBackground]="getStatusGradient(user.isActive)"
               [status]="user.isActive ? 'active' : 'offline'"
               [badgeLabel]="user.roles[0] || 'SIN ROL'"
-              [badgeVariant]="user.isActive ? 'primary' : 'default'"
+              [badgeVariant]="user.isActive ? 'primary' : 'secondary'"
               (cardClicked)="onRowClick(user)"
               [footerItems]="[
                 { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
@@ -163,18 +166,18 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   users = signal<User[]>([]);
   isLoading = signal(true);
 
-  activeUsersCount = computed(() => this.users().filter(u => u.isActive).length);
-  rolesCount = computed(() => new Set(this.users().flatMap(u => u.roles)).size);
+  activeUsersCount = computed(() => this.users().filter((u: User) => u.isActive).length);
+  rolesCount = computed(() => new Set(this.users().flatMap((u: User) => u.roles)).size);
 
   filteredUsers = computed(() => {
     const list = this.users();
     const t = this.masterFilter.query().trim().toLowerCase();
     if (!t) return list;
-    return list.filter(u => 
+    return list.filter((u: User) => 
       u.email.toLowerCase().includes(t) || 
       (u.firstName ?? '').toLowerCase().includes(t) || 
       (u.lastName ?? '').toLowerCase().includes(t) ||
-      u.roles.some(r => r.toLowerCase().includes(t))
+      u.roles.some((r: string) => r.toLowerCase().includes(t))
     );
   });
 
@@ -207,7 +210,7 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
 
   filter(query: string): Observable<User[]> {
     const term = query.toLowerCase();
-    const matches = this.users().filter(u => 
+    const matches = this.users().filter((u: User) => 
       u.email.toLowerCase().includes(term) || 
       (u.firstName ?? '').toLowerCase().includes(term) || 
       (u.lastName ?? '').toLowerCase().includes(term)
@@ -218,7 +221,7 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   private loadUsers() {
     this.isLoading.set(true);
     this.usersService.findAll().subscribe({
-      next: (list) => {
+      next: (list: User[]) => {
         this.users.set(list);
         this.isLoading.set(false);
       },
