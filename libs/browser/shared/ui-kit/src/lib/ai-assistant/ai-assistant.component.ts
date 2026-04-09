@@ -22,7 +22,6 @@ import {
   MasterFilterService,
   InterBotMessage,
 } from '@josanz-erp/shared-data-access';
-
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
 import { FormsModule } from '@angular/forms';
