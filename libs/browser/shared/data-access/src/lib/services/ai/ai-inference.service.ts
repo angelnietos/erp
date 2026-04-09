@@ -100,15 +100,17 @@ export class AIInferenceService {
         default: return this.generateSmartFallback(prompt, context);
       }
     } catch (error: unknown) {
-      console.error(`🔴 Error crítico con ${provider}:`, error);
-      await this.autoSelectProvider();
-      return this.generateBasicResponse();
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error(`🔴 Error con proveedor [${provider}]:`, msg);
+      // DO NOT auto-switch providers — respect the user's choice and surface the real error
+      throw new Error(`[${provider.toUpperCase()}] ${msg}`);
     }
   }
 
   private async generateWithGemini(prompt: string, context?: string): Promise<string> {
-    const apiKey = this.providerApiKey();
-    if (!apiKey) throw new Error('API Key de Gemini no configurada');
+    // Always prefer the Google-specific key, then fall back to the generic stored key
+    const apiKey = AI_CONFIG.google_api_key || this.providerApiKey();
+    if (!apiKey) throw new Error('API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.');
 
     const model = AI_CONFIG.gemini_model;
     const body: {
@@ -248,22 +250,31 @@ export class AIInferenceService {
   }
 
   async autoSelectProvider(): Promise<void> {
+    // Only auto-select if the provider is explicitly 'free' (never override a user's choice)
+    if (this.selectedProvider() !== 'free') return;
     if (this._isCheckingProviders) return;
     this._isCheckingProviders = true;
-    const providers = [
-      { name: 'ollama' as const, check: () => this.checkOllamaAvailability() },
-      { name: 'grok' as const, check: () => Promise.resolve(!!this.providerApiKey()) },
-      { name: 'gemini' as const, check: () => Promise.resolve(!!this.providerApiKey()) },
-    ];
-    for (const p of providers) {
-      if (await p.check()) {
-        this.selectedProvider.set(p.name as AIProvider);
-        this._isCheckingProviders = false;
+    try {
+      const ollamaAvailable = await this.checkOllamaAvailability();
+      if (ollamaAvailable) {
+        this.selectedProvider.set('ollama');
         return;
       }
+      if (AI_CONFIG.google_api_key) {
+        this.selectedProvider.set('gemini');
+        return;
+      }
+      if (AI_CONFIG.xai_api_key) {
+        this.selectedProvider.set('grok');
+        return;
+      }
+      if (AI_CONFIG.openrouter_api_key) {
+        this.selectedProvider.set('openrouter');
+        return;
+      }
+    } finally {
+      this._isCheckingProviders = false;
     }
-    this.selectedProvider.set('free');
-    this._isCheckingProviders = false;
   }
 
   private generateBasicResponse(): string {
