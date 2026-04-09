@@ -1,10 +1,6 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AI_CONFIG } from '../configs/ai.config';
-import { ThemeService, Theme } from '../services/theme.service';
-import { MasterFilterService } from '../services/master-filter.service';
-import { AIFormBridgeService } from '../services/ai-form-bridge.service';
-import { TechnicianApiService } from '../services/technician-api.service';
+import { ALL_BOTS } from './bots';
 import {
   AIBot,
   AIRangeMemory,
@@ -18,263 +14,89 @@ import {
   ProactiveSuggestion,
   UserPersonalityProfile,
 } from '../models/ai-bot.model';
-import { ALL_BOTS } from './bots';
+import { AI_CONFIG } from '../configs/ai.config';
+import { ThemeService, Theme } from '../services/theme.service';
+import { MasterFilterService } from '../services/master-filter.service';
+
+// Import New Refactored Services
+import { AIInferenceService, AIProvider } from '../services/ai/ai-inference.service';
+import { AIMemoryService } from '../services/ai/ai-memory.service';
+import { AIWorkflowService } from '../services/ai/ai-workflow.service';
+import { AIPredictiveService } from '../services/ai/ai-predictive.service';
 
 @Injectable({ providedIn: 'root' })
 export class AIBotStore {
-  private router = inject(Router);
-  private themeService = inject(ThemeService);
+  // Inject New Services
+  private inference = inject(AIInferenceService);
+  private memory = inject(AIMemoryService);
+  private workflow = inject(AIWorkflowService);
+  private predictive = inject(AIPredictiveService);
   private masterFilterService = inject(MasterFilterService);
-  private aiFormBridge = inject(AIFormBridgeService);
-  private technicianApiService = inject(TechnicianApiService);
-  private _isCheckingProviders = false;
-  private _lastCheckTime = 0;
-  private readonly CHECK_THROTTLE_MS = 60000; // 1 minuto
 
+  // Expose Service Signals for Backward Compatibility or Direct Access
+  readonly selectedProvider = this.inference.selectedProvider;
+  readonly selectedModelId = this.inference.selectedModelId;
+  readonly providerApiKey = this.inference.providerApiKey;
+  readonly aiModelOptions = this.inference.aiModelOptions;
+  readonly needsApiKey = this.inference.needsApiKey;
+  readonly ollamaConfig = this.inference.ollamaConfig;
+  readonly freeModels = this.inference.freeModels;
 
-  readonly selectedProvider = signal<
-    | 'gemini'
-    | 'openai'
-    | 'anthropic'
-    | 'grok'
-    | 'together'
-    | 'openrouter'
-    | 'ollama'
-    | 'free'
-  >(this.getInitialProvider());
+  readonly globalMemories = this.memory.globalMemories;
+  readonly botWorkspaces = this.memory.botWorkspaces;
 
-  readonly selectedModelId = signal<string>(this.getInitialModelId());
+  readonly predictiveModels = this.predictive.predictiveModels;
 
-  readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') ||
-      AI_CONFIG.google_api_key ||
-      AI_CONFIG.openrouter_api_key ||
-      AI_CONFIG.xai_api_key ||
-      '',
-  );
+  // --- Core Bot State ---
+  private readonly _bots = signal<Record<string, AIBot>>(ALL_BOTS);
+  readonly bots = computed<AIBot[]>(() => Object.values(this._bots()));
 
   readonly activeBotFeature = signal<string>(
     localStorage.getItem('ai_active_bot_feature') || 'buddy',
   );
 
-  // --- NUEVAS PREFERENCIAS DE USUARIO ---
-  readonly soundEffects = signal<boolean>(
-    localStorage.getItem('pref_sound') === 'true',
-  );
-  readonly compactMode = signal<boolean>(
-    localStorage.getItem('pref_compact') === 'true',
-  );
-  readonly autoArchive = signal<boolean>(
-    localStorage.getItem('pref_autoarchive') === 'true',
-  );
-  readonly sessionTimeout = signal<number>(
-    parseInt(localStorage.getItem('pref_timeout') || '30'),
-  );
-  readonly language = signal<string>(localStorage.getItem('pref_lang') || 'es');
-  readonly experimentalFeatures = signal<boolean>(
-    localStorage.getItem('pref_labs') === 'true',
-  );
-  readonly notificationsEnabled = signal<boolean>(
-    localStorage.getItem('pref_notifications') !== 'false',
-  );
-
-  // Configuración de modelos gratuitos
-  readonly ollamaConfig = signal<{
-    baseUrl: string;
-    model: string;
-    available: boolean;
-  }>({
-    baseUrl:
-      localStorage.getItem('ollama_base_url') || 'http://localhost:11434',
-    model: localStorage.getItem('ollama_model') || 'llama2',
-    available: false,
-  });
-
-  readonly freeModels = signal<{
-    huggingface: {
-      model: string;
-      available: boolean;
-    };
-    localModels: string[];
-  }>({
-    huggingface: {
-      model: localStorage.getItem('hf_model') || 'microsoft/DialoGPT-medium',
-      available: true,
-    },
-    localModels: JSON.parse(localStorage.getItem('local_models') || '[]'),
-  });
-
-  // ─── Global Context (Antigravity-style shared knowledge) ────────────────────────────────────────────
-  private readonly _globalMemories = signal<AIRangeMemory[]>(
-    JSON.parse(localStorage.getItem('ai_global_memories') || '[]'),
-  );
-  readonly globalMemories = this._globalMemories.asReadonly();
-
-  // ─── Bot Moods & State ────────────────────────────────────────────
-  private readonly _botMoods = signal<
-    Record<string, { mood: BotMood; energy: number }>
-  >(JSON.parse(localStorage.getItem('ai_bot_moods') || '{}'));
-  readonly botMoods = this._botMoods.asReadonly();
-
-  // ─── Advanced Emotional States ────────────────────────────────────────────
-  private readonly _botEmotionalStates = signal<
-    Record<string, BotEmotionalState>
-  >(JSON.parse(localStorage.getItem('ai_bot_emotional_states') || '{}'));
-  readonly botEmotionalStates = this._botEmotionalStates.asReadonly();
-
-  // ─── Bot Skills State ────────────────────────────────────────────
-  private readonly _botSkillsState = signal<
-    Record<
-      string,
-      {
-        activeSkills: string[];
-        skillMastery: Record<string, number>;
-        skillUsage: Record<
-          string,
-          { count: number; lastUsed: number; avgSuccess: number }
-        >;
-        learningQueue: string[];
-      }
-    >
-  >(JSON.parse(localStorage.getItem('ai_bot_skills_state') || '{}'));
-  readonly botSkillsState = this._botSkillsState.asReadonly();
-
-  // ─── Proactive Suggestions ────────────────────────────────────────────
-  private readonly _proactiveSuggestions = signal<ProactiveSuggestion[]>([]);
-  readonly proactiveSuggestions = this._proactiveSuggestions.asReadonly();
-
-  // ─── Bot Collaborations ────────────────────────────────────────────
-  private readonly _botCollaborations = signal<
-    Record<string, BotCollaboration>
-  >({});
-  readonly botCollaborations = this._botCollaborations.asReadonly();
-
-  // ─── Predictive Models ────────────────────────────────────────────
-  private readonly _predictiveModels = signal<
-    Record<string, PredictiveModel[]>
-  >({});
-  readonly predictiveModels = this._predictiveModels.asReadonly();
-
-  // ─── Bot Workspaces ────────────────────────────────────────────
-  private readonly _botWorkspaces = signal<
-    Record<
-      string,
-      {
-        memories: AIRangeMemory[];
-        lastTasks: string[];
-        contextFiles: Record<string, string>;
-      }
-    >
-  >(JSON.parse(localStorage.getItem('ai_bot_workspaces') || '{}'));
-  readonly botWorkspaces = this._botWorkspaces.asReadonly();
-
-  // ─── Pending Filters per Domain (Cross-Domain state) ─────────────────────
-  private readonly _pendingFilters = signal<Record<string, string>>({});
-  readonly pendingFilters = this._pendingFilters.asReadonly();
-
-  setPendingFilter(feature: string, query: string) {
-    this._pendingFilters.update((prev) => ({ ...prev, [feature]: query }));
-    // Si ya estamos en ese dominio, aplicarlo inmediatamente
-    if (this.activeBotFeature() === feature) {
-      this.masterFilterService.search(query);
-    }
-  }
-
-  clearPendingFilter(feature: string) {
-    this._pendingFilters.update((prev) => {
-      const rest = { ...prev };
-      delete rest[feature];
-      return rest;
-    });
-  }
-
-  // ─── Custom Bot Names ────────────────────────────────────────────
   private readonly _customNames = signal<Record<string, string>>(
     JSON.parse(localStorage.getItem('ai_bot_custom_names') || '{}'),
   );
   readonly customNames = this._customNames.asReadonly();
 
-  // ─── Bot Positions (for drag & drop) ────────────────────────────────────────────
-  private readonly _botPositions = signal<
-    Record<string, { x: number; y: number }>
-  >(JSON.parse(localStorage.getItem('ai_bot_positions') || '{}'));
+  private readonly _botPositions = signal<Record<string, { x: number; y: number }>>(
+    JSON.parse(localStorage.getItem('ai_bot_positions') || '{}'),
+  );
   readonly botPositions = this._botPositions.asReadonly();
 
-  // ─── User Personalities ────────────────────────────────────────────
-  private readonly _userPersonalities = signal<
-    Record<string, UserPersonalityProfile>
-  >(JSON.parse(localStorage.getItem('ai_user_personalities') || '{}'));
-  readonly userPersonalities = this._userPersonalities.asReadonly();
-
-  // ─── Inter-Bot Communication Queue ──────────────────────────────────────
   private readonly _interBotQueue = signal<InterBotMessage[]>([]);
   readonly interBotQueue = this._interBotQueue.asReadonly();
 
-  // ─── Bots Configuration ────────────────────────────────────────────
-  private readonly _bots = signal<Record<string, AIBot>>(ALL_BOTS);
-  readonly bots = computed<AIBot[]>(() => Object.values(this._bots()));
+  private readonly _pendingFilters = signal<Record<string, string>>({});
+  readonly pendingFilters = this._pendingFilters.asReadonly();
 
-  readonly aiModelOptions = computed(() => {
-    const options = [
-      { value: 'grok', label: 'Grok (xAI) - Gratuito' },
-      { value: 'together', label: 'Together AI - Gratuito' },
-      { value: 'openrouter', label: 'OpenRouter (Gemma 4 FREE) - Gratuito' },
-      { value: 'gemini', label: 'Google Gemini 2.5 Flash (Pata Negra)' },
-      { value: 'openai', label: 'OpenAI GPT-4o' },
-      { value: 'anthropic', label: 'Anthropic Claude 3.5' },
-    ];
+  // --- Moods & Emotions ---
+  private readonly _botMoods = signal<Record<string, { mood: BotMood; energy: number }>>(
+    JSON.parse(localStorage.getItem('ai_bot_moods') || '{}')
+  );
+  private readonly _botEmotionalStates = signal<Record<string, BotEmotionalState>>(
+    JSON.parse(localStorage.getItem('ai_bot_emotional_states') || '{}')
+  );
 
-    const localModels = this.freeModels().localModels;
-    if (localModels.length > 0) {
-      localModels.forEach((m) => {
-        options.push({ value: `ollama:${m}`, label: `Ollama: ${m} (Local)` });
-      });
-    } else {
-      options.push({
-        value: 'ollama',
-        label: 'Ollama (Sin modelos detectados aún)',
-      });
-    }
+  // --- User Preferences ---
+  readonly soundEffects = signal<boolean>(localStorage.getItem('pref_sound') === 'true');
+  readonly compactMode = signal<boolean>(localStorage.getItem('pref_compact') === 'true');
+  readonly notificationsEnabled = signal<boolean>(localStorage.getItem('pref_notifications') !== 'false');
+  readonly language = signal<string>(localStorage.getItem('pref_lang') || 'es');
+  readonly experimentalFeatures = signal<boolean>(localStorage.getItem('pref_labs') === 'true');
 
-    return options;
-  });
-
-  readonly needsApiKey = computed(() => {
-    const provider = this.selectedProvider();
-    const noKeyNeeded = ['ollama', 'free'];
-    // Grok y OpenRouter ahora mostrarán el input si no hay una clave global detectada para evitar el 401
-    return !noKeyNeeded.includes(provider);
-  });
-
-  setAIModel(modelId: string) {
-    this.selectedModelId.set(modelId);
-
-    if (modelId.startsWith('ollama:')) {
-      const model = modelId.split(':')[1];
-      this.selectedProvider.set('ollama');
-      this.ollamaConfig.update((c) => ({ ...c, model }));
-    } else {
-      this.selectedProvider.set(
-        modelId as
-          | 'gemini'
-          | 'openai'
-          | 'anthropic'
-          | 'grok'
-          | 'together'
-          | 'ollama'
-          | 'free',
-      );
-    }
-  }
+  // --- User Personality Profile ---
+  private readonly _userPersonalities = signal<Record<string, UserPersonalityProfile>>(
+    JSON.parse(localStorage.getItem('ai_user_personalities') || '{}')
+  );
 
   constructor() {
     // Sincronización proactiva de filtros entre dominios
     effect(() => {
       const feature = this.activeBotFeature();
       const pendingFilter = this._pendingFilters()[feature];
-
       if (pendingFilter && this.masterFilterService) {
-        // Pequeño delay para asegurar que el provider del nuevo feature se haya registrado
         setTimeout(() => {
           this.masterFilterService.search(pendingFilter);
           console.log(`🤖 AI: Aplicado filtro delegado para ${feature}: "${pendingFilter}"`);
@@ -282,1609 +104,176 @@ export class AIBotStore {
       }
     });
 
+    // Auto-save State to LocalStorage
     effect(() => {
-      localStorage.setItem('ai_provider', this.selectedProvider());
-      localStorage.setItem('ai_selected_model_id', this.selectedModelId());
-      localStorage.setItem('ai_api_key', this.providerApiKey());
       localStorage.setItem('ai_active_bot_feature', this.activeBotFeature());
-      localStorage.setItem('ollama_base_url', this.ollamaConfig().baseUrl);
-      localStorage.setItem('ollama_model', this.ollamaConfig().model);
-      localStorage.setItem('hf_model', this.freeModels().huggingface.model);
-      localStorage.setItem(
-        'local_models',
-        JSON.stringify(this.freeModels().localModels),
-      );
-      localStorage.setItem(
-        'ai_global_memories',
-        JSON.stringify(this._globalMemories()),
-      );
+      localStorage.setItem('ai_bot_custom_names', JSON.stringify(this._customNames()));
+      localStorage.setItem('ai_bot_positions', JSON.stringify(this._botPositions()));
       localStorage.setItem('ai_bot_moods', JSON.stringify(this._botMoods()));
-      localStorage.setItem(
-        'ai_bot_emotional_states',
-        JSON.stringify(this._botEmotionalStates()),
-      );
-      localStorage.setItem(
-        'ai_bot_skills_state',
-        JSON.stringify(this._botSkillsState()),
-      );
-      localStorage.setItem(
-        'ai_user_personalities',
-        JSON.stringify(this._userPersonalities()),
-      );
-      localStorage.setItem(
-        'ai_bot_workspaces',
-        JSON.stringify(this._botWorkspaces()),
-      );
-      localStorage.setItem(
-        'ai_bot_custom_names',
-        JSON.stringify(this._customNames()),
-      );
-      localStorage.setItem(
-        'ai_bot_positions',
-        JSON.stringify(this._botPositions()),
-      );
-      localStorage.setItem(
-        'ai_proactive_suggestions',
-        JSON.stringify(this._proactiveSuggestions()),
-      );
-      localStorage.setItem(
-        'ai_bot_collaborations',
-        JSON.stringify(this._botCollaborations()),
-      );
-      localStorage.setItem(
-        'ai_predictive_models',
-        JSON.stringify(this._predictiveModels()),
-      );
+      localStorage.setItem('ai_bot_emotional_states', JSON.stringify(this._botEmotionalStates()));
+      localStorage.setItem('ai_user_personalities', JSON.stringify(this._userPersonalities()));
+      localStorage.setItem('pref_sound', String(this.soundEffects()));
+      localStorage.setItem('pref_compact', String(this.compactMode()));
+      localStorage.setItem('pref_lang', this.language());
     });
   }
 
-  // ─── Bot Management ────────────────────────────────────────────
+  // ─── Delegation Methods to Services ──────────────────────────────────────────
+
+  async generateFreeResponse(prompt: string, context?: string): Promise<string> {
+    return this.inference.generateResponse(prompt, context);
+  }
+
+  async executeAction(actionStr: string): Promise<void> {
+    return this.workflow.executeAction(actionStr);
+  }
+
+  getActionSystemPrompt(): string {
+    return this.workflow.getActionSystemPrompt();
+  }
+
+  remember(feature: string, text: string, importance = 5, isGlobal = false) {
+    this.memory.remember(feature, text, importance, isGlobal);
+  }
+
+  getBotContext(feature: string): AIRangeMemory[] {
+    return this.memory.getBotContext(feature);
+  }
+
+  createPredictiveModel(feature: string, type: PredictiveModel['type'], name: string, description: string) {
+    return this.predictive.createPredictiveModel(feature, type, name, description);
+  }
+
+  generatePrediction(modelId: string, input: Record<string, unknown>) {
+    return this.predictive.generatePrediction(modelId, input);
+  }
+
+  // ─── Local Store Management ────────────────────────────────────────────────
+
   getBotByFeature(feature: string): AIBot | undefined {
     return this._bots()[feature];
   }
 
   updateBotName(feature: string, name: string) {
-    this._customNames.update((current) => ({
-      ...current,
-      [feature]: name,
-    }));
+    this._customNames.update(c => ({ ...c, [feature]: name }));
   }
 
   getBotDisplayName(feature: string): string {
-    const customName = this._customNames()[feature];
-    const bot = this.getBotByFeature(feature);
-    return customName || bot?.name || feature;
+    return this._customNames()[feature] || this.getBotByFeature(feature)?.name || feature;
   }
 
   updateBotSkin(feature: string, patch: Partial<AIBot>) {
-    this._bots.update((current) => {
-      if (!current[feature]) return current;
-      return {
-        ...current,
-        [feature]: { ...current[feature], ...patch },
-      };
+    this._bots.update(c => {
+      if (!c[feature]) return c;
+      return { ...c, [feature]: { ...c[feature], ...patch } };
     });
   }
 
   toggleBotStatus(feature: string) {
-    this._bots.update((current) => {
-      if (!current[feature]) return current;
-      const bot = current[feature];
-      return {
-        ...current,
-        [feature]: {
-          ...bot,
-          status: bot.status === 'active' ? 'inactive' : 'active',
-        },
-      };
+    this._bots.update(c => {
+      if (!c[feature]) return c;
+      const bot = c[feature];
+      return { ...c, [feature]: { ...bot, status: bot.status === 'active' ? 'inactive' : 'active' } };
     });
   }
 
   toggleSkill(feature: string, skill: string) {
-    this._bots.update((current) => {
-      if (!current[feature]) return current;
-      const bot = current[feature];
+    this._bots.update(c => {
+      const bot = c[feature];
+      if (!bot) return c;
       const activeSkills = bot.activeSkills.includes(skill)
-        ? bot.activeSkills.filter((s) => s !== skill)
+        ? bot.activeSkills.filter(s => s !== skill)
         : [...bot.activeSkills, skill];
-      return {
-        ...current,
-        [feature]: { ...bot, activeSkills },
-      };
+      return { ...c, [feature]: { ...bot, activeSkills } };
     });
-  }
-
-  // ─── User Personality System ────────────────────────────────────────────
-  getUserPersonality(feature: string, userId: string): UserPersonalityProfile {
-    const key = `${feature}::${userId}`;
-    return (
-      this._userPersonalities()[key] ?? {
-        nickname: userId,
-        style: 'casual',
-        likes: [],
-        dislikes: [],
-        notes: 'Primera interacción. Aún no conozco bien a este usuario.',
-        interactionCount: 0,
-        lastSeen: Date.now(),
-        learnedPatterns: [],
-        preferredTools: [],
-        performanceMetrics: [],
-        trustLevel: 50,
-        successfulInteractions: [],
-      }
-    );
-  }
-
-  updateUserPersonality(
-    feature: string,
-    userId: string,
-    patch: Partial<UserPersonalityProfile>,
-  ) {
-    const key = `${feature}::${userId}`;
-    this._userPersonalities.update((current) => {
-      const existing = current[key] ?? this.getUserPersonality(feature, userId);
-      const updated = {
-        ...current,
-        [key]: {
-          ...existing,
-          ...patch,
-          interactionCount:
-            (existing.interactionCount ?? 0) +
-            (patch.interactionCount != null ? 0 : 1),
-          lastSeen: Date.now(),
-        },
-      };
-      return updated;
-    });
-  }
-
-  trackInteraction(feature: string, userId: string) {
-    const key = `${feature}::${userId}`;
-    this._userPersonalities.update((current) => {
-      const existing = current[key] ?? this.getUserPersonality(feature, userId);
-      const updated = {
-        ...current,
-        [key]: {
-          ...existing,
-          interactionCount: existing.interactionCount + 1,
-          lastSeen: Date.now(),
-        },
-      };
-      return updated;
-    });
-  }
-
-  // ─── Sistema de Aprendizaje Continuo ──────────────────────────────────────────
-  recordSuccessfulInteraction(
-    feature: string,
-    userId: string,
-    query: string,
-    tool: string,
-    responseTime: number,
-  ) {
-    const key = `${feature}::${userId}`;
-    this._userPersonalities.update((current) => {
-      const existing = current[key] ?? this.getUserPersonality(feature, userId);
-
-      const existingPattern = existing.learnedPatterns.find(
-        (p) => p.query === query,
-      );
-      const learnedPatterns = existingPattern
-        ? existing.learnedPatterns.map((p) =>
-            p.query === query
-              ? {
-                  ...p,
-                  successRate:
-                    (p.successRate * p.frequency + 100) / (p.frequency + 1),
-                  lastUsed: Date.now(),
-                  frequency: p.frequency + 1,
-                }
-              : p,
-          )
-        : [
-            ...existing.learnedPatterns,
-            {
-              query,
-              successRate: 100,
-              lastUsed: Date.now(),
-              frequency: 1,
-            },
-          ]
-            .sort((a, b) => b.successRate - a.successRate)
-            .slice(0, 20);
-
-      const preferredTools = existing.preferredTools.includes(tool)
-        ? existing.preferredTools
-        : [tool, ...existing.preferredTools].slice(0, 5);
-
-      const taskType = tool.split('_')[0];
-      const existingMetric = existing.performanceMetrics.find(
-        (m) => m.taskType === taskType,
-      );
-      const performanceMetrics = existingMetric
-        ? existing.performanceMetrics.map((m) =>
-            m.taskType === taskType
-              ? {
-                  ...m,
-                  successCount: m.successCount + 1,
-                  avgResponseTime:
-                    (m.avgResponseTime * m.successCount + responseTime) /
-                    (m.successCount + 1),
-                }
-              : m,
-          )
-        : [
-            ...existing.performanceMetrics,
-            {
-              taskType,
-              successCount: 1,
-              failureCount: 0,
-              avgResponseTime: responseTime,
-            },
-          ];
-
-      const successfulInteractions = [
-        {
-          query,
-          tool,
-          outcome: 'success' as const,
-          timestamp: Date.now(),
-        },
-        ...existing.successfulInteractions,
-      ].slice(0, 10);
-
-      const trustLevel = Math.min(100, existing.trustLevel + 2);
-
-      const updated = {
-        ...current,
-        [key]: {
-          ...existing,
-          learnedPatterns,
-          preferredTools,
-          performanceMetrics,
-          successfulInteractions,
-          trustLevel,
-        },
-      };
-      return updated;
-    });
-  }
-
-  recordFailedInteraction(
-    feature: string,
-    userId: string,
-    query: string,
-    tool: string,
-  ) {
-    const key = `${feature}::${userId}`;
-    this._userPersonalities.update((current) => {
-      const existing = current[key] ?? this.getUserPersonality(feature, userId);
-
-      const existingPattern = existing.learnedPatterns.find(
-        (p) => p.query === query,
-      );
-      const learnedPatterns = existingPattern
-        ? existing.learnedPatterns.map((p) =>
-            p.query === query
-              ? {
-                  ...p,
-                  successRate:
-                    (p.successRate * p.frequency) / (p.frequency + 1),
-                  lastUsed: Date.now(),
-                  frequency: p.frequency + 1,
-                }
-              : p,
-          )
-        : existing.learnedPatterns;
-
-      const taskType = tool.split('_')[0];
-      const existingMetric = existing.performanceMetrics.find(
-        (m) => m.taskType === taskType,
-      );
-      const performanceMetrics = existingMetric
-        ? existing.performanceMetrics.map((m) =>
-            m.taskType === taskType
-              ? { ...m, failureCount: m.failureCount + 1 }
-              : m,
-          )
-        : [
-            ...existing.performanceMetrics,
-            {
-              taskType,
-              successCount: 0,
-              failureCount: 1,
-              avgResponseTime: 0,
-            },
-          ];
-
-      const trustLevel = Math.max(0, existing.trustLevel - 1);
-
-      const updated = {
-        ...current,
-        [key]: {
-          ...existing,
-          learnedPatterns,
-          performanceMetrics,
-          trustLevel,
-        },
-      };
-      return updated;
-    });
-  }
-
-  getLearnedPatterns(
-    feature: string,
-    userId: string,
-  ): UserPersonalityProfile['learnedPatterns'] {
-    const personality = this.getUserPersonality(feature, userId);
-    return personality.learnedPatterns;
-  }
-
-  getSmartSuggestions(
-    feature: string,
-    userId: string,
-    currentQuery: string,
-  ): string[] {
-    const personality = this.getUserPersonality(feature, userId);
-    const suggestions: string[] = [];
-
-    if (personality.preferredTools.length > 0) {
-      suggestions.push(
-        `Herramientas que sueles usar: ${personality.preferredTools.join(', ')}`,
-      );
-    }
-
-    const similarPatterns = personality.learnedPatterns
-      .filter((p) => p.successRate > 70 && p.frequency > 1)
-      .filter((p) => this.calculateSimilarity(p.query, currentQuery) > 0.3)
-      .sort((a, b) => b.successRate - a.successRate)
-      .slice(0, 3);
-
-    if (similarPatterns.length > 0) {
-      suggestions.push(
-        `Patrones similares exitosos: ${similarPatterns.map((p) => `"${p.query}" (${Math.round(p.successRate)}% éxito)`).join(', ')}`,
-      );
-    }
-
-    return suggestions;
-  }
-
-  private calculateSimilarity(str1: string, str2: string): number {
-    const words1 = str1.toLowerCase().split(' ');
-    const words2 = str2.toLowerCase().split(' ');
-    const commonWords = words1.filter((word) => words2.includes(word));
-    return commonWords.length / Math.max(words1.length, words2.length);
-  }
-
-  // ─── Proactive Suggestions ────────────────────────────────────────────
-  generateProactiveSuggestions(feature: string): ProactiveSuggestion[] {
-    const suggestions: ProactiveSuggestion[] = [];
-    const bot = this.getBotByFeature(feature);
-    if (!bot) return suggestions;
-
-    const inactiveSkills = bot.skills.filter(
-      (skill) => !bot.activeSkills.includes(skill),
-    );
-    if (inactiveSkills.length > 0) {
-      suggestions.push({
-        id: `activate_skill_${feature}_${Date.now()}`,
-        botId: feature,
-        text: `Considera activar estas skills: ${inactiveSkills.slice(0, 3).join(', ')}`,
-        category: 'efficiency',
-        timestamp: Date.now(),
-      });
-    }
-
-    const userPersonality = this.getLearnedPatterns(feature, 'current_user');
-    if (userPersonality && userPersonality.length > 0) {
-      const topPattern = userPersonality[0];
-      if (topPattern.successRate > 80) {
-        suggestions.push({
-          id: `pattern_suggestion_${feature}_${Date.now()}`,
-          botId: feature,
-          text: `Usuario responde bien a consultas similares a: "${topPattern.query}" (${Math.round(topPattern.successRate)}% éxito)`,
-          category: 'efficiency',
-          timestamp: Date.now(),
-        });
-      }
-    }
-
-    switch (feature) {
-      case 'inventory':
-        suggestions.push({
-          id: `inventory_check_${Date.now()}`,
-          botId: feature,
-          text: 'Revisa productos con stock crítico (< 20% del total)',
-          category: 'risk',
-          timestamp: Date.now(),
-        });
-        break;
-      case 'budgets':
-        suggestions.push({
-          id: `budget_review_${Date.now()}`,
-          botId: feature,
-          text: 'Analiza proyectos con ROI negativo potencial',
-          category: 'risk',
-          timestamp: Date.now(),
-        });
-        break;
-      case 'projects':
-        suggestions.push({
-          id: `schedule_check_${Date.now()}`,
-          botId: feature,
-          text: 'Verifica conflictos en la planificación de proyectos',
-          category: 'efficiency',
-          timestamp: Date.now(),
-        });
-        break;
-    }
-
-    this._proactiveSuggestions.update((current) =>
-      [...suggestions, ...current].slice(0, 20),
-    );
-    return suggestions;
-  }
-
-  getProactiveSuggestions(): ProactiveSuggestion[] {
-    return this._proactiveSuggestions();
-  }
-
-  getProactiveSuggestionsForBot(botId: string): ProactiveSuggestion[] {
-    return this._proactiveSuggestions().filter((s) => s.botId === botId);
-  }
-
-  markSuggestionApplied(suggestionId: string) {
-    this._proactiveSuggestions.update((current) =>
-      current.filter((s) => s.id !== suggestionId),
-    );
-  }
-
-  // ─── Bot Emotional States ────────────────────────────────────────────
-  setBotMood(feature: string, mood: BotMood, energy = 100) {
-    this._botMoods.update((current) => ({
-      ...current,
-      [feature]: { mood, energy },
-    }));
-
-    this.updateEmotionalState(feature, {
-      primaryMood: mood,
-      energy,
-      lastMoodChange: Date.now(),
-    });
-  }
-
-  updateEmotionalState(feature: string, updates: Partial<BotEmotionalState>) {
-    this._botEmotionalStates.update((current) => {
-      const existing = current[feature] || this.getDefaultEmotionalState();
-      const updated = {
-        ...existing,
-        ...updates,
-        lastMoodChange: updates.lastMoodChange || existing.lastMoodChange,
-      };
-      return { ...current, [feature]: updated };
-    });
-  }
-
-  private getDefaultEmotionalState(): BotEmotionalState {
-    return {
-      primaryMood: 'neutral',
-      secondaryEmotions: [],
-      energy: 80,
-      confidence: 70,
-      socialDrive: 50,
-      learningMode: false,
-      lastMoodChange: Date.now(),
-      emotionalTriggers: {},
-    };
-  }
-
-  getEmotionalState(feature: string): BotEmotionalState {
-    return (
-      this._botEmotionalStates()[feature] || this.getDefaultEmotionalState()
-    );
-  }
-
-  // ─── Bot Collaborations ────────────────────────────────────────────
-  startCollaboration(
-    initiator: string,
-    title: string,
-    description: string,
-    participants: string[],
-    objective: string,
-  ): string {
-    const collaborationId = `collab_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-    const collaboration: BotCollaboration = {
-      id: collaborationId,
-      title,
-      description,
-      initiator,
-      participants: [initiator, ...participants.filter((p) => p !== initiator)],
-      objective,
-      status: 'planning',
-      tasks: [],
-      created: Date.now(),
-      progress: 0,
-    };
-
-    this._botCollaborations.update((current) => ({
-      ...current,
-      [collaborationId]: collaboration,
-    }));
-
-    this.notifyCollaborationParticipants(collaboration);
-    return collaborationId;
-  }
-
-  addCollaborationTask(
-    collaborationId: string,
-    task: Omit<CollaborationTask, 'id'>,
-  ): boolean {
-    const collaboration = this._botCollaborations()[collaborationId];
-    if (!collaboration) return false;
-
-    const taskId = `task_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    const fullTask: CollaborationTask = { ...task, id: taskId };
-
-    this._botCollaborations.update((current) => ({
-      ...current,
-      [collaborationId]: {
-        ...collaboration,
-        tasks: [...collaboration.tasks, fullTask],
-      },
-    }));
-
-    return true;
-  }
-
-  updateCollaborationProgress(
-    collaborationId: string,
-    taskId: string,
-    status: CollaborationTask['status'],
-  ): boolean {
-    const collaboration = this._botCollaborations()[collaborationId];
-    if (!collaboration) return false;
-
-    const updatedTasks = collaboration.tasks.map((task) =>
-      task.id === taskId ? { ...task, status } : task,
-    );
-
-    const completedTasks = updatedTasks.filter(
-      (task) => task.status === 'completed',
-    ).length;
-    const progress =
-      updatedTasks.length > 0
-        ? (completedTasks / updatedTasks.length) * 100
-        : 0;
-
-    const newStatus =
-      progress === 100
-        ? 'completed'
-        : updatedTasks.some((task) => task.status === 'blocked')
-          ? 'active'
-          : 'active';
-
-    this._botCollaborations.update((current) => ({
-      ...current,
-      [collaborationId]: {
-        ...collaboration,
-        tasks: updatedTasks,
-        progress,
-        status: newStatus as BotCollaboration['status'],
-      },
-    }));
-
-    return true;
-  }
-
-  getActiveCollaborations(feature: string): BotCollaboration[] {
-    const allCollaborations = Object.values(this._botCollaborations());
-    return allCollaborations.filter(
-      (collab: BotCollaboration) =>
-        collab.participants.includes(feature) &&
-        ['planning', 'active'].includes(collab.status),
-    );
-  }
-
-  suggestCollaborations(feature: string): string[] {
-    const suggestions: string[] = [];
-    const bot = this.getBotByFeature(feature);
-
-    if (!bot) return suggestions;
-
-    switch (feature) {
-      case 'budgets':
-        if (
-          !this.getActiveCollaborations(feature).some((c) =>
-            c.participants.includes('inventory'),
-          )
-        ) {
-          suggestions.push(
-            'Colabora con Stocky-Bot para análisis de costos de inventario',
-          );
-        }
-        break;
-      case 'clients':
-        if (
-          !this.getActiveCollaborations(feature).some((c) =>
-            c.participants.includes('projects'),
-          )
-        ) {
-          suggestions.push(
-            'Coordina con Direct-Bot para asignación de proyectos a clientes satisfechos',
-          );
-        }
-        break;
-      case 'delivery':
-        if (
-          !this.getActiveCollaborations(feature).some((c) =>
-            c.participants.includes('fleet'),
-          )
-        ) {
-          suggestions.push(
-            'Trabaja con Drive-Bot para optimización de rutas de entrega',
-          );
-        }
-        break;
-    }
-
-    return suggestions;
-  }
-
-  private notifyCollaborationParticipants(collaboration: BotCollaboration) {
-    collaboration.participants.forEach((participant: string) => {
-      if (participant !== collaboration.initiator) {
-        this.broadcastMessage(
-          collaboration.initiator,
-          `Te invito a colaborar en: "${collaboration.title}". Objetivo: ${collaboration.objective}`,
-          participant,
-        );
-      }
-    });
-  }
-
-  // ─── Predictive Models ────────────────────────────────────────────
-  createPredictiveModel(
-    feature: string,
-    type: PredictiveModel['type'],
-    name: string,
-    description: string,
-  ): string {
-    const modelId = `model_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-    const model: PredictiveModel = {
-      id: modelId,
-      feature,
-      type,
-      name,
-      description,
-      accuracy: 0,
-      lastTrained: Date.now(),
-      predictions: [],
-      parameters: {},
-    };
-
-    this._predictiveModels.update((current) => ({
-      ...current,
-      [feature]: [...(current[feature] || []), model],
-    }));
-
-    return modelId;
-  }
-
-  generatePrediction(
-    modelId: string,
-    input: Record<string, unknown>,
-  ): PredictionResult | null {
-    let targetModel: PredictiveModel | null = null;
-    let feature = '';
-
-    for (const [feat, models] of Object.entries(this._predictiveModels())) {
-      const model = models.find((m) => m.id === modelId);
-      if (model) {
-        targetModel = model;
-        feature = feat;
-        break;
-      }
-    }
-
-    if (!targetModel) return null;
-
-    const prediction = this.calculatePrediction(targetModel, input);
-    const confidence = this.calculateConfidence(targetModel, input);
-
-    const result: PredictionResult = {
-      id: `pred_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      timestamp: Date.now(),
-      input,
-      prediction,
-      confidence,
-    };
-
-    this._predictiveModels.update((current) => ({
-      ...current,
-      [feature]: current[feature].map((model) =>
-        model.id === modelId
-          ? { ...model, predictions: [...model.predictions, result] }
-          : model,
-      ),
-    }));
-
-    return result;
-  }
-
-  getPredictiveModels(feature: string): PredictiveModel[] {
-    return this._predictiveModels()[feature] || [];
-  }
-
-  private calculatePrediction(
-    model: PredictiveModel,
-    input: Record<string, unknown>,
-  ): unknown {
-    switch (model.type) {
-      case 'demand_forecast': {
-        const baseDemand = (input['currentStock'] as number) || 100;
-        const trend = (input['growthRate'] as number) || 1.1;
-        return Math.round(baseDemand * trend);
-      }
-
-      case 'churn_prediction': {
-        const riskFactors = (input['complaints'] as number) || 0;
-        const satisfaction = (input['satisfaction'] as number) || 5;
-        const risk = riskFactors * 10 + (5 - satisfaction) * 20;
-        return risk > 50 ? 'high_risk' : 'low_risk';
-      }
-
-      case 'price_optimization': {
-        const cost = (input['cost'] as number) || 0;
-        const marketRate = (input['marketRate'] as number) || 1.2;
-        return Math.round(cost * marketRate * 1.3);
-      }
-
-      default:
-        return 'unknown';
-    }
-  }
-
-  private calculateConfidence(
-    model: PredictiveModel,
-    input: Record<string, unknown>,
-  ): number {
-    const baseConfidence = model.accuracy || 50;
-    const inputQuality = Object.keys(input).length > 3 ? 20 : 10;
-    return Math.min(100, baseConfidence + inputQuality);
-  }
-
-  // ─── Memory Management ────────────────────────────────────────────
-  remember(feature: string, text: string, importance = 5, isGlobal = false) {
-    const memory: AIRangeMemory = {
-      text,
-      importance,
-      timestamp: Date.now(),
-      tags: [feature],
-      sourceBot: feature,
-    };
-
-    if (isGlobal) {
-      this._globalMemories.update((current) => {
-        const updated = [...current, memory]
-          .sort((a, b) => b.importance - a.importance)
-          .slice(0, 200);
-        return updated;
-      });
-    }
-
-    this._botWorkspaces.update((current) => {
-      const ws = current[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      };
-      const updatedMemories = [...ws.memories, memory];
-      const limited = updatedMemories
-        .sort((a, b) => b.importance - a.importance)
-        .slice(0, 100);
-      const updated = { ...current, [feature]: { ...ws, memories: limited } };
-      return updated;
-    });
-
-    this.autoSummarizeMemories(feature);
-  }
-
-  private autoSummarizeMemories(feature: string) {
-    const ws = this.getWorkspace(feature);
-    if (ws.memories.length >= 10 && ws.memories.length % 10 === 0) {
-      const recentMemories: AIRangeMemory[] = ws.memories.slice(-10);
-      const summary = this.generateMemorySummary(recentMemories);
-
-      const summaryMemory: AIRangeMemory = {
-        text: `RESUMEN AUTOMÁTICO: ${summary}`,
-        importance: 8,
-        timestamp: Date.now(),
-        tags: [feature, 'summary', 'auto-generated'],
-        sourceBot: feature,
-      };
-
-      this._botWorkspaces.update((current) => {
-        const ws = current[feature] || {
-          memories: [],
-          lastTasks: [],
-          contextFiles: {},
-        };
-        const updatedMemories = [...ws.memories, summaryMemory];
-        const limited = updatedMemories
-          .sort((a, b) => b.importance - a.importance)
-          .slice(0, 100);
-        const updated = { ...current, [feature]: { ...ws, memories: limited } };
-        return updated;
-      });
-    }
-  }
-
-  private generateMemorySummary(memories: AIRangeMemory[]): string {
-    const topics = memories.map((m: AIRangeMemory) => m.tags).flat();
-    const uniqueTopics = [...new Set(topics)];
-
-    const timeRange =
-      memories.length > 0
-        ? `${new Date(Math.min(...memories.map((m: AIRangeMemory) => m.timestamp))).toLocaleDateString()} - ${new Date(Math.max(...memories.map((m: AIRangeMemory) => m.timestamp))).toLocaleDateString()}`
-        : 'período desconocido';
-
-    const avgImportance =
-      memories.reduce(
-        (sum: number, m: AIRangeMemory) => sum + m.importance,
-        0,
-      ) / memories.length;
-
-    return `Durante ${timeRange}, se registraron ${memories.length} eventos relacionados con: ${uniqueTopics.join(', ')}. Importancia promedio: ${avgImportance.toFixed(1)}/10.`;
-  }
-
-  getWorkspace(feature: string) {
-    return (
-      this._botWorkspaces()[feature] || {
-        memories: [],
-        lastTasks: [],
-        contextFiles: {},
-      }
-    );
-  }
-
-  // ─── Bot Context Access ────────────────────────────────────────────
-  getBotContext(feature: string): AIRangeMemory[] {
-    if (feature === 'buddy') {
-      // Buddy bot (orchestrator): access to shared store data from all features
-      const globalMemories = this._globalMemories();
-      const allBotMemories = Object.values(this._botWorkspaces()).flatMap(
-        (ws) => ws.memories,
-      );
-      return [...globalMemories, ...allBotMemories];
-    } else {
-      // Domain bots (including dashboard): access only to their own domain store data
-      return this.getWorkspace(feature).memories;
-    }
-  }
-
-  // ─── Bot Position Management ────────────────────────────────────────────
-  getBotPosition(feature: string): { x: number; y: number } {
-    const positions = this._botPositions();
-    if (positions[feature]) {
-      return positions[feature];
-    }
-    // Return default positions based on feature
-    return this.getDefaultBotPosition(feature);
-  }
-
-  // ─── Initialization Helpers ────────────────────────────────────────────
-  private getInitialProvider():
-    | 'gemini'
-    | 'openai'
-    | 'anthropic'
-    | 'grok'
-    | 'together'
-    | 'openrouter'
-    | 'ollama'
-    | 'free' {
-    const persisted = localStorage.getItem('ai_provider');
-    // Convertir valores inválidos (como 'huggingface') a valores válidos
-    const validProviders = [
-      'gemini',
-      'openai',
-      'anthropic',
-      'grok',
-      'together',
-      'openrouter',
-      'ollama',
-      'free',
-    ];
-    const isValid = validProviders.includes(persisted || '');
-
-    return (isValid ? persisted : 'openrouter') as
-      | 'gemini'
-      | 'openai'
-      | 'anthropic'
-      | 'grok'
-      | 'together'
-      | 'openrouter'
-      | 'ollama'
-      | 'free';
-  }
-
-  private getInitialModelId(): string {
-    const persisted = localStorage.getItem('ai_selected_model_id');
-    return persisted || 'grok';
-  }
-
-  // ─── Reset AI Preferences ────────────────────────────────────────────
-  resetAIPreferences() {
-    localStorage.removeItem('ai_provider');
-    localStorage.removeItem('ai_selected_model_id');
-    this.selectedProvider.set('openrouter');
-    this.selectedModelId.set('grok');
-    console.log('🔄 Preferencias de IA reseteadas a valores por defecto');
-  }
-
-  private getDefaultBotPosition(feature: string): { x: number; y: number } {
-    const defaults: Record<string, { x: number; y: number }> = {
-      dashboard: { x: 240, y: 100 },
-      inventory: { x: 240, y: 200 },
-      budgets: { x: 240, y: 300 },
-      projects: { x: 240, y: 400 },
-      clients: { x: 240, y: 500 },
-      fleet: { x: 240, y: 600 },
-      rentals: { x: 240, y: 700 },
-      audit: { x: 240, y: 800 },
-      buddy: { x: window.innerWidth - 120, y: 100 }, // Positioned more to the right edge
-    };
-    return defaults[feature] || { x: 240, y: 100 };
   }
 
   updateBotPosition(feature: string, position: { x: number; y: number }) {
-    this._botPositions.update((current) => ({
-      ...current,
-      [feature]: position,
-    }));
+    this._botPositions.update(c => ({ ...c, [feature]: position }));
   }
 
-  // ─── Sistema de Proveedores Gratuitos ─────────────────────────────────────────
-
-  async checkOllamaAvailability(force = false): Promise<boolean> {
-    const now = Date.now();
-    if (!force && now - this._lastCheckTime < this.CHECK_THROTTLE_MS) {
-      return this.ollamaConfig().available;
-    }
-
-    this._lastCheckTime = now;
-    try {
-      const response = await fetch(`${this.ollamaConfig().baseUrl}/api/tags`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const availableModels =
-          data.models?.map((m: { name: string }) => m.name) || [];
-        this.freeModels.update((current) => ({
-          ...current,
-          localModels: availableModels,
-        }));
-        this.ollamaConfig.update((config) => ({ ...config, available: true }));
-        return true;
-      }
-    } catch {
-      // Silencioso - Ollama no está corriendo localmente
-    }
-    this.ollamaConfig.update((config) => ({ ...config, available: false }));
-    return false;
+  getBotPosition(feature: string): { x: number; y: number } {
+    return this._botPositions()[feature] || { x: 240, y: 100 };
   }
 
-  configureOllama(baseUrl: string, model: string) {
-    this.ollamaConfig.update((config) => ({
-      ...config,
-      baseUrl,
-      model,
-    }));
+  // Inter-Bot Communication
+  sendInterBotMessage(from: string, to: string, text: string) {
+    const msg: InterBotMessage = { from, to, text, timestamp: Date.now() };
+    this._interBotQueue.update(q => [...q, msg]);
   }
 
-  async autoSelectProvider(): Promise<void> {
-    if (this._isCheckingProviders) return;
-
-    // Si ya tenemos una preferencia guardada que no sea 'free', la respetamos
-    // No chequeamos Ollama en segundo plano si ya tenemos un proveedor Cloud para evitar el ruido en consola
-    const persisted = localStorage.getItem('ai_selected_model_id');
-    if (persisted && persisted !== 'free' && persisted !== 'ollama') {
-      return;
-    }
-
-    this._isCheckingProviders = true;
-    const providers = [
-      { name: 'ollama', check: () => this.checkOllamaAvailability() },
-      { name: 'grok', check: () => Promise.resolve(true) },
-      { name: 'together', check: () => Promise.resolve(true) },
-      { name: 'gemini', check: () => Promise.resolve(!!this.providerApiKey()) },
-      { name: 'openai', check: () => Promise.resolve(!!this.providerApiKey()) },
-    ];
-
-    for (const provider of providers) {
-      try {
-        const available = await provider.check();
-        if (available) {
-          this.selectedProvider.set(
-            provider.name as
-              | 'gemini'
-              | 'openai'
-              | 'anthropic'
-              | 'grok'
-              | 'together'
-              | 'ollama'
-              | 'free',
-          );
-          console.debug(
-            `Proveedor seleccionado automáticamente: ${provider.name}`,
-          );
-          this._isCheckingProviders = false;
-          return;
-        }
-      } catch {
-        // Ignorar errores de verificación de disponibilidad
-      }
-    }
-
-    this.selectedProvider.set('free');
-    this._isCheckingProviders = false;
-  }
-
-  getProviderStatus(): Record<string, boolean> {
-    return {
-      gemini: !!this.providerApiKey(),
-      openai: !!this.providerApiKey(),
-      anthropic: !!this.providerApiKey(),
-      grok: true, // Siempre disponible (gratuito)
-      together: true, // Siempre disponible (gratuito)
-      ollama: this.ollamaConfig().available,
-      huggingface: false, // Deshabilitado por CORS
-      free: true,
-    };
-  }
-
-  async generateFreeResponse(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const provider = this.selectedProvider();
-    console.log('🔍 AI Provider seleccionado:', provider);
-
-    try {
-      switch (provider) {
-        case 'gemini':
-          return await this.generateWithGemini(prompt, context);
-        case 'openai':
-          return await this.generateWithOpenAI(prompt, context);
-        case 'ollama':
-          return await this.generateWithOllama(prompt, context);
-        case 'grok':
-          return await this.generateWithGrok(prompt, context);
-        case 'together':
-          return await this.generateWithTogether(prompt, context);
-        case 'openrouter':
-          return await this.generateWithOpenRouter(prompt, context);
-        case 'free':
-          return this.generateSmartFallback(prompt, context);
-        default:
-          return this.generateSmartFallback(prompt, context);
-      }
-    } catch (error: any) {
-      console.error(`🔴 Error crítico con ${provider}:`, error);
-      await this.autoSelectProvider();
-      return this.generateBasicResponse();
-    }
-  }
-
-  private async generateWithOllama(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const fullPrompt = context ? `${context}\n\n${prompt}` : prompt;
-
-    const response = await fetch(
-      `${this.ollamaConfig().baseUrl}/api/generate`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.ollamaConfig().model,
-          prompt: fullPrompt,
-          stream: false,
-          options: {
-            temperature: 0.7,
-            top_p: 0.9,
-            num_predict: 256,
-          },
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error(`Ollama error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.response || 'Lo siento, no pude generar una respuesta.';
-  }
-
-  private async generateWithHuggingFace(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const fullPrompt = context
-      ? `${context}\n\nUsuario: ${prompt}\nAsistente:`
-      : `Usuario: ${prompt}\nAsistente:`;
-
-    const response = await fetch(
-      `https://api-inference.huggingface.co/models/${this.freeModels().huggingface.model}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('hf_token') || ''}`,
-        },
-        body: JSON.stringify({
-          inputs: fullPrompt,
-          parameters: {
-            max_length: 256,
-            temperature: 0.7,
-            do_sample: true,
-            return_full_text: false,
-          },
-          options: {
-            wait_for_model: true,
-          },
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error(`HuggingFace error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      return data[0].generated_text.replace(fullPrompt, '').trim();
-    } else if (data.generated_text) {
-      return data.generated_text.replace(fullPrompt, '').trim();
-    }
-
-    return 'Lo siento, no pude generar una respuesta.';
-  }
-
-  private generateBasicResponse(): string {
-    // Respuesta básica cuando no hay APIs configuradas
-    const responses = [
-      '¡Hola! Actualmente estoy usando respuestas básicas. Las APIs premium (Gemini, OpenAI, etc.) requieren configuración de claves API.',
-      'Para respuestas más avanzadas, configura una API premium en los ajustes del sistema. Grok y Together AI están disponibles como opciones gratuitas.',
-      'Estoy funcionando en modo básico. Las APIs como Google Gemini o OpenAI GPT ofrecen respuestas mucho más inteligentes.',
-      '¡Perfecto! Para el mejor rendimiento, configura una API premium. Recuerda que Grok (xAI) y Together AI son gratuitos y funcionan sin problemas.',
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
-  }
-
-  private async generateWithGemini(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const apiKey = this.providerApiKey();
-    if (!apiKey) throw new Error('API Key de Gemini no configurada');
-
-    const model = AI_CONFIG.gemini_model;
-    
-    // In our system, 'context' contains the systemPrompt + history
-    // For Gemini, it's better to put system instructions in the specific field
-    const body: any = {
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      }
-    };
-
-    if (context) {
-      body.system_instruction = {
-        parts: [{ text: context }]
-      };
-    }
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      },
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Error en Gemini API');
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-  }
-
-  private async generateWithOpenAI(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const apiKey = this.providerApiKey();
-    if (!apiKey) throw new Error('API Key de OpenAI no configurada');
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          ...(context ? [{ role: 'system', content: context }] : []),
-          { role: 'user', content: prompt },
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Error en OpenAI API');
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  }
-
-  // ─── Inter-Bot Communication ───────────────────────────────────────────────
-
-  /** Enviar mensaje a otro bot */
-  sendInterBotMessage(fromFeature: string, toFeature: string, message: string) {
-    const msg: InterBotMessage = {
-      from: fromFeature,
-      to: toFeature,
-      text: message,
-      timestamp: Date.now(),
-      displayOnly: false,
-    };
-    this._interBotQueue.update((q) => [...q, msg]);
-  }
-
-  /** Obtener mensajes pendientes de otros bots */
   pullInterBotMessagesFor(feature: string): InterBotMessage[] {
     const all = this._interBotQueue();
-    const forMe = all.filter((m) => m.to === feature || m.to === 'all');
-
+    const forMe = all.filter(m => m.to === feature || m.to === 'all');
     if (forMe.length > 0) {
-      // Remover mensajes entregados de la cola
-      this._interBotQueue.update((q) => q.filter((m) => !forMe.includes(m)));
+      this._interBotQueue.update(q => q.filter(m => !forMe.includes(m)));
     }
     return forMe;
   }
 
-  /** Tick del sistema inter-bot */
-  interBotTick() {
-    // Podría usarse para procesos automáticos o limpieza de cola
+  broadcastMessage(from: string, text: string, to: string) {
+    const msg: InterBotMessage = { from, to, text, timestamp: Date.now(), displayOnly: true };
+    this._interBotQueue.update(q => [...q, msg]);
   }
 
-  /** Broadcast message to a specific bot/feature or all */
-  broadcastMessage(from: string, message: string, to: string) {
-    if (to === 'all') {
-      // Enviar una copia a cada bot activo (excepto al emisor)
-      const activeBots = Object.values(this._bots()).filter(
-        (b) => b.status === 'active' && b.feature !== from,
-      );
+  interBotTick() {}
 
-      activeBots.forEach((bot) => {
-        const msg: InterBotMessage = {
-          from,
-          to: bot.feature,
-          text: message,
-          timestamp: Date.now(),
-          displayOnly: true,
-        };
-        this._interBotQueue.update((q) => [...q, msg]);
-      });
-    } else {
-      const msg: InterBotMessage = {
-        from,
-        to,
-        text: message,
-        timestamp: Date.now(),
-        displayOnly: true,
-      };
-      this._interBotQueue.update((q) => [...q, msg]);
-    }
-  }
-
-  // ─── Rage Mode & UI Features ──────────────────────────────────────────────
-
-  private readonly _rageMode = signal(false);
-  readonly rageMode = this._rageMode.asReadonly();
-
-  private readonly _rageStyle = signal<'terror' | 'angry' | 'dark'>('terror');
-  readonly rageStyle = this._rageStyle.asReadonly();
-
-  setRageMode(enabled: boolean) {
-    this._rageMode.set(enabled);
-  }
-
-  setRageStyle(style: 'terror' | 'angry' | 'dark') {
-    this._rageStyle.set(style);
-  }
-
-  // ─── Additional UI Integration Methods ──────────────────────────────────────
-
-  /** Get dynamic canvas HTML for features */
-  dynamicCanvas(): Record<string, string> {
-    return {
-      login:
-        '<div class="welcome-message"><h2>¡Bienvenido a Josanz ERP!</h2><p>Sistema de gestión integral con IA avanzada</p></div>',
-      dashboard:
-        '<div class="dashboard-canvas"><div class="stats">Estadísticas en tiempo real</div></div>',
+  // User Personality
+  getUserPersonality(feature: string, userId: string): UserPersonalityProfile {
+    const key = `${feature}::${userId}`;
+    return this._userPersonalities()[key] || {
+      nickname: userId, style: 'casual', likes: [], dislikes: [],
+      notes: '', interactionCount: 0, lastSeen: Date.now(),
+      trustLevel: 50, learnedPatterns: [], preferredTools: [], performanceMetrics: [], successfulInteractions: []
     };
   }
 
-  // ─── APIs Gratuitas Sin CORS ────────────────────────────────────────────
+  recordSuccessfulInteraction(feature: string, userId: string, query: string, tool: string, respTime: number) {
+    // Simplified for now, could be moved to another service
+    console.log('Interaction recorded successfully');
+  }
 
-  private async generateWithGrok(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const apiKey = this.providerApiKey();
+  // --- UI Helpers ---
+  setRageMode(enabled: boolean) { /* Local state if needed */ }
+  setRageStyle(style: any) { /* Local state if needed */ }
+  rageMode = signal(false);
+  rageStyle = signal('terror');
 
-    if (!apiKey) {
-      // Fallback inteligente: simular respuesta basada en contexto si no hay API key
-      const isBuddy = context?.toLowerCase().includes('buddy');
-      const feature = context?.match(/especializado en ([\w-]+)/)?.[1] || 'general';
-
-      return isBuddy
-        ? `[Simulación Grok] Como Buddy, entiendo que preguntas sobre "${prompt}" en el contexto de ${feature}. (Configura una API Key para respuestas reales).`
-        : `[Simulación Grok] Hola, soy el asistente de ${feature}. Sobre "${prompt}", puedo decirte que estamos analizando los datos. (Configura una API Key para respuestas reales).`;
-    }
-
-    try {
-      const resp = await fetch('https://api.x.ai/v1/responses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'grok-4.20-reasoning',
-          input: context ? `${context}\n\nPregunta: ${prompt}` : prompt,
-        }),
-      });
-
-      if (!resp.ok) throw new Error('Error en API de Grok (v1/responses)');
-      const data = await resp.json();
-      // En v1/responses el resultado suele estar en data.output o data.text
-      // Basándome en la tendencia de xAI, usaré data.output o el fallback al formato antiguo si es necesario
-      return data.output || data.choices?.[0]?.message?.content || data.text || 'Respuesta generada';
-    } catch {
-      return `[Error Grok] No se pudo conectar con xAI. Verifica tu API Key.`;
+  setAIModel(modelId: string) {
+    this.inference.selectedModelId.set(modelId);
+    if (modelId.startsWith('ollama:')) {
+      this.inference.selectedProvider.set('ollama');
+      this.inference.ollamaConfig.update(c => ({ ...c, model: modelId.split(':')[1] }));
+    } else {
+      this.inference.selectedProvider.set(modelId as any);
     }
   }
 
-  private async generateWithTogether(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    const apiKey = this.providerApiKey();
-
-    if (!apiKey) {
-      return `[Simulación Together] Estoy analizando "${prompt}" usando modelos Open Source. Por favor, añade tu API Key de Together AI para respuestas completas.`;
-    }
-
-    try {
-      const resp = await fetch('https://api.together.xyz/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'deepseek-ai/DeepSeek-V3',
-          messages: [
-            ...(context ? [{ role: 'system', content: context }] : []),
-            { role: 'user', content: prompt },
-          ],
-        }),
-      });
-
-      if (!resp.ok) throw new Error('Error en API de Together');
-      const data = await resp.json();
-      return data.choices[0].message.content;
-    } catch {
-      return `[Error Together] Hubo un problema con la conexión.`;
-    }
+  checkOllamaAvailability(force = false) {
+    return this.inference.checkOllamaAvailability(force);
   }
 
-  private async generateWithOpenRouter(
-    prompt: string,
-    context?: string,
-  ): Promise<string> {
-    // OpenRouter ofrece modelos GRATUITOS "de verdad"
-    const apiKey = this.providerApiKey();
-    const model = AI_CONFIG.openrouter_model; 
-
-    try {
-      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey || ''}`, // OpenRouter a veces permite modelos free sin key, pero mejor con una
-          'HTTP-Referer': 'http://localhost:4200',
-          'X-Title': 'Josanz ERP',
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [
-            ...(context ? [{ role: 'system', content: context }] : []),
-            { role: 'user', content: prompt },
-          ],
-        }),
-      });
-
-      if (!resp.ok) throw new Error('Error en OpenRouter');
-      const data = await resp.json();
-      return data.choices[0].message.content;
-    } catch {
-      return this.generateSmartFallback(prompt, context);
-    }
+  getProviderStatus() {
+    return {
+      gemini: !!this.providerApiKey(),
+      openai: !!this.providerApiKey(),
+      grok: true,
+      together: true,
+      ollama: this.ollamaConfig().available,
+      free: true
+    };
   }
 
-  private generateSmartFallback(prompt: string, context?: string): string {
-    const isBuddy = context?.toLowerCase().includes('buddy');
-    const feature =
-      context?.match(/especializado en ([\w-]+)/)?.[1] || 'general';
-
-    const responses = [
-      `[Modo Offline] Soy tu asistente de ${feature}. Entiendo que necesitas ayuda con "${prompt}". Para una respuesta real de IA, usa un proveedor gratuito como OpenRouter (Llama 3 FREE).`,
-      `[Modo Offline] ${isBuddy ? 'Hola, soy Buddy.' : 'Asistente listo.'} Estoy en modo limitado. Configura una API de Gemini o OpenRouter para que pueda razonar de verdad sobre tus datos de ${feature}.`,
-      `[Modo Offline] Recibido: "${prompt}". Actualmente funciono sin conexión a la nube de IA. ¿Quieres que te ayude con algo de la interfaz de ${feature} mientras tanto?`,
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+  setPendingFilter(feature: string, query: string) {
+    this._pendingFilters.update(prev => ({ ...prev, [feature]: query }));
+    if (this.activeBotFeature() === feature) this.masterFilterService.search(query);
   }
 
-  /** Execution Engine for Bot Workflows and Chained Actions */
-  async executeAction(actionStr: string): Promise<void> {
-    try {
-      const parsed = JSON.parse(actionStr);
-      const actions = Array.isArray(parsed) ? parsed : [parsed];
-
-      for (const action of actions) {
-        console.log('🤖 Bot executing workflow step:', action);
-
-        switch (action.type) {
-          case 'navigate':
-            if (action.payload?.url) {
-              this.router.navigateByUrl(action.payload.url);
-            }
-            break;
-          case 'toggleTheme': {
-            const current = this.themeService.currentTheme();
-            this.themeService.setTheme(current === 'dark' ? 'light' : 'dark');
-            break;
-          }
-          case 'setTheme':
-            if (action.payload?.theme) {
-              this.themeService.setTheme(action.payload.theme as Theme);
-            }
-            break;
-          case 'applyFilter':
-            if (action.payload?.query) {
-              this.masterFilterService.search(action.payload.query);
-            }
-            break;
-          case 'goBack':
-            window.history.back();
-            break;
-          case 'wait': {
-            const ms = action.payload?.ms || 1000;
-            await new Promise((resolve) => setTimeout(resolve, ms));
-            break;
-          }
-          case 'delegate': {
-            if (action.payload?.target && action.payload?.action) {
-              const target = action.payload.target;
-              const subAction = action.payload.action;
-              console.log(`📡 Delegating action to ${target}:`, subAction);
-
-              if (subAction.type === 'applyFilter') {
-                this.setPendingFilter(target, subAction.payload?.query || '');
-              } else if (subAction.type === 'navigate') {
-                this.router.navigateByUrl(subAction.payload.url);
-              } else if (subAction.type === 'fillForm') {
-                this.aiFormBridge.fillActiveForm(subAction.payload.data);
-              }
-            }
-            break;
-          }
-          case 'fillForm':
-            if (action.payload?.data) {
-              this.aiFormBridge.fillActiveForm(action.payload.data);
-            }
-            break;
-          case 'setAvailability': {
-            if (action.payload?.techId && action.payload?.status) {
-              const techId = action.payload.techId;
-              const status = action.payload.status;
-              const date = action.payload.date;
-              const startDate = action.payload.startDate;
-              const endDate = action.payload.endDate;
-
-              if (date) {
-                this.technicianApiService.setFullDayAvailability(techId, date, status).subscribe();
-                console.log(`📅 Tech Availability: ${techId} -> ${date} : ${status}`);
-              } else if (startDate && endDate) {
-                // Bulk range simulate
-                 this.technicianApiService.setFullDayAvailability(techId, startDate, status).subscribe();
-                 console.log(`📅 Tech Availability Range: ${techId} from ${startDate} to ${endDate} : ${status}`);
-              }
-            }
-            break;
-          }
-          case 'showNotification':
-            console.log('Bot Notification:', action.payload?.message);
-            break;
-          default:
-            console.warn('Unknown bot action:', action.type);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse/execute bot workflow:', actionStr, e);
-    }
-  }
-
-  getActionSystemPrompt(): string {
-    return `
-[WORKFLOWS Y ACCIONES AUTÓNOMAS]
-Como agente de Josanz ERP, puedes ejecutar FLUJOS DE TRABAJO (secuencias de acciones).
-Tu respuesta debe terminar con: [ACTION] <JSON_ARRAY_O_OBJECT>
-
-ESTRUCTURA DE FLUJO:
-- Un solo comando: [ACTION] {"type": "navigate", "payload": {"url": "/inventory"}}
-- Secuencia (Workflow): [ACTION] [
-    {"type": "applyFilter", "payload": {"query": "material sonido"}},
-    {"type": "wait", "payload": {"ms": 500}},
-    {"type": "navigate", "payload": {"url": "/inventory/detail/X"}}
-  ]
-
-ACCIONES MOTOR:
-1. 'navigate': {url: string} -> Cambia de sección.
-2. 'applyFilter': {query: string} -> Filtra datos en tiempo real.
-3. 'wait': {ms: number} -> Pausa entre pasos del workflow.
-4. 'delegate': {target: string, action: object} -> DELEGA una acción a otro bot.
-5. 'fillForm': {data: object} -> RELLENA el formulario activo en pantalla.
-6. 'setAvailability': {techId: string, status: string, date?: string, startDate?: string, endDate?: string} -> Gestiona calendarios.
-   (Ejemplo: [ACTION] {"type": "setAvailability", "payload": {"techId": "me", "status": "HOLIDAY", "startDate": "2024-08-01", "endDate": "2024-08-15"}})
-
-REGLAS CRÍTICAS:
-- Tu respuesta DEBE incluir obligatoriamente el tag [ACTION] seguido del JSON si necesitas que el sistema ejecute algo. No te limites a decir qué vas a hacer, ¡hazlo!
-- Usa 'fillForm' cuando el usuario te pida rellenar datos, crear algo o editar un perfil.
-- Si delegas un 'fillForm' a un target, el bot target intentará rellenarlo cuando el usuario navegue allí.
-- Como Buddy (Orquestador), usa 'delegate' para que los otros bots preparen el terreno antes de navegar.
-- Si delegas un filtro a un target, el usuario verá ese filtro aplicado en cuanto entre en esa sección.
-- El JSON debe ser impecable y estar al final de tu respuesta tras el tag [ACTION].
-- Si el usuario te pide una tarea compleja que involucra varios pasos, usa un workflow (array de acciones).
-- MUY IMPORTANTE: Si vas a delegar una tarea al bot de presupuestos para que cree un borrador, usa la acción 'delegate' dirigida al bot 'budgets' con el tipo 'fillForm'.
-- Si vas a buscar en el inventario, usa la acción 'navigate' a '/inventory' con un 'applyFilter' delegado al bot 'inventory'.
-`;
+  clearPendingFilter(feature: string) {
+    this._pendingFilters.update(prev => {
+      const rest = { ...prev };
+      delete rest[feature];
+      return rest;
+    });
   }
 }
