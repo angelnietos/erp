@@ -46,7 +46,11 @@ export class AIBotStore {
   readonly selectedModelId = signal<string>(this.getInitialModelId());
 
   readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') || AI_CONFIG.openrouter_api_key || AI_CONFIG.xai_api_key || '',
+    localStorage.getItem('ai_api_key') ||
+      AI_CONFIG.google_api_key ||
+      AI_CONFIG.openrouter_api_key ||
+      AI_CONFIG.xai_api_key ||
+      '',
   );
 
   readonly activeBotFeature = signal<string>(
@@ -215,7 +219,7 @@ export class AIBotStore {
       { value: 'grok', label: 'Grok (xAI) - Gratuito' },
       { value: 'together', label: 'Together AI - Gratuito' },
       { value: 'openrouter', label: 'OpenRouter (Gemma 4 FREE) - Gratuito' },
-      { value: 'gemini', label: 'Google Gemini 2.5 Flash (Recomendado)' },
+      { value: 'gemini', label: 'Google Gemini 2.5 Flash (Pata Negra)' },
       { value: 'openai', label: 'OpenAI GPT-4o' },
       { value: 'anthropic', label: 'Anthropic Claude 3.5' },
     ];
@@ -1471,10 +1475,11 @@ export class AIBotStore {
     const apiKey = this.providerApiKey();
     if (!apiKey) throw new Error('API Key de Gemini no configurada');
 
+    const model = AI_CONFIG.gemini_model;
     const fullPrompt = context ? `${context}\n\nPregunta: ${prompt}` : prompt;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
