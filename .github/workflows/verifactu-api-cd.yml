@@ -26,7 +26,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm exec nx run verifactu-api:build --configuration=production
+        run: pnpm run build:verifactu-api
 
       - name: Build Docker image
         run: docker build -t verifactu-api-app -f Dockerfile.verifactu-api . # Adjust Dockerfile path

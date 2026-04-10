@@ -26,7 +26,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm exec nx run frontend:build --configuration=production
+        run: pnpm run build:frontend
 
       - name: Deploy to Railway
         run: |

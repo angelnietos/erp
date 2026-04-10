@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm exec nx run verifactu-worker:build --configuration=production
+        run: pnpm run build:verifactu-worker
 
   test:
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Test
-        run: pnpm exec nx run verifactu-worker:test
+        run: pnpm run test:verifactu-worker
