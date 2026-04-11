@@ -1,0 +1,121 @@
+{
+  "name": "document-generator",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/document-generator/src",
+  "tags": ["scope:document-generator", "type:app"],
+  "implicitDependencies": [],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": [],
+      "options": {
+        "outputPath": "dist/apps/document-generator",
+        "browser": "apps/document-generator/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/document-generator/tsconfig.app.json",
+        "allowedCommonJsDependencies": [
+          "class-validator",
+          "class-transformer",
+          "class-transformer/storage"
+        ],
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/document-generator/public"
+          }
+        ],
+        "styles": ["apps/document-generator/src/styles.css"],
+        "budgets": [
+          {
+            "type": "initial",
+            "maximumWarning": "720kb",
+            "maximumError": "1.25mb"
+          },
+          {
+            "type": "anyComponentStyle",
+            "maximumWarning": "16kb",
+            "maximumError": "24kb"
+          }
+        ]
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/document-generator/src/environments/environment.ts",
+              "with": "apps/document-generator/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all",
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "720kb",
+              "maximumError": "1.25mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "16kb",
+              "maximumError": "24kb"
+            }
+          ]
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "3mb",
+              "maximumError": "5mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "20kb",
+              "maximumError": "32kb"
+            }
+          ]
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "document-generator:build:production"
+        },
+        "development": {
+          "buildTarget": "document-generator:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/frontend/jest.config.cts",
+        "tsConfig": "apps/frontend/tsconfig.spec.json"
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "frontend:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/frontend/browser",
+        "spa": true
+      }
+    }
+  }
+}

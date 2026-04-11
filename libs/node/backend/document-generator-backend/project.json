@@ -1,0 +1,20 @@
+{
+  "name": "document-generator-backend",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/node/backend/document-generator-backend/src",
+  "projectType": "library",
+  "tags": ["scope:document-generator", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/node/backend/document-generator-backend",
+        "tsConfig": "libs/node/backend/document-generator-backend/tsconfig.lib.json",
+        "packageJson": "libs/node/backend/document-generator-backend/package.json",
+        "main": "libs/node/backend/document-generator-backend/src/index.ts",
+        "assets": ["libs/node/backend/document-generator-backend/*.md"]
+      }
+    }
+  }
+}

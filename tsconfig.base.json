@@ -227,6 +227,15 @@
       "@josanz-erp/ai-core": ["libs/node/shared/ai-core/src/index.ts"],
       "@josanz-erp/ai-insights-feature": [
         "libs/browser/feature/ai-insights/feature/src/index.ts"
+      ],
+      "@josanz-erp/document-generator": [
+        "libs/node/backend/document-generator/src/index.ts"
+      ],
+      "@josanz-erp/document-generator-feature": [
+        "libs/browser/feature/document-generator/src/index.ts"
+      ],
+      "@josanz-erp/document-generator-backend": [
+        "libs/node/backend/document-generator-backend/src/index.ts"
       ]
     }
   },

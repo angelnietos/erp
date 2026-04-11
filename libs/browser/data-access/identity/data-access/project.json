@@ -1,5 +1,5 @@
 {
-  "name": "data-access",
+  "name": "identity-data-access",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/browser/data-access/identity/data-access/src",
   "prefix": "lib",
@@ -27,7 +27,3 @@
     }
   }
 }
-
-
-
-
