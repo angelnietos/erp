@@ -65,13 +65,24 @@ interface DocumentType {
   selector: 'app-document-create',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  host: {
+    '[class.page-container]': 'true',
+  },
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+      <nav
+        class="flex items-center space-x-2 text-sm"
+        style="color: var(--text-secondary)"
+      >
         <button
           routerLink="/documents/list"
-          class="hover:text-slate-900 transition-colors"
+          class="transition-colors"
+          [style.color]="
+            isHoverBreadcrumb ? 'var(--text-primary)' : 'var(--text-secondary)'
+          "
+          (mouseenter)="isHoverBreadcrumb = true"
+          (mouseleave)="isHoverBreadcrumb = false"
         >
           Documentos
         </button>
@@ -88,16 +99,20 @@ interface DocumentType {
             d="M9 5l7 7-7 7"
           />
         </svg>
-        <span class="text-slate-900 font-medium">Crear Nuevo</span>
+        <span class="font-medium" style="color: var(--text-primary)"
+          >Crear Nuevo</span
+        >
       </nav>
 
       <!-- Header -->
       <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+        class="ui-glass p-8 animate-slide-up"
+        style="background: var(--surface); border: 1px solid var(--border-soft);"
       >
         <div class="text-center max-w-2xl mx-auto">
           <div
-            class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+            class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+            style="background: var(--primary)"
           >
             <svg
               class="w-8 h-8 text-white"
@@ -114,11 +129,12 @@ interface DocumentType {
             </svg>
           </div>
           <h1
-            class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3"
+            class="text-3xl font-bold mb-3"
+            style="color: var(--text-primary)"
           >
             Crear Nuevo Documento
           </h1>
-          <p class="text-slate-600 text-lg">
+          <p class="text-lg" style="color: var(--text-secondary)">
             Selecciona el tipo de documento que deseas crear y deja que nuestro
             asistente IA te guíe
           </p>
@@ -127,13 +143,17 @@ interface DocumentType {
 
       <!-- Document Type Selection -->
       <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+        class="rounded-2xl shadow-xl p-8"
+        style="background: var(--surface); border: 1px solid var(--border-soft);"
       >
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-slate-900 mb-2">
+          <h2
+            class="text-2xl font-bold mb-2"
+            style="color: var(--text-primary)"
+          >
             ¿Qué tipo de documento necesitas?
           </h2>
-          <p class="text-slate-600">
+          <p style="color: var(--text-secondary)">
             Elige el tipo que mejor se adapte a tus necesidades
           </p>
         </div>
@@ -147,20 +167,26 @@ interface DocumentType {
               tabindex="0"
               role="button"
               class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
-              [class.border-blue-500]="selectedType?.id === type.id"
-              [class.bg-gradient-to-br]="selectedType?.id === type.id"
-              [class.from-blue-50]="selectedType?.id === type.id"
-              [class.to-indigo-50]="selectedType?.id === type.id"
-              [class.border-slate-200]="selectedType?.id !== type.id"
-              [class.hover:border-slate-300]="selectedType?.id !== type.id"
+              [style.border-color]="
+                selectedType?.id === type.id
+                  ? 'var(--primary)'
+                  : 'var(--border-soft)'
+              "
+              [style.background]="
+                selectedType?.id === type.id
+                  ? 'var(--surface-hover)'
+                  : 'transparent'
+              "
             >
               <div class="flex items-start justify-between mb-4">
                 <div
-                  class="w-12 h-12 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-all duration-300"
+                  class="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300"
+                  style="background: var(--surface-secondary)"
                 >
                   @if (type.id === 'quote') {
                     <svg
-                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      class="w-6 h-6"
+                      style="color: var(--text-secondary)"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -221,7 +247,8 @@ interface DocumentType {
                 </div>
                 @if (selectedType?.id === type.id) {
                   <div
-                    class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center"
+                    class="w-6 h-6 rounded-full flex items-center justify-center"
+                    style="background: var(--primary)"
                   >
                     <svg
                       class="w-4 h-4 text-white"
@@ -241,11 +268,12 @@ interface DocumentType {
               </div>
               <div class="space-y-2">
                 <h3
-                  class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors"
+                  class="text-xl font-semibold transition-colors"
+                  style="color: var(--text-primary)"
                 >
                   {{ type.name }}
                 </h3>
-                <p class="text-slate-600 leading-relaxed">
+                <p class="leading-relaxed" style="color: var(--text-secondary)">
                   {{ type.description }}
                 </p>
               </div>
@@ -291,12 +319,14 @@ interface DocumentType {
         <!-- Form Section -->
         @if (selectedType) {
           <div
-            class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+            class="rounded-2xl shadow-xl p-8 mt-8"
+            style="background: var(--surface); border: 1px solid var(--border-soft);"
           >
             <div class="mb-8">
               <div class="flex items-center space-x-3 mb-4">
                 <div
-                  class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"
+                  class="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style="background: var(--primary)"
                 >
                   <svg
                     class="w-5 h-5 text-white"
@@ -313,10 +343,13 @@ interface DocumentType {
                   </svg>
                 </div>
                 <div>
-                  <h2 class="text-2xl font-bold text-slate-900">
+                  <h2
+                    class="text-2xl font-bold"
+                    style="color: var(--text-primary)"
+                  >
                     Información del Documento
                   </h2>
-                  <p class="text-slate-600">
+                  <p style="color: var(--text-secondary)">
                     Completa los detalles para generar tu
                     {{ selectedType.name.toLowerCase() }}
                   </p>
@@ -330,13 +363,16 @@ interface DocumentType {
               class="space-y-8"
             >
               <div
-                class="bg-slate-50 rounded-xl p-6 border border-slate-200/50"
+                class="rounded-xl p-6"
+                style="background: var(--surface-secondary); border: 1px solid var(--border-soft);"
               >
                 <h3
-                  class="text-lg font-semibold text-slate-900 mb-4 flex items-center"
+                  class="text-lg font-semibold mb-4 flex items-center"
+                  style="color: var(--text-primary)"
                 >
                   <svg
-                    class="w-5 h-5 mr-2 text-slate-600"
+                    class="w-5 h-5 mr-2"
+                    style="color: var(--text-secondary)"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -360,7 +396,10 @@ interface DocumentType {
                     <select
                       id="clientId"
                       formControlName="clientId"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                      class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                      style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                      onfocus="this.style.borderColor='var(--primary)'"
+                      onblur="this.style.borderColor='var(--border-soft)'"
                     >
                       <option value="">Seleccionar cliente</option>
                       @for (client of clients; track client.id) {
@@ -380,7 +419,10 @@ interface DocumentType {
                       id="date"
                       type="date"
                       formControlName="date"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                      class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                      style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                      onfocus="this.style.borderColor='var(--primary)'"
+                      onblur="this.style.borderColor='var(--border-soft)'"
                     />
                   </div>
                 </div>
@@ -398,7 +440,10 @@ interface DocumentType {
                     type="text"
                     formControlName="title"
                     [placeholder]="getTitlePlaceholder()"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                    class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                    style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                    onfocus="this.style.borderColor='var(--primary)'"
+                    onblur="this.style.borderColor='var(--border-soft)'"
                   />
                 </div>
 
@@ -415,7 +460,10 @@ interface DocumentType {
                         type="text"
                         formControlName="projectName"
                         placeholder="Nombre del proyecto"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                        onfocus="this.style.borderColor='var(--primary)'"
+                        onblur="this.style.borderColor='var(--border-soft)'"
                       />
                     </div>
                     <div class="space-y-2">
@@ -430,7 +478,10 @@ interface DocumentType {
                         formControlName="totalAmount"
                         placeholder="0.00"
                         step="0.01"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
+                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                        onfocus="this.style.borderColor='var(--primary)'"
+                        onblur="this.style.borderColor='var(--border-soft)'"
                       />
                     </div>
                   </div>
@@ -460,7 +511,8 @@ interface DocumentType {
 
                 <!-- Barra de Herramientas Markdown -->
                 <div
-                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200"
+                  class="rounded-xl p-2 flex flex-wrap gap-1"
+                  style="background: var(--surface-secondary); border: 1px solid var(--border-soft);"
                 >
                   <button
                     type="button"
@@ -601,7 +653,10 @@ interface DocumentType {
                         formControlName="content"
                         [placeholder]="getContentPlaceholder()"
                         rows="18"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
+                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200 font-mono text-sm resize-vertical"
+                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                        onfocus="this.style.borderColor='var(--primary)'"
+                        onblur="this.style.borderColor='var(--border-soft)'"
                         (input)="updatePreview()"
                         (keydown)="handleKeydown($event)"
                         [class.h-screen]="fullscreenMode"
@@ -614,7 +669,8 @@ interface DocumentType {
                         Vista Previa
                       </div>
                       <div
-                        class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
+                        class="w-full px-4 py-3 rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
+                        style="background: var(--surface-secondary); border: 1px solid var(--border-soft); color: var(--text-primary);"
                         [innerHTML]="previewHtml"
                         [class.h-screen]="fullscreenMode"
                       ></div>
@@ -635,7 +691,10 @@ interface DocumentType {
                         formControlName="architectureDiagram"
                         rows="4"
                         placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm"
+                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200 font-mono text-sm"
+                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                        onfocus="this.style.borderColor='var(--primary)'"
+                        onblur="this.style.borderColor='var(--border-soft)'"
                       ></textarea>
                     </div>
                   </div>
@@ -847,6 +906,7 @@ export class DocumentCreateComponent implements OnInit {
   characterCount = 0;
   autoSaved = false;
   fullscreenMode = false;
+  isHoverBreadcrumb = false;
 
   templates = [
     { id: 'empty', name: 'Vacío', content: '' },

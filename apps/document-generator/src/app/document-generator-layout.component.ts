@@ -13,19 +13,30 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
     LucideAngularModule,
     FloatingAssistantComponent,
   ],
+  styles: [
+    `
+      .nav-link:hover {
+        background: var(--surface-hover);
+      }
+
+      .nav-link.active-link {
+        background: var(--primary-light);
+      }
+    `,
+  ],
   template: `
-    <div
-      class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
-    >
+    <div class="min-h-screen" style="background: var(--bg-primary)">
       <!-- Header -->
       <header
-        class="bg-white/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 sticky top-0 z-50"
+        class="backdrop-blur-lg shadow-lg sticky top-0 z-50"
+        style="background: var(--surface); border-bottom: 1px solid var(--border)"
       >
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-20">
             <div class="flex items-center space-x-4">
               <div
-                class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg"
+                class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                style="background: var(--primary)"
               >
                 <svg
                   class="w-7 h-7 text-white"
@@ -43,11 +54,15 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               </div>
               <div>
                 <h1
-                  class="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"
+                  class="text-2xl font-bold"
+                  style="color: var(--text-primary);"
                 >
                   Generador de Documentos
                 </h1>
-                <p class="text-xs text-slate-500 font-medium">
+                <p
+                  class="text-xs font-medium"
+                  style="color: var(--text-secondary)"
+                >
                   Crea documentos profesionales con IA
                 </p>
               </div>
@@ -55,8 +70,9 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
             <nav class="flex space-x-2">
               <a
                 routerLink="/documents/list"
-                routerLinkActive="bg-blue-100 text-blue-700 shadow-md"
-                class="flex items-center space-x-2 px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 font-medium text-sm"
+                routerLinkActive="active-link shadow-md"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                style="color: var(--text-primary)"
               >
                 <svg
                   class="w-4 h-4"
@@ -75,8 +91,9 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               </a>
               <a
                 routerLink="/documents/create"
-                routerLinkActive="bg-blue-100 text-blue-700 shadow-md"
-                class="flex items-center space-x-2 px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 font-medium text-sm"
+                routerLinkActive="active-link shadow-md"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                style="color: var(--text-primary)"
               >
                 <svg
                   class="w-4 h-4"
@@ -95,16 +112,18 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               </a>
               <a
                 routerLink="/documents/bot"
-                routerLinkActive="bg-blue-100 text-blue-700 shadow-md"
-                class="flex items-center space-x-2 px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 font-medium text-sm"
+                routerLinkActive="active-link shadow-md"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                style="color: var(--text-primary)"
               >
                 <lucide-angular name="bot" class="w-4 h-4"></lucide-angular>
                 <span>Asistente</span>
               </a>
               <a
                 routerLink="/documents/analysis"
-                routerLinkActive="bg-blue-100 text-blue-700 shadow-md"
-                class="flex items-center space-x-2 px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 font-medium text-sm"
+                routerLinkActive="active-link shadow-md"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                style="color: var(--text-primary)"
               >
                 <svg
                   class="w-4 h-4"

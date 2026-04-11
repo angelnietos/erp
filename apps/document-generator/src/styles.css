@@ -11,6 +11,7 @@
   --surface-hover: rgba(26, 30, 42, 0.92);
 
   --brand: #e60012;
+  --primary: #e60012;
   --brand-muted: color-mix(in srgb, var(--brand) 65%, #000);
   --brand-glow: rgba(230, 0, 18, 0.38);
   --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
@@ -80,6 +81,8 @@
   --bg-tertiary: #f1f5f9;
   --surface: rgba(255, 255, 255, 0.85);
   --surface-hover: rgba(255, 255, 255, 0.95);
+  --brand: #e60012;
+  --primary: #e60012;
   --brand-ambient: rgba(230, 0, 18, 0.04);
   --brand-ambient-strong: rgba(230, 0, 18, 0.08);
   --text-on-brand: #ffffff;
@@ -174,6 +177,8 @@ svg:not([width]):not([height]) {
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-primary) !important;
+  min-height: 100vh;
 }
 
 img,
@@ -659,6 +664,8 @@ html[data-ui-variant='minimal'] .card {
 /* Base UI Component Utilities */
 .ui-glass {
   background: var(--surface);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border: 1px solid var(--border-vibrant);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md), var(--shadow-inset-shine);
@@ -1046,7 +1053,9 @@ main .content a:not(.nav-link):not(.theme-option):not(.menu-item):hover {
   padding: 1.35rem 1.5rem 1.5rem;
   max-width: 100%;
   margin: 0 auto;
-  opacity: 0;
+  animation:
+    slideInUp 0.6s var(--ease-out-expo) forwards,
+    fadeIn 0.4s ease-out forwards;
 }
 
 .section-header {
