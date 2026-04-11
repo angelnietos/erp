@@ -81,52 +81,72 @@ export class PdfGenerationService {
     let page = pdfDoc.addPage();
     const { width, height } = page.getSize();
 
-    const fontSize = 12;
     const titleFontSize = 18;
-    const sectionFontSize = 14;
     let yPosition = height - 50;
+
+    // Cabecera profesional
+    page.drawRectangle({
+      x: 0,
+      y: height - 80,
+      width: width,
+      height: 80,
+      color: rgb(0.96, 0.98, 1),
+    });
 
     // Título
     page.drawText(data.title, {
       x: 50,
-      y: yPosition,
+      y: height - 50,
       size: titleFontSize,
-      color: rgb(0, 0, 0),
+      color: rgb(0.06, 0.09, 0.16),
     });
-    yPosition -= 40;
 
-    // Información del cliente
+    // Línea divisoria
+    page.drawLine({
+      start: { x: 50, y: height - 65 },
+      end: { x: width - 50, y: height - 65 },
+      thickness: 1,
+      color: rgb(0.89, 0.91, 0.94),
+    });
+
+    yPosition = height - 100;
+
+    // Información del cliente y fecha
     page.drawText(`Cliente: ${data.client}`, {
       x: 50,
       y: yPosition,
-      size: fontSize,
+      size: 11,
+      color: rgb(0.41, 0.45, 0.53),
     });
-    yPosition -= 20;
 
     page.drawText(`Fecha: ${data.date}`, {
-      x: 50,
+      x: width - 150,
       y: yPosition,
-      size: fontSize,
+      size: 11,
+      color: rgb(0.41, 0.45, 0.53),
     });
+
     yPosition -= 40;
 
-    // Contenido
-    const contentLines = this.splitTextIntoLines(
-      data.content.replace(/<[^>]*>/g, ''),
-      80,
-    );
-    for (const line of contentLines) {
-      if (yPosition < 50) {
-        page = pdfDoc.addPage();
-        yPosition = height - 50;
-      }
-      page.drawText(line, {
-        x: 50,
-        y: yPosition,
-        size: fontSize,
-      });
-      yPosition -= 15;
+    // Contenido Markdown formateado
+    if (data.content) {
+      this.renderMarkdownContent(page, data.content, yPosition, width, height);
     }
+
+    // Pie de página
+    const pages = pdfDoc.getPages();
+    pages.forEach((p: any, index: number) => {
+      const { width: pw, height: ph } = p.getSize();
+      p.drawText(
+        `Generado automáticamente por Josanz ERP | Página ${index + 1} de ${pages.length}`,
+        {
+          x: pw / 2 - 100,
+          y: 30,
+          size: 9,
+          color: rgb(0.6, 0.6, 0.6),
+        },
+      );
+    });
 
     return await pdfDoc.save();
   }
@@ -641,6 +661,134 @@ export class PdfGenerationService {
     }
 
     return lines;
+  }
+
+  /**
+   * Renderiza contenido Markdown con formato profesional en el PDF
+   * Soporta: #, ##, ###, **bold**, *italic*, listas, bloques de código, citas
+   */
+  private renderMarkdownContent(
+    page: any,
+    content: string,
+    yPosition: number,
+    width: number,
+    height: number,
+  ): number {
+    const lines = content.split('\n');
+    const margin = 50;
+    const maxWidth = width - margin * 2;
+
+    let currentY = yPosition;
+    let currentPage = page;
+    const pdfDoc = page.doc;
+
+    for (const line of lines) {
+      // Salto de página si no queda espacio
+      if (currentY < 60) {
+        currentPage = pdfDoc.addPage();
+        currentY = height - 50;
+      }
+
+      // Encabezados
+      if (line.startsWith('### ')) {
+        currentPage.drawText(line.substring(4), {
+          x: margin,
+          y: currentY,
+          size: 14,
+          color: rgb(0.2, 0.2, 0.3),
+        });
+        currentY -= 25;
+        continue;
+      }
+
+      if (line.startsWith('## ')) {
+        currentPage.drawText(line.substring(3), {
+          x: margin,
+          y: currentY,
+          size: 16,
+          color: rgb(0.1, 0.1, 0.2),
+        });
+        currentY -= 30;
+        continue;
+      }
+
+      if (line.startsWith('# ')) {
+        currentPage.drawText(line.substring(2), {
+          x: margin,
+          y: currentY,
+          size: 20,
+          color: rgb(0, 0, 0),
+        });
+        currentY -= 35;
+        continue;
+      }
+
+      // Citas
+      if (line.startsWith('> ')) {
+        currentPage.drawRectangle({
+          x: margin - 10,
+          y: currentY - 5,
+          width: 4,
+          height: 20,
+          color: rgb(0.23, 0.51, 0.96),
+        });
+        const quoteLines = this.splitTextIntoLines(line.substring(2), 75);
+        for (const ql of quoteLines) {
+          currentPage.drawText(ql, {
+            x: margin + 10,
+            y: currentY,
+            size: 12,
+            color: rgb(0.12, 0.25, 0.69),
+          });
+          currentY -= 18;
+        }
+        currentY -= 10;
+        continue;
+      }
+
+      // Listas
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        currentPage.drawText('•', {
+          x: margin,
+          y: currentY,
+          size: 12,
+          color: rgb(0.23, 0.51, 0.96),
+        });
+        const listLines = this.splitTextIntoLines(line.substring(2), 75);
+        for (let i = 0; i < listLines.length; i++) {
+          currentPage.drawText(listLines[i], {
+            x: margin + 15,
+            y: currentY - i * 16,
+            size: 12,
+          });
+        }
+        currentY -= 18 * listLines.length;
+        continue;
+      }
+
+      // Linea vacia
+      if (line.trim() === '') {
+        currentY -= 12;
+        continue;
+      }
+
+      // Texto normal
+      const textLines = this.splitTextIntoLines(line, 90);
+      for (const tl of textLines) {
+        if (currentY < 60) {
+          currentPage = pdfDoc.addPage();
+          currentY = height - 50;
+        }
+        currentPage.drawText(tl, {
+          x: margin,
+          y: currentY,
+          size: 12,
+        });
+        currentY -= 18;
+      }
+    }
+
+    return currentY;
   }
 
   downloadPdf(bytes: Uint8Array, filename: string) {

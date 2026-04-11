@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+
+declare var marked: any;
 
 interface DocumentType {
   id: string;
@@ -18,7 +20,7 @@ interface DocumentType {
 @Component({
   selector: 'app-document-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
@@ -119,7 +121,7 @@ interface DocumentType {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599-1"
                   />
                 </svg>
                 <svg
@@ -161,7 +163,7 @@ interface DocumentType {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 2 0 011-1h2a1 2 0 011 1v5m-4 0h4"
                   />
                 </svg>
               </div>
@@ -359,16 +361,43 @@ interface DocumentType {
               </div>
             </div>
 
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-slate-700"
-                >Contenido</label
-              >
-              <textarea
-                formControlName="content"
-                [placeholder]="getContentPlaceholder()"
-                rows="6"
-                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white resize-none"
-              ></textarea>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-slate-700">
+                  Contenido Markdown
+                </label>
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                  <span class="px-2 py-1 bg-slate-100 rounded"
+                    >Markdown soportado: #, ##, **, *, -, &gt;, codigo, bloque
+                    codigo</span
+                  >
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Editor Markdown -->
+                <div class="space-y-2">
+                  <div class="text-xs font-medium text-slate-500">Editor</div>
+                  <textarea
+                    formControlName="content"
+                    [placeholder]="getContentPlaceholder()"
+                    rows="18"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
+                    (input)="updatePreview()"
+                  ></textarea>
+                </div>
+
+                <!-- Vista Previa Live -->
+                <div class="space-y-2">
+                  <div class="text-xs font-medium text-slate-500">
+                    Vista Previa
+                  </div>
+                  <div
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview"
+                    [innerHTML]="previewHtml"
+                  ></div>
+                </div>
+              </div>
             </div>
 
             <div *ngIf="selectedType?.id === 'architecture'" class="space-y-4">
@@ -444,7 +473,7 @@ interface DocumentType {
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
                 <svg
@@ -478,6 +507,7 @@ export class DocumentCreateComponent {
   selectedType: DocumentType | null = null;
   documentForm: FormGroup;
   isGenerating = false;
+  previewHtml = '';
 
   documentTypes: DocumentType[] = [
     {
@@ -505,7 +535,7 @@ export class DocumentCreateComponent {
   clients = [
     { id: '1', name: 'Cliente A' },
     { id: '2', name: 'Cliente B' },
-  ]; // TODO: Load from service
+  ];
 
   clientOptions = this.clients.map((client) => ({
     label: client.name,
@@ -520,13 +550,11 @@ export class DocumentCreateComponent {
     this.documentForm = this.fb.group({
       clientId: ['', Validators.required],
       date: [new Date().toISOString().split('T')[0]],
-      // Campos específicos
       projectName: [''],
       totalAmount: [''],
       description: [''],
       title: [''],
       content: [''],
-      // Campos para propuestas
       executiveSummary: [''],
       objectives: [''],
       scope: [''],
@@ -534,7 +562,6 @@ export class DocumentCreateComponent {
       timeline: [''],
       pricing: [''],
       terms: [''],
-      // Campos para arquitectura
       systemOverview: [''],
       architectureDiagram: [''],
       components: [''],
@@ -583,6 +610,15 @@ export class DocumentCreateComponent {
     }
   }
 
+  updatePreview() {
+    const content = this.documentForm.get('content')?.value || '';
+    try {
+      this.previewHtml = marked.parse(content);
+    } catch (e) {
+      this.previewHtml = content;
+    }
+  }
+
   async generateDocument() {
     if (this.documentForm.valid) {
       try {
@@ -616,7 +652,6 @@ export class DocumentCreateComponent {
               await this.pdfService.generateDocumentationPdf(documentData);
         }
 
-        // Store PDF data temporarily (in a real app, save to server)
         const documentId = Date.now().toString();
         localStorage.setItem(
           `document_${documentId}`,
@@ -629,7 +664,6 @@ export class DocumentCreateComponent {
         this.router.navigate(['/documents/preview', documentId]);
       } catch (error) {
         console.error('Error generating PDF:', error);
-        // TODO: Show error message to user
       }
     }
   }
