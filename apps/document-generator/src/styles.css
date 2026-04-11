@@ -127,55 +127,111 @@ svg:not([width]):not([height]) {
   vertical-align: middle;
 }
 
-/* Ensure icons are properly sized */
+/* =========================================
+   CORRECCION GLOBAL DE DISEÑO Y ICONOS
+   ========================================= */
+
+/* Fix definitivo iconos agigantados */
 lucide-angular,
 [lucideIcon],
-.lucide {
-  width: 16px !important;
-  height: 16px !important;
-  font-size: 16px !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
+.lucide,
+svg.lucide {
+  width: 1em !important;
+  height: 1em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  flex-shrink: 0 !important;
 }
 
 lucide-angular svg,
 [lucideIcon] svg,
-.lucide svg {
+.lucide svg,
+svg.lucide {
   width: 100% !important;
   height: 100% !important;
-  stroke-width: 2px;
+  stroke-width: 2px !important;
+}
+
+/* Fix para todos los SVG del sistema */
+svg:not([width]):not([height]) {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* =============================
+   NORMALIZACIÓN DE ESPACIADO
+   ============================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* =============================
+   CORRECCIÓN TAILWIND + TEMA
+   ============================= */
+/* Desactivar fondo por defecto del tema oscuro para no romper tailwind */
+body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Alinear correctamente todos los elementos interactivos */
+button,
+a,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Espaciado uniforme para iconos en botones */
+button svg,
+a svg,
+.btn svg {
+  flex-shrink: 0;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--bg-primary);
-  background-image:
-    radial-gradient(
-      ellipse 140% 100% at 0% -20%,
-      var(--brand-ambient-strong),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 80% 60% at 100% 0%,
-      rgba(100, 150, 255, 0.06),
-      transparent 48%
-    ),
-    radial-gradient(
-      ellipse 70% 50% at 85% 100%,
-      rgba(255, 180, 120, 0.04),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 90% 70% at 50% 115%,
-      var(--brand-ambient),
-      transparent 60%
-    );
-  color: var(--text-primary);
   font-family: var(--font-main);
-  line-height: 1.4; /* Reduced line height for density */
+  line-height: 1.5;
 }
 
 /* Custom Scrollbar Premium */

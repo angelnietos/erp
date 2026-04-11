@@ -92,7 +92,7 @@ import { LucideAngularModule } from 'lucide-angular';
                 routerLinkActive="bg-blue-100 text-blue-700 shadow-md"
                 class="flex items-center space-x-2 px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 font-medium text-sm"
               >
-                <lucide-icon name="bot" size="16" class="w-4 h-4"></lucide-icon>
+                <lucide-angular name="bot" class="w-4 h-4"></lucide-angular>
                 <span>Asistente</span>
               </a>
             </nav>
