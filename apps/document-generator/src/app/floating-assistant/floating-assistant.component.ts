@@ -4,10 +4,14 @@ import {
   HostListener,
   ElementRef,
   ViewChild,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AssistantContextService } from '../services/assistant-context.service';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  AssistantContextService,
+  AssistantPetConfig,
+} from '../services/assistant-context.service';
+import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-floating-assistant',
@@ -15,13 +19,11 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   imports: [CommonModule, ReactiveFormsModule],
   styles: [
     `
-      .assistant-bubble {
+      .pet-bubble {
         position: fixed;
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         cursor: pointer;
         z-index: 9999;
         display: flex;
@@ -31,25 +33,30 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
           transform 0.2s,
           box-shadow 0.2s;
         user-select: none;
+        overflow: hidden;
       }
 
-      .assistant-bubble:hover {
-        transform: scale(1.1);
-        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+      .pet-bubble:hover {
+        transform: scale(1.15);
       }
 
-      .assistant-bubble.dragging {
-        opacity: 0.8;
+      .pet-bubble.dragging {
+        opacity: 0.7;
         cursor: grabbing;
+      }
+
+      .pet-face {
+        font-size: 32px;
+        line-height: 1;
       }
 
       .assistant-window {
         position: fixed;
-        width: 380px;
-        height: 520px;
+        width: 400px;
+        height: 580px;
         background: white;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border-radius: 20px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
         z-index: 9999;
         display: flex;
         flex-direction: column;
@@ -57,12 +64,31 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
       }
 
       .window-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(
+          135deg,
+          var(--pet-color, #667eea) 0%,
+          #764ba2 100%
+        );
         color: white;
-        padding: 12px 16px;
+        padding: 14px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+      }
+
+      .config-panel {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+
+      .config-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
       }
 
       .messages-container {
@@ -74,7 +100,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
       .message {
         margin-bottom: 12px;
-        max-width: 80%;
+        max-width: 82%;
         padding: 10px 14px;
         border-radius: 18px;
         font-size: 14px;
@@ -117,44 +143,98 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         border-radius: 4px;
       }
 
-      @keyframes bounce {
+      @keyframes pet-bounce {
         0%,
         100% {
-          transform: translateY(0);
+          transform: translateY(0) rotate(0deg);
         }
-        50% {
-          transform: translateY(-5px);
+        25% {
+          transform: translateY(-8px) rotate(-3deg);
+        }
+        75% {
+          transform: translateY(-4px) rotate(3deg);
         }
       }
 
+      @keyframes pet-idle {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .animate-idle {
+        animation: pet-idle 3s ease-in-out infinite;
+      }
+
       .animate-bounce {
-        animation: bounce 1s ease-in-out infinite;
+        animation: pet-bounce 1s ease-in-out infinite;
+      }
+
+      .skin-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .skin-option:hover {
+        border-color: #cbd5e1;
+      }
+
+      .skin-option.active {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      }
+
+      .color-picker {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 0;
+        overflow: hidden;
       }
     `,
   ],
   template: `
     @if (!assistantService.isOpen$()) {
       <div
-        class="assistant-bubble"
+        class="pet-bubble animate-idle"
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
+        [style.background]="
+          'linear-gradient(135deg, ' +
+          assistantService.petConfig$().color +
+          ' 0%, #764ba2 100%)'
+        "
+        [style.opacity.%]="assistantService.petConfig$().opacity"
+        [style.box-shadow]="
+          '0 10px 25px ' + assistantService.petConfig$().color + '66'
+        "
         (click)="assistantService.toggleAssistant()"
         (mousedown)="startDrag($event)"
+        (contextmenu)="toggleConfig($event)"
         [class.dragging]="isDragging"
       >
-        <svg
-          class="w-7 h-7 text-white animate-bounce"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <span
+          class="pet-face animate-bounce"
+          [style.animation-duration.s]="
+            2 / assistantService.petConfig$().animationSpeed
+          "
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
+          {{ getPetFace() }}
+        </span>
       </div>
     }
 
@@ -163,35 +243,26 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         class="assistant-window"
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
+        [style.--pet-color]="assistantService.petConfig$().color"
       >
         <div class="window-header" (mousedown)="startDrag($event)">
-          <div class="flex items-center space-x-2">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-            <span class="font-semibold">Asistente Inteligente</span>
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">{{ getPetFace() }}</span>
+            <span class="font-semibold">{{
+              assistantService.petConfig$().name
+            }}</span>
             <span class="context-badge">{{
               assistantService.context$().activeTab | uppercase
             }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <button
-              (click)="askContext()"
+              (click)="showConfig = !showConfig"
               class="text-white/80 hover:text-white"
-              title="¿Qué sabes?"
+              title="Configuración"
             >
               <svg
-                class="w-4 h-4"
+                class="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -200,7 +271,13 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
             </button>
@@ -224,6 +301,120 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             </button>
           </div>
         </div>
+
+        <!-- Config Panel -->
+        @if (showConfig) {
+          <div class="config-panel">
+            <h4 class="font-semibold text-slate-800 mb-3">
+              ⚙️ Configuración de {{ assistantService.petConfig$().name }}
+            </h4>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Velocidad animación</label>
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                [value]="assistantService.petConfig$().animationSpeed"
+                (change)="
+                  updateConfig('animationSpeed', +$any($event.target).value)
+                "
+                class="w-28"
+              />
+            </div>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Opacidad</label>
+              <input
+                type="range"
+                min="30"
+                max="100"
+                step="5"
+                [value]="assistantService.petConfig$().opacity"
+                (change)="updateConfig('opacity', +$any($event.target).value)"
+                class="w-28"
+              />
+            </div>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Apariencia</label>
+              <div class="flex space-x-2">
+                @for (skin of availableSkins; track skin.id) {
+                  <button
+                    class="skin-option"
+                    [class.active]="
+                      assistantService.petConfig$().skin === skin.id
+                    "
+                    (click)="updateConfig('skin', skin.id)"
+                    [style.background]="skin.bg"
+                  >
+                    {{ skin.emoji }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Color</label>
+              <input
+                type="color"
+                class="color-picker"
+                [value]="assistantService.petConfig$().color"
+                (change)="updateConfig('color', $any($event.target).value)"
+              />
+            </div>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Personalidad</label>
+              <select
+                [value]="assistantService.petConfig$().personality"
+                (change)="
+                  updateConfig('personality', $any($event.target).value)
+                "
+                class="px-2 py-1 border border-slate-300 rounded text-sm"
+              >
+                <option value="friendly">😊 Amigable</option>
+                <option value="professional">💼 Profesional</option>
+                <option value="humorous">😄 Divertido</option>
+                <option value="minimal">⚪ Minimalista</option>
+              </select>
+            </div>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Velocidad animación</label>
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                [value]="assistantService.petConfig$().animationSpeed"
+                (change)="
+                  updateConfig(
+                    'animationSpeed',
+                    parseFloat($any($event.target).value)
+                  )
+                "
+                class="w-28"
+              />
+            </div>
+
+            <div class="config-row">
+              <label class="text-sm text-slate-600">Opacidad</label>
+              <input
+                type="range"
+                min="30"
+                max="100"
+                step="5"
+                [value]="assistantService.petConfig$().opacity"
+                (change)="
+                  updateConfig('opacity', parseInt($any($event.target).value))
+                "
+                class="w-28"
+              />
+            </div>
+          </div>
+        }
 
         <div class="messages-container" #messagesContainer>
           @for (msg of assistantService.messages$(); track msg.id) {
@@ -256,7 +447,9 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             type="text"
             [formControl]="messageInput"
             (keydown.enter)="sendMessage()"
-            placeholder="Pregunta cualquier cosa..."
+            placeholder="Pregunta cualquier cosa a {{
+              assistantService.petConfig$().name
+            }}..."
             class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <button
@@ -282,23 +475,45 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
     }
   `,
 })
-export class FloatingAssistantComponent {
+export class FloatingAssistantComponent implements OnInit {
   readonly assistantService = inject(AssistantContextService);
   readonly messageInput = new FormControl('');
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   isDragging = false;
+  showConfig = false;
   private dragOffset = { x: 0, y: 0 };
 
+  availableSkins = [
+    { id: 'default', emoji: '🤖', bg: '#667eea' },
+    { id: 'cat', emoji: '🐱', bg: '#f59e0b' },
+    { id: 'dog', emoji: '🐶', bg: '#10b981' },
+    { id: 'fox', emoji: '🦊', bg: '#ef4444' },
+    { id: 'owl', emoji: '🦉', bg: '#8b5cf6' },
+    { id: 'robot', emoji: '🤖', bg: '#64748b' },
+    { id: 'alien', emoji: '👽', bg: '#22c55e' },
+    { id: 'unicorn', emoji: '🦄', bg: '#ec4899' },
+  ];
+
   quickActions = ['¿Qué veo?', 'Revisar contenido', 'Sugerencias', 'Errores'];
+
+  ngOnInit(): void {
+    this.assistantService.loadSavedConfig();
+  }
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     if (this.isDragging) {
       this.assistantService.setPosition(
-        event.clientX - this.dragOffset.x,
-        event.clientY - this.dragOffset.y,
+        Math.max(
+          0,
+          Math.min(window.innerWidth - 70, event.clientX - this.dragOffset.x),
+        ),
+        Math.max(
+          0,
+          Math.min(window.innerHeight - 70, event.clientY - this.dragOffset.y),
+        ),
       );
     }
   }
@@ -316,6 +531,11 @@ export class FloatingAssistantComponent {
       y: event.clientY - pos.y,
     };
     event.preventDefault();
+  }
+
+  toggleConfig(event: MouseEvent): void {
+    event.preventDefault();
+    this.showConfig = !this.showConfig;
   }
 
   sendMessage(): void {
@@ -337,13 +557,18 @@ export class FloatingAssistantComponent {
     this.sendMessage();
   }
 
-  askContext(): void {
-    this.assistantService.addSystemMessage('El asistente conoce:');
-    this.assistantService.addMessage(
-      this.assistantService.getFullContext(),
-      'assistant',
+  updateConfig<K extends keyof AssistantPetConfig>(
+    key: K,
+    value: AssistantPetConfig[K],
+  ): void {
+    this.assistantService.updatePetConfig({ [key]: value });
+  }
+
+  getPetFace(): string {
+    const skin = this.availableSkins.find(
+      (s) => s.id === this.assistantService.petConfig$().skin,
     );
-    setTimeout(() => this.scrollToBottom(), 100);
+    return skin?.emoji || '🤖';
   }
 
   private scrollToBottom(): void {
@@ -355,17 +580,39 @@ export class FloatingAssistantComponent {
 
   private getResponse(message: string): string {
     const ctx = this.assistantService.context$();
+    const personality = this.assistantService.petConfig$().personality;
 
-    const responses: Record<string, string> = {
-      '¿Qué veo?': `Estoy viendo que estás en la pestaña ${ctx.activeTab}. ${ctx.documentType ? `Tienes un documento de tipo "${ctx.documentType}" abierto.` : ''} Puedo ayudarte con cualquier cosa que necesites.`,
-      'Revisar contenido': `Estoy analizando tu documento. Veo ${ctx.documentContent.length} caracteres de contenido. Te recomiendo revisar: 1) Resumen ejecutivo 2) Precios detallados 3) Llamada a la acción.`,
-      Sugerencias: `Basándome en tu contenido actual, te sugiero: ✅ Añade un resumen ejecutivo claro ✅ Destaca tus valores diferenciales ✅ Incluye garantías ✅ Mejora la llamada final a la acción.`,
-      Errores: `No he detectado errores críticos en tu documento. Solo te recomiendo revisar la ortografía y asegurarte de que todos los campos estén completos.`,
+    const responses: Record<string, Record<string, string>> = {
+      friendly: {
+        '¿Qué veo?': `¡Hola! Estoy viendo que estás en la pestaña ${ctx.activeTab}. ${ctx.documentType ? `Tienes un documento de tipo "${ctx.documentType}" abierto.` : ''} ¿En qué puedo ayudarte hoy? 😊`,
+        'Revisar contenido': `¡Claro! Estoy analizando tu documento. Veo ${ctx.documentContent.length} caracteres de contenido. Te recomiendo revisar: 1) Resumen ejecutivo 2) Precios detallados 3) Llamada a la acción. ¡Tienes muy buena pinta! ✨`,
+        Sugerencias: `¡Genial! Basándome en tu contenido actual, te sugiero: ✅ Añade un resumen ejecutivo claro ✅ Destaca tus valores diferenciales ✅ Incluye garantías ✅ Mejora la llamada final a la acción. ¡Lo harás genial! 💪`,
+        Errores: `¡No te preocupes! No he detectado errores críticos en tu documento. Solo te recomiendo revisar la ortografía y asegurarte de que todos los campos estén completos. ¡Está casi perfecto! 🌟`,
+      },
+      professional: {
+        '¿Qué veo?': `Contexto actual: Pestaña ${ctx.activeTab}. Tipo documento: ${ctx.documentType || 'No seleccionado'}. Longitud: ${ctx.documentContent.length} caracteres. Listo para asistirte.`,
+        'Revisar contenido': `Análisis completo realizado. Se detectan ${ctx.documentContent.length} caracteres. Recomendaciones: 1) Resumen ejecutivo 2) Estructura de precios 3) Llamada a la acción final.`,
+        Sugerencias: `Recomendaciones prioritarias: 1. Resumen ejecutivo 2. Valores diferenciales 3. Garantías 4. Llamada a la acción. Implementar estas mejoras incrementará la efectividad un 35%.`,
+        Errores: `No se detectan errores críticos. Se recomienda revisión ortográfica y verificación de campos obligatorios. Documento apto para su uso.`,
+      },
+      humorous: {
+        '¿Qué veo?': `¡Hey! Estoy en ${ctx.activeTab} vigilando todo. ${ctx.documentType ? `Tienes un ${ctx.documentType} entre manos, ¡qué chulo!` : ''} ¿Qué trastada tienes hoy? 😎`,
+        'Revisar contenido': `¡Muy bien! Leí todo tu texto. ¡Vaya crack! Solo te faltan estas cosillas: 1) Un resumen que mate 2) Precios que no asusten 3) Un final que les deje con la boca abierta. ¡Tú puedes! 🚀`,
+        Sugerencias: `¡Aquí van los trucos del maestro! ✅ Mete un resumen que les deje boquiabiertos ✅ Diles por qué tu eres el mejor ✅ Añade alguna garantía para que se queden tranquilos ✅ Termina con un golpe de efecto. ¡A por ellos! 🎯`,
+        Errores: `¡Tranquilo/a! Nada grave. Solo un par de erratas por aquí y por allá, nada que no se arregle en dos segundos. ¡Tu documento esta de muerte! 💯`,
+      },
+      minimal: {
+        '¿Qué veo?': `${ctx.activeTab}. ${ctx.documentType || 'Sin tipo'}. ${ctx.documentContent.length} chars.`,
+        'Revisar contenido': `Contenido detectado. Revisar: resumen, precios, CTA.`,
+        Sugerencias: `Añadir: resumen, diferenciadores, garantías, CTA.`,
+        Errores: `Sin errores críticos. Revisar ortografía.`,
+      },
     };
 
+    const perResponses = responses[personality] || responses['friendly'];
     return (
-      responses[message] ||
-      `He recibido tu mensaje: "${message}". Estoy procesando el contexto actual de la pestaña ${ctx.activeTab} y te responderé en breve.`
+      perResponses[message] ||
+      `He recibido tu mensaje: "${message}". Procesando contexto de ${ctx.activeTab}.`
     );
   }
 }

@@ -1,5 +1,17 @@
 import { Injectable, signal } from '@angular/core';
 
+export interface AssistantPetConfig {
+  name: string;
+  skin: string;
+  color: string;
+  personality: 'friendly' | 'professional' | 'humorous' | 'minimal';
+  animationSpeed: number;
+  autoOpen: boolean;
+  soundEnabled: boolean;
+  bubbleSize: 'small' | 'medium' | 'large';
+  opacity: number;
+}
+
 export interface AssistantContext {
   activeTab: string;
   documentContent: string;
@@ -43,6 +55,20 @@ export class AssistantContextService {
   private readonly isOpen = signal(false);
   private readonly isDragging = signal(false);
   private readonly position = signal({ x: 20, y: 100 });
+
+  private readonly petConfig = signal<AssistantPetConfig>({
+    name: 'Kilo',
+    skin: 'default',
+    color: '#667eea',
+    personality: 'friendly',
+    animationSpeed: 1,
+    autoOpen: true,
+    soundEnabled: false,
+    bubbleSize: 'medium',
+    opacity: 100,
+  });
+
+  readonly petConfig$ = this.petConfig.asReadonly();
 
   readonly context$ = this.context.asReadonly();
   readonly messages$ = this.messages.asReadonly();
@@ -111,5 +137,24 @@ Contexto actual:
 
   clearMessages(): void {
     this.messages.set([]);
+  }
+
+  updatePetConfig(partial: Partial<AssistantPetConfig>): void {
+    this.petConfig.update((current) => ({ ...current, ...partial }));
+    localStorage.setItem(
+      'assistant-pet-config',
+      JSON.stringify(this.petConfig()),
+    );
+  }
+
+  loadSavedConfig(): void {
+    const saved = localStorage.getItem('assistant-pet-config');
+    if (saved) {
+      try {
+        this.petConfig.set(JSON.parse(saved));
+      } catch {
+        // Config por defecto
+      }
+    }
   }
 }
