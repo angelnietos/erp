@@ -53,7 +53,11 @@
     "storybook:fresh": "pnpm exec nx run ui-kit:storybook --args=\"--no-manager-cache\"",
     "build-storybook": "pnpm exec nx run ui-kit:build-storybook",
     "storybook:static": "pnpm build-storybook && node scripts/storybook-static-serve.js",
-    "storybook:serve": "pnpm exec nx run ui-kit:static-storybook"
+    "storybook:serve": "pnpm exec nx run ui-kit:static-storybook",
+    "dev:docs": "nx serve document-generator",
+    "build:docs": "nx run document-generator:build:production",
+    "analyze:docs": "nx run document-generator:build:production --stats-json && npx webpack-bundle-analyzer dist/apps/document-generator/stats.json",
+    "perf:docs": "npx lighthouse http://localhost:4200 --view --output html --output-path ./docs-performance.html"
   },
   "private": true,
   "devDependencies": {
