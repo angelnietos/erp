@@ -1,4 +1,11 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  inject,
+  OnInit,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import {
@@ -561,7 +568,7 @@ interface DocumentType {
                       for="content"
                       class="block text-sm font-medium text-slate-700"
                     >
-                      Contenido Markdown
+                      Contenido Universal (Markdown, Texto, HTML)
                     </label>
                     <div class="flex items-center gap-2 text-xs text-slate-500">
                       <span class="px-2 py-1 bg-slate-100 rounded"
@@ -676,37 +683,55 @@ interface DocumentType {
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    <div class="flex gap-2">
-                      <button
-                        (click)="exportDocument('markdown')"
-                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📑 MD
-                      </button>
-                      <button
-                        (click)="exportDocument('pdf')"
-                        class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📄 PDF
-                      </button>
-                      <button
-                        (click)="exportDocument('xlsx')"
-                        class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📊 Excel
-                      </button>
-                      <button
-                        (click)="exportDocument('html')"
-                        class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        🌐 HTML
-                      </button>
-                      <button
-                        (click)="exportDocument('txt')"
-                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📃 TXT
-                      </button>
+                    <div class="flex flex-col gap-3">
+                      <div class="text-sm text-slate-500 mb-1">
+                        Importar archivo:
+                      </div>
+                      <input
+                        type="file"
+                        #fileInput
+                        hidden
+                        (change)="importDocument($event)"
+                        accept=".md,.txt,.pdf,.docx,.xlsx,.html"
+                      />
+                      <div class="flex gap-2 flex-wrap">
+                        <button
+                          (click)="fileInput.click()"
+                          class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📥 Importar Archivo
+                        </button>
+                        <button
+                          (click)="exportDocument('markdown')"
+                          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📑 MD
+                        </button>
+                        <button
+                          (click)="exportDocument('pdf')"
+                          class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📄 PDF
+                        </button>
+                        <button
+                          (click)="exportDocument('xlsx')"
+                          class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📊 Excel
+                        </button>
+                        <button
+                          (click)="exportDocument('html')"
+                          class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          🌐 HTML
+                        </button>
+                        <button
+                          (click)="exportDocument('txt')"
+                          class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📃 TXT
+                        </button>
+                      </div>
                     </div>
                   </button>
                   <button
@@ -1083,6 +1108,27 @@ export class DocumentCreateComponent implements OnInit {
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
     }
+  }
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  async importDocument(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const result = await this.universalDocument.import(file);
+
+    if (result.success) {
+      const content = result.blocks.map((b) => b.content).join('\n\n');
+      this.documentForm.get('content')?.setValue(content);
+    }
+
+    result.warnings.forEach((warning) => {
+      console.warn(warning);
+    });
+
+    this.fileInput.nativeElement.value = '';
   }
 
   async generateDocument() {
