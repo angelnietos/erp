@@ -390,10 +390,7 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
                 step="0.1"
                 [value]="assistantService.petConfig$().animationSpeed"
                 (change)="
-                  updateConfig(
-                    'animationSpeed',
-                    parseFloat($any($event.target).value)
-                  )
+                  updateConfig('animationSpeed', +$any($event.target).value)
                 "
                 class="w-28"
               />
@@ -407,9 +404,7 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
                 max="100"
                 step="5"
                 [value]="assistantService.petConfig$().opacity"
-                (change)="
-                  updateConfig('opacity', parseInt($any($event.target).value))
-                "
+                (change)="updateConfig('opacity', +$any($event.target).value)"
                 class="w-28"
               />
             </div>
