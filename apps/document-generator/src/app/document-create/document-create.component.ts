@@ -8,6 +8,14 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+import {
+  UiCardComponent,
+  UiButtonComponent,
+  UiInputComponent,
+  UiSelectComponent,
+  UiTextareaComponent,
+  SelectMapperPipe,
+} from '@josanz-erp/shared-ui-kit';
 
 interface DocumentType {
   id: string;
@@ -18,7 +26,15 @@ interface DocumentType {
 @Component({
   selector: 'app-document-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    UiCardComponent,
+    UiButtonComponent,
+    UiInputComponent,
+    UiSelectComponent,
+    UiTextareaComponent,
+  ],
   template: `
     <div class="p-6 max-w-4xl mx-auto">
       <nav class="mb-4">
@@ -30,168 +46,134 @@ interface DocumentType {
         >
         <span class="text-gray-600 ml-2">Crear Nuevo</span>
       </nav>
-      <h1 class="text-2xl font-bold mb-6">Crear Nuevo Documento</h1>
 
-      <!-- Paso 1: Selección de tipo -->
-      <div *ngIf="currentStep === 1" class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">
-          Seleccionar Tipo de Documento
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div
-            *ngFor="let type of documentTypes"
-            (click)="selectDocumentType(type)"
-            class="border rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
-            [class.border-blue-500]="selectedType?.id === type.id"
-          >
-            <h3 class="font-medium">{{ type.name }}</h3>
-            <p class="text-sm text-gray-600 mt-1">{{ type.description }}</p>
-          </div>
-        </div>
-        <div class="mt-6">
-          <button
-            (click)="nextStep()"
-            [disabled]="!selectedType"
-            class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            Siguiente
-          </button>
-        </div>
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">
+          Crear Nuevo Documento
+        </h1>
+        <p class="text-gray-600">
+          Selecciona el tipo de documento y completa la información necesaria
+        </p>
       </div>
 
-      <!-- Paso 2: Formulario -->
-      <div *ngIf="currentStep === 2" class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Completar Información</h2>
-        <form
-          [formGroup]="documentForm"
-          (ngSubmit)="generateDocument()"
-          class="space-y-6"
-        >
-          <!-- Campos comunes -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Cliente *
-              </label>
-              <select
-                formControlName="clientId"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <ui-card class="mb-6">
+        <div class="space-y-6">
+          <!-- Selección de Tipo de Documento -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+              Tipo de Documento *
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div
+                *ngFor="let type of documentTypes"
+                (click)="selectDocumentType(type)"
+                class="border-2 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+                [class.border-blue-500]="selectedType?.id === type.id"
+                [class.bg-blue-50]="selectedType?.id === type.id"
               >
-                <option value="">Seleccionar cliente</option>
-                <option *ngFor="let client of clients" [value]="client.id">
-                  {{ client.name }}
-                </option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Fecha
-              </label>
-              <input
-                type="date"
-                formControlName="date"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                <h3 class="font-medium text-gray-900">{{ type.name }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ type.description }}</p>
+              </div>
             </div>
           </div>
 
-          <!-- Campos específicos según tipo -->
-          <div *ngIf="selectedType?.id === 'quote'">
-            <h3 class="text-lg font-medium mb-4">
-              Información del Presupuesto
-            </h3>
+          <!-- Formulario -->
+          <form
+            *ngIf="selectedType"
+            [formGroup]="documentForm"
+            (ngSubmit)="generateDocument()"
+            class="space-y-6"
+          >
+            <!-- Campos comunes -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Proyecto
-                </label>
-                <input
-                  type="text"
+              <ui-select
+                label="Cliente *"
+                formControlName="clientId"
+                [options]="clientOptions"
+                placeholder="Seleccionar cliente"
+              ></ui-select>
+
+              <ui-input
+                label="Fecha"
+                type="date"
+                formControlName="date"
+              ></ui-input>
+            </div>
+
+            <!-- Campos específicos según tipo -->
+            <div *ngIf="selectedType?.id === 'quote'">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                Información del Presupuesto
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ui-input
+                  label="Proyecto"
                   formControlName="projectName"
                   placeholder="Nombre del proyecto"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Monto Total
-                </label>
-                <input
+                ></ui-input>
+
+                <ui-input
+                  label="Monto Total"
                   type="number"
                   formControlName="totalAmount"
                   placeholder="0.00"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                ></ui-input>
+              </div>
+
+              <div class="mt-6">
+                <ui-textarea
+                  label="Descripción"
+                  formControlName="description"
+                  [rows]="4"
+                  placeholder="Descripción detallada del presupuesto..."
+                ></ui-textarea>
               </div>
             </div>
-            <div class="mt-4">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Descripción
-              </label>
-              <textarea
-                formControlName="description"
-                rows="4"
-                placeholder="Descripción del presupuesto..."
-                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              ></textarea>
-            </div>
-          </div>
 
-          <div *ngIf="selectedType?.id === 'documentation'">
-            <h3 class="text-lg font-medium mb-4">
-              Información de la Documentación
-            </h3>
-            <div class="grid grid-cols-1 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Título del Documento *
-                </label>
-                <input
-                  type="text"
+            <div *ngIf="selectedType?.id === 'documentation'">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                Información de la Documentación
+              </h3>
+              <div class="space-y-6">
+                <ui-input
+                  label="Título del Documento *"
                   formControlName="title"
                   placeholder="Título del documento"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Contenido
-                </label>
-                <textarea
+                ></ui-input>
+
+                <ui-textarea
+                  label="Contenido"
                   formControlName="content"
-                  rows="8"
+                  [rows]="8"
                   placeholder="Contenido del documento..."
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
+                ></ui-textarea>
               </div>
             </div>
-          </div>
 
-          <div class="flex justify-between">
-            <button
-              type="button"
-              (click)="previousStep()"
-              class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-            >
-              Anterior
-            </button>
-            <button
-              type="submit"
-              [disabled]="documentForm.invalid"
-              class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-            >
-              Generar Documento
-            </button>
-          </div>
-        </form>
-      </div>
+            <!-- Botones de acción -->
+            <div class="flex justify-end space-x-4 pt-6 border-t">
+              <ui-button variant="outline" (click)="goBack()">
+                Cancelar
+              </ui-button>
+
+              <ui-button
+                type="submit"
+                [disabled]="documentForm.invalid"
+                [loading]="isGenerating"
+              >
+                {{ isGenerating ? 'Generando...' : 'Generar Documento' }}
+              </ui-button>
+            </div>
+          </form>
+        </div>
+      </ui-card>
     </div>
   `,
 })
 export class DocumentCreateComponent {
-  currentStep = 1;
   selectedType: DocumentType | null = null;
   documentForm: FormGroup;
+  isGenerating = false;
 
   documentTypes: DocumentType[] = [
     {
@@ -210,6 +192,11 @@ export class DocumentCreateComponent {
     { id: '1', name: 'Cliente A' },
     { id: '2', name: 'Cliente B' },
   ]; // TODO: Load from service
+
+  clientOptions = this.clients.map((client) => ({
+    label: client.name,
+    value: client.id,
+  }));
 
   constructor(
     private fb: FormBuilder,
@@ -232,14 +219,8 @@ export class DocumentCreateComponent {
     this.selectedType = type;
   }
 
-  nextStep() {
-    if (this.selectedType) {
-      this.currentStep = 2;
-    }
-  }
-
-  previousStep() {
-    this.currentStep = 1;
+  goBack() {
+    this.router.navigate(['/documents/list']);
   }
 
   async generateDocument() {

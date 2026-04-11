@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { UiCardComponent, UiButtonComponent } from '@josanz-erp/shared-ui-kit';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 
 @Component({
   selector: 'app-document-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, UiCardComponent, UiButtonComponent],
   template: `
     <div class="p-6 max-w-4xl mx-auto">
       <nav class="mb-4">
@@ -18,51 +19,108 @@ import { PdfGenerationService } from '../services/pdf-generation.service';
         >
         <span class="text-gray-600 ml-2">Vista Previa</span>
       </nav>
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Vista Previa del Documento</h1>
-        <div class="space-x-2">
-          <button
-            (click)="downloadDocument()"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
+
+      <div class="mb-6 flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">
+            Vista Previa del Documento
+          </h1>
+          <p class="text-gray-600">Revisa el contenido antes de descargar</p>
+        </div>
+
+        <div class="flex space-x-3">
+          <ui-button (click)="downloadDocument()" variant="primary">
             Descargar PDF
-          </button>
-          <button
-            (click)="goBack()"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Volver
-          </button>
+          </ui-button>
+          <ui-button (click)="goBack()" variant="outline"> Volver </ui-button>
         </div>
       </div>
 
-      <div class="bg-white shadow-lg rounded-lg p-8">
-        <div class="border-b pb-4 mb-6">
-          <h2 class="text-xl font-semibold">
-            {{ document?.title || 'Documento' }}
-          </h2>
-          <p class="text-gray-600">Cliente: {{ document?.client }}</p>
-          <p class="text-gray-600">Fecha: {{ document?.date | date }}</p>
-        </div>
+      <ui-card>
+        <div class="space-y-6">
+          <!-- Header del documento -->
+          <div class="border-b pb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-semibold text-gray-900">
+                {{ document?.title || 'Documento' }}
+              </h2>
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                [class]="getTypeBadgeClass(document?.type)"
+              >
+                {{ getTypeLabel(document?.type) }}
+              </span>
+            </div>
 
-        <div class="prose max-w-none">
-          <!-- Aquí se mostraría el contenido del documento -->
-          <div *ngIf="document?.type === 'quote'" class="space-y-4">
-            <h3>Presupuesto del Proyecto</h3>
-            <p><strong>Proyecto:</strong> {{ document?.projectName }}</p>
-            <p>
-              <strong>Monto Total:</strong>
-              {{ document?.totalAmount | currency }}
-            </p>
-            <p><strong>Descripción:</strong></p>
-            <p>{{ document?.description }}</p>
+            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+              <div>
+                <span class="font-medium">Cliente:</span> {{ document?.client }}
+              </div>
+              <div>
+                <span class="font-medium">Fecha:</span>
+                {{ document?.date | date: 'medium' }}
+              </div>
+            </div>
           </div>
 
-          <div *ngIf="document?.type === 'documentation'" class="space-y-4">
-            <div [innerHTML]="document?.content"></div>
+          <!-- Contenido del documento -->
+          <div class="prose max-w-none">
+            <div *ngIf="document?.type === 'quote'" class="space-y-6">
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                  Presupuesto del Proyecto
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <span class="font-medium text-gray-700">Proyecto:</span>
+                      <p class="text-gray-900 mt-1">
+                        {{ document?.projectName }}
+                      </p>
+                    </div>
+                    <div>
+                      <span class="font-medium text-gray-700"
+                        >Monto Total:</span
+                      >
+                      <p
+                        class="text-gray-900 mt-1 text-lg font-semibold text-green-600"
+                      >
+                        {{
+                          document?.totalAmount
+                            | currency: 'EUR' : 'symbol' : '1.2-2'
+                        }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 class="font-medium text-gray-700 mb-2">Descripción:</h4>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <p class="text-gray-900 whitespace-pre-wrap">
+                    {{ document?.description }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="document?.type === 'documentation'" class="space-y-6">
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                  Contenido del Documento
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <div
+                    class="prose prose-sm max-w-none"
+                    [innerHTML]="document?.content"
+                  ></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </ui-card>
     </div>
   `,
 })
@@ -93,6 +151,28 @@ export class DocumentPreviewComponent implements OnInit {
         description: 'Descripción del presupuesto...',
         content: '<p>Contenido del documento...</p>',
       };
+    }
+  }
+
+  getTypeLabel(type: string): string {
+    switch (type) {
+      case 'quote':
+        return 'Presupuesto';
+      case 'documentation':
+        return 'Documentación';
+      default:
+        return type;
+    }
+  }
+
+  getTypeBadgeClass(type: string): string {
+    switch (type) {
+      case 'quote':
+        return 'bg-blue-100 text-blue-800';
+      case 'documentation':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   }
 

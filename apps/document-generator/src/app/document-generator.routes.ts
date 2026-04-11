@@ -14,6 +14,18 @@ export const documentGeneratorRoutes: Route[] = [
   {
     path: 'bot',
     loadComponent: () =>
+      import('./documents-bot/documents-bot.component').then(
+        (m) => m.DocumentsBotComponent,
+      ),
+  },
+  {
+    path: 'home',
+    redirectTo: 'list',
+    pathMatch: 'full',
+  },
+  {
+    path: 'bot',
+    loadComponent: () =>
       import('./document-bot/document-bot.component').then(
         (m) => m.DocumentBotComponent,
       ),
