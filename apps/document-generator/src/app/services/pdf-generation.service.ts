@@ -162,22 +162,28 @@ export class PdfGenerationService {
       </html>
     `;
 
-    // Opciones de PDF profesionales
+    // Opciones de PDF profesionales - SIN PAGINA EN BLANCO
     const options = {
-      margin: 15,
+      margin: [20, 15, 20, 15],
       filename: `${data.title || 'documento'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
         useCORS: true,
         letterRendering: true,
+        scrollY: 0,
       },
       jsPDF: {
         unit: 'mm',
         format: 'a4',
         orientation: 'portrait',
+        putOnlyUsedFonts: true,
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: {
+        mode: 'css',
+        before: '.page-break-before',
+        avoid: 'h1, h2, h3, pre, blockquote',
+      },
     };
 
     // Generamos y descargamos el PDF
@@ -186,7 +192,9 @@ export class PdfGenerationService {
     document.body.appendChild(container);
 
     try {
-      await html2pdf().set(options).from(container).save();
+      // Generamos PDF sin pagina en blanco inicial
+      const worker = html2pdf().set(options);
+      await worker.from(container.querySelector('body')!).save();
     } finally {
       document.body.removeChild(container);
     }
