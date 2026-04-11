@@ -123,58 +123,64 @@ export type EditorMode =
 
         <div class="px-3 flex items-center">
           @if (detectedFormat()) {
-            <span class="mode-badge">
-              Detectado: {{ detectedFormat() }}
-            </span>
+            <span class="mode-badge"> Detectado: {{ detectedFormat() }} </span>
           }
         </div>
       </div>
 
       <div class="editor-area">
-        @switch (currentMode()) {
-          @case 'markdown':
-            <textarea
-              class="editor"
-              [value]="content()"
-              (input)="updateContent($any($event.target).value)"
-              placeholder="Escribe tu contenido en Markdown, HTML o texto plano..."
-            ></textarea>
-          @case 'text':
-            <textarea
-              class="editor"
-              [value]="content()"
-              (input)="updateContent($any($event.target).value)"
-              placeholder="Texto plano"
-            ></textarea>
-          @case 'spreadsheet':
-            <div class="spreadsheet-view">
-              <table class="spreadsheet-grid">
-                <tbody>
-                  @for (row of spreadsheetData(); track row; let i = $index) {
-                    <tr>
-                      @for (cell of row; track cell; let j = $index) {
-                        <td [contentEditable]="true" (blur)="updateCell(i, j, $any($event.target).innerText)">
-                          {{ cell }}
-                        </td>
-                      }
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          @case 'pdf':
-            <div class="pdf-preview">
-              <div class="text-4xl mb-4">📄</div>
-              <p>Vista previa PDF - Modo de solo lectura</p>
-              <p class="text-sm mt-2">Cambia a modo Texto o Markdown para editar el contenido extraido</p>
-            </div>
-          @default:
-            <textarea
-              class="editor"
-              [value]="content()"
-              (input)="updateContent($any($event.target).value)"
-              placeholder="Escribe cualquier cosa. DOCS 2.0 detecta el formato automaticamente."
-            ></textarea>
+        @if (currentMode() === 'markdown') {
+          <textarea
+            class="editor"
+            [value]="content()"
+            (input)="updateContent($any($event.target).value)"
+            placeholder="Escribe tu contenido en Markdown, HTML o texto plano..."
+          ></textarea>
+        }
+        @if (currentMode() === 'text') {
+          <textarea
+            class="editor"
+            [value]="content()"
+            (input)="updateContent($any($event.target).value)"
+            placeholder="Texto plano"
+          ></textarea>
+        }
+        @if (currentMode() === 'spreadsheet') {
+          <div class="spreadsheet-view">
+            <table class="spreadsheet-grid">
+              <tbody>
+                @for (row of spreadsheetData(); track row; let i = $index) {
+                  <tr>
+                    @for (cell of row; track cell; let j = $index) {
+                      <td
+                        [contentEditable]="true"
+                        (blur)="updateCell(i, j, $any($event.target).innerText)"
+                      >
+                        {{ cell }}
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        @if (currentMode() === 'pdf') {
+          <div class="pdf-preview">
+            <div class="text-4xl mb-4">📄</div>
+            <p>Vista previa PDF - Modo de solo lectura</p>
+            <p class="text-sm mt-2">
+              Cambia a modo Texto o Markdown para editar el contenido extraido
+            </p>
+          </div>
+        }
+        @if (currentMode() === 'auto') {
+          <textarea
+            class="editor"
+            [value]="content()"
+            (input)="updateContent($any($event.target).value)"
+            placeholder="Escribe cualquier cosa. DOCS 2.0 detecta el formato automaticamente."
+          ></textarea>
         }
       </div>
     </div>

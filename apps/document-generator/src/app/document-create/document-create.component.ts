@@ -891,6 +891,21 @@ export class DocumentCreateComponent implements OnInit {
       name: 'Documentación Arquitectónica',
       description: 'Documentos de arquitectura de sistemas con diagramas',
     },
+    {
+      id: 'resume',
+      name: 'Currículum Vitae',
+      description: 'Plantillas estandarizadas de CV para candidatos',
+    },
+    {
+      id: 'interview',
+      name: 'Pruebas Técnicas Entrevista',
+      description: 'Evaluaciones y scorecards estandarizados',
+    },
+    {
+      id: 'offer',
+      name: 'Cartas de Oferta',
+      description: 'Cartas oficiales de contratación estandarizadas',
+    },
   ];
 
   clients = [
@@ -953,6 +968,12 @@ export class DocumentCreateComponent implements OnInit {
         return 'Ej: Manual de Usuario - Sistema ERP';
       case 'architecture':
         return 'Ej: Arquitectura del Sistema ERP';
+      case 'resume':
+        return 'Ej: Currículum - Juan García López';
+      case 'interview':
+        return 'Ej: Evaluación Técnica - Candidato Senior Developer';
+      case 'offer':
+        return 'Ej: Carta Oferta - Puesto Senior Full Stack';
       default:
         return 'Título del documento';
     }
@@ -968,6 +989,12 @@ export class DocumentCreateComponent implements OnInit {
         return 'Contenido detallado de la documentación técnica...';
       case 'architecture':
         return 'Descripción de la arquitectura del sistema, componentes, tecnologías...';
+      case 'resume':
+        return 'Datos personales, experiencia laboral, formación y habilidades del candidato';
+      case 'interview':
+        return 'Evaluación técnica, preguntas, ejercicios y scorecard estandarizado';
+      case 'offer':
+        return 'Condiciones contractuales, salario, beneficios y fecha de incorporación';
       default:
         return 'Contenido del documento...';
     }
