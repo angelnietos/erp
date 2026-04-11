@@ -1,4 +1,10 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  HostListener,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import {
@@ -18,6 +24,38 @@ interface DocumentType {
 }
 
 @Component({
+  styles: [
+    `
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      @keyframes slide-up {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .animate-slide-up {
+        animation: slide-up 0.5s ease-out forwards;
+      }
+    `,
+  ],
   selector: 'app-document-create',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
@@ -361,40 +399,87 @@ interface DocumentType {
               </div>
             </div>
 
+            <!-- Plantillas Rápidas -->
+            <div class="space-y-3">
+              <label class="block text-sm font-medium text-slate-700">
+                Plantillas predefinidas
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button 
+                  *ngFor="let template of templates"
+                  type="button"
+                  (click)="loadTemplate(template)"
+                  class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all"
+                >
+                  {{ template.name }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Barra de Herramientas Markdown -->
+            <div class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200">
+              <button type="button" (click)="insertMarkdown('**', '**')" title="Negrita (Ctrl+B)" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-bold">B</button>
+              <button type="button" (click)="insertMarkdown('*', '*')" title="Cursiva (Ctrl+I)" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all italic">I</button>
+              <div class="w-px bg-slate-300 mx-1"></div>
+              <button type="button" (click)="insertMarkdown('# ', '')" title="Encabezado 1" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">H1</button>
+              <button type="button" (click)="insertMarkdown('## ', '')" title="Encabezado 2" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">H2</button>
+              <button type="button" (click)="insertMarkdown('### ', '')" title="Encabezado 3" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">H3</button>
+              <div class="w-px bg-slate-300 mx-1"></div>
+              <button type="button" (click)="insertMarkdown('- ', '')" title="Lista" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">• Lista</button>
+              <button type="button" (click)="insertMarkdown('> ', '')" title="Cita" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">" Cita</button>
+              <button type="button" (click)="insertCode()" title="Código" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs">&lt;&gt;</button>
+              <button type="button" (click)="insertCodeBlock()" title="Bloque de código" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs">{}</button>
+              <div class="w-px bg-slate-300 mx-1"></div>
+              <button type="button" (click)="insertMarkdown('[', '](url)')" title="Enlace" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">🔗</button>
+              
+              <div class="ml-auto flex items-center gap-3 text-xs text-slate-500">
+                <span *ngIf="autoSaved" class="text-green-600 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Guardado automatico
+                </span>
+                <span>{{ wordCount }} palabras</span>
+                <span>{{ characterCount }} caracteres</span>
+              </div>
+            </div>
+
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <label class="block text-sm font-medium text-slate-700">
                   Contenido Markdown
                 </label>
                 <div class="flex items-center gap-2 text-xs text-slate-500">
-                  <span class="px-2 py-1 bg-slate-100 rounded"
-                    >Markdown soportado: #, ##, **, *, -, &gt;, codigo, bloque
-                    codigo</span
-                  >
+                  <span class="px-2 py-1 bg-slate-100 rounded">Atajos: Ctrl+B Ctrl+I Ctrl+S</span>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <!-- Editor Markdown -->
                 <div class="space-y-2">
-                  <div class="text-xs font-medium text-slate-500">Editor</div>
+                  <div class="text-xs font-medium text-slate-500 flex justify-between">
+                    <span>Editor</span>
+                    <button type="button" (click)="toggleFullscreen()" class="hover:text-blue-600">
+                      {{ fullscreenMode ? 'Salir pantalla completa' : 'Pantalla completa' }}
+                    </button>
+                  </div>
                   <textarea
+                    #editor
                     formControlName="content"
                     [placeholder]="getContentPlaceholder()"
                     rows="18"
                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
                     (input)="updatePreview()"
+                    (keydown)="handleKeydown($event)"
+                    [class.h-screen]="fullscreenMode"
                   ></textarea>
                 </div>
 
                 <!-- Vista Previa Live -->
                 <div class="space-y-2">
-                  <div class="text-xs font-medium text-slate-500">
-                    Vista Previa
-                  </div>
-                  <div
-                    class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview"
+                  <div class="text-xs font-medium text-slate-500">Vista Previa</div>
+                  <div 
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
                     [innerHTML]="previewHtml"
+                    [class.h-screen]="fullscreenMode"
                   ></div>
                 </div>
               </div>
@@ -438,6 +523,16 @@ interface DocumentType {
               Volver Atrás
             </button>
             <div class="flex items-center space-x-4">
+              <button
+                type="button"
+                (click)="exportMarkdown()"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Exportar MD
+              </button>
               <button
                 routerLink="/documents/bot"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -508,6 +603,32 @@ export class DocumentCreateComponent {
   documentForm: FormGroup;
   isGenerating = false;
   previewHtml = '';
+  wordCount = 0;
+  characterCount = 0;
+  autoSaved = false;
+  fullscreenMode = false;
+
+  templates = [
+    { id: 'empty', name: 'Vacío', content: '' },
+    {
+      id: 'structure',
+      name: 'Estructura básica',
+      content:
+        '# Título del documento\n\n## Introducción\n\n## Desarrollo\n\n## Conclusiones',
+    },
+    {
+      id: 'technical',
+      name: 'Documento técnico',
+      content:
+        '# Documento Técnico\n\n## Resumen Ejecutivo\n\n## Descripción General\n\n## Arquitectura\n\n## Detalles Técnicos\n\n## Apéndices',
+    },
+    {
+      id: 'report',
+      name: 'Informe',
+      content:
+        '# Informe\n\n## Fecha\n\n## Resumen\n\n## Detalles\n\n## Recomendaciones',
+    },
+  ];
 
   documentTypes: DocumentType[] = [
     {
@@ -610,6 +731,13 @@ export class DocumentCreateComponent {
     }
   }
 
+  ngOnInit() {
+    setInterval(() => {
+      this.autoSaved = true;
+      setTimeout(() => (this.autoSaved = false), 2000);
+    }, 30000);
+  }
+
   updatePreview() {
     const content = this.documentForm.get('content')?.value || '';
     try {
@@ -617,6 +745,83 @@ export class DocumentCreateComponent {
     } catch (e) {
       this.previewHtml = content;
     }
+
+    this.wordCount = content
+      .split(/\s+/)
+      .filter((w: string) => w.length > 0).length;
+    this.characterCount = content.length;
+  }
+
+  insertMarkdown(before: string, after: string) {
+    const textarea = document.querySelector(
+      'textarea[formControlName="content"]',
+    ) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const content = this.documentForm.get('content')?.value || '';
+    const selectedText = content.substring(start, end);
+
+    const newContent =
+      content.substring(0, start) +
+      before +
+      selectedText +
+      after +
+      content.substring(end);
+    this.documentForm.patchValue({ content: newContent });
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = start + before.length;
+      textarea.selectionEnd = end + before.length;
+      this.updatePreview();
+    }, 0);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeydown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 'b') {
+      event.preventDefault();
+      this.insertMarkdown('**', '**');
+    }
+    if (event.ctrlKey && event.key === 'i') {
+      event.preventDefault();
+      this.insertMarkdown('*', '*');
+    }
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.autoSaved = true;
+      setTimeout(() => (this.autoSaved = false), 2000);
+    }
+  }
+
+  loadTemplate(template: any) {
+    this.documentForm.patchValue({ content: template.content });
+    this.updatePreview();
+  }
+
+  insertCode() {
+    this.insertMarkdown('`', '`');
+  }
+
+  insertCodeBlock() {
+    this.insertMarkdown('```\n', '\n```');
+  }
+
+  toggleFullscreen() {
+    this.fullscreenMode = !this.fullscreenMode;
+  }
+
+  exportMarkdown() {
+    const content = this.documentForm.get('content')?.value || '';
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (this.documentForm.get('title')?.value || 'documento') + '.md';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async generateDocument() {
