@@ -412,11 +412,11 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
                   class="w-28"
                 />
               </div>
-            </div>
-          }
-        }
+             </div>
+           }
+         }
 
-        @if (!isMinimized) {
+         @if (!isMinimized) {
           <div class="messages-container" #messagesContainer>
             @for (msg of assistantService.messages$(); track msg.id) {
               <div class="message" [class]="msg.type">
@@ -472,9 +472,8 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
               </svg>
             </button>
           </div>
-         }
-      }
-  `,
+          }
+   `,
 })
 export class FloatingAssistantComponent implements OnInit {
   readonly assistantService = inject(AssistantContextService);
