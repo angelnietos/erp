@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { BlockEngineService, Block } from './block-engine.service';
 
 export interface AssistantSuggestion {

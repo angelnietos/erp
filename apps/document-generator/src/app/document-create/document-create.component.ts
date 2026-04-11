@@ -9,6 +9,10 @@ import {
 } from '@angular/forms';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { AssistantContextService } from '../services/assistant-context.service';
+import {
+  UniversalDocumentService,
+  DocumentFormat,
+} from '../services/universal-document.service';
 
 declare const marked: { parse: (content: string) => string };
 
@@ -672,7 +676,38 @@ interface DocumentType {
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    Exportar MD
+                    <div class="flex gap-2">
+                      <button
+                        (click)="exportDocument('markdown')"
+                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📑 MD
+                      </button>
+                      <button
+                        (click)="exportDocument('pdf')"
+                        class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📄 PDF
+                      </button>
+                      <button
+                        (click)="exportDocument('xlsx')"
+                        class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📊 Excel
+                      </button>
+                      <button
+                        (click)="exportDocument('html')"
+                        class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        🌐 HTML
+                      </button>
+                      <button
+                        (click)="exportDocument('txt')"
+                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📃 TXT
+                      </button>
+                    </div>
                   </button>
                   <button
                     routerLink="/documents/bot"
@@ -766,7 +801,7 @@ interface DocumentType {
                     {{
                       isGenerating
                         ? 'Generando Documento...'
-                        : 'Generar Documento PDF'
+                        : 'Generar Documento PDF / Excel / HTML'
                     }}
                   </button>
                 </div>
@@ -847,6 +882,7 @@ export class DocumentCreateComponent implements OnInit {
   readonly router = inject(Router);
   readonly pdfService = inject(PdfGenerationService);
   readonly assistantService = inject(AssistantContextService);
+  readonly universalDocument = inject(UniversalDocumentService);
 
   constructor() {
     this.documentForm = this.fb.group({
@@ -1015,6 +1051,38 @@ export class DocumentCreateComponent implements OnInit {
     a.download = (this.documentForm.get('title')?.value || 'documento') + '.md';
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async exportDocument(format: string) {
+    const content = this.documentForm.get('content')?.value || '';
+    const title = this.documentForm.get('title')?.value || 'documento';
+
+    const blocks = content.split('\n\n').map((text: string) => ({
+      id: crypto.randomUUID(),
+      type: text.startsWith('# ') ? 'heading' : 'text',
+      content: text,
+      metadata: {},
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      version: 1,
+    }));
+
+    const formatMap: Record<string, DocumentFormat> = {
+      markdown: DocumentFormat.MARKDOWN,
+      pdf: DocumentFormat.PDF,
+      xlsx: DocumentFormat.XLSX,
+      html: DocumentFormat.HTML,
+      txt: DocumentFormat.PLAINTEXT,
+    };
+
+    try {
+      const blob = await this.universalDocument.export(blocks, {
+        format: formatMap[format],
+      });
+      this.universalDocument.download(blob, `${title}.${format}`);
+    } catch (error) {
+      console.error(`Error exporting to ${format}:`, error);
+    }
   }
 
   async generateDocument() {

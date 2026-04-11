@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { BlockEngineService, Block } from './block-engine.service';
 
 export interface Prediction {

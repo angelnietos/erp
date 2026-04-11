@@ -108,7 +108,7 @@ export class UniversalDocumentService {
         let line = '';
         const maxWidth = width - margin * 2;
 
-        words.forEach((word) => {
+        words.forEach((word: string) => {
           const testLine = line + word + ' ';
           const testWidth = timesRomanFont.widthOfTextAtSize(
             testLine,
@@ -151,7 +151,12 @@ export class UniversalDocumentService {
     });
 
     const pdfBytes = await pdfDoc.save();
-    return new Blob([pdfBytes], { type: 'application/pdf' });
+    const buffer = new ArrayBuffer(pdfBytes.length);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < pdfBytes.length; i++) {
+      view[i] = pdfBytes[i];
+    }
+    return new Blob([buffer], { type: 'application/pdf' });
   }
 
   private async exportToExcel(
