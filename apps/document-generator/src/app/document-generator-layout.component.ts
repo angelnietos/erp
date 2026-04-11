@@ -2,11 +2,17 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { FloatingAssistantComponent } from './floating-assistant/floating-assistant.component';
 
 @Component({
   selector: 'app-document-generator-layout',
   standalone: true,
-  imports: [RouterModule, CommonModule, LucideAngularModule],
+  imports: [
+    RouterModule,
+    CommonModule,
+    LucideAngularModule,
+    FloatingAssistantComponent,
+  ],
   template: `
     <div
       class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
@@ -124,6 +130,9 @@ import { LucideAngularModule } from 'lucide-angular';
       <main class="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
         <router-outlet></router-outlet>
       </main>
+
+      <!-- Floating Global Assistant -->
+      <app-floating-assistant />
     </div>
   `,
 })

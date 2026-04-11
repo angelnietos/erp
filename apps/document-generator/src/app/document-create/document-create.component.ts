@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+import { AssistantContextService } from '../services/assistant-context.service';
 
 declare const marked: { parse: (content: string) => string };
 
@@ -390,7 +391,7 @@ interface DocumentType {
                   />
                 </div>
 
-                @if (selectedType?.id === 'quote') {
+                @if (selectedType.id === 'quote') {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
                       <label
@@ -610,7 +611,7 @@ interface DocumentType {
                   </div>
                 </div>
 
-                @if (selectedType?.id === 'architecture') {
+                @if (selectedType.id === 'architecture') {
                   <div class="space-y-4">
                     <div class="space-y-2">
                       <label
@@ -845,6 +846,7 @@ export class DocumentCreateComponent implements OnInit {
   readonly fb = inject(FormBuilder);
   readonly router = inject(Router);
   readonly pdfService = inject(PdfGenerationService);
+  readonly assistantService = inject(AssistantContextService);
 
   constructor() {
     this.documentForm = this.fb.group({
@@ -911,6 +913,18 @@ export class DocumentCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.assistantService.setActiveTab('create');
+
+    this.documentForm.valueChanges.subscribe((values) => {
+      this.assistantService.setFormData(values);
+      if (values.content) {
+        this.assistantService.setDocumentContent(
+          values.content,
+          this.selectedType?.id,
+        );
+      }
+    });
+
     setInterval(() => {
       this.autoSaved = true;
       setTimeout(() => (this.autoSaved = false), 2000);

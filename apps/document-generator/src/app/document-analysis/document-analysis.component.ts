@@ -1,13 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  FormArray,
-  FormControl,
-} from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormBuilder } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { AssistantContextService } from '../services/assistant-context.service';
 
 interface AnalysisCheck {
   id: string;
@@ -222,9 +217,7 @@ interface AnalysisResult {
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                       />
                     </svg>
-                    Ejecutar Análisis Completo ({{
-                      enabledChecksCount
-                    }}
+                    Ejecutar Análisis Completo ({{ enabledChecksCount }}
                     comprobaciones)
                   }
                 </button>
@@ -564,8 +557,11 @@ export class DocumentAnalysisComponent implements OnInit {
   ];
 
   readonly fb = inject(FormBuilder);
+  readonly assistantService = inject(AssistantContextService);
 
   ngOnInit() {
+    this.assistantService.setActiveTab('analysis');
+
     this.chatMessages = [
       {
         type: 'assistant',
@@ -628,6 +624,10 @@ export class DocumentAnalysisComponent implements OnInit {
       this.analysisResults.push(result);
     }
 
+    this.assistantService.setAnalysisResults(this.analysisResults);
+    this.assistantService.addSystemMessage(
+      `Análisis completado: ${this.passCount} correctos, ${this.warningCount} advertencias, ${this.errorCount} errores`,
+    );
     this.isAnalyzing = false;
   }
 
