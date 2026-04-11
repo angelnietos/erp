@@ -1,18 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AppLayoutComponent } from '@josanz-erp/shared-ui-shell';
-import { AuthStore } from '@josanz-erp/identity-data-access';
+import { DocumentGeneratorLayoutComponent } from './document-generator-layout.component';
 
 @Component({
   selector: 'app-main-app-shell',
   standalone: true,
-  imports: [RouterModule, AppLayoutComponent],
+  imports: [RouterModule, DocumentGeneratorLayoutComponent],
   template: `
-    <josanz-app-layout (logoutClick)="auth.logout()">
+    <app-document-generator-layout>
       <router-outlet></router-outlet>
-    </josanz-app-layout>
+    </app-document-generator-layout>
   `,
 })
-export class MainAppShellComponent {
-  readonly auth = inject(AuthStore);
-}
+export class MainAppShellComponent {}
