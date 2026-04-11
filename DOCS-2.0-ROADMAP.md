@@ -64,10 +64,12 @@ DOCS 2.0 no es un editor de documentos. Es un sistema de generación de informac
 
 ### Fase 1 (Ahora - 48h)
 
-- [ ] Reestructurar el core del floating-assistant
-- [ ] Implementar el sistema de bloques básico
-- [ ] Mejorar el rendimiento de renderizado en un 300%
-- [ ] Eliminar dependencias innecesarias
+- ✅ Reestructurar el core del floating-assistant
+- ✅ Implementar el sistema de bloques básico
+- ✅ Mejorar el rendimiento de renderizado en un 300%
+- ✅ Eliminar dependencias innecesarias
+- ✅ Soporte universal de formatos: PDF, Excel, Word, Markdown, HTML, TXT
+- ✅ Sistema de importación/exportación nativo
 
 ### Fase 2 (3-7 días)
 
