@@ -11,7 +11,7 @@ import {
   AssistantContextService,
   AssistantPetConfig,
 } from '../services/assistant-context.service';
-import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-floating-assistant',
@@ -220,6 +220,8 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
     @if (!assistantService.isOpen$()) {
       <div
         class="pet-bubble animate-idle"
+        role="button"
+        tabindex="0"
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
         [style.background]="
@@ -232,6 +234,8 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
           '0 10px 25px ' + assistantService.petConfig$().color + '66'
         "
         (click)="assistantService.toggleAssistant()"
+        (keydown.enter)="assistantService.toggleAssistant()"
+        (keydown.space)="assistantService.toggleAssistant()"
         (mousedown)="startDrag($event)"
         (contextmenu)="toggleConfig($event)"
         [class.dragging]="isDragging"
@@ -340,10 +344,11 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
               </h4>
 
               <div class="config-row">
-                <label class="text-sm text-slate-600"
+                <label for="animation-speed" class="text-sm text-slate-600"
                   >Velocidad animación</label
                 >
                 <input
+                  id="animation-speed"
                   type="range"
                   min="0.5"
                   max="2"
@@ -357,10 +362,24 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label class="text-sm text-slate-600">Apariencia</label>
-                <div class="flex space-x-2">
-                  @for (skin of availableSkins; track skin.id) {
+                <label
+                  id="skin-label"
+                  for="skin-option-0"
+                  class="text-sm text-slate-600"
+                  >Apariencia</label
+                >
+                <div
+                  role="radiogroup"
+                  aria-labelledby="skin-label"
+                  class="flex space-x-2"
+                >
+                  @for (skin of availableSkins; track skin.id; let i = $index) {
                     <button
+                      role="radio"
+                      [attr.id]="'skin-option-' + i"
+                      [attr.aria-checked]="
+                        assistantService.petConfig$().skin === skin.id
+                      "
                       class="skin-option"
                       [class.active]="
                         assistantService.petConfig$().skin === skin.id
@@ -375,8 +394,11 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label class="text-sm text-slate-600">Color</label>
+                <label for="pet-color" class="text-sm text-slate-600"
+                  >Color</label
+                >
                 <input
+                  id="pet-color"
                   type="color"
                   class="color-picker"
                   [value]="assistantService.petConfig$().color"
@@ -385,8 +407,11 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label class="text-sm text-slate-600">Personalidad</label>
+                <label for="pet-personality" class="text-sm text-slate-600"
+                  >Personalidad</label
+                >
                 <select
+                  id="pet-personality"
                   [value]="assistantService.petConfig$().personality"
                   (change)="
                     updateConfig('personality', $any($event.target).value)
@@ -401,8 +426,11 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label class="text-sm text-slate-600">Opacidad</label>
+                <label for="pet-opacity" class="text-sm text-slate-600"
+                  >Opacidad</label
+                >
                 <input
+                  id="pet-opacity"
                   type="range"
                   min="30"
                   max="100"
@@ -585,9 +613,16 @@ export class FloatingAssistantComponent implements OnInit {
     const ctx = this.assistantService.context$();
     const personality = this.assistantService.petConfig$().personality;
 
+    const documentTypeText = ctx.documentType
+      ? `Tienes un documento de tipo "${ctx.documentType}" abierto.`
+      : '';
+    const documentTypeHumorous = ctx.documentType
+      ? `Tienes un ${ctx.documentType} entre manos, ¡qué chulo!`
+      : '';
+
     const responses: Record<string, Record<string, string>> = {
       friendly: {
-        '¿Qué veo?': `¡Hola! Estoy viendo que estás en la pestaña ${ctx.activeTab}. ${ctx.documentType ? `Tienes un documento de tipo "${ctx.documentType}" abierto.` : ''} ¿En qué puedo ayudarte hoy? 😊`,
+        '¿Qué veo?': `¡Hola! Estoy viendo que estás en la pestaña ${ctx.activeTab}. ${documentTypeText} ¿En qué puedo ayudarte hoy? 😊`,
         'Revisar contenido': `¡Claro! Estoy analizando tu documento. Veo ${ctx.documentContent.length} caracteres de contenido. Te recomiendo revisar: 1) Resumen ejecutivo 2) Precios detallados 3) Llamada a la acción. ¡Tienes muy buena pinta! ✨`,
         Sugerencias: `¡Genial! Basándome en tu contenido actual, te sugiero: ✅ Añade un resumen ejecutivo claro ✅ Destaca tus valores diferenciales ✅ Incluye garantías ✅ Mejora la llamada final a la acción. ¡Lo harás genial! 💪`,
         Errores: `¡No te preocupes! No he detectado errores críticos en tu documento. Solo te recomiendo revisar la ortografía y asegurarte de que todos los campos estén completos. ¡Está casi perfecto! 🌟`,
@@ -599,7 +634,7 @@ export class FloatingAssistantComponent implements OnInit {
         Errores: `No se detectan errores críticos. Se recomienda revisión ortográfica y verificación de campos obligatorios. Documento apto para su uso.`,
       },
       humorous: {
-        '¿Qué veo?': `¡Hey! Estoy en ${ctx.activeTab} vigilando todo. ${ctx.documentType ? `Tienes un ${ctx.documentType} entre manos, ¡qué chulo!` : ''} ¿Qué trastada tienes hoy? 😎`,
+        '¿Qué veo?': `¡Hey! Estoy en ${ctx.activeTab} vigilando todo. ${documentTypeHumorous} ¿Qué trastada tienes hoy? 😎`,
         'Revisar contenido': `¡Muy bien! Leí todo tu texto. ¡Vaya crack! Solo te faltan estas cosillas: 1) Un resumen que mate 2) Precios que no asusten 3) Un final que les deje con la boca abierta. ¡Tú puedes! 🚀`,
         Sugerencias: `¡Aquí van los trucos del maestro! ✅ Mete un resumen que les deje boquiabiertos ✅ Diles por qué tu eres el mejor ✅ Añade alguna garantía para que se queden tranquilos ✅ Termina con un golpe de efecto. ¡A por ellos! 🎯`,
         Errores: `¡Tranquilo/a! Nada grave. Solo un par de erratas por aquí y por allá, nada que no se arregle en dos segundos. ¡Tu documento esta de muerte! 💯`,
