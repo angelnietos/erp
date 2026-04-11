@@ -61,6 +61,15 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        transition:
+          height 0.2s ease,
+          width 0.2s ease;
+      }
+
+      .assistant-window.minimized {
+        height: 56px;
+        width: 280px;
+        overflow: hidden;
       }
 
       .window-header {
@@ -241,6 +250,7 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
     @if (assistantService.isOpen$()) {
       <div
         class="assistant-window"
+        [class.minimized]="isMinimized"
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
         [style.--pet-color]="assistantService.petConfig$().color"
@@ -256,6 +266,25 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
             }}</span>
           </div>
           <div class="flex items-center space-x-2">
+            <button
+              (click)="isMinimized = !isMinimized"
+              class="text-white/80 hover:text-white"
+              title="Minimizar"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 12H4"
+                />
+              </svg>
+            </button>
             <button
               (click)="showConfig = !showConfig"
               class="text-white/80 hover:text-white"
@@ -302,172 +331,149 @@ import { FormControl, ReactiveFormsModule, FormGroup } from '@angular/forms';
           </div>
         </div>
 
-        <!-- Config Panel -->
-        @if (showConfig) {
-          <div class="config-panel">
-            <h4 class="font-semibold text-slate-800 mb-3">
-              ⚙️ Configuración de {{ assistantService.petConfig$().name }}
-            </h4>
+        @if (!isMinimized) {
+          <!-- Config Panel -->
+          @if (showConfig) {
+            <div class="config-panel">
+              <h4 class="font-semibold text-slate-800 mb-3">
+                ⚙️ Configuración de {{ assistantService.petConfig$().name }}
+              </h4>
 
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Velocidad animación</label>
-              <input
-                type="range"
-                min="0.5"
-                max="2"
-                step="0.1"
-                [value]="assistantService.petConfig$().animationSpeed"
-                (change)="
-                  updateConfig('animationSpeed', +$any($event.target).value)
-                "
-                class="w-28"
-              />
-            </div>
+              <div class="config-row">
+                <label class="text-sm text-slate-600"
+                  >Velocidad animación</label
+                >
+                <input
+                  type="range"
+                  min="0.5"
+                  max="2"
+                  step="0.1"
+                  [value]="assistantService.petConfig$().animationSpeed"
+                  (change)="
+                    updateConfig('animationSpeed', +$any($event.target).value)
+                  "
+                  class="w-28"
+                />
+              </div>
 
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Opacidad</label>
-              <input
-                type="range"
-                min="30"
-                max="100"
-                step="5"
-                [value]="assistantService.petConfig$().opacity"
-                (change)="updateConfig('opacity', +$any($event.target).value)"
-                class="w-28"
-              />
-            </div>
+              <div class="config-row">
+                <label class="text-sm text-slate-600">Apariencia</label>
+                <div class="flex space-x-2">
+                  @for (skin of availableSkins; track skin.id) {
+                    <button
+                      class="skin-option"
+                      [class.active]="
+                        assistantService.petConfig$().skin === skin.id
+                      "
+                      (click)="updateConfig('skin', skin.id)"
+                      [style.background]="skin.bg"
+                    >
+                      {{ skin.emoji }}
+                    </button>
+                  }
+                </div>
+              </div>
 
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Apariencia</label>
-              <div class="flex space-x-2">
-                @for (skin of availableSkins; track skin.id) {
-                  <button
-                    class="skin-option"
-                    [class.active]="
-                      assistantService.petConfig$().skin === skin.id
-                    "
-                    (click)="updateConfig('skin', skin.id)"
-                    [style.background]="skin.bg"
-                  >
-                    {{ skin.emoji }}
-                  </button>
-                }
+              <div class="config-row">
+                <label class="text-sm text-slate-600">Color</label>
+                <input
+                  type="color"
+                  class="color-picker"
+                  [value]="assistantService.petConfig$().color"
+                  (change)="updateConfig('color', $any($event.target).value)"
+                />
+              </div>
+
+              <div class="config-row">
+                <label class="text-sm text-slate-600">Personalidad</label>
+                <select
+                  [value]="assistantService.petConfig$().personality"
+                  (change)="
+                    updateConfig('personality', $any($event.target).value)
+                  "
+                  class="px-2 py-1 border border-slate-300 rounded text-sm"
+                >
+                  <option value="friendly">😊 Amigable</option>
+                  <option value="professional">💼 Profesional</option>
+                  <option value="humorous">😄 Divertido</option>
+                  <option value="minimal">⚪ Minimalista</option>
+                </select>
+              </div>
+
+              <div class="config-row">
+                <label class="text-sm text-slate-600">Opacidad</label>
+                <input
+                  type="range"
+                  min="30"
+                  max="100"
+                  step="5"
+                  [value]="assistantService.petConfig$().opacity"
+                  (change)="updateConfig('opacity', +$any($event.target).value)"
+                  class="w-28"
+                />
               </div>
             </div>
-
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Color</label>
-              <input
-                type="color"
-                class="color-picker"
-                [value]="assistantService.petConfig$().color"
-                (change)="updateConfig('color', $any($event.target).value)"
-              />
-            </div>
-
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Personalidad</label>
-              <select
-                [value]="assistantService.petConfig$().personality"
-                (change)="
-                  updateConfig('personality', $any($event.target).value)
-                "
-                class="px-2 py-1 border border-slate-300 rounded text-sm"
-              >
-                <option value="friendly">😊 Amigable</option>
-                <option value="professional">💼 Profesional</option>
-                <option value="humorous">😄 Divertido</option>
-                <option value="minimal">⚪ Minimalista</option>
-              </select>
-            </div>
-
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Velocidad animación</label>
-              <input
-                type="range"
-                min="0.5"
-                max="2"
-                step="0.1"
-                [value]="assistantService.petConfig$().animationSpeed"
-                (change)="
-                  updateConfig('animationSpeed', +$any($event.target).value)
-                "
-                class="w-28"
-              />
-            </div>
-
-            <div class="config-row">
-              <label class="text-sm text-slate-600">Opacidad</label>
-              <input
-                type="range"
-                min="30"
-                max="100"
-                step="5"
-                [value]="assistantService.petConfig$().opacity"
-                (change)="updateConfig('opacity', +$any($event.target).value)"
-                class="w-28"
-              />
-            </div>
-          </div>
+          }
         }
 
-        <div class="messages-container" #messagesContainer>
-          @for (msg of assistantService.messages$(); track msg.id) {
-            <div class="message" [class]="msg.type">
-              @if (msg.context && msg.type !== 'system') {
-                <span class="text-xs opacity-60 block mb-1"
-                  >[{{ msg.context }}]</span
-                >
-              }
-              {{ msg.content }}
-            </div>
-          }
-        </div>
-
-        <div class="px-4 py-2 bg-slate-50 border-t border-slate-200">
-          <div class="flex flex-wrap gap-1">
-            @for (action of quickActions; track $index) {
-              <button
-                (click)="sendQuickAction(action)"
-                class="px-2 py-1 text-xs bg-white border border-slate-200 rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
-              >
-                {{ action }}
-              </button>
+        @if (!isMinimized) {
+          <div class="messages-container" #messagesContainer>
+            @for (msg of assistantService.messages$(); track msg.id) {
+              <div class="message" [class]="msg.type">
+                @if (msg.context && msg.type !== 'system') {
+                  <span class="text-xs opacity-60 block mb-1"
+                    >[{{ msg.context }}]</span
+                  >
+                }
+                {{ msg.content }}
+              </div>
             }
           </div>
-        </div>
 
-        <div class="input-area flex space-x-2">
-          <input
-            type="text"
-            [formControl]="messageInput"
-            (keydown.enter)="sendMessage()"
-            placeholder="Pregunta cualquier cosa a {{
-              assistantService.petConfig$().name
-            }}..."
-            class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-          />
-          <button
-            (click)="sendMessage()"
-            class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div class="px-4 py-2 bg-slate-50 border-t border-slate-200">
+            <div class="flex flex-wrap gap-1">
+              @for (action of quickActions; track $index) {
+                <button
+                  (click)="sendQuickAction(action)"
+                  class="px-2 py-1 text-xs bg-white border border-slate-200 rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                >
+                  {{ action }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="input-area flex space-x-2">
+            <input
+              type="text"
+              [formControl]="messageInput"
+              (keydown.enter)="sendMessage()"
+              placeholder="Pregunta cualquier cosa a {{
+                assistantService.petConfig$().name
+              }}..."
+              class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+            <button
+              (click)="sendMessage()"
+              class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    }
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </button>
+          </div>
+         }
+      }
   `,
 })
 export class FloatingAssistantComponent implements OnInit {
@@ -478,6 +484,7 @@ export class FloatingAssistantComponent implements OnInit {
 
   isDragging = false;
   showConfig = false;
+  isMinimized = false;
   private dragOffset = { x: 0, y: 0 };
 
   availableSkins = [
