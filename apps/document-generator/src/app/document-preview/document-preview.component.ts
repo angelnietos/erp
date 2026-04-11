@@ -7,43 +7,123 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UiCardComponent, UiButtonComponent } from '@josanz-erp/shared-ui-kit';
+
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import mermaid from 'mermaid';
 
 @Component({
   selector: 'app-document-preview',
   standalone: true,
-  imports: [CommonModule, UiCardComponent, UiButtonComponent],
+  imports: [CommonModule],
   template: `
-    <div class="p-6 max-w-4xl mx-auto">
-      <nav class="mb-4">
-        <a
+    <div class="space-y-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+        <button
           routerLink="/documents/list"
-          class="text-blue-600 hover:text-blue-800"
-          >Documentos</a
+          class="hover:text-slate-900 transition-colors"
         >
+          Documentos
+        </button>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-        <span class="text-gray-600 ml-2">Vista Previa</span>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+        <span class="text-slate-900 font-medium">Vista Previa</span>
       </nav>
 
-      <div class="mb-6 flex justify-between items-center">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900 mb-2">
-            Vista Previa del Documento
-          </h1>
-          <p class="text-gray-600">Revisa el contenido antes de descargar</p>
-        </div>
+      <!-- Header -->
+      <div
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+      >
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
+        >
+          <div class="space-y-2">
+            <h1
+              class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"
+            >
+              Vista Previa del Documento
+            </h1>
+            <p class="text-slate-600 text-lg">
+              Revisa el contenido completo antes de descargar tu PDF
+            </p>
+            <div class="flex items-center space-x-4 pt-2">
+              <div class="flex items-center space-x-2 text-sm text-slate-500">
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4M21 12c0 4.418-3.582 8-8 8a8.963 8.963 0 01-5.586-2.068A8.963 8.963 0 015 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+                  />
+                </svg>
+                <span>Documento listo para descargar</span>
+              </div>
+            </div>
+          </div>
 
-        <div class="flex space-x-3">
-          <ui-button (click)="downloadDocument()" variant="primary">
-            Descargar PDF
-          </ui-button>
-          <ui-button (click)="goBack()" variant="outline"> Volver </ui-button>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button
+              (click)="downloadDocument()"
+              class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <svg
+                class="w-5 h-5 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Descargar PDF
+            </button>
+            <button
+              (click)="goBack()"
+              class="inline-flex items-center px-6 py-4 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Volver a Documentos
+            </button>
+          </div>
         </div>
       </div>
 
-      <ui-card>
+      <!-- Document Preview -->
+      <div
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8 overflow-hidden"
+      >
         <div class="space-y-6">
           <!-- Header del documento -->
           <div class="border-b pb-6">
@@ -340,7 +420,7 @@ import mermaid from 'mermaid';
             </div>
           </div>
         </div>
-      </ui-card>
+      </div>
     </div>
   `,
 })

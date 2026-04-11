@@ -9,7 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Send, Bot, User, Sparkles } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 
 interface Message {
   id: string;
@@ -30,31 +30,34 @@ interface MessageAction {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
-    <div class="flex flex-col h-full max-h-screen bg-gray-50">
+    <div
+      class="flex flex-col h-full max-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+    >
       <!-- Header -->
-      <div class="bg-white border-b border-gray-200 px-6 py-4">
-        <div class="flex items-center gap-3">
+      <div
+        class="bg-white/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 px-6 py-5 sticky top-0 z-10"
+      >
+        <div class="flex items-center gap-4">
           <div
-            class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center"
+            class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
           >
-            <lucide-icon
-              [img]="BotIcon"
-              class="w-6 h-6 text-white"
-            ></lucide-icon>
+            <lucide-icon name="bot" size="28" class="text-white"></lucide-icon>
           </div>
           <div>
-            <h1 class="text-lg font-semibold text-gray-900">
-              Asistente de Documentos
+            <h1
+              class="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"
+            >
+              Asistente IA de Documentos
             </h1>
-            <p class="text-sm text-gray-500">
-              Tu ayudante para crear documentos profesionales
+            <p class="text-sm text-slate-600 font-medium">
+              Tu compañero inteligente para crear documentos profesionales
             </p>
           </div>
         </div>
       </div>
 
       <!-- Messages Container -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-4" #messagesContainer>
+      <div class="flex-1 overflow-y-auto p-6 space-y-6" #messagesContainer>
         <div
           *ngFor="let message of messages()"
           class="flex gap-3"
@@ -66,7 +69,8 @@ interface MessageAction {
             class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0"
           >
             <lucide-icon
-              [img]="BotIcon"
+              name="bot"
+              size="16"
               class="w-4 h-4 text-white"
             ></lucide-icon>
           </div>
@@ -118,7 +122,8 @@ interface MessageAction {
             class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0"
           >
             <lucide-icon
-              [img]="UserIcon"
+              name="user"
+              size="16"
               class="w-4 h-4 text-gray-600"
             ></lucide-icon>
           </div>
@@ -130,7 +135,8 @@ interface MessageAction {
             class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center"
           >
             <lucide-icon
-              [img]="BotIcon"
+              name="bot"
+              size="16"
               class="w-4 h-4 text-white"
             ></lucide-icon>
           </div>
@@ -155,37 +161,56 @@ interface MessageAction {
       </div>
 
       <!-- Input Area -->
-      <div class="bg-white border-t border-gray-200 p-4">
+      <div
+        class="bg-white/80 backdrop-blur-lg border-t border-slate-200/50 p-6"
+      >
+        <!-- Quick Suggestions -->
+        <div class="mb-4 flex flex-wrap gap-3">
+          <button
+            *ngFor="let suggestion of quickSuggestions"
+            (click)="sendQuickMessage(suggestion)"
+            class="px-4 py-2 text-sm bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 border border-blue-200 rounded-xl transition-all duration-200 hover:shadow-md font-medium"
+          >
+            {{ suggestion }}
+          </button>
+        </div>
+
         <div class="flex gap-3">
-          <input
-            type="text"
-            [(ngModel)]="newMessage"
-            (keyup.enter)="sendMessage()"
-            placeholder="Pregúntame sobre documentos, plantillas, o contenido..."
-            class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            [disabled]="isTyping()"
-          />
+          <div class="flex-1 relative">
+            <input
+              type="text"
+              [(ngModel)]="newMessage"
+              (keyup.enter)="sendMessage()"
+              placeholder="Pregúntame sobre documentos, plantillas, diagramas..."
+              class="w-full px-6 py-4 pr-12 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm"
+              [disabled]="isTyping()"
+            />
+            <div
+              class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.963 8.963 0 01-5.586-2.068A8.963 8.963 0 015 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+                />
+              </svg>
+            </div>
+          </div>
 
           <button
             (click)="sendMessage()"
             [disabled]="!newMessage.trim() || isTyping()"
-            class="w-12 h-12 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
+            class="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center space-x-2 font-medium"
           >
-            <lucide-icon
-              [img]="SendIcon"
-              class="w-5 h-5 text-white"
-            ></lucide-icon>
-          </button>
-        </div>
-
-        <!-- Quick Suggestions -->
-        <div class="mt-3 flex flex-wrap gap-2">
-          <button
-            *ngFor="let suggestion of quickSuggestions"
-            (click)="sendQuickMessage(suggestion)"
-            class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
-          >
-            {{ suggestion }}
+            <span>{{ isTyping() ? 'Pensando...' : 'Enviar' }}</span>
+            <lucide-icon name="send" size="20" class="w-5 h-5"></lucide-icon>
           </button>
         </div>
       </div>
@@ -194,10 +219,6 @@ interface MessageAction {
 })
 export class DocumentBotComponent implements AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
-
-  protected readonly BotIcon = Bot;
-  protected readonly UserIcon = User;
-  protected readonly SendIcon = Send;
 
   messages = signal<Message[]>([]);
   isTyping = signal(false);

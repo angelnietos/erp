@@ -8,13 +8,6 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
-import {
-  UiCardComponent,
-  UiButtonComponent,
-  UiInputComponent,
-  UiSelectComponent,
-  UiTextareaComponent,
-} from '@josanz-erp/shared-ui-kit';
 
 interface DocumentType {
   id: string;
@@ -25,306 +18,459 @@ interface DocumentType {
 @Component({
   selector: 'app-document-create',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    UiCardComponent,
-    UiButtonComponent,
-    UiInputComponent,
-    UiSelectComponent,
-    UiTextareaComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="p-6 max-w-4xl mx-auto">
-      <nav class="mb-4">
-        <a
+    <div class="space-y-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+        <button
           routerLink="/documents/list"
-          class="text-blue-600 hover:text-blue-800"
-          >Documentos</a
+          class="hover:text-slate-900 transition-colors"
         >
+          Documentos
+        </button>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-        <span class="text-gray-600 ml-2">Crear Nuevo</span>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+        <span class="text-slate-900 font-medium">Crear Nuevo</span>
       </nav>
 
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">
-          Crear Nuevo Documento
-        </h1>
-        <p class="text-gray-600">
-          Selecciona el tipo de documento y completa la información necesaria
-        </p>
+      <!-- Header -->
+      <div
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+      >
+        <div class="text-center max-w-2xl mx-auto">
+          <div
+            class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+          >
+            <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </div>
+          <h1
+            class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3"
+          >
+            Crear Nuevo Documento
+          </h1>
+          <p class="text-slate-600 text-lg">
+            Selecciona el tipo de documento que deseas crear y deja que nuestro
+            asistente IA te guíe
+          </p>
+        </div>
       </div>
 
-      <ui-card class="mb-6">
-        <div class="space-y-6">
-          <!-- Selección de Tipo de Documento -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-3">
-              Tipo de Documento *
-            </label>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Document Type Selection -->
+      <div
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+      >
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-slate-900 mb-2">
+            ¿Qué tipo de documento necesitas?
+          </h2>
+          <p class="text-slate-600">
+            Elige el tipo que mejor se adapte a tus necesidades
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div
+            *ngFor="let type of documentTypes"
+            (click)="selectDocumentType(type)"
+            class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
+            [class.border-blue-500]="selectedType?.id === type.id"
+            [class.bg-gradient-to-br]="selectedType?.id === type.id"
+            [class.from-blue-50]="selectedType?.id === type.id"
+            [class.to-indigo-50]="selectedType?.id === type.id"
+            [class.border-slate-200]="selectedType?.id !== type.id"
+            [class.hover:border-slate-300]="selectedType?.id !== type.id"
+          >
+            <div class="flex items-start justify-between mb-4">
               <div
-                *ngFor="let type of documentTypes"
-                (click)="selectDocumentType(type)"
-                class="border-2 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
-                [class.border-blue-500]="selectedType?.id === type.id"
-                [class.bg-blue-50]="selectedType?.id === type.id"
+                class="w-12 h-12 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-all duration-300"
               >
-                <h3 class="font-medium text-gray-900">{{ type.name }}</h3>
-                <p class="text-sm text-gray-600 mt-1">{{ type.description }}</p>
+                <svg
+                  *ngIf="type.id === 'quote'"
+                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                  />
+                </svg>
+                <svg
+                  *ngIf="type.id === 'proposal'"
+                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4M21 12c0 4.418-3.582 8-8 8a8.963 8.963 0 01-5.586-2.068A8.963 8.963 0 015 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+                  />
+                </svg>
+                <svg
+                  *ngIf="type.id === 'documentation'"
+                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+                <svg
+                  *ngIf="type.id === 'architecture'"
+                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+              </div>
+              <div
+                *ngIf="selectedType?.id === type.id"
+                class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <h3
+                class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors"
+              >
+                {{ type.name }}
+              </h3>
+              <p class="text-slate-600 leading-relaxed">
+                {{ type.description }}
+              </p>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span
+                *ngIf="type.id === 'quote'"
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800"
+              >
+                💰 Cálculos automáticos
+              </span>
+              <span
+                *ngIf="type.id === 'proposal'"
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-800"
+              >
+                📋 Estructura profesional
+              </span>
+              <span
+                *ngIf="type.id === 'documentation'"
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
+              >
+                📖 Contenido técnico
+              </span>
+              <span
+                *ngIf="type.id === 'architecture'"
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800"
+              >
+                🎨 Diagramas Mermaid
+              </span>
+              <span
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700"
+              >
+                🤖 Asistente IA
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Section -->
+      <div
+        *ngIf="selectedType"
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+      >
+        <div class="mb-8">
+          <div class="flex items-center space-x-3 mb-4">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900">
+                Información del Documento
+              </h2>
+              <p class="text-slate-600">
+                Completa los detalles para generar tu
+                {{ selectedType.name.toLowerCase() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <form
+          [formGroup]="documentForm"
+          (ngSubmit)="generateDocument()"
+          class="space-y-8"
+        >
+          <div class="bg-slate-50 rounded-xl p-6 border border-slate-200/50">
+            <h3
+              class="text-lg font-semibold text-slate-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-slate-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
+                />
+              </svg>
+              Información General
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700"
+                  >Cliente *</label
+                >
+                <select
+                  formControlName="clientId"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                >
+                  <option value="">Seleccionar cliente</option>
+                  <option *ngFor="let client of clients" [value]="client.id">
+                    {{ client.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700"
+                  >Fecha</label
+                >
+                <input
+                  type="date"
+                  formControlName="date"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                />
               </div>
             </div>
           </div>
 
-          <!-- Formulario -->
-          <form
-            *ngIf="selectedType"
-            [formGroup]="documentForm"
-            (ngSubmit)="generateDocument()"
-            class="space-y-6"
-          >
-            <!-- Campos comunes -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ui-select
-                label="Cliente *"
-                formControlName="clientId"
-                [options]="clientOptions"
-                placeholder="Seleccionar cliente"
-              ></ui-select>
-
-              <ui-input
-                label="Fecha"
-                type="date"
-                formControlName="date"
-              ></ui-input>
+          <div class="space-y-6">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-slate-700"
+                >Título del Documento</label
+              >
+              <input
+                type="text"
+                formControlName="title"
+                [placeholder]="getTitlePlaceholder()"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              />
             </div>
 
-            <!-- Campos específicos según tipo -->
-            <div *ngIf="selectedType?.id === 'quote'">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">
-                Información del Presupuesto
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ui-input
-                  label="Proyecto"
+            <div
+              *ngIf="selectedType?.id === 'quote'"
+              class="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700"
+                  >Proyecto</label
+                >
+                <input
+                  type="text"
                   formControlName="projectName"
                   placeholder="Nombre del proyecto"
-                ></ui-input>
-
-                <ui-input
-                  label="Monto Total"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                />
+              </div>
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700"
+                  >Monto Total (€)</label
+                >
+                <input
                   type="number"
                   formControlName="totalAmount"
                   placeholder="0.00"
-                ></ui-input>
-              </div>
-
-              <div class="mt-6">
-                <ui-textarea
-                  label="Descripción"
-                  formControlName="description"
-                  [rows]="4"
-                  placeholder="Descripción detallada del presupuesto..."
-                ></ui-textarea>
+                  step="0.01"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                />
               </div>
             </div>
 
-            <!-- Propuesta Comercial -->
-            <div *ngIf="selectedType?.id === 'proposal'">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">
-                Información de la Propuesta
-              </h3>
-              <div class="space-y-6">
-                <ui-input
-                  label="Título de la Propuesta *"
-                  formControlName="title"
-                  placeholder="Título de la propuesta comercial"
-                ></ui-input>
-
-                <ui-textarea
-                  label="Resumen Ejecutivo"
-                  formControlName="executiveSummary"
-                  [rows]="4"
-                  placeholder="Resumen ejecutivo de la propuesta..."
-                ></ui-textarea>
-
-                <ui-textarea
-                  label="Objetivos"
-                  formControlName="objectives"
-                  [rows]="3"
-                  placeholder="Objetivos principales del proyecto..."
-                ></ui-textarea>
-
-                <ui-textarea
-                  label="Alcance del Proyecto"
-                  formControlName="scope"
-                  [rows]="4"
-                  placeholder="Alcance detallado del proyecto..."
-                ></ui-textarea>
-
-                <ui-textarea
-                  label="Entregables"
-                  formControlName="deliverables"
-                  [rows]="4"
-                  placeholder="Lista de entregables y resultados..."
-                ></ui-textarea>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <ui-input
-                    label="Cronograma"
-                    formControlName="timeline"
-                    placeholder="Duración estimada del proyecto"
-                  ></ui-input>
-
-                  <ui-input
-                    label="Precios"
-                    formControlName="pricing"
-                    placeholder="Información de precios"
-                  ></ui-input>
-                </div>
-
-                <ui-textarea
-                  label="Términos y Condiciones"
-                  formControlName="terms"
-                  [rows]="4"
-                  placeholder="Términos y condiciones de la propuesta..."
-                ></ui-textarea>
-              </div>
-            </div>
-
-            <!-- Documentación Técnica -->
-            <div *ngIf="selectedType?.id === 'documentation'">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">
-                Información de la Documentación
-              </h3>
-              <div class="space-y-6">
-                <ui-input
-                  label="Título del Documento *"
-                  formControlName="title"
-                  placeholder="Título del documento"
-                ></ui-input>
-
-                <ui-textarea
-                  label="Contenido"
-                  formControlName="content"
-                  [rows]="8"
-                  placeholder="Contenido del documento..."
-                ></ui-textarea>
-              </div>
-            </div>
-
-            <!-- Documentación Arquitectónica -->
-            <div *ngIf="selectedType?.id === 'architecture'">
-              <h3 class="text-lg font-medium text-gray-900 mb-4">
-                Información Arquitectónica
-              </h3>
-              <div class="space-y-6">
-                <ui-input
-                  label="Título del Documento *"
-                  formControlName="title"
-                  placeholder="Título de la documentación arquitectónica"
-                ></ui-input>
-
-                <ui-textarea
-                  label="Resumen del Sistema"
-                  formControlName="systemOverview"
-                  [rows]="4"
-                  placeholder="Descripción general del sistema..."
-                ></ui-textarea>
-
-                <div class="space-y-4">
-                  <label class="block text-sm font-medium text-gray-700">
-                    Diagrama de Arquitectura (Mermaid)
-                  </label>
-                  <textarea
-                    formControlName="architectureDiagram"
-                    rows="8"
-                    placeholder="graph TD
-    A[Cliente] --> B[API Gateway]
-    B --> C[Servicio de Autenticación]
-    B --> D[Servicio de Documentos]
-    C --> E[Base de Datos]
-    D --> E
-
-    subgraph 'Sistema de Gestión'
-    C
-    D
-    end"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                  ></textarea>
-                  <p class="text-xs text-gray-500">
-                    Usa sintaxis Mermaid para crear diagramas. Ejemplos: graph
-                    TD, flowchart LR, etc.
-                  </p>
-                </div>
-
-                <ui-textarea
-                  label="Componentes del Sistema"
-                  formControlName="components"
-                  [rows]="4"
-                  placeholder="Lista y descripción de componentes principales..."
-                ></ui-textarea>
-
-                <div class="space-y-4">
-                  <label class="block text-sm font-medium text-gray-700">
-                    Diagrama de Flujo de Datos (Mermaid)
-                  </label>
-                  <textarea
-                    formControlName="dataFlow"
-                    rows="6"
-                    placeholder="sequenceDiagram
-    participant Usuario
-    participant API
-    participant BaseDatos
-
-    Usuario->>API: Solicitud de datos
-    API->>BaseDatos: Consulta
-    BaseDatos-->>API: Resultados
-    API-->>Usuario: Respuesta"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                  ></textarea>
-                </div>
-
-                <ui-textarea
-                  label="APIs y Endpoints"
-                  formControlName="apis"
-                  [rows]="4"
-                  placeholder="Documentación de APIs, endpoints, métodos HTTP..."
-                ></ui-textarea>
-
-                <ui-textarea
-                  label="Tecnologías Utilizadas"
-                  formControlName="technologies"
-                  [rows]="3"
-                  placeholder="Stack tecnológico, frameworks, bibliotecas..."
-                ></ui-textarea>
-
-                <ui-textarea
-                  label="Estrategia de Despliegue"
-                  formControlName="deployment"
-                  [rows]="4"
-                  placeholder="Arquitectura de despliegue, entornos, escalabilidad..."
-                ></ui-textarea>
-              </div>
-            </div>
-
-            <!-- Botones de acción -->
-            <div class="flex justify-end space-x-4 pt-6 border-t">
-              <ui-button variant="outline" (click)="goBack()">
-                Cancelar
-              </ui-button>
-
-              <ui-button
-                type="submit"
-                [disabled]="documentForm.invalid"
-                [loading]="isGenerating"
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-slate-700"
+                >Contenido</label
               >
-                {{ isGenerating ? 'Generando...' : 'Generar Documento' }}
-              </ui-button>
+              <textarea
+                formControlName="content"
+                [placeholder]="getContentPlaceholder()"
+                rows="6"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white resize-none"
+              ></textarea>
             </div>
-          </form>
-        </div>
-      </ui-card>
+
+            <div *ngIf="selectedType?.id === 'architecture'" class="space-y-4">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700"
+                  >Diagrama de Arquitectura (Mermaid)</label
+                >
+                <textarea
+                  formControlName="architectureDiagram"
+                  rows="4"
+                  placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-slate-200 gap-4"
+          >
+            <button
+              (click)="goBack()"
+              class="inline-flex items-center px-6 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Volver Atrás
+            </button>
+            <div class="flex items-center space-x-4">
+              <button
+                routerLink="/documents/bot"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
+                  />
+                </svg>
+                Consultar Asistente
+              </button>
+              <button
+                type="submit"
+                [disabled]="documentForm.invalid || isGenerating"
+                class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transform hover:scale-105 disabled:hover:scale-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
+              >
+                <svg
+                  *ngIf="!isGenerating"
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <svg
+                  *ngIf="isGenerating"
+                  class="w-5 h-5 mr-2 animate-spin"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                {{
+                  isGenerating
+                    ? 'Generando Documento...'
+                    : 'Generar Documento PDF'
+                }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   `,
 })
@@ -405,6 +551,36 @@ export class DocumentCreateComponent {
 
   goBack() {
     this.router.navigate(['/documents/list']);
+  }
+
+  getTitlePlaceholder(): string {
+    switch (this.selectedType?.id) {
+      case 'quote':
+        return 'Ej: Presupuesto Desarrollo Web Corporativo';
+      case 'proposal':
+        return 'Ej: Propuesta de Implementación ERP';
+      case 'documentation':
+        return 'Ej: Manual de Usuario - Sistema ERP';
+      case 'architecture':
+        return 'Ej: Arquitectura del Sistema ERP';
+      default:
+        return 'Título del documento';
+    }
+  }
+
+  getContentPlaceholder(): string {
+    switch (this.selectedType?.id) {
+      case 'quote':
+        return 'Descripción detallada del presupuesto, alcance de trabajo, condiciones...';
+      case 'proposal':
+        return 'Contenido de la propuesta comercial, beneficios, solución propuesta...';
+      case 'documentation':
+        return 'Contenido detallado de la documentación técnica...';
+      case 'architecture':
+        return 'Descripción de la arquitectura del sistema, componentes, tecnologías...';
+      default:
+        return 'Contenido del documento...';
+    }
   }
 
   async generateDocument() {
