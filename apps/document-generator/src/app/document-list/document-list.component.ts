@@ -140,8 +140,12 @@ export class DocumentListComponent {
     switch (type) {
       case 'quote':
         return 'Presupuesto';
+      case 'proposal':
+        return 'Propuesta';
       case 'documentation':
         return 'Documentación';
+      case 'architecture':
+        return 'Arquitectura';
       default:
         return type;
     }
@@ -151,8 +155,12 @@ export class DocumentListComponent {
     switch (type) {
       case 'quote':
         return 'bg-blue-100 text-blue-800';
+      case 'proposal':
+        return 'bg-purple-100 text-purple-800';
       case 'documentation':
         return 'bg-green-100 text-green-800';
+      case 'architecture':
+        return 'bg-orange-100 text-orange-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }

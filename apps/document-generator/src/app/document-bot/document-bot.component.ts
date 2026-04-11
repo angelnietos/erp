@@ -206,7 +206,9 @@ export class DocumentBotComponent implements AfterViewChecked {
   quickSuggestions = [
     '¿Qué tipos de documentos puedo crear?',
     'Ayúdame con un presupuesto',
-    'Necesito una plantilla de documentación',
+    'Crear una propuesta comercial',
+    'Documentación arquitectónica',
+    'Diagramas Mermaid',
     '¿Cómo estructurar un documento profesional?',
   ];
 
@@ -333,21 +335,72 @@ export class DocumentBotComponent implements AfterViewChecked {
     }
 
     if (
+      message.includes('propuesta') ||
+      message.includes('comercial') ||
+      message.includes('proposal')
+    ) {
+      return {
+        content:
+          '¡Excelente! Una propuesta comercial efectiva incluye:\n\n• Resumen ejecutivo atractivo\n• Objetivos claros\n• Alcance detallado del proyecto\n• Cronograma y entregables\n• Información de precios\n• Términos y condiciones\n\n¿Quieres que te guíe para crear una?',
+        actions: [
+          {
+            label: 'Crear propuesta ahora',
+            action: () => this.navigateToCreate('proposal'),
+          },
+          {
+            label: 'Ver estructura recomendada',
+            action: () => this.showProposalStructure(),
+          },
+        ],
+      };
+    }
+
+    if (
+      message.includes('arquitectura') ||
+      message.includes('mermaid') ||
+      message.includes('diagrama') ||
+      message.includes('diagram')
+    ) {
+      return {
+        content:
+          '¡Genial! La documentación arquitectónica es fundamental. Puedo ayudarte con:\n\n• Diagramas de arquitectura (Mermaid)\n• Flujos de datos\n• Documentación de APIs\n• Especificaciones técnicas\n• Estrategias de despliegue\n\nLos diagramas Mermaid se renderizan automáticamente en la vista previa.',
+        actions: [
+          {
+            label: 'Crear documentación arquitectónica',
+            action: () => this.navigateToCreate('architecture'),
+          },
+          {
+            label: 'Ver ejemplos de diagramas',
+            action: () => this.showMermaidExamples(),
+          },
+        ],
+      };
+    }
+
+    if (
       message.includes('tipo') ||
       message.includes('tipos') ||
       message.includes('qué puedo')
     ) {
       return {
         content:
-          'Puedes crear diferentes tipos de documentos:\n\n📄 **Presupuestos**: Para cotizaciones de proyectos\n📋 **Documentación**: Manuales técnicos, guías de usuario\n📊 **Informes**: Análisis y reportes\n\n¿Cuál te interesa?',
+          'Puedes crear diferentes tipos de documentos:\n\n💰 **Presupuestos**: Cotizaciones profesionales para proyectos\n📋 **Propuestas Comerciales**: Documentos detallados para clientes\n📚 **Documentación Técnica**: Manuales y guías\n🏗️ **Documentación Arquitectónica**: Diagramas Mermaid y especificaciones técnicas\n\n¿Cuál te interesa?',
         actions: [
           {
             label: 'Presupuestos',
             action: () => this.suggestQuoteCreation(),
           },
           {
-            label: 'Documentación',
+            label: 'Propuestas',
+            action: () => this.suggestProposalCreation(),
+          },
+          {
+            label: 'Documentación Técnica',
             action: () => this.suggestDocumentationCreation(),
+          },
+          {
+            label: 'Arquitectura',
+            action: () => this.suggestArchitectureCreation(),
           },
         ],
       };
@@ -497,7 +550,7 @@ export class DocumentBotComponent implements AfterViewChecked {
     const message: Message = {
       id: Date.now().toString(),
       content:
-        '📑 **Tipos de Documentos Disponibles:**\n\n• **Presupuestos**: Cotizaciones profesionales\n• **Documentación**: Manuales y guías\n• **Informes**: Análisis y reportes\n\nCada tipo tiene su propia plantilla optimizada.',
+        '📑 **Tipos de Documentos Disponibles:**\n\n• **Presupuestos**: Cotizaciones profesionales\n• **Propuestas Comerciales**: Documentos detallados para clientes\n• **Documentación Técnica**: Manuales y guías\n• **Documentación Arquitectónica**: Diagramas Mermaid y especificaciones\n\nCada tipo tiene su propia plantilla optimizada.',
       sender: 'bot',
       timestamp: new Date(),
       actions: [
@@ -506,8 +559,84 @@ export class DocumentBotComponent implements AfterViewChecked {
           action: () => this.suggestQuoteCreation(),
         },
         {
-          label: 'Documentación',
+          label: 'Propuestas',
+          action: () => this.suggestProposalCreation(),
+        },
+        {
+          label: 'Documentación Técnica',
           action: () => this.suggestDocumentationCreation(),
+        },
+        {
+          label: 'Arquitectura',
+          action: () => this.suggestArchitectureCreation(),
+        },
+      ],
+    };
+    this.messages.update((msgs) => [...msgs, message]);
+  }
+
+  private suggestProposalCreation() {
+    const message: Message = {
+      id: Date.now().toString(),
+      content:
+        '¡Vamos a crear una propuesta comercial impactante!\n\nTe recomiendo incluir:\n• Resumen ejecutivo convincente\n• Objetivos y alcance claros\n• Cronograma realista\n• Precios competitivos\n• Términos claros\n\n¿Comenzamos?',
+      sender: 'bot',
+      timestamp: new Date(),
+      actions: [
+        {
+          label: 'Crear propuesta ahora',
+          action: () => this.navigateToCreate('proposal'),
+        },
+      ],
+    };
+    this.messages.update((msgs) => [...msgs, message]);
+  }
+
+  private suggestArchitectureCreation() {
+    const message: Message = {
+      id: Date.now().toString(),
+      content:
+        '¡Perfecto para documentación arquitectónica!\n\nIncluye:\n• Resumen del sistema\n• Diagramas de arquitectura (Mermaid)\n• Flujo de datos\n• APIs y endpoints\n• Tecnologías utilizadas\n• Estrategia de despliegue\n\nLos diagramas se renderizan automáticamente.',
+      sender: 'bot',
+      timestamp: new Date(),
+      actions: [
+        {
+          label: 'Crear documentación arquitectónica',
+          action: () => this.navigateToCreate('architecture'),
+        },
+      ],
+    };
+    this.messages.update((msgs) => [...msgs, message]);
+  }
+
+  private showProposalStructure() {
+    const message: Message = {
+      id: Date.now().toString(),
+      content:
+        '📋 **Estructura Recomendada para Propuestas:**\n\n1. **Portada**\n   - Título, cliente, fecha\n\n2. **Resumen Ejecutivo**\n   - Beneficios clave, ROI\n\n3. **Objetivos**\n   - Metas del proyecto\n\n4. **Alcance**\n   - Qué incluye/no incluye\n\n5. **Entregables**\n   - Resultados concretos\n\n6. **Cronograma**\n   - Hitos y fechas\n\n7. **Precios**\n   - Costos detallados\n\n8. **Términos**\n   - Condiciones legales\n\n¿Te ayudo a crear una?',
+      sender: 'bot',
+      timestamp: new Date(),
+      actions: [
+        {
+          label: 'Crear con esta estructura',
+          action: () => this.navigateToCreate('proposal'),
+        },
+      ],
+    };
+    this.messages.update((msgs) => [...msgs, message]);
+  }
+
+  private showMermaidExamples() {
+    const message: Message = {
+      id: Date.now().toString(),
+      content:
+        '🎨 **Ejemplos de Diagramas Mermaid:**\n\n**Diagrama de Arquitectura:**\n```\ngraph TD\n    A[Cliente Web] --> B[API Gateway]\n    B --> C[Servicio de Autenticación]\n    B --> D[Servicio de Documentos]\n    C --> E[Base de Datos PostgreSQL]\n    D --> E\n```\n\n**Flujo de Datos:**\n```\nsequenceDiagram\n    participant Usuario\n    participant API\n    participant DB\n    Usuario->>API: Solicitud\n    API->>DB: Consulta\n    DB-->>API: Resultados\n    API-->>Usuario: Respuesta\n```\n\n¿Quieres crear documentación con estos diagramas?',
+      sender: 'bot',
+      timestamp: new Date(),
+      actions: [
+        {
+          label: 'Crear documentación ahora',
+          action: () => this.navigateToCreate('architecture'),
         },
       ],
     };

@@ -1,8 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UiCardComponent, UiButtonComponent } from '@josanz-erp/shared-ui-kit';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+import mermaid from 'mermaid';
 
 @Component({
   selector: 'app-document-preview',
@@ -65,6 +72,7 @@ import { PdfGenerationService } from '../services/pdf-generation.service';
 
           <!-- Contenido del documento -->
           <div class="prose max-w-none">
+            <!-- Presupuesto -->
             <div *ngIf="document?.type === 'quote'" class="space-y-6">
               <div>
                 <h3 class="text-lg font-medium text-gray-900 mb-3">
@@ -105,6 +113,95 @@ import { PdfGenerationService } from '../services/pdf-generation.service';
               </div>
             </div>
 
+            <!-- Propuesta Comercial -->
+            <div *ngIf="document?.type === 'proposal'" class="space-y-6">
+              <div *ngIf="document?.executiveSummary">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                  Resumen Ejecutivo
+                </h3>
+                <div
+                  class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-400"
+                >
+                  <p class="text-gray-900 whitespace-pre-wrap">
+                    {{ document?.executiveSummary }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                *ngIf="document?.objectives"
+                class="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                <div>
+                  <h4 class="font-medium text-gray-700 mb-2">Objetivos</h4>
+                  <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                      {{ document?.objectives }}
+                    </p>
+                  </div>
+                </div>
+
+                <div *ngIf="document?.scope">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    Alcance del Proyecto
+                  </h4>
+                  <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                      {{ document?.scope }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                *ngIf="document?.deliverables"
+                class="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                <div>
+                  <h4 class="font-medium text-gray-700 mb-2">Entregables</h4>
+                  <div
+                    class="bg-green-50 rounded-lg p-4 border-l-4 border-green-400"
+                  >
+                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                      {{ document?.deliverables }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div *ngIf="document?.timeline">
+                    <h4 class="font-medium text-gray-700 mb-2">Cronograma</h4>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                      <p class="text-purple-900 font-medium">
+                        {{ document?.timeline }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div *ngIf="document?.pricing">
+                    <h4 class="font-medium text-gray-700 mb-2">Precios</h4>
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                      <p class="text-yellow-900 font-medium">
+                        {{ document?.pricing }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="document?.terms">
+                <h4 class="font-medium text-gray-700 mb-2">
+                  Términos y Condiciones
+                </h4>
+                <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-400">
+                  <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                    {{ document?.terms }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documentación Técnica -->
             <div *ngIf="document?.type === 'documentation'" class="space-y-6">
               <div>
                 <h3 class="text-lg font-medium text-gray-900 mb-3">
@@ -118,14 +215,139 @@ import { PdfGenerationService } from '../services/pdf-generation.service';
                 </div>
               </div>
             </div>
+
+            <!-- Documentación Arquitectónica -->
+            <div *ngIf="document?.type === 'architecture'" class="space-y-8">
+              <div *ngIf="document?.systemOverview">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                  Resumen del Sistema
+                </h3>
+                <div
+                  class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-400"
+                >
+                  <p class="text-gray-900 whitespace-pre-wrap">
+                    {{ document?.systemOverview }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Contenedor para diagramas Mermaid -->
+              <div #diagramsContainer class="space-y-6">
+                <div *ngIf="document?.architectureDiagram" class="space-y-4">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    Diagrama de Arquitectura
+                  </h4>
+                  <div class="bg-white border rounded-lg p-4 mermaid-container">
+                    <div id="architecture-diagram" class="flex justify-center">
+                      <div class="text-gray-500">Renderizando diagrama...</div>
+                    </div>
+                  </div>
+                  <details class="text-sm">
+                    <summary
+                      class="cursor-pointer text-gray-600 hover:text-gray-800"
+                    >
+                      Ver código Mermaid
+                    </summary>
+                    <pre
+                      class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs font-mono"
+                      >{{ document?.architectureDiagram }}</pre
+                    >
+                  </details>
+                </div>
+
+                <div *ngIf="document?.dataFlow" class="space-y-4">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    Diagrama de Flujo de Datos
+                  </h4>
+                  <div class="bg-white border rounded-lg p-4 mermaid-container">
+                    <div id="dataflow-diagram" class="flex justify-center">
+                      <div class="text-gray-500">Renderizando diagrama...</div>
+                    </div>
+                  </div>
+                  <details class="text-sm">
+                    <summary
+                      class="cursor-pointer text-gray-600 hover:text-gray-800"
+                    >
+                      Ver código Mermaid
+                    </summary>
+                    <pre
+                      class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs font-mono"
+                      >{{ document?.dataFlow }}</pre
+                    >
+                  </details>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div *ngIf="document?.components">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    Componentes del Sistema
+                  </h4>
+                  <div
+                    class="bg-green-50 rounded-lg p-4 border-l-4 border-green-400"
+                  >
+                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                      {{ document?.components }}
+                    </p>
+                  </div>
+                </div>
+
+                <div *ngIf="document?.technologies">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    Tecnologías Utilizadas
+                  </h4>
+                  <div
+                    class="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-400"
+                  >
+                    <p
+                      class="text-purple-900 whitespace-pre-wrap text-sm font-medium"
+                    >
+                      {{ document?.technologies }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div *ngIf="document?.apis">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    APIs y Endpoints
+                  </h4>
+                  <div
+                    class="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-400"
+                  >
+                    <p
+                      class="text-gray-900 whitespace-pre-wrap text-sm font-mono"
+                    >
+                      {{ document?.apis }}
+                    </p>
+                  </div>
+                </div>
+
+                <div *ngIf="document?.deployment">
+                  <h4 class="font-medium text-gray-700 mb-2">
+                    Estrategia de Despliegue
+                  </h4>
+                  <div
+                    class="bg-indigo-50 rounded-lg p-4 border-l-4 border-indigo-400"
+                  >
+                    <p class="text-indigo-900 whitespace-pre-wrap text-sm">
+                      {{ document?.deployment }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </ui-card>
     </div>
   `,
 })
-export class DocumentPreviewComponent implements OnInit {
+export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   document: any = null;
+  @ViewChild('diagramsContainer', { static: false })
+  diagramsContainer!: ElementRef;
 
   constructor(
     private route: ActivatedRoute,
@@ -154,12 +376,77 @@ export class DocumentPreviewComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    // Renderizar diagramas Mermaid si existen
+    if (this.document?.type === 'architecture' && this.diagramsContainer) {
+      this.renderMermaidDiagrams();
+    }
+  }
+
+  private async renderMermaidDiagrams() {
+    if (!this.document) return;
+
+    try {
+      // Configurar Mermaid
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+      });
+
+      // Renderizar diagrama de arquitectura si existe
+      if (this.document.architectureDiagram) {
+        const architectureContainer =
+          this.diagramsContainer.nativeElement.querySelector(
+            '#architecture-diagram',
+          );
+        if (architectureContainer) {
+          const { svg } = await mermaid.render(
+            'architecture-diagram-svg',
+            this.document.architectureDiagram,
+          );
+          architectureContainer.innerHTML = svg;
+        }
+      }
+
+      // Renderizar diagrama de flujo de datos si existe
+      if (this.document.dataFlow) {
+        const dataFlowContainer =
+          this.diagramsContainer.nativeElement.querySelector(
+            '#dataflow-diagram',
+          );
+        if (dataFlowContainer) {
+          const { svg } = await mermaid.render(
+            'dataflow-diagram-svg',
+            this.document.dataFlow,
+          );
+          dataFlowContainer.innerHTML = svg;
+        }
+      }
+    } catch (error) {
+      console.error('Error rendering Mermaid diagrams:', error);
+      // Mostrar mensaje de error en lugar del diagrama
+      const containers =
+        this.diagramsContainer.nativeElement.querySelectorAll(
+          '.mermaid-container',
+        );
+      containers.forEach((container: HTMLElement) => {
+        container.innerHTML =
+          '<div class="text-red-500 text-sm p-4 bg-red-50 rounded">Error al renderizar el diagrama. Verifica la sintaxis Mermaid.</div>';
+      });
+    }
+  }
+
   getTypeLabel(type: string): string {
     switch (type) {
       case 'quote':
         return 'Presupuesto';
+      case 'proposal':
+        return 'Propuesta';
       case 'documentation':
         return 'Documentación';
+      case 'architecture':
+        return 'Arquitectura';
       default:
         return type;
     }
@@ -169,8 +456,12 @@ export class DocumentPreviewComponent implements OnInit {
     switch (type) {
       case 'quote':
         return 'bg-blue-100 text-blue-800';
+      case 'proposal':
+        return 'bg-purple-100 text-purple-800';
       case 'documentation':
         return 'bg-green-100 text-green-800';
+      case 'architecture':
+        return 'bg-orange-100 text-orange-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }

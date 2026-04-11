@@ -147,6 +147,7 @@
     "exceljs": "^4.4.0",
     "helmet": "^8.1.0",
     "lucide-angular": "^1.0.0",
+    "mermaid": "^11.14.0",
     "nestjs-cls": "^6.2.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

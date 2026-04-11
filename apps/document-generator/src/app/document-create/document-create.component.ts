@@ -14,7 +14,6 @@ import {
   UiInputComponent,
   UiSelectComponent,
   UiTextareaComponent,
-  SelectMapperPipe,
 } from '@josanz-erp/shared-ui-kit';
 
 interface DocumentType {
@@ -130,6 +129,70 @@ interface DocumentType {
               </div>
             </div>
 
+            <!-- Propuesta Comercial -->
+            <div *ngIf="selectedType?.id === 'proposal'">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                Información de la Propuesta
+              </h3>
+              <div class="space-y-6">
+                <ui-input
+                  label="Título de la Propuesta *"
+                  formControlName="title"
+                  placeholder="Título de la propuesta comercial"
+                ></ui-input>
+
+                <ui-textarea
+                  label="Resumen Ejecutivo"
+                  formControlName="executiveSummary"
+                  [rows]="4"
+                  placeholder="Resumen ejecutivo de la propuesta..."
+                ></ui-textarea>
+
+                <ui-textarea
+                  label="Objetivos"
+                  formControlName="objectives"
+                  [rows]="3"
+                  placeholder="Objetivos principales del proyecto..."
+                ></ui-textarea>
+
+                <ui-textarea
+                  label="Alcance del Proyecto"
+                  formControlName="scope"
+                  [rows]="4"
+                  placeholder="Alcance detallado del proyecto..."
+                ></ui-textarea>
+
+                <ui-textarea
+                  label="Entregables"
+                  formControlName="deliverables"
+                  [rows]="4"
+                  placeholder="Lista de entregables y resultados..."
+                ></ui-textarea>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ui-input
+                    label="Cronograma"
+                    formControlName="timeline"
+                    placeholder="Duración estimada del proyecto"
+                  ></ui-input>
+
+                  <ui-input
+                    label="Precios"
+                    formControlName="pricing"
+                    placeholder="Información de precios"
+                  ></ui-input>
+                </div>
+
+                <ui-textarea
+                  label="Términos y Condiciones"
+                  formControlName="terms"
+                  [rows]="4"
+                  placeholder="Términos y condiciones de la propuesta..."
+                ></ui-textarea>
+              </div>
+            </div>
+
+            <!-- Documentación Técnica -->
             <div *ngIf="selectedType?.id === 'documentation'">
               <h3 class="text-lg font-medium text-gray-900 mb-4">
                 Información de la Documentación
@@ -146,6 +209,101 @@ interface DocumentType {
                   formControlName="content"
                   [rows]="8"
                   placeholder="Contenido del documento..."
+                ></ui-textarea>
+              </div>
+            </div>
+
+            <!-- Documentación Arquitectónica -->
+            <div *ngIf="selectedType?.id === 'architecture'">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">
+                Información Arquitectónica
+              </h3>
+              <div class="space-y-6">
+                <ui-input
+                  label="Título del Documento *"
+                  formControlName="title"
+                  placeholder="Título de la documentación arquitectónica"
+                ></ui-input>
+
+                <ui-textarea
+                  label="Resumen del Sistema"
+                  formControlName="systemOverview"
+                  [rows]="4"
+                  placeholder="Descripción general del sistema..."
+                ></ui-textarea>
+
+                <div class="space-y-4">
+                  <label class="block text-sm font-medium text-gray-700">
+                    Diagrama de Arquitectura (Mermaid)
+                  </label>
+                  <textarea
+                    formControlName="architectureDiagram"
+                    rows="8"
+                    placeholder="graph TD
+    A[Cliente] --> B[API Gateway]
+    B --> C[Servicio de Autenticación]
+    B --> D[Servicio de Documentos]
+    C --> E[Base de Datos]
+    D --> E
+
+    subgraph 'Sistema de Gestión'
+    C
+    D
+    end"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                  ></textarea>
+                  <p class="text-xs text-gray-500">
+                    Usa sintaxis Mermaid para crear diagramas. Ejemplos: graph
+                    TD, flowchart LR, etc.
+                  </p>
+                </div>
+
+                <ui-textarea
+                  label="Componentes del Sistema"
+                  formControlName="components"
+                  [rows]="4"
+                  placeholder="Lista y descripción de componentes principales..."
+                ></ui-textarea>
+
+                <div class="space-y-4">
+                  <label class="block text-sm font-medium text-gray-700">
+                    Diagrama de Flujo de Datos (Mermaid)
+                  </label>
+                  <textarea
+                    formControlName="dataFlow"
+                    rows="6"
+                    placeholder="sequenceDiagram
+    participant Usuario
+    participant API
+    participant BaseDatos
+
+    Usuario->>API: Solicitud de datos
+    API->>BaseDatos: Consulta
+    BaseDatos-->>API: Resultados
+    API-->>Usuario: Respuesta"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                  ></textarea>
+                </div>
+
+                <ui-textarea
+                  label="APIs y Endpoints"
+                  formControlName="apis"
+                  [rows]="4"
+                  placeholder="Documentación de APIs, endpoints, métodos HTTP..."
+                ></ui-textarea>
+
+                <ui-textarea
+                  label="Tecnologías Utilizadas"
+                  formControlName="technologies"
+                  [rows]="3"
+                  placeholder="Stack tecnológico, frameworks, bibliotecas..."
+                ></ui-textarea>
+
+                <ui-textarea
+                  label="Estrategia de Despliegue"
+                  formControlName="deployment"
+                  [rows]="4"
+                  placeholder="Arquitectura de despliegue, entornos, escalabilidad..."
                 ></ui-textarea>
               </div>
             </div>
@@ -182,9 +340,19 @@ export class DocumentCreateComponent {
       description: 'Generar presupuesto para proyectos',
     },
     {
+      id: 'proposal',
+      name: 'Propuesta Comercial',
+      description: 'Crear propuestas detalladas para clientes',
+    },
+    {
       id: 'documentation',
-      name: 'Documentación',
+      name: 'Documentación Técnica',
       description: 'Crear documentos técnicos o informativos',
+    },
+    {
+      id: 'architecture',
+      name: 'Documentación Arquitectónica',
+      description: 'Documentos de arquitectura de sistemas con diagramas',
     },
   ];
 
@@ -212,6 +380,22 @@ export class DocumentCreateComponent {
       description: [''],
       title: [''],
       content: [''],
+      // Campos para propuestas
+      executiveSummary: [''],
+      objectives: [''],
+      scope: [''],
+      deliverables: [''],
+      timeline: [''],
+      pricing: [''],
+      terms: [''],
+      // Campos para arquitectura
+      systemOverview: [''],
+      architectureDiagram: [''],
+      components: [''],
+      dataFlow: [''],
+      apis: [''],
+      technologies: [''],
+      deployment: [''],
     });
   }
 
@@ -236,11 +420,24 @@ export class DocumentCreateComponent {
         };
 
         let pdfBytes: Uint8Array;
-        if (this.selectedType?.id === 'quote') {
-          pdfBytes = await this.pdfService.generateQuotePdf(documentData);
-        } else {
-          pdfBytes =
-            await this.pdfService.generateDocumentationPdf(documentData);
+        switch (this.selectedType?.id) {
+          case 'quote':
+            pdfBytes = await this.pdfService.generateQuotePdf(documentData);
+            break;
+          case 'proposal':
+            pdfBytes = await this.pdfService.generateProposalPdf(documentData);
+            break;
+          case 'documentation':
+            pdfBytes =
+              await this.pdfService.generateDocumentationPdf(documentData);
+            break;
+          case 'architecture':
+            pdfBytes =
+              await this.pdfService.generateArchitecturePdf(documentData);
+            break;
+          default:
+            pdfBytes =
+              await this.pdfService.generateDocumentationPdf(documentData);
         }
 
         // Store PDF data temporarily (in a real app, save to server)
