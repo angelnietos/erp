@@ -405,7 +405,7 @@ interface DocumentType {
                 Plantillas predefinidas
               </label>
               <div class="flex flex-wrap gap-2">
-                <button 
+                <button
                   *ngFor="let template of templates"
                   type="button"
                   (click)="loadTemplate(template)"
@@ -417,23 +417,100 @@ interface DocumentType {
             </div>
 
             <!-- Barra de Herramientas Markdown -->
-            <div class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200">
-              <button type="button" (click)="insertMarkdown('**', '**')" title="Negrita (Ctrl+B)" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-bold">B</button>
-              <button type="button" (click)="insertMarkdown('*', '*')" title="Cursiva (Ctrl+I)" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all italic">I</button>
+            <div
+              class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200"
+            >
+              <button
+                type="button"
+                (click)="insertMarkdown('**', '**')"
+                title="Negrita (Ctrl+B)"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-bold"
+              >
+                B
+              </button>
+              <button
+                type="button"
+                (click)="insertMarkdown('*', '*')"
+                title="Cursiva (Ctrl+I)"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all italic"
+              >
+                I
+              </button>
               <div class="w-px bg-slate-300 mx-1"></div>
-              <button type="button" (click)="insertMarkdown('# ', '')" title="Encabezado 1" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">H1</button>
-              <button type="button" (click)="insertMarkdown('## ', '')" title="Encabezado 2" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">H2</button>
-              <button type="button" (click)="insertMarkdown('### ', '')" title="Encabezado 3" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">H3</button>
+              <button
+                type="button"
+                (click)="insertMarkdown('# ', '')"
+                title="Encabezado 1"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+              >
+                H1
+              </button>
+              <button
+                type="button"
+                (click)="insertMarkdown('## ', '')"
+                title="Encabezado 2"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                (click)="insertMarkdown('### ', '')"
+                title="Encabezado 3"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+              >
+                H3
+              </button>
               <div class="w-px bg-slate-300 mx-1"></div>
-              <button type="button" (click)="insertMarkdown('- ', '')" title="Lista" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">• Lista</button>
-              <button type="button" (click)="insertMarkdown('> ', '')" title="Cita" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">" Cita</button>
-              <button type="button" (click)="insertCode()" title="Código" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs">&lt;&gt;</button>
-              <button type="button" (click)="insertCodeBlock()" title="Bloque de código" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs">{}</button>
+              <button
+                type="button"
+                (click)="insertMarkdown('- ', '')"
+                title="Lista"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+              >
+                • Lista
+              </button>
+              <button
+                type="button"
+                (click)="insertMarkdown('> ', '')"
+                title="Cita"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+              >
+                " Cita
+              </button>
+              <button
+                type="button"
+                (click)="insertCode()"
+                title="Código"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
+              >
+                &lt;&gt;
+              </button>
+              <button
+                type="button"
+                (click)="insertCodeBlock()"
+                title="Bloque de código"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
+              >
+                {{ '{}' }}
+              </button>
               <div class="w-px bg-slate-300 mx-1"></div>
-              <button type="button" (click)="insertMarkdown('[', '](url)')" title="Enlace" class="px-3 py-1.5 rounded-lg hover:bg-white transition-all">🔗</button>
-              
-              <div class="ml-auto flex items-center gap-3 text-xs text-slate-500">
-                <span *ngIf="autoSaved" class="text-green-600 flex items-center gap-1">
+              <button
+                type="button"
+                (click)="insertMarkdown('[', '](url)')"
+                title="Enlace"
+                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+              >
+                🔗
+              </button>
+
+              <div
+                class="ml-auto flex items-center gap-3 text-xs text-slate-500"
+              >
+                <span
+                  *ngIf="autoSaved"
+                  class="text-green-600 flex items-center gap-1"
+                >
                   <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
                   Guardado automatico
                 </span>
@@ -448,17 +525,29 @@ interface DocumentType {
                   Contenido Markdown
                 </label>
                 <div class="flex items-center gap-2 text-xs text-slate-500">
-                  <span class="px-2 py-1 bg-slate-100 rounded">Atajos: Ctrl+B Ctrl+I Ctrl+S</span>
+                  <span class="px-2 py-1 bg-slate-100 rounded"
+                    >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
+                  >
                 </div>
               </div>
 
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <!-- Editor Markdown -->
                 <div class="space-y-2">
-                  <div class="text-xs font-medium text-slate-500 flex justify-between">
+                  <div
+                    class="text-xs font-medium text-slate-500 flex justify-between"
+                  >
                     <span>Editor</span>
-                    <button type="button" (click)="toggleFullscreen()" class="hover:text-blue-600">
-                      {{ fullscreenMode ? 'Salir pantalla completa' : 'Pantalla completa' }}
+                    <button
+                      type="button"
+                      (click)="toggleFullscreen()"
+                      class="hover:text-blue-600"
+                    >
+                      {{
+                        fullscreenMode
+                          ? 'Salir pantalla completa'
+                          : 'Pantalla completa'
+                      }}
                     </button>
                   </div>
                   <textarea
@@ -475,8 +564,10 @@ interface DocumentType {
 
                 <!-- Vista Previa Live -->
                 <div class="space-y-2">
-                  <div class="text-xs font-medium text-slate-500">Vista Previa</div>
-                  <div 
+                  <div class="text-xs font-medium text-slate-500">
+                    Vista Previa
+                  </div>
+                  <div
                     class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
                     [innerHTML]="previewHtml"
                     [class.h-screen]="fullscreenMode"
@@ -528,8 +619,18 @@ interface DocumentType {
                 (click)="exportMarkdown()"
                 class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
               >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
                 Exportar MD
               </button>
