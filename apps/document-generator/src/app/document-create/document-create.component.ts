@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  HostListener,
-  ViewChild,
-  ElementRef,
-} from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import {
@@ -15,7 +9,7 @@ import {
 } from '@angular/forms';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 
-declare var marked: any;
+declare const marked: { parse: (content: string) => string };
 
 interface DocumentType {
   id: string;
@@ -133,573 +127,641 @@ interface DocumentType {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div
-            *ngFor="let type of documentTypes"
-            (click)="selectDocumentType(type)"
-            class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
-            [class.border-blue-500]="selectedType?.id === type.id"
-            [class.bg-gradient-to-br]="selectedType?.id === type.id"
-            [class.from-blue-50]="selectedType?.id === type.id"
-            [class.to-indigo-50]="selectedType?.id === type.id"
-            [class.border-slate-200]="selectedType?.id !== type.id"
-            [class.hover:border-slate-300]="selectedType?.id !== type.id"
-          >
-            <div class="flex items-start justify-between mb-4">
-              <div
-                class="w-12 h-12 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-all duration-300"
-              >
-                <svg
-                  *ngIf="type.id === 'quote'"
-                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599-1"
-                  />
-                </svg>
-                <svg
-                  *ngIf="type.id === 'proposal'"
-                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4M21 12c0 4.418-3.582 8-8 8a8.963 8.963 0 01-5.586-2.068A8.963 8.963 0 015 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
-                  />
-                </svg>
-                <svg
-                  *ngIf="type.id === 'documentation'"
-                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-                <svg
-                  *ngIf="type.id === 'architecture'"
-                  class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 2 0 011-1h2a1 2 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-              <div
-                *ngIf="selectedType?.id === type.id"
-                class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center"
-              >
-                <svg
-                  class="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div class="space-y-2">
-              <h3
-                class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors"
-              >
-                {{ type.name }}
-              </h3>
-              <p class="text-slate-600 leading-relaxed">
-                {{ type.description }}
-              </p>
-            </div>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <span
-                *ngIf="type.id === 'quote'"
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800"
-              >
-                💰 Cálculos automáticos
-              </span>
-              <span
-                *ngIf="type.id === 'proposal'"
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-800"
-              >
-                📋 Estructura profesional
-              </span>
-              <span
-                *ngIf="type.id === 'documentation'"
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
-              >
-                📖 Contenido técnico
-              </span>
-              <span
-                *ngIf="type.id === 'architecture'"
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800"
-              >
-                🎨 Diagramas Mermaid
-              </span>
-              <span
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700"
-              >
-                🤖 Asistente IA
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Form Section -->
-      <div
-        *ngIf="selectedType"
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
-      >
-        <div class="mb-8">
-          <div class="flex items-center space-x-3 mb-4">
+          @for (type of documentTypes; track type.id) {
             <div
-              class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"
+              (click)="selectDocumentType(type)"
+              (keydown.enter)="selectDocumentType(type)"
+              (keydown.space)="selectDocumentType(type)"
+              tabindex="0"
+              role="button"
+              class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
+              [class.border-blue-500]="selectedType?.id === type.id"
+              [class.bg-gradient-to-br]="selectedType?.id === type.id"
+              [class.from-blue-50]="selectedType?.id === type.id"
+              [class.to-indigo-50]="selectedType?.id === type.id"
+              [class.border-slate-200]="selectedType?.id !== type.id"
+              [class.hover:border-slate-300]="selectedType?.id !== type.id"
             >
-              <svg
-                class="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-2xl font-bold text-slate-900">
-                Información del Documento
-              </h2>
-              <p class="text-slate-600">
-                Completa los detalles para generar tu
-                {{ selectedType.name.toLowerCase() }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <form
-          [formGroup]="documentForm"
-          (ngSubmit)="generateDocument()"
-          class="space-y-8"
-        >
-          <div class="bg-slate-50 rounded-xl p-6 border border-slate-200/50">
-            <h3
-              class="text-lg font-semibold text-slate-900 mb-4 flex items-center"
-            >
-              <svg
-                class="w-5 h-5 mr-2 text-slate-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
-                />
-              </svg>
-              Información General
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-slate-700"
-                  >Cliente *</label
+              <div class="flex items-start justify-between mb-4">
+                <div
+                  class="w-12 h-12 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-all duration-300"
                 >
-                <select
-                  formControlName="clientId"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                >
-                  <option value="">Seleccionar cliente</option>
-                  <option *ngFor="let client of clients" [value]="client.id">
-                    {{ client.name }}
-                  </option>
-                </select>
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-slate-700"
-                  >Fecha</label
-                >
-                <input
-                  type="date"
-                  formControlName="date"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-6">
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-slate-700"
-                >Título del Documento</label
-              >
-              <input
-                type="text"
-                formControlName="title"
-                [placeholder]="getTitlePlaceholder()"
-                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-              />
-            </div>
-
-            <div
-              *ngIf="selectedType?.id === 'quote'"
-              class="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-slate-700"
-                  >Proyecto</label
-                >
-                <input
-                  type="text"
-                  formControlName="projectName"
-                  placeholder="Nombre del proyecto"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                />
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-slate-700"
-                  >Monto Total (€)</label
-                >
-                <input
-                  type="number"
-                  formControlName="totalAmount"
-                  placeholder="0.00"
-                  step="0.01"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                />
-              </div>
-            </div>
-
-            <!-- Plantillas Rápidas -->
-            <div class="space-y-3">
-              <label class="block text-sm font-medium text-slate-700">
-                Plantillas predefinidas
-              </label>
-              <div class="flex flex-wrap gap-2">
-                <button
-                  *ngFor="let template of templates"
-                  type="button"
-                  (click)="loadTemplate(template)"
-                  class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all"
-                >
-                  {{ template.name }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Barra de Herramientas Markdown -->
-            <div
-              class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200"
-            >
-              <button
-                type="button"
-                (click)="insertMarkdown('**', '**')"
-                title="Negrita (Ctrl+B)"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-bold"
-              >
-                B
-              </button>
-              <button
-                type="button"
-                (click)="insertMarkdown('*', '*')"
-                title="Cursiva (Ctrl+I)"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all italic"
-              >
-                I
-              </button>
-              <div class="w-px bg-slate-300 mx-1"></div>
-              <button
-                type="button"
-                (click)="insertMarkdown('# ', '')"
-                title="Encabezado 1"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
-              >
-                H1
-              </button>
-              <button
-                type="button"
-                (click)="insertMarkdown('## ', '')"
-                title="Encabezado 2"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
-              >
-                H2
-              </button>
-              <button
-                type="button"
-                (click)="insertMarkdown('### ', '')"
-                title="Encabezado 3"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
-              >
-                H3
-              </button>
-              <div class="w-px bg-slate-300 mx-1"></div>
-              <button
-                type="button"
-                (click)="insertMarkdown('- ', '')"
-                title="Lista"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
-              >
-                • Lista
-              </button>
-              <button
-                type="button"
-                (click)="insertMarkdown('> ', '')"
-                title="Cita"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
-              >
-                " Cita
-              </button>
-              <button
-                type="button"
-                (click)="insertCode()"
-                title="Código"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
-              >
-                &lt;&gt;
-              </button>
-              <button
-                type="button"
-                (click)="insertCodeBlock()"
-                title="Bloque de código"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
-              >
-                {{ '{}' }}
-              </button>
-              <div class="w-px bg-slate-300 mx-1"></div>
-              <button
-                type="button"
-                (click)="insertMarkdown('[', '](url)')"
-                title="Enlace"
-                class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
-              >
-                🔗
-              </button>
-
-              <div
-                class="ml-auto flex items-center gap-3 text-xs text-slate-500"
-              >
-                <span
-                  *ngIf="autoSaved"
-                  class="text-green-600 flex items-center gap-1"
-                >
-                  <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                  Guardado automatico
-                </span>
-                <span>{{ wordCount }} palabras</span>
-                <span>{{ characterCount }} caracteres</span>
-              </div>
-            </div>
-
-            <div class="space-y-4">
-              <div class="flex items-center justify-between">
-                <label class="block text-sm font-medium text-slate-700">
-                  Contenido Markdown
-                </label>
-                <div class="flex items-center gap-2 text-xs text-slate-500">
-                  <span class="px-2 py-1 bg-slate-100 rounded"
-                    >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
-                  >
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <!-- Editor Markdown -->
-                <div class="space-y-2">
-                  <div
-                    class="text-xs font-medium text-slate-500 flex justify-between"
-                  >
-                    <span>Editor</span>
-                    <button
-                      type="button"
-                      (click)="toggleFullscreen()"
-                      class="hover:text-blue-600"
+                  @if (type.id === 'quote') {
+                    <svg
+                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {{
-                        fullscreenMode
-                          ? 'Salir pantalla completa'
-                          : 'Pantalla completa'
-                      }}
-                    </button>
-                  </div>
-                  <textarea
-                    #editor
-                    formControlName="content"
-                    [placeholder]="getContentPlaceholder()"
-                    rows="18"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
-                    (input)="updatePreview()"
-                    (keydown)="handleKeydown($event)"
-                    [class.h-screen]="fullscreenMode"
-                  ></textarea>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08.402-2.599-1"
+                      />
+                    </svg>
+                  }
+                  @if (type.id === 'proposal') {
+                    <svg
+                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4M21 12c0 4.418-3.582 8-8 8a8.963 8.963 0 01-5.586-2.068A8.963 8.963 0 015 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"
+                      />
+                    </svg>
+                  }
+                  @if (type.id === 'documentation') {
+                    <svg
+                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      />
+                    </svg>
+                  }
+                  @if (type.id === 'architecture') {
+                    <svg
+                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 2 0 011-1h2a1 2 0 011 1v5m-4 0h4"
+                      />
+                    </svg>
+                  }
                 </div>
-
-                <!-- Vista Previa Live -->
-                <div class="space-y-2">
-                  <div class="text-xs font-medium text-slate-500">
-                    Vista Previa
-                  </div>
+                @if (selectedType?.id === type.id) {
                   <div
-                    class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
-                    [innerHTML]="previewHtml"
-                    [class.h-screen]="fullscreenMode"
-                  ></div>
+                    class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                }
+              </div>
+              <div class="space-y-2">
+                <h3
+                  class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors"
+                >
+                  {{ type.name }}
+                </h3>
+                <p class="text-slate-600 leading-relaxed">
+                  {{ type.description }}
+                </p>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                @if (type.id === 'quote') {
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800"
+                  >
+                    💰 Cálculos automáticos
+                  </span>
+                }
+                @if (type.id === 'proposal') {
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-800"
+                  >
+                    📋 Estructura profesional
+                  </span>
+                }
+                @if (type.id === 'documentation') {
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    📖 Contenido técnico
+                  </span>
+                }
+                @if (type.id === 'architecture') {
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800"
+                  >
+                    🎨 Diagramas Mermaid
+                  </span>
+                }
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700"
+                >
+                  🤖 Asistente IA
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Form Section -->
+        @if (selectedType) {
+          <div
+            class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+          >
+            <div class="mb-8">
+              <div class="flex items-center space-x-3 mb-4">
+                <div
+                  class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="text-2xl font-bold text-slate-900">
+                    Información del Documento
+                  </h2>
+                  <p class="text-slate-600">
+                    Completa los detalles para generar tu
+                    {{ selectedType.name.toLowerCase() }}
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div *ngIf="selectedType?.id === 'architecture'" class="space-y-4">
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-slate-700"
-                  >Diagrama de Arquitectura (Mermaid)</label
-                >
-                <textarea
-                  formControlName="architectureDiagram"
-                  rows="4"
-                  placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm"
-                ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-slate-200 gap-4"
-          >
-            <button
-              (click)="goBack()"
-              class="inline-flex items-center px-6 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+            <form
+              [formGroup]="documentForm"
+              (ngSubmit)="generateDocument()"
+              class="space-y-8"
             >
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <div
+                class="bg-slate-50 rounded-xl p-6 border border-slate-200/50"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Volver Atrás
-            </button>
-            <div class="flex items-center space-x-4">
-              <button
-                type="button"
-                (click)="exportMarkdown()"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                <h3
+                  class="text-lg font-semibold text-slate-900 mb-4 flex items-center"
+                >
+                  <svg
+                    class="w-5 h-5 mr-2 text-slate-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
+                    />
+                  </svg>
+                  Información General
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2">
+                    <label
+                      for="clientId"
+                      class="block text-sm font-medium text-slate-700"
+                      >Cliente *</label
+                    >
+                    <select
+                      id="clientId"
+                      formControlName="clientId"
+                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                    >
+                      <option value="">Seleccionar cliente</option>
+                      @for (client of clients; track client.id) {
+                        <option [value]="client.id">
+                          {{ client.name }}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                  <div class="space-y-2">
+                    <label
+                      for="date"
+                      class="block text-sm font-medium text-slate-700"
+                      >Fecha</label
+                    >
+                    <input
+                      id="date"
+                      type="date"
+                      formControlName="date"
+                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-6">
+                <div class="space-y-2">
+                  <label
+                    for="title"
+                    class="block text-sm font-medium text-slate-700"
+                    >Título del Documento</label
+                  >
+                  <input
+                    id="title"
+                    type="text"
+                    formControlName="title"
+                    [placeholder]="getTitlePlaceholder()"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                  />
+                </div>
+
+                @if (selectedType?.id === 'quote') {
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                      <label
+                        for="projectName"
+                        class="block text-sm font-medium text-slate-700"
+                        >Proyecto</label
+                      >
+                      <input
+                        id="projectName"
+                        type="text"
+                        formControlName="projectName"
+                        placeholder="Nombre del proyecto"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                      />
+                    </div>
+                    <div class="space-y-2">
+                      <label
+                        for="totalAmount"
+                        class="block text-sm font-medium text-slate-700"
+                        >Monto Total (€)</label
+                      >
+                      <input
+                        id="totalAmount"
+                        type="number"
+                        formControlName="totalAmount"
+                        placeholder="0.00"
+                        step="0.01"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                      />
+                    </div>
+                  </div>
+                }
+
+                <!-- Plantillas Rápidas -->
+                <div class="space-y-3">
+                  <label
+                    id="templates-label"
+                    class="block text-sm font-medium text-slate-700"
+                  >
+                    Plantillas predefinidas
+                  </label>
+                  <div
+                    class="flex flex-wrap gap-2"
+                    role="group"
+                    aria-labelledby="templates-label"
+                  >
+                    @for (template of templates; track template.id) {
+                      <button
+                        type="button"
+                        (click)="loadTemplate(template)"
+                        class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all"
+                      >
+                        {{ template.name }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Barra de Herramientas Markdown -->
+                <div
+                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200"
+                >
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('**', '**')"
+                    title="Negrita (Ctrl+B)"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-bold"
+                  >
+                    B
+                  </button>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('*', '*')"
+                    title="Cursiva (Ctrl+I)"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all italic"
+                  >
+                    I
+                  </button>
+                  <div class="w-px bg-slate-300 mx-1"></div>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('# ', '')"
+                    title="Encabezado 1"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                  >
+                    H1
+                  </button>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('## ', '')"
+                    title="Encabezado 2"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                  >
+                    H2
+                  </button>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('### ', '')"
+                    title="Encabezado 3"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                  >
+                    H3
+                  </button>
+                  <div class="w-px bg-slate-300 mx-1"></div>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('- ', '')"
+                    title="Lista"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                  >
+                    • Lista
+                  </button>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('> ', '')"
+                    title="Cita"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                  >
+                    " Cita
+                  </button>
+                  <button
+                    type="button"
+                    (click)="insertCode()"
+                    title="Código"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
+                  >
+                    &lt;&gt;
+                  </button>
+                  <button
+                    type="button"
+                    (click)="insertCodeBlock()"
+                    title="Bloque de código"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
+                  >
+                    {{ '{}' }}
+                  </button>
+                  <div class="w-px bg-slate-300 mx-1"></div>
+                  <button
+                    type="button"
+                    (click)="insertMarkdown('[', '](url)')"
+                    title="Enlace"
+                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                  >
+                    🔗
+                  </button>
+
+                  <div
+                    class="ml-auto flex items-center gap-3 text-xs text-slate-500"
+                  >
+                    @if (autoSaved) {
+                      <span class="text-green-600 flex items-center gap-1">
+                        <span
+                          class="w-1.5 h-1.5 bg-green-500 rounded-full"
+                        ></span>
+                        Guardado automatico
+                      </span>
+                    }
+                    <span>{{ wordCount }} palabras</span>
+                    <span>{{ characterCount }} caracteres</span>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <label
+                      for="content"
+                      class="block text-sm font-medium text-slate-700"
+                    >
+                      Contenido Markdown
+                    </label>
+                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                      <span class="px-2 py-1 bg-slate-100 rounded"
+                        >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
+                      >
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Editor Markdown -->
+                    <div class="space-y-2">
+                      <div
+                        class="text-xs font-medium text-slate-500 flex justify-between"
+                      >
+                        <span>Editor</span>
+                        <button
+                          type="button"
+                          (click)="toggleFullscreen()"
+                          class="hover:text-blue-600"
+                        >
+                          {{
+                            fullscreenMode
+                              ? 'Salir pantalla completa'
+                              : 'Pantalla completa'
+                          }}
+                        </button>
+                      </div>
+                      <textarea
+                        #editor
+                        formControlName="content"
+                        [placeholder]="getContentPlaceholder()"
+                        rows="18"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
+                        (input)="updatePreview()"
+                        (keydown)="handleKeydown($event)"
+                        [class.h-screen]="fullscreenMode"
+                      ></textarea>
+                    </div>
+
+                    <!-- Vista Previa Live -->
+                    <div class="space-y-2">
+                      <div class="text-xs font-medium text-slate-500">
+                        Vista Previa
+                      </div>
+                      <div
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
+                        [innerHTML]="previewHtml"
+                        [class.h-screen]="fullscreenMode"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                @if (selectedType?.id === 'architecture') {
+                  <div class="space-y-4">
+                    <div class="space-y-2">
+                      <label
+                        for="architectureDiagram"
+                        class="block text-sm font-medium text-slate-700"
+                        >Diagrama de Arquitectura (Mermaid)</label
+                      >
+                      <textarea
+                        id="architectureDiagram"
+                        formControlName="architectureDiagram"
+                        rows="4"
+                        placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm"
+                      ></textarea>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div
+                class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-slate-200 gap-4"
               >
-                <svg
-                  class="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <button
+                  (click)="goBack()"
+                  class="inline-flex items-center px-6 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                Exportar MD
-              </button>
-              <button
-                routerLink="/documents/bot"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                <svg
-                  class="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
-                  />
-                </svg>
-                Consultar Asistente
-              </button>
-              <button
-                type="submit"
-                [disabled]="documentForm.invalid || isGenerating"
-                class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transform hover:scale-105 disabled:hover:scale-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
-              >
-                <svg
-                  *ngIf="!isGenerating"
-                  class="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <svg
-                  *ngIf="isGenerating"
-                  class="w-5 h-5 mr-2 animate-spin"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                {{
-                  isGenerating
-                    ? 'Generando Documento...'
-                    : 'Generar Documento PDF'
-                }}
-              </button>
-            </div>
+                  <svg
+                    class="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                  </svg>
+                  Volver Atrás
+                </button>
+                <div class="flex items-center space-x-4">
+                  <button
+                    type="button"
+                    (click)="exportMarkdown()"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Exportar MD
+                  </button>
+                  <button
+                    routerLink="/documents/bot"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
+                      />
+                    </svg>
+                    Consultar Asistente
+                  </button>
+                  <button
+                    type="submit"
+                    [disabled]="documentForm.invalid || isGenerating"
+                    class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transform hover:scale-105 disabled:hover:scale-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
+                  >
+                    @if (!isGenerating) {
+                      <svg
+                        class="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z"
+                        />
+                      </svg>
+                    }
+                    @if (isGenerating) {
+                      <svg
+                        class="w-5 h-5 mr-2 animate-spin"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                    }
+                    @if (isGenerating) {
+                      <svg
+                        class="w-5 h-5 mr-2 animate-spin"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                    }
+
+                    {{
+                      isGenerating
+                        ? 'Generando Documento...'
+                        : 'Generar Documento PDF'
+                    }}
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        }
       </div>
     </div>
   `,
 })
-export class DocumentCreateComponent {
+export class DocumentCreateComponent implements OnInit {
   selectedType: DocumentType | null = null;
   documentForm: FormGroup;
   isGenerating = false;
@@ -764,11 +826,11 @@ export class DocumentCreateComponent {
     value: client.id,
   }));
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private pdfService: PdfGenerationService,
-  ) {
+  readonly fb = inject(FormBuilder);
+  readonly router = inject(Router);
+  readonly pdfService = inject(PdfGenerationService);
+
+  constructor() {
     this.documentForm = this.fb.group({
       clientId: ['', Validators.required],
       date: [new Date().toISOString().split('T')[0]],
@@ -843,7 +905,7 @@ export class DocumentCreateComponent {
     const content = this.documentForm.get('content')?.value || '';
     try {
       this.previewHtml = marked.parse(content);
-    } catch (e) {
+    } catch {
       this.previewHtml = content;
     }
 
@@ -897,7 +959,7 @@ export class DocumentCreateComponent {
     }
   }
 
-  loadTemplate(template: any) {
+  loadTemplate(template: { id: string; name: string; content: string }) {
     this.documentForm.patchValue({ content: template.content });
     this.updatePreview();
   }
@@ -946,13 +1008,7 @@ export class DocumentCreateComponent {
             pdfBytes = await this.pdfService.generateProposalPdf(documentData);
             break;
           case 'documentation':
-            pdfBytes =
-              await this.pdfService.generateDocumentationPdf(documentData);
-            break;
           case 'architecture':
-            pdfBytes =
-              await this.pdfService.generateArchitecturePdf(documentData);
-            break;
           default:
             pdfBytes =
               await this.pdfService.generateDocumentationPdf(documentData);
