@@ -11,7 +11,6 @@ const meta: Meta<UiButtonComponent> = {
       options: ['button', 'submit'],
       control: { type: 'select' },
     },
-    onClick: { action: 'clicked' },
   },
 };
 export default meta;
@@ -22,7 +21,7 @@ export const Primary: Story = {
     type: 'button',
     disabled: false,
     loading: false,
-    icon: ArrowRight,
+    icon: 'arrow-right',
   },
 };
 

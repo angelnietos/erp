@@ -16,7 +16,7 @@ export const Default: Story = {
     label: 'E-mail',
     placeholder: 'Introduce tu e-mail',
     type: 'email',
-    icon: User,
+    icon: 'user',
     error: false,
   },
 };

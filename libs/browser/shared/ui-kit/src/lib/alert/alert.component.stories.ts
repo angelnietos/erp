@@ -11,20 +11,20 @@ type Story = StoryObj<UiAlertComponent>;
 
 export const Error: Story = {
   args: {
-    type: 'error',
+    variant: 'error',
   },
   render: (args) => ({
     props: args,
-    template: `<ui-alert [type]="type">Este es un mensaje de error.</ui-alert>`,
+    template: `<ui-alert [variant]="variant">Este es un mensaje de error.</ui-alert>`,
   }),
 };
 
 export const Success: Story = {
   args: {
-    type: 'success',
+    variant: 'success',
   },
   render: (args) => ({
     props: args,
-    template: `<ui-alert [type]="type">Acción completada con éxito.</ui-alert>`,
+    template: `<ui-alert [variant]="variant">Acción completada con éxito.</ui-alert>`,
   }),
 };
