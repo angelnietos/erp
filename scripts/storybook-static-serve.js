@@ -4,7 +4,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8081;
 const dir = path.join(__dirname, '..', 'dist', 'storybook', 'ui-kit');
 
 const mimeTypes = {
@@ -55,5 +55,4 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, () => {
   console.log(`Serving Storybook at http://localhost:${port}`);
-  console.log(`Open your browser to http://localhost:${port}`);
 });
