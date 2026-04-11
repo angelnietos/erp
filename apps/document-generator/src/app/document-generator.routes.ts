@@ -39,4 +39,11 @@ export const documentGeneratorRoutes: Route[] = [
         (m) => m.DocumentPreviewComponent,
       ),
   },
+  {
+    path: 'analysis',
+    loadComponent: () =>
+      import('./document-analysis/document-analysis.component').then(
+        (m) => m.DocumentAnalysisComponent,
+      ),
+  },
 ];
