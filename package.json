@@ -51,7 +51,7 @@
     "docs:frontend": "npx -y @compodoc/compodoc -p apps/frontend/tsconfig.app.json -d documentation/compodoc --silent",
     "storybook": "pnpm exec storybook dev -p 6006",
     "storybook:fresh": "pnpm exec storybook dev -p 6006 --no-manager-cache",
-    "build-storybook": "pnpm exec storybook build",
+    "build-storybook": "pnpm exec nx run ui-kit:build-storybook",
     "storybook:static": "pnpm build-storybook && node scripts/storybook-static-serve.js",
     "storybook:serve": "npx serve storybook-static -p 6006"
   },
