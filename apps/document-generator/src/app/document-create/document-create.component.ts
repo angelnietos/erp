@@ -426,12 +426,9 @@ interface DocumentType {
 
                 <!-- Plantillas Rápidas -->
                 <div class="space-y-3">
-                  <label
-                    id="templates-label"
-                    class="block text-sm font-medium text-slate-700"
-                  >
+                  <div class="block text-sm font-medium text-slate-700">
                     Plantillas predefinidas
-                  </label>
+                  </div>
                   <div
                     class="flex flex-wrap gap-2"
                     role="group"
