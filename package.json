@@ -49,11 +49,11 @@
     "test:verifactu-worker": "nx run verifactu-worker:test --configuration=ci",
     "prima:seed": "npx prisma db seed",
     "docs:frontend": "npx -y @compodoc/compodoc -p apps/frontend/tsconfig.app.json -d documentation/compodoc --silent",
-    "storybook": "pnpm exec storybook dev -p 6006",
-    "storybook:fresh": "pnpm exec storybook dev -p 6006 --no-manager-cache",
+    "storybook": "pnpm exec nx run ui-kit:storybook",
+    "storybook:fresh": "pnpm exec nx run ui-kit:storybook --args=\"--no-manager-cache\"",
     "build-storybook": "pnpm exec nx run ui-kit:build-storybook",
     "storybook:static": "pnpm build-storybook && node scripts/storybook-static-serve.js",
-    "storybook:serve": "npx serve storybook-static -p 6006"
+    "storybook:serve": "pnpm exec nx run ui-kit:static-storybook"
   },
   "private": true,
   "devDependencies": {

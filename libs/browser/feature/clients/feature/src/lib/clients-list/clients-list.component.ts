@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, PlusCircle, ArrowUp } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiSearchComponent,
@@ -32,7 +32,7 @@ import {
   FilterableService,
   AIFormBridgeService,
 } from '@josanz-erp/shared-data-access';
-import { Observable, of, map } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
 @Component({
@@ -87,7 +87,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         ></ui-stat-card>
         <ui-stat-card
           label="Ingresos totales"
-          [value]="(totalRevenue() | number:'1.0-0') + '€'"
+          [value]="(totalRevenue() | number: '1.0-0') + '€'"
           icon="dollar-sign"
           [trend]="15"
         ></ui-stat-card>
@@ -103,15 +103,22 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           ></ui-search>
         </div>
         <div class="actions-group">
-           <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
-            <ui-button 
-              variant="ghost" 
-              size="sm" 
-              [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-              (clicked)="toggleSort()"
-            >
-              ORDENAR: {{ sortField() === 'name' ? 'NOMBRE' : sortField() === 'revenue' ? 'INGRESOS' : 'PROYECTOS' }}
-            </ui-button>
+          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            ORDENAR:
+            {{
+              sortField() === 'name'
+                ? 'NOMBRE'
+                : sortField() === 'revenue'
+                  ? 'INGRESOS'
+                  : 'PROYECTOS'
+            }}
+          </ui-button>
         </div>
       </div>
 
@@ -128,7 +135,9 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
               [subtitle]="client.contact || 'Sin contacto'"
               [avatarInitials]="getInitials(client.name)"
               [avatarBackground]="getClientColor(client)"
-              [status]="getClientStatus(client) === 'active' ? 'active' : 'offline'"
+              [status]="
+                getClientStatus(client) === 'active' ? 'active' : 'offline'
+              "
               [badgeLabel]="client.sector || 'General'"
               [showEdit]="true"
               [showDuplicate]="true"
@@ -138,21 +147,38 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
               (duplicateClicked)="onDuplicate(client)"
               (deleteClicked)="confirmDelete(client)"
               [footerItems]="[
-                { icon: 'briefcase', label: getClientProjects(client) + ' proyectos' },
-                { icon: 'dollar-sign', label: (getClientRevenue(client) | number:'1.0-0') + '€' }
+                {
+                  icon: 'briefcase',
+                  label: getClientProjects(client) + ' proyectos',
+                },
+                {
+                  icon: 'dollar-sign',
+                  label: (getClientRevenue(client) | number: '1.0-0') + '€',
+                },
               ]"
             >
               <div footer-extra class="client-rating">
-                 <lucide-icon name="star" size="12" class="filled"></lucide-icon>
-                 <span>{{ getClientRating(client) }}/5</span>
+                <lucide-icon name="star" size="12" class="filled"></lucide-icon>
+                <span>{{ getClientRating(client) }}/5</span>
               </div>
             </ui-feature-card>
           } @empty {
             <div class="empty-state">
-              <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+              <lucide-icon
+                name="users"
+                size="64"
+                class="empty-icon"
+              ></lucide-icon>
               <h3>No hay clientes</h3>
-              <p>Comienza añadiendo tu primer cliente para gestionar tu cartera comercial.</p>
-              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
+              <p>
+                Comienza añadiendo tu primer cliente para gestionar tu cartera
+                comercial.
+              </p>
+              <ui-button
+                variant="solid"
+                (clicked)="openCreateModal()"
+                icon="CirclePlus"
+              >
                 Añadir primer cliente
               </ui-button>
             </div>
@@ -170,87 +196,162 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         <div class="modal-form">
           <!-- Form sections as before, but simplified if possible -->
           <div class="form-section">
-             <h4 class="section-title">Información General</h4>
-             <div class="form-grid">
-               <ui-input label="Nombre completo *" [(ngModel)]="formData.name" icon="user" placeholder="Nombre del cliente" required></ui-input>
-               <ui-input label="CIF/NIF" [(ngModel)]="formData.taxId" icon="hash" placeholder="B12345678"></ui-input>
-               <ui-input label="Sector" [(ngModel)]="formData.sector" icon="briefcase" placeholder="Ej: Tecnología"></ui-input>
-               <ui-input label="Tipo" [(ngModel)]="formData.type" icon="building-2" placeholder="Empresa, Particular..."></ui-input>
-             </div>
+            <h4 class="section-title">Información General</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Nombre completo *"
+                [(ngModel)]="formData.name"
+                icon="user"
+                placeholder="Nombre del cliente"
+                required
+              ></ui-input>
+              <ui-input
+                label="CIF/NIF"
+                [(ngModel)]="formData.taxId"
+                icon="hash"
+                placeholder="B12345678"
+              ></ui-input>
+              <ui-input
+                label="Sector"
+                [(ngModel)]="formData.sector"
+                icon="briefcase"
+                placeholder="Ej: Tecnología"
+              ></ui-input>
+              <ui-input
+                label="Tipo"
+                [(ngModel)]="formData.type"
+                icon="building-2"
+                placeholder="Empresa, Particular..."
+              ></ui-input>
+            </div>
           </div>
-          
+
           <div class="form-section">
-             <h4 class="section-title">Información de Contacto</h4>
-             <div class="form-grid">
-               <ui-input label="Persona contacto" [(ngModel)]="formData.contact" icon="user-check"></ui-input>
-               <ui-input label="Email" [(ngModel)]="formData.email" icon="mail" type="email"></ui-input>
-               <ui-input label="Teléfono" [(ngModel)]="formData.phone" icon="phone"></ui-input>
-             </div>
+            <h4 class="section-title">Información de Contacto</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Persona contacto"
+                [(ngModel)]="formData.contact"
+                icon="user-check"
+              ></ui-input>
+              <ui-input
+                label="Email"
+                [(ngModel)]="formData.email"
+                icon="mail"
+                type="email"
+              ></ui-input>
+              <ui-input
+                label="Teléfono"
+                [(ngModel)]="formData.phone"
+                icon="phone"
+              ></ui-input>
+            </div>
           </div>
         </div>
 
         <div class="modal-actions">
-          <ui-button variant="ghost" (clicked)="closeModal()">Cancelar</ui-button>
-          <ui-button variant="solid" (clicked)="saveClient()" [loading]="isSaving()" icon="save">
+          <ui-button variant="ghost" (clicked)="closeModal()"
+            >Cancelar</ui-button
+          >
+          <ui-button
+            variant="solid"
+            (clicked)="saveClient()"
+            [loading]="isSaving()"
+            icon="save"
+          >
             {{ editingClient() ? 'Guardar cambios' : 'Crear cliente' }}
           </ui-button>
         </div>
       </ui-modal>
     </div>
   `,
-  styles: [`
-    .clients-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-      min-height: 100vh;
-    }
+  styles: [
+    `
+      .clients-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        min-height: 100vh;
+      }
 
-    .flex-1 { flex: 1; }
-    
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      padding: 4rem;
-    }
+      .flex-1 {
+        flex: 1;
+      }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 16px;
-      border: 2px dashed var(--border-soft);
-    }
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        padding: 4rem;
+      }
 
-    .empty-icon { color: var(--text-muted); margin-bottom: 1rem; opacity: 0.5; }
+      .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4rem;
+        text-align: center;
+        background: var(--surface);
+        border-radius: 16px;
+        border: 2px dashed var(--border-soft);
+      }
 
-    .client-rating {
-       display: flex;
-       align-items: center;
-       gap: 0.25rem;
-       font-size: 0.75rem;
-       color: var(--text-muted);
-       font-weight: 600;
-    }
+      .empty-icon {
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
 
-    .client-rating .filled { color: #fbbf24; fill: currentColor; }
+      .client-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
 
-    /* Modal Form Styles */
-    .modal-form { padding: 1rem 0; }
-    .form-section { margin-bottom: 1.5rem; }
-    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; }
+      .client-rating .filled {
+        color: #fbbf24;
+        fill: currentColor;
+      }
 
-    @media (max-width: 768px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .controls-section { flex-direction: column; align-items: stretch; }
-    }
-  `],
+      /* Modal Form Styles */
+      .modal-form {
+        padding: 1rem 0;
+      }
+      .form-section {
+        margin-bottom: 1.5rem;
+      }
+      .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .controls-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientsListComponent
@@ -293,7 +394,10 @@ export class ClientsListComponent
     type: 'company',
     notes: '',
   };
-  memoizedStats = new Map<string, { projects: number; revenue: number; rating: number }>();
+  memoizedStats = new Map<
+    string,
+    { projects: number; revenue: number; rating: number }
+  >();
 
   sortField = signal<'name' | 'revenue' | 'projects'>('name');
   sortDirection = signal<1 | -1>(1);
@@ -301,7 +405,7 @@ export class ClientsListComponent
   filteredClients = computed(() => {
     let list = [...this.clients()];
     const t = this.masterFilter.query().trim().toLowerCase();
-    
+
     // 1. Search filter
     if (t) {
       list = list.filter(
@@ -480,10 +584,10 @@ export class ClientsListComponent
   }
 
   onDuplicate(client: Client) {
-    const { id, createdAt, ...rest } = client;
+    const { ...rest } = client;
     this.facade.createClient({
       ...rest,
-      name: `${client.name} (Copia)`
+      name: `${client.name} (Copia)`,
     });
   }
 
@@ -498,7 +602,7 @@ export class ClientsListComponent
   getClientInitials(client: Client): string {
     return client.name
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
+      .map((word) => word.charAt(0).toUpperCase())
       .slice(0, 2)
       .join('');
   }
@@ -532,7 +636,9 @@ export class ClientsListComponent
     return {
       projects: Math.floor(Math.random() * 10) + 1, // Placeholder
       revenue: Math.floor(Math.random() * 50000) + 10000, // Placeholder
-      lastActivity: new Date(client.createdAt || Date.now()).toLocaleDateString('es-ES'),
+      lastActivity: new Date(client.createdAt || Date.now()).toLocaleDateString(
+        'es-ES',
+      ),
     };
   }
 
@@ -544,7 +650,7 @@ export class ClientsListComponent
   getInitials(name: string): string {
     return name
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
+      .map((word) => word.charAt(0).toUpperCase())
       .slice(0, 2)
       .join('');
   }
@@ -597,7 +703,7 @@ export class ClientsListComponent
   }
 
   private isValidPhone(phone: string): boolean {
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{9,}$/;
+    const phoneRegex = /^[+]?[0-9\s\-()]{9,}$/;
     return phoneRegex.test(phone);
   }
 }
