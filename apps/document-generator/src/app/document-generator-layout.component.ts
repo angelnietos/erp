@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { LucideAngularModule, Bot } from 'lucide-angular';
 
 @Component({
   selector: 'app-document-generator-layout',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, LucideAngularModule],
   template: `
     <div class="min-h-screen bg-gray-50">
       <!-- Header -->
@@ -32,6 +33,14 @@ import { CommonModule } from '@angular/common';
               >
                 Crear Nuevo
               </a>
+              <a
+                routerLink="/documents/bot"
+                routerLinkActive="text-blue-600"
+                class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+              >
+                <lucide-icon [img]="BotIcon" class="w-4 h-4"></lucide-icon>
+                Asistente
+              </a>
             </nav>
           </div>
         </div>
@@ -44,4 +53,6 @@ import { CommonModule } from '@angular/common';
     </div>
   `,
 })
-export class DocumentGeneratorLayoutComponent {}
+export class DocumentGeneratorLayoutComponent {
+  protected readonly BotIcon = Bot;
+}

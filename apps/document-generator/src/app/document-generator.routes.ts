@@ -12,6 +12,13 @@ export const documentGeneratorRoutes: Route[] = [
     pathMatch: 'full',
   },
   {
+    path: 'bot',
+    loadComponent: () =>
+      import('./document-bot/document-bot.component').then(
+        (m) => m.DocumentBotComponent,
+      ),
+  },
+  {
     path: 'list',
     loadComponent: () =>
       import('./document-list/document-list.component').then(
