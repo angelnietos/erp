@@ -1,7 +1,31 @@
 import { Injectable } from '@angular/core';
 
-declare var html2pdf: any;
-declare var marked: any;
+declare const html2pdf: any;
+declare const marked: any;
+
+interface DocumentData {
+  title?: string;
+  content?: string;
+  date?: string;
+  client?: string;
+  type?: string;
+  projectName?: string;
+  totalAmount?: number;
+  description?: string;
+  systemOverview?: string;
+  architectureDiagram?: string;
+  dataFlow?: string;
+  components?: string;
+  technologies?: string;
+  apis?: string;
+  executiveSummary?: string;
+  objectives?: string;
+  scope?: string;
+  deliverables?: string;
+  timeline?: string;
+  pricing?: string;
+  terms?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +35,7 @@ export class PdfGenerationService {
    * Genera PDF PROFESIONAL desde Markdown
    * El PDF es IDENTICO a la vista previa web
    */
-  async generateMarkdownPdf(data: any): Promise<Blob> {
+  async generateMarkdownPdf(data: DocumentData): Promise<Blob> {
     // Convertimos Markdown a HTML exactamente igual que la vista previa
     const htmlContent = marked.parse(data.content || '');
 
@@ -191,26 +215,26 @@ export class PdfGenerationService {
     return pdfBlob;
   }
 
-  async generateQuotePdf(data: any): Promise<Blob> {
+  async generateQuotePdf(data: DocumentData): Promise<Blob> {
     const htmlContent = this.buildQuoteHtml(data);
     return this.generatePdfFromHtml(htmlContent, data);
   }
 
-  async generateDocumentationPdf(data: any): Promise<Blob> {
+  async generateDocumentationPdf(data: DocumentData): Promise<Blob> {
     return this.generateMarkdownPdf(data);
   }
 
-  async generateProposalPdf(data: any): Promise<Blob> {
+  async generateProposalPdf(data: DocumentData): Promise<Blob> {
     const htmlContent = this.buildProposalHtml(data);
     return this.generatePdfFromHtml(htmlContent, data);
   }
 
-  async generateArchitecturePdf(data: any): Promise<Blob> {
+  async generateArchitecturePdf(data: DocumentData): Promise<Blob> {
     const htmlContent = await this.buildArchitectureHtml(data);
     return this.generatePdfFromHtml(htmlContent, data);
   }
 
-  private async buildArchitectureHtml(data: any): Promise<string> {
+  private async buildArchitectureHtml(data: DocumentData): Promise<string> {
     let html = '';
 
     if (data.systemOverview) {
@@ -291,7 +315,7 @@ export class PdfGenerationService {
     return html;
   }
 
-  private buildProposalHtml(data: any): string {
+  private buildProposalHtml(data: DocumentData): string {
     let html = '';
 
     if (data.executiveSummary) {
@@ -395,7 +419,7 @@ export class PdfGenerationService {
     return html;
   }
 
-  private buildQuoteHtml(data: any): string {
+  private buildQuoteHtml(data: DocumentData): string {
     return `
       <div style="margin-bottom: 2rem;">
         <h3 style="font-size: 18pt; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Presupuesto del Proyecto</h3>
@@ -426,7 +450,7 @@ export class PdfGenerationService {
 
   private async generatePdfFromHtml(
     htmlContent: string,
-    data: any,
+    data: DocumentData,
   ): Promise<Blob> {
     const pdfTemplate = `
       <!DOCTYPE html>
@@ -556,7 +580,7 @@ export class PdfGenerationService {
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
   }
 }
