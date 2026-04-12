@@ -1143,6 +1143,21 @@ export class DocumentCreateComponent implements OnInit {
     const content = this.documentForm.get('content')?.value || '';
     const title = this.documentForm.get('title')?.value || 'documento';
 
+    if (format === 'pdf') {
+      // ✅ EXPORTAR PDF IGUAL QUE LA VISTA PREVIA - USAR HTML RENDERIZADO
+      const previewContainer = document.querySelector('.prose.max-w-none');
+      if (previewContainer) {
+        const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
+        const blob = await this.universalDocument.exportRenderedHTMLToPDF(
+          clonedContent.innerHTML,
+          title,
+        );
+        this.universalDocument.download(blob, `${title}.pdf`);
+        return;
+      }
+    }
+
+    // Para otros formatos continuar usando el sistema de bloques
     const blocks = content.split('\n\n').map((text: string) => ({
       id: crypto.randomUUID(),
       type: text.startsWith('# ') ? 'heading' : 'text',
@@ -1155,7 +1170,6 @@ export class DocumentCreateComponent implements OnInit {
 
     const formatMap: Record<string, DocumentFormat> = {
       markdown: DocumentFormat.MARKDOWN,
-      pdf: DocumentFormat.PDF,
       xlsx: DocumentFormat.XLSX,
       html: DocumentFormat.HTML,
       txt: DocumentFormat.PLAINTEXT,

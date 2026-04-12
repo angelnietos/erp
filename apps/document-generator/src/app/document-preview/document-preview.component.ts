@@ -556,16 +556,12 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
       // Clonar el contenido para no modificar la vista original
       const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
 
-      // Añadir estilos que aplican en la vista previa
-      const fullHtml = `
-        <div style="max-width: 800px; margin: 0 auto; padding: 40px; font-family: system-ui, -apple-system, sans-serif; background: white;">
-          ${clonedContent.innerHTML}
-        </div>
-      `;
-
-      // Usar el método que genera PDF EXACTAMENTE igual que lo que ve el usuario
+      // Pasar directamente el HTML interior - el servicio ya inyecta todos los estilos
       this.universalDocumentService
-        .exportRenderedHTMLToPDF(fullHtml, this.document?.title || 'documento')
+        .exportRenderedHTMLToPDF(
+          clonedContent.innerHTML,
+          this.document?.title || 'documento',
+        )
         .then((blob) => {
           this.universalDocumentService.download(
             blob,

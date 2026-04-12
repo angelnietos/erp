@@ -33,8 +33,6 @@ export interface ImportResult {
 export class UniversalDocumentService {
   async export(blocks: any[], options: DocumentExportOptions): Promise<Blob> {
     switch (options.format) {
-      case DocumentFormat.PDF:
-        return this.exportToPDF(blocks, options);
       case DocumentFormat.XLSX:
         return this.exportToExcel(blocks, options);
       case DocumentFormat.MARKDOWN:
@@ -360,7 +358,7 @@ export class UniversalDocumentService {
   async exportRenderedHTMLToPDF(html: string, title: string): Promise<Blob> {
     // Generar PDF EXACTAMENTE igual que la previsualización usando html2pdf
     const options: any = {
-      margin: [25, 20, 25, 20] as [number, number, number, number],
+      margin: [20, 15, 25, 15] as [number, number, number, number],
       filename: `${title}.pdf`,
       image: { type: 'jpeg' as const, quality: 0.98 },
       html2canvas: {
@@ -368,39 +366,144 @@ export class UniversalDocumentService {
         useCORS: true,
         letterRendering: true,
         scrollY: 0,
-        logging: false,
+        logging: true,
+        allowTaint: true,
+        ignoreElements: (element: HTMLElement) => element.tagName === 'SCRIPT',
+        removeContainer: true,
+        onclone: (clonedDoc: Document) => {
+          const scripts = clonedDoc.querySelectorAll('script');
+          scripts.forEach((s) => s.remove());
+        },
       },
       jsPDF: {
         unit: 'mm',
         format: 'a4',
         orientation: 'portrait' as const,
         putOnlyUsedFonts: true,
+        compress: true,
       },
       pagebreak: {
-        mode: 'css',
-        avoid: 'h1, h2, h3, pre, blockquote, table',
+        mode: ['css', 'legacy'],
+        avoid: 'h1, h2, h3, h4, pre, blockquote, table, tr, .mermaid-container',
       },
+      enableLinks: true,
     };
 
-    const container = document.createElement('div');
-    container.innerHTML = html;
-    container.style.maxWidth = '100%';
-    container.style.padding = '0';
-    container.style.margin = '0';
-    container.style.background = 'white';
-    container.style.fontFamily =
-      'system-ui, -apple-system, Segoe UI, sans-serif';
-    container.style.color = '#1e293b';
-    container.style.lineHeight = '1.6';
+    // Inyectar TODOS los estilos inline SIN DEPENDENCIAS EXTERNAS
+    const fullHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page { margin: 0; }
+          body { 
+            margin: 0; 
+            padding: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: white;
+          }
+          
+          /* Estilos exactos igual que en la vista previa - TODO INLINE SIN @apply */
+          .prose { max-width: 100% !important; }
+          .prose h1 { font-size: 1.875rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; margin-top: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; }
+          .prose h2 { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; margin-top: 1.25rem; }
+          .prose h3 { font-size: 1.25rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem; margin-top: 1rem; }
+          .prose h4 { font-size: 1.125rem; font-weight: 500; color: #334155; margin-bottom: 0.5rem; margin-top: 0.75rem; }
+          .prose p { font-size: 1rem; color: #334155; line-height: 1.75; margin-bottom: 0.75rem; text-align: justify; }
+          .prose ul, .prose ol { margin-top: 0.75rem; margin-bottom: 0.75rem; padding-left: 1.5rem; }
+          .prose li { margin-bottom: 0.375rem; color: #334155; }
+          .prose blockquote { border-left: 4px solid #3b82f6; background-color: #eff6ff; padding: 1rem; margin-top: 1rem; margin-bottom: 1rem; border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem; color: #1e40af; }
+          .prose code { background-color: #f1f5f9; padding-left: 0.375rem; padding-right: 0.375rem; padding-top: 0.125rem; padding-bottom: 0.125rem; border-radius: 0.25rem; font-size: 0.875rem; font-family: monospace; color: #dc2626; }
+          .prose pre { background-color: #0f172a; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; margin-bottom: 1rem; overflow-x: auto; color: #f1f5f9; font-size: 0.875rem; font-family: monospace; }
+          .prose pre code { background-color: transparent; padding: 0; color: #f1f5f9; }
+          .prose strong { font-weight: 700; color: #0f172a; }
+          .prose em { font-style: italic; }
+          .prose hr { margin-top: 1.5rem; margin-bottom: 1.5rem; border-color: #e2e8f0; }
+          .prose a { color: #2563eb; text-decoration: underline; }
+          .prose table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1rem; }
+          .prose th { background-color: #f1f5f9; font-weight: 600; text-align: left; padding: 0.75rem; border: 1px solid #e2e8f0; }
+          .prose td { padding: 0.75rem; border: 1px solid #e2e8f0; color: #334155; }
+          
+          /* Estilos de los bloques especiales */
+          .bg-gray-50 { background-color: #f8fafc; }
+          .bg-blue-50 { background-color: #eff6ff; }
+          .bg-green-50 { background-color: #f0fdf4; }
+          .bg-purple-50 { background-color: #faf5ff; }
+          .bg-yellow-50 { background-color: #fefce8; }
+          .bg-red-50 { background-color: #fef2f2; }
+          .bg-orange-50 { background-color: #fff7ed; }
+          .bg-indigo-50 { background-color: #eef2ff; }
+          
+          .border-l-4 { border-left-width: 4px; }
+          .border-blue-400 { border-left-color: #60a5fa; }
+          .border-green-400 { border-left-color: #4ade80; }
+          .border-purple-400 { border-left-color: #c084fc; }
+          .border-red-400 { border-left-color: #f87171; }
+          .border-orange-400 { border-left-color: #fb923c; }
+          .border-indigo-400 { border-left-color: #818cf8; }
+          
+          .rounded-lg { border-radius: 0.5rem; }
+          .p-4 { padding: 1rem; }
+          .p-8 { padding: 2rem; }
+          .max-w-none { max-width: none; }
+          .text-green-600 { color: #16a34a; }
+          .text-blue-800 { color: #1e40af; }
+          .text-purple-900 { color: #581c87; }
+          .text-yellow-900 { color: #78350f; }
+          .text-indigo-900 { color: #312e81; }
+          .text-gray-900 { color: #0f172a; }
+          .text-gray-700 { color: #334155; }
+          .text-gray-600 { color: #475569; }
+          .font-medium { font-weight: 500; }
+          .font-semibold { font-weight: 600; }
+          .font-bold { font-weight: 700; }
+          .whitespace-pre-wrap { white-space: pre-wrap; }
+          .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        </style>
+      </head>
+      <body>
+        <div class="p-8 max-w-none">
+          ${html}
+        </div>
+      </body>
+      </html>
+    `;
 
-    // Importante: Añadir al DOM para que se apliquen todos los estilos de Tailwind
+    const container = document.createElement('div');
+    container.innerHTML = fullHtml;
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '210mm';
+    container.style.minHeight = '297mm';
+    container.style.background = 'white';
+    container.style.zIndex = '99999';
+    container.style.overflow = 'visible';
+
     document.body.appendChild(container);
 
-    // Esperar un frame para que el navegador renderice completamente los estilos
+    // Esperar que Tailwind y todos los estilos se carguen completamente
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    const pdf = await html2pdf().set(options).from(container).outputPdf('blob');
-    document.body.removeChild(container);
+    // Seleccionar el contenido correcto NO el body completo
+    const contentElement =
+      (container.querySelector('.p-8.max-w-none') as HTMLElement) ||
+      (container.querySelector('body') as HTMLElement);
+
+    const pdf = await html2pdf()
+      .set(options)
+      .from(contentElement!)
+      .outputPdf('blob');
+
+    // Limpiar siempre el contenedor incluso si hay error
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
 
     return pdf;
   }

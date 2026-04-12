@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { UniversalDocumentService } from './universal-document.service';
 
 declare var html2pdf: any;
-declare var marked: any;
 
 @Injectable({
   providedIn: 'root',
@@ -12,43 +11,34 @@ export class PdfGenerationService {
 
   /**
    * Genera PDF PROFESIONAL EXACTAMENTE IGUAL que la vista previa web
-   * NO usa markdown crudo - usa el HTML ya renderizado del DOM
+   * ✅ NUNCA USA MARKDOWN CRUDO - SIEMPRE USA LA VISTA RENDERIZADA
    */
   async generateMarkdownPdf(data: any): Promise<void> {
-    // Buscar el contenedor de vista previa que ya esta renderizado en pantalla
-    const previewContainer = document.querySelector('.prose.max-w-none');
+    // ✅ OBTENER SIEMPRE EL CONTENIDO DIRECTAMENTE DEL DOM RENDERIZADO
+    // Buscar selectores múltiples por si alguno falla
+    const previewContainer =
+      document.querySelector('.prose.max-w-none') ||
+      document.querySelector('.prose') ||
+      document.querySelector('[class*="prose"]') ||
+      document.querySelector('.document-preview-content');
 
-    if (previewContainer) {
-      // Usar el contenido YA RENDERIZADO que el usuario esta viendo
-      const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
-
-      const fullHtml = `
-        <div style="max-width: 800px; margin: 0 auto; padding: 40px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: white; color: #1e293b; line-height: 1.6;">
-          ${clonedContent.innerHTML}
-        </div>
-      `;
-
-      const blob = await this.universalDocumentService.exportRenderedHTMLToPDF(
-        fullHtml,
-        data.title || 'documento',
-      );
-
-      this.universalDocumentService.download(
-        blob,
-        `${data.title || 'documento'}.pdf`,
-      );
-    } else {
-      // Fallback si no hay vista previa visible
-      const htmlContent = marked.parse(data.content || '');
-      const blob = await this.universalDocumentService.exportRenderedHTMLToPDF(
-        htmlContent,
-        data.title || 'documento',
-      );
-      this.universalDocumentService.download(
-        blob,
-        `${data.title || 'documento'}.pdf`,
-      );
+    if (!previewContainer) {
+      console.error('No se encontró la vista previa renderizada');
+      return;
     }
+
+    // ✅ COPIAMOS EXACTAMENTE LO QUE VE EL USUARIO EN PANTALLA
+    const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
+
+    const blob = await this.universalDocumentService.exportRenderedHTMLToPDF(
+      clonedContent.innerHTML,
+      data.title || 'documento',
+    );
+
+    this.universalDocumentService.download(
+      blob,
+      `${data.title || 'documento'}.pdf`,
+    );
   }
 
   async generateQuotePdf(data: any): Promise<Uint8Array> {
