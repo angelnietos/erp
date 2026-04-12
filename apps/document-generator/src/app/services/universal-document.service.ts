@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as ExcelJS from 'exceljs';
-import html2pdf from 'html2pdf.js';
 
 export enum DocumentFormat {
   DOCS20 = 'docs20',
@@ -33,6 +32,8 @@ export interface ImportResult {
 export class UniversalDocumentService {
   async export(blocks: any[], options: DocumentExportOptions): Promise<Blob> {
     switch (options.format) {
+      case DocumentFormat.PDF:
+        return this.exportToPDF(blocks, options);
       case DocumentFormat.XLSX:
         return this.exportToExcel(blocks, options);
       case DocumentFormat.MARKDOWN:
@@ -77,13 +78,8 @@ export class UniversalDocumentService {
     options: DocumentExportOptions,
   ): Promise<Blob> {
     const pdfDoc = await PDFDocument.create();
-    // Usar fuente Helvetica que soporta mejor caracteres
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica, {
-      subset: true,
-    });
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold, {
-      subset: true,
-    });
+    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
 
     let page = pdfDoc.addPage();
     const { width, height } = page.getSize();
@@ -108,38 +104,32 @@ export class UniversalDocumentService {
         });
         yPosition -= lineHeight * 1.5;
       } else {
-        // Limpiar caracteres no soportados y saltos de línea
-        const cleanContent = block.content
-          .replace(/[\x00-\x1F\x7F]/g, ' ')
-          .replace(/\s+/g, ' ');
-        const words = cleanContent.split(' ');
+        const words = block.content.split(' ');
         let line = '';
         const maxWidth = width - margin * 2;
 
         words.forEach((word: string) => {
-          // Saltar palabras vacías
-          if (!word.trim()) return;
-
           const testLine = line + word + ' ';
-          const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+          const testWidth = timesRomanFont.widthOfTextAtSize(
+            testLine,
+            fontSize,
+          );
 
           if (testWidth > maxWidth) {
-            if (line.trim()) {
-              page.drawText(line.trim(), {
-                x: margin,
-                y: yPosition,
-                size: fontSize,
-                font: font,
-                color: rgb(0, 0, 0),
-              });
-              yPosition -= lineHeight;
-
-              if (yPosition < 80) {
-                page = pdfDoc.addPage();
-                yPosition = height - 50;
-              }
-            }
+            page.drawText(line.trim(), {
+              x: margin,
+              y: yPosition,
+              size: fontSize,
+              font: timesRomanFont,
+              color: rgb(0, 0, 0),
+            });
             line = word + ' ';
+            yPosition -= lineHeight;
+
+            if (yPosition < 80) {
+              page = pdfDoc.addPage();
+              yPosition = height - 50;
+            }
           } else {
             line = testLine;
           }
@@ -150,7 +140,7 @@ export class UniversalDocumentService {
             x: margin,
             y: yPosition,
             size: fontSize,
-            font: font,
+            font: timesRomanFont,
             color: rgb(0, 0, 0),
           });
           yPosition -= lineHeight;
@@ -161,7 +151,12 @@ export class UniversalDocumentService {
     });
 
     const pdfBytes = await pdfDoc.save();
-    return new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
+    const buffer = new ArrayBuffer(pdfBytes.length);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < pdfBytes.length; i++) {
+      view[i] = pdfBytes[i];
+    }
+    return new Blob([buffer], { type: 'application/pdf' });
   }
 
   private async exportToExcel(
@@ -353,159 +348,6 @@ export class UniversalDocumentService {
         export: true,
       },
     ];
-  }
-
-  async exportRenderedHTMLToPDF(html: string, title: string): Promise<Blob> {
-    // Generar PDF EXACTAMENTE igual que la previsualización usando html2pdf
-    const options: any = {
-      margin: [20, 15, 25, 15] as [number, number, number, number],
-      filename: `${title}.pdf`,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        scrollY: 0,
-        logging: true,
-        allowTaint: true,
-        ignoreElements: (element: HTMLElement) => element.tagName === 'SCRIPT',
-        removeContainer: true,
-        onclone: (clonedDoc: Document) => {
-          const scripts = clonedDoc.querySelectorAll('script');
-          scripts.forEach((s) => s.remove());
-        },
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait' as const,
-        putOnlyUsedFonts: true,
-        compress: true,
-      },
-      pagebreak: {
-        mode: ['css', 'legacy'],
-        avoid: 'h1, h2, h3, h4, pre, blockquote, table, tr, .mermaid-container',
-      },
-      enableLinks: true,
-    };
-
-    // Inyectar TODOS los estilos inline SIN DEPENDENCIAS EXTERNAS
-    const fullHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          @page { margin: 0; }
-          body { 
-            margin: 0; 
-            padding: 0;
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            background: white;
-          }
-          
-          /* Estilos exactos igual que en la vista previa - TODO INLINE SIN @apply */
-          .prose { max-width: 100% !important; }
-          .prose h1 { font-size: 1.875rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; margin-top: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; }
-          .prose h2 { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; margin-top: 1.25rem; }
-          .prose h3 { font-size: 1.25rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem; margin-top: 1rem; }
-          .prose h4 { font-size: 1.125rem; font-weight: 500; color: #334155; margin-bottom: 0.5rem; margin-top: 0.75rem; }
-          .prose p { font-size: 1rem; color: #334155; line-height: 1.75; margin-bottom: 0.75rem; text-align: justify; }
-          .prose ul, .prose ol { margin-top: 0.75rem; margin-bottom: 0.75rem; padding-left: 1.5rem; }
-          .prose li { margin-bottom: 0.375rem; color: #334155; }
-          .prose blockquote { border-left: 4px solid #3b82f6; background-color: #eff6ff; padding: 1rem; margin-top: 1rem; margin-bottom: 1rem; border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem; color: #1e40af; }
-          .prose code { background-color: #f1f5f9; padding-left: 0.375rem; padding-right: 0.375rem; padding-top: 0.125rem; padding-bottom: 0.125rem; border-radius: 0.25rem; font-size: 0.875rem; font-family: monospace; color: #dc2626; }
-          .prose pre { background-color: #0f172a; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; margin-bottom: 1rem; overflow-x: auto; color: #f1f5f9; font-size: 0.875rem; font-family: monospace; }
-          .prose pre code { background-color: transparent; padding: 0; color: #f1f5f9; }
-          .prose strong { font-weight: 700; color: #0f172a; }
-          .prose em { font-style: italic; }
-          .prose hr { margin-top: 1.5rem; margin-bottom: 1.5rem; border-color: #e2e8f0; }
-          .prose a { color: #2563eb; text-decoration: underline; }
-          .prose table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1rem; }
-          .prose th { background-color: #f1f5f9; font-weight: 600; text-align: left; padding: 0.75rem; border: 1px solid #e2e8f0; }
-          .prose td { padding: 0.75rem; border: 1px solid #e2e8f0; color: #334155; }
-          
-          /* Estilos de los bloques especiales */
-          .bg-gray-50 { background-color: #f8fafc; }
-          .bg-blue-50 { background-color: #eff6ff; }
-          .bg-green-50 { background-color: #f0fdf4; }
-          .bg-purple-50 { background-color: #faf5ff; }
-          .bg-yellow-50 { background-color: #fefce8; }
-          .bg-red-50 { background-color: #fef2f2; }
-          .bg-orange-50 { background-color: #fff7ed; }
-          .bg-indigo-50 { background-color: #eef2ff; }
-          
-          .border-l-4 { border-left-width: 4px; }
-          .border-blue-400 { border-left-color: #60a5fa; }
-          .border-green-400 { border-left-color: #4ade80; }
-          .border-purple-400 { border-left-color: #c084fc; }
-          .border-red-400 { border-left-color: #f87171; }
-          .border-orange-400 { border-left-color: #fb923c; }
-          .border-indigo-400 { border-left-color: #818cf8; }
-          
-          .rounded-lg { border-radius: 0.5rem; }
-          .p-4 { padding: 1rem; }
-          .p-8 { padding: 2rem; }
-          .max-w-none { max-width: none; }
-          .text-green-600 { color: #16a34a; }
-          .text-blue-800 { color: #1e40af; }
-          .text-purple-900 { color: #581c87; }
-          .text-yellow-900 { color: #78350f; }
-          .text-indigo-900 { color: #312e81; }
-          .text-gray-900 { color: #0f172a; }
-          .text-gray-700 { color: #334155; }
-          .text-gray-600 { color: #475569; }
-          .font-medium { font-weight: 500; }
-          .font-semibold { font-weight: 600; }
-          .font-bold { font-weight: 700; }
-          .whitespace-pre-wrap { white-space: pre-wrap; }
-          .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-        </style>
-      </head>
-      <body>
-        <div class="p-8 max-w-none">
-          ${html}
-        </div>
-      </body>
-      </html>
-    `;
-
-    const container = document.createElement('div');
-    container.innerHTML = fullHtml;
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    container.style.width = '210mm';
-    container.style.minHeight = '297mm';
-    container.style.background = 'white';
-    container.style.zIndex = '99999';
-    container.style.overflow = 'visible';
-
-    document.body.appendChild(container);
-
-    // Esperar que Tailwind y todos los estilos se carguen completamente
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-
-    // Seleccionar el contenido correcto NO el body completo
-    const contentElement =
-      (container.querySelector('.p-8.max-w-none') as HTMLElement) ||
-      (container.querySelector('body') as HTMLElement);
-
-    const pdf = await html2pdf()
-      .set(options)
-      .from(contentElement!)
-      .outputPdf('blob');
-
-    // Limpiar siempre el contenedor incluso si hay error
-    if (document.body.contains(container)) {
-      document.body.removeChild(container);
-    }
-
-    return pdf;
   }
 
   async download(blob: Blob, filename: string): Promise<void> {

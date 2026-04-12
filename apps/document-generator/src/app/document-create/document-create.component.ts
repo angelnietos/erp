@@ -65,24 +65,13 @@ interface DocumentType {
   selector: 'app-document-create',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  host: {
-    '[class.page-container]': 'true',
-  },
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav
-        class="flex items-center space-x-2 text-sm"
-        style="color: var(--text-secondary)"
-      >
+      <nav class="flex items-center space-x-2 text-sm text-slate-600">
         <button
           routerLink="/documents/list"
-          class="transition-colors"
-          [style.color]="
-            isHoverBreadcrumb ? 'var(--text-primary)' : 'var(--text-secondary)'
-          "
-          (mouseenter)="isHoverBreadcrumb = true"
-          (mouseleave)="isHoverBreadcrumb = false"
+          class="hover:text-slate-900 transition-colors"
         >
           Documentos
         </button>
@@ -99,20 +88,16 @@ interface DocumentType {
             d="M9 5l7 7-7 7"
           />
         </svg>
-        <span class="font-medium" style="color: var(--text-primary)"
-          >Crear Nuevo</span
-        >
+        <span class="text-slate-900 font-medium">Crear Nuevo</span>
       </nav>
 
       <!-- Header -->
       <div
-        class="ui-glass p-8 animate-slide-up"
-        style="background: var(--surface); border: 1px solid var(--border-soft);"
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
       >
         <div class="text-center max-w-2xl mx-auto">
           <div
-            class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
-            style="background: var(--primary)"
+            class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
           >
             <svg
               class="w-8 h-8 text-white"
@@ -129,12 +114,11 @@ interface DocumentType {
             </svg>
           </div>
           <h1
-            class="text-3xl font-bold mb-3"
-            style="color: var(--text-primary)"
+            class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3"
           >
             Crear Nuevo Documento
           </h1>
-          <p class="text-lg" style="color: var(--text-secondary)">
+          <p class="text-slate-600 text-lg">
             Selecciona el tipo de documento que deseas crear y deja que nuestro
             asistente IA te guíe
           </p>
@@ -143,17 +127,13 @@ interface DocumentType {
 
       <!-- Document Type Selection -->
       <div
-        class="rounded-2xl shadow-xl p-8"
-        style="background: var(--surface); border: 1px solid var(--border-soft);"
+        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
       >
         <div class="mb-8">
-          <h2
-            class="text-2xl font-bold mb-2"
-            style="color: var(--text-primary)"
-          >
+          <h2 class="text-2xl font-bold text-slate-900 mb-2">
             ¿Qué tipo de documento necesitas?
           </h2>
-          <p style="color: var(--text-secondary)">
+          <p class="text-slate-600">
             Elige el tipo que mejor se adapte a tus necesidades
           </p>
         </div>
@@ -167,26 +147,20 @@ interface DocumentType {
               tabindex="0"
               role="button"
               class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
-              [style.border-color]="
-                selectedType?.id === type.id
-                  ? 'var(--primary)'
-                  : 'var(--border-soft)'
-              "
-              [style.background]="
-                selectedType?.id === type.id
-                  ? 'var(--surface-hover)'
-                  : 'transparent'
-              "
+              [class.border-blue-500]="selectedType?.id === type.id"
+              [class.bg-gradient-to-br]="selectedType?.id === type.id"
+              [class.from-blue-50]="selectedType?.id === type.id"
+              [class.to-indigo-50]="selectedType?.id === type.id"
+              [class.border-slate-200]="selectedType?.id !== type.id"
+              [class.hover:border-slate-300]="selectedType?.id !== type.id"
             >
               <div class="flex items-start justify-between mb-4">
                 <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300"
-                  style="background: var(--surface-secondary)"
+                  class="w-12 h-12 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-all duration-300"
                 >
                   @if (type.id === 'quote') {
                     <svg
-                      class="w-6 h-6"
-                      style="color: var(--text-secondary)"
+                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -247,8 +221,7 @@ interface DocumentType {
                 </div>
                 @if (selectedType?.id === type.id) {
                   <div
-                    class="w-6 h-6 rounded-full flex items-center justify-center"
-                    style="background: var(--primary)"
+                    class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center"
                   >
                     <svg
                       class="w-4 h-4 text-white"
@@ -268,12 +241,11 @@ interface DocumentType {
               </div>
               <div class="space-y-2">
                 <h3
-                  class="text-xl font-semibold transition-colors"
-                  style="color: var(--text-primary)"
+                  class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors"
                 >
                   {{ type.name }}
                 </h3>
-                <p class="leading-relaxed" style="color: var(--text-secondary)">
+                <p class="text-slate-600 leading-relaxed">
                   {{ type.description }}
                 </p>
               </div>
@@ -319,14 +291,12 @@ interface DocumentType {
         <!-- Form Section -->
         @if (selectedType) {
           <div
-            class="rounded-2xl shadow-xl p-8 mt-8"
-            style="background: var(--surface); border: 1px solid var(--border-soft);"
+            class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
           >
             <div class="mb-8">
               <div class="flex items-center space-x-3 mb-4">
                 <div
-                  class="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style="background: var(--primary)"
+                  class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"
                 >
                   <svg
                     class="w-5 h-5 text-white"
@@ -343,13 +313,10 @@ interface DocumentType {
                   </svg>
                 </div>
                 <div>
-                  <h2
-                    class="text-2xl font-bold"
-                    style="color: var(--text-primary)"
-                  >
+                  <h2 class="text-2xl font-bold text-slate-900">
                     Información del Documento
                   </h2>
-                  <p style="color: var(--text-secondary)">
+                  <p class="text-slate-600">
                     Completa los detalles para generar tu
                     {{ selectedType.name.toLowerCase() }}
                   </p>
@@ -363,16 +330,13 @@ interface DocumentType {
               class="space-y-8"
             >
               <div
-                class="rounded-xl p-6"
-                style="background: var(--surface-secondary); border: 1px solid var(--border-soft);"
+                class="bg-slate-50 rounded-xl p-6 border border-slate-200/50"
               >
                 <h3
-                  class="text-lg font-semibold mb-4 flex items-center"
-                  style="color: var(--text-primary)"
+                  class="text-lg font-semibold text-slate-900 mb-4 flex items-center"
                 >
                   <svg
-                    class="w-5 h-5 mr-2"
-                    style="color: var(--text-secondary)"
+                    class="w-5 h-5 mr-2 text-slate-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -396,10 +360,7 @@ interface DocumentType {
                     <select
                       id="clientId"
                       formControlName="clientId"
-                      class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
-                      style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                      onfocus="this.style.borderColor='var(--primary)'"
-                      onblur="this.style.borderColor='var(--border-soft)'"
+                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                     >
                       <option value="">Seleccionar cliente</option>
                       @for (client of clients; track client.id) {
@@ -419,10 +380,7 @@ interface DocumentType {
                       id="date"
                       type="date"
                       formControlName="date"
-                      class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
-                      style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                      onfocus="this.style.borderColor='var(--primary)'"
-                      onblur="this.style.borderColor='var(--border-soft)'"
+                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                     />
                   </div>
                 </div>
@@ -440,10 +398,7 @@ interface DocumentType {
                     type="text"
                     formControlName="title"
                     [placeholder]="getTitlePlaceholder()"
-                    class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
-                    style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                    onfocus="this.style.borderColor='var(--primary)'"
-                    onblur="this.style.borderColor='var(--border-soft)'"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                   />
                 </div>
 
@@ -460,10 +415,7 @@ interface DocumentType {
                         type="text"
                         formControlName="projectName"
                         placeholder="Nombre del proyecto"
-                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
-                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                        onfocus="this.style.borderColor='var(--primary)'"
-                        onblur="this.style.borderColor='var(--border-soft)'"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                       />
                     </div>
                     <div class="space-y-2">
@@ -478,10 +430,7 @@ interface DocumentType {
                         formControlName="totalAmount"
                         placeholder="0.00"
                         step="0.01"
-                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200"
-                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                        onfocus="this.style.borderColor='var(--primary)'"
-                        onblur="this.style.borderColor='var(--border-soft)'"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
                       />
                     </div>
                   </div>
@@ -511,8 +460,7 @@ interface DocumentType {
 
                 <!-- Barra de Herramientas Markdown -->
                 <div
-                  class="rounded-xl p-2 flex flex-wrap gap-1"
-                  style="background: var(--surface-secondary); border: 1px solid var(--border-soft);"
+                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200"
                 >
                   <button
                     type="button"
@@ -653,10 +601,7 @@ interface DocumentType {
                         formControlName="content"
                         [placeholder]="getContentPlaceholder()"
                         rows="18"
-                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200 font-mono text-sm resize-vertical"
-                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                        onfocus="this.style.borderColor='var(--primary)'"
-                        onblur="this.style.borderColor='var(--border-soft)'"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
                         (input)="updatePreview()"
                         (keydown)="handleKeydown($event)"
                         [class.h-screen]="fullscreenMode"
@@ -669,8 +614,7 @@ interface DocumentType {
                         Vista Previa
                       </div>
                       <div
-                        class="w-full px-4 py-3 rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
-                        style="background: var(--surface-secondary); border: 1px solid var(--border-soft); color: var(--text-primary);"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
                         [innerHTML]="previewHtml"
                         [class.h-screen]="fullscreenMode"
                       ></div>
@@ -691,10 +635,7 @@ interface DocumentType {
                         formControlName="architectureDiagram"
                         rows="4"
                         placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
-                        class="w-full px-4 py-3 rounded-xl focus:outline-none transition-all duration-200 font-mono text-sm"
-                        style="background: var(--surface); border: 1px solid var(--border-soft); color: var(--text-primary);"
-                        onfocus="this.style.borderColor='var(--primary)'"
-                        onblur="this.style.borderColor='var(--border-soft)'"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm"
                       ></textarea>
                     </div>
                   </div>
@@ -724,64 +665,75 @@ interface DocumentType {
                   Volver Atrás
                 </button>
                 <div class="flex items-center space-x-4">
-                  <div class="flex flex-col gap-2">
-                    <div class="text-sm text-slate-500">
-                      Importar / Exportar:
+                  <button
+                    type="button"
+                    (click)="exportMarkdown()"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <div class="flex flex-col gap-3">
+                      <div class="text-sm text-slate-500 mb-1">
+                        Importar archivo:
+                      </div>
+                      <input
+                        type="file"
+                        #fileInput
+                        hidden
+                        (change)="importDocument($event)"
+                        accept=".md,.txt,.pdf,.docx,.xlsx,.html"
+                      />
+                      <div class="flex gap-2 flex-wrap">
+                        <button
+                          (click)="fileInput.click()"
+                          class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📥 Importar Archivo
+                        </button>
+                        <button
+                          (click)="exportDocument('markdown')"
+                          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📑 MD
+                        </button>
+                        <button
+                          (click)="exportDocument('pdf')"
+                          class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📄 PDF
+                        </button>
+                        <button
+                          (click)="exportDocument('xlsx')"
+                          class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📊 Excel
+                        </button>
+                        <button
+                          (click)="exportDocument('html')"
+                          class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          🌐 HTML
+                        </button>
+                        <button
+                          (click)="exportDocument('txt')"
+                          class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          📃 TXT
+                        </button>
+                      </div>
                     </div>
-                    <input
-                      type="file"
-                      #fileInput
-                      hidden
-                      (change)="importDocument($event)"
-                      accept=".md,.txt,.pdf,.docx,.xlsx,.html"
-                    />
-                    <div class="flex gap-2 flex-wrap">
-                      <button
-                        type="button"
-                        (click)="fileInput.click()"
-                        class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📥 Importar Archivo
-                      </button>
-                      <button
-                        type="button"
-                        (click)="exportDocument('markdown')"
-                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📑 MD
-                      </button>
-                      <button
-                        type="button"
-                        (click)="exportDocument('pdf')"
-                        class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📄 PDF
-                      </button>
-                      <button
-                        type="button"
-                        (click)="exportDocument('xlsx')"
-                        class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📊 Excel
-                      </button>
-                      <button
-                        type="button"
-                        (click)="exportDocument('html')"
-                        class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        🌐 HTML
-                      </button>
-                      <button
-                        type="button"
-                        (click)="exportDocument('txt')"
-                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        📃 TXT
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-4">
+                  </button>
                   <button
                     routerLink="/documents/bot"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -855,6 +807,21 @@ interface DocumentType {
                         />
                       </svg>
                     }
+                    @if (isGenerating) {
+                      <svg
+                        class="w-5 h-5 mr-2 animate-spin"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                    }
 
                     {{
                       isGenerating
@@ -880,7 +847,6 @@ export class DocumentCreateComponent implements OnInit {
   characterCount = 0;
   autoSaved = false;
   fullscreenMode = false;
-  isHoverBreadcrumb = false;
 
   templates = [
     { id: 'empty', name: 'Vacío', content: '' },
@@ -1144,20 +1110,14 @@ export class DocumentCreateComponent implements OnInit {
     const title = this.documentForm.get('title')?.value || 'documento';
 
     if (format === 'pdf') {
-      // ✅ EXPORTAR PDF IGUAL QUE LA VISTA PREVIA - USAR HTML RENDERIZADO
-      const previewContainer = document.querySelector('.prose.max-w-none');
-      if (previewContainer) {
-        const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
-        const blob = await this.universalDocument.exportRenderedHTMLToPDF(
-          clonedContent.innerHTML,
-          title,
-        );
-        this.universalDocument.download(blob, `${title}.pdf`);
-        return;
-      }
+      // ✅ GENERAR PDF REAL CON FORMATO CORRECTO
+      await this.pdfService.generateMarkdownPdf({
+        content: content,
+        title: title,
+      });
+      return;
     }
 
-    // Para otros formatos continuar usando el sistema de bloques
     const blocks = content.split('\n\n').map((text: string) => ({
       id: crypto.randomUUID(),
       type: text.startsWith('# ') ? 'heading' : 'text',
@@ -1176,12 +1136,9 @@ export class DocumentCreateComponent implements OnInit {
     };
 
     try {
-      let blob;
-
-      blob = await this.universalDocument.export(blocks, {
+      const blob = await this.universalDocument.export(blocks, {
         format: formatMap[format],
       });
-
       this.universalDocument.download(blob, `${title}.${format}`);
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
@@ -1221,7 +1178,31 @@ export class DocumentCreateComponent implements OnInit {
           type: this.selectedType?.id,
         };
 
-        await this.pdfService.generateDocumentationPdf(documentData);
+        let pdfBytes: Uint8Array;
+        switch (this.selectedType?.id) {
+          case 'quote':
+            pdfBytes = await this.pdfService.generateQuotePdf(documentData);
+            break;
+          case 'proposal':
+            pdfBytes = await this.pdfService.generateProposalPdf(documentData);
+            break;
+          case 'documentation':
+          case 'architecture':
+          default:
+            pdfBytes =
+              await this.pdfService.generateDocumentationPdf(documentData);
+        }
+
+        const documentId = Date.now().toString();
+        localStorage.setItem(
+          `document_${documentId}`,
+          JSON.stringify({
+            ...documentData,
+            pdfBytes: Array.from(pdfBytes),
+          }),
+        );
+
+        this.router.navigate(['/documents/preview', documentId]);
       } catch (error) {
         console.error('Error generating PDF:', error);
       }

@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { PdfGenerationService } from '../services/pdf-generation.service';
-import { UniversalDocumentService } from '../services/universal-document.service';
 import mermaid from 'mermaid';
 
 @Component({
@@ -434,7 +433,6 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private pdfService: PdfGenerationService,
-    private universalDocumentService: UniversalDocumentService,
   ) {}
 
   ngOnInit() {
@@ -550,24 +548,12 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   }
 
   downloadDocument() {
-    // Obtener el contenido HTML RENDERIZADO EXACTAMENTE como se ve en la vista previa
-    const previewContainer = document.querySelector('.prose.max-w-none');
-    if (previewContainer) {
-      // Clonar el contenido para no modificar la vista original
-      const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
-
-      // Pasar directamente el HTML interior - el servicio ya inyecta todos los estilos
-      this.universalDocumentService
-        .exportRenderedHTMLToPDF(
-          clonedContent.innerHTML,
-          this.document?.title || 'documento',
-        )
-        .then((blob) => {
-          this.universalDocumentService.download(
-            blob,
-            `${this.document.title || 'documento'}.pdf`,
-          );
-        });
+    if (this.document?.pdfBytes) {
+      const bytes = new Uint8Array(this.document.pdfBytes);
+      const filename = `${this.document.title || 'document'}.pdf`;
+      this.pdfService.downloadPdf(bytes, filename);
+    } else {
+      console.error('No PDF data available');
     }
   }
 
