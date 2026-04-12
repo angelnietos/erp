@@ -724,75 +724,64 @@ interface DocumentType {
                   Volver Atrás
                 </button>
                 <div class="flex items-center space-x-4">
-                  <button
-                    type="button"
-                    (click)="exportMarkdown()"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
-                  >
-                    <svg
-                      class="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <div class="flex flex-col gap-3">
-                      <div class="text-sm text-slate-500 mb-1">
-                        Importar archivo:
-                      </div>
-                      <input
-                        type="file"
-                        #fileInput
-                        hidden
-                        (change)="importDocument($event)"
-                        accept=".md,.txt,.pdf,.docx,.xlsx,.html"
-                      />
-                      <div class="flex gap-2 flex-wrap">
-                        <button
-                          (click)="fileInput.click()"
-                          class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📥 Importar Archivo
-                        </button>
-                        <button
-                          (click)="exportDocument('markdown')"
-                          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📑 MD
-                        </button>
-                        <button
-                          (click)="exportDocument('pdf')"
-                          class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📄 PDF
-                        </button>
-                        <button
-                          (click)="exportDocument('xlsx')"
-                          class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📊 Excel
-                        </button>
-                        <button
-                          (click)="exportDocument('html')"
-                          class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          🌐 HTML
-                        </button>
-                        <button
-                          (click)="exportDocument('txt')"
-                          class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📃 TXT
-                        </button>
-                      </div>
+                  <div class="flex flex-col gap-2">
+                    <div class="text-sm text-slate-500">
+                      Importar / Exportar:
                     </div>
-                  </button>
+                    <input
+                      type="file"
+                      #fileInput
+                      hidden
+                      (change)="importDocument($event)"
+                      accept=".md,.txt,.pdf,.docx,.xlsx,.html"
+                    />
+                    <div class="flex gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        (click)="fileInput.click()"
+                        class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📥 Importar Archivo
+                      </button>
+                      <button
+                        type="button"
+                        (click)="exportDocument('markdown')"
+                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📑 MD
+                      </button>
+                      <button
+                        type="button"
+                        (click)="exportDocument('pdf')"
+                        class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📄 PDF
+                      </button>
+                      <button
+                        type="button"
+                        (click)="exportDocument('xlsx')"
+                        class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📊 Excel
+                      </button>
+                      <button
+                        type="button"
+                        (click)="exportDocument('html')"
+                        class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        🌐 HTML
+                      </button>
+                      <button
+                        type="button"
+                        (click)="exportDocument('txt')"
+                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📃 TXT
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
                   <button
                     routerLink="/documents/bot"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -848,21 +837,6 @@ interface DocumentType {
                           stroke-linejoin="round"
                           stroke-width="2"
                           d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z"
-                        />
-                      </svg>
-                    }
-                    @if (isGenerating) {
-                      <svg
-                        class="w-5 h-5 mr-2 animate-spin"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                         />
                       </svg>
                     }
