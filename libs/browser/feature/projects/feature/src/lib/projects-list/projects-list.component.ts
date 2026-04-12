@@ -34,6 +34,10 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiLoaderComponent,
+  UiModalComponent,
+  UiInputComponent,
+  UiPaginationComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -75,6 +79,10 @@ export interface Project {
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
+    UiLoaderComponent,
+    UiModalComponent,
+    UiInputComponent,
+    UiPaginationComponent,
     LucideAngularModule,
   ],
   providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
@@ -85,7 +93,7 @@ export interface Project {
         subtitle="Gestión operativa y seguimiento de proyectos"
         icon="layout"
         actionLabel="Nuevo Proyecto"
-        routerLink="/projects/new"
+        (actionClicked)="openCreateModal()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -133,67 +141,182 @@ export interface Project {
             name="projectStatus"
             class="status-select"
           />
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            ORDENAR:
+            {{
+              sortField() === 'name'
+                ? 'NOMBRE'
+                : sortField() === 'startDate'
+                  ? 'FECHA'
+                  : 'ESTADO'
+            }}
+          </ui-button>
         </div>
       </div>
 
-      <ui-feature-grid>
-        @for (project of filteredProjects(); track project.id) {
-          <ui-feature-card
-            [name]="project.name"
-            [subtitle]="project.clientName || 'Sin cliente'"
-            [avatarInitials]="getInitials(project.name)"
-            [avatarBackground]="getStatusColor(project.status)"
-            [status]="project.status === 'ACTIVE' ? 'active' : 'offline'"
-            [badgeLabel]="project.status"
-            [badgeVariant]="
-              project.status === 'ACTIVE'
-                ? 'success'
-                : project.status === 'COMPLETED'
-                  ? 'info'
-                  : 'danger'
-            "
-            (cardClicked)="onRowClick()"
-            [routerLink]="['/projects', project.id]"
-            [showEdit]="true"
-            [showDuplicate]="true"
-            [showDelete]="true"
-            (editClicked)="onEdit(project)"
-            (duplicateClicked)="onDuplicate(project)"
-            (deleteClicked)="onDelete(project)"
-            [footerItems]="[
-              {
-                icon: 'calendar',
-                label: 'Inicio: ' + (project.startDate | date: 'dd/MM/yy'),
-              },
-              {
-                icon: 'clock',
-                label: 'Fin: ' + (project.endDate | date: 'dd/MM/yy'),
-              },
-            ]"
-          >
-            <p class="description">{{ project.description }}</p>
-          </ui-feature-card>
-        } @empty {
-          <div class="empty-state">
-            <lucide-icon
-              name="layout"
-              size="64"
-              class="empty-icon"
-            ></lucide-icon>
-            <h3>No hay proyectos</h3>
-            <p>
-              Comienza creando un nuevo proyecto para gestionar tus tareas y
-              recursos.
-            </p>
-            <ui-button
-              variant="solid"
-              routerLink="/projects/new"
-              icon="CirclePlus"
-              >Crear proyecto</ui-button
+      <!-- Projects Grid -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <ui-loader message="Cargando proyectos..."></ui-loader>
+        </div>
+      } @else {
+        <ui-feature-grid>
+          @for (project of paginatedProjects(); track project.id) {
+            <ui-feature-card
+              [name]="project.name"
+              [subtitle]="project.clientName || 'Sin cliente'"
+              [avatarInitials]="getInitials(project.name)"
+              [avatarBackground]="getStatusColor(project.status)"
+              [status]="project.status === 'ACTIVE' ? 'active' : 'offline'"
+              [badgeLabel]="project.status"
+              [badgeVariant]="
+                project.status === 'ACTIVE'
+                  ? 'success'
+                  : project.status === 'COMPLETED'
+                    ? 'info'
+                    : 'danger'
+              "
+              (cardClicked)="onRowClick()"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
+              (cardClicked)="goToDetail(project)"
+              (editClicked)="editProject(project)"
+              (duplicateClicked)="onDuplicate(project)"
+              (deleteClicked)="onDelete(project)"
+              [footerItems]="[
+                {
+                  icon: 'calendar',
+                  label: project.startDate
+                    ? 'Inicio: ' + (project.startDate | date: 'dd/MM/yy')
+                    : 'Sin fecha inicio',
+                },
+                {
+                  icon: 'clock',
+                  label: project.endDate
+                    ? 'Fin: ' + (project.endDate | date: 'dd/MM/yy')
+                    : 'Sin fecha fin',
+                },
+              ]"
             >
+              <p class="description">{{ project.description }}</p>
+            </ui-feature-card>
+          } @empty {
+            <div class="empty-state">
+              <lucide-icon
+                name="layout"
+                size="64"
+                class="empty-icon"
+              ></lucide-icon>
+              <h3>No hay proyectos</h3>
+              <p>
+                Comienza añadiendo tu primer proyecto para gestionar tus tareas
+                y recursos.
+              </p>
+              <ui-button
+                variant="solid"
+                (clicked)="openCreateModal()"
+                icon="CirclePlus"
+              >
+                Añadir primer proyecto
+              </ui-button>
+            </div>
+          }
+        </ui-feature-grid>
+      }
+
+      <!-- Pagination -->
+      @if (filteredProjects().length > 12 && !isLoading()) {
+        <div class="pagination-footer">
+          <ui-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          ></ui-pagination>
+        </div>
+      }
+
+      <!-- Create/Edit Modal -->
+      <ui-modal
+        [isOpen]="isModalOpen()"
+        [title]="editingProject() ? 'Editar proyecto' : 'Nuevo proyecto'"
+        (closed)="closeModal()"
+        variant="glass"
+      >
+        <!-- Form Errors -->
+        @if (formErrors().length > 0) {
+          <div class="form-errors">
+            @for (error of formErrors(); track $index) {
+              <div class="error-message">
+                <lucide-icon name="AlertCircle" size="16"></lucide-icon>
+                <span>{{ error }}</span>
+              </div>
+            }
           </div>
         }
-      </ui-feature-grid>
+
+        <div class="modal-form">
+          <div class="form-section">
+            <h4 class="section-title">Información General</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Nombre del proyecto *"
+                [(ngModel)]="formData.name"
+                icon="layout"
+                placeholder="Nombre del proyecto"
+                required
+              ></ui-input>
+              <ui-input
+                label="Cliente"
+                [(ngModel)]="formData.clientName"
+                icon="user"
+                placeholder="Nombre del cliente"
+              ></ui-input>
+              <ui-input
+                label="Fecha inicio"
+                [(ngModel)]="formData.startDate"
+                icon="calendar"
+                type="date"
+              ></ui-input>
+              <ui-input
+                label="Fecha fin"
+                [(ngModel)]="formData.endDate"
+                icon="calendar"
+                type="date"
+              ></ui-input>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4 class="section-title">Descripción</h4>
+            <ui-input
+              label="Descripción"
+              [(ngModel)]="formData.description"
+              icon="file-text"
+              placeholder="Descripción detallada del proyecto"
+            ></ui-input>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <ui-button variant="ghost" (clicked)="closeModal()"
+            >Cancelar</ui-button
+          >
+          <ui-button
+            variant="solid"
+            (clicked)="saveProject()"
+            [loading]="isSaving()"
+            icon="save"
+          >
+            {{ editingProject() ? 'Guardar cambios' : 'Crear proyecto' }}
+          </ui-button>
+        </div>
+      </ui-modal>
     </div>
   `,
   styles: [
@@ -202,6 +325,7 @@ export interface Project {
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem;
+        min-height: 100vh;
       }
 
       .feature-controls {
@@ -226,12 +350,14 @@ export interface Project {
         align-items: center;
       }
 
-      .flex-1 {
-        flex: 1;
-      }
-
       .status-select {
         min-width: 200px;
+      }
+
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        padding: 4rem;
       }
 
       .description {
@@ -242,15 +368,6 @@ export interface Project {
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-      }
-
-      .card-actions {
-        display: flex;
-        gap: 0.25rem;
-      }
-
-      .text-danger {
-        color: var(--danger) !important;
       }
 
       .empty-state {
@@ -271,13 +388,73 @@ export interface Project {
         opacity: 0.5;
       }
 
+      /* Form Errors */
+      .form-errors {
+        background: var(--danger-light);
+        border: 1px solid var(--danger);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .error-message {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--danger);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .error-message:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Modal Form Styles */
+      .modal-form {
+        padding: 1rem 0;
+      }
+
+      .form-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
+
       @media (max-width: 768px) {
-        .filters-bar {
+        .feature-controls {
           flex-direction: column;
           align-items: stretch;
         }
         .status-select {
           min-width: 0;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
         }
       }
     `,
@@ -311,7 +488,27 @@ export class ProjectsListComponent
   currentThemeData = this.themeService.currentThemeData;
 
   readonly allProjects = signal<Project[]>([]);
+  isLoading = signal(true);
   statusFilter = signal('');
+  currentPage = signal(1);
+  totalPages = signal(1);
+
+  isModalOpen = signal(false);
+  editingProject = signal<Project | null>(null);
+  isSaving = signal(false);
+  formErrors = signal<string[]>([]);
+
+  formData: Partial<Project> = {
+    name: '',
+    description: '',
+    status: 'ACTIVE',
+    startDate: '',
+    endDate: '',
+    clientName: '',
+  };
+
+  sortField = signal<'name' | 'startDate' | 'status'>('name');
+  sortDirection = signal<1 | -1>(1);
 
   statusFilterOptions = [
     { label: 'Todos', value: '' },
@@ -335,7 +532,42 @@ export class ProjectsListComponent
           (p.clientName ?? '').toLowerCase().includes(term),
       );
     }
-    return list;
+
+    // Sort
+    const field = this.sortField();
+    const dir = this.sortDirection();
+
+    return list.sort((a, b) => {
+      let valA: any = '';
+      let valB: any = '';
+
+      if (field === 'name') {
+        valA = a.name.toLowerCase();
+        valB = b.name.toLowerCase();
+      } else if (field === 'startDate') {
+        valA = new Date(a.startDate || 0).getTime();
+        valB = new Date(b.startDate || 0).getTime();
+      } else if (field === 'status') {
+        valA = a.status;
+        valB = b.status;
+      }
+
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
+  });
+
+  paginatedProjects = computed(() => {
+    const all = this.filteredProjects();
+    const page = this.currentPage();
+    const pageSize = 12;
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+
+    this.totalPages.set(Math.ceil(all.length / pageSize));
+
+    return all.slice(start, end);
   });
 
   activeProjectsCount = computed(
@@ -365,7 +597,9 @@ export class ProjectsListComponent
   ];
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy({} as Record<string, unknown>);
+    this.aiFormBridge.registerDataProxy(
+      this.formData as Record<string, unknown>,
+    );
     this.loadProjects();
     this.masterFilter.registerProvider(this);
 
@@ -378,7 +612,9 @@ export class ProjectsListComponent
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy({} as Record<string, unknown>);
+    this.aiFormBridge.unregisterDataProxy(
+      this.formData as Record<string, unknown>,
+    );
     this.masterFilter.unregisterProvider();
   }
 
@@ -450,48 +686,35 @@ export class ProjectsListComponent
   }
 
   onDuplicate(project: Project) {
-    this.domainEventsApi
-      .append({
-        eventType: 'COPY',
-        aggregateType: 'PROJECT',
-        aggregateId: project.id,
-        payload: { name: project.name },
-      })
-      .subscribe({
-        next: () => {
-          this.toast.show(
-            `Evento de copia registrado: ${project.name}`,
-            'success',
-          );
-        },
-        error: () => {
-          this.toast.show(
-            'No se pudo registrar la copia del proyecto.',
-            'error',
-          );
-        },
-      });
+    const duplicatedProject: Project = {
+      ...project,
+      id: `proj-${Date.now()}`,
+      name: `${project.name} (Copia)`,
+      status: 'ACTIVE' as const,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.allProjects.update((list) => [duplicatedProject, ...list]);
+    this.toast.show(
+      `Proyecto ${project.name} duplicado correctamente`,
+      'success',
+    );
   }
 
   onDelete(project: Project) {
-    this.domainEventsApi
-      .append({
-        eventType: 'DELETE',
-        aggregateType: 'PROJECT',
-        aggregateId: project.id,
-        payload: { name: project.name },
-      })
-      .subscribe({
-        next: () => {
-          this.allProjects.update((list: Project[]) =>
-            list.filter((p: Project) => p.id !== project.id),
-          );
-          this.toast.show(`Proyecto eliminado: ${project.name}`, 'success');
-        },
-        error: () => {
-          this.toast.show('No se pudo eliminar el proyecto.', 'error');
-        },
-      });
+    if (
+      confirm(
+        `¿Estás seguro de que deseas eliminar el proyecto ${project.name}?`,
+      )
+    ) {
+      this.allProjects.update((list) =>
+        list.filter((p) => p.id !== project.id),
+      );
+      this.toast.show(
+        `Proyecto ${project.name} eliminado correctamente`,
+        'success',
+      );
+    }
   }
 
   getInitials(name: string): string {
@@ -515,114 +738,232 @@ export class ProjectsListComponent
     }
   }
 
+  toggleSort() {
+    if (this.sortField() === 'name') {
+      this.sortField.set('startDate');
+      this.sortDirection.set(-1);
+    } else if (this.sortField() === 'startDate') {
+      this.sortField.set('status');
+    } else {
+      this.sortField.set('name');
+      this.sortDirection.set(1);
+    }
+  }
+
+  openCreateModal() {
+    this.editingProject.set(null);
+    this.formData = {
+      name: '',
+      description: '',
+      status: 'ACTIVE',
+      startDate: '',
+      endDate: '',
+      clientName: '',
+    };
+    this.formErrors.set([]);
+    this.isModalOpen.set(true);
+  }
+
+  editProject(project: Project) {
+    this.editingProject.set(project);
+    this.formData = { ...project };
+    this.formErrors.set([]);
+    this.isModalOpen.set(true);
+  }
+
+  closeModal() {
+    this.isModalOpen.set(false);
+    this.editingProject.set(null);
+    this.formErrors.set([]);
+  }
+
+  saveProject() {
+    const errors: string[] = [];
+
+    if (!this.formData.name?.trim()) {
+      errors.push('El nombre del proyecto es obligatorio');
+    }
+
+    if (this.formData.startDate && this.formData.endDate) {
+      const startDate = new Date(this.formData.startDate);
+      const endDate = new Date(this.formData.endDate);
+      if (endDate <= startDate) {
+        errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
+      }
+    }
+
+    if (errors.length > 0) {
+      this.formErrors.set(errors);
+      return;
+    }
+
+    this.formErrors.set([]);
+    this.isSaving.set(true);
+
+    // Simulate async operation
+    setTimeout(() => {
+      const projectToEdit = this.editingProject();
+      if (projectToEdit) {
+        this.allProjects.update((list) =>
+          list.map((p) =>
+            p.id === projectToEdit.id
+              ? ({ ...p, ...this.formData } as Project)
+              : p,
+          ),
+        );
+        this.toast.show(
+          `Proyecto ${this.formData.name} actualizado correctamente`,
+          'success',
+        );
+      } else {
+        const newProject: Project = {
+          id: `proj-${Date.now()}`,
+          name: this.formData.name!,
+          description: this.formData.description || '',
+          status: (this.formData.status as any) || 'ACTIVE',
+          startDate: this.formData.startDate,
+          endDate: this.formData.endDate,
+          clientName: this.formData.clientName,
+          createdAt: new Date().toISOString(),
+        };
+        this.allProjects.update((list) => [newProject, ...list]);
+        this.toast.show(
+          `Proyecto ${this.formData.name} creado correctamente`,
+          'success',
+        );
+      }
+
+      this.isSaving.set(false);
+      this.closeModal();
+    }, 1000);
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+  }
+
+  goToDetail(project: Project) {
+    // Navigate to project detail page
+    this.router.navigate(['/projects', project.id]);
+  }
+
   private loadProjects() {
-    const base: Project[] = [
-      {
-        id: '1',
-        name: 'Proyecto Demo 1',
-        description: 'Descripción del proyecto demo',
-        status: 'ACTIVE',
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        clientName: 'Cliente Demo',
-        createdAt: '2024-01-01',
-      },
-      {
-        id: '2',
-        name: 'Sistema de Gestión de Inventario',
-        description:
-          'Desarrollo de un sistema completo para la gestión de inventario y stock',
-        status: 'ACTIVE',
-        startDate: '2024-02-15',
-        endDate: '2024-08-15',
-        clientName: 'Empresa Logística S.A.',
-        createdAt: '2024-02-15',
-      },
-      {
-        id: '3',
-        name: 'Aplicación Móvil de Pedidos',
-        description:
-          'App móvil para gestionar pedidos y entregas en tiempo real',
-        status: 'COMPLETED',
-        startDate: '2023-09-01',
-        endDate: '2024-03-31',
-        clientName: 'Restaurante El Buen Sabor',
-        createdAt: '2023-09-01',
-      },
-      {
-        id: '4',
-        name: 'Portal Web Corporativo',
-        description:
-          'Rediseño y desarrollo del portal web corporativo con CMS integrado',
-        status: 'ACTIVE',
-        startDate: '2024-03-01',
-        endDate: '2024-09-30',
-        clientName: 'Constructora Moderna Ltd.',
-        createdAt: '2024-03-01',
-      },
-      {
-        id: '5',
-        name: 'Sistema de Facturación Electrónica',
-        description:
-          'Implementación de sistema de facturación electrónica conforme a la normativa vigente',
-        status: 'CANCELLED',
-        startDate: '2024-01-10',
-        endDate: '2024-06-10',
-        clientName: 'Consultoría Fiscal ABC',
-        createdAt: '2024-01-10',
-      },
-      {
-        id: '6',
-        name: 'Dashboard de Analytics',
-        description:
-          'Desarrollo de dashboard interactivo para análisis de datos de ventas',
-        status: 'ACTIVE',
-        startDate: '2024-04-01',
-        endDate: '2024-07-31',
-        clientName: 'Tienda Online Fashion',
-        createdAt: '2024-04-01',
-      },
-      {
-        id: '7',
-        name: 'API de Integración ERP',
-        description:
-          'Desarrollo de APIs REST para integración con sistemas ERP externos',
-        status: 'ACTIVE',
-        startDate: '2024-05-01',
-        endDate: '2024-11-30',
-        clientName: 'Industria Manufacturera XYZ',
-        createdAt: '2024-05-01',
-      },
-      {
-        id: '8',
-        name: 'Plataforma E-Learning',
-        description:
-          'Plataforma completa de aprendizaje en línea con cursos interactivos',
-        status: 'COMPLETED',
-        startDate: '2023-11-01',
-        endDate: '2024-04-30',
-        clientName: 'Instituto Educativo Nacional',
-        createdAt: '2023-11-01',
-      },
-    ];
-    const extra: Project[] = Array.from({ length: 40 }, (_, i) => {
-      const n = i + 1;
-      const statuses: Project['status'][] = [
-        'ACTIVE',
-        'COMPLETED',
-        'CANCELLED',
+    this.isLoading.set(true);
+    setTimeout(() => {
+      // Update AI Form Bridge with current data
+      this.aiFormBridge.registerDataProxy(
+        this.formData as Record<string, unknown>,
+      );
+
+      const base: Project[] = [
+        {
+          id: '1',
+          name: 'Proyecto Demo 1',
+          description: 'Descripción del proyecto demo',
+          status: 'ACTIVE',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+          clientName: 'Cliente Demo',
+          createdAt: '2024-01-01',
+        },
+        {
+          id: '2',
+          name: 'Sistema de Gestión de Inventario',
+          description:
+            'Desarrollo de un sistema completo para la gestión de inventario y stock',
+          status: 'ACTIVE',
+          startDate: '2024-02-15',
+          endDate: '2024-08-15',
+          clientName: 'Empresa Logística S.A.',
+          createdAt: '2024-02-15',
+        },
+        {
+          id: '3',
+          name: 'Aplicación Móvil de Pedidos',
+          description:
+            'App móvil para gestionar pedidos y entregas en tiempo real',
+          status: 'COMPLETED',
+          startDate: '2023-09-01',
+          endDate: '2024-03-31',
+          clientName: 'Restaurante El Buen Sabor',
+          createdAt: '2023-09-01',
+        },
+        {
+          id: '4',
+          name: 'Portal Web Corporativo',
+          description:
+            'Rediseño y desarrollo del portal web corporativo con CMS integrado',
+          status: 'ACTIVE',
+          startDate: '2024-03-01',
+          endDate: '2024-09-30',
+          clientName: 'Constructora Moderna Ltd.',
+          createdAt: '2024-03-01',
+        },
+        {
+          id: '5',
+          name: 'Sistema de Facturación Electrónica',
+          description:
+            'Implementación de sistema de facturación electrónica conforme a la normativa vigente',
+          status: 'CANCELLED',
+          startDate: '2024-01-10',
+          endDate: '2024-06-10',
+          clientName: 'Consultoría Fiscal ABC',
+          createdAt: '2024-01-10',
+        },
+        {
+          id: '6',
+          name: 'Dashboard de Analytics',
+          description:
+            'Desarrollo de dashboard interactivo para análisis de datos de ventas',
+          status: 'ACTIVE',
+          startDate: '2024-04-01',
+          endDate: '2024-07-31',
+          clientName: 'Tienda Online Fashion',
+          createdAt: '2024-04-01',
+        },
+        {
+          id: '7',
+          name: 'API de Integración ERP',
+          description:
+            'Desarrollo de APIs REST para integración con sistemas ERP externos',
+          status: 'ACTIVE',
+          startDate: '2024-05-01',
+          endDate: '2024-11-30',
+          clientName: 'Industria Manufacturera XYZ',
+          createdAt: '2024-05-01',
+        },
+        {
+          id: '8',
+          name: 'Plataforma E-Learning',
+          description:
+            'Plataforma completa de aprendizaje en línea con cursos interactivos',
+          status: 'COMPLETED',
+          startDate: '2023-11-01',
+          endDate: '2024-04-30',
+          clientName: 'Instituto Educativo Nacional',
+          createdAt: '2023-11-01',
+        },
       ];
-      return {
-        id: `gen-${n}`,
-        name: `Proyecto operativo ${n}`,
-        description: `Línea de implantación y seguimiento ${n}`,
-        status: statuses[i % 3],
-        startDate: '2024-01-01',
-        endDate: '2025-12-31',
-        clientName: `Cliente ${(i % 12) + 1}`,
-        createdAt: '2024-06-01',
-      };
-    });
-    this.allProjects.set([...base, ...extra]);
+      const extra: Project[] = Array.from({ length: 40 }, (_, i) => {
+        const n = i + 1;
+        const statuses: Project['status'][] = [
+          'ACTIVE',
+          'COMPLETED',
+          'CANCELLED',
+        ];
+        return {
+          id: `gen-${n}`,
+          name: `Proyecto operativo ${n}`,
+          description: `Línea de implantación y seguimiento ${n}`,
+          status: statuses[i % 3],
+          startDate: '2024-01-01',
+          endDate: '2025-12-31',
+          clientName: `Cliente ${(i % 12) + 1}`,
+          createdAt: '2024-06-01',
+        };
+      });
+      this.allProjects.set([...base, ...extra]);
+      this.isLoading.set(false);
+    }, 800);
   }
 }
