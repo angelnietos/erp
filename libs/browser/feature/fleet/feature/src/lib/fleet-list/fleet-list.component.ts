@@ -1,6 +1,14 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -17,7 +25,14 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService, ToastService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FilterableService,
+  AIFormBridgeService,
+  ToastService,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
@@ -25,12 +40,12 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
   selector: 'lib-fleet-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
+    CommonModule,
+    RouterModule,
     FormsModule,
-    UiButtonComponent, 
-    UiSearchComponent, 
-    UiPaginationComponent, 
+    UiButtonComponent,
+    UiSearchComponent,
+    UiPaginationComponent,
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
@@ -40,7 +55,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
-    LucideAngularModule
+    LucideAngularModule,
   ],
   template: `
     <div class="fleet-container">
@@ -53,23 +68,26 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
       ></ui-feature-header>
 
       <ui-feature-stats>
-        <ui-stat-card 
-          label="Unidades Activas" 
-          [value]="vehicles().length.toString()" 
-          icon="truck" 
-          [accent]="true">
+        <ui-stat-card
+          label="Unidades Activas"
+          [value]="vehicles().length.toString()"
+          icon="truck"
+          [accent]="true"
+        >
         </ui-stat-card>
-        <ui-stat-card 
-          label="En Mantenimiento" 
-          [value]="maintenanceCount().toString()" 
-          icon="wrench" 
-          [trend]="-2">
+        <ui-stat-card
+          label="En Mantenimiento"
+          [value]="maintenanceCount().toString()"
+          icon="wrench"
+          [trend]="-2"
+        >
         </ui-stat-card>
-        <ui-stat-card 
-          label="Alertas Técnicas" 
-          [value]="alertCount().toString()" 
-          icon="alert-triangle" 
-          [class.text-danger]="alertCount() > 0">
+        <ui-stat-card
+          label="Alertas Técnicas"
+          [value]="alertCount().toString()"
+          icon="alert-triangle"
+          [class.text-danger]="alertCount() > 0"
+        >
         </ui-stat-card>
         <ui-stat-card
           label="Sincronización GPS"
@@ -79,18 +97,18 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="navigation-bar">
-        <ui-tabs 
-          [tabs]="tabs" 
-          [activeTab]="activeTab()" 
-          variant="underline" 
+      <div class="filters-bar">
+        <ui-tabs
+          [tabs]="tabs()"
+          [activeTab]="activeTab()"
+          variant="underline"
           (tabChange)="onTabChange($event)"
           class="flex-1"
         ></ui-tabs>
-        
-        <ui-search 
+
+        <ui-search
           variant="glass"
-          placeholder="BUSCAR MATRÍCULA O CONDUCTOR..." 
+          placeholder="BUSCAR MATRÍCULA O CONDUCTOR..."
           (searchChange)="onSearch($event)"
           class="search-bar"
         ></ui-search>
@@ -105,7 +123,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           @for (vehicle of displayedVehicles(); track vehicle.id) {
             <ui-feature-card
               [name]="vehicle.plate | uppercase"
-              [subtitle]="(vehicle.brand + ' ' + vehicle.model) | uppercase"
+              [subtitle]="vehicle.brand + ' ' + vehicle.model | uppercase"
               [avatarInitials]="getInitials(vehicle.plate)"
               [avatarBackground]="getVehicleGradient(vehicle.type)"
               [status]="vehicle.status === 'available' ? 'active' : 'offline'"
@@ -120,31 +138,50 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
               (deleteClicked)="confirmDelete(vehicle)"
               [footerItems]="[
                 { icon: 'calendar', label: 'Año: ' + vehicle.year },
-                { icon: 'shield', label: 'Seguro: ' + formatDate(vehicle.insuranceExpiry) },
-                { icon: 'check-square', label: 'ITV: ' + formatDate(vehicle.itvExpiry) }
+                {
+                  icon: 'shield',
+                  label: 'Seguro: ' + formatDate(vehicle.insuranceExpiry),
+                },
+                {
+                  icon: 'check-square',
+                  label: 'ITV: ' + formatDate(vehicle.itvExpiry),
+                },
               ]"
             >
-              @if (isExpired(vehicle.insuranceExpiry) || isExpired(vehicle.itvExpiry)) {
+              @if (
+                isExpired(vehicle.insuranceExpiry) ||
+                isExpired(vehicle.itvExpiry)
+              ) {
                 <div class="vehicle-alerts">
-                 <span class="alert-badge overdue">
-                    <lucide-icon name="alert-circle" size="12"></lucide-icon> ALERTA TÉCNICA
-                 </span>
+                  <span class="alert-badge overdue">
+                    <lucide-icon name="alert-circle" size="12"></lucide-icon>
+                    ALERTA TÉCNICA
+                  </span>
                 </div>
               }
             </ui-feature-card>
           } @empty {
             <div class="empty-state">
-              <lucide-icon name="truck" size="64" class="empty-icon"></lucide-icon>
+              <lucide-icon
+                name="truck"
+                size="64"
+                class="empty-icon"
+              ></lucide-icon>
               <h3>No hay unidades</h3>
               <p>Comienza registrando tu primer vehículo en la flota.</p>
-              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Registrar unidad</ui-button>
+              <ui-button
+                variant="solid"
+                (clicked)="openCreateModal()"
+                icon="CirclePlus"
+                >Registrar unidad</ui-button
+              >
             </div>
           }
         </ui-feature-grid>
 
         <footer class="pagination-footer">
-           <ui-pagination 
-            [currentPage]="currentPage()" 
+          <ui-pagination
+            [currentPage]="currentPage()"
             [totalPages]="totalPages()"
             (pageChange)="onPageChange($event)"
           ></ui-pagination>
@@ -153,99 +190,183 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     </div>
 
     <!-- Modal solo para alta; la edición completa está en /fleet/:id/edit -->
-    <ui-modal 
-      [isOpen]="isModalOpen()" 
+    <ui-modal
+      [isOpen]="isModalOpen()"
       title="REGISTRO DE NUEVA UNIDAD"
       (closed)="closeModal()"
       variant="glass"
     >
       <div class="form-grid">
-         <ui-input label="Matrícula" [(ngModel)]="formData.plate" icon="hash"></ui-input>
-         <div class="row">
-            <ui-input label="Marca" [(ngModel)]="formData.brand" icon="car"></ui-input>
-            <ui-input label="Modelo" [(ngModel)]="formData.model" icon="box"></ui-input>
-         </div>
-         <div class="row">
-           <ui-input label="Año" type="number" [(ngModel)]="formData.year" icon="calendar"></ui-input>
-           <ui-input label="Tipo" [(ngModel)]="formData.type" icon="truck"></ui-input>
-         </div>
-         <div class="row">
-            <ui-input label="Seguro hasta" type="date" [(ngModel)]="formData.insuranceExpiry" icon="shield"></ui-input>
-            <ui-input label="ITV hasta" type="date" [(ngModel)]="formData.itvExpiry" icon="check-square"></ui-input>
-         </div>
+        <ui-input
+          label="Matrícula"
+          [(ngModel)]="formData.plate"
+          icon="hash"
+        ></ui-input>
+        <div class="row">
+          <ui-input
+            label="Marca"
+            [(ngModel)]="formData.brand"
+            icon="car"
+          ></ui-input>
+          <ui-input
+            label="Modelo"
+            [(ngModel)]="formData.model"
+            icon="box"
+          ></ui-input>
+        </div>
+        <div class="row">
+          <ui-input
+            label="Año"
+            type="number"
+            [(ngModel)]="formData.year"
+            icon="calendar"
+          ></ui-input>
+          <ui-input
+            label="Tipo"
+            [(ngModel)]="formData.type"
+            icon="truck"
+          ></ui-input>
+        </div>
+        <div class="row">
+          <ui-input
+            label="Seguro hasta"
+            type="date"
+            [(ngModel)]="formData.insuranceExpiry"
+            icon="shield"
+          ></ui-input>
+          <ui-input
+            label="ITV hasta"
+            type="date"
+            [(ngModel)]="formData.itvExpiry"
+            icon="check-square"
+          ></ui-input>
+        </div>
       </div>
       <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button variant="solid" (clicked)="saveVehicle()" [disabled]="!formData.plate" icon="save">GUARDAR</ui-button>
+        <ui-button
+          variant="solid"
+          (clicked)="saveVehicle()"
+          [disabled]="!formData.plate"
+          icon="save"
+          >GUARDAR</ui-button
+        >
       </div>
     </ui-modal>
   `,
-  styles: [`
-    .fleet-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+  styles: [
+    `
+      .fleet-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-    .navigation-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      background: var(--surface);
-      padding: 0.5rem 1.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      gap: 2rem;
-    }
+      .filters-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: var(--surface);
+        padding: 0.5rem 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-soft);
+        gap: 2rem;
+      }
 
-    .flex-1 { flex: 1; }
-    .search-bar { width: 350px; }
+      .flex-1 {
+        flex: 1;
+      }
+      .search-bar {
+        width: 350px;
+      }
 
-    .loader-container { display: flex; justify-content: center; padding: 5rem; }
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        padding: 5rem;
+      }
 
-    .vehicle-alerts { margin-top: 1rem; }
-    .alert-badge {
-       display: inline-flex;
-       align-items: center;
-       gap: 0.25rem;
-       font-size: 0.65rem;
-       font-weight: 800;
-       padding: 0.2rem 0.6rem;
-       border-radius: 4px;
-       letter-spacing: 0.05em;
-    }
-    .alert-badge.overdue { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+      .vehicle-alerts {
+        margin-top: 1rem;
+      }
+      .alert-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        letter-spacing: 0.05em;
+      }
+      .alert-badge.overdue {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+      .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 5rem;
+        text-align: center;
+        background: var(--surface);
+        border-radius: 20px;
+        border: 2px dashed var(--border-soft);
+      }
+      .empty-icon {
+        color: var(--text-muted);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+      }
 
-    .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
 
-    /* Modal Form Styles */
-    .form-grid { display: flex; flex-direction: column; gap: 1.25rem; padding: 1rem 0; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
+      /* Modal Form Styles */
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1rem 0;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+      }
 
-    @media (max-width: 900px) {
-       .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
-       .search-bar { width: 100%; }
-       .row { grid-template-columns: 1fr; }
-    }
-  `],
+      @media (max-width: 900px) {
+        .navigation-bar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+        .search-bar {
+          width: 100%;
+        }
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FleetListComponent implements OnInit, OnDestroy, FilterableService<Vehicle> {
+export class FleetListComponent
+  implements OnInit, OnDestroy, FilterableService<Vehicle>
+{
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly vehicleService = inject(VehicleService);
@@ -255,12 +376,24 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
 
   currentTheme = this.themeService.currentThemeData;
 
-  tabs = [
-    { id: 'all', label: 'Todos', badge: 0 },
-    { id: 'available', label: 'Disponibles', badge: 0 },
-    { id: 'in_use', label: 'En Uso', badge: 0 },
-    { id: 'maintenance', label: 'Mantenimiento', badge: 0 },
-  ];
+  tabs = computed(() => [
+    { id: 'all', label: 'Todos', badge: this.vehicles().length },
+    {
+      id: 'available',
+      label: 'Disponibles',
+      badge: this.vehicles().filter((v) => v.status === 'available').length,
+    },
+    {
+      id: 'in_use',
+      label: 'En Uso',
+      badge: this.vehicles().filter((v) => v.status === 'in_use').length,
+    },
+    {
+      id: 'maintenance',
+      label: 'Mantenimiento',
+      badge: this.vehicles().filter((v) => v.status === 'maintenance').length,
+    },
+  ]);
 
   columns = [
     { key: 'plate', header: 'MATRÍCULA' },
@@ -280,17 +413,23 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
   totalPages = signal(1);
   activeTab = signal('all');
   searchFilter = signal('');
-  
+
   isModalOpen = signal(false);
 
   formData: Partial<Vehicle> = {
-    plate: '', brand: '', model: '', year: new Date().getFullYear(),
-    type: 'van', status: 'available', insuranceExpiry: '', itvExpiry: ''
+    plate: '',
+    brand: '',
+    model: '',
+    year: new Date().getFullYear(),
+    type: 'van',
+    status: 'available',
+    insuranceExpiry: '',
+    itvExpiry: '',
   };
 
-  ngOnInit() { 
+  ngOnInit() {
     this.masterFilter.registerProvider(this);
-    this.loadVehicles(); 
+    this.loadVehicles();
   }
 
   ngOnDestroy() {
@@ -299,13 +438,54 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
 
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Vehicle[]> {
-    const term = query.toLowerCase();
-    const matches = this.vehicles().filter((v: Vehicle) => 
-      v.plate.toLowerCase().includes(term) || 
-      (v.brand ?? '').toLowerCase().includes(term) ||
-      (v.model ?? '').toLowerCase().includes(term)
-    );
+    const term = query.toLowerCase().trim();
+    if (!term) return of(this.vehicles());
+
+    const matches = this.vehicles().filter((v: Vehicle) => {
+      const searchableText = [
+        v.plate,
+        v.brand ?? '',
+        v.model ?? '',
+        v.type,
+        v.status,
+        v.year?.toString() || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const normalizedTerm = this.normalizeSearchTerm(term);
+
+      return (
+        searchableText.includes(normalizedTerm) ||
+        this.hasKeywordMatch(searchableText, normalizedTerm)
+      );
+    });
     return of(matches);
+  }
+
+  private normalizeSearchTerm(term: string): string {
+    const synonyms: Record<string, string[]> = {
+      camion: ['camion', 'truck', 'camión'],
+      furgon: ['furgon', 'van', 'furgón'],
+      coche: ['coche', 'car', 'vehiculo', 'vehículo'],
+      mantenimiento: ['mantenimiento', 'repair', 'service'],
+      disponible: ['disponible', 'available', 'libre'],
+      uso: ['uso', 'in_use', 'ocupado'],
+    };
+
+    for (const [key, variants] of Object.entries(synonyms)) {
+      if (variants.some((v) => term.includes(v))) {
+        return key;
+      }
+    }
+    return term;
+  }
+
+  private hasKeywordMatch(text: string, term: string): boolean {
+    return (
+      text.includes(term) ||
+      term.split(' ').every((word) => text.includes(word))
+    );
   }
 
   loadVehicles() {
@@ -313,29 +493,23 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     this.vehicleService.getVehicles().subscribe({
       next: (vehicles: Vehicle[]) => {
         this.vehicles.set(vehicles);
-        this.updateTabBadges(vehicles);
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 
-  updateTabBadges(vehicles: Vehicle[]) {
-    const counts: Record<string, number> = {
-      all: vehicles.length,
-      available: vehicles.filter((v: Vehicle) => v.status === 'available').length,
-      in_use: vehicles.filter((v: Vehicle) => v.status === 'in_use').length,
-      maintenance: vehicles.filter((v: Vehicle) => v.status === 'maintenance').length,
-    };
-    this.tabs = this.tabs.map(tab => ({ ...tab, badge: counts[tab.id] || 0 }));
+  onTabChange(tabId: string) {
+    this.activeTab.set(tabId);
   }
-
-  onTabChange(tabId: string) { this.activeTab.set(tabId); }
-  onSearch(term: string) { 
-    this.searchFilter.set(term); 
+  onSearch(term: string) {
+    this.searchFilter.set(term);
     this.masterFilter.search(term);
   }
-  onPageChange(page: number) { this.currentPage.set(page); this.loadVehicles(); }
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+    this.loadVehicles();
+  }
 
   openCreateModal() {
     this.formData = {
@@ -363,9 +537,12 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
 
   getVehicleGradient(type: string): string {
     switch (type) {
-      case 'van': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-      case 'truck': return 'linear-gradient(135deg, #10b981, #059669)';
-      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+      case 'van':
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'truck':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      default:
+        return 'linear-gradient(135deg, #6b7280, #374151)';
     }
   }
 
@@ -382,28 +559,34 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
         plate: `${vehicle.plate}-C`,
       } as Omit<Vehicle, 'id'>)
       .subscribe({
-        next: (newV: Vehicle) => {
-          this.vehicles.update((list) => [...list, newV]);
-          this.updateTabBadges(this.vehicles());
-          this.toast.show(`Unidad duplicada: ${newV.plate}`, 'success');
+        next: () => {
+          this.vehicles.update((list) =>
+            list.filter((v: Vehicle) => v.id !== vehicle.id),
+          );
+          this.toast.show(`Unidad ${vehicle.plate} eliminada`, 'success');
         },
-        error: () =>
-          this.toast.show('No se pudo duplicar la unidad.', 'error'),
+        error: () => this.toast.show('No se pudo duplicar la unidad.', 'error'),
       });
   }
 
   confirmDelete(vehicle: Vehicle) {
-    if (!confirm(`¿Estás seguro de que deseas eliminar el vehículo ${vehicle.plate}?`)) {
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar el vehículo ${vehicle.plate}?`,
+      )
+    ) {
       return;
     }
     this.vehicleService.deleteVehicle(vehicle.id).subscribe({
       next: () => {
         this.vehicles.update((list) => list.filter((v) => v.id !== vehicle.id));
-        this.updateTabBadges(this.vehicles());
         this.toast.show(`Unidad ${vehicle.plate} eliminada`, 'success');
       },
       error: () => {
-        this.toast.show('No se pudo eliminar la unidad. Inténtalo de nuevo.', 'error');
+        this.toast.show(
+          'No se pudo eliminar la unidad. Inténtalo de nuevo.',
+          'error',
+        );
       },
     });
   }
@@ -422,7 +605,6 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
       .subscribe({
         next: (newV: Vehicle) => {
           this.vehicles.update((list) => [...list, newV]);
-          this.updateTabBadges(this.vehicles());
           this.toast.show(`Unidad ${newV.plate} registrada`, 'success');
           this.closeModal();
         },
@@ -433,35 +615,51 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
 
   getTypeLabel(type: string): string {
     switch (type) {
-      case 'van': return 'Furgón';
-      case 'truck': return 'Camión';
-      default: return 'Coche';
+      case 'van':
+        return 'Furgón';
+      case 'truck':
+        return 'Camión';
+      default:
+        return 'Coche';
     }
   }
 
   getVehicleIcon(type: string): string {
     switch (type) {
-      case 'van': return 'truck';
-      case 'truck': return 'clapperboard'; // Custom icons
-      default: return 'car';
+      case 'van':
+        return 'truck';
+      case 'truck':
+        return 'clapperboard'; // Custom icons
+      default:
+        return 'car';
     }
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
+  getStatusVariant(
+    status: string,
+  ): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
     switch (status) {
-      case 'available': return 'success';
-      case 'in_use': return 'warning';
-      case 'maintenance': return 'info';
-      default: return 'secondary';
+      case 'available':
+        return 'success';
+      case 'in_use':
+        return 'warning';
+      case 'maintenance':
+        return 'info';
+      default:
+        return 'secondary';
     }
   }
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'available': return 'Disponible';
-      case 'in_use': return 'En Uso';
-      case 'maintenance': return 'Mantenimiento';
-      default: return status;
+      case 'available':
+        return 'Disponible';
+      case 'in_use':
+        return 'En Uso';
+      case 'maintenance':
+        return 'Mantenimiento';
+      default:
+        return status;
     }
   }
 
@@ -475,15 +673,29 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
     return new Date(date).toLocaleDateString('es-ES');
   }
 
-  maintenanceCount = computed(() => this.vehicles().filter((v: Vehicle) => v.status === 'maintenance').length);
-  alertCount = computed(() => this.vehicles().filter((v: Vehicle) => this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry)).length);
+  maintenanceCount = computed(
+    () =>
+      this.vehicles().filter((v: Vehicle) => v.status === 'maintenance').length,
+  );
+  alertCount = computed(
+    () =>
+      this.vehicles().filter(
+        (v: Vehicle) =>
+          this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry),
+      ).length,
+  );
 
   displayedVehicles = computed(() => {
     let list = this.vehicles();
     const tab = this.activeTab();
     if (tab !== 'all') list = list.filter((v: Vehicle) => v.status === tab);
     const t = this.searchFilter().trim().toLowerCase();
-    if (t) list = list.filter((v: Vehicle) => v.plate.toLowerCase().includes(t) || (v.brand || '').toLowerCase().includes(t));
+    if (t)
+      list = list.filter(
+        (v: Vehicle) =>
+          v.plate.toLowerCase().includes(t) ||
+          (v.brand || '').toLowerCase().includes(t),
+      );
     return list;
   });
 }

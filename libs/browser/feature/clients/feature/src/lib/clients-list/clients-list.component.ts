@@ -31,6 +31,7 @@ import {
   MasterFilterService,
   FilterableService,
   AIFormBridgeService,
+  ToastService,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -316,6 +317,31 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         fill: currentColor;
       }
 
+      .filters-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: var(--surface);
+        padding: 0.5rem 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-soft);
+        gap: 2rem;
+      }
+
+      .flex-1 {
+        flex: 1;
+      }
+      .search-bar {
+        width: 350px;
+      }
+
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
+
       /* Modal Form Styles */
       .modal-form {
         padding: 1rem 0;
@@ -364,6 +390,7 @@ export class ClientsListComponent
   private readonly router = inject(Router);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
+  private readonly toast = inject(ToastService);
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
 
   currentTheme = this.themeService.currentThemeData;
@@ -489,14 +516,54 @@ export class ClientsListComponent
 
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Client[]> {
-    const term = query.toLowerCase();
-    const matches = this.clients().filter(
-      (c) =>
-        c.name.toLowerCase().includes(term) ||
-        (c.sector ?? '').toLowerCase().includes(term) ||
-        (c.contact ?? '').toLowerCase().includes(term),
-    );
+    const term = query.toLowerCase().trim();
+    if (!term) return of(this.clients());
+
+    const matches = this.clients().filter((c: Client) => {
+      const searchableText = [
+        c.name,
+        c.sector ?? '',
+        c.contact ?? '',
+        c.email ?? '',
+        c.phone ?? '',
+        c.city ?? '',
+        c.type,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const normalizedTerm = this.normalizeSearchTerm(term);
+
+      return (
+        searchableText.includes(normalizedTerm) ||
+        this.hasKeywordMatch(searchableText, normalizedTerm)
+      );
+    });
     return of(matches);
+  }
+
+  private normalizeSearchTerm(term: string): string {
+    const synonyms: Record<string, string[]> = {
+      empresa: ['empresa', 'company', 'compañia', 'compañía'],
+      particular: ['particular', 'individual', 'persona'],
+      activo: ['activo', 'active'],
+      inactivo: ['inactivo', 'inactive'],
+      cliente: ['cliente', 'customer', 'client'],
+    };
+
+    for (const [key, variants] of Object.entries(synonyms)) {
+      if (variants.some((v) => term.includes(v))) {
+        return key;
+      }
+    }
+    return term;
+  }
+
+  private hasKeywordMatch(text: string, term: string): boolean {
+    return (
+      text.includes(term) ||
+      term.split(' ').every((word) => text.includes(word))
+    );
   }
   loadClients() {
     this.facade.loadClients();
@@ -567,20 +634,38 @@ export class ClientsListComponent
     this.formErrors.set([]);
     this.isSaving.set(true);
 
-    const clientToEdit = this.editingClient();
-    if (clientToEdit) {
-      this.facade.updateClient(clientToEdit.id, this.formData);
-    } else {
-      this.facade.createClient(
-        this.formData as Omit<Client, 'id' | 'createdAt'>,
-      );
-    }
-
     // Simulate async operation
     setTimeout(() => {
       this.isSaving.set(false);
       this.closeModal();
+      this.toast.show(
+        this.editingClient()
+          ? 'Cliente actualizado correctamente'
+          : 'Cliente creado correctamente',
+        'success',
+      );
     }, 1000);
+
+    const clientToEdit = this.editingClient();
+    if (clientToEdit) {
+      this.facade.updateClient(clientToEdit.id, this.formData);
+      this.isSaving.set(false);
+      this.toast.show(
+        `Cliente ${this.formData.name} actualizado correctamente`,
+        'success',
+      );
+      this.closeModal();
+    } else {
+      this.facade.createClient(
+        this.formData as Omit<Client, 'id' | 'createdAt'>,
+      );
+      this.isSaving.set(false);
+      this.toast.show(
+        `Cliente ${this.formData.name} creado correctamente`,
+        'success',
+      );
+      this.closeModal();
+    }
   }
 
   onDuplicate(client: Client) {
@@ -589,6 +674,10 @@ export class ClientsListComponent
       ...rest,
       name: `${client.name} (Copia)`,
     });
+    this.toast.show(
+      `Cliente ${client.name} duplicado correctamente`,
+      'success',
+    );
   }
 
   confirmDelete(client: Client) {
@@ -596,6 +685,10 @@ export class ClientsListComponent
       confirm(`¿Estás seguro de que deseas eliminar el cliente ${client.name}?`)
     ) {
       this.facade.deleteClient(client.id);
+      this.toast.show(
+        `Cliente ${client.name} eliminado correctamente`,
+        'success',
+      );
     }
   }
 
