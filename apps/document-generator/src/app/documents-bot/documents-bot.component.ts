@@ -150,7 +150,7 @@ interface ChatMessage {
             </div>
 
             <!-- Input -->
-            <div class="p-4 border-t border-slate-200">
+            <div class="p-4 border-t border-soft">
               <form (ngSubmit)="sendMessage()" class="flex gap-3">
                 <input
                   type="text"
@@ -163,7 +163,7 @@ interface ChatMessage {
                 <button
                   type="submit"
                   [disabled]="!inputMessage.trim() || isTyping"
-                  class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transition-all"
+                  class="px-6 py-3 bg-gradient-to-r from-brand to-brand text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transition-all"
                 >
                   Enviar
                 </button>

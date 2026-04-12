@@ -344,7 +344,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
               </h4>
 
               <div class="config-row">
-                <label for="animation-speed" class="text-sm text-slate-600"
+                <label for="animation-speed" class="text-sm text-secondary"
                   >Velocidad animación</label
                 >
                 <input
@@ -365,7 +365,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
                 <label
                   id="skin-label"
                   for="skin-option-0"
-                  class="text-sm text-slate-600"
+                  class="text-sm text-secondary"
                   >Apariencia</label
                 >
                 <div
@@ -394,7 +394,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label for="pet-color" class="text-sm text-slate-600"
+                <label for="pet-color" class="text-sm text-secondary"
                   >Color</label
                 >
                 <input
@@ -407,7 +407,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label for="pet-personality" class="text-sm text-slate-600"
+                <label for="pet-personality" class="text-sm text-secondary"
                   >Personalidad</label
                 >
                 <select
@@ -426,7 +426,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
               </div>
 
               <div class="config-row">
-                <label for="pet-opacity" class="text-sm text-slate-600"
+                <label for="pet-opacity" class="text-sm text-secondary"
                   >Opacidad</label
                 >
                 <input
@@ -458,12 +458,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             }
           </div>
 
-          <div class="px-4 py-2 bg-slate-50 border-t border-slate-200">
+          <div class="px-4 py-2 bg-slate-50 border-t border-soft">
             <div class="flex flex-wrap gap-1">
               @for (action of quickActions; track $index) {
                 <button
                   (click)="sendQuickAction(action)"
-                  class="px-2 py-1 text-xs bg-surface border border-slate-200 rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                  class="px-2 py-1 text-xs bg-surface border border-soft rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
                 >
                   {{ action }}
                 </button>
@@ -483,7 +483,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             />
             <button
               (click)="sendMessage()"
-              class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700"
+              class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700"
             >
               <svg
                 class="w-4 h-4"

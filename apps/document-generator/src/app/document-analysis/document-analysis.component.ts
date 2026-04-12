@@ -63,7 +63,7 @@ interface AnalysisResult {
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+      <nav class="flex items-center space-x-2 text-sm text-secondary">
         <button
           routerLink="/documents/list"
           class="hover:text-primary transition-colors"
@@ -88,7 +88,7 @@ interface AnalysisResult {
 
       <!-- Header -->
       <div
-        class="bg-surface rounded-2xl shadow-xl border border-slate-200/50 p-8"
+        class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-8"
       >
         <div class="text-center max-w-2xl mx-auto">
           <div
@@ -113,7 +113,7 @@ interface AnalysisResult {
           >
             Analizador de Propuestas
           </h1>
-          <p class="text-slate-600 text-lg">
+          <p class="text-secondary text-lg">
             Verifica la calidad y completitud de tus propuestas comerciales con
             asistente IA
           </p>
@@ -121,15 +121,15 @@ interface AnalysisResult {
       </div>
 
       <!-- Tabs Navigation -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-slate-200/50">
-        <div class="border-b border-slate-200">
+      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50">
+        <div class="border-b border-soft">
           <div class="flex space-x-8 px-8">
             @for (tab of tabs; track tab.id) {
               <button
                 (click)="activeTab = tab.id"
                 class="py-4 px-2 text-sm font-medium transition-colors"
                 [class.tab-active]="activeTab === tab.id"
-                [class.text-slate-500]="activeTab !== tab.id"
+                [class.text-muted]="activeTab !== tab.id"
               >
                 {{ tab.name }}
               </button>
@@ -148,7 +148,7 @@ interface AnalysisResult {
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @for (category of getCategories(); track category) {
-                  <div class="border border-slate-200 rounded-xl p-4">
+                  <div class="border border-soft rounded-xl p-4">
                     <h3 class="font-semibold text-slate-800 mb-3">
                       {{ category }}
                     </h3>
@@ -173,7 +173,7 @@ interface AnalysisResult {
                                 check.name
                               }}</span>
                             </div>
-                            <p class="text-sm text-slate-500">
+                            <p class="text-sm text-muted">
                               {{ check.description }}
                             </p>
                           </div>
@@ -184,7 +184,7 @@ interface AnalysisResult {
                 }
               </div>
 
-              <div class="pt-4 border-t border-slate-200">
+              <div class="pt-4 border-t border-soft">
                 <button
                   (click)="runAnalysis()"
                   [disabled]="isAnalyzing || enabledChecksCount === 0"
@@ -254,18 +254,18 @@ interface AnalysisResult {
                   <div class="text-sm text-red-600">Errores</div>
                 </div>
                 <div
-                  class="bg-slate-50 rounded-xl p-4 text-center border border-slate-200"
+                  class="bg-slate-50 rounded-xl p-4 text-center border border-soft"
                 >
                   <div class="text-2xl font-bold text-slate-700">
                     {{ pendingCount }}
                   </div>
-                  <div class="text-sm text-slate-600">Pendientes</div>
+                  <div class="text-sm text-secondary">Pendientes</div>
                 </div>
               </div>
 
               <div class="space-y-3">
                 @for (result of analysisResults; track result.checkId) {
-                  <div class="border border-slate-200 rounded-xl p-4">
+                  <div class="border border-soft rounded-xl p-4">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center space-x-3">
                         <span
@@ -282,14 +282,14 @@ interface AnalysisResult {
                         }}</span>
                       </div>
                     </div>
-                    <p class="mt-2 text-slate-600">{{ result.message }}</p>
+                    <p class="mt-2 text-secondary">{{ result.message }}</p>
 
                     @if (result.suggestions.length > 0) {
                       <div class="mt-3 pl-4 border-l-2 border-blue-300">
                         <p class="text-sm font-medium text-blue-700 mb-2">
                           💡 Sugerencias:
                         </p>
-                        <ul class="text-sm text-slate-600 space-y-1">
+                        <ul class="text-sm text-secondary space-y-1">
                           @for (
                             suggestion of result.suggestions;
                             track $index
@@ -353,7 +353,7 @@ interface AnalysisResult {
                       [class]="
                         msg.type === 'user'
                           ? 'bg-blue-600 text-white rounded-xl px-4 py-2 max-w-md'
-                          : 'bg-surface border border-slate-200 rounded-xl px-4 py-2 max-w-md'
+                          : 'bg-surface border border-soft rounded-xl px-4 py-2 max-w-md'
                       "
                     >
                       <p>{{ msg.content }}</p>
@@ -390,8 +390,8 @@ interface AnalysisResult {
                 </button>
               </div>
 
-              <div class="pt-4 border-t border-slate-200">
-                <p class="text-sm text-slate-500 mb-3">Acciones rápidas:</p>
+              <div class="pt-4 border-t border-soft">
+                <p class="text-sm text-muted mb-3">Acciones rápidas:</p>
                 <div class="flex flex-wrap gap-2">
                   @for (quickAction of quickActions; track $index) {
                     <button

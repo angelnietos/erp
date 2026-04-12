@@ -129,7 +129,7 @@ interface DocumentType {
 
       <!-- Document Type Selection -->
       <div
-        class="bg-surface rounded-2xl shadow-xl border border-slate-200/50 p-8"
+        class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-8"
       >
         <div class="mb-8">
           <h2 class="text-2xl font-bold text-primary mb-2">
@@ -334,7 +334,7 @@ interface DocumentType {
                   class="text-lg font-semibold text-primary mb-4 flex items-center"
                 >
                   <svg
-                    class="w-5 h-5 mr-2 text-slate-600"
+                    class="w-5 h-5 mr-2 text-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -458,7 +458,7 @@ interface DocumentType {
 
                 <!-- Barra de Herramientas Markdown -->
                 <div
-                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-slate-200"
+                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-soft"
                 >
                   <button
                     type="button"
@@ -545,7 +545,7 @@ interface DocumentType {
                   </button>
 
                   <div
-                    class="ml-auto flex items-center gap-3 text-xs text-slate-500"
+                    class="ml-auto flex items-center gap-3 text-xs text-muted"
                   >
                     @if (autoSaved) {
                       <span class="text-green-600 flex items-center gap-1">
@@ -568,7 +568,7 @@ interface DocumentType {
                     >
                       Contenido Universal (Markdown, Texto, HTML)
                     </label>
-                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <div class="flex items-center gap-2 text-xs text-muted">
                       <span class="px-2 py-1 bg-slate-100 rounded"
                         >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
                       >
@@ -579,7 +579,7 @@ interface DocumentType {
                     <!-- Editor Markdown -->
                     <div class="space-y-2">
                       <div
-                        class="text-xs font-medium text-slate-500 flex justify-between"
+                        class="text-xs font-medium text-muted flex justify-between"
                       >
                         <span>Editor</span>
                         <button
@@ -608,11 +608,11 @@ interface DocumentType {
 
                     <!-- Vista Previa Live -->
                     <div class="space-y-2">
-                      <div class="text-xs font-medium text-slate-500">
+                      <div class="text-xs font-medium text-muted">
                         Vista Previa
                       </div>
                       <div
-                        class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
+                        class="w-full px-4 py-3 border border-soft rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
                         [innerHTML]="previewHtml"
                         [class.h-screen]="fullscreenMode"
                       ></div>
@@ -641,7 +641,7 @@ interface DocumentType {
               </div>
 
               <div
-                class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-slate-200 gap-4"
+                class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-soft gap-4"
               >
                 <button
                   (click)="goBack()"
@@ -664,7 +664,7 @@ interface DocumentType {
                 </button>
                 <div class="flex items-center space-x-4">
                   <div class="flex flex-col gap-3">
-                    <div class="text-sm text-slate-500 mb-1">
+                    <div class="text-sm text-muted mb-1">
                       Importar archivo:
                     </div>
                     <input
@@ -754,7 +754,7 @@ interface DocumentType {
                   <button
                     type="submit"
                     [disabled]="documentForm.invalid || isGenerating"
-                    class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transform hover:scale-105 disabled:hover:scale-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
+                    class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-brand to-brand text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transform hover:scale-105 disabled:hover:scale-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
                   >
                     @if (!isGenerating) {
                       <svg

@@ -35,11 +35,11 @@ interface MessageAction {
     >
       <!-- Header -->
       <div
-        class="bg-surface/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 px-6 py-5 sticky top-0 z-10"
+        class="bg-surface/80 backdrop-blur-lg shadow-lg border-b border-soft/50 px-6 py-5 sticky top-0 z-10"
       >
         <div class="flex items-center gap-4">
           <div
-            class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
+            class="w-12 h-12 bg-gradient-to-r from-brand to-brand rounded-2xl flex items-center justify-center shadow-lg"
           >
             <lucide-icon name="bot" size="28" class="text-white"></lucide-icon>
           </div>
@@ -49,7 +49,7 @@ interface MessageAction {
             >
               Asistente IA de Documentos
             </h1>
-            <p class="text-sm text-slate-600 font-medium">
+            <p class="text-sm text-secondary font-medium">
               Tu compañero inteligente para crear documentos profesionales
             </p>
           </div>
@@ -82,7 +82,7 @@ interface MessageAction {
               [class]="
                 message.sender === 'user'
                   ? 'bg-blue-500 text-white rounded-br-md'
-                  : 'bg-surface text-gray-900 rounded-bl-md border border-gray-200'
+                  : 'bg-surface text-primary rounded-bl-md border border-soft'
               "
             >
               <!-- Message Text -->
@@ -98,7 +98,7 @@ interface MessageAction {
                 <button
                   *ngFor="let action of message.actions"
                   (click)="action.action()"
-                  class="block w-full text-left px-3 py-2 text-xs bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                  class="block w-full text-left px-3 py-2 text-xs bg-tertiary hover:bg-gray-100 rounded-lg border border-soft transition-colors"
                   [class]="
                     message.sender === 'user'
                       ? 'text-blue-600'
@@ -124,7 +124,7 @@ interface MessageAction {
             <lucide-icon
               name="user"
               size="16"
-              class="w-4 h-4 text-gray-600"
+              class="w-4 h-4 text-secondary"
             ></lucide-icon>
           </div>
         </div>
@@ -141,7 +141,7 @@ interface MessageAction {
             ></lucide-icon>
           </div>
           <div
-            class="bg-surface rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-gray-200"
+            class="bg-surface rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-soft"
           >
             <div class="flex space-x-1">
               <div
@@ -162,7 +162,7 @@ interface MessageAction {
 
       <!-- Input Area -->
       <div
-        class="bg-surface/80 backdrop-blur-lg border-t border-slate-200/50 p-6"
+        class="bg-surface/80 backdrop-blur-lg border-t border-soft/50 p-6"
       >
         <!-- Quick Suggestions -->
         <div class="mb-4 flex flex-wrap gap-3">
@@ -207,7 +207,7 @@ interface MessageAction {
           <button
             (click)="sendMessage()"
             [disabled]="!newMessage.trim() || isTyping()"
-            class="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center space-x-2 font-medium"
+            class="px-6 py-4 bg-gradient-to-r from-brand to-brand hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center space-x-2 font-medium"
           >
             <span>{{ isTyping() ? 'Pensando...' : 'Enviar' }}</span>
             <lucide-icon name="send" size="20" class="w-5 h-5"></lucide-icon>

@@ -153,14 +153,14 @@ import mermaid from 'mermaid';
             <!-- Presupuesto -->
             <div *ngIf="document?.type === 'quote'" class="space-y-6">
               <div>
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                <h3 class="text-lg font-medium text-primary mb-3">
                   Presupuesto del Proyecto
                 </h3>
-                <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div class="bg-tertiary rounded-lg p-4 space-y-3">
                   <div class="grid grid-cols-2 gap-4">
                     <div>
                       <span class="font-medium text-gray-700">Proyecto:</span>
-                      <p class="text-gray-900 mt-1">
+                      <p class="text-primary mt-1">
                         {{ document?.projectName }}
                       </p>
                     </div>
@@ -169,7 +169,7 @@ import mermaid from 'mermaid';
                         >Monto Total:</span
                       >
                       <p
-                        class="text-gray-900 mt-1 text-lg font-semibold text-green-600"
+                        class="text-primary mt-1 text-lg font-semibold text-green-600"
                       >
                         {{
                           document?.totalAmount
@@ -183,8 +183,8 @@ import mermaid from 'mermaid';
 
               <div>
                 <h4 class="font-medium text-gray-700 mb-2">Descripción:</h4>
-                <div class="bg-gray-50 rounded-lg p-4">
-                  <p class="text-gray-900 whitespace-pre-wrap">
+                <div class="bg-tertiary rounded-lg p-4">
+                  <p class="text-primary whitespace-pre-wrap">
                     {{ document?.description }}
                   </p>
                 </div>
@@ -194,13 +194,13 @@ import mermaid from 'mermaid';
             <!-- Propuesta Comercial -->
             <div *ngIf="document?.type === 'proposal'" class="space-y-6">
               <div *ngIf="document?.executiveSummary">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                <h3 class="text-lg font-medium text-primary mb-3">
                   Resumen Ejecutivo
                 </h3>
                 <div
                   class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-400"
                 >
-                  <p class="text-gray-900 whitespace-pre-wrap">
+                  <p class="text-primary whitespace-pre-wrap">
                     {{ document?.executiveSummary }}
                   </p>
                 </div>
@@ -212,8 +212,8 @@ import mermaid from 'mermaid';
               >
                 <div>
                   <h4 class="font-medium text-gray-700 mb-2">Objetivos</h4>
-                  <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                  <div class="bg-tertiary rounded-lg p-4">
+                    <p class="text-primary whitespace-pre-wrap text-sm">
                       {{ document?.objectives }}
                     </p>
                   </div>
@@ -223,8 +223,8 @@ import mermaid from 'mermaid';
                   <h4 class="font-medium text-gray-700 mb-2">
                     Alcance del Proyecto
                   </h4>
-                  <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                  <div class="bg-tertiary rounded-lg p-4">
+                    <p class="text-primary whitespace-pre-wrap text-sm">
                       {{ document?.scope }}
                     </p>
                   </div>
@@ -240,7 +240,7 @@ import mermaid from 'mermaid';
                   <div
                     class="bg-green-50 rounded-lg p-4 border-l-4 border-green-400"
                   >
-                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                    <p class="text-primary whitespace-pre-wrap text-sm">
                       {{ document?.deliverables }}
                     </p>
                   </div>
@@ -272,7 +272,7 @@ import mermaid from 'mermaid';
                   Términos y Condiciones
                 </h4>
                 <div class="bg-red-50 rounded-lg p-4 border-l-4 border-red-400">
-                  <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                  <p class="text-primary whitespace-pre-wrap text-sm">
                     {{ document?.terms }}
                   </p>
                 </div>
@@ -282,10 +282,10 @@ import mermaid from 'mermaid';
             <!-- Documentación Técnica -->
             <div *ngIf="document?.type === 'documentation'" class="space-y-6">
               <div>
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                <h3 class="text-lg font-medium text-primary mb-3">
                   Contenido del Documento
                 </h3>
-                <div class="bg-gray-50 rounded-lg p-4">
+                <div class="bg-tertiary rounded-lg p-4">
                   <div
                     class="prose prose-sm max-w-none"
                     [innerHTML]="document?.content"
@@ -297,13 +297,13 @@ import mermaid from 'mermaid';
             <!-- Documentación Arquitectónica -->
             <div *ngIf="document?.type === 'architecture'" class="space-y-8">
               <div *ngIf="document?.systemOverview">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
+                <h3 class="text-lg font-medium text-primary mb-3">
                   Resumen del Sistema
                 </h3>
                 <div
                   class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-400"
                 >
-                  <p class="text-gray-900 whitespace-pre-wrap">
+                  <p class="text-primary whitespace-pre-wrap">
                     {{ document?.systemOverview }}
                   </p>
                 </div>
@@ -317,12 +317,12 @@ import mermaid from 'mermaid';
                   </h4>
                   <div class="bg-surface border rounded-lg p-4 mermaid-container">
                     <div id="architecture-diagram" class="flex justify-center">
-                      <div class="text-gray-500">Renderizando diagrama...</div>
+                      <div class="text-muted">Renderizando diagrama...</div>
                     </div>
                   </div>
                   <details class="text-sm">
                     <summary
-                      class="cursor-pointer text-gray-600 hover:text-gray-800"
+                      class="cursor-pointer text-secondary hover:text-gray-800"
                     >
                       Ver código Mermaid
                     </summary>
@@ -339,12 +339,12 @@ import mermaid from 'mermaid';
                   </h4>
                   <div class="bg-surface border rounded-lg p-4 mermaid-container">
                     <div id="dataflow-diagram" class="flex justify-center">
-                      <div class="text-gray-500">Renderizando diagrama...</div>
+                      <div class="text-muted">Renderizando diagrama...</div>
                     </div>
                   </div>
                   <details class="text-sm">
                     <summary
-                      class="cursor-pointer text-gray-600 hover:text-gray-800"
+                      class="cursor-pointer text-secondary hover:text-gray-800"
                     >
                       Ver código Mermaid
                     </summary>
@@ -364,7 +364,7 @@ import mermaid from 'mermaid';
                   <div
                     class="bg-green-50 rounded-lg p-4 border-l-4 border-green-400"
                   >
-                    <p class="text-gray-900 whitespace-pre-wrap text-sm">
+                    <p class="text-primary whitespace-pre-wrap text-sm">
                       {{ document?.components }}
                     </p>
                   </div>
@@ -395,7 +395,7 @@ import mermaid from 'mermaid';
                     class="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-400"
                   >
                     <p
-                      class="text-gray-900 whitespace-pre-wrap text-sm font-mono"
+                      class="text-primary whitespace-pre-wrap text-sm font-mono"
                     >
                       {{ document?.apis }}
                     </p>
