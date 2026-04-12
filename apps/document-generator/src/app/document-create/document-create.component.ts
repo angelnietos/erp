@@ -1152,6 +1152,7 @@ export class DocumentCreateComponent implements OnInit {
 
   async generateDocument() {
     if (this.documentForm.valid) {
+      this.isGenerating = true;
       try {
         const formValue = this.documentForm.value;
         const client = this.clients.find((c) => c.id === formValue.clientId);
@@ -1162,7 +1163,6 @@ export class DocumentCreateComponent implements OnInit {
           type: this.selectedType?.id,
         };
 
-        let pdfBlob: Blob;
         let pdfBytes: Blob;
         switch (this.selectedType?.id) {
           case 'quote':
@@ -1192,6 +1192,8 @@ export class DocumentCreateComponent implements OnInit {
         this.router.navigate(['/documents/preview', documentId]);
       } catch (error) {
         console.error('Error generating PDF:', error);
+      } finally {
+        this.isGenerating = false;
       }
     }
   }
