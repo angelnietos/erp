@@ -548,13 +548,10 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   }
 
   downloadDocument() {
-    if (this.document?.pdfBytes) {
-      const bytes = new Uint8Array(this.document.pdfBytes);
-      const filename = `${this.document.title || 'document'}.pdf`;
-      this.pdfService.downloadPdf(bytes, filename);
-    } else {
-      console.error('No PDF data available');
-    }
+    // Navigate to preview-download screen
+    this.router.navigate(['/documents/preview-download', this.document.id], {
+      state: { document: this.document },
+    });
   }
 
   goBack() {

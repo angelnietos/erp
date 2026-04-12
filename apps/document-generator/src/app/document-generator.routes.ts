@@ -40,6 +40,13 @@ export const documentGeneratorRoutes: Route[] = [
       ),
   },
   {
+    path: 'preview-download/:id',
+    loadComponent: () =>
+      import(
+        './document-preview-download/document-preview-download.component'
+      ).then((m) => m.DocumentPreviewDownloadComponent),
+  },
+  {
     path: 'analysis',
     loadComponent: () =>
       import('./document-analysis/document-analysis.component').then(

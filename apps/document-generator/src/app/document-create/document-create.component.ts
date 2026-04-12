@@ -1094,15 +1094,21 @@ export class DocumentCreateComponent implements OnInit {
     this.fullscreenMode = !this.fullscreenMode;
   }
 
-  exportMarkdown() {
+  async exportMarkdown() {
     const content = this.documentForm.get('content')?.value || '';
-    const blob = new Blob([content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = (this.documentForm.get('title')?.value || 'documento') + '.md';
-    a.click();
-    URL.revokeObjectURL(url);
+    const title = this.documentForm.get('title')?.value || 'documento';
+    try {
+      const pdfBlob = await this.pdfService.generateMarkdownPdf({
+        content: content,
+        title: title,
+      });
+      this.universalDocument.download(pdfBlob, `${title}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Fallback to markdown download
+      const mdBlob = new Blob([content], { type: 'text/markdown' });
+      this.universalDocument.download(mdBlob, `${title}.md`);
+    }
   }
 
   async exportDocument(format: string) {
@@ -1111,10 +1117,16 @@ export class DocumentCreateComponent implements OnInit {
 
     if (format === 'pdf') {
       // ✅ GENERAR PDF REAL CON FORMATO CORRECTO
-      await this.pdfService.generateMarkdownPdf({
-        content: content,
-        title: title,
-      });
+      try {
+        const pdfBlob = await this.pdfService.generateMarkdownPdf({
+          content: content,
+          title: title,
+        });
+        this.universalDocument.download(pdfBlob, `${title}.pdf`);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF. Please try again.');
+      }
       return;
     }
 
@@ -1178,7 +1190,8 @@ export class DocumentCreateComponent implements OnInit {
           type: this.selectedType?.id,
         };
 
-        let pdfBytes: Uint8Array;
+        let pdfBlob: Blob;
+        let pdfBytes: Blob;
         switch (this.selectedType?.id) {
           case 'quote':
             pdfBytes = await this.pdfService.generateQuotePdf(documentData);
@@ -1193,12 +1206,14 @@ export class DocumentCreateComponent implements OnInit {
               await this.pdfService.generateDocumentationPdf(documentData);
         }
 
+        const pdfArray = new Uint8Array(await pdfBytes.arrayBuffer());
+
         const documentId = Date.now().toString();
         localStorage.setItem(
           `document_${documentId}`,
           JSON.stringify({
             ...documentData,
-            pdfBytes: Array.from(pdfBytes),
+            pdfBytes: Array.from(pdfArray),
           }),
         );
 
