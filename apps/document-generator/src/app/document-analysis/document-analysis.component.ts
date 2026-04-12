@@ -66,7 +66,7 @@ interface AnalysisResult {
       <nav class="flex items-center space-x-2 text-sm text-slate-600">
         <button
           routerLink="/documents/list"
-          class="hover:text-slate-900 transition-colors"
+          class="hover:text-primary transition-colors"
         >
           Documentos
         </button>
@@ -83,12 +83,12 @@ interface AnalysisResult {
             d="M9 5l7 7-7 7"
           />
         </svg>
-        <span class="text-slate-900 font-medium">Análisis de Propuestas</span>
+        <span class="text-primary font-medium">Análisis de Propuestas</span>
       </nav>
 
       <!-- Header -->
       <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+        class="bg-surface rounded-2xl shadow-xl border border-slate-200/50 p-8"
       >
         <div class="text-center max-w-2xl mx-auto">
           <div
@@ -121,7 +121,7 @@ interface AnalysisResult {
       </div>
 
       <!-- Tabs Navigation -->
-      <div class="bg-white rounded-2xl shadow-xl border border-slate-200/50">
+      <div class="bg-surface rounded-2xl shadow-xl border border-slate-200/50">
         <div class="border-b border-slate-200">
           <div class="flex space-x-8 px-8">
             @for (tab of tabs; track tab.id) {
@@ -142,7 +142,7 @@ interface AnalysisResult {
           <!-- Checks Selection Tab -->
           @if (activeTab === 'checks') {
             <div class="space-y-6">
-              <h2 class="text-xl font-bold text-slate-900 mb-4">
+              <h2 class="text-xl font-bold text-primary mb-4">
                 Selecciona qué quieres revisar
               </h2>
 
@@ -311,7 +311,7 @@ interface AnalysisResult {
               <div class="ai-message mb-6">
                 <div class="flex items-start space-x-3">
                   <div
-                    class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center"
+                    class="w-10 h-10 bg-surface/20 rounded-full flex items-center justify-center"
                   >
                     <svg
                       class="w-6 h-6"
@@ -353,7 +353,7 @@ interface AnalysisResult {
                       [class]="
                         msg.type === 'user'
                           ? 'bg-blue-600 text-white rounded-xl px-4 py-2 max-w-md'
-                          : 'bg-white border border-slate-200 rounded-xl px-4 py-2 max-w-md'
+                          : 'bg-surface border border-slate-200 rounded-xl px-4 py-2 max-w-md'
                       "
                     >
                       <p>{{ msg.content }}</p>

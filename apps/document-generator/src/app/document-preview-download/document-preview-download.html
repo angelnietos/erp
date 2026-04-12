@@ -1,12 +1,12 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-secondary">
   <!-- Header -->
-  <div class="bg-white shadow-sm border-b border-gray-200">
+  <div class="bg-surface shadow-sm border-b border-soft">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <div class="flex items-center space-x-4">
           <button
             (click)="goBack()"
-            class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            class="inline-flex items-center px-3 py-2 text-sm font-medium text-primary bg-secondary border border-soft rounded-md hover:bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
           >
             <svg
               class="w-4 h-4 mr-2"
@@ -24,10 +24,10 @@
             Volver a Vista Previa
           </button>
           <div>
-            <h1 class="text-lg font-semibold text-gray-900">
+            <h1 class="text-lg font-semibold text-primary">
               Vista Previa del PDF
             </h1>
-            <p class="text-sm text-gray-500">{{ document?.title }}</p>
+            <p class="text-sm text-muted">{{ document?.title }}</p>
           </div>
         </div>
 
@@ -35,7 +35,7 @@
           <button
             (click)="downloadPdf()"
             [disabled]="!pdfUrl || isGenerating"
-            class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+            class="inline-flex items-center px-4 py-2 bg-success text-bg-secondary text-sm font-medium rounded-md hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success disabled:opacity-50"
           >
             <svg
               class="w-4 h-4 mr-2"
@@ -59,18 +59,18 @@
 
   <!-- Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="bg-surface rounded-lg shadow-lg overflow-hidden">
       <div class="p-6">
         <div class="aspect-[3/4] w-full">
           <div
             *ngIf="isGenerating"
-            class="flex items-center justify-center h-full bg-gray-100 rounded-lg"
+            class="flex items-center justify-center h-full bg-tertiary rounded-lg"
           >
             <div class="text-center">
               <div
-                class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"
+                class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"
               ></div>
-              <p class="mt-4 text-gray-600">Generando PDF...</p>
+              <p class="mt-4 text-secondary">Generando PDF...</p>
             </div>
           </div>
 

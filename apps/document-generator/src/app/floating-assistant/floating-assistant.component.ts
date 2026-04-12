@@ -463,7 +463,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
               @for (action of quickActions; track $index) {
                 <button
                   (click)="sendQuickAction(action)"
-                  class="px-2 py-1 text-xs bg-white border border-slate-200 rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                  class="px-2 py-1 text-xs bg-surface border border-slate-200 rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
                 >
                   {{ action }}
                 </button>

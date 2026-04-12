@@ -35,7 +35,7 @@ interface MessageAction {
     >
       <!-- Header -->
       <div
-        class="bg-white/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 px-6 py-5 sticky top-0 z-10"
+        class="bg-surface/80 backdrop-blur-lg shadow-lg border-b border-slate-200/50 px-6 py-5 sticky top-0 z-10"
       >
         <div class="flex items-center gap-4">
           <div
@@ -82,7 +82,7 @@ interface MessageAction {
               [class]="
                 message.sender === 'user'
                   ? 'bg-blue-500 text-white rounded-br-md'
-                  : 'bg-white text-gray-900 rounded-bl-md border border-gray-200'
+                  : 'bg-surface text-gray-900 rounded-bl-md border border-gray-200'
               "
             >
               <!-- Message Text -->
@@ -141,7 +141,7 @@ interface MessageAction {
             ></lucide-icon>
           </div>
           <div
-            class="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-gray-200"
+            class="bg-surface rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-gray-200"
           >
             <div class="flex space-x-1">
               <div
@@ -162,7 +162,7 @@ interface MessageAction {
 
       <!-- Input Area -->
       <div
-        class="bg-white/80 backdrop-blur-lg border-t border-slate-200/50 p-6"
+        class="bg-surface/80 backdrop-blur-lg border-t border-slate-200/50 p-6"
       >
         <!-- Quick Suggestions -->
         <div class="mb-4 flex flex-wrap gap-3">
@@ -182,7 +182,7 @@ interface MessageAction {
               [(ngModel)]="newMessage"
               (keyup.enter)="sendMessage()"
               placeholder="Pregúntame sobre documentos, plantillas, diagramas..."
-              class="w-full px-6 py-4 pr-12 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm"
+              class="w-full px-6 py-4 pr-12 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface shadow-sm"
               [disabled]="isTyping()"
             />
             <div

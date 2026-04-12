@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+      <nav class="flex items-center space-x-2 text-sm text-secondary">
         <svg
           class="w-4 h-4"
           fill="none"
@@ -33,23 +33,21 @@ import { RouterModule } from '@angular/router';
       </nav>
 
       <!-- Header Section -->
-      <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
-      >
+      <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
         >
           <div class="space-y-2">
             <h1
-              class="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent"
+              class="text-3xl font-bold bg-gradient-to-r from-text-primary via-text-primary to-text-secondary bg-clip-text text-transparent"
             >
               Documentos Generados
             </h1>
-            <p class="text-slate-600 text-lg">
+            <p class="text-secondary text-lg">
               Gestiona y descarga tus documentos PDF profesionales
             </p>
             <div class="flex items-center space-x-4 pt-2">
-              <div class="flex items-center space-x-2 text-sm text-slate-500">
+              <div class="flex items-center space-x-2 text-sm text-muted">
                 <svg
                   class="w-4 h-4"
                   fill="none"
@@ -71,7 +69,7 @@ import { RouterModule } from '@angular/router';
           <div class="flex flex-col sm:flex-row gap-3">
             <button
               routerLink="/documents/bot"
-              class="inline-flex items-center px-4 py-2 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+              class="inline-flex items-center px-4 py-2 border border-soft rounded-xl text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
             >
               <svg
                 class="w-4 h-4 mr-2"
@@ -90,7 +88,7 @@ import { RouterModule } from '@angular/router';
             </button>
             <button
               routerLink="/documents/create"
-              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-brand to-brand text-bg-secondary font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <svg
                 class="w-5 h-5 mr-2"
@@ -118,7 +116,7 @@ import { RouterModule } from '@angular/router';
       >
         <div
           *ngFor="let doc of documents"
-          class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-slate-200/50 hover:border-slate-300/50 transition-all duration-300 transform hover:-translate-y-1"
+          class="group bg-surface rounded-2xl shadow-lg hover:shadow-2xl border border-soft hover:border-vibrant transition-all duration-300 transform hover:-translate-y-1"
         >
           <div class="p-6">
             <!-- Header -->
@@ -142,7 +140,7 @@ import { RouterModule } from '@angular/router';
                   {{ getTypeLabel(doc.type) }}
                 </span>
                 <h3
-                  class="text-lg font-semibold text-slate-900 mt-2 line-clamp-2 group-hover:text-blue-600 transition-colors"
+                  class="text-lg font-semibold text-primary mt-2 line-clamp-2 group-hover:text-brand transition-colors"
                 >
                   {{ doc.title || 'Documento sin título' }}
                 </h3>
@@ -151,7 +149,7 @@ import { RouterModule } from '@angular/router';
 
             <!-- Content Preview -->
             <div class="space-y-3 mb-6">
-              <div class="flex items-center text-sm text-slate-600">
+              <div class="flex items-center text-sm text-secondary">
                 <svg
                   class="w-4 h-4 mr-2"
                   fill="none"
@@ -167,7 +165,7 @@ import { RouterModule } from '@angular/router';
                 </svg>
                 <span>{{ doc.client }}</span>
               </div>
-              <div class="flex items-center text-sm text-slate-600">
+              <div class="flex items-center text-sm text-secondary">
                 <svg
                   class="w-4 h-4 mr-2"
                   fill="none"
@@ -189,7 +187,7 @@ import { RouterModule } from '@angular/router';
             <div class="flex space-x-2">
               <button
                 [routerLink]="['/documents/preview', doc.id]"
-                class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+                class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
               >
                 <svg
                   class="w-4 h-4 mr-2"
@@ -214,7 +212,7 @@ import { RouterModule } from '@angular/router';
               </button>
               <button
                 (click)="downloadDocument(doc)"
-                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                class="inline-flex items-center px-4 py-2 bg-success text-bg-secondary rounded-lg hover:shadow-lg transition-all duration-200 shadow-md"
               >
                 <svg
                   class="w-4 h-4"
@@ -238,14 +236,14 @@ import { RouterModule } from '@angular/router';
       <!-- Empty State -->
       <div
         *ngIf="documents.length === 0"
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-12"
+        class="bg-surface rounded-2xl shadow-xl border border-soft p-12"
       >
         <div class="text-center max-w-md mx-auto">
           <div
-            class="w-24 h-24 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6"
+            class="w-24 h-24 bg-brand-ambient rounded-full flex items-center justify-center mx-auto mb-6"
           >
             <svg
-              class="w-12 h-12 text-blue-600"
+              class="w-12 h-12 text-brand"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -258,17 +256,17 @@ import { RouterModule } from '@angular/router';
               />
             </svg>
           </div>
-          <h3 class="text-2xl font-bold text-slate-900 mb-3">
+          <h3 class="text-2xl font-bold text-primary mb-3">
             No hay documentos generados aún
           </h3>
-          <p class="text-slate-600 mb-8 text-lg">
+          <p class="text-secondary mb-8 text-lg">
             Comienza creando tu primer documento PDF profesional con la ayuda de
             nuestro asistente IA
           </p>
           <div class="space-y-4">
             <button
               routerLink="/documents/create"
-              class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-brand to-brand text-bg-secondary font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <svg
                 class="w-5 h-5 mr-3"

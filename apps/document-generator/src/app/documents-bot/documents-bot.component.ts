@@ -26,7 +26,7 @@ interface ChatMessage {
         <!-- Panel Mascota -->
         <div class="lg:col-span-4">
           <div
-            class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sticky top-8"
+            class="bg-surface rounded-2xl shadow-xl border border-soft p-6 sticky top-8"
           >
             <div class="w-full h-48 mx-auto mb-4">
               <ui-mascot
@@ -39,8 +39,8 @@ interface ChatMessage {
             </div>
 
             <div class="text-center">
-              <h2 class="text-xl font-bold text-slate-900 mb-1">Josanz Bot</h2>
-              <p class="text-sm text-slate-500 mb-4">Asistente de Documentos</p>
+              <h2 class="text-xl font-bold text-primary mb-1">Josanz Bot</h2>
+              <p class="text-sm text-muted mb-4">Asistente de Documentos</p>
 
               <div
                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full text-xs text-green-700"
@@ -79,7 +79,7 @@ interface ChatMessage {
 
               <button
                 (click)="quickAction('help')"
-                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-slate-700 hover:text-blue-700 transition-all flex items-center gap-3"
+                class="w-full text-left px-4 py-3 bg-tertiary hover:bg-brand-ambient rounded-xl text-sm text-primary hover:text-brand transition-all flex items-center gap-3"
               >
                 <span>❓</span>
                 <span>¿Como funciona esto?</span>
@@ -91,14 +91,12 @@ interface ChatMessage {
         <!-- Panel Chat -->
         <div class="lg:col-span-8">
           <div
-            class="bg-white rounded-2xl shadow-xl border border-slate-200 flex flex-col h-[700px]"
+            class="bg-surface rounded-2xl shadow-xl border border-soft flex flex-col h-[700px]"
           >
             <!-- Cabecera Chat -->
-            <div class="px-6 py-4 border-b border-slate-200">
-              <h2 class="text-xl font-bold text-slate-900">
-                Chat con Asistente
-              </h2>
-              <p class="text-sm text-slate-500">
+            <div class="px-6 py-4 border-b border-soft">
+              <h2 class="text-xl font-bold text-primary">Chat con Asistente</h2>
+              <p class="text-sm text-muted">
                 Preguntame cualquier cosa sobre documentos, Markdown o PDFs
               </p>
             </div>

@@ -60,6 +60,10 @@ interface DocumentType {
       .animate-slide-up {
         animation: slide-up 0.5s ease-out forwards;
       }
+
+      .brand-gradient {
+        background: linear-gradient(135deg, var(--brand), var(--brand-surface));
+      }
     `,
   ],
   selector: 'app-document-create',
@@ -68,10 +72,10 @@ interface DocumentType {
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+      <nav class="flex items-center space-x-2 text-sm text-secondary">
         <button
           routerLink="/documents/list"
-          class="hover:text-slate-900 transition-colors"
+          class="hover:text-primary transition-colors"
         >
           Documentos
         </button>
@@ -88,16 +92,14 @@ interface DocumentType {
             d="M9 5l7 7-7 7"
           />
         </svg>
-        <span class="text-slate-900 font-medium">Crear Nuevo</span>
+        <span class="text-primary font-medium">Crear Nuevo</span>
       </nav>
 
       <!-- Header -->
-      <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
-      >
+      <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
         <div class="text-center max-w-2xl mx-auto">
           <div
-            class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+            class="w-16 h-16 brand-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
           >
             <svg
               class="w-8 h-8 text-white"
@@ -114,11 +116,11 @@ interface DocumentType {
             </svg>
           </div>
           <h1
-            class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3"
+            class="text-3xl font-bold bg-gradient-to-r from-text-primary to-text-secondary bg-clip-text text-transparent mb-3"
           >
             Crear Nuevo Documento
           </h1>
-          <p class="text-slate-600 text-lg">
+          <p class="text-secondary text-lg">
             Selecciona el tipo de documento que deseas crear y deja que nuestro
             asistente IA te guíe
           </p>
@@ -127,13 +129,13 @@ interface DocumentType {
 
       <!-- Document Type Selection -->
       <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
+        class="bg-surface rounded-2xl shadow-xl border border-slate-200/50 p-8"
       >
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-slate-900 mb-2">
+          <h2 class="text-2xl font-bold text-primary mb-2">
             ¿Qué tipo de documento necesitas?
           </h2>
-          <p class="text-slate-600">
+          <p class="text-secondary">
             Elige el tipo que mejor se adapte a tus necesidades
           </p>
         </div>
@@ -151,16 +153,16 @@ interface DocumentType {
               [class.bg-gradient-to-br]="selectedType?.id === type.id"
               [class.from-blue-50]="selectedType?.id === type.id"
               [class.to-indigo-50]="selectedType?.id === type.id"
-              [class.border-slate-200]="selectedType?.id !== type.id"
-              [class.hover:border-slate-300]="selectedType?.id !== type.id"
+              [class.border-soft]="selectedType?.id !== type.id"
+              [class.hover:border-vibrant]="selectedType?.id !== type.id"
             >
               <div class="flex items-start justify-between mb-4">
                 <div
-                  class="w-12 h-12 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-all duration-300"
+                  class="w-12 h-12 rounded-xl bg-gradient-to-r from-surface to-surface-hover group-hover:from-brand-surface group-hover:to-brand-ambient flex items-center justify-center transition-all duration-300"
                 >
                   @if (type.id === 'quote') {
                     <svg
-                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      class="w-6 h-6 text-secondary group-hover:text-brand"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -175,7 +177,7 @@ interface DocumentType {
                   }
                   @if (type.id === 'proposal') {
                     <svg
-                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      class="w-6 h-6 text-secondary group-hover:text-brand"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -190,7 +192,7 @@ interface DocumentType {
                   }
                   @if (type.id === 'documentation') {
                     <svg
-                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      class="w-6 h-6 text-secondary group-hover:text-brand"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -205,7 +207,7 @@ interface DocumentType {
                   }
                   @if (type.id === 'architecture') {
                     <svg
-                      class="w-6 h-6 text-slate-600 group-hover:text-blue-600"
+                      class="w-6 h-6 text-secondary group-hover:text-brand"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -221,10 +223,10 @@ interface DocumentType {
                 </div>
                 @if (selectedType?.id === type.id) {
                   <div
-                    class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center"
+                    class="w-6 h-6 bg-brand rounded-full flex items-center justify-center"
                   >
                     <svg
-                      class="w-4 h-4 text-white"
+                      class="w-4 h-4 text-bg-secondary"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -241,11 +243,11 @@ interface DocumentType {
               </div>
               <div class="space-y-2">
                 <h3
-                  class="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors"
+                  class="text-xl font-semibold text-primary group-hover:text-brand transition-colors"
                 >
                   {{ type.name }}
                 </h3>
-                <p class="text-slate-600 leading-relaxed">
+                <p class="text-secondary leading-relaxed">
                   {{ type.description }}
                 </p>
               </div>
@@ -290,16 +292,14 @@ interface DocumentType {
 
         <!-- Form Section -->
         @if (selectedType) {
-          <div
-            class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
-          >
+          <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
             <div class="mb-8">
               <div class="flex items-center space-x-3 mb-4">
                 <div
-                  class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center"
+                  class="w-10 h-10 brand-gradient rounded-xl flex items-center justify-center"
                 >
                   <svg
-                    class="w-5 h-5 text-white"
+                    class="w-5 h-5 text-bg-secondary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -313,10 +313,10 @@ interface DocumentType {
                   </svg>
                 </div>
                 <div>
-                  <h2 class="text-2xl font-bold text-slate-900">
+                  <h2 class="text-2xl font-bold text-primary">
                     Información del Documento
                   </h2>
-                  <p class="text-slate-600">
+                  <p class="text-secondary">
                     Completa los detalles para generar tu
                     {{ selectedType.name.toLowerCase() }}
                   </p>
@@ -329,11 +329,9 @@ interface DocumentType {
               (ngSubmit)="generateDocument()"
               class="space-y-8"
             >
-              <div
-                class="bg-slate-50 rounded-xl p-6 border border-slate-200/50"
-              >
+              <div class="bg-tertiary rounded-xl p-6 border border-soft">
                 <h3
-                  class="text-lg font-semibold text-slate-900 mb-4 flex items-center"
+                  class="text-lg font-semibold text-primary mb-4 flex items-center"
                 >
                   <svg
                     class="w-5 h-5 mr-2 text-slate-600"
@@ -354,13 +352,13 @@ interface DocumentType {
                   <div class="space-y-2">
                     <label
                       for="clientId"
-                      class="block text-sm font-medium text-slate-700"
+                      class="block text-sm font-medium text-primary"
                       >Cliente *</label
                     >
                     <select
                       id="clientId"
                       formControlName="clientId"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                      class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
                     >
                       <option value="">Seleccionar cliente</option>
                       @for (client of clients; track client.id) {
@@ -373,14 +371,14 @@ interface DocumentType {
                   <div class="space-y-2">
                     <label
                       for="date"
-                      class="block text-sm font-medium text-slate-700"
+                      class="block text-sm font-medium text-primary"
                       >Fecha</label
                     >
                     <input
                       id="date"
                       type="date"
                       formControlName="date"
-                      class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                      class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
                     />
                   </div>
                 </div>
@@ -398,7 +396,7 @@ interface DocumentType {
                     type="text"
                     formControlName="title"
                     [placeholder]="getTitlePlaceholder()"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
                   />
                 </div>
 
@@ -415,7 +413,7 @@ interface DocumentType {
                         type="text"
                         formControlName="projectName"
                         placeholder="Nombre del proyecto"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
                       />
                     </div>
                     <div class="space-y-2">
@@ -430,7 +428,7 @@ interface DocumentType {
                         formControlName="totalAmount"
                         placeholder="0.00"
                         step="0.01"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
                       />
                     </div>
                   </div>
@@ -466,7 +464,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('**', '**')"
                     title="Negrita (Ctrl+B)"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-bold"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-bold"
                   >
                     B
                   </button>
@@ -474,7 +472,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('*', '*')"
                     title="Cursiva (Ctrl+I)"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all italic"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all italic"
                   >
                     I
                   </button>
@@ -483,7 +481,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('# ', '')"
                     title="Encabezado 1"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
                   >
                     H1
                   </button>
@@ -491,7 +489,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('## ', '')"
                     title="Encabezado 2"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
                   >
                     H2
                   </button>
@@ -499,7 +497,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('### ', '')"
                     title="Encabezado 3"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
                   >
                     H3
                   </button>
@@ -508,7 +506,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('- ', '')"
                     title="Lista"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
                   >
                     • Lista
                   </button>
@@ -516,7 +514,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('> ', '')"
                     title="Cita"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
                   >
                     " Cita
                   </button>
@@ -524,7 +522,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertCode()"
                     title="Código"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-mono text-xs"
                   >
                     &lt;&gt;
                   </button>
@@ -532,7 +530,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertCodeBlock()"
                     title="Bloque de código"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all font-mono text-xs"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-mono text-xs"
                   >
                     {{ '{}' }}
                   </button>
@@ -541,7 +539,7 @@ interface DocumentType {
                     type="button"
                     (click)="insertMarkdown('[', '](url)')"
                     title="Enlace"
-                    class="px-3 py-1.5 rounded-lg hover:bg-white transition-all"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
                   >
                     🔗
                   </button>
@@ -601,7 +599,7 @@ interface DocumentType {
                         formControlName="content"
                         [placeholder]="getContentPlaceholder()"
                         rows="18"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm resize-vertical"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
                         (input)="updatePreview()"
                         (keydown)="handleKeydown($event)"
                         [class.h-screen]="fullscreenMode"
@@ -635,7 +633,7 @@ interface DocumentType {
                         formControlName="architectureDiagram"
                         rows="4"
                         placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white font-mono text-sm"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm"
                       ></textarea>
                     </div>
                   </div>
@@ -647,7 +645,7 @@ interface DocumentType {
               >
                 <button
                   (click)="goBack()"
-                  class="inline-flex items-center px-6 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+                  class="inline-flex items-center px-6 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-surface hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
                 >
                   <svg
                     class="w-4 h-4 mr-2"

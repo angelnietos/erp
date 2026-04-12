@@ -90,6 +90,38 @@ export class ThemeManagerService {
         theme.colors.border,
       );
 
+      // Aplicar variables derivadas dinámicas
+      document.documentElement.style.setProperty(
+        '--brand-ambient',
+        theme.category === 'light'
+          ? `color-mix(in srgb, ${theme.colors.brand} 4%, transparent)`
+          : `color-mix(in srgb, ${theme.colors.brand} 8%, transparent)`,
+      );
+      document.documentElement.style.setProperty(
+        '--brand-ambient-strong',
+        theme.category === 'light'
+          ? `color-mix(in srgb, ${theme.colors.brand} 8%, transparent)`
+          : `color-mix(in srgb, ${theme.colors.brand} 16%, transparent)`,
+      );
+      document.documentElement.style.setProperty(
+        '--brand-surface',
+        theme.category === 'light'
+          ? `color-mix(in srgb, ${theme.colors.brand} 8%, ${theme.colors.bgSecondary})`
+          : `color-mix(in srgb, ${theme.colors.brand} 12%, transparent)`,
+      );
+      document.documentElement.style.setProperty(
+        '--brand-border-soft',
+        `color-mix(in srgb, ${theme.colors.brand} 25%, transparent)`,
+      );
+      document.documentElement.style.setProperty(
+        '--brand-glow',
+        `color-mix(in srgb, ${theme.colors.brand} 40%, transparent)`,
+      );
+      document.documentElement.style.setProperty(
+        '--brand-muted',
+        `color-mix(in srgb, ${theme.colors.brand} 65%, #000)`,
+      );
+
       // Aplicar fondo al body inmediatamente
       document.body.style.backgroundColor = theme.colors.bgPrimary;
 

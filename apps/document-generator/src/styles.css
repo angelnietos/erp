@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
 
 :root {
-  /* Premium “launcher” tokens — Switch clarity + cinematic depth + crisp accents */
+  /* Premium "launcher" tokens — Switch clarity + cinematic depth + crisp accents */
   --bg-primary: #050608;
   --bg-secondary: #0c0d12;
   --bg-tertiary: #12141c;
@@ -13,11 +13,11 @@
   --brand: #e60012;
   --primary: #e60012;
   --brand-muted: color-mix(in srgb, var(--brand) 65%, #000);
-  --brand-glow: rgba(230, 0, 18, 0.38);
+  --brand-glow: color-mix(in srgb, var(--brand) 40%, transparent);
   --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
-  --brand-border-soft: color-mix(in srgb, var(--brand) 38%, transparent);
-  --brand-ambient: rgba(230, 0, 18, 0.08);
-  --brand-ambient-strong: rgba(230, 0, 18, 0.16);
+  --brand-border-soft: color-mix(in srgb, var(--brand) 25%, transparent);
+  --brand-ambient: color-mix(in srgb, var(--brand) 8%, transparent);
+  --brand-ambient-strong: color-mix(in srgb, var(--brand) 16%, transparent);
 
   --accent: #ffffff;
   --accent-muted: #94a3b8;
@@ -83,8 +83,11 @@
   --surface-hover: rgba(255, 255, 255, 0.95);
   --brand: #e60012;
   --primary: #e60012;
-  --brand-ambient: rgba(230, 0, 18, 0.04);
-  --brand-ambient-strong: rgba(230, 0, 18, 0.08);
+  --brand-ambient: color-mix(in srgb, var(--brand) 4%, transparent);
+  --brand-ambient-strong: color-mix(in srgb, var(--brand) 8%, transparent);
+  --brand-surface: color-mix(in srgb, var(--brand) 8%, var(--bg-secondary));
+  --brand-border-soft: color-mix(in srgb, var(--brand) 15%, transparent);
+  --brand-glow: color-mix(in srgb, var(--brand) 30%, transparent);
   --text-on-brand: #ffffff;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);

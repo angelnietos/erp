@@ -18,10 +18,10 @@ import mermaid from 'mermaid';
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-slate-600">
+      <nav class="flex items-center space-x-2 text-sm text-secondary">
         <button
           routerLink="/documents/list"
-          class="hover:text-slate-900 transition-colors"
+          class="hover:text-primary transition-colors"
         >
           Documentos
         </button>
@@ -38,27 +38,25 @@ import mermaid from 'mermaid';
             d="M9 5l7 7-7 7"
           />
         </svg>
-        <span class="text-slate-900 font-medium">Vista Previa</span>
+        <span class="text-primary font-medium">Vista Previa</span>
       </nav>
 
       <!-- Header -->
-      <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8"
-      >
+      <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
         >
           <div class="space-y-2">
             <h1
-              class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent"
+              class="text-3xl font-bold bg-gradient-to-r from-text-primary to-text-secondary bg-clip-text text-transparent"
             >
               Vista Previa del Documento
             </h1>
-            <p class="text-slate-600 text-lg">
+            <p class="text-secondary text-lg">
               Revisa el contenido completo antes de descargar tu PDF
             </p>
             <div class="flex items-center space-x-4 pt-2">
-              <div class="flex items-center space-x-2 text-sm text-slate-500">
+              <div class="flex items-center space-x-2 text-sm text-muted">
                 <svg
                   class="w-4 h-4"
                   fill="none"
@@ -80,7 +78,7 @@ import mermaid from 'mermaid';
           <div class="flex flex-col sm:flex-row gap-3">
             <button
               (click)="downloadDocument()"
-              class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              class="inline-flex items-center px-6 py-4 bg-success text-bg-secondary font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <svg
                 class="w-5 h-5 mr-3"
@@ -99,7 +97,7 @@ import mermaid from 'mermaid';
             </button>
             <button
               (click)="goBack()"
-              class="inline-flex items-center px-6 py-4 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+              class="inline-flex items-center px-6 py-4 border border-soft rounded-xl text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
             >
               <svg
                 class="w-4 h-4 mr-2"
@@ -122,13 +120,13 @@ import mermaid from 'mermaid';
 
       <!-- Document Preview -->
       <div
-        class="bg-white rounded-2xl shadow-xl border border-slate-200/50 p-8 overflow-hidden"
+        class="bg-surface rounded-2xl shadow-xl border border-soft p-8 overflow-hidden"
       >
         <div class="space-y-6">
           <!-- Header del documento -->
           <div class="border-b pb-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-xl font-semibold text-gray-900">
+              <h2 class="text-xl font-semibold text-primary">
                 {{ document?.title || 'Documento' }}
               </h2>
               <span
@@ -139,7 +137,7 @@ import mermaid from 'mermaid';
               </span>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+            <div class="grid grid-cols-2 gap-4 text-sm text-secondary">
               <div>
                 <span class="font-medium">Cliente:</span> {{ document?.client }}
               </div>
@@ -317,7 +315,7 @@ import mermaid from 'mermaid';
                   <h4 class="font-medium text-gray-700 mb-2">
                     Diagrama de Arquitectura
                   </h4>
-                  <div class="bg-white border rounded-lg p-4 mermaid-container">
+                  <div class="bg-surface border rounded-lg p-4 mermaid-container">
                     <div id="architecture-diagram" class="flex justify-center">
                       <div class="text-gray-500">Renderizando diagrama...</div>
                     </div>
@@ -339,7 +337,7 @@ import mermaid from 'mermaid';
                   <h4 class="font-medium text-gray-700 mb-2">
                     Diagrama de Flujo de Datos
                   </h4>
-                  <div class="bg-white border rounded-lg p-4 mermaid-container">
+                  <div class="bg-surface border rounded-lg p-4 mermaid-container">
                     <div id="dataflow-diagram" class="flex justify-center">
                       <div class="text-gray-500">Renderizando diagrama...</div>
                     </div>
