@@ -665,75 +665,56 @@ interface DocumentType {
                   Volver Atrás
                 </button>
                 <div class="flex items-center space-x-4">
-                  <button
-                    type="button"
-                    (click)="exportMarkdown()"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
-                  >
-                    <svg
-                      class="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <div class="flex flex-col gap-3">
-                      <div class="text-sm text-slate-500 mb-1">
-                        Importar archivo:
-                      </div>
-                      <input
-                        type="file"
-                        #fileInput
-                        hidden
-                        (change)="importDocument($event)"
-                        accept=".md,.txt,.pdf,.docx,.xlsx,.html"
-                      />
-                      <div class="flex gap-2 flex-wrap">
-                        <button
-                          (click)="fileInput.click()"
-                          class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📥 Importar Archivo
-                        </button>
-                        <button
-                          (click)="exportDocument('markdown')"
-                          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📑 MD
-                        </button>
-                        <button
-                          (click)="exportDocument('pdf')"
-                          class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📄 PDF
-                        </button>
-                        <button
-                          (click)="exportDocument('xlsx')"
-                          class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📊 Excel
-                        </button>
-                        <button
-                          (click)="exportDocument('html')"
-                          class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          🌐 HTML
-                        </button>
-                        <button
-                          (click)="exportDocument('txt')"
-                          class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          📃 TXT
-                        </button>
-                      </div>
+                  <div class="flex flex-col gap-3">
+                    <div class="text-sm text-slate-500 mb-1">
+                      Importar archivo:
                     </div>
-                  </button>
+                    <input
+                      type="file"
+                      #fileInput
+                      hidden
+                      (change)="importDocument($event)"
+                      accept=".md,.txt,.pdf,.docx,.xlsx,.html"
+                    />
+                    <div class="flex gap-2 flex-wrap">
+                      <button
+                        (click)="fileInput.click()"
+                        class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📥 Importar Archivo
+                      </button>
+                      <button
+                        (click)="exportDocument('markdown')"
+                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📑 MD
+                      </button>
+                      <button
+                        (click)="exportDocument('pdf')"
+                        class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📄 PDF
+                      </button>
+                      <button
+                        (click)="exportDocument('xlsx')"
+                        class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📊 Excel
+                      </button>
+                      <button
+                        (click)="exportDocument('html')"
+                        class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        🌐 HTML
+                      </button>
+                      <button
+                        (click)="exportDocument('txt')"
+                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        📃 TXT
+                      </button>
+                    </div>
+                  </div>
                   <button
                     routerLink="/documents/bot"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -911,6 +892,7 @@ export class DocumentCreateComponent implements OnInit {
   clients = [
     { id: '1', name: 'Cliente A' },
     { id: '2', name: 'Cliente B' },
+    { id: '3', name: 'BABOONI' },
   ];
 
   clientOptions = this.clients.map((client) => ({
@@ -1011,6 +993,10 @@ export class DocumentCreateComponent implements OnInit {
           this.selectedType?.id,
         );
       }
+      // Auto-set title for internal documentation
+      if (values.clientId === '3' && !values.title) {
+        this.documentForm.patchValue({ title: 'BABOONI' });
+      }
     });
 
     setInterval(() => {
@@ -1094,26 +1080,11 @@ export class DocumentCreateComponent implements OnInit {
     this.fullscreenMode = !this.fullscreenMode;
   }
 
-  async exportMarkdown() {
-    const content = this.documentForm.get('content')?.value || '';
-    const title = this.documentForm.get('title')?.value || 'documento';
-    try {
-      const pdfBlob = await this.pdfService.generateMarkdownPdf({
-        content: content,
-        title: title,
-      });
-      this.universalDocument.download(pdfBlob, `${title}.pdf`);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      // Fallback to markdown download
-      const mdBlob = new Blob([content], { type: 'text/markdown' });
-      this.universalDocument.download(mdBlob, `${title}.md`);
-    }
-  }
-
   async exportDocument(format: string) {
     const content = this.documentForm.get('content')?.value || '';
     const title = this.documentForm.get('title')?.value || 'documento';
+    const formValue = this.documentForm.value;
+    const client = this.clients.find((c) => c.id === formValue.clientId);
 
     if (format === 'pdf') {
       // ✅ GENERAR PDF REAL CON FORMATO CORRECTO
@@ -1121,6 +1092,7 @@ export class DocumentCreateComponent implements OnInit {
         const pdfBlob = await this.pdfService.generateMarkdownPdf({
           content: content,
           title: title,
+          client: client?.name || 'Josanz ERP',
         });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {

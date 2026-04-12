@@ -146,17 +146,16 @@ export class PdfGenerationService {
       </head>
       <body>
         <div class="pdf-footer">
-          Generado por Josanz ERP | Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+          Página <span class="pageNumber"></span> de <span class="totalPages"></span>
         </div>
-        
+
         <div class="pdf-header">
           <h1>${data.title || 'Documento'}</h1>
           <div class="pdf-meta">
-            <span>Cliente: ${data.client || 'Josanz ERP'}</span>
             <span>Fecha: ${data.date || new Date().toLocaleDateString('es-ES')}</span>
           </div>
         </div>
-        
+
         ${htmlContent}
       </body>
       </html>
@@ -507,13 +506,12 @@ export class PdfGenerationService {
       </head>
       <body>
         <div class="pdf-footer">
-          Generado por Josanz ERP | Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+          Página <span class="pageNumber"></span> de <span class="totalPages"></span>
         </div>
 
         <div class="pdf-header">
           <h1>${data.title || 'Documento'}</h1>
           <div class="pdf-meta">
-            <span>Cliente: ${data.client || 'Josanz ERP'}</span>
             <span>Fecha: ${data.date || new Date().toLocaleDateString('es-ES')}</span>
           </div>
         </div>

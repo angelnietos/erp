@@ -10,7 +10,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 import ExcelJS from 'exceljs';
-import { PDFDocument, PDFFont, PDFPage, RGB, rgb, StandardFonts } from 'pdf-lib';
+import {
+  PDFDocument,
+  PDFFont,
+  PDFPage,
+  RGB,
+  rgb,
+  StandardFonts,
+} from 'pdf-lib';
 
 export class ReportExportXlsxDto {
   @IsString()
@@ -106,7 +113,6 @@ export class ReportsExportController {
   })
   async exportXlsx(@Body() dto: ReportExportXlsxDto) {
     const wb = new ExcelJS.Workbook();
-    wb.creator = 'Josanz ERP';
     const ws = wb.addWorksheet('Informe');
     ws.addRow([dto.title]);
     ws.addRow([]);
@@ -271,18 +277,17 @@ export class ReportsExportController {
         color: rgb(0.9, 0.92, 0.95),
       });
     }
-    page.drawText('Josanz ERP', {
-      x: PAGE_W - MARGIN - font.widthOfTextAtSize('Josanz ERP', 9),
-      y: PAGE_H - 28,
-      size: 9,
-      font,
-      color: rgb(0.85, 0.9, 0.95),
-    });
+
     return PAGE_H - HEADER_BAND_H - 24;
   }
 
-  private drawFooter(page: PDFPage, font: PDFFont, index: number, total: number) {
-    const t = `Página ${index} / ${total} · Josanz ERP`;
+  private drawFooter(
+    page: PDFPage,
+    font: PDFFont,
+    index: number,
+    total: number,
+  ) {
+    const t = `Página ${index} / ${total}`;
     const w = font.widthOfTextAtSize(t, 8);
     page.drawText(t, {
       x: (PAGE_W - w) / 2,
@@ -371,8 +376,7 @@ export class ReportsExportController {
       let x = MARGIN + 4;
       for (let c = 0; c < colCount; c++) {
         const cell = row[c];
-        const text =
-          cell === null || cell === undefined ? '' : String(cell);
+        const text = cell === null || cell === undefined ? '' : String(cell);
         cursor.page.drawText(this.truncate(text, 32), {
           x,
           y: cursor.y - 14,

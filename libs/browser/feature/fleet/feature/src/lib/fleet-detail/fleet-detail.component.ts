@@ -38,9 +38,7 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
       [class.high-perf]="pluginStore.highPerformanceMode()"
     >
       @if (isLoading()) {
-        <ui-loader
-          message="Sincronizando unidad móvil..."
-        ></ui-loader>
+        <ui-loader message="Sincronizando unidad móvil..."></ui-loader>
       } @else if (vehicle()) {
         <header
           class="page-header"
@@ -66,8 +64,20 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
             </div>
           </div>
           <div class="header-actions">
-            <ui-button variant="glass" size="md" icon="wrench" (click)="onMaintenance()">MANTENIMIENTO</ui-button>
-            <ui-button variant="primary" size="md" icon="map-pin" (click)="onActiveRoutes()">RUTAS ACTIVAS</ui-button>
+            <ui-button
+              variant="glass"
+              size="md"
+              icon="wrench"
+              (click)="onMaintenance()"
+              >MANTENIMIENTO</ui-button
+            >
+            <ui-button
+              variant="primary"
+              size="md"
+              icon="map-pin"
+              (click)="onActiveRoutes()"
+              >RUTAS ACTIVAS</ui-button
+            >
           </div>
         </header>
 
@@ -96,10 +106,7 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
 
         <div class="content-grid">
           <div class="main-column">
-            <ui-card
-              variant="glass"
-              title="Especificaciones del Vehículo"
-            >
+            <ui-card variant="glass" title="Especificaciones del Vehículo">
               <div class="spec-grid">
                 <div class="spec-item">
                   <span class="label">TIPO UNIDAD</span>
@@ -146,11 +153,19 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
 
             <ui-card variant="glass" title="Documentación Digital">
               <div class="doc-list">
-                <button type="button" class="doc-item" (click)="downloadTechnicalSheet()">
+                <button
+                  type="button"
+                  class="doc-item"
+                  (click)="downloadTechnicalSheet()"
+                >
                   <lucide-icon name="file-text" size="16"></lucide-icon>
                   <span>FICHA TÉCNICA.PDF</span>
                 </button>
-                <button type="button" class="doc-item" (click)="downloadInsurancePolicy()">
+                <button
+                  type="button"
+                  class="doc-item"
+                  (click)="downloadInsurancePolicy()"
+                >
                   <lucide-icon name="shield-check" size="16"></lucide-icon>
                   <span>PÓLIZA SEGURO.PDF</span>
                 </button>
@@ -529,7 +544,6 @@ export class FleetDetailComponent implements OnInit {
       </div>
 
       <div class="footer-note">
-        <p><em>Documento generado automáticamente por el sistema ERP Josanz</em></p>
         <p><em>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</em></p>
       </div>
     `;
@@ -583,7 +597,6 @@ export class FleetDetailComponent implements OnInit {
       </div>
 
       <div class="footer-note">
-        <p><em>Documento informativo generado por el sistema ERP Josanz</em></p>
         <p><em>Para póliza oficial, contactar con la compañía aseguradora</em></p>
         <p><em>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</em></p>
       </div>
