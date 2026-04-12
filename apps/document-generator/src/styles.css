@@ -71,15 +71,15 @@
 [data-theme='platinum-luxe'],
 [data-theme='overwatch-pulse'] {
   --text-primary: #0f172a;
-  --text-secondary: #334155;
+  --text-secondary: #475569;
   --text-muted: #64748b;
-  --border-soft: rgba(15, 23, 42, 0.08);
-  --border-vibrant: rgba(15, 23, 42, 0.14);
+  --border-soft: rgba(15, 23, 42, 0.12);
+  --border-vibrant: rgba(15, 23, 42, 0.18);
   --shadow-inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-tertiary: #f1f5f9;
-  --surface: rgba(255, 255, 255, 0.85);
+  --surface: rgba(255, 255, 255, 0.9);
   --surface-hover: rgba(255, 255, 255, 0.95);
   --brand: #e60012;
   --primary: #e60012;
@@ -188,6 +188,37 @@ body {
 
 body * {
   color: var(--text-primary);
+}
+
+/* Ensure better contrast for form elements */
+input,
+textarea,
+select {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-soft) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+/* Better contrast for buttons and interactive elements */
+button,
+.btn {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Ensure links have good contrast */
+a {
+  color: var(--brand) !important;
+}
+
+a:hover {
+  color: var(--brand) !important;
+  opacity: 0.8;
 }
 
 img,
