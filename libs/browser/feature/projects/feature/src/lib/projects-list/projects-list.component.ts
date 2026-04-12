@@ -5,6 +5,7 @@ import {
   signal,
   inject,
   computed,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -34,7 +35,16 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FILTER_PROVIDER, FilterableService, DomainEventsApiService, ToastService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FILTER_PROVIDER,
+  FilterableService,
+  DomainEventsApiService,
+  ToastService,
+  AIFormBridgeService,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 
 export interface Project {
@@ -65,11 +75,9 @@ export interface Project {
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
-    LucideAngularModule
+    LucideAngularModule,
   ],
-  providers: [
-    { provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }
-  ],
+  providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
   template: `
     <div class="projects-container">
       <ui-feature-header
@@ -106,21 +114,26 @@ export interface Project {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="filters-bar">
-        <ui-search
-          variant="glass"
-          placeholder="Buscar proyectos..."
-          (searchChange)="onSearchChange($event)"
-          class="flex-1"
-        ></ui-search>
-        <ui-select
-          label="Estado"
-          [options]="statusFilterOptions"
-          [ngModel]="statusFilter()"
-          (ngModelChange)="onStatusFilterChange($event)"
-          name="projectStatus"
-          class="status-select"
-        />
+      <!-- Search and Filters -->
+      <div class="feature-controls">
+        <div class="search-container">
+          <ui-search
+            variant="glass"
+            placeholder="Buscar por nombre, cliente o descripción..."
+            (searchChange)="onSearchChange($event)"
+          ></ui-search>
+        </div>
+        <div class="actions-group">
+          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-select
+            label="Estado"
+            [options]="statusFilterOptions"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="onStatusFilterChange($event)"
+            name="projectStatus"
+            class="status-select"
+          />
+        </div>
       </div>
 
       <ui-feature-grid>
@@ -132,7 +145,13 @@ export interface Project {
             [avatarBackground]="getStatusColor(project.status)"
             [status]="project.status === 'ACTIVE' ? 'active' : 'offline'"
             [badgeLabel]="project.status"
-            [badgeVariant]="project.status === 'ACTIVE' ? 'success' : project.status === 'COMPLETED' ? 'info' : 'danger'"
+            [badgeVariant]="
+              project.status === 'ACTIVE'
+                ? 'success'
+                : project.status === 'COMPLETED'
+                  ? 'info'
+                  : 'danger'
+            "
             (cardClicked)="onRowClick()"
             [routerLink]="['/projects', project.id]"
             [showEdit]="true"
@@ -142,85 +161,132 @@ export interface Project {
             (duplicateClicked)="onDuplicate(project)"
             (deleteClicked)="onDelete(project)"
             [footerItems]="[
-              { icon: 'calendar', label: 'Inicio: ' + (project.startDate | date: 'dd/MM/yy') },
-              { icon: 'clock', label: 'Fin: ' + (project.endDate | date: 'dd/MM/yy') }
+              {
+                icon: 'calendar',
+                label: 'Inicio: ' + (project.startDate | date: 'dd/MM/yy'),
+              },
+              {
+                icon: 'clock',
+                label: 'Fin: ' + (project.endDate | date: 'dd/MM/yy'),
+              },
             ]"
           >
             <p class="description">{{ project.description }}</p>
           </ui-feature-card>
         } @empty {
           <div class="empty-state">
-             <lucide-icon name="layout" size="64" class="empty-icon"></lucide-icon>
-             <h3>No hay proyectos</h3>
-             <p>Comienza creando un nuevo proyecto para gestionar tus tareas y recursos.</p>
-             <ui-button variant="solid" routerLink="/projects/new" icon="CirclePlus">Crear proyecto</ui-button>
+            <lucide-icon
+              name="layout"
+              size="64"
+              class="empty-icon"
+            ></lucide-icon>
+            <h3>No hay proyectos</h3>
+            <p>
+              Comienza creando un nuevo proyecto para gestionar tus tareas y
+              recursos.
+            </p>
+            <ui-button
+              variant="solid"
+              routerLink="/projects/new"
+              icon="CirclePlus"
+              >Crear proyecto</ui-button
+            >
           </div>
         }
       </ui-feature-grid>
     </div>
   `,
-  styles: [`
-    .projects-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+  styles: [
+    `
+      .projects-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-    .filters-bar {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      align-items: center;
-      background: var(--surface);
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--border-soft);
-    }
+      .feature-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: var(--surface);
+        padding: 0.5rem 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-soft);
+        gap: 2rem;
+      }
 
-    .flex-1 { flex: 1; }
+      .search-container {
+        flex: 1;
+      }
 
-    .status-select {
-       min-width: 200px;
-    }
+      .actions-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
 
-    .description {
-       font-size: 0.875rem;
-       color: var(--text-muted);
-       margin: 0.5rem 0;
-       display: -webkit-box;
-       -webkit-line-clamp: 2;
-       -webkit-box-orient: vertical;
-       overflow: hidden;
-    }
+      .flex-1 {
+        flex: 1;
+      }
 
-    .card-actions {
-       display: flex;
-       gap: 0.25rem;
-    }
+      .status-select {
+        min-width: 200px;
+      }
 
-    .text-danger { color: var(--danger) !important; }
+      .description {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin: 0.5rem 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 16px;
-      border: 2px dashed var(--border-soft);
-    }
+      .card-actions {
+        display: flex;
+        gap: 0.25rem;
+      }
 
-    .empty-icon { color: var(--text-muted); margin-bottom: 1rem; opacity: 0.5; }
+      .text-danger {
+        color: var(--danger) !important;
+      }
 
-    @media (max-width: 768px) {
-      .filters-bar { flex-direction: column; align-items: stretch; }
-      .status-select { min-width: 0; }
-    }
-  `],
+      .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4rem;
+        text-align: center;
+        background: var(--surface);
+        border-radius: 16px;
+        border: 2px dashed var(--border-soft);
+      }
+
+      .empty-icon {
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      @media (max-width: 768px) {
+        .filters-bar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .status-select {
+          min-width: 0;
+        }
+      }
+    `,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProjectsListComponent implements OnInit, OnDestroy, FilterableService<Project> {
+export class ProjectsListComponent
+  implements OnInit, OnDestroy, FilterableService<Project>
+{
   readonly Plus = Plus;
   readonly Search = Search;
   readonly Edit = Edit;
@@ -240,6 +306,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly domainEventsApi = inject(DomainEventsApiService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly aiFormBridge = inject(AIFormBridgeService);
 
   currentThemeData = this.themeService.currentThemeData;
 
@@ -271,9 +338,20 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
     return list;
   });
 
-  activeProjectsCount = computed(() => this.allProjects().filter(p => p.status === 'ACTIVE').length);
-  completedProjectsCount = computed(() => this.allProjects().filter(p => p.status === 'COMPLETED').length);
-  uniqueClientsCount = computed(() => new Set(this.allProjects().map(p => p.clientId).filter(Boolean)).size || 8);
+  activeProjectsCount = computed(
+    () => this.allProjects().filter((p) => p.status === 'ACTIVE').length,
+  );
+  completedProjectsCount = computed(
+    () => this.allProjects().filter((p) => p.status === 'COMPLETED').length,
+  );
+  uniqueClientsCount = computed(
+    () =>
+      new Set(
+        this.allProjects()
+          .map((p) => p.clientId)
+          .filter(Boolean),
+      ).size || 8,
+  );
 
   columns = [
     { key: 'name', header: 'Nombre', width: '220px' },
@@ -287,9 +365,10 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   ];
 
   ngOnInit() {
+    this.aiFormBridge.registerDataProxy({} as Record<string, unknown>);
     this.loadProjects();
     this.masterFilter.registerProvider(this);
-    
+
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
       if (text) {
@@ -299,6 +378,7 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   ngOnDestroy() {
+    this.aiFormBridge.unregisterDataProxy({} as Record<string, unknown>);
     this.masterFilter.unregisterProvider();
   }
 
@@ -311,12 +391,50 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
    * El MasterFilterService llamará a este método cuando se busque globalmente.
    */
   filter(query: string): Observable<Project[]> {
-    const term = query.toLowerCase();
-    const result = this.allProjects().filter(p => 
-       p.name.toLowerCase().includes(term) || 
-       (p.description ?? '').toLowerCase().includes(term)
+    const term = query.toLowerCase().trim();
+    if (!term) return of(this.allProjects());
+
+    const matches = this.allProjects().filter((p: Project) => {
+      const searchableText = [
+        p.name,
+        p.description ?? '',
+        p.clientName ?? '',
+        p.status,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const normalizedTerm = this.normalizeSearchTerm(term);
+
+      return (
+        searchableText.includes(normalizedTerm) ||
+        this.hasKeywordMatch(searchableText, normalizedTerm)
+      );
+    });
+    return of(matches);
+  }
+
+  private normalizeSearchTerm(term: string): string {
+    const synonyms: Record<string, string[]> = {
+      activo: ['activo', 'active', 'activa'],
+      completado: ['completado', 'completed', 'finalizado', 'terminado'],
+      cancelado: ['cancelado', 'cancelled', 'anulado'],
+      proyecto: ['proyecto', 'project', 'trabajo'],
+    };
+
+    for (const [key, variants] of Object.entries(synonyms)) {
+      if (variants.some((v) => term.includes(v))) {
+        return key;
+      }
+    }
+    return term;
+  }
+
+  private hasKeywordMatch(text: string, term: string): boolean {
+    return (
+      text.includes(term) ||
+      term.split(' ').every((word) => text.includes(word))
     );
-    return of(result);
   }
 
   onStatusFilterChange(value: string) {
@@ -332,52 +450,68 @@ export class ProjectsListComponent implements OnInit, OnDestroy, FilterableServi
   }
 
   onDuplicate(project: Project) {
-    this.domainEventsApi.append({
-      eventType: 'COPY',
-      aggregateType: 'PROJECT',
-      aggregateId: project.id,
-      payload: { name: project.name }
-    }).subscribe({
-      next: () => {
-        this.toast.show(`Evento de copia registrado: ${project.name}`, 'success');
-      },
-      error: () => {
-        this.toast.show('No se pudo registrar la copia del proyecto.', 'error');
-      },
-    });
+    this.domainEventsApi
+      .append({
+        eventType: 'COPY',
+        aggregateType: 'PROJECT',
+        aggregateId: project.id,
+        payload: { name: project.name },
+      })
+      .subscribe({
+        next: () => {
+          this.toast.show(
+            `Evento de copia registrado: ${project.name}`,
+            'success',
+          );
+        },
+        error: () => {
+          this.toast.show(
+            'No se pudo registrar la copia del proyecto.',
+            'error',
+          );
+        },
+      });
   }
 
   onDelete(project: Project) {
-    this.domainEventsApi.append({
-      eventType: 'DELETE',
-      aggregateType: 'PROJECT',
-      aggregateId: project.id,
-      payload: { name: project.name }
-    }).subscribe({
-      next: () => {
-        this.allProjects.update((list: Project[]) => list.filter((p: Project) => p.id !== project.id));
-        this.toast.show(`Proyecto eliminado: ${project.name}`, 'success');
-      },
-      error: () => {
-        this.toast.show('No se pudo eliminar el proyecto.', 'error');
-      },
-    });
+    this.domainEventsApi
+      .append({
+        eventType: 'DELETE',
+        aggregateType: 'PROJECT',
+        aggregateId: project.id,
+        payload: { name: project.name },
+      })
+      .subscribe({
+        next: () => {
+          this.allProjects.update((list: Project[]) =>
+            list.filter((p: Project) => p.id !== project.id),
+          );
+          this.toast.show(`Proyecto eliminado: ${project.name}`, 'success');
+        },
+        error: () => {
+          this.toast.show('No se pudo eliminar el proyecto.', 'error');
+        },
+      });
   }
 
   getInitials(name: string): string {
     return name
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase())
+      .map((word) => word.charAt(0).toUpperCase())
       .slice(0, 2)
       .join('');
   }
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'ACTIVE': return 'linear-gradient(135deg, #10b981, #059669)';
-      case 'COMPLETED': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-      case 'CANCELLED': return 'linear-gradient(135deg, #ef4444, #dc2626)';
-      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+      case 'ACTIVE':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'COMPLETED':
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'CANCELLED':
+        return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      default:
+        return 'linear-gradient(135deg, #6b7280, #374151)';
     }
   }
 
