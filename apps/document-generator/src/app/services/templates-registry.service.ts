@@ -1148,123 +1148,543 @@ Atentamente,
 | **[Servicio 3]** | [Descripción detallada del servicio prestado] | [X] proyecto | €[XXX.XX] | €[XXX.XX] |
 | **Subtotal Servicios** | | | | €[XXX.XX] |
 
-### **Desglose Detallado de Servicios:**
-
-1. **Desarrollo Web Frontend**
-   - Tecnologías: React, TypeScript, Tailwind CSS
-   - Alcance: [Descripción específica del trabajo realizado]
-   - Tiempo invertido: [X horas]
-
-2. **Consultoría Técnica**
-   - Área: [Arquitectura / DevOps / Seguridad]
-   - Deliverables: [Documentos / Implementaciones]
-   - Tiempo invertido: [X horas]
-
-3. **Mantenimiento y Soporte**
-   - Tipo: [Correctivo / Evolutivo / Preventivo]
-   - Alcance: [Descripción de incidencias resueltas]
-   - Tiempo invertido: [X horas]
-
 ---
 
 ## 💰 DESGLOSE ECONÓMICO
-
-### **Base Imponible por Tipo de Servicio**
-
-| **Categoría** | **Base Imponible** | **IVA** | **Cuota IVA** | **Total** |
-|----------------|-------------------|---------|---------------|-----------|
-| **Servicios Profesionales** | €[XXX.XX] | 21% | €[XX.XX] | €[XXX.XX] |
-| **Productos/Suministros** | €[XXX.XX] | 21% | €[XX.XX] | €[XXX.XX] |
-| **Desplazamientos** | €[XXX.XX] | 0% | €0.00 | €[XXX.XX] |
-| **Subtotal** | €[XXX.XX] | | €[XX.XX] | €[XXX.XX] |
-
-### **Cálculos de Retenciones (si aplica)**
-
-| **Concepto** | **Base** | **Tipo** | **Retención** |
-|--------------|----------|----------|---------------|
-| **IRPF Profesional** | €[XXX.XX] | 15% | €[XX.XX] |
-| **Total Retenciones** | | | **€[XX.XX]** |
-
----
-
-## 💳 FORMA DE PAGO
-
-### **Método de Pago Aceptado:**
-- [ ] Transferencia bancaria
-- [ ] Domiciliación bancaria
-- [ ] Tarjeta de crédito/débito
-- [ ] Bizum
-- [ ] Efectivo
-
-### **Datos Bancarios para Transferencia:**
-**Beneficiario:** [Nombre de la empresa, S.L.]  
-**IBAN:** [ESXX XXXX XXXX XX XX XXXXXXXX]  
-**SWIFT/BIC:** [XXXXESMMXXX]  
-**Banco:** [Nombre completo del banco]  
-**Referencia:** [FV-2024-XXXX]  
-
-### **Condiciones de Pago:**
-- **Plazo:** [30/60/90] días desde fecha de emisión
-- **Penalización por mora:** [Interés legal + X]% anual
-- **Descuentos por pronto pago:** [X]% si pago en [X] días
-
----
-
-## 📊 RESUMEN FACTURA
 
 | **Concepto** | **Importe** |
 |---------------|-------------|
 | **Base Imponible** | €[XXX.XX] |
 | **IVA 21%** | €[XX.XX] |
-| **Retenciones** | -€[XX.XX] |
+| **Retenciones IRPF 15%** | -€[XX.XX] |
 | **TOTAL FACTURA** | **€[XXX.XX]** |
+
+---
+
+## 💳 FORMA DE PAGO
+
+**IBAN:** [ESXX XXXX XXXX XXXX XXXX XXXX]  
+**Banco:** [Nombre del banco]  
+**Referencia:** [FV-2024-XXXX]  
+
+**Condiciones:**
+- Plazo: 30 días
+- Penalización por mora: Interés legal + 2% anual
+- Descuento: 5% si pago en 10 días
 
 ---
 
 ## 📝 CONDICIONES GENERALES
 
-### **Ley Aplicable:**
-Esta factura se rige por la legislación española, concretamente por la Ley 37/1992 del IVA y la Ley 58/2003 General Tributaria.
-
-### **Plazos y Condiciones:**
-- El plazo de pago comienza a contar desde la fecha de emisión
-- Los servicios facturados han sido completamente prestados
-- Esta factura sirve como justificante de pago válido
-
-### **Reclamaciones:**
-Cualquier reclamación debe presentarse por escrito en un plazo máximo de 30 días desde la fecha de emisión.
-
-### **Protección de Datos:**
-Los datos personales se tratan conforme al RGPD (Reglamento UE 2016/679).
+Esta factura se rige por la legislación española vigente. Cualquier reclamación debe presentarse por escrito en plazo máximo de 30 días desde emisión.
 
 ---
-
-## ✅ CONFORMIDAD Y ACEPTACIÓN
 
 **Factura emitida por:**  
 _______________________________  
 **[Nombre y Apellidos]**  
 **Administrador/a**  
-**[Nombre de la Empresa, S.L.]**  
 
-**Fecha de emisión:** [Fecha actual]  
+**Fecha de emisión:** [Fecha actual]`,
+      tags: ['factura', 'servicios', 'negocio'],
+    },
+    {
+      id: 'service-contract',
+      name: 'Contrato de Prestación de Servicios',
+      description: 'Contrato estándar para servicios profesionales',
+      icon: '📜',
+      category: 'legal',
+      content: `# 📜 CONTRATO DE PRESTACIÓN DE SERVICIOS
 
-**Conforme con la Ley 37/1992, de 28 de diciembre, del Impuesto sobre el Valor Añadido**  
-**Factura electrónica generada automáticamente - Original en formato PDF**
+**CONTRATO NÚMERO:** [CS-2024-XXX]  
+**FECHA:** [Fecha actual]  
+**LUGAR:** [Ciudad]
 
 ---
 
-## 📞 CONTACTO PARA CONSULTAS
+## ✅ PARTES CONTRATANTES
 
-**Departamento de Administración:**  
-✉️ [admin@empresa.com]  
-📞 [+34] XXX XXX XXX  
-🕒 Lunes a Viernes, 9:00 - 18:00
+### **PARTE 1 - PROVEEDOR**
+**Razón Social:** [Nombre Empresa Proveedora]  
+**CIF/NIF:** [XXXXXXXXX]  
+**Domicilio:** [Dirección completa]  
+**Representante:** [Nombre completo]  
+**Cargo:** [Cargo]
 
-**Para cualquier consulta sobre esta factura, por favor cite el número de referencia: [FV-2024-XXXX]**
+### **PARTE 2 - CLIENTE**
+**Razón Social:** [Nombre Empresa Cliente]  
+**CIF/NIF:** [XXXXXXXXX]  
+**Domicilio:** [Dirección completa]  
+**Representante:** [Nombre completo]  
+**Cargo:** [Cargo]
 
-`,
-      tags: ['contrato', 'servicios', 'legal'],
+---
+
+## 🎯 OBJETO DEL CONTRATO
+
+El Proveedor se compromete a prestar los siguientes servicios al Cliente:
+
+1. **[Servicio Principal]**
+   - Descripción detallada: [Describir el servicio completo]
+   - Alcance: [Definir límites y alcance del servicio]
+   - Entregables: [Listar entregables específicos]
+
+2. **Plazos de ejecución:**
+   - Inicio: [Fecha inicio]
+   - Entrega final: [Fecha fin]
+   - Hitos intermedios: [Definir hitos]
+
+---
+
+## 💰 CONDICIONES ECONÓMICAS
+
+| Concepto | Importe |
+|----------|---------|
+| Importe total del servicio | €[XXX.XXX,XX] |
+| Forma de pago | [Transferencia / Domiciliación] |
+| Plazo de pago | [30/45/60] días desde facturación |
+| IVA | 21% aplicable |
+
+### Condiciones de pago:
+- 30% anticipado al firmar contrato
+- 30% al alcanzar el hito intermedio
+- 40% al finalizar y aceptar el servicio
+
+---
+
+## 🔒 OBLIGACIONES DE LAS PARTES
+
+### Obligaciones del Proveedor:
+- ✅ Ejecutar servicios con diligencia profesional
+- ✅ Cumplir plazos establecidos
+- ✅ Informar periódicamente del avance
+- ✅ Mantener confidencialidad de datos
+
+### Obligaciones del Cliente:
+- ✅ Facilitar información necesaria
+- ✅ Realizar pagos en plazo
+- ✅ Aprobar hitos en plazo máximo 7 días
+- ✅ Colaborar en la ejecución de servicios
+
+---
+
+## 📋 CLAÚSULAS GENERALES
+
+1. **Confidencialidad:** Ambas partes mantendrán confidencial toda información intercambiada
+2. **Propiedad Intelectual:** Todos los derechos de propiedad intelectual pertenecerán al Cliente una vez pagado el importe total
+3. **Rescisión:** Cualquier parte podrá rescindir el contrato con preaviso de 15 días
+4. **Ley aplicable:** Este contrato se rige por la legislación española
+5. **Jurisdicción:** Los juzgados y tribunales de [Ciudad]
+
+---
+
+## ✍️ FIRMAS DE LAS PARTES
+
+Por el Proveedor:
+
+_______________________________
+**[Nombre completo]**
+Fecha: [Fecha actual]
+
+Por el Cliente:
+
+_______________________________
+**[Nombre completo]**
+Fecha: [Fecha actual]`,
+      tags: ['contrato', 'legal', 'servicios'],
+    },
+    {
+      id: 'meeting-minutes',
+      name: 'Acta de Reunión',
+      description: 'Plantilla para actas y minutas de reuniones profesionales',
+      icon: '📝',
+      category: 'business',
+      content: `# 📝 ACTA DE REUNIÓN
+
+**Título Reunión:** [Título descriptivo]  
+**Fecha:** [DD/MM/AAAA]  
+**Hora:** [HH:MM] - [HH:MM]  
+**Lugar:** [Presencial / Virtual / Lugar]  
+**Moderador:** [Nombre persona]  
+
+---
+
+## 👥 ASISTENTES
+
+| Nombre | Empresa | Cargo |
+|--------|---------|-------|
+| [Nombre 1] | [Empresa] | [Cargo] |
+| [Nombre 2] | [Empresa] | [Cargo] |
+| [Nombre 3] | [Empresa] | [Cargo] |
+
+**Ausentes justificados:**
+- [Nombre persona] - Motivo: [Motivo ausencia]
+
+---
+
+## 📋 ORDEN DEL DÍA
+
+1. [Punto 1]
+2. [Punto 2]
+3. [Punto 3]
+4. [Punto 4]
+
+---
+
+## 💬 DESARROLLO DE LA REUNIÓN
+
+### Punto 1: [Título punto 1]
+- Discusión principal: [Resumen de lo hablado]
+- Puntos clave acordados:
+  - [Acuerdo 1]
+  - [Acuerdo 2]
+  - [Acuerdo 3]
+
+### Punto 2: [Título punto 2]
+- Discusión principal: [Resumen de lo hablado]
+- Puntos clave acordados:
+  - [Acuerdo 1]
+  - [Acuerdo 2]
+
+---
+
+## ✅ ACCIONES PENDIENTES
+
+| Acción | Responsable | Fecha límite | Estado |
+|--------|-------------|--------------|--------|
+| [Descripción acción 1] | [Nombre persona] | [Fecha] | ⏳ Pendiente |
+| [Descripción acción 2] | [Nombre persona] | [Fecha] | ⏳ Pendiente |
+| [Descripción acción 3] | [Nombre persona] | [Fecha] | ⏳ Pendiente |
+| [Descripción acción 4] | [Nombre persona] | [Fecha] | ⏳ Pendiente |
+
+---
+
+## 📅 PRÓXIMA REUNIÓN
+
+- Fecha: [DD/MM/AAAA]
+- Hora: [HH:MM]
+- Lugar: [Lugar]
+- Orden del día previa:
+  1. Seguimiento de acciones pendientes
+  2. [Punto 1 próxima reunión]
+  3. [Punto 2 próxima reunión]
+
+---
+
+## ✍️ FIRMA
+
+**Acta redactada por:** [Nombre persona]  
+**Fecha aprobación:** [Fecha]
+
+Aprobado por:
+_______________________________
+**[Nombre completo]**`,
+      tags: ['acta', 'reunión', 'minuta'],
+    },
+    {
+      id: 'project-plan',
+      name: 'Plan de Proyecto',
+      description: 'Plantilla completa para planificación de proyectos',
+      icon: '📊',
+      category: 'technical',
+      content: `# 📊 PLAN DE PROYECTO
+
+**Proyecto:** [Nombre completo del proyecto]  
+**Versión:** 1.0  
+**Fecha:** [Fecha actual]  
+**Responsable:** [Nombre persona]
+
+---
+
+## 🎯 RESUMEN EJECUTIVO
+
+**Objetivo principal:** [Descripción clara y concisa del objetivo del proyecto]  
+**Alcance general:** [Definir lo que incluye y no incluye el proyecto]  
+**Justificación:** [Motivación y beneficios esperados]
+
+---
+
+## 📋 OBJETIVOS SMART
+
+| Objetivo | Indicador de medición | Fecha límite |
+|----------|------------------------|--------------|
+| [Objetivo 1] | [Cómo se medirá] | [Fecha] |
+| [Objetivo 2] | [Cómo se medirá] | [Fecha] |
+| [Objetivo 3] | [Cómo se medirá] | [Fecha] |
+| [Objetivo 4] | [Cómo se medirá] | [Fecha] |
+
+---
+
+## 👥 EQUIPO Y RESPONSABLES
+
+| Rol | Persona | Responsabilidades |
+|-----|---------|-------------------|
+| Project Manager | [Nombre] | Coordinación general, plazos |
+| Líder Técnico | [Nombre] | Arquitectura, decisiones técnicas |
+| Desarrollador | [Nombre] | Implementación funcionalidades |
+| QA | [Nombre] | Pruebas y calidad |
+| Cliente | [Nombre] | Aprobaciones y validaciones |
+
+---
+
+## 🗓️ CRONOGRAMA E HITOS
+
+| Hito | Descripción | Fecha estimada | Dependencias |
+|------|-------------|----------------|--------------|
+| Hito 1 | Inicio del proyecto, definición de requisitos | [Fecha] | - |
+| Hito 2 | Diseño y arquitectura aprobados | [Fecha] | Hito 1 |
+| Hito 3 | Desarrollo fase 1 completado | [Fecha] | Hito 2 |
+| Hito 4 | Pruebas de aceptación finalizadas | [Fecha] | Hito 3 |
+| Hito 5 | Puesta en producción | [Fecha] | Hito 4 |
+
+---
+
+## 💰 PRESUPUESTO ESTIMADO
+
+| Concepto | Horas estimadas | Coste unitario | Importe total |
+|----------|-----------------|----------------|---------------|
+| Análisis y diseño | X | €XX | €XXX |
+| Desarrollo | X | €XX | €XXX |
+| Pruebas | X | €XX | €XXX |
+| Documentación | X | €XX | €XXX |
+| Imprevistos (15%) | - | - | €XXX |
+| **TOTAL** | | | **€[XXX.XXX,XX]** |
+
+---
+
+## 🚀 RIESGOS IDENTIFICADOS
+
+| Riesgo | Probabilidad | Impacto | Medida de mitigación |
+|--------|--------------|---------|----------------------|
+| [Riesgo 1] | Alta / Media / Baja | Alto / Medio / Bajo | [Describir medida] |
+| [Riesgo 2] | Alta / Media / Baja | Alto / Medio / Bajo | [Describir medida] |
+| [Riesgo 3] | Alta / Media / Baja | Alto / Medio / Bajo | [Describir medida] |
+
+---
+
+## ✅ CRITERIOS DE ACEPTACIÓN
+
+El proyecto se considerará finalizado cuando:
+1. Todos los hitos han sido completados y aprobados
+2. Todas las funcionalidades especificadas funcionan correctamente
+3. Documentación completa entregada
+4. Pruebas de aceptación superadas
+5. Capacitación al equipo cliente realizada
+
+---
+
+**Aprobado por:**
+
+_______________________________
+**[Nombre Cliente]**
+Fecha: [Fecha]
+
+_______________________________
+**[Nombre Proveedor]**
+Fecha: [Fecha]`,
+      tags: ['proyecto', 'planificación', 'gestión'],
+    },
+    {
+      id: 'nda-agreement',
+      name: 'Acuerdo de Confidencialidad (NDA)',
+      description: 'Acuerdo de no divulgación estándar bilateral',
+      icon: '🔒',
+      category: 'legal',
+      content: `# 🔒 ACUERDO DE CONFIDENCIALIDAD (NDA)
+
+**FECHA:** [Fecha actual]  
+**LUGAR:** [Ciudad]
+
+---
+
+## ✅ PARTES
+
+Este Acuerdo se celebra entre:
+
+1. **PARTE A:** [Nombre Empresa o Persona], con domicilio en [Dirección], representada por [Nombre completo], en adelante "PARTE REVELADORA"
+
+2. **PARTE B:** [Nombre Empresa o Persona], con domicilio en [Dirección], representada por [Nombre completo], en adelante "PARTE RECEPTORA"
+
+---
+
+## 🎯 OBJETO
+
+Las Partes desean explorar una posible colaboración comercial, técnica o empresarial. Para proteger la información confidencial que se intercambie, acuerdan lo siguiente:
+
+---
+
+## 📋 DEFINICIONES
+
+"Información Confidencial" incluye:
+- Datos comerciales, financieros y de clientes
+- Planes de negocio, estrategias y presupuestos
+- Información técnica, diseños y know-how
+- Cualquier información marcada como confidencial
+- Información que por su naturaleza deba considerarse confidencial
+
+---
+
+## 🔒 OBLIGACIONES
+
+La PARTE RECEPTORA se compromete a:
+1. Mantener la Información Confidencial en estricta confidencialidad
+2. No divulgarla a terceros sin consentimiento por escrito
+3. Utilizarla exclusivamente para el fin del proyecto conjunto
+4. Aplicar las mismas medidas de seguridad que para su propia información confidencial
+5. Limitar el acceso únicamente a personal autorizado
+
+---
+
+## ⏱️ DURACIÓN
+
+Este Acuerdo entrará en vigor en la fecha arriba indicada y permanecerá vigente durante **[2 / 3 / 5] años**.
+
+La obligación de confidencialidad continuará durante [3 / 5] años después de la terminación de este Acuerdo.
+
+---
+
+## ❌ EXCEPCIONES
+
+Las obligaciones de este Acuerdo no aplicarán a información que:
+1. Sea de dominio público
+2. Fuera legítimamente conocida por la Parte Receptora antes de este Acuerdo
+3. Sea recibida legítimamente de terceros sin restricción
+4. Sea desarrollada independientemente por la Parte Receptora
+5. Sea divulgada por orden judicial o administrativa
+
+---
+
+## 📝 DISPOSICIONES GENERALES
+
+1. Este Acuerdo no crea ninguna obligación de celebrar contrato ulterior
+2. Ninguna Parte adquiere derechos de propiedad intelectual sobre la información de la otra parte
+3. Cualquier modificación deberá ser por escrito
+4. Este Acuerdo se rige por la legislación española
+5. Jurisdicción: Juzgados y Tribunales de [Ciudad]
+
+---
+
+## ✍️ FIRMAS
+
+Por la PARTE A:
+
+_______________________________
+**[Nombre completo]**
+Fecha: [Fecha actual]
+
+Por la PARTE B:
+
+_______________________________
+**[Nombre completo]**
+Fecha: [Fecha actual]`,
+      tags: ['confidencialidad', 'nda', 'legal'],
+    },
+    {
+      id: 'employee-onboarding',
+      name: 'Checklist de Incorporación Empleado',
+      description:
+        'Plantilla completa para proceso de onboarding de nuevos empleados',
+      icon: '👋',
+      category: 'hr',
+      content: `# 👋 CHECKLIST DE INCORPORACIÓN NUEVO EMPLEADO
+
+**Empleado:** [Nombre completo]  
+**Puesto:** [Nombre del puesto]  
+**Fecha incorporación:** [Fecha]  
+**Responsable:** [Nombre persona de RRHH]
+
+---
+
+## 📋 ANTES DEL PRIMER DÍA
+
+✅ Contrato de trabajo firmado y archivado  
+✅ Alta en Seguridad Social realizada  
+✅ Cuenta bancaria para nóminas registrada  
+✅ Correo corporativo creado  
+✅ Usuario sistemas internos creado  
+✅ Equipo informático asignado y preparado  
+✅ Mesa y espacio de trabajo asignado  
+✅ Bienvenida programada con el equipo  
+✅ Documentación previa enviada
+
+---
+
+## 📅 DÍA 1 - PRIMER DÍA
+
+✅ Presentación general de la empresa  
+✅ Recorrido por las instalaciones  
+✅ Presentación al equipo y compañeros  
+✅ Entrega de equipo informático  
+✅ Explicación políticas internas  
+✅ Explicación horarios y vacaciones  
+✅ Configuración accesos y herramientas  
+✅ Revisión descripción del puesto  
+✅ Reunión individual con responsable
+
+---
+
+## 🔧 PRIMERA SEMANA
+
+✅ Formación herramientas y sistemas  
+✅ Explicación procesos internos  
+✅ Definición objetivos primeros 3 meses  
+✅ Asignación mentor o compañero  
+✅ Revisión diaria de seguimiento  
+✅ Entrega de documentación relevante  
+✅ Explicación canales de comunicación  
+✅ Presentación a otros departamentos
+
+---
+
+## 📊 PRIMER MES
+
+✅ Evaluación inicial de adaptación  
+✅ Reunión feedback 1:1 con responsable  
+✅ Revisión de objetivos  
+✅ Identificación necesidades de formación  
+✅ Integración en actividades de equipo  
+✅ Revisión de expectativas mutuas  
+✅ Aclaración dudas pendientes
+
+---
+
+## 🎯 3 MESES - FIN DE PERIODO DE PRUEBA
+
+✅ Evaluación de desempeño periodo prueba  
+✅ Revisión cumplimiento objetivos  
+✅ Feedback del empleado sobre la empresa  
+✅ Ajustes necesarios en puesto o responsabilidades  
+✅ Confirmación de continuidad  
+✅ Establecimiento objetivos siguientes 6 meses  
+✅ Revisión plan de formación y desarrollo
+
+---
+
+## 📝 DOCUMENTACIÓN ENTREGADA
+
+✅ Manual de empleado  
+✅ Políticas de empresa  
+✅ Descripción de puesto  
+✅ Organigrama del departamento  
+✅ Calendario laboral  
+✅ Guía de herramientas y sistemas  
+✅ Información beneficios sociales  
+✅ Contactos útiles
+
+---
+
+## ✅ COMPLETADO
+
+**Incorporación finalizada el:** [Fecha]  
+
+Firma Responsable RRHH:
+_______________________________
+**[Nombre completo]**
+
+Firma Empleado:
+_______________________________
+**[Nombre completo]**`,
+      tags: ['rrhh', 'onboarding', 'incorporación'],
     },
   ]);
 

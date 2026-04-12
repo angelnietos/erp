@@ -439,7 +439,7 @@ interface DocumentType {
                 <!-- Plantillas Rápidas -->
                 <div class="space-y-3">
                   <div class="block text-sm font-medium text-slate-700">
-                    Plantillas predefinidas para {{ selectedType?.name }}
+                    Plantillas predefinidas para {{ selectedType.name }}
                   </div>
                   <div
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
