@@ -1162,9 +1162,12 @@ export class DocumentCreateComponent implements OnInit {
     };
 
     try {
-      const blob = await this.universalDocument.export(blocks, {
+      let blob;
+
+      blob = await this.universalDocument.export(blocks, {
         format: formatMap[format],
       });
+
       this.universalDocument.download(blob, `${title}.${format}`);
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);

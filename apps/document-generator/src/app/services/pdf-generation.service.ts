@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { UniversalDocumentService } from './universal-document.service';
 
 declare var html2pdf: any;
 declare var marked: any;
@@ -7,196 +8,46 @@ declare var marked: any;
   providedIn: 'root',
 })
 export class PdfGenerationService {
+  constructor(private universalDocumentService: UniversalDocumentService) {}
+
   /**
-   * Genera PDF PROFESIONAL desde Markdown
-   * El PDF es IDENTICO a la vista previa web
+   * Genera PDF PROFESIONAL EXACTAMENTE IGUAL que la vista previa web
+   * NO usa markdown crudo - usa el HTML ya renderizado del DOM
    */
   async generateMarkdownPdf(data: any): Promise<void> {
-    // Convertimos Markdown a HTML exactamente igual que la vista previa
-    const htmlContent = marked.parse(data.content || '');
+    // Buscar el contenedor de vista previa que ya esta renderizado en pantalla
+    const previewContainer = document.querySelector('.prose.max-w-none');
 
-    // Plantilla PDF profesional con estilos idénticos
-    const pdfTemplate = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          @page {
-            margin: 25mm 20mm 25mm 20mm;
-          }
-          * {
-            box-sizing: border-box;
-          }
-          body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            color: #1e293b;
-            font-size: 12pt;
-          }
-          h1 {
-            font-size: 22pt;
-            font-weight: 800;
-            margin: 1.5rem 0 1rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e2e8f0;
-            color: #0f172a;
-            page-break-after: avoid;
-          }
-          h2 {
-            font-size: 18pt;
-            font-weight: 700;
-            margin: 1.25rem 0 0.75rem 0;
-            color: #1e293b;
-            page-break-after: avoid;
-          }
-          h3 {
-            font-size: 15pt;
-            font-weight: 600;
-            margin: 1rem 0 0.5rem 0;
-            color: #334155;
-            page-break-after: avoid;
-          }
-          p {
-            margin: 0.75rem 0;
-            line-height: 1.7;
-            text-align: justify;
-          }
-          ul, ol {
-            margin: 0.75rem 0;
-            padding-left: 1.5rem;
-          }
-          li {
-            margin: 0.375rem 0;
-          }
-          blockquote {
-            margin: 1rem 0;
-            padding: 0.75rem 1rem;
-            border-left: 4px solid #3b82f6;
-            background-color: #eff6ff;
-            border-radius: 0 0.5rem 0.5rem 0;
-            color: #1e40af;
-          }
-          code {
-            background-color: #f1f5f9;
-            padding: 0.125rem 0.375rem;
-            border-radius: 0.25rem;
-            font-family: Consolas, monospace;
-            font-size: 11pt;
-            color: #dc2626;
-          }
-          pre {
-            margin: 1rem 0;
-            padding: 1rem;
-            background-color: #0f172a;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            page-break-inside: avoid;
-          }
-          pre code {
-            background-color: transparent;
-            color: #e2e8f0;
-            padding: 0;
-          }
-          strong {
-            font-weight: 700;
-          }
-          em {
-            font-style: italic;
-          }
-          hr {
-            margin: 1.5rem 0;
-            border: none;
-            border-top: 1px solid #e2e8f0;
-          }
-          a {
-            color: #2563eb;
-            text-decoration: underline;
-          }
-          .pdf-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-          }
-          .pdf-header h1 {
-            border: none;
-            margin: 0;
-            padding: 0;
-          }
-          .pdf-meta {
-            font-size: 10pt;
-            color: #64748b;
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1rem;
-          }
-          .pdf-footer {
-            position: running(footer);
-            text-align: center;
-            font-size: 9pt;
-            color: #94a3b8;
-          }
-          @page {
-            @bottom-center {
-              content: element(footer);
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="pdf-footer">
-          Generado por Josanz ERP | Página <span class="pageNumber"></span> de <span class="totalPages"></span>
+    if (previewContainer) {
+      // Usar el contenido YA RENDERIZADO que el usuario esta viendo
+      const clonedContent = previewContainer.cloneNode(true) as HTMLElement;
+
+      const fullHtml = `
+        <div style="max-width: 800px; margin: 0 auto; padding: 40px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: white; color: #1e293b; line-height: 1.6;">
+          ${clonedContent.innerHTML}
         </div>
-        
-        <div class="pdf-header">
-          <h1>${data.title || 'Documento'}</h1>
-          <div class="pdf-meta">
-            <span>Cliente: ${data.client || 'Josanz ERP'}</span>
-            <span>Fecha: ${data.date || new Date().toLocaleDateString('es-ES')}</span>
-          </div>
-        </div>
-        
-        ${htmlContent}
-      </body>
-      </html>
-    `;
+      `;
 
-    // Opciones de PDF profesionales - SIN PAGINA EN BLANCO
-    const options = {
-      margin: [20, 15, 20, 15],
-      filename: `${data.title || 'documento'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        scrollY: 0,
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait',
-        putOnlyUsedFonts: true,
-      },
-      pagebreak: {
-        mode: 'css',
-        before: '.page-break-before',
-        avoid: 'h1, h2, h3, pre, blockquote',
-      },
-    };
+      const blob = await this.universalDocumentService.exportRenderedHTMLToPDF(
+        fullHtml,
+        data.title || 'documento',
+      );
 
-    // Generamos y descargamos el PDF
-    const container = document.createElement('div');
-    container.innerHTML = pdfTemplate;
-    document.body.appendChild(container);
-
-    try {
-      // Generamos PDF sin pagina en blanco inicial
-      const worker = html2pdf().set(options);
-      await worker.from(container.querySelector('body')!).save();
-    } finally {
-      document.body.removeChild(container);
+      this.universalDocumentService.download(
+        blob,
+        `${data.title || 'documento'}.pdf`,
+      );
+    } else {
+      // Fallback si no hay vista previa visible
+      const htmlContent = marked.parse(data.content || '');
+      const blob = await this.universalDocumentService.exportRenderedHTMLToPDF(
+        htmlContent,
+        data.title || 'documento',
+      );
+      this.universalDocumentService.download(
+        blob,
+        `${data.title || 'documento'}.pdf`,
+      );
     }
   }
 
@@ -221,6 +72,9 @@ export class PdfGenerationService {
   }
 
   downloadPdf(bytes: Uint8Array, filename: string) {
-    // Método mantenido por compatibilidad
+    const blob = new Blob([bytes as unknown as ArrayBuffer], {
+      type: 'application/pdf',
+    });
+    this.universalDocumentService.download(blob, filename);
   }
 }

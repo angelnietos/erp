@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as ExcelJS from 'exceljs';
+import html2pdf from 'html2pdf.js';
 
 export enum DocumentFormat {
   DOCS20 = 'docs20',
@@ -78,8 +79,13 @@ export class UniversalDocumentService {
     options: DocumentExportOptions,
   ): Promise<Blob> {
     const pdfDoc = await PDFDocument.create();
-    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+    // Usar fuente Helvetica que soporta mejor caracteres
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica, {
+      subset: true,
+    });
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold, {
+      subset: true,
+    });
 
     let page = pdfDoc.addPage();
     const { width, height } = page.getSize();
@@ -104,32 +110,38 @@ export class UniversalDocumentService {
         });
         yPosition -= lineHeight * 1.5;
       } else {
-        const words = block.content.split(' ');
+        // Limpiar caracteres no soportados y saltos de línea
+        const cleanContent = block.content
+          .replace(/[\x00-\x1F\x7F]/g, ' ')
+          .replace(/\s+/g, ' ');
+        const words = cleanContent.split(' ');
         let line = '';
         const maxWidth = width - margin * 2;
 
         words.forEach((word: string) => {
+          // Saltar palabras vacías
+          if (!word.trim()) return;
+
           const testLine = line + word + ' ';
-          const testWidth = timesRomanFont.widthOfTextAtSize(
-            testLine,
-            fontSize,
-          );
+          const testWidth = font.widthOfTextAtSize(testLine, fontSize);
 
           if (testWidth > maxWidth) {
-            page.drawText(line.trim(), {
-              x: margin,
-              y: yPosition,
-              size: fontSize,
-              font: timesRomanFont,
-              color: rgb(0, 0, 0),
-            });
-            line = word + ' ';
-            yPosition -= lineHeight;
+            if (line.trim()) {
+              page.drawText(line.trim(), {
+                x: margin,
+                y: yPosition,
+                size: fontSize,
+                font: font,
+                color: rgb(0, 0, 0),
+              });
+              yPosition -= lineHeight;
 
-            if (yPosition < 80) {
-              page = pdfDoc.addPage();
-              yPosition = height - 50;
+              if (yPosition < 80) {
+                page = pdfDoc.addPage();
+                yPosition = height - 50;
+              }
             }
+            line = word + ' ';
           } else {
             line = testLine;
           }
@@ -140,7 +152,7 @@ export class UniversalDocumentService {
             x: margin,
             y: yPosition,
             size: fontSize,
-            font: timesRomanFont,
+            font: font,
             color: rgb(0, 0, 0),
           });
           yPosition -= lineHeight;
@@ -151,12 +163,7 @@ export class UniversalDocumentService {
     });
 
     const pdfBytes = await pdfDoc.save();
-    const buffer = new ArrayBuffer(pdfBytes.length);
-    const view = new Uint8Array(buffer);
-    for (let i = 0; i < pdfBytes.length; i++) {
-      view[i] = pdfBytes[i];
-    }
-    return new Blob([buffer], { type: 'application/pdf' });
+    return new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
   }
 
   private async exportToExcel(
@@ -348,6 +355,54 @@ export class UniversalDocumentService {
         export: true,
       },
     ];
+  }
+
+  async exportRenderedHTMLToPDF(html: string, title: string): Promise<Blob> {
+    // Generar PDF EXACTAMENTE igual que la previsualización usando html2pdf
+    const options: any = {
+      margin: [25, 20, 25, 20] as [number, number, number, number],
+      filename: `${title}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        scrollY: 0,
+        logging: false,
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait' as const,
+        putOnlyUsedFonts: true,
+      },
+      pagebreak: {
+        mode: 'css',
+        avoid: 'h1, h2, h3, pre, blockquote, table',
+      },
+    };
+
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.maxWidth = '100%';
+    container.style.padding = '0';
+    container.style.margin = '0';
+    container.style.background = 'white';
+    container.style.fontFamily =
+      'system-ui, -apple-system, Segoe UI, sans-serif';
+    container.style.color = '#1e293b';
+    container.style.lineHeight = '1.6';
+
+    // Importante: Añadir al DOM para que se apliquen todos los estilos de Tailwind
+    document.body.appendChild(container);
+
+    // Esperar un frame para que el navegador renderice completamente los estilos
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    const pdf = await html2pdf().set(options).from(container).outputPdf('blob');
+    document.body.removeChild(container);
+
+    return pdf;
   }
 
   async download(blob: Blob, filename: string): Promise<void> {
