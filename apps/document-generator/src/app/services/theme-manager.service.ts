@@ -31,14 +31,67 @@ export class ThemeManagerService {
 
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
-      const theme = this.themes.find((t) => t.id === saved);
-      if (theme) this.setTheme(theme);
+      try {
+        const savedTheme = JSON.parse(saved);
+        const baseTheme = this.themes.find((t) => t.id === savedTheme.id);
+        if (baseTheme) {
+          this.setTheme({
+            ...baseTheme,
+            uiVariant: savedTheme.uiVariant || baseTheme.uiVariant,
+          });
+        }
+      } catch {
+        const theme = this.themes.find((t) => t.id === saved);
+        if (theme) this.setTheme(theme);
+      }
     }
 
     effect(() => {
       const theme = this.currentTheme();
       document.documentElement.setAttribute('data-theme', theme.id);
       document.documentElement.setAttribute('data-ui-variant', theme.uiVariant);
+
+      // Aplicar variables CSS globales
+      document.documentElement.style.setProperty('--brand', theme.colors.brand);
+      document.documentElement.style.setProperty(
+        '--primary',
+        theme.colors.brand,
+      );
+      document.documentElement.style.setProperty(
+        '--bg-primary',
+        theme.colors.bgPrimary,
+      );
+      document.documentElement.style.setProperty(
+        '--bg-secondary',
+        theme.colors.bgSecondary,
+      );
+      document.documentElement.style.setProperty(
+        '--surface',
+        theme.colors.surface,
+      );
+      document.documentElement.style.setProperty(
+        '--text-primary',
+        theme.colors.textPrimary,
+      );
+      document.documentElement.style.setProperty(
+        '--text-secondary',
+        theme.colors.textSecondary,
+      );
+      document.documentElement.style.setProperty(
+        '--accent',
+        theme.colors.accent,
+      );
+      document.documentElement.style.setProperty(
+        '--border-soft',
+        theme.colors.border,
+      );
+      document.documentElement.style.setProperty(
+        '--border-vibrant',
+        theme.colors.border,
+      );
+
+      // Aplicar fondo al body inmediatamente
+      document.body.style.backgroundColor = theme.colors.bgPrimary;
 
       Object.entries(theme.colors).forEach(([key, value]) => {
         const cssVar = `--${key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
@@ -49,7 +102,7 @@ export class ThemeManagerService {
 
   setTheme(theme: Theme): void {
     this.currentTheme.set(theme);
-    localStorage.setItem(this.STORAGE_KEY, theme.id);
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(theme));
   }
 
   setThemeById(id: string): void {

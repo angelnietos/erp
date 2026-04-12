@@ -1230,31 +1230,7 @@ export class DocumentCreateComponent implements OnInit {
           type: this.selectedType?.id,
         };
 
-        let pdfBytes: Uint8Array;
-        switch (this.selectedType?.id) {
-          case 'quote':
-            pdfBytes = await this.pdfService.generateQuotePdf(documentData);
-            break;
-          case 'proposal':
-            pdfBytes = await this.pdfService.generateProposalPdf(documentData);
-            break;
-          case 'documentation':
-          case 'architecture':
-          default:
-            pdfBytes =
-              await this.pdfService.generateDocumentationPdf(documentData);
-        }
-
-        const documentId = Date.now().toString();
-        localStorage.setItem(
-          `document_${documentId}`,
-          JSON.stringify({
-            ...documentData,
-            pdfBytes: Array.from(pdfBytes),
-          }),
-        );
-
-        this.router.navigate(['/documents/preview', documentId]);
+        await this.pdfService.generateDocumentationPdf(documentData);
       } catch (error) {
         console.error('Error generating PDF:', error);
       }

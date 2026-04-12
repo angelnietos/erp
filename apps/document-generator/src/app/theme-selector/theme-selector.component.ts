@@ -155,7 +155,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
   template: `
     <div class="theme-selector">
       <button class="theme-btn" (click)="open = !open">
-        {{ currentTheme()?.icon }}
+        {{ currentTheme().icon }}
       </button>
 
       <div class="theme-panel" [class.hidden]="!open">
@@ -166,7 +166,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
               @for (theme of category.themes; track theme.id) {
                 <div
                   class="theme-card"
-                  [class.active]="currentTheme()?.id === theme.id"
+                  [class.active]="currentTheme().id === theme.id"
                   (click)="selectTheme(theme)"
                 >
                   <div class="theme-icon">{{ theme.icon }}</div>
@@ -181,7 +181,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
           @for (variant of variants; track variant.id) {
             <button
               class="variant-btn"
-              [class.active]="currentTheme()?.uiVariant === variant.id"
+              [class.active]="currentTheme().uiVariant === variant.id"
               (click)="setVariant(variant.id)"
             >
               {{ variant.name }}

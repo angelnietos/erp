@@ -236,7 +236,8 @@
       ],
       "@josanz-erp/document-generator-backend": [
         "libs/node/backend/document-generator-backend/src/index.ts"
-      ]
+      ],
+      "@josanz-erp/theme-manager": ["libs/shared/theme-manager/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
