@@ -34,12 +34,21 @@ interface DocumentData {
 })
 export class PdfGenerationService {
   /**
-   * Genera PDF PROFESIONAL desde Markdown
+   * Genera PDF PROFESIONAL desde contenido (Markdown o HTML)
    * El PDF es IDENTICO a la vista previa web
    */
   async generateMarkdownPdf(data: DocumentData): Promise<Blob> {
-    // Convertimos Markdown a HTML exactamente igual que la vista previa
-    const htmlContent = marked.parse(data.content || '');
+    // Determinar si el contenido es HTML o Markdown
+    const isHtml = /<\/?[a-z][\s\S]*>/i.test(data.content || '');
+    let htmlContent = '';
+
+    if (isHtml) {
+      // Si es HTML, usar directamente
+      htmlContent = data.content || '';
+    } else {
+      // Si es Markdown, convertir a HTML
+      htmlContent = marked.parse(data.content || '');
+    }
 
     // Plantilla PDF profesional con estilos idénticos
     const pdfTemplate = `
@@ -83,6 +92,13 @@ export class PdfGenerationService {
             color: #334155;
             page-break-after: avoid;
           }
+          h4 {
+            font-size: 14pt;
+            font-weight: 600;
+            margin: 0.75rem 0 0.5rem 0;
+            color: #475569;
+            page-break-after: avoid;
+          }
           p {
             margin: 0.75rem 0;
             line-height: 1.7;
@@ -107,7 +123,7 @@ export class PdfGenerationService {
             background-color: #f1f5f9;
             padding: 0.125rem 0.375rem;
             border-radius: 0.25rem;
-            font-family: Consolas, monospace;
+            font-family: Consolas, 'JetBrains Mono', monospace;
             font-size: 11pt;
             color: #dc2626;
           }
@@ -124,11 +140,17 @@ export class PdfGenerationService {
             color: #e2e8f0;
             padding: 0;
           }
-          strong {
+          strong, b {
             font-weight: 700;
           }
-          em {
+          em, i {
             font-style: italic;
+          }
+          u {
+            text-decoration: underline;
+          }
+          s, strike {
+            text-decoration: line-through;
           }
           hr {
             margin: 1.5rem 0;
@@ -138,6 +160,36 @@ export class PdfGenerationService {
           a {
             color: #2563eb;
             text-decoration: underline;
+          }
+          a:hover {
+            color: #1d4ed8;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+          }
+          th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+          }
+          td {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+          }
+          tr:nth-child(even) td {
+            background-color: #f8fafc;
+          }
+          img {
+            max-width: 100%;
+            height: auto;
+            page-break-inside: avoid;
           }
           .pdf-header {
             text-align: center;
@@ -179,6 +231,7 @@ export class PdfGenerationService {
           <h1>${data.title || 'Documento'}</h1>
           <div class="pdf-meta">
             <span>Fecha: ${data.date || new Date().toLocaleDateString('es-ES')}</span>
+            <span>Formato: ${isHtml ? 'Texto Enriquecido' : 'Markdown'}</span>
           </div>
         </div>
 
