@@ -36,272 +36,361 @@ export class TemplatesRegistryService {
     },
     {
       id: 'resume-standard',
-      name: 'Currículum Vitae Estándar',
-      description: 'CV profesional optimizado para ATS',
-      icon: '👤',
+      name: 'Currículum Vitae Ejecutivo',
+      description: 'CV profesional para posiciones ejecutivas y directivas',
+      icon: '👔',
       category: 'hr',
-      content: `# María González López
-Directora de Marketing Digital
+      content: `# [TU NOMBRE COMPLETO]
 
-📧 maria.gonzalez@email.com | 📱 +34 600 123 456 | 🔗 linkedin.com/in/mariagonzalez | 📍 Madrid, España | 🌐 mariagonzalez.com
+## Información Personal
+
+| | |
+|---|---|
+| **Dirección** | [Ciudad, País] |
+| **Teléfono** | [+34] XXX XXX XXX |
+| **Email** | [tu.email@ejemplo.com] |
+| **LinkedIn** | [linkedin.com/in/tu-perfil] |
+| **Nacionalidad** | [Española] |
+| **Fecha de nacimiento** | [DD/MM/AAAA] |
 
 ---
 
-## Perfil Profesional
+## Perfil Ejecutivo
 
-Profesional del marketing digital con más de 8 años de experiencia liderando estrategias omnicanal en empresas B2B y B2C. Especializada en transformación digital, growth hacking y optimización de conversiones. He dirigido equipos multidisciplinares logrando incrementos de ROI del 300% y expansiones internacionales en mercados LATAM y Europa.
+Profesional con [X años] de experiencia en [sector/industria], especializado en [especialización principal]. Experto en [área de expertise 1], [área de expertise 2] y [área de expertise 3]. He liderado equipos de [tamaño del equipo] personas, gestionando presupuestos de [€XXX.XXX] y logrando [logros principales].
 
-Apasionada por la innovación tecnológica y el análisis de datos, combino creatividad estratégica con métricas accionables para impulsar el crecimiento sostenible de las organizaciones.
+Busco oportunidades en [tipo de posición] donde pueda aportar mi experiencia en [áreas clave] para contribuir al crecimiento sostenible de organizaciones [tipo de empresa].
 
-## Experiencia Laboral
+---
 
-### Directora de Marketing Digital | TechSolutions España
-**Marzo 2022 - Actualidad**
+## Experiencia Profesional
 
-- Lideré la transformación digital completa de la compañía, incrementando las ventas online en un 180% en 18 meses
-- Desarrollé e implementé estrategias de inbound marketing que generaron 50.000 leads cualificados mensualmente
-- Gestioné un presupuesto de €2.5M anual, optimizando el CAC en un 40% mediante automatización de procesos
-- Dirigí equipos de 12 personas en Madrid y México, implementando metodologías ágiles y cultura data-driven
-- Lancé productos digitales que generaron €15M en ingresos adicionales durante 2023
+### [Puesto Actual] | [Empresa Actual]
+**[Fecha Inicio - Actualidad]** | *[Ciudad, País]*
 
-### Senior Marketing Manager | GlobalTech Corporation
-**Enero 2019 - Febrero 2022**
+**Responsabilidades principales:**
+- Liderazgo y gestión de [equipo/departamento/área]
+- Desarrollo e implementación de [estrategias/procesos/sistemas]
+- Gestión de presupuestos y optimización de recursos
+- Coordinación con stakeholders internos y externos
 
-- Diseñé y ejecuté campañas multicanal que aumentaron el engagement del 25% al 85% en redes sociales
-- Implementé sistemas de CRM avanzados, mejorando la retención de clientes en un 35%
-- Coordiné proyectos de rebranding internacional en 8 países, manteniendo consistencia de marca
-- Analicé y optimicé funnels de conversión, reduciendo el bounce rate del 60% al 25%
-- Formé y mentoré a 8 profesionales junior, desarrollando sus habilidades en marketing automation
+**Logros cuantificables:**
+- [Logro 1 con métricas específicas]
+- [Logro 2 con métricas específicas]
+- [Logro 3 con métricas específicas]
 
-### Marketing Specialist | Innovate Corp
-**Junio 2016 - Diciembre 2018**
+**Tecnologías/Herramientas:** [Lista relevante]
 
-- Gestioné campañas SEM/PPC con presupuesto de €500K, logrando ROAS de 4.2x
-- Desarrollé contenido SEO que posicionó 200+ keywords en primeras posiciones
-- Creé dashboards de analytics en Google Data Studio para reporting ejecutivo
-- Colaboré en el lanzamiento de 3 nuevos productos, generando 100.000 usuarios en el primer trimestre
+---
+
+### [Puesto Anterior] | [Empresa Anterior]
+**[Fecha Inicio - Fecha Fin]** | *[Ciudad, País]*
+
+**Responsabilidades principales:**
+- [Responsabilidad 1]
+- [Responsabilidad 2]
+- [Responsabilidad 3]
+
+**Logros destacados:**
+- [Logro 1]
+- [Logro 2]
+- [Logro 3]
+
+---
+
+### [Primer Puesto Relevante] | [Empresa]
+**[Fecha Inicio - Fecha Fin]** | *[Ciudad, País]*
+
+**Responsabilidades principales:**
+- [Responsabilidad 1]
+- [Responsabilidad 2]
+- [Responsabilidad 3]
+
+---
 
 ## Formación Académica
 
-### Máster en Marketing Digital | Universidad Complutense de Madrid
-**2015 - 2016**
+### [Título Superior] | [Universidad/Centro]
+**[Año Inicio - Año Fin]** | *[Ciudad, País]*
 
-- Especialización en Digital Analytics y E-commerce
-- Proyecto final: Estrategia digital para empresa familiar (Nota: 9.2/10)
-- Certificación Google Analytics y Google Ads
+- Especialización en [área de especialización]
+- Proyecto final: [Título del proyecto] - [Calificación]
+- [Menciones honoríficas o reconocimientos]
 
-### Grado en Publicidad y RRPP | Universidad de Sevilla
-**2011 - 2015**
+### [Título Secundario] | [Instituto/Centro]
+**[Año Inicio - Año Fin]** | *[Ciudad, País]*
 
-- Especialización en Marketing Estratégico
-- Erasmus en University of London (2014)
-- Trabajo fin de grado sobre Social Media Marketing (Nota: 8.8/10)
+- [Especialización o rama]
+- [Calificación obtenida]
 
-## Habilidades Técnicas
+---
 
-| Categoría | Habilidades | Nivel |
-|-----------|-------------|-------|
-| **Plataformas Publicidad** | Google Ads, Facebook Ads, LinkedIn Ads, TikTok Ads | Experto |
-| **Analytics & BI** | Google Analytics 4, Adobe Analytics, Tableau, Power BI | Avanzado |
-| **Marketing Automation** | HubSpot, Marketo, ActiveCampaign, Klaviyo | Experto |
-| **SEO/SEM** | Ahrefs, SEMrush, Screaming Frog, Google Search Console | Avanzado |
-| **Desarrollo Web** | HTML/CSS, WordPress, Shopify, Squarespace | Intermedio |
-| **Herramientas** | Slack, Trello, Jira, Figma, Canva | Experto |
+## Habilidades y Competencias
 
-## Certificaciones
+### Habilidades Técnicas
+- **[Categoría 1]**: [Habilidad 1], [Habilidad 2], [Habilidad 3] *(Nivel: Avanzado/Experto)*
+- **[Categoría 2]**: [Habilidad 1], [Habilidad 2], [Habilidad 3] *(Nivel: Avanzado/Experto)*
+- **[Categoría 3]**: [Habilidad 1], [Habilidad 2], [Habilidad 3] *(Nivel: Intermedio/Avanzado)*
 
-- **Google Ads Professional** (2023) - Google
-- **HubSpot Inbound Marketing** (2022) - HubSpot Academy
-- **Facebook Blueprint Professional** (2021) - Meta
-- **Google Analytics Individual Qualification** (2020) - Google
-- **Advanced Google Ads** (2019) - Google
-- **Agile Scrum Master** (2018) - Scrum Alliance
+### Habilidades Blandas
+- Liderazgo y gestión de equipos
+- Comunicación efectiva y presentación
+- Resolución de problemas y toma de decisiones
+- Trabajo en equipo y colaboración
+- Adaptabilidad y aprendizaje continuo
+
+---
+
+## Certificaciones y Cursos
+
+- **[Certificación 1]** - [Organismo emisor] ([Año])
+- **[Certificación 2]** - [Organismo emisor] ([Año])
+- **[Certificación 3]** - [Organismo emisor] ([Año])
+
+---
 
 ## Idiomas
 
-- **Español**: Nativo
-- **Inglés**: C2 - Proficiency (Cambridge Certificate)
-- **Francés**: B2 - Upper Intermediate (DELF)
-- **Portugués**: B1 - Intermediate (Autoaprendizaje)
+| Idioma | Nivel | Certificación |
+|--------|-------|---------------|
+| Español | Nativo | - |
+| Inglés | C1/C2 | [Título del certificado] ([Año]) |
+| [Otro idioma] | [Nivel] | [Certificación] ([Año]) |
+
+---
 
 ## Premios y Reconocimientos
 
-- **Premio Nacional de Marketing Digital 2023** - Mejor Estrategia B2B
-- **Top 50 Mujeres en Tecnología 2022** - Forbes España
-- **Certificación Elite Partner 2021** - Google Partner Program
+- **[Premio/Reconocimiento 1]** - [Institución/Organización] ([Año])
+- **[Premio/Reconocimiento 2]** - [Institución/Organización] ([Año])
+- **[Premio/Reconocimiento 3]** - [Institución/Organización] ([Año])
 
-## Voluntariado e Intereses
+---
 
-- Mentora en programas de emprendimiento femenino
-- Conferencista en eventos de marketing digital
-- Colaboradora en proyectos open source de marketing automation
-- Apasionada por el running y el yoga
-- Miembro activo de la comunidad tech en Madrid
-`,
+## Intereses Profesionales
+
+- [Interés 1 relacionado con la profesión]
+- [Interés 2 relacionado con la profesión]
+- [Interés 3 relacionado con la profesión]
+
+---
+
+## Referencias
+
+Disponibles bajo petición.`,
       tags: ['candidatos', 'rrhh', 'empleo'],
       aiEnabled: true,
       autoFillFields: ['nombre', 'puesto', 'empresa'],
     },
     {
       id: 'resume-developer',
-      name: 'Currículum Desarrollador',
-      description: 'CV optimizado para puestos técnicos',
+      name: 'Currículum Vitae Técnico',
+      description: 'CV especializado para desarrolladores y perfiles técnicos',
       icon: '💻',
       category: 'hr',
-      content: `# Carlos Rodríguez Martín
-Senior Full Stack Developer & Tech Lead
+      content: `# [TU NOMBRE COMPLETO]
 
-📧 carlos.rodriguez@email.com | 📱 +34 611 234 567 | 🔗 github.com/carlos-dev | 📍 Barcelona, España | 💼 carlosdev.com
+## 👨‍💻 Desarrollador Full Stack | [Especialización]
+
+**[Ciudad, País]** | **[Email]** | **[GitHub]** | **[LinkedIn]** | **[Portafolio]**
 
 ---
 
-## Perfil
+## 🚀 Perfil Técnico
 
-Senior Full Stack Developer con 7+ años de experiencia construyendo aplicaciones web escalables y de alto rendimiento. Especializado en arquitecturas de microservicios, cloud-native solutions y liderazgo técnico. He dirigido equipos de desarrollo en proyectos críticos que manejan millones de usuarios diarios.
+Desarrollador [especialización: Full Stack / Frontend / Backend / Mobile] con [X años] de experiencia en el desarrollo de aplicaciones web y móviles escalables. Experto en [tecnologías principales], con sólida formación en [áreas de expertise]. Apasionado por escribir código limpio, implementando las mejores prácticas de la industria y contribuyendo a proyectos de alto impacto.
 
-Apasionado por el código limpio, las mejores prácticas de desarrollo y la mentoría. Me enfoco en crear soluciones técnicas que impulsen el crecimiento del negocio mientras mantengo altos estándares de calidad y mantenibilidad.
+**Stack Principal:** [Tecnología 1] • [Tecnología 2] • [Tecnología 3] • [Tecnología 4]
 
-## Stack Tecnológico
+---
+
+## 💼 Experiencia Profesional
+
+### **Senior [Puesto] | [Empresa Tech]** ⭐
+**[Fecha Inicio - Actualidad]** | *[Modalidad: Remoto/Híbrido/Presencial]*
+
+**Proyecto Principal:** [Nombre del proyecto] - [Breve descripción]
+
+**Tecnologías:** [Lista de tecnologías usadas]
+**Equipo:** [Tamaño del equipo] desarrolladores
+**Metodología:** [Agile/Scrum/Kanban]
+
+**Responsabilidades:**
+- Desarrollo e implementación de [tipo de funcionalidades]
+- Arquitectura y diseño de [componentes/sistemas]
+- Optimización de performance y escalabilidad
+- Code reviews y mentoría técnica
+- Integración con APIs y servicios externos
+
+**Logros:**
+- ✅ [Logro técnico cuantificable 1]
+- ✅ [Logro técnico cuantificable 2]
+- ✅ [Logro técnico cuantificable 3]
+- ✅ [Logro técnico cuantificable 4]
+
+---
+
+### **Mid-Level [Puesto] | [Empresa Tech]** ⭐
+**[Fecha Inicio - Fecha Fin]** | *[Ciudad, País]*
+
+**Tecnologías:** [Stack tecnológico usado]
+
+**Responsabilidades:**
+- Desarrollo de features end-to-end
+- Mantenimiento y debugging de aplicaciones
+- Implementación de tests automatizados
+- Documentación técnica y procedimientos
+
+**Logros:**
+- ✅ [Logro 1]
+- ✅ [Logro 2]
+- ✅ [Logro 3]
+
+---
+
+### **Junior [Puesto] | [Empresa Tech/Startup]** ⭐
+**[Fecha Inicio - Fecha Fin]** | *[Ciudad, País]*
+
+**Tecnologías:** [Stack de aprendizaje]
+
+**Responsabilidades:**
+- Desarrollo de componentes y funcionalidades
+- Aprendizaje de nuevas tecnologías
+- Participación en code reviews
+- Colaboración con equipos multidisciplinares
+
+---
+
+## 🎓 Formación Académica
+
+### **[Título Principal] en [Especialidad]**
+**[Universidad/Centro Educativo]** | *[Ciudad, País]*
+**[Año Inicio - Año Fin]**
+
+- **Proyecto Final:** [Nombre del proyecto] - [Tecnologías usadas]
+- **Calificación:** [Nota obtenida]
+- **Honores/ Menciones:** [Reconocimientos académicos]
+
+### **[Título Secundario]**
+**[Instituto/Centro]** | *[Ciudad, País]*
+**[Año Inicio - Año Fin]**
+
+---
+
+## 🛠️ Tecnologías & Herramientas
+
+### **Lenguajes de Programación**
+- **[Lenguaje 1]**: [Nivel] - [Años de experiencia]
+- **[Lenguaje 2]**: [Nivel] - [Años de experiencia]
+- **[Lenguaje 3]**: [Nivel] - [Años de experiencia]
 
 ### **Frontend**
-- **Frameworks**: React 18+, Next.js 13+, Angular 16+, Vue.js 3+
-- **Lenguajes**: TypeScript, JavaScript (ES2022+)
-- **Styling**: Tailwind CSS, Styled Components, CSS-in-JS, Sass
-- **State Management**: Zustand, Redux Toolkit, Pinia, NgRx
-- **Testing**: Jest, Cypress, Playwright, Vitest
+- **Frameworks/Librerías:** [Framework 1], [Framework 2], [Framework 3]
+- **Styling:** [CSS/Sass], [Tailwind], [Styled Components]
+- **State Management:** [Redux], [Zustand], [Context API]
+- **Testing:** [Jest], [Cypress], [Playwright]
 
 ### **Backend**
-- **Runtime**: Node.js 18+, Deno, Bun
-- **Frameworks**: NestJS, Express.js, Fastify, Next.js API Routes
-- **Lenguajes**: TypeScript, JavaScript, Python (FastAPI), Go
-- **Databases**: PostgreSQL, MongoDB, Redis, Elasticsearch
-- **ORMs**: Prisma, TypeORM, Mongoose, SQLAlchemy
+- **Runtimes:** [Node.js], [Python], [Go]
+- **Frameworks:** [Express], [NestJS], [FastAPI]
+- **Databases:** [PostgreSQL], [MongoDB], [Redis]
+- **ORMs:** [Prisma], [TypeORM], [Mongoose]
 
 ### **DevOps & Cloud**
-- **Cloud**: AWS (ECS, Lambda, S3, CloudFront), Vercel, Railway
-- **Containers**: Docker, Kubernetes, Podman
-- **CI/CD**: GitHub Actions, GitLab CI, CircleCI
-- **Monitoring**: DataDog, New Relic, Sentry, Grafana
+- **Cloud:** [AWS], [Vercel], [Railway]
+- **Containers:** [Docker], [Kubernetes]
+- **CI/CD:** [GitHub Actions], [GitLab CI]
+- **Monitoring:** [Sentry], [DataDog]
 
-### **Otros**
-- **Control de Versiones**: Git, GitHub, GitLab
-- **APIs**: REST, GraphQL, tRPC, OpenAPI
-- **Arquitectura**: Microservicios, Serverless, Monolitos modulares
-- **Metodologías**: Agile, Scrum, Kanban, TDD, BDD
-
-## Proyectos Destacados
-
-### 🏗️ **E-Commerce Platform** | TechCorp (2023-2024)
-Arquitectura completa de plataforma de e-commerce B2B que procesa €50M+ anuales.
-
-**Impacto**: Reducción del tiempo de carga en un 60%, aumento de conversiones del 35%, escalabilidad a 1M+ usuarios concurrentes.
-
-**Tecnologías**: Next.js 14, NestJS, PostgreSQL, Redis, AWS ECS, TypeScript, Tailwind CSS.
-
-**Logros**:
-- Implementé arquitectura de microservicios con 15 servicios desacoplados
-- Diseñé sistema de caching multinivel que redujo latencia de 2.3s a 0.3s
-- Lideré migración a serverless functions, reduciendo costos operativos en 40%
-- Implementé sistema de recomendaciones ML que aumentó ventas cruzadas en 25%
-
-### 🚀 **Real-Time Analytics Dashboard** | DataFlow Inc (2022-2023)
-Dashboard de analytics en tiempo real para 500K+ usuarios empresariales.
-
-**Impacto**: Procesamiento de 100M+ eventos diarios con latencia <100ms.
-
-**Tecnologías**: React, Node.js, WebSockets, TimescaleDB, Grafana, Docker.
-
-**Logros**:
-- Arquitecturé sistema de streaming con Apache Kafka y WebSockets
-- Optimizé consultas SQL complejas, mejorando rendimiento en 10x
-- Implementé autenticación JWT con refresh tokens y RBAC
-- Creé API GraphQL que redujo overfetching en un 70%
-
-### 📱 **Mobile Banking App** | FinTech Solutions (2021-2022)
-Aplicación móvil de banca digital con 2M+ usuarios activos.
-
-**Impacto**: 4.8★ en app stores, 98.5% uptime, procesamiento seguro de €2B+ transacciones.
-
-**Tecnologías**: React Native, Node.js, MongoDB, AWS Lambda, Stripe API.
-
-**Logros**:
-- Desarrollé arquitectura segura con encriptación end-to-end
-- Implementé biometría y autenticación de dos factores
-- Creé sistema de notificaciones push segmentadas
-- Optimizé performance, reduciendo crashes en un 80%
-
-## Experiencia Profesional
-
-### **Senior Full Stack Developer & Tech Lead** | TechCorp
-**Enero 2023 - Actualidad** | Barcelona
-
-- **Liderazgo Técnico**: Dirijo equipo de 8 developers, mentorizando juniors y estableciendo estándares de código
-- **Arquitectura**: Diseñé arquitectura de microservicios que escala horizontalmente en AWS ECS
-- **Performance**: Optimizé APIs críticas, reduciendo response time de 800ms a 120ms
-- **Mentoría**: Formé 3 developers junior que ascendieron a mid-level en 12 meses
-- **Innovación**: Introduje TDD y CI/CD avanzado, reduciendo bugs en producción en 60%
-
-### **Full Stack Developer** | DataFlow Inc
-**Marzo 2021 - Diciembre 2022** | Madrid
-
-- **Desarrollo Full-Stack**: Construí dashboards interactivos con React y Node.js
-- **Base de Datos**: Diseñé esquema PostgreSQL optimizado para consultas analíticas complejas
-- **APIs**: Desarrollé APIs REST y GraphQL que manejan 10M+ requests diarios
-- **DevOps**: Implementé pipelines CI/CD que redujeron deployment time de 2 horas a 15 minutos
-- **Colaboración**: Trabajé cross-functional con equipos de producto y diseño
-
-### **Frontend Developer** | StartupXYZ
-**Junio 2019 - Febrero 2021** | Valencia
-
-- **React Ecosystem**: Desarrollé SPAs complejas con React, Redux y TypeScript
-- **Performance**: Optimizé bundle size en 40% mediante code splitting y lazy loading
-- **Testing**: Implementé suite de tests con Jest y Cypress, alcanzando 85% coverage
-- **UI/UX**: Colaboré estrechamente con diseñadores para implementar pixel-perfect UIs
-
-## Educación
-
-### **Máster en Ingeniería del Software** | Universidad Politécnica de Catalunya (UPC)
-**2017 - 2019** | Barcelona
-
-- Especialización en Arquitecturas Distribuidas y Cloud Computing
-- Proyecto final: Plataforma IoT escalable (Nota: 9.1/10)
-- Tesis: "Microservicios en la Era del Cloud Native"
-
-### **Grado en Ingeniería Informática** | Universidad de Valencia
-**2013 - 2017** | Valencia
-
-- Especialización en Desarrollo de Software y Sistemas de Información
-- Erasmus en Politecnico di Milano (2016)
-- Trabajo fin de grado: Sistema de gestión documental (Nota: 8.7/10)
-
-## Certificaciones & Cursos
-
-- **AWS Solutions Architect Professional** (2023) - Amazon Web Services
-- **Google Cloud Professional Developer** (2022) - Google Cloud
-- **Certified Kubernetes Administrator** (2021) - Cloud Native Computing Foundation
-- **MongoDB Certified Developer** (2020) - MongoDB Inc.
-- **Scrum Master Certification** (2019) - Scrum Alliance
-
-## Open Source & Comunidad
-
-- **Contribuciones**: Autor de 15+ PRs en proyectos populares de React y Node.js
-- **Speaker**: Conferencias en React Summit, JSWorld Conference, Codemotion
-- **Mentoría**: Mentor en programas de Google Summer of Code y Microsoft Learn
-- **Blog**: Mantengo blog técnico con 50K+ visitas mensuales
-
-## Idiomas & Soft Skills
-
-- **Español**: Nativo
-- **Inglés**: C2 - Fluent (TOEFL iBT 110/120)
-- **Catalán**: C1 - Advanced
-- **Italiano**: B2 - Upper Intermediate
-
-**Soft Skills**: Liderazgo, Comunicación Técnica, Resolución de Problemas, Trabajo en Equipo, Adaptabilidad
+### **Herramientas de Desarrollo**
+- **Control de Versiones:** Git, GitHub, GitLab
+- **IDE/Editores:** VS Code, WebStorm, Vim
+- **API Tools:** Postman, Insomnia, Thunder Client
+- **Design:** Figma, Adobe XD
 
 ---
 
-*"El código no solo resuelve problemas, crea oportunidades para que otros innoven."*
-`,
+## 🏆 Proyectos Personales
+
+### **[Nombre del Proyecto]** | [GitHub Link]
+**Descripción:** [Breve descripción del proyecto y su propósito]
+
+**Tecnologías:** [Stack usado]
+**Características:**
+- ⭐ [Feature 1]
+- ⭐ [Feature 2]
+- ⭐ [Feature 3]
+
+---
+
+### **[Nombre del Proyecto 2]** | [GitHub Link]
+**Descripción:** [Breve descripción]
+
+**Tecnologías:** [Stack usado]
+**Características:**
+- ⭐ [Feature 1]
+- ⭐ [Feature 2]
+
+---
+
+## 📊 Estadísticas GitHub
+
+\`\`\`text
+🌞 Contribuciones este año: XXX
+📚 Lenguajes más usados: JavaScript, TypeScript, Python
+⭐ Repositorios destacados: XX
+👥 Colaboradores: XX
+\`\`\`
+
+---
+
+## 🏅 Certificaciones
+
+- **[Certificación 1]** - [Proveedor] ([Año])
+- **[Certificación 2]** - [Proveedor] ([Año])
+- **[Certificación 3]** - [Proveedor] ([Año])
+
+---
+
+## 🌍 Idiomas
+
+- **Español**: Nativo
+- **Inglés**: [Nivel] - [Certificación si aplica]
+- **[Otro idioma]**: [Nivel]
+
+---
+
+## 🤝 Comunidad & Open Source
+
+- **Contribuciones:** [Número] PRs en proyectos open source
+- **Speaker:** Charlas en [eventos/comunidades]
+- **Mentoría:** [Experiencia como mentor]
+- **Blog/Podcast:** [Plataformas donde comparto conocimiento]
+
+---
+
+## 📈 Métricas Personales
+
+- **Líneas de código:** [XXX.XXX+] escritas
+- **Proyectos completados:** [XX+]
+- **Bugs resueltos:** [XXX+]
+- **Features implementadas:** [XX+]
+
+---
+
+## 🎯 Objetivos Profesionales
+
+Busco oportunidades como [tipo de puesto] donde pueda:
+- Contribuir a proyectos de alto impacto
+- Aprender nuevas tecnologías emergentes
+- Liderar equipos técnicos
+- Compartir conocimientos con la comunidad
+
+---
+
+*"Código limpio siempre gana. La calidad importa más que la velocidad."*
+
+**[Tu Nombre]** | **[Email]** | **[GitHub]** | **[LinkedIn]**`,
       tags: ['desarrollador', 'técnico', 'software'],
       aiEnabled: true,
     },
@@ -311,70 +400,243 @@ Aplicación móvil de banca digital con 2M+ usuarios activos.
       description: 'Plantilla estandarizada para evaluar candidatos',
       icon: '✍️',
       category: 'hr',
-      content: `# Evaluación Técnica Candidato
+      content: `# 🎯 ENTREVISTA TÉCNICA - [POSICIÓN SOLICITADA]
 
-## Datos Generales
-
-| Campo | Valor |
-|-------|-------|
-| Candidato | |
-| Puesto | |
-| Fecha Entrevista | ${new Date().toLocaleDateString()} |
-| Evaluador | |
+**Fecha:** [DD/MM/AAAA] | **Duración:** [X horas] | **Modalidad:** [Presencial/Virtual]
 
 ---
 
-## Criterios de Evaluación
+## 👤 INFORMACIÓN DEL CANDIDATO
 
-| Área | Puntuación (1-10) | Comentarios |
-|------|--------------------|-------------|
-| Conocimientos Técnicos | | |
-| Resolución de Problemas | | |
-| Comunicación Técnica | | |
-| Cultura y Ajuste | | |
-| Motivación | | |
+| Información | Detalles |
+|-------------|----------|
+| **Nombre Completo** | [Nombre del candidato] |
+| **Posición Solicitada** | [Puesto específico] |
+| **Experiencia** | [X años] |
+| **Ubicación** | [Ciudad, País] |
+| **Disponibilidad** | [Inmediata / En X semanas] |
+| **Pretensión Salarial** | [€XX.XXX - €XX.XXX] |
 
----
-
-## Preguntas Técnicas
-
-### 1. Conceptos Básicos
-
-- [ ] Pregunta 1:
-- [ ] Pregunta 2:
-- [ ] Pregunta 3:
-
-### 2. Ejercicio Práctico
-
-**Enunciado:**
-
-**Solución del candidato:**
-
-**Evaluación:**
-
-### 3. Arquitectura y Diseño
-
-Pregunta sobre diseño de sistemas.
+**Perfil LinkedIn/GitHub:** [Enlaces]
+**Referencias:** [Si aplica]
 
 ---
 
-## Ejercicio de Código
+## 🎯 EVALUACIÓN POR COMPETENCIAS TÉCNICAS
 
-\`\`\`typescript
-// Ejercicio propuesto al candidato
+### 1. **PROGRAMACIÓN Y ALGORITMOS** (Puntuación: ___/5)
 
+**Preguntas Evaluadas:**
+- Complejidad algorítmica (Big O)
+- Estructuras de datos
+- Patrones de diseño
+- Programación orientada a objetos
+
+**Ejercicios Realizados:**
+1. **[Problema 1]**: [Descripción breve]
+   - ✅ Correcto | ❌ Incorrecto | ⚠️ Parcial
+   - **Comentarios:** [Evaluación detallada]
+
+2. **[Problema 2]**: [Descripción breve]
+   - ✅ Correcto | ❌ Incorrecto | ⚠️ Parcial
+   - **Comentarios:** [Evaluación detallada]
+
+**Fortalezas:** [Aspectos positivos destacados]
+**Áreas de Mejora:** [Aspectos a desarrollar]
+
+---
+
+### 2. **TECNOLOGÍAS ESPECÍFICAS** (Puntuación: ___/5)
+
+**Stack Declarado por el Candidato:**
+- **Frontend:** [Tecnologías mencionadas]
+- **Backend:** [Tecnologías mencionadas]
+- **Bases de Datos:** [Tecnologías mencionadas]
+- **DevOps/Cloud:** [Tecnologías mencionadas]
+
+**Evaluación por Tecnología:**
+
+| Tecnología | Nivel Declarado | Nivel Evaluado | Comentarios |
+|------------|-----------------|----------------|-------------|
+| [Tech 1] | [Nivel] | [1-5] | [Comentarios] |
+| [Tech 2] | [Nivel] | [1-5] | [Comentarios] |
+| [Tech 3] | [Nivel] | [1-5] | [Comentarios] |
+| [Tech 4] | [Nivel] | [1-5] | [Comentarios] |
+
+---
+
+### 3. **ARQUITECTURA Y SISTEMAS** (Puntuación: ___/5)
+
+**Conceptos Evaluados:**
+- Diseño de sistemas escalables
+- Microservicios vs Monolitos
+- Patrones de arquitectura
+- Seguridad y performance
+
+**Preguntas Clave:**
+1. **"Diseña un sistema para [escenario]"**
+   - **Respuesta:** [Resumen de la solución propuesta]
+   - **Evaluación:** [Fortalezas y debilidades]
+
+2. **"Cómo manejarías [problema técnico común]"**
+   - **Respuesta:** [Enfoque propuesto]
+   - **Evaluación:** [Calidad de la solución]
+
+---
+
+### 4. **RESOLUCIÓN DE PROBLEMAS** (Puntuación: ___/5)
+
+**Enfoque Sistemático:**
+- [ ] Descomposición del problema
+- [ ] Consideración de casos edge
+- [ ] Validación de soluciones
+- [ ] Comunicación clara del razonamiento
+
+**Ejemplo de Problema Resuelto:**
+\`\`\`
+Problema: [Descripción del problema técnico]
+
+Solución del Candidato:
+// [Código o pseudocódigo propuesto]
+
+Evaluación:
+✅ Correcto | ❌ Incorrecto | ⚠️ Solución válida pero mejorable
 \`\`\`
 
 ---
 
-## Conclusión y Recomendación
+## 🧠 EVALUACIÓN DE HABILIDADES BLANDAS
 
-✅ Recomiendo contratación
-⚠️ Recomiendo segunda entrevista
-❌ No recomendado
+### 1. **COMUNICACIÓN TÉCNICA** (Puntuación: ___/5)
 
-**Comentarios finales:**
-`,
+- **Claridad en explicaciones:** [Excelente / Buena / Regular / Mejorable]
+- **Vocabulario técnico:** [Adecuado / Limitado / Inapropiado]
+- **Capacidad de síntesis:** [Excelente / Buena / Regular / Mejorable]
+
+**Comentarios:** [Evaluación detallada]
+
+### 2. **PENSAMIENTO CRÍTICO** (Puntuación: ___/5)
+
+- **Análisis de problemas:** [Excelente / Bueno / Regular]
+- **Evaluación de trade-offs:** [Excelente / Bueno / Regular]
+- **Toma de decisiones:** [Excelente / Bueno / Regular]
+
+**Comentarios:** [Evaluación detallada]
+
+### 3. **APRENDIZAJE Y ADAPTABILIDAD** (Puntuación: ___/5)
+
+- **Curiosidad técnica:** [Alta / Media / Baja]
+- **Actualización tecnológica:** [Excelente / Buena / Limitada]
+- **Respuesta a feedback:** [Excelente / Buena / Mejorable]
+
+**Comentarios:** [Evaluación detallada]
+
+---
+
+## 💻 EJERCICIO DE CODIFICACIÓN PRÁCTICO
+
+### **Plataforma Utilizada:** [LeetCode / HackerRank / CodePen / Otro]
+
+### **Ejercicio 1: [Nombre del Problema]**
+**Dificultad:** [Easy / Medium / Hard]
+**Tiempo Estimado:** [X minutos]
+**Tiempo Real:** [X minutos]
+
+**Descripción:**
+[Descripción detallada del problema]
+
+**Solución Implementada:**
+\`\`\`[lenguaje]
+// Código del candidato
+function solution([parámetros]) {
+  // Implementación
+  return [resultado];
+}
+\`\`\`
+
+**Evaluación Técnica:**
+- **Correctitud:** ✅ ❌
+- **Eficiencia:** [Big O analysis]
+- **Legibilidad:** [1-5]
+- **Mejores prácticas:** [Comentarios específicos]
+
+**Comentarios:** [Feedback constructivo]
+
+---
+
+## 📊 EVALUACIÓN FINAL
+
+### **Puntuación Global por Categorías**
+
+| Categoría | Puntuación | Peso | Total Ponderado |
+|-----------|------------|------|-----------------|
+| Conocimientos Técnicos | __/5 | 30% | ___ |
+| Habilidades de Programación | __/5 | 25% | ___ |
+| Arquitectura y Sistemas | __/5 | 20% | ___ |
+| Comunicación | __/5 | 15% | ___ |
+| Ajuste Cultural | __/5 | 10% | ___ |
+| **TOTAL** | | **100%** | **__/5** |
+
+### **Decisión de Contratación**
+
+- [ ] **APROBADO** - Proceder con oferta
+- [ ] **APROBADO CON RESERVAS** - Evaluar más candidatos
+- [ ] **RECHAZADO** - No cumple requisitos mínimos
+- [ ] **HOLD** - Reevaluar en [X] meses
+
+### **Justificación de la Decisión**
+
+[Análisis detallado de fortalezas y debilidades que llevaron a esta decisión]
+
+---
+
+## 🎯 RECOMENDACIONES DE DESARROLLO
+
+### **Puntos Fuertes a Mantener:**
+- [Fortaleza 1]
+- [Fortaleza 2]
+- [Fortaleza 3]
+
+### **Áreas de Mejora Prioritarias:**
+1. **[Área 1]**: [Plan de desarrollo específico]
+2. **[Área 2]**: [Plan de desarrollo específico]
+3. **[Área 3]**: [Plan de desarrollo específico]
+
+### **Recursos Recomendados:**
+- **Libros:** [Títulos recomendados]
+- **Cursos:** [Plataformas y cursos específicos]
+- **Proyectos:** [Ejercicios prácticos sugeridos]
+
+---
+
+## 📝 NOTAS ADICIONALES
+
+### **Observaciones del Entrevistador:**
+[Comentarios generales, actitud del candidato, aspectos no técnicos relevantes]
+
+### **Preguntas del Candidato:**
+[Lista de preguntas realizadas por el candidato y respuestas proporcionadas]
+
+### **Próximos Pasos:**
+- [ ] Compartir feedback con RRHH
+- [ ] Coordinar segunda entrevista técnica
+- [ ] Preparar oferta si aprobado
+- [ ] Enviar email de rechazo si rechazado
+
+---
+
+## 👥 EQUIPO DE EVALUACIÓN
+
+**Entrevistador Principal:** [Nombre] - [Puesto]
+**Entrevistador Técnico:** [Nombre] - [Puesto] (si aplica)
+**Observador:** [Nombre] - [Puesto] (si aplica)
+
+**Fecha de Evaluación:** [DD/MM/AAAA]
+**Próxima Revisión:** [DD/MM/AAAA]
+
+---
+
+*Esta evaluación sigue las directrices estándar de entrevistas técnicas de [Empresa]*`,
       tags: ['entrevista', 'evaluación', 'rrhh'],
       aiEnabled: true,
     },
@@ -445,8 +707,7 @@ Entrevistador:
 **Comentario final:**
 
 ---
-*Firmado: _________________________*
-`,
+*Firmado: _________________________*`,
       tags: ['scorecard', 'estandarizado', 'evaluación'],
       aiEnabled: true,
     },
@@ -463,7 +724,7 @@ Entrevistador:
 | Campo | Valor |
 |-------|-------|
 | **Título** | [Título del informe] |
-| **Fecha** | ${new Date().toLocaleDateString('es-ES')} |
+| **Fecha** | [Fecha actual] |
 | **Autor** | [Nombre del autor] |
 | **Versión** | 1.0 |
 
@@ -516,62 +777,118 @@ Entrevistador:
       description: 'Carta oficial de oferta de empleo',
       icon: '📧',
       category: 'hr',
-      content: `# Carta de Oferta de Empleo
+      content: `# 📋 OFERTA DE EMPLEO FORMAL
 
-**Madrid, ${new Date().toLocaleDateString('es-ES')}**
+**[Ciudad], [Fecha actual]**
 
-Estimado/a Sr./Sra. [Nombre Completo del Candidato],
+**Referencia:** [OE-2024-XXXX]
 
-**Asunto: Oferta de Empleo - Puesto de [Puesto Específico]**
+---
 
-Nos complace extenderle una oferta formal de empleo para el puesto de **[Puesto Específico]** en **[Nombre de la Empresa]**, S.L. Tras revisar su candidatura y mantener las entrevistas correspondientes, estamos convencidos de que su experiencia y habilidades serán un valioso aporte a nuestro equipo.
+## 👤 DESTINATARIO
 
-## Detalles del Puesto
+**Sr./Sra. [Nombre Completo del Candidato]**  
+**[Dirección completa del candidato]**  
+**[Código Postal, Ciudad, Provincia]**  
 
-| Aspecto | Detalle |
-|---------|---------|
-| **Puesto** | [Puesto Específico] |
-| **Departamento** | [Departamento] |
-| **Ubicación** | [Ciudad, País] |
-| **Modalidad** | [Presencial / Híbrido / Remoto] |
-| **Fecha de Incorporación** | [Fecha de Inicio] |
-| **Jornada** | [Tiempo Completo / Parcial] |
-| **Reporta a** | [Nombre del Supervisor Directo] |
+---
 
-## Condiciones Económicas
+## 🏢 INFORMACIÓN DE LA EMPRESA
 
-### Remuneración
-| Concepto | Importe Anual | Importe Mensual |
-|----------|---------------|-----------------|
-| **Salario Bruto** | €[Salario Anual] | €[Salario Mensual] |
-| **Pago en Especie** | €[Importe] | €[Importe Mensual] |
-| **Total Bruto** | **€[Total Anual]** | **€[Total Mensual]** |
+**[NOMBRE DE LA EMPRESA, S.L.]**  
+**CIF:** [BXXXXXXXX]  
+**[Dirección completa de la empresa]**  
+**[Código Postal, Ciudad, Provincia]**  
 
-*Los importes indicados son brutos anuales y están sujetos a las retenciones fiscales correspondientes según la legislación vigente.*
+**Representante Legal:** [Nombre del representante]  
+**Cargo:** [Director/a de Recursos Humanos / CEO]  
 
-### Bonus y Compensaciones Variables
-- **Bonus Anual por Objetivos**: Hasta [Porcentaje]% del salario bruto anual, sujeto al cumplimiento de objetivos individuales y de equipo.
-- **Participación en Beneficios**: [Detalles de participación en beneficios si aplica].
+---
 
-## Beneficios y Condiciones Laborales
+## 🎯 PROPUESTA DE CONTRATACIÓN
 
-### Tiempo de Trabajo y Vacaciones
-- **Jornada Laboral**: [Número] horas semanales
-- **Horario**: [Horario flexible / Horario establecido]
-- **Vacaciones**: [Número] días laborables al año + [Número] días festivos locales
-- **Permisos**: Según convenio colectivo aplicable
+### **Objeto de la Oferta**
 
-### Beneficios Sociales
-- **Seguro Médico Privado**: Cobertura completa para empleado y [familiares]
-- **Formación Continua**: Hasta €[Importe] anuales para cursos, conferencias y certificaciones
-- **Equipo de Trabajo**: Portátil, monitor adicional y [otros equipos necesarios]
-- **Desarrollo Profesional**: Planes de carrera individualizados y oportunidades de promoción interna
+Nos complace extenderle una **oferta formal de empleo** para el puesto de **[PUESTO ESPECÍFICO]** dentro de nuestro equipo. Tras evaluar su candidatura, perfil profesional y el resultado de las entrevistas realizadas, estamos convencidos de que su experiencia y capacidades representan un valioso aporte para **[Nombre de la Empresa]**.
 
-### Otros Beneficios
-- **Stock Options / Participación**: [Detalles si aplica]
-- **Gastos de Desplazamiento**: [Política de reembolso]
-- **Trabajo Remoto**: [Días permitidos por semana/mes]
-- **Flexibilidad Horaria**: [Detalles de flexibilidad]
+### **Detalles del Puesto**
+
+| **Aspecto** | **Detalle** |
+|-------------|-------------|
+| **Denominación del Puesto** | [Puesto específico y nivel] |
+| **Departamento/Area** | [Departamento de adscripción] |
+| **Centro de Trabajo** | [Ciudad principal de trabajo] |
+| **Modalidad de Trabajo** | [Presencial / Híbrido / Teletrabajo] |
+| **Fecha Prevista de Incorporación** | [Fecha de inicio prevista] |
+| **Tipo de Contrato** | [Indefinido / Temporal / Obra y servicio] |
+| **Jornada Laboral** | [Completa / Parcial: X horas/semana] |
+| **Horario de Trabajo** | [Flexible / Establecido de X a Y] |
+| **Superior Jerárquico** | [Nombre del responsable directo] |
+
+---
+
+## 💰 CONDICIONES ECONÓMICAS
+
+### **Remuneración Anual Bruta**
+
+| **Concepto** | **Importe Anual** | **Importe Mensual (12 pagas)** |
+|--------------|------------------|-------------------------------|
+| **Salario Base** | €[XX.XXX,XX] | €[X.XXX,XX] |
+| **Complemento de Puesto** | €[XX.XXX,XX] | €[X.XXX,XX] |
+| **Complemento Personal** | €[XX.XXX,XX] | €[X.XXX,XX] |
+| **Antigüedad Consolidada** | €[XX.XXX,XX] | €[X.XXX,XX] |
+| **TOTAL BRUTO ANUAL** | **€[XXX.XXX,XX]** | **€[XX.XXX,XX]** |
+
+### **Complementos Variables y Beneficios**
+
+#### **Bonus y Compensaciones Variables**
+- **Bonus Anual por Objetivos:** Hasta [X]% del salario bruto anual
+- **Periodo de devengo:** Del 1 de enero al 31 de diciembre
+- **Criterios de evaluación:** [Objetivos individuales + objetivos de equipo]
+- **Fecha de pago:** [Marzo del año siguiente]
+
+#### **Beneficios Sociales**
+- **Seguro Médico Privado:** [Compañía aseguradora] - Cobertura [Individual/Familiar]
+- **Formación Continua:** Hasta €[X.XXX] anuales para cursos, congresos y certificaciones
+- **Equipo de Trabajo:** [Portátil, móvil, tablet, etc.]
+- **Ayuda de Transporte:** [X€ mensuales] o [transporte público gratuito]
+
+#### **Otros Beneficios**
+- **Vacaciones:** [X] días laborables anuales + [X] días festivos locales
+- **Flexibilidad Horaria:** [Detalles de política de flexibilidad]
+- **Trabajo Remoto:** [X días/semana] con acuerdo formal
+- **Participación en Beneficios:** [Detalles si aplica]
+
+---
+
+## 📅 CONDICIONES LABORALES
+
+### **Horario y Jornada**
+- **Jornada semanal:** [X] horas
+- **Horario habitual:** De [X:XX] a [X:XX] horas
+- **Días laborables:** De lunes a viernes
+- **Política de flexibilidad:** [Detalles específicos]
+
+### **Vacaciones y Permisos**
+- **Vacaciones anuales:** [X] días laborables
+- **Festivos locales:** [X] días adicionales
+- **Permisos retribuidos:** Según convenio colectivo aplicable
+- **Política de conciliación:** [Detalles de medidas de conciliación]
+
+---
+
+## 📋 RESPONSABILIDADES Y FUNCIONES
+
+### **Funciones Principales**
+1. **[Función principal 1]**
+2. **[Función principal 2]**
+3. **[Función principal 3]**
+4. **[Función principal 4]**
+
+### **Objetivos del Primer Año**
+- **[Objetivo 1]**: [Descripción cuantificable]
+- **[Objetivo 2]**: [Descripción cuantificable]
+- **[Objetivo 3]**: [Descripción cuantificable]
 
 ## Periodo de Prueba
 
@@ -599,274 +916,185 @@ Atentamente,
 **Director/a de Recursos Humanos**  
 **[Nombre de la Empresa], S.L.**  
 **[Dirección Completa]**  
-**Teléfono:** [Número] | **Email:** [Email]  
+**Teléfono: [+34] XXX XXX XXX**  
+**Email: [contacto@empresa.com]**  
 
 ---
 
-*Esta oferta está sujeta a verificación de referencias, comprobación de antecedentes y superación del periodo de prueba.*
-`,
+*Esta oferta está sujeta a verificación de referencias laborales, comprobación de antecedentes penales (si aplica) y superación satisfactoria del periodo de prueba.*`,
       tags: ['contrato', 'servicios', 'legal'],
     },
     {
       id: 'professional-invoice',
-      name: 'Factura Profesional',
-      description: 'Factura comercial con IVA incluido',
+      name: 'Factura Profesional Servicios',
+      description: 'Factura detallada para servicios profesionales con desglose IVA',
       icon: '💰',
       category: 'business',
-      content: `# FACTURA
+      content: `# 🧾 FACTURA PROFESIONAL
 
-| | |
-|-|-|
-| **Nº Factura:** | [Número de Factura] |
-| **Fecha:** | ${new Date().toLocaleDateString('es-ES')} |
-| **Fecha Vencimiento:** | [Fecha de vencimiento - 30 días] |
-
----
-
-## DATOS DEL EMISOR
-
-**[Nombre de la Empresa]**  
-**[Dirección Completa]**  
-**[Ciudad, Código Postal]**  
-**CIF:** [CIF de la empresa]  
-**Teléfono:** [Número de teléfono]  
-**Email:** [Email de contacto]  
-**Web:** [Sitio web]  
+**Nº Factura:** [FV-2024-XXXX]  
+**Fecha Emisión:** [Fecha actual]  
+**Fecha Vencimiento:** [Fecha +30 días]  
+**Estado:** [Pendiente / Pagada / Vencida]
 
 ---
 
-## DATOS DEL CLIENTE
+## 📤 DATOS DEL EMISOR
 
-**[Nombre del Cliente]**  
-**[Dirección Completa]**  
-**[Ciudad, Código Postal]**  
-**CIF/NIF:** [CIF/NIF del cliente]  
-**Teléfono:** [Número de teléfono]  
-**Email:** [Email de contacto]  
+### [NOMBRE DE LA EMPRESA, S.L.]
+**[Dirección completa]**  
+**[Código Postal, Ciudad, Provincia]**  
+**CIF:** [BXXXXXXXX]  
+**Régimen Fiscal:** [Autónomos / Sociedad]  
 
----
+**📞 Teléfono:** [+34] XXX XXX XXX  
+**✉️ Email:** [facturacion@empresa.com]  
+**🌐 Web:** [www.empresa.com]  
 
-## CONCEPTO
-
-| Descripción | Cantidad | Precio Unit. | Subtotal |
-|-------------|----------|--------------|----------|
-| [Descripción detallada del servicio 1] | [Cantidad] | €[Precio] | €[Subtotal] |
-| [Descripción detallada del servicio 2] | [Cantidad] | €[Precio] | €[Subtotal] |
-| [Descripción detallada del servicio 3] | [Cantidad] | €[Precio] | €[Subtotal] |
-| **Descuento** | - | - | -€[Descuento] |
-| **Subtotal** | | | €[Subtotal] |
+**📋 Registro Mercantil:** [Tomo X, Folio Y, Hoja Z]  
+**🏛️ Banco:** [Nombre del banco]  
+**💳 IBAN:** [ESXX XXXX XXXX XXXX XXXX XXXX]  
 
 ---
 
-## IMPUESTOS
+## 📥 DATOS DEL CLIENTE
 
-| Concepto | Base Imponible | Tipo | Cuota |
-|----------|----------------|------|-------|
-| **IVA** | €[Base imponible] | [Tipo]% | €[Cuota IVA] |
-| **IRPF** | €[Base imponible] | [Tipo]% | €[Cuota IRPF] |
-| **TOTAL IMPUESTOS** | | | €[Total impuestos] |
+### [NOMBRE DEL CLIENTE]
+**[Dirección completa]**  
+**[Código Postal, Ciudad, Provincia]**  
+**CIF/NIF:** [XXXXXXXXX]  
+**Persona de Contacto:** [Nombre del contacto]  
 
----
-
-## TOTAL FACTURA
-
-| Concepto | Importe |
-|----------|---------|
-| **Subtotal** | €[Subtotal] |
-| **IVA ([Tipo]%)** | €[Cuota IVA] |
-| **IRPF ([Tipo]%)** | €[Cuota IRPF] |
-| **TOTAL** | **€[Total]** |
+**📞 Teléfono:** [+34] XXX XXX XXX  
+**✉️ Email:** [contacto@cliente.com]  
 
 ---
 
-## FORMA DE PAGO
+## 📋 DESCRIPCIÓN DE SERVICIOS
 
-- **Método:** Transferencia bancaria
-- **Cuenta:** [IBAN completo]
-- **SWIFT/BIC:** [Código SWIFT]
-- **Banco:** [Nombre del banco]
-- **Titular:** [Nombre del titular de la cuenta]
+### **Período Facturado:** [Desde DD/MM/AAAA - Hasta DD/MM/AAAA]
 
-**Plazo de pago:** [Número] días desde la fecha de emisión
+| **Concepto** | **Descripción** | **Cantidad** | **Precio Unit.** | **Subtotal** |
+|---------------|-----------------|--------------|------------------|--------------|
+| **[Servicio 1]** | [Descripción detallada del servicio prestado] | [X] horas | €[XXX.XX] | €[XXX.XX] |
+| **[Servicio 2]** | [Descripción detallada del servicio prestado] | [X] unidades | €[XXX.XX] | €[XXX.XX] |
+| **[Servicio 3]** | [Descripción detallada del servicio prestado] | [X] proyecto | €[XXX.XX] | €[XXX.XX] |
+| **Subtotal Servicios** | | | | €[XXX.XX] |
+
+### **Desglose Detallado de Servicios:**
+
+1. **Desarrollo Web Frontend**
+   - Tecnologías: React, TypeScript, Tailwind CSS
+   - Alcance: [Descripción específica del trabajo realizado]
+   - Tiempo invertido: [X horas]
+
+2. **Consultoría Técnica**
+   - Área: [Arquitectura / DevOps / Seguridad]
+   - Deliverables: [Documentos / Implementaciones]
+   - Tiempo invertido: [X horas]
+
+3. **Mantenimiento y Soporte**
+   - Tipo: [Correctivo / Evolutivo / Preventivo]
+   - Alcance: [Descripción de incidencias resueltas]
+   - Tiempo invertido: [X horas]
 
 ---
 
-## NOTAS
+## 💰 DESGLOSE ECONÓMICO
 
-- Factura emitida conforme a la Ley 37/1992 del IVA
-- Bienes y servicios sujetos a IVA según artículo 20 de la Ley 37/1992
-- En caso de retraso en el pago, se aplicará un interés de demora del [Porcentaje]% mensual
-- Para cualquier consulta, contacte con nuestro departamento de administración
+### **Base Imponible por Tipo de Servicio**
+
+| **Categoría** | **Base Imponible** | **IVA** | **Cuota IVA** | **Total** |
+|----------------|-------------------|---------|---------------|-----------|
+| **Servicios Profesionales** | €[XXX.XX] | 21% | €[XX.XX] | €[XXX.XX] |
+| **Productos/Suministros** | €[XXX.XX] | 21% | €[XX.XX] | €[XXX.XX] |
+| **Desplazamientos** | €[XXX.XX] | 0% | €0.00 | €[XXX.XX] |
+| **Subtotal** | €[XXX.XX] | | €[XX.XX] | €[XXX.XX] |
+
+### **Cálculos de Retenciones (si aplica)**
+
+| **Concepto** | **Base** | **Tipo** | **Retención** |
+|--------------|----------|----------|---------------|
+| **IRPF Profesional** | €[XXX.XX] | 15% | €[XX.XX] |
+| **Total Retenciones** | | | **€[XX.XX]** |
 
 ---
 
-**Emitida por:** _______________________________  
-**[Nombre del Responsable]**  
-**[Cargo]**  
-**[Fecha de emisión]**
+## 💳 FORMA DE PAGO
+
+### **Método de Pago Aceptado:**
+- [ ] Transferencia bancaria
+- [ ] Domiciliación bancaria
+- [ ] Tarjeta de crédito/débito
+- [ ] Bizum
+- [ ] Efectivo
+
+### **Datos Bancarios para Transferencia:**
+**Beneficiario:** [Nombre de la empresa, S.L.]  
+**IBAN:** [ESXX XXXX XXXX XX XX XXXXXXXX]  
+**SWIFT/BIC:** [XXXXESMMXXX]  
+**Banco:** [Nombre completo del banco]  
+**Referencia:** [FV-2024-XXXX]  
+
+### **Condiciones de Pago:**
+- **Plazo:** [30/60/90] días desde fecha de emisión
+- **Penalización por mora:** [Interés legal + X]% anual
+- **Descuentos por pronto pago:** [X]% si pago en [X] días
 
 ---
 
-*Factura generada electrónicamente - Original en formato PDF*
-`,
-      tags: ['factura', 'financiero', 'business'],
-    },
-    {
-      id: 'service-contract',
-      name: 'Contrato de Servicios',
-      description: 'Contrato profesional de prestación de servicios',
-      icon: '📋',
-      category: 'legal',
-      content: `# CONTRATO DE PRESTACIÓN DE SERVICIOS PROFESIONALES
+## 📊 RESUMEN FACTURA
 
-**Nº de Contrato:** [Número de Contrato]  
-**Fecha:** ${new Date().toLocaleDateString('es-ES')}  
-**Lugar:** Madrid, España  
+| **Concepto** | **Importe** |
+|---------------|-------------|
+| **Base Imponible** | €[XXX.XX] |
+| **IVA 21%** | €[XX.XX] |
+| **Retenciones** | -€[XX.XX] |
+| **TOTAL FACTURA** | **€[XXX.XX]** |
 
-## PARTES CONTRATANTES
+---
 
-### PRIMERA.- EL CONTRATISTA
-**[Nombre de la Empresa Contratista]**, S.L., con CIF **[CIF]** y domicilio en **[Dirección completa]**, en adelante "**EL CONTRATISTA**", representada por **[Nombre del Representante Legal]**, en su condición de **[Cargo]**, mayor de edad, con DNI **[DNI]**.
+## 📝 CONDICIONES GENERALES
 
-### SEGUNDA.- EL CLIENTE
-**[Nombre del Cliente]**, con CIF/NIF **[CIF/NIF]** y domicilio en **[Dirección completa]**, en adelante "**EL CLIENTE**", representado por **[Nombre del Representante Legal]**, en su condición de **[Cargo]**, mayor de edad, con DNI **[DNI]**.
+### **Ley Aplicable:**
+Esta factura se rige por la legislación española, concretamente por la Ley 37/1992 del IVA y la Ley 58/2003 General Tributaria.
 
-Las partes se reconocen mutuamente capacidad legal suficiente para celebrar el presente contrato y, a tal efecto,
+### **Plazos y Condiciones:**
+- El plazo de pago comienza a contar desde la fecha de emisión
+- Los servicios facturados han sido completamente prestados
+- Esta factura sirve como justificante de pago válido
 
-## EXPONEN
+### **Reclamaciones:**
+Cualquier reclamación debe presentarse por escrito en un plazo máximo de 30 días desde la fecha de emisión.
 
-I. Que **EL CONTRATISTA** es una empresa especializada en [descripción de servicios], con amplia experiencia en el sector.
+### **Protección de Datos:**
+Los datos personales se tratan conforme al RGPD (Reglamento UE 2016/679).
 
-II. Que **EL CLIENTE** requiere los servicios profesionales de **EL CONTRATISTA** para [descripción del proyecto/objetivo].
+---
 
-III. Que ambas partes han acordado formalizar por escrito los términos y condiciones bajo los cuales se regirá la prestación de dichos servicios.
+## ✅ CONFORMIDAD Y ACEPTACIÓN
 
-Por lo expuesto, las partes formalizan el presente contrato de prestación de servicios profesionales (**"EL CONTRATO"**) que se regirá por las siguientes
-
-## CLÁUSULAS
-
-### CLÁUSULA PRIMERA.- OBJETO DEL CONTRATO
-
-**EL CONTRATISTA** se obliga a prestar a **EL CLIENTE** los siguientes servicios profesionales:
-
-1. **[Servicio 1]**: [Descripción detallada del servicio 1]
-2. **[Servicio 2]**: [Descripción detallada del servicio 2]
-3. **[Servicio 3]**: [Descripción detallada del servicio 3]
-
-Los servicios se prestarán de acuerdo con las especificaciones técnicas detalladas en el Anexo I (**"Especificaciones Técnicas"**) del presente contrato.
-
-### CLÁUSULA SEGUNDA.- PLAZO DE EJECUCIÓN
-
-El plazo de ejecución de los servicios contratados será de **[Número] meses/días** contados a partir de la fecha de firma del presente contrato, prorrogable por mutuo acuerdo de las partes.
-
-**Fecha de Inicio:** [Fecha]  
-**Fecha de Finalización:** [Fecha]
-
-### CLÁUSULA TERCERA.- PRECIO Y FORMA DE PAGO
-
-#### Precio Total
-El precio total de los servicios contratados asciende a la cantidad de **€[Importe en letras] (€[Importe en números])**, IVA incluido al [Tipo]% ([**€[Importe IVA]**]).
-
-#### Forma de Pago
-El pago se realizará de la siguiente forma:
-- **40%** del importe total (**€[Importe]**) a la firma del contrato
-- **30%** del importe total (**€[Importe]**) a la finalización de la fase 1
-- **30%** del importe total (**€[Importe]**) a la entrega final y aceptación por parte del cliente
-
-Los pagos se realizarán mediante transferencia bancaria a la cuenta **[IBAN]** de **EL CONTRATISTA**, dentro de los 30 días siguientes a la emisión de la correspondiente factura.
-
-#### Penalizaciones
-En caso de retraso en el pago superior a 30 días, se aplicará un interés de demora del [Porcentaje]% mensual sobre el importe pendiente.
-
-### CLÁUSULA CUARTA.- OBLIGACIONES DE EL CONTRATISTA
-
-**EL CONTRATISTA** se obliga a:
-
-1. **Ejecutar los servicios** con la diligencia y profesionalidad exigibles en el sector.
-2. **Cumplir los plazos** establecidos, informando inmediatamente de cualquier circunstancia que pueda afectar al cumplimiento.
-3. **Mantener confidencialidad** sobre toda información técnica o comercial de **EL CLIENTE**.
-4. **Respetar la propiedad intelectual** de **EL CLIENTE** y no utilizar información obtenida para otros fines.
-5. **Disponer de personal cualificado** para la prestación de los servicios.
-6. **Contratar seguros** de responsabilidad civil profesional por importe mínimo de €[Importe].
-7. **Entregar deliverables** que cumplan con las especificaciones acordadas.
-
-### CLÁUSULA QUINTA.- OBLIGACIONES DE EL CLIENTE
-
-**EL CLIENTE** se obliga a:
-
-1. **Proporcionar información** necesaria para la correcta ejecución de los servicios.
-2. **Facilitar acceso** a sistemas, instalaciones o recursos necesarios.
-3. **Efectuar los pagos** en los términos establecidos en la cláusula tercera.
-4. **Designar interlocutor** para coordinar con **EL CONTRATISTA**.
-5. **Revisar y aprobar** deliverables en un plazo máximo de [Número] días.
-6. **Colaborar activamente** en la ejecución del proyecto.
-
-### CLÁUSULA SEXTA.- PROPIEDAD INTELECTUAL E INDUSTRIAL
-
-1. **EL CONTRATISTA** cede a **EL CLIENTE** todos los derechos de propiedad intelectual sobre los trabajos realizados específicamente para este contrato.
-2. **EL CONTRATISTA** mantiene los derechos sobre metodologías, herramientas y componentes reutilizables desarrollados con carácter general.
-3. Los derechos se cederán una vez producido el pago total del contrato.
-
-### CLÁUSULA SÉPTIMA.- CONFIDENCIALIDAD
-
-Las partes se comprometen a mantener estricta confidencialidad sobre:
-- Información técnica y comercial
-- Datos de clientes y proveedores
-- Estrategias y planes de negocio
-- Cualquier información calificada como confidencial
-
-Esta obligación subsistirá durante [Número] años tras la finalización del contrato.
-
-### CLÁUSULA OCTAVA.- RESPONSABILIDAD
-
-1. **EL CONTRATISTA** responderá por los daños y perjuicios causados por negligencia o incumplimiento de sus obligaciones.
-2. La responsabilidad máxima se limita al importe total del contrato.
-3. Quedan excluidas responsabilidades por fuerza mayor.
-
-### CLÁUSULA NOVENA.- MODIFICACIONES
-
-Cualquier modificación del contrato requerirá acuerdo escrito de ambas partes mediante adenda contractual.
-
-### CLÁUSULA DÉCIMA.- RESOLUCIÓN
-
-El contrato podrá resolverse anticipadamente por:
-- Mutuo acuerdo de las partes
-- Incumplimiento grave de cualquiera de las partes
-- Imposibilidad de ejecución por fuerza mayor
-
-### CLÁUSULA UNDÉCIMA.- JURISDICCIÓN Y LEGISLACIÓN APLICABLE
-
-El presente contrato se rige por la legislación española. Para cualquier controversia derivada del mismo, las partes se someten expresamente a los Juzgados y Tribunales de Madrid capital, renunciando a cualquier otro fuero que pudiera corresponderles.
-
-Y en prueba de conformidad, firman el presente contrato en el lugar y fecha indicados en el encabezamiento.
-
-**EL CONTRATISTA**  
-**[Nombre de la Empresa Contratista], S.L.**  
-
+**Factura emitida por:**  
 _______________________________  
-**[Nombre del Representante Legal]**  
-**[Cargo]**  
+**[Nombre y Apellidos]**  
+**Administrador/a**  
+**[Nombre de la Empresa, S.L.]**  
 
-**EL CLIENTE**  
-**[Nombre del Cliente]**  
+**Fecha de emisión:** [Fecha actual]  
 
-_______________________________  
-**[Nombre del Representante Legal]**  
-**[Cargo]**
+**Conforme con la Ley 37/1992, de 28 de diciembre, del Impuesto sobre el Valor Añadido**  
+**Factura electrónica generada automáticamente - Original en formato PDF**
 
 ---
 
-## ANEXOS
+## 📞 CONTACTO PARA CONSULTAS
 
-### Anexo I: Especificaciones Técnicas
-[Detalles técnicos del proyecto]
+**Departamento de Administración:**  
+✉️ [admin@empresa.com]  
+📞 [+34] XXX XXX XXX  
+🕒 Lunes a Viernes, 9:00 - 18:00
 
-### Anexo II: Cronograma de Ejecución
-[Fechas y hitos del proyecto]
-
-### Anexo III: Presupuesto Desglosado
-[Desglose detallado de costos]
-`,
+**Para cualquier consulta sobre esta factura, por favor cite el número de referencia: [FV-2024-XXXX]**`,
       tags: ['contrato', 'servicios', 'legal'],
     },
   ]);
