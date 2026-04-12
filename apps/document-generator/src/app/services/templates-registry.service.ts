@@ -21,7 +21,7 @@ export class TemplatesRegistryService {
       description: 'Documento en blanco',
       icon: '📄',
       category: 'business',
-      content: '',
+      content: ``,
       tags: ['básico'],
     },
     {
@@ -30,8 +30,72 @@ export class TemplatesRegistryService {
       description: 'Esquema básico de documento',
       icon: '📋',
       category: 'business',
-      content:
-        '# Título del Documento\n\n## Resumen Ejecutivo\n\nEn este documento se presenta un análisis detallado de [tema principal], incluyendo [aspectos clave]. El objetivo principal es [objetivo general] mediante [metodología o enfoque].\n\nLos resultados obtenidos demuestran [conclusión principal], lo que permitirá [beneficios esperados].\n\n## Introducción\n\n### Contexto\n\n[Describa el contexto y antecedentes del documento]\n\n### Alcance\n\nEste documento abarca los siguientes aspectos:\n- [Ámbito 1]\n- [Ámbito 2]\n- [Ámbito 3]\n\n## Desarrollo\n\n### Sección Principal\n\n[Contenido detallado de la sección principal]\n\n#### Subsección 1\n\n[Desarrollo de la subsección 1]\n\n#### Subsección 2\n\n[Desarrollo de la subsección 2]\n\n### Análisis y Resultados\n\n| Aspecto | Descripción | Resultado |\n|---------|-------------|-----------|\n| Aspecto 1 | [Descripción] | [Resultado] |\n| Aspecto 2 | [Descripción] | [Resultado] |\n| Aspecto 3 | [Descripción] | [Resultado] |\n\n## Conclusiones y Recomendaciones\n\n### Conclusiones\n\nBasándonos en el análisis realizado, podemos concluir que:\n\n1. [Conclusión 1]\n2. [Conclusión 2]\n3. [Conclusión 3]\n\n### Recomendaciones\n\nSe recomienda implementar las siguientes acciones:\n\n- **Recomendación 1**: [Descripción detallada]\n- **Recomendación 2**: [Descripción detallada]\n- **Recomendación 3**: [Descripción detallada]\n\n## Anexos\n\n- [Anexo 1: Documentos de referencia]\n- [Anexo 2: Datos adicionales]\n- [Anexo 3: Gráficos y diagramas]',
+      content: `# Título del Documento
+
+## Resumen Ejecutivo
+
+En este documento se presenta un análisis detallado de [tema principal], incluyendo [aspectos clave]. El objetivo principal es [objetivo general] mediante [metodología o enfoque].
+
+Los resultados obtenidos demuestran [conclusión principal], lo que permitirá [beneficios esperados].
+
+## Introducción
+
+### Contexto
+
+[Describa el contexto y antecedentes del documento]
+
+### Alcance
+
+Este documento abarca los siguientes aspectos:
+- [Ámbito 1]
+- [Ámbito 2]
+- [Ámbito 3]
+
+## Desarrollo
+
+### Sección Principal
+
+[Contenido detallado de la sección principal]
+
+#### Subsección 1
+
+[Desarrollo de la subsección 1]
+
+#### Subsección 2
+
+[Desarrollo de la subsección 2]
+
+### Análisis y Resultados
+
+| Aspecto | Descripción | Resultado |
+|---------|-------------|-----------|
+| Aspecto 1 | [Descripción] | [Resultado] |
+| Aspecto 2 | [Descripción] | [Resultado] |
+| Aspecto 3 | [Descripción] | [Resultado] |
+
+## Conclusiones y Recomendaciones
+
+### Conclusiones
+
+Basándonos en el análisis realizado, podemos concluir que:
+
+1. [Conclusión 1]
+2. [Conclusión 2]
+3. [Conclusión 3]
+
+### Recomendaciones
+
+Se recomienda implementar las siguientes acciones:
+
+- **Recomendación 1**: [Descripción detallada]
+- **Recomendación 2**: [Descripción detallada]
+- **Recomendación 3**: [Descripción detallada]
+
+## Anexos
+
+- [Anexo 1: Documentos de referencia]
+- [Anexo 2: Datos adicionales]
+- [Anexo 3: Gráficos y diagramas]`,
       tags: ['general'],
     },
     {
@@ -177,7 +241,99 @@ Busco oportunidades en [tipo de posición] donde pueda aportar mi experiencia en
 
 ## Referencias
 
-Disponibles bajo petición.`,
+Disponibles bajo petición.
+
+## Perfil Profesional
+
+Profesional del marketing digital con más de 8 años de experiencia liderando estrategias omnicanal en empresas B2B y B2C. Especializada en transformación digital, growth hacking y optimización de conversiones. He dirigido equipos multidisciplinares logrando incrementos de ROI del 300% y expansiones internacionales en mercados LATAM y Europa.
+
+Apasionada por la innovación tecnológica y el análisis de datos, combino creatividad estratégica con métricas accionables para impulsar el crecimiento sostenible de las organizaciones.
+
+## Experiencia Laboral
+
+### Directora de Marketing Digital | TechSolutions España
+**Marzo 2022 - Actualidad**
+
+- Lideré la transformación digital completa de la compañía, incrementando las ventas online en un 180% en 18 meses
+- Desarrollé e implementé estrategias de inbound marketing que generaron 50.000 leads cualificados mensualmente
+- Gestioné un presupuesto de €2.5M anual, optimizando el CAC en un 40% mediante automatización de procesos
+- Dirigí equipos de 12 personas en Madrid y México, implementando metodologías ágiles y cultura data-driven
+- Lancé productos digitales que generaron €15M en ingresos adicionales durante 2023
+
+### Senior Marketing Manager | GlobalTech Corporation
+**Enero 2019 - Febrero 2022**
+
+- Diseñé y ejecuté campañas multicanal que aumentaron el engagement del 25% al 85% en redes sociales
+- Implementé sistemas de CRM avanzados, mejorando la retención de clientes en un 35%
+- Coordiné proyectos de rebranding internacional en 8 países, manteniendo consistencia de marca
+- Analicé y optimicé funnels de conversión, reduciendo el bounce rate del 60% al 25%
+- Formé y mentoré a 8 profesionales junior, desarrollando sus habilidades en marketing automation
+
+### Marketing Specialist | Innovate Corp
+**Junio 2016 - Diciembre 2018**
+
+- Gestioné campañas SEM/PPC con presupuesto de €500K, logrando ROAS de 4.2x
+- Desarrollé contenido SEO que posicionó 200+ keywords en primeras posiciones
+- Creé dashboards de analytics en Google Data Studio para reporting ejecutivo
+- Colaboré en el lanzamiento de 3 nuevos productos, generando 100.000 usuarios en el primer trimestre
+
+## Formación Académica
+
+### Máster en Marketing Digital | Universidad Complutense de Madrid
+**2015 - 2016**
+
+- Especialización en Digital Analytics y E-commerce
+- Proyecto final: Estrategia digital para empresa familiar (Nota: 9.2/10)
+- Certificación Google Analytics y Google Ads
+
+### Grado en Publicidad y RRPP | Universidad de Sevilla
+**2011 - 2015**
+
+- Especialización en Marketing Estratégico
+- Erasmus en University of London (2014)
+- Trabajo fin de grado sobre Social Media Marketing (Nota: 8.8/10)
+
+## Habilidades Técnicas
+
+| Categoría | Habilidades | Nivel |
+|-----------|-------------|-------|
+| **Plataformas Publicidad** | Google Ads, Facebook Ads, LinkedIn Ads, TikTok Ads | Experto |
+| **Analytics & BI** | Google Analytics 4, Adobe Analytics, Tableau, Power BI | Avanzado |
+| **Marketing Automation** | HubSpot, Marketo, ActiveCampaign, Klaviyo | Experto |
+| **SEO/SEM** | Ahrefs, SEMrush, Screaming Frog, Google Search Console | Avanzado |
+| **Desarrollo Web** | HTML/CSS, WordPress, Shopify, Squarespace | Intermedio |
+| **Herramientas** | Slack, Trello, Jira, Figma, Canva | Experto |
+
+## Certificaciones
+
+- **Google Ads Professional** (2023) - Google
+- **HubSpot Inbound Marketing** (2022) - HubSpot Academy
+- **Facebook Blueprint Professional** (2021) - Meta
+- **Google Analytics Individual Qualification** (2020) - Google
+- **Advanced Google Ads** (2019) - Google
+- **Agile Scrum Master** (2018) - Scrum Alliance
+
+## Idiomas
+
+- **Español**: Nativo
+- **Inglés**: C2 - Proficiency (Cambridge Certificate)
+- **Francés**: B2 - Upper Intermediate (DELF)
+- **Portugués**: B1 - Intermediate (Autoaprendizaje)
+
+## Premios y Reconocimientos
+
+- **Premio Nacional de Marketing Digital 2023** - Mejor Estrategia B2B
+- **Top 50 Mujeres en Tecnología 2022** - Forbes España
+- **Certificación Elite Partner 2021** - Google Partner Program
+
+## Voluntariado e Intereses
+
+- Mentora en programas de emprendimiento femenino
+- Conferencista en eventos de marketing digital
+- Colaboradora en proyectos open source de marketing automation
+- Apasionada por el running y el yoga
+- Miembro activo de la comunidad tech en Madrid
+`,
       tags: ['candidatos', 'rrhh', 'empleo'],
       aiEnabled: true,
       autoFillFields: ['nombre', 'puesto', 'empresa'],
@@ -390,7 +546,8 @@ Busco oportunidades como [tipo de puesto] donde pueda:
 
 *"Código limpio siempre gana. La calidad importa más que la velocidad."*
 
-**[Tu Nombre]** | **[Email]** | **[GitHub]** | **[LinkedIn]**`,
+**[Tu Nombre]** | **[Email]** | **[GitHub]** | **[LinkedIn]**
+`,
       tags: ['desarrollador', 'técnico', 'software'],
       aiEnabled: true,
     },
@@ -564,6 +721,13 @@ function solution([parámetros]) {
 
 ---
 
+### **Ejercicio 2: [Nombre del Problema]**
+**Dificultad:** [Easy / Medium / Hard]
+
+[Solución y evaluación similar al ejercicio 1]
+
+---
+
 ## 📊 EVALUACIÓN FINAL
 
 ### **Puntuación Global por Categorías**
@@ -707,7 +871,8 @@ Entrevistador:
 **Comentario final:**
 
 ---
-*Firmado: _________________________*`,
+*Firmado: _________________________*
+`,
       tags: ['scorecard', 'estandarizado', 'evaluación'],
       aiEnabled: true,
     },
@@ -921,13 +1086,15 @@ Atentamente,
 
 ---
 
-*Esta oferta está sujeta a verificación de referencias laborales, comprobación de antecedentes penales (si aplica) y superación satisfactoria del periodo de prueba.*`,
+*Esta oferta está sujeta a verificación de referencias laborales, comprobación de antecedentes penales (si aplica) y superación satisfactoria del periodo de prueba.*
+`,
       tags: ['contrato', 'servicios', 'legal'],
     },
     {
       id: 'professional-invoice',
       name: 'Factura Profesional Servicios',
-      description: 'Factura detallada para servicios profesionales con desglose IVA',
+      description:
+        'Factura detallada para servicios profesionales con desglose IVA',
       icon: '💰',
       category: 'business',
       content: `# 🧾 FACTURA PROFESIONAL
@@ -1094,7 +1261,9 @@ _______________________________
 📞 [+34] XXX XXX XXX  
 🕒 Lunes a Viernes, 9:00 - 18:00
 
-**Para cualquier consulta sobre esta factura, por favor cite el número de referencia: [FV-2024-XXXX]**`,
+**Para cualquier consulta sobre esta factura, por favor cite el número de referencia: [FV-2024-XXXX]**
+
+`,
       tags: ['contrato', 'servicios', 'legal'],
     },
   ]);

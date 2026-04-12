@@ -20,6 +20,10 @@ import {
   UniversalDocumentService,
   DocumentFormat,
 } from '../services/universal-document.service';
+import {
+  TemplatesRegistryService,
+  DocumentTemplate,
+} from '../services/templates-registry.service';
 
 declare const marked: { parse: (content: string) => string };
 
@@ -128,9 +132,7 @@ interface DocumentType {
       </div>
 
       <!-- Document Type Selection -->
-      <div
-        class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-8"
-      >
+      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-8">
         <div class="mb-8">
           <h2 class="text-2xl font-bold text-primary mb-2">
             ¿Qué tipo de documento necesitas?
@@ -437,10 +439,10 @@ interface DocumentType {
                 <!-- Plantillas Rápidas -->
                 <div class="space-y-3">
                   <div class="block text-sm font-medium text-slate-700">
-                    Plantillas predefinidas
+                    Plantillas predefinidas para {{ selectedType?.name }}
                   </div>
                   <div
-                    class="flex flex-wrap gap-2"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
                     role="group"
                     aria-labelledby="templates-label"
                   >
@@ -448,9 +450,14 @@ interface DocumentType {
                       <button
                         type="button"
                         (click)="loadTemplate(template)"
-                        class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all"
+                        class="px-4 py-3 text-left bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all border border-transparent hover:border-blue-200"
                       >
-                        {{ template.name }}
+                        <div class="font-medium">
+                          {{ template.icon }} {{ template.name }}
+                        </div>
+                        <div class="text-xs text-secondary mt-1">
+                          {{ template.description }}
+                        </div>
                       </button>
                     }
                   </div>
@@ -664,9 +671,7 @@ interface DocumentType {
                 </button>
                 <div class="flex items-center space-x-4">
                   <div class="flex flex-col gap-3">
-                    <div class="text-sm text-muted mb-1">
-                      Importar archivo:
-                    </div>
+                    <div class="text-sm text-muted mb-1">Importar archivo:</div>
                     <input
                       type="file"
                       #fileInput
@@ -827,27 +832,8 @@ export class DocumentCreateComponent implements OnInit {
   autoSaved = false;
   fullscreenMode = false;
 
-  templates = [
-    { id: 'empty', name: 'Vacío', content: '' },
-    {
-      id: 'structure',
-      name: 'Estructura básica',
-      content:
-        '# Título del documento\n\n## Introducción\n\n## Desarrollo\n\n## Conclusiones',
-    },
-    {
-      id: 'technical',
-      name: 'Documento técnico',
-      content:
-        '# Documento Técnico\n\n## Resumen Ejecutivo\n\n## Descripción General\n\n## Arquitectura\n\n## Detalles Técnicos\n\n## Apéndices',
-    },
-    {
-      id: 'report',
-      name: 'Informe',
-      content:
-        '# Informe\n\n## Fecha\n\n## Resumen\n\n## Detalles\n\n## Recomendaciones',
-    },
-  ];
+  templates: DocumentTemplate[] = [];
+  private readonly templatesService = inject(TemplatesRegistryService);
 
   documentTypes: DocumentType[] = [
     {
@@ -932,6 +918,24 @@ export class DocumentCreateComponent implements OnInit {
 
   selectDocumentType(type: DocumentType) {
     this.selectedType = type;
+
+    // Filtrar plantillas según el tipo de documento seleccionado
+    const categoryMap: Record<string, DocumentTemplate['category']> = {
+      resume: 'hr',
+      interview: 'hr',
+      offer: 'hr',
+      documentation: 'technical',
+      architecture: 'technical',
+      quote: 'business',
+      proposal: 'business',
+    };
+
+    const category = categoryMap[type.id];
+    if (category) {
+      this.templates = this.templatesService.getByCategory(category);
+    } else {
+      this.templates = this.templatesService.all();
+    }
   }
 
   goBack() {
@@ -982,6 +986,9 @@ export class DocumentCreateComponent implements OnInit {
 
   ngOnInit() {
     this.assistantService.setActiveTab('create');
+
+    // Cargar todas las plantillas por defecto
+    this.templates = this.templatesService.all();
 
     this.documentForm.valueChanges.subscribe((values) => {
       this.assistantService.setFormData(values);
@@ -1061,7 +1068,7 @@ export class DocumentCreateComponent implements OnInit {
     }
   }
 
-  loadTemplate(template: { id: string; name: string; content: string }) {
+  loadTemplate(template: DocumentTemplate) {
     this.documentForm.patchValue({ content: template.content });
     this.updatePreview();
   }
