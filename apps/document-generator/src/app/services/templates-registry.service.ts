@@ -709,6 +709,7 @@ Atentamente,
 
 *Factura generada electrónicamente - Original en formato PDF*
 `,
+      tags: ['factura', 'financiero', 'business'],
     },
     {
       id: 'service-contract',
@@ -866,6 +867,7 @@ _______________________________
 ### Anexo III: Presupuesto Desglosado
 [Desglose detallado de costos]
 `,
+      tags: ['contrato', 'servicios', 'legal'],
     },
   ]);
 

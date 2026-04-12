@@ -369,7 +369,7 @@ export type EditorMode =
         </div>
       </div>
 
-      @if (showFormattingToolbar()) {
+      @if (showFormattingToolbar) {
         <div class="formatting-toolbar">
           <button
             class="format-btn"
@@ -456,7 +456,7 @@ export type EditorMode =
             (click)="formatText('code')"
             title="Código"
           >
-            ` Code `
+            &#96; Code &#96;
           </button>
 
           <div class="toolbar-separator"></div>
@@ -517,7 +517,11 @@ export type EditorMode =
             <table class="spreadsheet-grid">
               <thead>
                 <tr>
-                  @for (header of spreadsheetHeaders(); track header; let i = $index) {
+                  @for (
+                    header of spreadsheetHeaders();
+                    track header;
+                    let i = $index
+                  ) {
                     <th>{{ header }}</th>
                   }
                 </tr>
@@ -538,7 +542,9 @@ export type EditorMode =
                 }
               </tbody>
             </table>
-            <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <div
+              style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;"
+            >
               <button
                 class="format-btn"
                 (click)="addRow()"
@@ -597,13 +603,11 @@ export type EditorMode =
           ></div>
         }
 
-        <div class="word-count">
-          {{ wordCount() }} palabras
-        </div>
+        <div class="word-count">{{ wordCount() }} palabras</div>
       </div>
 
       <div class="status-bar">
-        <span>Modo: {{ currentModeName() }}</span>
+        <span>Modo: {{ currentModeName }}</span>
         <span>Última modificación: {{ lastModified() }}</span>
       </div>
 
@@ -662,7 +666,10 @@ export class UniversalEditorComponent {
   ];
 
   get currentModeName(): string {
-    return this.availableModes.find(m => m.id === this.currentMode())?.name || 'Desconocido';
+    return (
+      this.availableModes.find((m) => m.id === this.currentMode())?.name ||
+      'Desconocido'
+    );
   }
 
   get showFormattingToolbar(): boolean {
@@ -749,10 +756,16 @@ export class UniversalEditorComponent {
         formattedText = `### ${selectedText}`;
         break;
       case 'bulletList':
-        formattedText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
+        formattedText = selectedText
+          .split('\n')
+          .map((line) => `- ${line}`)
+          .join('\n');
         break;
       case 'numberedList':
-        formattedText = selectedText.split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n');
+        formattedText = selectedText
+          .split('\n')
+          .map((line, i) => `${i + 1}. ${line}`)
+          .join('\n');
         break;
       case 'blockquote':
         formattedText = `> ${selectedText}`;
@@ -772,7 +785,8 @@ export class UniversalEditorComponent {
       range.insertNode(textNode);
 
       // Update content signal
-      const editor = range.commonAncestorContainer.parentElement?.closest('.rich-editor');
+      const editor =
+        range.commonAncestorContainer.parentElement?.closest('.rich-editor');
       if (editor) {
         this.updateContent(editor.innerHTML);
       }
@@ -791,13 +805,23 @@ export class UniversalEditorComponent {
       if (parent) {
         switch (format) {
           case 'bold':
-            return parent.tagName === 'STRONG' || parent.style.fontWeight === 'bold';
+            return (
+              parent.tagName === 'STRONG' || parent.style.fontWeight === 'bold'
+            );
           case 'italic':
-            return parent.tagName === 'EM' || parent.style.fontStyle === 'italic';
+            return (
+              parent.tagName === 'EM' || parent.style.fontStyle === 'italic'
+            );
           case 'underline':
-            return parent.tagName === 'U' || parent.style.textDecoration === 'underline';
+            return (
+              parent.tagName === 'U' ||
+              parent.style.textDecoration === 'underline'
+            );
           case 'strikethrough':
-            return parent.tagName === 'S' || parent.style.textDecoration === 'line-through';
+            return (
+              parent.tagName === 'S' ||
+              parent.style.textDecoration === 'line-through'
+            );
         }
       }
     }
@@ -830,27 +854,29 @@ export class UniversalEditorComponent {
   }
 
   insertTableFromCSV(): void {
-    const csvText = prompt('Pega los datos CSV aquí (separados por comas o punto y coma):');
+    const csvText = prompt(
+      'Pega los datos CSV aquí (separados por comas o punto y coma):',
+    );
     if (!csvText) return;
 
     try {
       // Detect separator
       const separator = csvText.includes(';') ? ';' : ',';
       const lines = csvText.trim().split('\n');
-      const headers = lines[0].split(separator).map(h => h.trim());
-      const data = lines.slice(1).map(line =>
-        line.split(separator).map(cell => cell.trim())
-      );
+      const headers = lines[0].split(separator).map((h) => h.trim());
+      const data = lines
+        .slice(1)
+        .map((line) => line.split(separator).map((cell) => cell.trim()));
 
       let tableHtml = '<table>\n<thead>\n<tr>\n';
-      headers.forEach(header => {
+      headers.forEach((header) => {
         tableHtml += `<th>${this.escapeHtml(header)}</th>\n`;
       });
       tableHtml += '</tr>\n</thead>\n<tbody>\n';
 
-      data.forEach(row => {
+      data.forEach((row) => {
         tableHtml += '<tr>\n';
-        row.forEach(cell => {
+        row.forEach((cell) => {
           tableHtml += `<td>${this.escapeHtml(cell)}</td>\n`;
         });
         tableHtml += '</tr>\n';
@@ -859,7 +885,9 @@ export class UniversalEditorComponent {
 
       this.insertHtmlAtCursor(tableHtml);
     } catch (error) {
-      alert('Error al procesar los datos CSV. Asegúrate de que el formato sea correcto.');
+      alert(
+        'Error al procesar los datos CSV. Asegúrate de que el formato sea correcto.',
+      );
     }
   }
 
@@ -905,7 +933,8 @@ export class UniversalEditorComponent {
     range.insertNode(fragment);
 
     // Update content
-    const editor = range.commonAncestorContainer.parentElement?.closest('.rich-editor');
+    const editor =
+      range.commonAncestorContainer.parentElement?.closest('.rich-editor');
     if (editor) {
       this.updateContent(editor.innerHTML);
     }
@@ -920,12 +949,14 @@ export class UniversalEditorComponent {
 
   addColumn(): void {
     const headers = [...this.spreadsheetHeaders()];
-    const nextLetter = String.fromCharCode(headers[headers.length - 1].charCodeAt(0) + 1);
+    const nextLetter = String.fromCharCode(
+      headers[headers.length - 1].charCodeAt(0) + 1,
+    );
     headers.push(nextLetter);
     this.spreadsheetHeaders.set(headers);
 
     const data = [...this.spreadsheetData()];
-    data.forEach(row => row.push(''));
+    data.forEach((row) => row.push(''));
     this.spreadsheetData.set(data);
   }
 
@@ -975,8 +1006,9 @@ export class UniversalEditorComponent {
     const data = this.spreadsheetData();
 
     let csv = headers.join(',') + '\n';
-    data.forEach(row => {
-      csv += row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',') + '\n';
+    data.forEach((row) => {
+      csv +=
+        row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',') + '\n';
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -998,11 +1030,17 @@ export class UniversalEditorComponent {
   }
 
   sortTable(): void {
-    const column = prompt('Introduce el número de columna para ordenar (1-based):');
+    const column = prompt(
+      'Introduce el número de columna para ordenar (1-based):',
+    );
     if (!column) return;
 
     const colIndex = parseInt(column) - 1;
-    if (isNaN(colIndex) || colIndex < 0 || colIndex >= this.spreadsheetHeaders().length) {
+    if (
+      isNaN(colIndex) ||
+      colIndex < 0 ||
+      colIndex >= this.spreadsheetHeaders().length
+    ) {
       alert('Número de columna inválido');
       return;
     }
@@ -1050,7 +1088,7 @@ export class UniversalEditorComponent {
     this.spreadsheetHeaders.set(headers);
 
     const data = [...this.spreadsheetData()];
-    data.forEach(row => row.splice(colIndex, 1));
+    data.forEach((row) => row.splice(colIndex, 1));
     this.spreadsheetData.set(data);
   }
 
