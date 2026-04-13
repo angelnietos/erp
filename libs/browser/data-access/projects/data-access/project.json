@@ -1,0 +1,18 @@
+{
+  "name": "projects-data-access",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/data-access/projects/data-access/src",
+  "prefix": "lib",
+  "tags": ["scope:browser", "type:data-access"],
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{workspaceRoot}/reports/eslint/{projectName}.json"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+    }
+  }
+}

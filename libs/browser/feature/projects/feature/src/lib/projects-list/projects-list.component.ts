@@ -28,7 +28,7 @@ import { take } from 'rxjs/operators';
 import {
   UiButtonComponent,
   UiSearchComponent,
-  UiSelectComponent,
+  UiTabsComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -37,7 +37,6 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiInputComponent,
-  UiPaginationComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -49,23 +48,20 @@ import {
   ToastService,
   AIFormBridgeService,
 } from '@josanz-erp/shared-data-access';
+import {
+  Project,
+  ProjectsFacade,
+} from '../../../../../../data-access/projects/data-access/src/index';
 import { Observable, of } from 'rxjs';
 
-export interface Project {
-  id: string;
+// Extended form type for additional fields
+interface ProjectFormData {
   name: string;
   description?: string;
   status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
   startDate?: string;
   endDate?: string;
-  clientId?: string;
   clientName?: string;
-  createdAt: string;
-}
-
-// Extended form type for additional fields
-interface ProjectFormData extends Partial<Project> {
-  description?: string;
   validUntil?: string;
   notes?: string;
 }
@@ -80,7 +76,7 @@ interface ProjectFormData extends Partial<Project> {
     FormsModule,
     UiButtonComponent,
     UiSearchComponent,
-    UiSelectComponent,
+    UiTabsComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
@@ -89,7 +85,6 @@ interface ProjectFormData extends Partial<Project> {
     UiLoaderComponent,
     UiModalComponent,
     UiInputComponent,
-    UiPaginationComponent,
     LucideAngularModule,
   ],
   providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
@@ -112,32 +107,39 @@ interface ProjectFormData extends Partial<Project> {
           [accent]="true"
         ></ui-stat-card>
         <ui-stat-card
-          label="Completados"
+          label="Proyectos Completados"
           [value]="completedProjectsCount().toString()"
           icon="check-circle"
+          [trend]="12"
         ></ui-stat-card>
         <ui-stat-card
-          label="Total Clientes"
+          label="Clientes Únicos"
           [value]="uniqueClientsCount().toString()"
           icon="users"
         ></ui-stat-card>
         <ui-stat-card
-          label="Carga de trabajo"
-          value="84%"
-          icon="bar-chart"
-          [trend]="12"
+          label="Total Proyectos"
+          [value]="projects().length.toString()"
+          icon="briefcase"
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <!-- Search and Filters -->
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por nombre, cliente o descripción..."
-            (searchChange)="onSearchChange($event)"
-          ></ui-search>
-        </div>
+      <div class="filters-bar">
+        <ui-tabs
+          [tabs]="tabs"
+          [activeTab]="activeTab()"
+          variant="underline"
+          (tabChange)="onTabChange($event)"
+          class="flex-1"
+        ></ui-tabs>
+
+        <ui-search
+          variant="glass"
+          placeholder="Buscar proyectos..."
+          (searchChange)="onSearchChange($event)"
+          class="search-bar"
+        ></ui-search>
+
         <div class="actions-group">
           <ui-button
             variant="ghost"
@@ -157,29 +159,6 @@ interface ProjectFormData extends Partial<Project> {
           >
             Actualizar
           </ui-button>
-          <ui-select
-            label="Estado"
-            [options]="statusFilterOptions"
-            [ngModel]="statusFilter()"
-            (ngModelChange)="onStatusFilterChange($event)"
-            name="projectStatus"
-            class="status-select"
-          />
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR:
-            {{
-              sortField() === 'name'
-                ? 'NOMBRE'
-                : sortField() === 'startDate'
-                  ? 'FECHA'
-                  : 'ESTADO'
-            }}
-          </ui-button>
         </div>
       </div>
 
@@ -187,6 +166,20 @@ interface ProjectFormData extends Partial<Project> {
       @if (showAdvancedFilters()) {
         <div class="advanced-filters">
           <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="status-filter">Estado</label>
+              <select
+                id="status-filter"
+                class="filter-select"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="ACTIVE">Activo</option>
+                <option value="COMPLETED">Completado</option>
+                <option value="CANCELLED">Cancelado</option>
+              </select>
+            </div>
             <div class="filter-group">
               <label class="filter-label" for="date-from-filter"
                 >Fecha desde</label
@@ -210,11 +203,6 @@ interface ProjectFormData extends Partial<Project> {
                 [(ngModel)]="dateToFilter"
                 (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
               />
-            </div>
-            <div class="filter-actions">
-              <ui-button variant="ghost" size="sm" (clicked)="clearFilters()">
-                Limpiar filtros
-              </ui-button>
             </div>
           </div>
         </div>
@@ -253,9 +241,8 @@ interface ProjectFormData extends Partial<Project> {
         </div>
       }
 
-      <!-- Projects Grid -->
       @if (isLoading()) {
-        <div class="loading-container">
+        <div class="loader-container">
           <ui-loader message="Cargando proyectos..."></ui-loader>
         </div>
       } @else {
@@ -279,19 +266,12 @@ interface ProjectFormData extends Partial<Project> {
           @for (project of paginatedProjects(); track project.id) {
             <ui-feature-card
               [name]="project.name"
-              [subtitle]="project.clientName || 'Sin cliente'"
+              [subtitle]="project.description || 'Sin descripción'"
               [avatarInitials]="getInitials(project.name)"
               [avatarBackground]="getStatusColor(project.status)"
               [status]="project.status === 'ACTIVE' ? 'active' : 'offline'"
-              [badgeLabel]="project.status"
-              [badgeVariant]="
-                project.status === 'ACTIVE'
-                  ? 'success'
-                  : project.status === 'COMPLETED'
-                    ? 'info'
-                    : 'danger'
-              "
-              (cardClicked)="goToDetail(project)"
+              [badgeLabel]="project.status | titlecase"
+              [badgeVariant]="getStatusVariant(project.status)"
               [showEdit]="true"
               [showDuplicate]="true"
               [showDelete]="true"
@@ -303,15 +283,10 @@ interface ProjectFormData extends Partial<Project> {
                 {
                   icon: 'calendar',
                   label: project.startDate
-                    ? 'Inicio: ' + (project.startDate | date: 'dd/MM/yy')
-                    : 'Sin fecha inicio',
+                    ? 'Inicio: ' + (project.startDate | date: 'dd/MM/yyyy')
+                    : 'Sin fecha',
                 },
-                {
-                  icon: 'clock',
-                  label: project.endDate
-                    ? 'Fin: ' + (project.endDate | date: 'dd/MM/yy')
-                    : 'Sin fecha fin',
-                },
+                { icon: 'user', label: project.clientName || 'Sin cliente' },
               ]"
             >
               <div card-extra class="card-selection">
@@ -323,41 +298,29 @@ interface ProjectFormData extends Partial<Project> {
                   class="selection-checkbox"
                 />
               </div>
-              <p class="description">{{ project.description }}</p>
             </ui-feature-card>
           } @empty {
             <div class="empty-state">
               <lucide-icon
-                name="layout"
+                name="briefcase"
                 size="64"
                 class="empty-icon"
               ></lucide-icon>
               <h3>No hay proyectos</h3>
               <p>
-                Comienza añadiendo tu primer proyecto para gestionar tus tareas
-                y recursos.
+                Comienza creando tu primer proyecto para gestionar tu cartera de
+                trabajo.
               </p>
               <ui-button
                 variant="solid"
                 (clicked)="openCreateModal()"
                 icon="CirclePlus"
               >
-                Añadir primer proyecto
+                Crear primer proyecto
               </ui-button>
             </div>
           }
         </ui-feature-grid>
-      }
-
-      <!-- Pagination -->
-      @if (filteredProjects().length > 12 && !isLoading()) {
-        <div class="pagination-footer">
-          <ui-pagination
-            [currentPage]="currentPage()"
-            [totalPages]="totalPages()"
-            (pageChange)="onPageChange($event)"
-          ></ui-pagination>
-        </div>
       }
 
       <!-- Create/Edit Modal -->
@@ -367,18 +330,6 @@ interface ProjectFormData extends Partial<Project> {
         (closed)="closeModal()"
         variant="glass"
       >
-        <!-- Form Errors -->
-        @if (formErrors().length > 0) {
-          <div class="form-errors">
-            @for (error of formErrors(); track $index) {
-              <div class="error-message">
-                <lucide-icon name="AlertCircle" size="16"></lucide-icon>
-                <span>{{ error }}</span>
-              </div>
-            }
-          </div>
-        }
-
         <div class="modal-form">
           <div class="form-section">
             <h4 class="section-title">Información General</h4>
@@ -386,7 +337,7 @@ interface ProjectFormData extends Partial<Project> {
               <ui-input
                 label="Nombre del proyecto *"
                 [(ngModel)]="formData.name"
-                icon="layout"
+                icon="briefcase"
                 placeholder="Nombre del proyecto"
                 required
               ></ui-input>
@@ -396,37 +347,33 @@ interface ProjectFormData extends Partial<Project> {
                 icon="user"
                 placeholder="Nombre del cliente"
               ></ui-input>
-              <ui-input
-                label="Fecha inicio"
-                [(ngModel)]="formData.startDate"
-                icon="calendar"
-                type="date"
-              ></ui-input>
-              <ui-input
-                label="Fecha fin"
-                [(ngModel)]="formData.endDate"
-                icon="calendar"
-                type="date"
-              ></ui-input>
-              <ui-input
-                label="Descripción"
-                [(ngModel)]="formData.description"
-                icon="file-text"
-                placeholder="Descripción del proyecto"
-              ></ui-input>
-              <div class="input-wrapper">
-                <label class="input-label" for="valid-until-input">
-                  <lucide-icon name="calendar" size="16"></lucide-icon>
-                  Válido hasta
-                </label>
-                <input
-                  id="valid-until-input"
+              <div class="row">
+                <ui-input
+                  label="Fecha de inicio"
                   type="date"
-                  class="form-input"
-                  [(ngModel)]="formData.validUntil"
-                  [min]="getMinDate()"
-                />
+                  [(ngModel)]="formData.startDate"
+                  icon="calendar"
+                ></ui-input>
+                <ui-input
+                  label="Fecha de fin"
+                  type="date"
+                  [(ngModel)]="formData.endDate"
+                  icon="calendar"
+                ></ui-input>
               </div>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="description-textarea">
+                <lucide-icon name="file-text" size="16"></lucide-icon>
+                Descripción
+              </label>
+              <textarea
+                id="description-textarea"
+                class="notes-textarea"
+                [(ngModel)]="formData.description"
+                placeholder="Descripción detallada del proyecto..."
+                rows="3"
+              ></textarea>
             </div>
             <div class="form-field">
               <label class="field-label" for="notes-textarea">
@@ -446,7 +393,7 @@ interface ProjectFormData extends Partial<Project> {
 
         <div class="modal-actions">
           <ui-button variant="ghost" (clicked)="closeModal()"
-            >Cancelar</ui-button
+            >CANCELAR</ui-button
           >
           <ui-button
             variant="solid"
@@ -454,7 +401,7 @@ interface ProjectFormData extends Partial<Project> {
             [loading]="isSaving()"
             icon="save"
           >
-            {{ editingProject() ? 'Guardar cambios' : 'Crear proyecto' }}
+            {{ editingProject() ? 'GUARDAR CAMBIOS' : 'CREAR PROYECTO' }}
           </ui-button>
         </div>
       </ui-modal>
@@ -466,10 +413,9 @@ interface ProjectFormData extends Partial<Project> {
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem;
-        min-height: 100vh;
       }
 
-      .feature-controls {
+      .filters-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -481,34 +427,122 @@ interface ProjectFormData extends Partial<Project> {
         gap: 2rem;
       }
 
-      .search-container {
+      .flex-1 {
         flex: 1;
+      }
+
+      .search-bar {
+        width: 350px;
       }
 
       .actions-group {
         display: flex;
-        gap: 1rem;
-        align-items: center;
+        gap: 0.5rem;
       }
 
-      .status-select {
-        min-width: 200px;
-      }
-
-      .loading-container {
+      .loader-container {
         display: flex;
         justify-content: center;
-        padding: 4rem;
+        padding: 5rem;
       }
 
-      .description {
-        font-size: 0.875rem;
+      /* Advanced Filters */
+      .advanced-filters {
+        margin: 1rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
         color: var(--text-muted);
-        margin: 0.5rem 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .filter-select,
+      .filter-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Bulk Actions */
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--warning-dark);
+      }
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .bulk-status-select {
+        padding: 0.5rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        background: var(--background);
+        font-size: 0.875rem;
+      }
+
+      /* Selection */
+      .selection-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
       }
 
       .empty-state {
@@ -516,68 +550,16 @@ interface ProjectFormData extends Partial<Project> {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 4rem;
+        padding: 5rem;
         text-align: center;
         background: var(--surface);
-        border-radius: 16px;
+        border-radius: 20px;
         border: 2px dashed var(--border-soft);
       }
-
       .empty-icon {
         color: var(--text-muted);
-        margin-bottom: 1rem;
-        opacity: 0.5;
-      }
-
-      /* Form Errors */
-      .form-errors {
-        background: var(--danger-light);
-        border: 1px solid var(--danger);
-        border-radius: 8px;
-        padding: 1rem;
+        opacity: 0.3;
         margin-bottom: 1.5rem;
-      }
-
-      .error-message {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--danger);
-        font-size: 0.875rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .error-message:last-child {
-        margin-bottom: 0;
-      }
-
-      /* Modal Form Styles */
-      .modal-form {
-        padding: 1rem 0;
-      }
-
-      .form-section {
-        margin-bottom: 1.5rem;
-      }
-
-      .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
       }
 
       .pagination-footer {
@@ -586,210 +568,87 @@ interface ProjectFormData extends Partial<Project> {
         justify-content: center;
       }
 
-      .advanced-filters {
-        background: var(--surface);
-        border: 1px solid var(--border-soft);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        animation: slideDown 0.3s ease-out;
+      /* Modal Form Styles */
+      .modal-form {
+        padding: 1rem 0;
       }
-
-      .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        align-items: end;
-      }
-
-      .filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .filter-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .filter-input {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--background);
-        color: var(--text-primary);
-        font-size: 0.875rem;
-        transition: border-color 0.2s ease;
-      }
-
-      .filter-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-      }
-
-      .filter-actions {
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-end;
-      }
-
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .bulk-actions-bar {
-        background: var(--warning-light);
-        border: 1px solid var(--warning);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        animation: slideDown 0.3s ease-out;
-      }
-
-      .bulk-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--warning);
-        font-weight: 600;
-      }
-
-      .bulk-buttons {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-      }
-
-      .bulk-status-select {
-        padding: 0.25rem 0.5rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 6px;
-        background: var(--background);
-        color: var(--text-primary);
-        font-size: 0.875rem;
-      }
-
-      .selection-header {
-        grid-column: 1 / -1;
-        background: var(--surface);
-        border: 1px solid var(--border-soft);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-      }
-
-      .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .selection-checkbox {
-        width: 16px;
-        height: 16px;
-        accent-color: var(--primary);
-        cursor: pointer;
-      }
-
-      .card-selection {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-      }
-
-      .input-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .input-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .form-input {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-family: inherit;
-        font-size: 0.875rem;
-        transition: border-color 0.2s ease;
-      }
-
-      .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-      }
-
-      .form-field {
+      .form-section {
         margin-bottom: 1.5rem;
       }
-
+      .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
       .field-label {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
-
       .notes-textarea {
-        width: 100%;
         padding: 0.75rem;
         border: 1px solid var(--border-soft);
         border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-family: inherit;
+        background: var(--background);
+        color: var(--text);
         font-size: 0.875rem;
+        font-family: inherit;
         resize: vertical;
         min-height: 80px;
-        transition: border-color 0.2s ease;
       }
-
       .notes-textarea:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
       }
 
-      @media (max-width: 768px) {
-        .feature-controls {
+      /* Active state for filters button */
+      .actions-group .active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
+      @media (max-width: 900px) {
+        .filters-bar {
           flex-direction: column;
           align-items: stretch;
+          gap: 1rem;
         }
-        .status-select {
-          min-width: 0;
+        .search-bar {
+          width: 100%;
         }
         .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .row {
           grid-template-columns: 1fr;
         }
       }
@@ -800,18 +659,6 @@ interface ProjectFormData extends Partial<Project> {
 export class ProjectsListComponent
   implements OnInit, OnDestroy, FilterableService<Project>
 {
-  readonly Plus = Plus;
-  readonly Search = Search;
-  readonly Edit = Edit;
-  readonly Trash2 = Trash2;
-  readonly Copy = Copy;
-  readonly Briefcase = Briefcase;
-  readonly User = User;
-  readonly Calendar = Calendar;
-  readonly Layout = Layout;
-  readonly ExternalLink = ExternalLink;
-  readonly ChevronRight = ChevronRight;
-
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
@@ -820,17 +667,15 @@ export class ProjectsListComponent
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
+  private readonly facade = inject(ProjectsFacade);
 
-  currentThemeData = this.themeService.currentThemeData;
-
-  readonly allProjects = signal<Project[]>([]);
-  isLoading = signal(true);
+  // Use facade signals
+  projects = this.facade.projects;
+  tabs = this.facade.tabs;
+  isLoading = this.facade.isLoading;
+  activeTab = signal('all');
   statusFilter = signal('');
   currentPage = signal(1);
-  totalPages = computed(() => {
-    const pageSize = 12;
-    return Math.ceil(this.filteredProjects().length / pageSize);
-  });
 
   isModalOpen = signal(false);
   editingProject = signal<Project | null>(null);
@@ -859,15 +704,10 @@ export class ProjectsListComponent
   // Bulk actions signals
   selectedProjects = signal<Set<string>>(new Set());
 
-  statusFilterOptions = [
-    { label: 'Todos', value: '' },
-    { label: 'Activo', value: 'ACTIVE' },
-    { label: 'Completado', value: 'COMPLETED' },
-    { label: 'Cancelado', value: 'CANCELLED' },
-  ];
-
   filteredProjects = computed(() => {
-    let list = [...this.allProjects()];
+    let list = [...this.projects()];
+    const tab = this.activeTab();
+    if (tab !== 'all') list = list.filter((p) => p.status === tab);
     const st = this.statusFilter();
     if (st) {
       list = list.filter((p) => p.status === st);
@@ -887,60 +727,32 @@ export class ProjectsListComponent
 
     if (dateTo) {
       const toDate = new Date(dateTo);
-      toDate.setHours(23, 59, 59, 999);
       list = list.filter((p) => {
-        const startDate = new Date(p.startDate || '');
-        return startDate <= toDate;
+        const endDate = new Date(p.endDate || '');
+        return endDate <= toDate;
       });
     }
 
-    const term = this.masterFilter.query().trim().toLowerCase();
-    if (term) {
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(term) ||
-          (p.description ?? '').toLowerCase().includes(term) ||
-          (p.clientName ?? '').toLowerCase().includes(term),
-      );
-    }
-
-    // Sort
-    const field = this.sortField();
-    const dir = this.sortDirection();
-
-    return list.sort((a, b) => {
-      let valA: any = '';
-      let valB: any = '';
-
-      if (field === 'name') {
-        valA = a.name.toLowerCase();
-        valB = b.name.toLowerCase();
-      } else if (field === 'startDate') {
-        valA = new Date(a.startDate || 0).getTime();
-        valB = new Date(b.startDate || 0).getTime();
-      } else if (field === 'status') {
-        valA = a.status;
-        valB = b.status;
-      }
-
-      if (valA < valB) return -1 * dir;
-      if (valA > valB) return 1 * dir;
-      return 0;
-    });
+    return list;
   });
 
   paginatedProjects = computed(() => {
-    const all = this.filteredProjects();
-    const page = this.currentPage();
+    const filtered = this.filteredProjects();
     const pageSize = 12;
-    const start = (page - 1) * pageSize;
+    const start = (this.currentPage() - 1) * pageSize;
     const end = start + pageSize;
-
-    return all.slice(start, end);
+    return filtered.slice(start, end);
   });
 
-  selectedCount = computed(() => this.selectedProjects().size);
+  totalPages = computed(() => {
+    const filtered = this.filteredProjects();
+    const pageSize = 12;
+    return Math.ceil(filtered.length / pageSize);
+  });
 
+  // Bulk actions computed
+  selectedCount = computed(() => this.selectedProjects().size);
+  hasSelections = computed(() => this.selectedProjects().size > 0);
   isAllSelected = computed(() => {
     const paginated = this.paginatedProjects();
     return (
@@ -949,69 +761,146 @@ export class ProjectsListComponent
     );
   });
 
-  hasSelections = computed(() => this.selectedProjects().size > 0);
-
   activeProjectsCount = computed(
-    () => this.allProjects().filter((p) => p.status === 'ACTIVE').length,
+    () => this.projects().filter((p) => p.status === 'ACTIVE').length,
   );
   completedProjectsCount = computed(
-    () => this.allProjects().filter((p) => p.status === 'COMPLETED').length,
+    () => this.projects().filter((p) => p.status === 'COMPLETED').length,
   );
   uniqueClientsCount = computed(
     () =>
       new Set(
-        this.allProjects()
+        this.projects()
           .map((p) => p.clientId)
           .filter(Boolean),
       ).size || 8,
   );
 
-  columns = [
-    { key: 'name', header: 'Nombre', width: '220px' },
-    { key: 'description', header: 'Descripción', width: '280px' },
-    { key: 'clientName', header: 'Cliente', width: '180px' },
-    { key: 'status', header: 'Estado', width: '120px' },
-    { key: 'startDate', header: 'Fecha Inicio', width: '130px' },
-    { key: 'endDate', header: 'Fecha Fin', width: '130px' },
-    { key: 'createdAt', header: 'Creado', width: '100px' },
-    { key: 'actions', header: 'Acciones', width: '120px' },
-  ];
-
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
-    this.loadProjects();
     this.masterFilter.registerProvider(this);
-
-    this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
-      const text = q.get('q')?.trim();
-      if (text) {
-        this.masterFilter.search(text);
-      }
-    });
+    this.facade.loadProjects();
   }
 
   ngOnDestroy() {
     this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
+      this.formData as unknown as Record<string, unknown>,
     );
     this.masterFilter.unregisterProvider();
+  }
+
+  onTabChange(tabId: string) {
+    this.activeTab.set(tabId);
+    this.currentPage.set(1);
   }
 
   onSearchChange(term: string) {
     this.masterFilter.search(term);
   }
 
-  /**
-   * Implementación del contrato FilterableService.
-   * El MasterFilterService llamará a este método cuando se busque globalmente.
-   */
+  // Advanced filtering methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  refreshProjects() {
+    this.facade.loadProjects(true); // force reload
+    this.toast.show('Proyectos actualizados', 'info');
+  }
+
+  // Bulk actions methods
+  toggleSelectAll() {
+    const paginated = this.paginatedProjects();
+    const currentSelected = this.selectedProjects();
+
+    if (this.isAllSelected()) {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((p) => newSelected.delete(p.id));
+      this.selectedProjects.set(newSelected);
+    } else {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((p) => newSelected.add(p.id));
+      this.selectedProjects.set(newSelected);
+    }
+  }
+
+  toggleProjectSelection(projectId: string) {
+    const currentSelected = this.selectedProjects();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(projectId)) {
+      newSelected.delete(projectId);
+    } else {
+      newSelected.add(projectId);
+    }
+
+    this.selectedProjects.set(newSelected);
+  }
+
+  bulkChangeStatus(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value as 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+
+    if (!newStatus) return;
+
+    const selectedIds = Array.from(this.selectedProjects());
+    selectedIds.forEach((id) => {
+      this.facade.updateProject(id, { status: newStatus });
+    });
+
+    this.selectedProjects.set(new Set());
+    this.toast.show(
+      `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    target.value = '';
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedProjects());
+
+    if (
+      confirm(
+        `¿Estás seguro de eliminar ${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'}?`,
+      )
+    ) {
+      selectedIds.forEach((id) => {
+        this.facade.deleteProject(id);
+      });
+
+      this.selectedProjects.set(new Set());
+      this.toast.show(
+        `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} eliminado${selectedIds.length === 1 ? '' : 's'}`,
+        'success',
+      );
+    }
+  }
+
+  clearSelection() {
+    this.selectedProjects.set(new Set());
+  }
+
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'name') {
+      this.sortField.set('startDate');
+      this.sortDirection.set(-1);
+    } else if (this.sortField() === 'startDate') {
+      this.sortField.set('status');
+    } else {
+      this.sortField.set('name');
+      this.sortDirection.set(1);
+    }
+  }
+
+  // FilterableService implementation
   filter(query: string): Observable<Project[]> {
     const term = query.toLowerCase().trim();
-    if (!term) return of(this.allProjects());
+    if (!term) return of(this.projects());
 
-    const matches = this.allProjects().filter((p: Project) => {
+    const matches = this.projects().filter((p: Project) => {
       const searchableText = [
         p.name,
         p.description ?? '',
@@ -1033,10 +922,11 @@ export class ProjectsListComponent
 
   private normalizeSearchTerm(term: string): string {
     const synonyms: Record<string, string[]> = {
-      activo: ['activo', 'active', 'activa'],
-      completado: ['completado', 'completed', 'finalizado', 'terminado'],
-      cancelado: ['cancelado', 'cancelled', 'anulado'],
-      proyecto: ['proyecto', 'project', 'trabajo'],
+      activo: ['activo', 'active', 'activos'],
+      completado: ['completado', 'completed', 'completados'],
+      cancelado: ['cancelado', 'cancelled', 'cancelados'],
+      proyecto: ['proyecto', 'project', 'proyectos'],
+      cliente: ['cliente', 'client', 'clientes'],
     };
 
     for (const [key, variants] of Object.entries(synonyms)) {
@@ -1054,28 +944,25 @@ export class ProjectsListComponent
     );
   }
 
-  onStatusFilterChange(value: string) {
-    this.statusFilter.set(value ?? '');
-  }
-
   onRowClick() {
     // Navigate to detail
   }
 
-  onEdit(project: Project) {
+  goToDetail(project: Project) {
+    this.router.navigate(['/projects', project.id]);
+  }
+
+  editProject(project: Project) {
     this.router.navigate(['/projects', project.id, 'edit']);
   }
 
   onDuplicate(project: Project) {
-    const duplicatedProject: Project = {
-      ...project,
-      id: `proj-${Date.now()}`,
+    const { id, createdAt, ...projectData } = project;
+    this.facade.createProject({
+      ...projectData,
       name: `${project.name} (Copia)`,
       status: 'ACTIVE' as const,
-      createdAt: new Date().toISOString(),
-    };
-
-    this.allProjects.update((list) => [duplicatedProject, ...list]);
+    });
     this.toast.show(
       `Proyecto ${project.name} duplicado correctamente`,
       'success',
@@ -1088,46 +975,11 @@ export class ProjectsListComponent
         `¿Estás seguro de que deseas eliminar el proyecto ${project.name}?`,
       )
     ) {
-      this.allProjects.update((list) =>
-        list.filter((p) => p.id !== project.id),
-      );
+      this.facade.deleteProject(project.id);
       this.toast.show(
         `Proyecto ${project.name} eliminado correctamente`,
         'success',
       );
-    }
-  }
-
-  getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('');
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'linear-gradient(135deg, #10b981, #059669)';
-      case 'COMPLETED':
-        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-      case 'CANCELLED':
-        return 'linear-gradient(135deg, #ef4444, #dc2626)';
-      default:
-        return 'linear-gradient(135deg, #6b7280, #374151)';
-    }
-  }
-
-  toggleSort() {
-    if (this.sortField() === 'name') {
-      this.sortField.set('startDate');
-      this.sortDirection.set(-1);
-    } else if (this.sortField() === 'startDate') {
-      this.sortField.set('status');
-    } else {
-      this.sortField.set('name');
-      this.sortDirection.set(1);
     }
   }
 
@@ -1137,24 +989,9 @@ export class ProjectsListComponent
       name: '',
       description: '',
       status: 'ACTIVE',
-      startDate: '',
-      endDate: '',
       clientName: '',
-      validUntil: '',
       notes: '',
     };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
-  }
-
-  editProject(project: Project) {
-    this.editingProject.set(project);
-    this.formData = {
-      ...project,
-      validUntil: '',
-      notes: '',
-    };
-    this.formErrors.set([]);
     this.isModalOpen.set(true);
   }
 
@@ -1202,274 +1039,68 @@ export class ProjectsListComponent
     this.formErrors.set([]);
     this.isSaving.set(true);
 
-    // Simulate async operation
-    setTimeout(() => {
-      const projectToEdit = this.editingProject();
-      if (projectToEdit) {
-        this.allProjects.update((list) =>
-          list.map((p) =>
-            p.id === projectToEdit.id
-              ? ({ ...p, ...this.formData } as Project)
-              : p,
-          ),
-        );
-        this.toast.show(
-          `Proyecto ${this.formData.name} actualizado correctamente`,
-          'success',
-        );
-      } else {
-        const newProject: Project = {
-          id: `proj-${Date.now()}`,
-          name: this.formData.name!,
-          description: this.formData.description || '',
-          status: (this.formData.status as any) || 'ACTIVE',
-          startDate: this.formData.startDate,
-          endDate: this.formData.endDate,
-          clientName: this.formData.clientName,
-          createdAt: new Date().toISOString(),
-        };
-        this.allProjects.update((list) => [newProject, ...list]);
-        this.toast.show(
-          `Proyecto ${this.formData.name} creado correctamente`,
-          'success',
-        );
-      }
-
+    const projectToEdit = this.editingProject();
+    if (projectToEdit) {
+      // Update existing project
+      const { ...updates } = this.formData;
+      this.facade.updateProject(projectToEdit.id, updates);
+      this.toast.show(
+        `Proyecto ${this.formData.name} actualizado correctamente`,
+        'success',
+      );
       this.isSaving.set(false);
       this.closeModal();
-    }, 1000);
-  }
-
-  onPageChange(page: number) {
-    this.currentPage.set(page);
-  }
-
-  goToDetail(project: Project) {
-    // Navigate to project detail page
-    this.router.navigate(['/projects', project.id]);
-  }
-
-  toggleAdvancedFilters() {
-    this.showAdvancedFilters.set(!this.showAdvancedFilters());
-  }
-
-  clearFilters() {
-    this.statusFilter.set('');
-    this.dateFromFilter.set('');
-    this.dateToFilter.set('');
-    this.currentPage.set(1);
-  }
-
-  refreshProjects() {
-    this.loadProjects();
-    this.toast.show('Proyectos actualizados', 'info');
-  }
-
-  toggleSelectAll() {
-    const paginated = this.paginatedProjects();
-    const currentSelected = this.selectedProjects();
-    const newSelected = new Set(currentSelected);
-
-    if (this.isAllSelected()) {
-      paginated.forEach((p) => newSelected.delete(p.id));
     } else {
-      paginated.forEach((p) => newSelected.add(p.id));
+      // Create new project
+      const { ...newProjectData } = this.formData;
+      this.facade.createProject(newProjectData);
+      this.toast.show(
+        `Proyecto ${this.formData.name} creado correctamente`,
+        'success',
+      );
+      this.isSaving.set(false);
+      this.closeModal();
     }
-
-    this.selectedProjects.set(newSelected);
-  }
-
-  toggleProjectSelection(projectId: string) {
-    const currentSelected = this.selectedProjects();
-    const newSelected = new Set(currentSelected);
-
-    if (newSelected.has(projectId)) {
-      newSelected.delete(projectId);
-    } else {
-      newSelected.add(projectId);
-    }
-
-    this.selectedProjects.set(newSelected);
-  }
-
-  clearSelection() {
-    this.selectedProjects.set(new Set());
-  }
-
-  bulkChangeStatus(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const newStatus = target.value;
-
-    if (!newStatus) return;
-
-    const selectedIds = Array.from(this.selectedProjects());
-    if (selectedIds.length === 0) return;
-
-    // Reset select
-    target.value = '';
-
-    // Simulate bulk update
-    selectedIds.forEach((id) => {
-      const project = this.allProjects().find((p) => p.id === id);
-      if (project) {
-        console.log(`Changing status of ${id} to ${newStatus}`);
-      }
-    });
-
-    this.toast.show(
-      `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
-      'success',
-    );
-    this.clearSelection();
-    this.refreshProjects();
-  }
-
-  bulkDelete() {
-    const selectedIds = Array.from(this.selectedProjects());
-    if (selectedIds.length === 0) return;
-
-    if (
-      !confirm(
-        `¿Estás seguro de que deseas eliminar ${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'}?`,
-      )
-    ) {
-      return;
-    }
-
-    // Simulate bulk delete
-    selectedIds.forEach((id) => {
-      console.log(`Deleting project ${id}`);
-    });
-
-    this.toast.show(
-      `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} eliminado${selectedIds.length === 1 ? '' : 's'}`,
-      'success',
-    );
-    this.clearSelection();
-    this.refreshProjects();
   }
 
   getMinDate(): string {
     return new Date().toISOString().split('T')[0];
   }
 
-  private loadProjects() {
-    this.isLoading.set(true);
-    setTimeout(() => {
-      // Update AI Form Bridge with current data
-      this.aiFormBridge.registerDataProxy(
-        this.formData as Record<string, unknown>,
-      );
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
 
-      const base: Project[] = [
-        {
-          id: '1',
-          name: 'Proyecto Demo 1',
-          description: 'Descripción del proyecto demo',
-          status: 'ACTIVE',
-          startDate: '2024-01-01',
-          endDate: '2024-12-31',
-          clientName: 'Cliente Demo',
-          createdAt: '2024-01-01',
-        },
-        {
-          id: '2',
-          name: 'Sistema de Gestión de Inventario',
-          description:
-            'Desarrollo de un sistema completo para la gestión de inventario y stock',
-          status: 'ACTIVE',
-          startDate: '2024-02-15',
-          endDate: '2024-08-15',
-          clientName: 'Empresa Logística S.A.',
-          createdAt: '2024-02-15',
-        },
-        {
-          id: '3',
-          name: 'Aplicación Móvil de Pedidos',
-          description:
-            'App móvil para gestionar pedidos y entregas en tiempo real',
-          status: 'COMPLETED',
-          startDate: '2023-09-01',
-          endDate: '2024-03-31',
-          clientName: 'Restaurante El Buen Sabor',
-          createdAt: '2023-09-01',
-        },
-        {
-          id: '4',
-          name: 'Portal Web Corporativo',
-          description:
-            'Rediseño y desarrollo del portal web corporativo con CMS integrado',
-          status: 'ACTIVE',
-          startDate: '2024-03-01',
-          endDate: '2024-09-30',
-          clientName: 'Constructora Moderna Ltd.',
-          createdAt: '2024-03-01',
-        },
-        {
-          id: '5',
-          name: 'Sistema de Facturación Electrónica',
-          description:
-            'Implementación de sistema de facturación electrónica conforme a la normativa vigente',
-          status: 'CANCELLED',
-          startDate: '2024-01-10',
-          endDate: '2024-06-10',
-          clientName: 'Consultoría Fiscal ABC',
-          createdAt: '2024-01-10',
-        },
-        {
-          id: '6',
-          name: 'Dashboard de Analytics',
-          description:
-            'Desarrollo de dashboard interactivo para análisis de datos de ventas',
-          status: 'ACTIVE',
-          startDate: '2024-04-01',
-          endDate: '2024-07-31',
-          clientName: 'Tienda Online Fashion',
-          createdAt: '2024-04-01',
-        },
-        {
-          id: '7',
-          name: 'API de Integración ERP',
-          description:
-            'Desarrollo de APIs REST para integración con sistemas ERP externos',
-          status: 'ACTIVE',
-          startDate: '2024-05-01',
-          endDate: '2024-11-30',
-          clientName: 'Industria Manufacturera XYZ',
-          createdAt: '2024-05-01',
-        },
-        {
-          id: '8',
-          name: 'Plataforma E-Learning',
-          description:
-            'Plataforma completa de aprendizaje en línea con cursos interactivos',
-          status: 'COMPLETED',
-          startDate: '2023-11-01',
-          endDate: '2024-04-30',
-          clientName: 'Instituto Educativo Nacional',
-          createdAt: '2023-11-01',
-        },
-      ];
-      const extra: Project[] = Array.from({ length: 40 }, (_, i) => {
-        const n = i + 1;
-        const statuses: Project['status'][] = [
-          'ACTIVE',
-          'COMPLETED',
-          'CANCELLED',
-        ];
-        return {
-          id: `gen-${n}`,
-          name: `Proyecto operativo ${n}`,
-          description: `Línea de implantación y seguimiento ${n}`,
-          status: statuses[i % 3],
-          startDate: '2024-01-01',
-          endDate: '2025-12-31',
-          clientName: `Cliente ${(i % 12) + 1}`,
-          createdAt: '2024-06-01',
-        };
-      });
-      this.allProjects.set([...base, ...extra]);
-      this.isLoading.set(false);
-    }, 800);
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'ACTIVE':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'COMPLETED':
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'CANCELLED':
+        return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      default:
+        return 'linear-gradient(135deg, #6b7280, #4b5563)';
+    }
+  }
+
+  getStatusVariant(
+    status: string,
+  ): 'success' | 'warning' | 'info' | 'danger' | 'secondary' | 'primary' {
+    switch (status) {
+      case 'ACTIVE':
+        return 'success';
+      case 'COMPLETED':
+        return 'info';
+      case 'CANCELLED':
+        return 'danger';
+      default:
+        return 'secondary';
+    }
   }
 }

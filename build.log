@@ -1,0 +1,55 @@
+
+[2m> [22m[2mnx run[22m frontend:build:production
+
+Project 'storybook-static' contains extension with invalid name (generatedAt).
+Project 'storybook-static' contains extension with invalid name (userSince).
+Project 'storybook-static' contains extension with invalid name (hasCustomBabel).
+Project 'storybook-static' contains extension with invalid name (hasCustomWebpack).
+Project 'storybook-static' contains extension with invalid name (hasStaticDirs).
+Project 'storybook-static' contains extension with invalid name (hasStorybookEslint).
+Project 'storybook-static' contains extension with invalid name (refCount).
+Project 'storybook-static' contains extension with invalid name (knownPackages).
+Project 'storybook-static' contains extension with invalid name (hasRouterPackage).
+Project 'storybook-static' contains extension with invalid name (monorepo).
+Project 'storybook-static' contains extension with invalid name (packageManager).
+Project 'storybook-static' contains extension with invalid name (typescriptOptions).
+Project 'storybook-static' contains extension with invalid name (preview).
+Project 'storybook-static' contains extension with invalid name (framework).
+Project 'storybook-static' contains extension with invalid name (builder).
+Project 'storybook-static' contains extension with invalid name (renderer).
+Project 'storybook-static' contains extension with invalid name (portableStoriesFileCount).
+Project 'storybook-static' contains extension with invalid name (applicationFileCount).
+Project 'storybook-static' contains extension with invalid name (storybookVersion).
+Project 'storybook-static' contains extension with invalid name (storybookVersionSpecifier).
+Project 'storybook-static' contains extension with invalid name (language).
+Project 'storybook-static' contains extension with invalid name (storybookPackages).
+Project 'storybook-static' contains extension with invalid name (addons).
+Project 'storybook-static' contains extension with invalid name (packageJsonType).
+[33m❯[39m Building...
+[32m✔[39m Building...
+[37mApplication bundle generation failed. [13.700 seconds] - 2026-04-13T21:25:34.915Z
+[39m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2349: This expression is not callable.
+  Type '{ id: string; label: string; badge: number; }[]' has no call signatures.[0m [1m[35m[plugin angular-compiler][0m
+    libs/browser/feature/projects/feature/src/lib/projects-list/projects-list.component.ts:129:18:
+[37m      129 │           [tabs]="[32mtabs[37m()"
+          ╵                   [32m~~~~[0m
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2352: Conversion of type 'ProjectFormData' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'ProjectFormData'.[0m [1m[35m[plugin angular-compiler][0m
+    libs/browser/feature/projects/feature/src/lib/projects-list/projects-list.component.ts:786:6:
+[37m      786 │       [32mthis.formData as Record<string, unknown>[37m,
+          ╵       [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[39m[22m
+
+[2m[31m[39m[22m
+
+[7m[1m[31m NX [39m[22m[27m  [31mRunning target [1mbuild[22m for project frontend failed[39m
+
+[2mFailed tasks:[22m
+
+[2m-[22m frontend:build:production
+
+[2mHint: run the command with[22m --verbose [2mfor more details.[22m
+
+[2mYour AI agent configuration is outdated. Run "nx configure-ai-agents" to update.[22m
+
