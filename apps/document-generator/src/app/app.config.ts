@@ -144,6 +144,8 @@ import {
   AlertCircle,
   CheckSquare,
   AlertOctagon,
+  StickyNote,
+  StickyNote,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 

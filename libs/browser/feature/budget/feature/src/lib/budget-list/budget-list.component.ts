@@ -34,6 +34,13 @@ import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { BudgetStore } from '@josanz-erp/budget-data-access';
 import { Budget } from '@josanz-erp/budget-api';
+
+// Extended form type for additional fields
+interface BudgetFormData extends Partial<Budget> {
+  description?: string;
+  validUntil?: string;
+  notes?: string;
+}
 import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
 @Component({
@@ -99,12 +106,29 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         <div class="search-container">
           <ui-search
             variant="glass"
-            placeholder="Buscar por nombre, cliente o estado..."
+            placeholder="Buscar por nombre, cliente, estado o descripción..."
             (searchChange)="onSearch($event)"
           ></ui-search>
         </div>
         <div class="actions-group">
-          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshBudgets()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
           <ui-button
             variant="ghost"
             size="sm"
@@ -123,7 +147,162 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         </div>
       </div>
 
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="status-filter">Estado</label>
+              <select
+                id="status-filter"
+                class="filter-select"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="DRAFT">Borrador</option>
+                <option value="SENT">Enviado</option>
+                <option value="ACCEPTED">Aceptado</option>
+                <option value="REJECTED">Rechazado</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-from-filter"
+                >Fecha desde</label
+              >
+              <input
+                id="date-from-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateFromFilter"
+                (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-to-filter"
+                >Fecha hasta</label
+              >
+              <input
+                id="date-to-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateToFilter"
+                (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-min-filter"
+                >Importe mínimo (€)</label
+              >
+              <input
+                id="amount-min-filter"
+                type="number"
+                class="filter-input"
+                placeholder="0"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMinFilter"
+                (ngModelChange)="
+                  amountMinFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-max-filter"
+                >Importe máximo (€)</label
+              >
+              <input
+                id="amount-max-filter"
+                type="number"
+                class="filter-input"
+                placeholder="Sin límite"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMaxFilter"
+                (ngModelChange)="
+                  amountMaxFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-max-filter"
+                >Importe máximo (€)</label
+              >
+              <input
+                type="number"
+                class="filter-input"
+                placeholder="Sin límite"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMaxFilter"
+                (ngModelChange)="
+                  amountMaxFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-actions">
+              <ui-button variant="ghost" size="sm" (clicked)="clearFilters()">
+                Limpiar filtros
+              </ui-button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <span
+              >{{ selectedCount() }} presupuesto{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionado{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <select
+              class="bulk-status-select"
+              (change)="bulkChangeStatus($event)"
+            >
+              <option value="">Cambiar estado</option>
+              <option value="DRAFT">Marcar como borrador</option>
+              <option value="SENT">Marcar como enviado</option>
+              <option value="ACCEPTED">Marcar como aceptado</option>
+              <option value="REJECTED">Marcar como rechazado</option>
+            </select>
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14"></lucide-icon>
+              Eliminar seleccionados
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
+
       <ui-feature-grid>
+        <!-- Selection Header -->
+        @if (paginatedBudgets().length > 0) {
+          <div class="selection-header">
+            <label class="checkbox-label" for="select-all-checkbox">
+              <input
+                id="select-all-checkbox"
+                type="checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll()"
+                class="selection-checkbox"
+              />
+              <span>Seleccionar todos</span>
+            </label>
+          </div>
+        }
+
         @for (item of paginatedBudgets(); track item.id) {
           <ui-feature-card
             [name]="'# ' + (item.id.slice(0, 8) | uppercase)"
@@ -151,6 +330,15 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
               },
             ]"
           >
+            <div card-extra class="card-selection">
+              <input
+                type="checkbox"
+                [checked]="selectedBudgets().has(item.id)"
+                (change)="toggleBudgetSelection(item.id)"
+                (click)="$event.stopPropagation()"
+                class="selection-checkbox"
+              />
+            </div>
             <div footer-extra class="budget-extra-actions">
               <ui-button
                 variant="ghost"
@@ -232,6 +420,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 [(ngModel)]="formData.clientId"
                 icon="user"
                 placeholder="ID del cliente"
+                required
               ></ui-input>
               <ui-input
                 label="Total (€)"
@@ -239,7 +428,41 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 icon="euro"
                 type="number"
                 placeholder="0.00"
+                min="0"
+                step="0.01"
               ></ui-input>
+              <ui-input
+                label="Descripción"
+                [(ngModel)]="formData.description"
+                icon="file-text"
+                placeholder="Descripción del presupuesto"
+              ></ui-input>
+              <div class="input-wrapper">
+                <label class="input-label" for="valid-until-input">
+                  <lucide-icon name="calendar" size="16"></lucide-icon>
+                  Válido hasta
+                </label>
+                <input
+                  id="valid-until-input"
+                  type="date"
+                  class="form-input"
+                  [(ngModel)]="formData.validUntil"
+                  [min]="getMinDate()"
+                />
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="notes-textarea">
+                <lucide-icon name="sticky-note" size="16"></lucide-icon>
+                Notas
+              </label>
+              <textarea
+                id="notes-textarea"
+                class="notes-textarea"
+                [(ngModel)]="formData.notes"
+                placeholder="Notas adicionales..."
+                rows="3"
+              ></textarea>
             </div>
           </div>
         </div>
@@ -289,6 +512,137 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         display: flex;
         gap: 1rem;
         align-items: center;
+      }
+
+      .advanced-filters {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .filter-select,
+      .filter-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bulk-actions-bar {
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--warning);
+        font-weight: 600;
+      }
+
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .bulk-status-select {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        background: var(--background);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+      }
+
+      .selection-header {
+        grid-column: 1 / -1;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
       }
 
       .card-actions {
@@ -361,6 +715,72 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         gap: 1rem;
       }
 
+      .form-field {
+        margin-bottom: 1.5rem;
+      }
+
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .notes-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        resize: vertical;
+        min-height: 80px;
+        transition: border-color 0.2s ease;
+      }
+
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .input-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .form-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
       .modal-actions {
         display: flex;
         justify-content: flex-end;
@@ -381,9 +801,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         }
         .form-grid {
           grid-template-columns: 1fr;
-        }
-      }
-          padding: 1rem;
         }
       }
     `,
@@ -415,13 +832,28 @@ export class BudgetListComponent
   sortField = signal<'name' | 'total' | 'status'>('name');
   sortDirection = signal<1 | -1>(1);
 
-  formData: Partial<Budget> = {
+  // Filter signals
+  statusFilter = signal<string>('all');
+  dateFromFilter = signal<string>('');
+  dateToFilter = signal<string>('');
+  amountMinFilter = signal<number | null>(null);
+  amountMaxFilter = signal<number | null>(null);
+  showAdvancedFilters = signal(false);
+
+  // Bulk actions signals
+  selectedBudgets = signal<Set<string>>(new Set());
+  showBulkActions = signal(false);
+
+  formData: BudgetFormData = {
     clientId: '',
     startDate: '',
     endDate: '',
     total: 0,
     status: 'DRAFT',
     items: [],
+    description: '',
+    validUntil: '',
+    notes: '',
   };
 
   currentTheme = this.themeService.currentThemeData;
@@ -459,7 +891,43 @@ export class BudgetListComponent
       );
     }
 
-    // 2. Sort
+    // 2. Advanced filters
+    const statusFilter = this.statusFilter();
+    const dateFrom = this.dateFromFilter();
+    const dateTo = this.dateToFilter();
+    const amountMin = this.amountMinFilter();
+    const amountMax = this.amountMaxFilter();
+
+    if (statusFilter !== 'all') {
+      list = list.filter((b) => b.status === statusFilter);
+    }
+
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      list = list.filter((b) => {
+        const createdDate = new Date(b.createdAt || '');
+        return createdDate >= fromDate;
+      });
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999); // End of day
+      list = list.filter((b) => {
+        const createdDate = new Date(b.createdAt || '');
+        return createdDate <= toDate;
+      });
+    }
+
+    if (amountMin !== null) {
+      list = list.filter((b) => (b.total || 0) >= amountMin!);
+    }
+
+    if (amountMax !== null) {
+      list = list.filter((b) => (b.total || 0) <= amountMax!);
+    }
+
+    // 3. Sort
     const field = this.sortField();
     const dir = this.sortDirection();
 
@@ -493,6 +961,18 @@ export class BudgetListComponent
 
     return all.slice(start, end);
   });
+
+  selectedCount = computed(() => this.selectedBudgets().size);
+
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedBudgets();
+    return (
+      paginated.length > 0 &&
+      paginated.every((b) => this.selectedBudgets().has(b.id))
+    );
+  });
+
+  hasSelections = computed(() => this.selectedBudgets().size > 0);
 
   ngOnInit() {
     this.aiFormBridge.registerDataProxy(
@@ -655,6 +1135,9 @@ export class BudgetListComponent
       total: 0,
       status: 'DRAFT',
       items: [],
+      description: '',
+      validUntil: '',
+      notes: '',
     };
     this.formErrors.set([]);
     this.isModalOpen.set(true);
@@ -662,7 +1145,12 @@ export class BudgetListComponent
 
   editBudget(budget: Budget) {
     this.editingBudget.set(budget);
-    this.formData = { ...budget };
+    this.formData = {
+      ...budget,
+      description: '',
+      validUntil: '',
+      notes: '',
+    };
     this.formErrors.set([]);
     this.isModalOpen.set(true);
   }
@@ -680,8 +1168,23 @@ export class BudgetListComponent
       errors.push('El cliente es obligatorio');
     }
 
-    if (this.formData.total && this.formData.total < 0) {
+    if (this.formData.total !== undefined && this.formData.total < 0) {
       errors.push('El total no puede ser negativo');
+    }
+
+    if (
+      this.formData.validUntil &&
+      new Date(this.formData.validUntil) < new Date()
+    ) {
+      errors.push('La fecha de validez no puede ser anterior a hoy');
+    }
+
+    if (this.formData.description && this.formData.description.length > 500) {
+      errors.push('La descripción no puede exceder 500 caracteres');
+    }
+
+    if (this.formData.notes && this.formData.notes.length > 1000) {
+      errors.push('Las notas no pueden exceder 1000 caracteres');
     }
 
     if (errors.length > 0) {
@@ -707,5 +1210,114 @@ export class BudgetListComponent
 
   onPageChange(page: number) {
     this.currentPage.set(page);
+  }
+
+  getMinDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  clearFilters() {
+    this.statusFilter.set('all');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.amountMinFilter.set(null);
+    this.amountMaxFilter.set(null);
+    this.currentPage.set(1);
+  }
+
+  refreshBudgets() {
+    this.store.loadBudgets();
+    this.toast.show('Presupuestos actualizados', 'info');
+  }
+
+  toggleSelectAll() {
+    const paginated = this.paginatedBudgets();
+    const currentSelected = this.selectedBudgets();
+    const newSelected = new Set(currentSelected);
+
+    if (this.isAllSelected()) {
+      // Deselect all on current page
+      paginated.forEach((b) => newSelected.delete(b.id));
+    } else {
+      // Select all on current page
+      paginated.forEach((b) => newSelected.add(b.id));
+    }
+
+    this.selectedBudgets.set(newSelected);
+  }
+
+  toggleBudgetSelection(budgetId: string) {
+    const currentSelected = this.selectedBudgets();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(budgetId)) {
+      newSelected.delete(budgetId);
+    } else {
+      newSelected.add(budgetId);
+    }
+
+    this.selectedBudgets.set(newSelected);
+  }
+
+  clearSelection() {
+    this.selectedBudgets.set(new Set());
+  }
+
+  bulkChangeStatus(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value;
+
+    if (!newStatus) return;
+
+    const selectedIds = Array.from(this.selectedBudgets());
+    if (selectedIds.length === 0) return;
+
+    // Reset select
+    target.value = '';
+
+    // Simulate bulk update
+    selectedIds.forEach((id) => {
+      const budget = this.store.budgets().find((b) => b.id === id);
+      if (budget) {
+        // In a real app, you'd call an API
+        console.log(`Changing status of ${id} to ${newStatus}`);
+      }
+    });
+
+    this.toast.show(
+      `${selectedIds.length} presupuesto${selectedIds.length === 1 ? '' : 's'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    this.clearSelection();
+    this.refreshBudgets();
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedBudgets());
+    if (selectedIds.length === 0) return;
+
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar ${selectedIds.length} presupuesto${selectedIds.length === 1 ? '' : 's'}?`,
+      )
+    ) {
+      return;
+    }
+
+    // Simulate bulk delete
+    selectedIds.forEach((id) => {
+      console.log(`Deleting budget ${id}`);
+    });
+
+    this.toast.show(
+      `${selectedIds.length} presupuesto${selectedIds.length === 1 ? '' : 's'} eliminado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    this.clearSelection();
+    this.refreshBudgets();
   }
 }
