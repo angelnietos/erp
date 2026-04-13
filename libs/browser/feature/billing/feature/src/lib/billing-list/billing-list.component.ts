@@ -27,7 +27,14 @@ import {
   UiFeatureCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FilterableService,
+  AIFormBridgeService,
+  ToastService,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
@@ -92,21 +99,38 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         ></ui-stat-card>
       </ui-feature-stats>
 
+      <!-- Search and Filters -->
       <div class="feature-controls">
-        <ui-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($event)"
-          class="flex-1"
-        ></ui-tabs>
-
         <div class="search-container">
           <ui-search
             variant="glass"
-            placeholder="BUSCAR NIF, CLIENTE O Nº..."
+            placeholder="Buscar por NIF, cliente o número..."
             (searchChange)="onSearch($event)"
           ></ui-search>
+        </div>
+        <div class="actions-group">
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($event)"
+          ></ui-tabs>
+          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            ORDENAR:
+            {{
+              sortField() === 'issueDate'
+                ? 'FECHA'
+                : sortField() === 'total'
+                  ? 'TOTAL'
+                  : 'ESTADO'
+            }}
+          </ui-button>
         </div>
       </div>
 
@@ -134,52 +158,109 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
               (deleteClicked)="confirmDelete(inv)"
               [footerItems]="[
                 { icon: 'calendar', label: formatDate(inv.issueDate) },
-                { icon: 'euro', label: ((inv.total || 0) | currency:'EUR') || '-' },
-                { icon: 'shield', label: inv.verifactuStatus ? (getVerifactuLabel(inv.verifactuStatus) | uppercase) : 'PENDIENTE' }
+                {
+                  icon: 'euro',
+                  label: (inv.total || 0 | currency: 'EUR') || '-',
+                },
+                {
+                  icon: 'shield',
+                  label: inv.verifactuStatus
+                    ? (getVerifactuLabel(inv.verifactuStatus) | uppercase)
+                    : 'PENDIENTE',
+                },
               ]"
             >
               <div class="fiscal-indicators">
-                 @if (inv.verifactuStatus === 'sent') {
-                    <span class="fiscal-badge success-glow">
-                       <lucide-icon name="shield-check" size="12"></lucide-icon> AEAT REPORTED
-                    </span>
-                 } @else if (inv.verifactuStatus === 'error') {
-                    <span class="fiscal-badge error-glow">
-                       <lucide-icon name="alert-triangle" size="12"></lucide-icon> FISCAL ERROR
-                    </span>
-                 }
+                @if (inv.verifactuStatus === 'sent') {
+                  <span class="fiscal-badge success-glow">
+                    <lucide-icon name="shield-check" size="12"></lucide-icon>
+                    AEAT REPORTED
+                  </span>
+                } @else if (inv.verifactuStatus === 'error') {
+                  <span class="fiscal-badge error-glow">
+                    <lucide-icon name="alert-triangle" size="12"></lucide-icon>
+                    FISCAL ERROR
+                  </span>
+                }
               </div>
 
               <div footer-extra class="billing-extra-actions">
-                 <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/billing', inv.id]" title="Detalles"></ui-button>
-                 
-                 @if (inv.status === 'draft') {
-                    <ui-button variant="ghost" size="sm" icon="play" (click)="$event.stopPropagation(); issueInvoice(inv)" class="text-success" title="Emitir Factura"></ui-button>
-                 }
+                <ui-button
+                  variant="ghost"
+                  size="sm"
+                  icon="eye"
+                  [routerLink]="['/billing', inv.id]"
+                  title="Detalles"
+                ></ui-button>
 
-                 @if (inv.status !== 'draft' && config.enableVerifactu) {
-                    @if (!inv.verifactuStatus || inv.verifactuStatus === 'pending' || inv.verifactuStatus === 'error') {
-                       <ui-button variant="ghost" size="sm" [icon]="inv.verifactuStatus === 'error' ? 'refresh-cw' : 'upload-cloud'" (click)="$event.stopPropagation(); sendToVerifactu(inv)" [class.text-warning]="inv.verifactuStatus !== 'error'" [class.text-danger]="inv.verifactuStatus === 'error'" title="Enviar AEAT"></ui-button>
-                    }
-                    @if (inv.verifactuStatus === 'sent') {
-                       <ui-button variant="ghost" size="sm" icon="qr-code" (click)="$event.stopPropagation(); viewVerifactuQr(inv)" title="Ver Certificado"></ui-button>
-                    }
-                 }
+                @if (inv.status === 'draft') {
+                  <ui-button
+                    variant="ghost"
+                    size="sm"
+                    icon="play"
+                    (click)="$event.stopPropagation(); issueInvoice(inv)"
+                    class="text-success"
+                    title="Emitir Factura"
+                  ></ui-button>
+                }
+
+                @if (inv.status !== 'draft' && config.enableVerifactu) {
+                  @if (
+                    !inv.verifactuStatus ||
+                    inv.verifactuStatus === 'pending' ||
+                    inv.verifactuStatus === 'error'
+                  ) {
+                    <ui-button
+                      variant="ghost"
+                      size="sm"
+                      [icon]="
+                        inv.verifactuStatus === 'error'
+                          ? 'refresh-cw'
+                          : 'upload-cloud'
+                      "
+                      (click)="$event.stopPropagation(); sendToVerifactu(inv)"
+                      [class.text-warning]="inv.verifactuStatus !== 'error'"
+                      [class.text-danger]="inv.verifactuStatus === 'error'"
+                      title="Enviar AEAT"
+                    ></ui-button>
+                  }
+                  @if (inv.verifactuStatus === 'sent') {
+                    <ui-button
+                      variant="ghost"
+                      size="sm"
+                      icon="qr-code"
+                      (click)="$event.stopPropagation(); viewVerifactuQr(inv)"
+                      title="Ver Certificado"
+                    ></ui-button>
+                  }
+                }
               </div>
             </ui-feature-card>
           } @empty {
             <div class="empty-state">
-              <lucide-icon name="banknote" size="64" class="empty-icon"></lucide-icon>
+              <lucide-icon
+                name="banknote"
+                size="64"
+                class="empty-icon"
+              ></lucide-icon>
               <h3>No hay facturas</h3>
-              <p>Comienza emitiendo una nueva factura o solicita un presupuesto origen.</p>
-              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Emitir factura</ui-button>
+              <p>
+                Comienza emitiendo una nueva factura o solicita un presupuesto
+                origen.
+              </p>
+              <ui-button
+                variant="solid"
+                (clicked)="openCreateModal()"
+                icon="CirclePlus"
+                >Emitir factura</ui-button
+              >
             </div>
           }
         </ui-feature-grid>
 
         <footer class="pagination-footer">
-           <ui-pagination 
-            [currentPage]="currentPage()" 
+          <ui-pagination
+            [currentPage]="currentPage()"
             [totalPages]="totalPages()"
             (pageChange)="onPageChange($event)"
           ></ui-pagination>
@@ -197,7 +278,8 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       <div class="form-grid">
         @if (!editingInvoice()) {
           <p class="form-hint">
-            Selecciona un presupuesto origen para importar datos comerciales de forma automática.
+            Selecciona un presupuesto origen para importar datos comerciales de
+            forma automática.
           </p>
           <ui-select
             label="PRESUPUESTO ORIGEN"
@@ -212,17 +294,37 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             <span class="value">{{ editingInvoice()?.clientName }}</span>
           </div>
         }
-        
-        <ui-input label="NÚMERO DE FACTURA" [(ngModel)]="formData.invoiceNumber" placeholder="F/2026/XXXX" icon="hash"></ui-input>
-        
+
+        <ui-input
+          label="NÚMERO DE FACTURA"
+          [(ngModel)]="formData.invoiceNumber"
+          placeholder="F/2026/XXXX"
+          icon="hash"
+        ></ui-input>
+
         <div class="row">
-          <ui-input label="EMISIÓN" type="date" [(ngModel)]="formData.issueDate" icon="calendar"></ui-input>
-          <ui-input label="VENCIMIENTO" type="date" [(ngModel)]="formData.dueDate" icon="calendar-clock"></ui-input>
+          <ui-input
+            label="EMISIÓN"
+            type="date"
+            [(ngModel)]="formData.issueDate"
+            icon="calendar"
+          ></ui-input>
+          <ui-input
+            label="VENCIMIENTO"
+            type="date"
+            [(ngModel)]="formData.dueDate"
+            icon="calendar-clock"
+          ></ui-input>
         </div>
       </div>
       <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button variant="solid" (clicked)="saveInvoice()" [disabled]="!editingInvoice() && !formData.budgetId" icon="save">
+        <ui-button
+          variant="solid"
+          (clicked)="saveInvoice()"
+          [disabled]="!editingInvoice() && !formData.budgetId"
+          icon="save"
+        >
           {{ editingInvoice() ? 'GUARDAR CAMBIOS' : 'GENERAR BORRADOR' }}
         </ui-button>
       </div>
@@ -238,124 +340,252 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       @if (verifactuStore.selectedInvoice(); as inv) {
         <div class="qr-panel">
           <div class="qr-header">
-             <h3>Garantía de Integridad</h3>
-             <span class="ref">{{ inv.series }}{{ inv.number }}</span>
+            <h3>Garantía de Integridad</h3>
+            <span class="ref">{{ inv.series }}{{ inv.number }}</span>
           </div>
 
           <div class="qr-display">
-             @if (inv.qrCode) {
-               <div class="qr-box animate-scale-in">
-                 <img [src]="inv.qrCode" alt="Verifactu QR" />
-               </div>
-               <p>Escanea este código para verificar la legalidad en la sede electrónica.</p>
-             } @else {
-               <ui-loader message="Generando certificado..."></ui-loader>
-             }
+            @if (inv.qrCode) {
+              <div class="qr-box animate-scale-in">
+                <img [src]="inv.qrCode" alt="Verifactu QR" />
+              </div>
+              <p>
+                Escanea este código para verificar la legalidad en la sede
+                electrónica.
+              </p>
+            } @else {
+              <ui-loader message="Generando certificado..."></ui-loader>
+            }
           </div>
 
           <div class="qr-footer">
-             <div class="stat">
-               <span class="lbl">TOTAL OPERACIÓN</span>
-               <span class="val">{{ formatCurrencyEu(inv.total) }}</span>
-             </div>
-             <ui-button variant="glass" (clicked)="closeVerifactuQrModal()">CERRAR</ui-button>
+            <div class="stat">
+              <span class="lbl">TOTAL OPERACIÓN</span>
+              <span class="val">{{ formatCurrencyEu(inv.total) }}</span>
+            </div>
+            <ui-button variant="glass" (clicked)="closeVerifactuQrModal()"
+              >CERRAR</ui-button
+            >
           </div>
         </div>
       }
     </ui-modal>
   `,
-  styles: [`
-    .billing-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+  styles: [
+    `
+      .billing-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-    .flex-1 { flex: 1; }
+      .flex-1 {
+        flex: 1;
+      }
 
-    .loader-container { display: flex; justify-content: center; padding: 5rem; }
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        padding: 5rem;
+      }
 
-    .fiscal-indicators { margin-top: 1rem; }
-    .fiscal-badge {
-       display: inline-flex;
-       align-items: center;
-       gap: 0.25rem;
-       font-size: 0.6rem;
-       font-weight: 900;
-       padding: 0.2rem 0.6rem;
-       border-radius: 4px;
-       letter-spacing: 0.05em;
-    }
-    .success-glow { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
-    .error-glow { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+      .fiscal-indicators {
+        margin-top: 1rem;
+      }
+      .fiscal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.6rem;
+        font-weight: 900;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        letter-spacing: 0.05em;
+      }
+      .success-glow {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+      }
+      .error-glow {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
 
-    .card-actions { display: flex; gap: 0.25rem; }
-    .text-success { color: #10b981 !important; }
-    .text-warning { color: #f59e0b !important; }
-    .text-danger { color: #ef4444 !important; }
+      .card-actions {
+        display: flex;
+        gap: 0.25rem;
+      }
+      .text-success {
+        color: #10b981 !important;
+      }
+      .text-warning {
+        color: #f59e0b !important;
+      }
+      .text-danger {
+        color: #ef4444 !important;
+      }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+      .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 5rem;
+        text-align: center;
+        background: var(--surface);
+        border-radius: 20px;
+        border: 2px dashed var(--border-soft);
+      }
+      .empty-icon {
+        color: var(--text-muted);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+      }
 
-    .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
 
-    /* Form & QR Panel */
-    .form-grid { display: flex; flex-direction: column; gap: 1.25rem; padding: 1rem 0; }
-    .form-hint { font-size: 0.75rem; color: var(--text-muted); }
-    .read-only-section { display: flex; flex-direction: column; gap: 0.25rem; }
-    .read-only-section .label { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); }
-    .read-only-section .value { font-size: 1rem; font-weight: 700; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
+      /* Form & QR Panel */
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1rem 0;
+      }
+      .form-hint {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+      .read-only-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .read-only-section .label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: var(--text-muted);
+      }
+      .read-only-section .value {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+      }
 
-    .qr-panel { display: flex; flex-direction: column; gap: 2rem; padding: 1rem 0; }
-    .qr-header h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
-    .qr-header .ref { font-size: 1.5rem; font-weight: 900; }
-    .qr-display { display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
-    .qr-box { background: #fff; padding: 1rem; border-radius: 12px; }
-    .qr-box img { width: 200px; height: 200px; }
-    .qr-display p { font-size: 0.75rem; color: var(--text-muted); max-width: 250px; }
-    .qr-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-soft); padding-top: 1.5rem; }
-    .qr-footer .stat { display: flex; flex-direction: column; }
-    .qr-footer .lbl { font-size: 0.6rem; color: var(--text-muted); }
-    .qr-footer .val { font-size: 1.1rem; font-weight: 800; color: #10b981; }
+      .qr-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: 1rem 0;
+      }
+      .qr-header h3 {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .qr-header .ref {
+        font-size: 1.5rem;
+        font-weight: 900;
+      }
+      .qr-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        text-align: center;
+      }
+      .qr-box {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+      }
+      .qr-box img {
+        width: 200px;
+        height: 200px;
+      }
+      .qr-display p {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        max-width: 250px;
+      }
+      .qr-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border-soft);
+        padding-top: 1.5rem;
+      }
+      .qr-footer .stat {
+        display: flex;
+        flex-direction: column;
+      }
+      .qr-footer .lbl {
+        font-size: 0.6rem;
+        color: var(--text-muted);
+      }
+      .qr-footer .val {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #10b981;
+      }
 
-    @media (max-width: 900px) {
-       .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
-       .search-bar { width: 100%; }
-       .row { grid-template-columns: 1fr; }
-    }
-  `],
+      @media (max-width: 900px) {
+        .navigation-bar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+        .search-bar {
+          width: 100%;
+        }
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BillingListComponent implements OnInit, OnDestroy, FilterableService<Invoice> {
+export class BillingListComponent
+  implements OnInit, OnDestroy, FilterableService<Invoice>
+{
   public readonly config = inject(BILLING_FEATURE_CONFIG);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(BillingFacade);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly aiFormBridge = inject(AIFormBridgeService);
+  private readonly toast = inject(ToastService);
   readonly verifactuStore = inject<VerifactuStore>(VerifactuStore);
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
 
   invoices = this.facade.invoices;
-  allInvoices = this.facade.allInvoices; 
+  allInvoices = this.facade.allInvoices;
   isLoading = this.facade.isLoading;
   activeTab = this.facade.activeTab;
   budgets = this.facade.budgets;
   currentPage = signal(1);
   totalPages = signal(1);
+  sortField = signal<'issueDate' | 'total' | 'status'>('issueDate');
+  sortDirection = signal<1 | -1>(-1);
   searchTerm = '';
 
   isModalOpen = signal(false);
@@ -372,12 +602,16 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
     const { id, ...rest } = inv;
     this.facade.createInvoice({
       ...rest,
-      invoiceNumber: `${inv.invoiceNumber} (COPIA)`
+      invoiceNumber: `${inv.invoiceNumber} (COPIA)`,
     });
   }
 
   confirmDelete(inv: Invoice) {
-    if (confirm(`¿Estás seguro de que deseas eliminar la factura ${inv.invoiceNumber}?`)) {
+    if (
+      confirm(
+        `¿Estás seguro de que deseas eliminar la factura ${inv.invoiceNumber}?`,
+      )
+    ) {
       this.facade.deleteInvoice(inv.id);
     }
   }
@@ -388,10 +622,14 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
 
   getFiscalGradient(status: string | undefined): string {
     switch (status) {
-      case 'sent': return 'linear-gradient(135deg, #10b981, #059669)';
-      case 'error': return 'linear-gradient(135deg, #ef4444, #dc2626)';
-      case 'pending': return 'linear-gradient(135deg, #f59e0b, #d97706)';
-      default: return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'sent':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'error':
+        return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      case 'pending':
+        return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      default:
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
     }
   }
 
@@ -427,13 +665,53 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
 
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Invoice[]> {
-    const term = query.toLowerCase();
-    const matches = this.allInvoices().filter((inv: Invoice) => 
-      inv.invoiceNumber.toLowerCase().includes(term) || 
-      inv.clientName.toLowerCase().includes(term) ||
-      (inv.nif ?? '').toLowerCase().includes(term)
-    );
+    const term = query.toLowerCase().trim();
+    if (!term) return of(this.allInvoices());
+
+    const matches = this.allInvoices().filter((inv: Invoice) => {
+      const searchableText = [
+        inv.invoiceNumber,
+        inv.clientName,
+        inv.nif || '',
+        inv.status,
+        inv.verifactuStatus || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const normalizedTerm = this.normalizeSearchTerm(term);
+
+      return (
+        searchableText.includes(normalizedTerm) ||
+        this.hasKeywordMatch(searchableText, normalizedTerm)
+      );
+    });
     return of(matches);
+  }
+
+  private normalizeSearchTerm(term: string): string {
+    const synonyms: Record<string, string[]> = {
+      pagada: ['pagada', 'paid', 'pagado', 'cobrado'],
+      pendiente: ['pendiente', 'pending', 'impagada', 'pendiente'],
+      enviada: ['enviada', 'sent', 'remitida'],
+      borrador: ['borrador', 'draft', 'borradores'],
+      factura: ['factura', 'invoice', 'recibo'],
+      cliente: ['cliente', 'client', 'comprador'],
+    };
+
+    for (const [key, variants] of Object.entries(synonyms)) {
+      if (variants.some((v) => term.includes(v))) {
+        return key;
+      }
+    }
+    return term;
+  }
+
+  private hasKeywordMatch(text: string, term: string): boolean {
+    return (
+      text.includes(term) ||
+      term.split(' ').every((word) => text.includes(word))
+    );
   }
 
   loadInvoices() {
@@ -564,7 +842,9 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
     }
   }
 
-  getVerifactuVariant(status: string | undefined): 'success' | 'warning' | 'danger' | 'secondary' {
+  getVerifactuVariant(
+    status: string | undefined,
+  ): 'success' | 'warning' | 'danger' | 'secondary' {
     switch (status) {
       case 'sent':
         return 'success';
@@ -604,7 +884,10 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
   }
 
   totalInvoiced = computed(() =>
-    this.allInvoices().reduce((acc: number, inv: Invoice) => acc + (inv.total || 0), 0),
+    this.allInvoices().reduce(
+      (acc: number, inv: Invoice) => acc + (inv.total || 0),
+      0,
+    ),
   );
 
   totalPending = computed(() =>
@@ -612,4 +895,16 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
       .filter((i: Invoice) => i.status === 'pending')
       .reduce((acc: number, inv: Invoice) => acc + (inv.total || 0), 0),
   );
+
+  toggleSort() {
+    if (this.sortField() === 'issueDate') {
+      this.sortField.set('total');
+      this.sortDirection.set(-1);
+    } else if (this.sortField() === 'total') {
+      this.sortField.set('status');
+    } else {
+      this.sortField.set('issueDate');
+      this.sortDirection.set(1);
+    }
+  }
 }

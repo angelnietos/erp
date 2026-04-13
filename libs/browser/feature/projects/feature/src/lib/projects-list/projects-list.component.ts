@@ -491,7 +491,10 @@ export class ProjectsListComponent
   isLoading = signal(true);
   statusFilter = signal('');
   currentPage = signal(1);
-  totalPages = signal(1);
+  totalPages = computed(() => {
+    const pageSize = 12;
+    return Math.ceil(this.filteredProjects().length / pageSize);
+  });
 
   isModalOpen = signal(false);
   editingProject = signal<Project | null>(null);
@@ -564,8 +567,6 @@ export class ProjectsListComponent
     const pageSize = 12;
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
-
-    this.totalPages.set(Math.ceil(all.length / pageSize));
 
     return all.slice(start, end);
   });
