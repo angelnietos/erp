@@ -109,6 +109,26 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
           (searchChange)="onSearch($any($event))"
           class="search-bar"
         ></ui-search>
+
+        <div class="actions-group">
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshProducts()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            ORDENAR: NOMBRE
+          </ui-button>
+        </div>
       </div>
 
       @if (isLoading()) {
@@ -122,8 +142,18 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
               [name]="product.name | uppercase"
               [subtitle]="product.category | uppercase"
               [avatarInitials]="getInitials(product.name)"
-              [avatarBackground]="product.type === 'serialized' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)'"
-              [status]="product.status === 'available' ? 'active' : product.status === 'reserved' ? 'warning' : 'danger'"
+              [avatarBackground]="
+                product.type === 'serialized'
+                  ? 'linear-gradient(135deg, #10b981, #059669)'
+                  : 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+              "
+              [status]="
+                product.status === 'available'
+                  ? 'active'
+                  : product.status === 'reserved'
+                    ? 'warning'
+                    : 'danger'
+              "
               [badgeLabel]="getStatusLabel(product.status) | uppercase"
               [badgeVariant]="getStatusVariant(product.status)"
               [showEdit]="true"
@@ -135,25 +165,39 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
               (deleteClicked)="confirmDelete(product)"
               [footerItems]="[
                 { icon: 'layers', label: 'Stock: ' + product.totalStock },
-                { icon: 'euro', label: (product.dailyRate | currency:'EUR') + ' / día' }
+                {
+                  icon: 'euro',
+                  label: (product.dailyRate | currency: 'EUR') + ' / día',
+                },
               ]"
             >
               <div class="product-meta">
-                 <span class="sku">SKU: {{ product.sku || 'N/A' }}</span>
+                <span class="sku">SKU: {{ product.sku || 'N/A' }}</span>
               </div>
             </ui-feature-card>
           } @empty {
             <div class="empty-state">
-              <lucide-icon name="box" size="64" class="empty-icon"></lucide-icon>
+              <lucide-icon
+                name="box"
+                size="64"
+                class="empty-icon"
+              ></lucide-icon>
               <h3>No hay productos</h3>
-              <p>El inventario está vacío. Comienza registrando tu primer activo.</p>
-              <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">Registrar equipo</ui-button>
+              <p>
+                El inventario está vacío. Comienza registrando tu primer activo.
+              </p>
+              <ui-button
+                variant="solid"
+                (clicked)="openCreateModal()"
+                icon="CirclePlus"
+                >Registrar equipo</ui-button
+              >
             </div>
           }
         </ui-feature-grid>
 
         <footer class="pagination-footer">
-           <ui-pagination
+          <ui-pagination
             [currentPage]="currentPage()"
             [totalPages]="totalPages()"
             (pageChange)="onPageChange($event)"
@@ -172,93 +216,163 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       <div class="form-grid">
         <div class="form-section">
           <h4 class="section-title">IDENTIFICACIÓN TÉCNICA</h4>
-          <ui-input label="Nombre del Producto" [(ngModel)]="formData.name" placeholder="Denominación..." icon="box"></ui-input>
+          <ui-input
+            label="Nombre del Producto"
+            [(ngModel)]="formData.name"
+            placeholder="Denominación..."
+            icon="box"
+          ></ui-input>
           <div class="row">
-            <ui-input label="Referencia SKU" [(ngModel)]="formData.sku" icon="hash"></ui-input>
-            <ui-input label="Categoría" [(ngModel)]="formData.category" icon="tag"></ui-input>
+            <ui-input
+              label="Referencia SKU"
+              [(ngModel)]="formData.sku"
+              icon="hash"
+            ></ui-input>
+            <ui-input
+              label="Categoría"
+              [(ngModel)]="formData.category"
+              icon="tag"
+            ></ui-input>
           </div>
         </div>
 
         <div class="form-section">
           <h4 class="section-title">STOCK Y TARIFACIÓN</h4>
           <div class="row">
-            <ui-input label="Unidades" type="number" [(ngModel)]="formData.totalStock" icon="layers"></ui-input>
-            <ui-input label="Tarifa diaria" type="number" [(ngModel)]="formData.dailyRate" icon="euro"></ui-input>
+            <ui-input
+              label="Unidades"
+              type="number"
+              [(ngModel)]="formData.totalStock"
+              icon="layers"
+            ></ui-input>
+            <ui-input
+              label="Tarifa diaria"
+              type="number"
+              [(ngModel)]="formData.dailyRate"
+              icon="euro"
+            ></ui-input>
           </div>
         </div>
       </div>
 
       <div class="modal-actions">
         <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button variant="solid" (clicked)="saveProduct()" [disabled]="!formData.name" icon="save">
+        <ui-button
+          variant="solid"
+          (clicked)="saveProduct()"
+          [disabled]="!formData.name"
+          icon="save"
+        >
           GUARDAR
         </ui-button>
       </div>
     </ui-modal>
   `,
-  styles: [`
-    .inventory-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+  styles: [
+    `
+      .inventory-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-    .filters-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      background: var(--surface);
-      padding: 0.5rem 1.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      gap: 2rem;
-    }
+      .filters-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: var(--surface);
+        padding: 0.5rem 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-soft);
+        gap: 2rem;
+      }
 
-    .flex-1 { flex: 1; }
-    .search-bar { width: 350px; }
+      .flex-1 {
+        flex: 1;
+      }
+      .search-bar {
+        width: 350px;
+      }
 
-    .loader-container { display: flex; justify-content: center; padding: 5rem; }
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        padding: 5rem;
+      }
 
-    .product-meta {
-       margin-top: 0.5rem;
-       font-family: var(--font-mono);
-       font-size: 0.7rem;
-       color: var(--text-muted);
-       letter-spacing: 0.05em;
-    }
+      .product-meta {
+        margin-top: 0.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+      }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+      .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 5rem;
+        text-align: center;
+        background: var(--surface);
+        border-radius: 20px;
+        border: 2px dashed var(--border-soft);
+      }
+      .empty-icon {
+        color: var(--text-muted);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+      }
 
-    .pagination-footer {
-       margin-top: 3rem;
-       display: flex;
-       justify-content: center;
-    }
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
 
-    /* Modal Styles */
-    .form-grid { display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem 0; }
-    .section-title { font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-muted); opacity: 0.8; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 2rem; }
+      /* Modal Styles */
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1rem 0;
+      }
+      .section-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: var(--text-muted);
+        opacity: 0.8;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+      }
 
-    @media (max-width: 900px) {
-       .filters-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
-       .search-bar { width: 100%; }
-       .row { grid-template-columns: 1fr; }
-    }
-  `],
+      @media (max-width: 900px) {
+        .filters-bar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+        .search-bar {
+          width: 100%;
+        }
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryListComponent
@@ -284,6 +398,8 @@ export class InventoryListComponent
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
+  sortField = signal<'name'>('name');
+  sortDirection = signal<1 | -1>(1);
 
   isModalOpen = signal(false);
 
@@ -300,13 +416,17 @@ export class InventoryListComponent
   };
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(this.formData as Record<string, unknown>);
+    this.aiFormBridge.registerDataProxy(
+      this.formData as Record<string, unknown>,
+    );
     this.masterFilter.registerProvider(this);
     this.loadProducts();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(this.formData as Record<string, unknown>);
+    this.aiFormBridge.unregisterDataProxy(
+      this.formData as Record<string, unknown>,
+    );
     this.masterFilter.unregisterProvider();
   }
 
@@ -462,29 +582,42 @@ export class InventoryListComponent
       })
       .subscribe({
         next: () =>
-          this.toast.show(`Copia creada a partir de «${product.name}»`, 'success'),
+          this.toast.show(
+            `Copia creada a partir de «${product.name}»`,
+            'success',
+          ),
         error: () =>
           this.toast.show('No se pudo duplicar el producto.', 'error'),
       });
   }
 
   confirmDelete(product: Product) {
-    if (!confirm(`¿Estás seguro de que deseas eliminar el producto ${product.name}?`)) {
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar el producto ${product.name}?`,
+      )
+    ) {
       return;
     }
     this.facade.deleteProduct(product.id).subscribe({
       next: (ok) => {
         if (ok) {
-          this.toast.show(`«${product.name}» eliminado del inventario`, 'success');
+          this.toast.show(
+            `«${product.name}» eliminado del inventario`,
+            'success',
+          );
         } else {
           this.toast.show('No se pudo eliminar el producto.', 'error');
         }
       },
-      error: () => this.toast.show('Error al eliminar. Inténtalo de nuevo.', 'error'),
+      error: () =>
+        this.toast.show('Error al eliminar. Inténtalo de nuevo.', 'error'),
     });
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
+  getStatusVariant(
+    status: string,
+  ): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
     switch (status) {
       case 'available':
         return 'success';
@@ -520,7 +653,8 @@ export class InventoryListComponent
 
   totalValue = computed(() =>
     this.allProducts().reduce(
-      (acc: number, p: Product) => acc + (p.dailyRate ?? 0) * (p.totalStock ?? 0),
+      (acc: number, p: Product) =>
+        acc + (p.dailyRate ?? 0) * (p.totalStock ?? 0),
       0,
     ),
   );

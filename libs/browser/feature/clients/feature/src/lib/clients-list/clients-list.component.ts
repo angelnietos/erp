@@ -100,15 +100,58 @@ interface ClientFormData extends Partial<Client> {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <!-- Search and Filters -->
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por nombre, sector o contacto..."
-            (searchChange)="onSearch($event)"
-          ></ui-search>
+      <div class="filters-bar">
+        <ui-tabs
+          [tabs]="tabs()"
+          [activeTab]="activeTab()"
+          variant="underline"
+          (tabChange)="onTabChange($event)"
+          class="flex-1"
+        ></ui-tabs>
+
+        <ui-search
+          variant="glass"
+          placeholder="Buscar por nombre, sector o contacto..."
+          (searchChange)="onSearch($event)"
+          class="search-bar"
+        ></ui-search>
+
+        <div class="actions-group">
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshClients()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            ORDENAR:
+            {{
+              sortField() === 'name'
+                ? 'NOMBRE'
+                : sortField() === 'revenue'
+                  ? 'INGRESOS'
+                  : 'PROYECTOS'
+            }}
+          </ui-button>
         </div>
+      </div>
         <div class="actions-group">
           <ui-button
             variant="ghost"

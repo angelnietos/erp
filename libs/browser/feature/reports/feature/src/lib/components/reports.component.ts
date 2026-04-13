@@ -76,14 +76,25 @@ interface Report {
     LucideAngularModule,
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+    <div
+      class="page-container animate-fade-in"
+      [class.perf-optimized]="pluginStore.highPerformanceMode()"
+    >
+      <header
+        class="page-header"
+        [style.border-bottom-color]="currentTheme().primary + '33'"
+      >
         <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
+          <h1
+            class="page-title text-uppercase glow-text"
+            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
+          >
             Sistema de Reportes
           </h1>
           <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">ANÁLISIS Y REPORTING</span>
+            <span class="active" [style.color]="currentTheme().primary"
+              >ANÁLISIS Y REPORTING</span
+            >
             <span class="separator">/</span>
             <span>INFORMES EJECUTIVOS</span>
           </div>
@@ -104,7 +115,9 @@ interface Report {
                 </div>
                 <div class="report-info">
                   <h3 class="report-name">{{ reportType.name }}</h3>
-                  <p class="report-description text-friendly">{{ reportType.description }}</p>
+                  <p class="report-description text-friendly">
+                    {{ reportType.description }}
+                  </p>
                   <span class="report-category">{{
                     getCategoryName(reportType.category)
                   }}</span>
@@ -120,7 +133,9 @@ interface Report {
             <ui-card>
               <div class="form-header">
                 <h2>Generar Reporte: {{ selectedReportType()?.name }}</h2>
-                <p class="text-friendly">Configura los filtros y genera tu reporte</p>
+                <p class="text-friendly">
+                  Configura los filtros y genera tu reporte
+                </p>
               </div>
 
               <form class="report-form" (ngSubmit)="generateReport()">
@@ -187,14 +202,21 @@ interface Report {
         }
 
         <!-- Generated Reports List -->
-        @if (generatedReports().length > 0) {
+        @if (filteredGeneratedReports().length > 0) {
           <div class="reports-list-section">
             <ui-card>
               <div class="section-header">
                 <h2>Reportes Generados</h2>
               </div>
+              <div class="mb-4">
+                <ui-search
+                  variant="glass"
+                  placeholder="Buscar reportes por título o tipo..."
+                  (searchChange)="searchTerm.set($event)"
+                ></ui-search>
+              </div>
               <div class="reports-list">
-                @for (report of generatedReports(); track report.id) {
+                @for (report of filteredGeneratedReports(); track report.id) {
                   <div class="report-item">
                     <div class="report-item-content">
                       <div class="report-icon">
@@ -217,7 +239,10 @@ interface Report {
                         size="sm"
                         (clicked)="downloadReportJson(report)"
                       >
-                        <lucide-icon [name]="'download'" size="16"></lucide-icon>
+                        <lucide-icon
+                          [name]="'download'"
+                          size="16"
+                        ></lucide-icon>
                         JSON
                       </ui-button>
                       <ui-button
@@ -262,223 +287,236 @@ interface Report {
   `,
   styles: [
     `
-    .page-container {
-      padding: 1.5rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      box-sizing: border-box;
-    }
-
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .header-breadcrumb {
-      flex: 1;
-    }
-
-    .page-title {
-      margin: 0 0 0.5rem 0;
-      font-size: clamp(1.5rem, 2vw, 2rem);
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      font-family: var(--font-display);
-    }
-
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.75rem; font-weight: 800;
-      letter-spacing: 0.15em; color: var(--text-muted); margin-top: 0.5rem;
-      text-transform: uppercase;
-    }
-
-    .separator {
-      opacity: 0.5;
-    }
-
-    .reports-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .report-types-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .report-type-card {
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 2px solid transparent;
-    }
-
-    .report-type-card:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .report-type-content {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 1.5rem;
-    }
-
-    .report-icon {
-      padding: 0.75rem;
-      background: rgba(var(--primary-rgb), 0.1);
-      border-radius: 0.5rem;
-      color: var(--primary);
-      flex-shrink: 0;
-    }
-
-    .report-info h3 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .report-description {
-      margin: 0 0 0.75rem 0;
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      line-height: 1.4;
-    }
-
-    .report-category {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: rgba(var(--primary-rgb), 0.1);
-      color: var(--primary);
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      text-transform: uppercase;
-    }
-
-    .report-form-section {
-      margin-top: 1rem;
-    }
-
-    .form-header {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-header h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .form-header p {
-      margin: 0;
-      color: var(--text-secondary);
-    }
-
-    .report-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .reports-list-section {
-      margin-top: 1rem;
-    }
-
-    .section-header h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .reports-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .report-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.5rem;
-      background: rgba(255,255,255,0.05);
-    }
-
-    .report-item-content {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .report-details h4 {
-      margin: 0 0 0.25rem 0;
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    .report-meta {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-
-    .report-actions {
-      flex-shrink: 0;
-    }
-
-    .text-uppercase {
-      text-transform: uppercase;
-    }
-
-    .glow-text {
-      font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 800; color: #fff; margin: 0;
-      letter-spacing: 0.04em; font-family: var(--font-display);
-    }
-
-    @media (max-width: 768px) {
-      .report-types-grid {
-        grid-template-columns: 1fr;
+      .page-container {
+        padding: 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        box-sizing: border-box;
       }
 
-      .report-item {
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .header-breadcrumb {
+        flex: 1;
+      }
+
+      .page-title {
+        margin: 0 0 0.5rem 0;
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        font-family: var(--font-display);
+      }
+
+      .breadcrumb {
+        display: flex;
+        gap: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        text-transform: uppercase;
+      }
+
+      .separator {
+        opacity: 0.5;
+      }
+
+      .reports-content {
+        display: flex;
         flex-direction: column;
+        gap: 2rem;
+      }
+
+      .report-types-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .report-type-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+      }
+
+      .report-type-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .report-type-content {
+        display: flex;
         align-items: flex-start;
         gap: 1rem;
+        padding: 1.5rem;
       }
 
-      .report-actions {
-        align-self: stretch;
+      .report-icon {
+        padding: 0.75rem;
+        background: rgba(var(--primary-rgb), 0.1);
+        border-radius: 0.5rem;
+        color: var(--primary);
+        flex-shrink: 0;
+      }
+
+      .report-info h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .report-description {
+        margin: 0 0 0.75rem 0;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.4;
+      }
+
+      .report-category {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(var(--primary-rgb), 0.1);
+        color: var(--primary);
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+
+      .report-form-section {
+        margin-top: 1rem;
+      }
+
+      .form-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-header h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .form-header p {
+        margin: 0;
+        color: var(--text-secondary);
+      }
+
+      .report-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
       }
 
       .form-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
       }
-    }
-  `,
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .reports-list-section {
+        margin-top: 1rem;
+      }
+
+      .section-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .reports-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .report-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .report-item-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .report-details h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .report-meta {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      .report-actions {
+        flex-shrink: 0;
+      }
+
+      .text-uppercase {
+        text-transform: uppercase;
+      }
+
+      .glow-text {
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+        letter-spacing: 0.04em;
+        font-family: var(--font-display);
+      }
+
+      @media (max-width: 768px) {
+        .report-types-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .report-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .report-actions {
+          align-self: stretch;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -561,6 +599,17 @@ export class ReportsComponent implements OnInit {
   ]);
 
   generatedReports = signal<Report[]>([]);
+  searchTerm = signal('');
+
+  filteredGeneratedReports = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.generatedReports();
+    return this.generatedReports().filter(
+      (report) =>
+        report.title.toLowerCase().includes(term) ||
+        report.type.toLowerCase().includes(term),
+    );
+  });
 
   ngOnInit() {
     // Set default date range (last 30 days)
