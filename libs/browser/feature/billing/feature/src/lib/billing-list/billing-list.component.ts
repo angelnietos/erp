@@ -14,13 +14,11 @@ import {
   UiButtonComponent,
   UiSearchComponent,
   UiPaginationComponent,
-  UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
-  UiStatCardComponent,
   UiInputComponent,
-  UiSelectComponent,
+  UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
@@ -41,6 +39,12 @@ import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
 import { Budget } from '@josanz-erp/budget-api';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 
+// Extended form type for additional fields
+interface InvoiceFormData extends Partial<Invoice> {
+  description?: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'lib-billing-list',
   standalone: true,
@@ -56,7 +60,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiTabsComponent,
     UiStatCardComponent,
     UiInputComponent,
-    UiSelectComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
@@ -115,7 +118,24 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             variant="underline"
             (tabChange)="onTabChange($event)"
           ></ui-tabs>
-          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshInvoices()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
           <ui-button
             variant="ghost"
             size="sm"
@@ -134,13 +154,148 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         </div>
       </div>
 
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="status-filter">Estado</label>
+              <select
+                id="status-filter"
+                class="filter-select"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="draft">Borrador</option>
+                <option value="pending">Pendiente</option>
+                <option value="paid">Pagada</option>
+                <option value="sent">Enviada</option>
+                <option value="cancelled">Cancelada</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-from-filter"
+                >Fecha desde</label
+              >
+              <input
+                id="date-from-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateFromFilter"
+                (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-to-filter"
+                >Fecha hasta</label
+              >
+              <input
+                id="date-to-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateToFilter"
+                (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-min-filter"
+                >Importe mínimo (€)</label
+              >
+              <input
+                id="amount-min-filter"
+                type="number"
+                class="filter-input"
+                placeholder="0"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMinFilter"
+                (ngModelChange)="
+                  amountMinFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-max-filter"
+                >Importe máximo (€)</label
+              >
+              <input
+                id="amount-max-filter"
+                type="number"
+                class="filter-input"
+                placeholder="Sin límite"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMaxFilter"
+                (ngModelChange)="
+                  amountMaxFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <span
+              >{{ selectedCount() }} factura{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionada{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <select
+              class="bulk-status-select"
+              (change)="bulkChangeStatus($event)"
+            >
+              <option value="">Cambiar estado</option>
+              <option value="draft">Marcar como borrador</option>
+              <option value="pending">Marcar como pendiente</option>
+              <option value="paid">Marcar como pagada</option>
+              <option value="sent">Marcar como enviada</option>
+              <option value="cancelled">Marcar como cancelada</option>
+            </select>
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14"></lucide-icon>
+              Eliminar seleccionadas
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
+
       @if (isLoading()) {
         <div class="loader-container">
           <ui-loader message="SINCRONIZANDO REGISTROS FISCALES..."></ui-loader>
         </div>
       } @else {
         <ui-feature-grid>
-          @for (inv of invoices(); track inv.id) {
+          <!-- Selection Header -->
+          @if (paginatedInvoices().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todas</span>
+              </label>
+            </div>
+          }
+
+          @for (inv of paginatedInvoices(); track inv.id) {
             <ui-feature-card
               [name]="inv.invoiceNumber"
               [subtitle]="inv.clientName | uppercase"
@@ -170,6 +325,15 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 },
               ]"
             >
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedInvoices().has(inv.id)"
+                  (change)="toggleInvoiceSelection(inv.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
               <div class="fiscal-indicators">
                 @if (inv.verifactuStatus === 'sent') {
                   <span class="fiscal-badge success-glow">
@@ -281,13 +445,22 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             Selecciona un presupuesto origen para importar datos comerciales de
             forma automática.
           </p>
-          <ui-select
-            label="PRESUPUESTO ORIGEN"
-            placeholder="Seleccionar presupuesto..."
-            [options]="budgetSelectOptions()"
-            [(ngModel)]="formData.budgetId"
-            icon="file-text"
-          ></ui-select>
+          <div class="input-wrapper">
+            <label class="input-label" for="budget-select">
+              <lucide-icon name="file-text" size="16"></lucide-icon>
+              PRESUPUESTO ORIGEN
+            </label>
+            <select
+              id="budget-select"
+              class="form-input"
+              [(ngModel)]="formData.budgetId"
+            >
+              <option value="">Seleccionar presupuesto...</option>
+              @for (option of budgetSelectOptions(); track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
         } @else {
           <div class="read-only-section">
             <span class="label">CLIENTE</span>
@@ -315,6 +488,27 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             [(ngModel)]="formData.dueDate"
             icon="calendar-clock"
           ></ui-input>
+        </div>
+
+        <ui-input
+          label="DESCRIPCIÓN"
+          [(ngModel)]="formData.description"
+          placeholder="Descripción de la factura"
+          icon="file-text"
+        ></ui-input>
+
+        <div class="form-field">
+          <label class="field-label" for="notes-textarea">
+            <lucide-icon name="sticky-note" size="16"></lucide-icon>
+            NOTAS
+          </label>
+          <textarea
+            id="notes-textarea"
+            class="notes-textarea"
+            [(ngModel)]="formData.notes"
+            placeholder="Notas adicionales..."
+            rows="3"
+          ></textarea>
         </div>
       </div>
       <div class="modal-actions">
@@ -545,6 +739,144 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         color: #10b981;
       }
 
+      /* Advanced Filters */
+      .advanced-filters {
+        margin: 1rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .filter-select,
+      .filter-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Bulk Actions */
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--warning-dark);
+      }
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .bulk-status-select {
+        padding: 0.5rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        background: var(--background);
+        font-size: 0.875rem;
+      }
+
+      /* Selection */
+      .selection-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      /* Form Enhancements */
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .notes-textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+      }
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Active state for filters button */
+      .actions-group .active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
       @media (max-width: 900px) {
         .navigation-bar {
           flex-direction: column;
@@ -583,10 +915,20 @@ export class BillingListComponent
   activeTab = this.facade.activeTab;
   budgets = this.facade.budgets;
   currentPage = signal(1);
-  totalPages = signal(1);
   sortField = signal<'issueDate' | 'total' | 'status'>('issueDate');
   sortDirection = signal<1 | -1>(-1);
   searchTerm = '';
+
+  // Advanced filtering
+  showAdvancedFilters = signal(false);
+  statusFilter = signal<string>('all');
+  dateFromFilter = signal<string>('');
+  dateToFilter = signal<string>('');
+  amountMinFilter = signal<number | null>(null);
+  amountMaxFilter = signal<number | null>(null);
+
+  // Bulk actions
+  selectedInvoices = signal<Set<string>>(new Set());
 
   isModalOpen = signal(false);
   isVerifactuQrModalOpen = signal(false);
@@ -633,7 +975,7 @@ export class BillingListComponent
     }
   }
 
-  formData: Partial<Invoice> = {
+  formData: InvoiceFormData = {
     budgetId: '',
     invoiceNumber: '',
     clientName: '',
@@ -895,6 +1237,140 @@ export class BillingListComponent
       .filter((i: Invoice) => i.status === 'pending')
       .reduce((acc: number, inv: Invoice) => acc + (inv.total || 0), 0),
   );
+
+  // Bulk actions computed
+  selectedCount = computed(() => this.selectedInvoices().size);
+  hasSelections = computed(() => this.selectedInvoices().size > 0);
+
+  // Filtered and paginated invoices
+  filteredInvoices = computed(() => {
+    let filtered = this.allInvoices();
+
+    // Status filter
+    if (this.statusFilter() !== 'all') {
+      filtered = filtered.filter((inv) => inv.status === this.statusFilter());
+    }
+
+    // Date range filter
+    if (this.dateFromFilter()) {
+      const fromDate = new Date(this.dateFromFilter());
+      filtered = filtered.filter((inv) => new Date(inv.issueDate) >= fromDate);
+    }
+    if (this.dateToFilter()) {
+      const toDate = new Date(this.dateToFilter());
+      filtered = filtered.filter((inv) => new Date(inv.issueDate) <= toDate);
+    }
+
+    // Amount range filter
+    if (this.amountMinFilter() !== null) {
+      filtered = filtered.filter(
+        (inv) => (inv.total || 0) >= this.amountMinFilter()!,
+      );
+    }
+    if (this.amountMaxFilter() !== null) {
+      filtered = filtered.filter(
+        (inv) => (inv.total || 0) <= this.amountMaxFilter()!,
+      );
+    }
+
+    return filtered;
+  });
+
+  paginatedInvoices = computed(() => {
+    const filtered = this.filteredInvoices();
+    const pageSize = 12; // Assuming 12 items per page
+    const start = (this.currentPage() - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const filtered = this.filteredInvoices();
+    const pageSize = 12;
+    return Math.ceil(filtered.length / pageSize);
+  });
+
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedInvoices();
+    return (
+      paginated.length > 0 &&
+      paginated.every((inv) => this.selectedInvoices().has(inv.id))
+    );
+  });
+
+  // Bulk actions methods
+  toggleSelectAll() {
+    const paginated = this.paginatedInvoices();
+    const currentSelected = this.selectedInvoices();
+
+    if (this.isAllSelected()) {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((inv) => newSelected.delete(inv.id));
+      this.selectedInvoices.set(newSelected);
+    } else {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((inv) => newSelected.add(inv.id));
+      this.selectedInvoices.set(newSelected);
+    }
+  }
+
+  toggleInvoiceSelection(invoiceId: string) {
+    const currentSelected = this.selectedInvoices();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(invoiceId)) {
+      newSelected.delete(invoiceId);
+    } else {
+      newSelected.add(invoiceId);
+    }
+
+    this.selectedInvoices.set(newSelected);
+  }
+
+  bulkChangeStatus(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value as
+      | 'pending'
+      | 'draft'
+      | 'sent'
+      | 'paid'
+      | 'cancelled';
+
+    if (!newStatus) return;
+
+    const selectedIds = Array.from(this.selectedInvoices());
+    selectedIds.forEach((id) => {
+      this.facade.updateInvoice(id, { status: newStatus });
+    });
+
+    this.selectedInvoices.set(new Set());
+    this.toast.show(`${selectedIds.length} facturas actualizadas`, 'success');
+    target.value = ''; // Reset select
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedInvoices());
+
+    if (confirm(`¿Estás seguro de eliminar ${selectedIds.length} facturas?`)) {
+      selectedIds.forEach((id) => this.facade.deleteInvoice(id));
+      this.selectedInvoices.set(new Set());
+      this.toast.show(`${selectedIds.length} facturas eliminadas`, 'success');
+    }
+  }
+
+  clearSelection() {
+    this.selectedInvoices.set(new Set());
+  }
+
+  // Advanced filtering methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  refreshInvoices() {
+    this.loadInvoices();
+    this.toast.show('Facturas actualizadas', 'info');
+  }
 
   toggleSort() {
     if (this.sortField() === 'issueDate') {

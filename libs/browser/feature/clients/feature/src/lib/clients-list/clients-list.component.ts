@@ -36,6 +36,12 @@ import {
 import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
+// Extended form type for additional fields
+interface ClientFormData extends Partial<Client> {
+  description?: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'lib-clients-list',
   standalone: true,
@@ -104,7 +110,24 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           ></ui-search>
         </div>
         <div class="actions-group">
-          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshClients()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
           <ui-button
             variant="ghost"
             size="sm"
@@ -123,6 +146,103 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         </div>
       </div>
 
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="sector-filter">Sector</label>
+              <select
+                id="sector-filter"
+                class="filter-select"
+                [(ngModel)]="sectorFilter"
+                (ngModelChange)="sectorFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los sectores</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Construcción">Construcción</option>
+                <option value="Servicios">Servicios</option>
+                <option value="Comercio">Comercio</option>
+                <option value="Industria">Industria</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="type-filter">Tipo</label>
+              <select
+                id="type-filter"
+                class="filter-select"
+                [(ngModel)]="typeFilter"
+                (ngModelChange)="typeFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los tipos</option>
+                <option value="company">Empresa</option>
+                <option value="individual">Particular</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="revenue-min-filter"
+                >Ingresos mínimos (€)</label
+              >
+              <input
+                id="revenue-min-filter"
+                type="number"
+                class="filter-input"
+                placeholder="0"
+                min="0"
+                step="0.01"
+                [(ngModel)]="revenueMinFilter"
+                (ngModelChange)="
+                  revenueMinFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="revenue-max-filter"
+                >Ingresos máximos (€)</label
+              >
+              <input
+                id="revenue-max-filter"
+                type="number"
+                class="filter-input"
+                placeholder="Sin límite"
+                min="0"
+                step="0.01"
+                [(ngModel)]="revenueMaxFilter"
+                (ngModelChange)="
+                  revenueMaxFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <span
+              >{{ selectedCount() }} cliente{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionado{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14"></lucide-icon>
+              Eliminar seleccionados
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
+
       <!-- Clients Grid -->
       @if (isLoading()) {
         <div class="loading-container">
@@ -130,7 +250,23 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         </div>
       } @else {
         <ui-feature-grid>
-          @for (client of filteredClients(); track client.id) {
+          <!-- Selection Header -->
+          @if (paginatedClients().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todos</span>
+              </label>
+            </div>
+          }
+
+          @for (client of paginatedClients(); track client.id) {
             <ui-feature-card
               [name]="client.name"
               [subtitle]="client.contact || 'Sin contacto'"
@@ -158,6 +294,15 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 },
               ]"
             >
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedClients().has(client.id)"
+                  (change)="toggleClientSelection(client.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
               <div footer-extra class="client-rating">
                 <lucide-icon name="star" size="12" class="filled"></lucide-icon>
                 <span>{{ getClientRating(client) }}/5</span>
@@ -246,6 +391,31 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 [(ngModel)]="formData.phone"
                 icon="phone"
               ></ui-input>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4 class="section-title">Información Adicional</h4>
+            <div class="form-grid">
+              <ui-input
+                label="Descripción"
+                [(ngModel)]="formData.description"
+                icon="file-text"
+                placeholder="Descripción del cliente"
+              ></ui-input>
+            </div>
+            <div class="form-field">
+              <label class="field-label" for="notes-textarea">
+                <lucide-icon name="sticky-note" size="16"></lucide-icon>
+                Notas
+              </label>
+              <textarea
+                id="notes-textarea"
+                class="notes-textarea"
+                [(ngModel)]="formData.notes"
+                placeholder="Notas adicionales..."
+                rows="3"
+              ></textarea>
             </div>
           </div>
         </div>
@@ -367,6 +537,138 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         margin-top: 1.5rem;
       }
 
+      /* Advanced Filters */
+      .advanced-filters {
+        margin: 1rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .filter-select,
+      .filter-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Bulk Actions */
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--warning-dark);
+      }
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      /* Selection */
+      .selection-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      /* Form Enhancements */
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .notes-textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+      }
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Active state for filters button */
+      .actions-group .active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
       @media (max-width: 768px) {
         .form-grid {
           grid-template-columns: 1fr;
@@ -399,14 +701,13 @@ export class ClientsListComponent
   clients = this.facade.clients;
   isLoading = this.facade.isLoading;
   currentPage = signal(1);
-  totalPages = signal(1);
 
   isModalOpen = signal(false);
   editingClient = signal<Client | null>(null);
   isSaving = signal(false);
   formErrors = signal<string[]>([]);
 
-  formData: Partial<Client & { notes?: string }> = {
+  formData: ClientFormData = {
     name: '',
     description: '',
     taxId: '',
@@ -429,6 +730,16 @@ export class ClientsListComponent
   sortField = signal<'name' | 'revenue' | 'projects'>('name');
   sortDirection = signal<1 | -1>(1);
 
+  // Advanced filtering
+  showAdvancedFilters = signal(false);
+  sectorFilter = signal<string>('all');
+  typeFilter = signal<string>('all');
+  revenueMinFilter = signal<number | null>(null);
+  revenueMaxFilter = signal<number | null>(null);
+
+  // Bulk actions
+  selectedClients = signal<Set<string>>(new Set());
+
   filteredClients = computed(() => {
     let list = [...this.clients()];
     const t = this.masterFilter.query().trim().toLowerCase();
@@ -444,7 +755,25 @@ export class ClientsListComponent
       );
     }
 
-    // 2. Sort
+    // 2. Advanced filters
+    if (this.sectorFilter() !== 'all') {
+      list = list.filter((c) => c.sector === this.sectorFilter());
+    }
+    if (this.typeFilter() !== 'all') {
+      list = list.filter((c) => c.type === this.typeFilter());
+    }
+    if (this.revenueMinFilter() !== null) {
+      list = list.filter(
+        (c) => this.getClientRevenue(c) >= this.revenueMinFilter()!,
+      );
+    }
+    if (this.revenueMaxFilter() !== null) {
+      list = list.filter(
+        (c) => this.getClientRevenue(c) <= this.revenueMaxFilter()!,
+      );
+    }
+
+    // 3. Sort
     const field = this.sortField();
     const dir = this.sortDirection();
 
@@ -467,6 +796,31 @@ export class ClientsListComponent
       if (valA > valB) return 1 * dir;
       return 0;
     });
+  });
+
+  paginatedClients = computed(() => {
+    const filtered = this.filteredClients();
+    const pageSize = 12;
+    const start = (this.currentPage() - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const filtered = this.filteredClients();
+    const pageSize = 12;
+    return Math.ceil(filtered.length / pageSize);
+  });
+
+  // Bulk actions computed
+  selectedCount = computed(() => this.selectedClients().size);
+  hasSelections = computed(() => this.selectedClients().size > 0);
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedClients();
+    return (
+      paginated.length > 0 &&
+      paginated.every((c) => this.selectedClients().has(c.id))
+    );
   });
 
   newClientsCount = computed(() => {
@@ -576,7 +930,6 @@ export class ClientsListComponent
 
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadClients();
   }
 
   openCreateModal() {
@@ -753,6 +1106,59 @@ export class ClientsListComponent
     event.stopPropagation();
     // For now, just show edit option
     this.editClient(client);
+  }
+
+  // Advanced filtering methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  refreshClients() {
+    this.facade.loadClients();
+    this.toast.show('Clientes actualizados', 'info');
+  }
+
+  // Bulk actions methods
+  toggleSelectAll() {
+    const paginated = this.paginatedClients();
+    const currentSelected = this.selectedClients();
+
+    if (this.isAllSelected()) {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((c) => newSelected.delete(c.id));
+      this.selectedClients.set(newSelected);
+    } else {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((c) => newSelected.add(c.id));
+      this.selectedClients.set(newSelected);
+    }
+  }
+
+  toggleClientSelection(clientId: string) {
+    const currentSelected = this.selectedClients();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(clientId)) {
+      newSelected.delete(clientId);
+    } else {
+      newSelected.add(clientId);
+    }
+
+    this.selectedClients.set(newSelected);
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedClients());
+
+    if (confirm(`¿Estás seguro de eliminar ${selectedIds.length} clientes?`)) {
+      selectedIds.forEach((id) => this.facade.deleteClient(id));
+      this.selectedClients.set(new Set());
+      this.toast.show(`${selectedIds.length} clientes eliminados`, 'success');
+    }
+  }
+
+  clearSelection() {
+    this.selectedClients.set(new Set());
   }
 
   toggleSort() {

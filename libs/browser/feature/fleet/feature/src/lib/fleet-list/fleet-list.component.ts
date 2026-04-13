@@ -14,7 +14,6 @@ import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiSearchComponent,
-  UiPaginationComponent,
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
@@ -36,6 +35,12 @@ import {
 import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
+// Extended form type for additional fields
+interface VehicleFormData extends Partial<Vehicle> {
+  description?: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'lib-fleet-list',
   standalone: true,
@@ -45,7 +50,6 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     FormsModule,
     UiButtonComponent,
     UiSearchComponent,
-    UiPaginationComponent,
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
@@ -112,7 +116,122 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           (searchChange)="onSearch($event)"
           class="search-bar"
         ></ui-search>
+
+        <div class="actions-group">
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshVehicles()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
+        </div>
       </div>
+
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="status-filter">Estado</label>
+              <select
+                id="status-filter"
+                class="filter-select"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="available">Disponible</option>
+                <option value="in_use">En uso</option>
+                <option value="maintenance">Mantenimiento</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="type-filter">Tipo</label>
+              <select
+                id="type-filter"
+                class="filter-select"
+                [(ngModel)]="typeFilter"
+                (ngModelChange)="typeFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los tipos</option>
+                <option value="van">Furgoneta</option>
+                <option value="truck">Camión</option>
+                <option value="car">Coche</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="year-min-filter"
+                >Año mínimo</label
+              >
+              <input
+                id="year-min-filter"
+                type="number"
+                class="filter-input"
+                placeholder="2000"
+                min="1900"
+                max="2030"
+                [(ngModel)]="yearMinFilter"
+                (ngModelChange)="
+                  yearMinFilter.set($event ? +$event : null); currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="year-max-filter"
+                >Año máximo</label
+              >
+              <input
+                id="year-max-filter"
+                type="number"
+                class="filter-input"
+                placeholder="2025"
+                min="1900"
+                max="2030"
+                [(ngModel)]="yearMaxFilter"
+                (ngModelChange)="
+                  yearMaxFilter.set($event ? +$event : null); currentPage.set(1)
+                "
+              />
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <span
+              >{{ selectedCount() }} vehículo{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionado{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14"></lucide-icon>
+              Eliminar seleccionados
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
 
       @if (isLoading()) {
         <div class="loader-container">
@@ -120,7 +239,23 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
         </div>
       } @else {
         <ui-feature-grid>
-          @for (vehicle of displayedVehicles(); track vehicle.id) {
+          <!-- Selection Header -->
+          @if (paginatedVehicles().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todos</span>
+              </label>
+            </div>
+          }
+
+          @for (vehicle of paginatedVehicles(); track vehicle.id) {
             <ui-feature-card
               [name]="vehicle.plate | uppercase"
               [subtitle]="vehicle.brand + ' ' + vehicle.model | uppercase"
@@ -148,17 +283,33 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                 },
               ]"
             >
-              @if (
-                isExpired(vehicle.insuranceExpiry) ||
-                isExpired(vehicle.itvExpiry)
-              ) {
-                <div class="vehicle-alerts">
-                  <span class="alert-badge overdue">
-                    <lucide-icon name="alert-circle" size="12"></lucide-icon>
-                    ALERTA TÉCNICA
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedVehicles().has(vehicle.id)"
+                  (change)="toggleVehicleSelection(vehicle.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
+              <div footer-extra class="vehicle-status">
+                @if (vehicle.status === 'maintenance') {
+                  <span class="maintenance-badge">
+                    <lucide-icon name="wrench" size="12"></lucide-icon>
+                    EN MANTENIMIENTO
                   </span>
-                </div>
-              }
+                } @else if (vehicle.status === 'in_use') {
+                  <span class="in-use-badge">
+                    <lucide-icon name="truck" size="12"></lucide-icon>
+                    EN USO
+                  </span>
+                } @else {
+                  <span class="available-badge">
+                    <lucide-icon name="check-circle" size="12"></lucide-icon>
+                    DISPONIBLE
+                  </span>
+                }
+              </div>
             </ui-feature-card>
           } @empty {
             <div class="empty-state">
@@ -178,14 +329,6 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
             </div>
           }
         </ui-feature-grid>
-
-        <footer class="pagination-footer">
-          <ui-pagination
-            [currentPage]="currentPage()"
-            [totalPages]="totalPages()"
-            (pageChange)="onPageChange($event)"
-          ></ui-pagination>
-        </footer>
       }
     </div>
 
@@ -240,6 +383,31 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
             [(ngModel)]="formData.itvExpiry"
             icon="check-square"
           ></ui-input>
+        </div>
+
+        <div class="form-section">
+          <h4 class="section-title">Información Adicional</h4>
+          <div class="form-grid">
+            <ui-input
+              label="Descripción"
+              [(ngModel)]="formData.description"
+              icon="file-text"
+              placeholder="Descripción del vehículo"
+            ></ui-input>
+          </div>
+          <div class="form-field">
+            <label class="field-label" for="notes-textarea">
+              <lucide-icon name="sticky-note" size="16"></lucide-icon>
+              Notas
+            </label>
+            <textarea
+              id="notes-textarea"
+              class="notes-textarea"
+              [(ngModel)]="formData.notes"
+              placeholder="Notas adicionales..."
+              rows="3"
+            ></textarea>
+          </div>
         </div>
       </div>
       <div class="modal-actions">
@@ -347,6 +515,144 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
         margin-top: 2rem;
       }
 
+      /* Advanced Filters */
+      .advanced-filters {
+        margin: 1rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .filter-select,
+      .filter-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Actions Group */
+      .actions-group {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      /* Bulk Actions */
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--warning-dark);
+      }
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      /* Selection */
+      .selection-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      /* Form Enhancements */
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .notes-textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+      }
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Active state for filters button */
+      .actions-group .active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
       @media (max-width: 900px) {
         .navigation-bar {
           flex-direction: column;
@@ -410,13 +716,22 @@ export class FleetListComponent
   vehicles = signal<Vehicle[]>([]);
   isLoading = signal(true);
   currentPage = signal(1);
-  totalPages = signal(1);
   activeTab = signal('all');
   searchFilter = signal('');
 
+  // Advanced filtering
+  showAdvancedFilters = signal(false);
+  statusFilter = signal<string>('all');
+  typeFilter = signal<string>('all');
+  yearMinFilter = signal<number | null>(null);
+  yearMaxFilter = signal<number | null>(null);
+
+  // Bulk actions
+  selectedVehicles = signal<Set<string>>(new Set());
+
   isModalOpen = signal(false);
 
-  formData: Partial<Vehicle> = {
+  formData: VehicleFormData = {
     plate: '',
     brand: '',
     model: '',
@@ -502,13 +817,66 @@ export class FleetListComponent
   onTabChange(tabId: string) {
     this.activeTab.set(tabId);
   }
+
+  // Advanced filtering methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  refreshVehicles() {
+    this.loadVehicles();
+    this.toast.show('Vehículos actualizados', 'info');
+  }
+
+  // Bulk actions methods
+  toggleSelectAll() {
+    const paginated = this.paginatedVehicles();
+    const currentSelected = this.selectedVehicles();
+
+    if (this.isAllSelected()) {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((v) => newSelected.delete(v.id));
+      this.selectedVehicles.set(newSelected);
+    } else {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((v) => newSelected.add(v.id));
+      this.selectedVehicles.set(newSelected);
+    }
+  }
+
+  toggleVehicleSelection(vehicleId: string) {
+    const currentSelected = this.selectedVehicles();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(vehicleId)) {
+      newSelected.delete(vehicleId);
+    } else {
+      newSelected.add(vehicleId);
+    }
+
+    this.selectedVehicles.set(newSelected);
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedVehicles());
+
+    if (confirm(`¿Estás seguro de eliminar ${selectedIds.length} vehículos?`)) {
+      selectedIds.forEach((id) => this.vehicleService.deleteVehicle(id));
+      this.selectedVehicles.set(new Set());
+      this.toast.show(`${selectedIds.length} vehículos eliminados`, 'success');
+    }
+  }
+
+  clearSelection() {
+    this.selectedVehicles.set(new Set());
+  }
+
   onSearch(term: string) {
     this.searchFilter.set(term);
     this.masterFilter.search(term);
   }
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadVehicles();
   }
 
   openCreateModal() {
@@ -696,6 +1064,46 @@ export class FleetListComponent
           v.plate.toLowerCase().includes(t) ||
           (v.brand || '').toLowerCase().includes(t),
       );
+
+    // Advanced filters
+    if (this.statusFilter() !== 'all') {
+      list = list.filter((v) => v.status === this.statusFilter());
+    }
+    if (this.typeFilter() !== 'all') {
+      list = list.filter((v) => v.type === this.typeFilter());
+    }
+    if (this.yearMinFilter() !== null) {
+      list = list.filter((v) => (v.year || 0) >= this.yearMinFilter()!);
+    }
+    if (this.yearMaxFilter() !== null) {
+      list = list.filter((v) => (v.year || 0) <= this.yearMaxFilter()!);
+    }
+
     return list;
+  });
+
+  paginatedVehicles = computed(() => {
+    const displayed = this.displayedVehicles();
+    const pageSize = 12;
+    const start = (this.currentPage() - 1) * pageSize;
+    const end = start + pageSize;
+    return displayed.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const displayed = this.displayedVehicles();
+    const pageSize = 12;
+    return Math.ceil(displayed.length / pageSize);
+  });
+
+  // Bulk actions computed
+  selectedCount = computed(() => this.selectedVehicles().size);
+  hasSelections = computed(() => this.selectedVehicles().size > 0);
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedVehicles();
+    return (
+      paginated.length > 0 &&
+      paginated.every((v) => this.selectedVehicles().has(v.id))
+    );
   });
 }
