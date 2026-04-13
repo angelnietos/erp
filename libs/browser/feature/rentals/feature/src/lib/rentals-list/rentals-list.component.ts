@@ -973,7 +973,10 @@ export class RentalsListComponent
   isSaving = signal(false);
   formErrors = signal<string[]>([]);
   currentPage = signal(1);
-  totalPages = signal(1);
+  totalPages = computed(() => {
+    const pageSize = 12;
+    return Math.ceil(this.filteredRentals().length / pageSize);
+  });
   sortField = signal<'clientName' | 'totalAmount' | 'status'>('clientName');
   sortDirection = signal<1 | -1>(1);
 
@@ -1568,8 +1571,6 @@ export class RentalsListComponent
     const pageSize = 12;
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
-
-    this.totalPages.set(Math.ceil(all.length / pageSize));
 
     return all.slice(start, end);
   });
