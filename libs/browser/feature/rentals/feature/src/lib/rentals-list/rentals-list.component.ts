@@ -40,6 +40,13 @@ import {
   RentalSignatureStatus,
 } from '@josanz-erp/rentals-data-access';
 
+// Extended form type for additional fields
+interface RentalFormData extends Partial<Rental> {
+  description?: string;
+  validUntil?: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'lib-rentals-list',
   standalone: true,
@@ -117,7 +124,24 @@ import {
             variant="underline"
             (tabChange)="onTabChange($event)"
           ></ui-tabs>
-          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshRentals()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
           <ui-button
             variant="ghost"
             size="sm"
@@ -136,6 +160,128 @@ import {
         </div>
       </div>
 
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="status-filter">Estado</label>
+              <select
+                id="status-filter"
+                class="filter-select"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="DRAFT">Borrador</option>
+                <option value="ACTIVE">Activo</option>
+                <option value="COMPLETED">Completado</option>
+                <option value="CANCELLED">Cancelado</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-from-filter"
+                >Fecha desde</label
+              >
+              <input
+                id="date-from-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateFromFilter"
+                (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-to-filter"
+                >Fecha hasta</label
+              >
+              <input
+                id="date-to-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateToFilter"
+                (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-min-filter"
+                >Importe mínimo (€)</label
+              >
+              <input
+                id="amount-min-filter"
+                type="number"
+                class="filter-input"
+                placeholder="0"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMinFilter"
+                (ngModelChange)="
+                  amountMinFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="amount-max-filter"
+                >Importe máximo (€)</label
+              >
+              <input
+                id="amount-max-filter"
+                type="number"
+                class="filter-input"
+                placeholder="Sin límite"
+                min="0"
+                step="0.01"
+                [(ngModel)]="amountMaxFilter"
+                (ngModelChange)="
+                  amountMaxFilter.set($event ? +$event : null);
+                  currentPage.set(1)
+                "
+              />
+            </div>
+            <div class="filter-actions">
+              <ui-button variant="ghost" size="sm" (clicked)="clearFilters()">
+                Limpiar filtros
+              </ui-button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <span
+              >{{ selectedCount() }} alquiler{{
+                selectedCount() === 1 ? '' : 'es'
+              }}
+              seleccionado{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <select
+              class="bulk-status-select"
+              (change)="bulkChangeStatus($event)"
+            >
+              <option value="">Cambiar estado</option>
+              <option value="DRAFT">Marcar como borrador</option>
+              <option value="ACTIVE">Marcar como activo</option>
+              <option value="COMPLETED">Marcar como completado</option>
+              <option value="CANCELLED">Marcar como cancelado</option>
+            </select>
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14"></lucide-icon>
+              Eliminar seleccionados
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
+
       @if (isLoading()) {
         <div class="loader-container">
           <ui-loader
@@ -144,6 +290,22 @@ import {
         </div>
       } @else {
         <ui-feature-grid>
+          <!-- Selection Header -->
+          @if (paginatedRentals().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todos</span>
+              </label>
+            </div>
+          }
+
           @for (rental of paginatedRentals(); track rental.id) {
             <ui-feature-card
               [name]="rental.clientName"
@@ -172,6 +334,15 @@ import {
                 },
               ]"
             >
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedRentals().has(rental.id)"
+                  (change)="toggleRentalSelection(rental.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
               <div class="rental-extras">
                 <div class="signature-status">
                   @if (rental.signatureStatus === 'SIGNED') {
@@ -309,6 +480,38 @@ import {
               type="number"
               placeholder="0.00"
             ></ui-input>
+            <ui-input
+              label="Descripción"
+              [(ngModel)]="formData.description"
+              icon="file-text"
+              placeholder="Descripción del alquiler"
+            ></ui-input>
+            <div class="input-wrapper">
+              <label class="input-label" for="valid-until-input">
+                <lucide-icon name="calendar" size="16"></lucide-icon>
+                Válido hasta
+              </label>
+              <input
+                id="valid-until-input"
+                type="date"
+                class="form-input"
+                [(ngModel)]="formData.validUntil"
+                [min]="getMinDate()"
+              />
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="field-label" for="notes-textarea">
+              <lucide-icon name="sticky-note" size="16"></lucide-icon>
+              Notas
+            </label>
+            <textarea
+              id="notes-textarea"
+              class="notes-textarea"
+              [(ngModel)]="formData.notes"
+              placeholder="Notas adicionales..."
+              rows="3"
+            ></textarea>
           </div>
         </div>
       </div>
@@ -551,6 +754,203 @@ import {
           grid-template-columns: 1fr;
         }
       }
+
+      .advanced-filters {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .filter-select,
+      .filter-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bulk-actions-bar {
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--warning);
+        font-weight: 600;
+      }
+
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .bulk-status-select {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        background: var(--background);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+      }
+
+      .selection-header {
+        grid-column: 1 / -1;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .input-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .form-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      .form-field {
+        margin-bottom: 1.5rem;
+      }
+
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .notes-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        resize: vertical;
+        min-height: 80px;
+        transition: border-color 0.2s ease;
+      }
+
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -586,7 +986,18 @@ export class RentalsListComponent
   rentalForSignature = signal<Rental | null>(null);
   signatureEmail = '';
 
-  formData: Partial<Rental> = {
+  // Filter signals
+  statusFilter = signal<string>('all');
+  dateFromFilter = signal<string>('');
+  dateToFilter = signal<string>('');
+  amountMinFilter = signal<number | null>(null);
+  amountMaxFilter = signal<number | null>(null);
+  showAdvancedFilters = signal(false);
+
+  // Bulk actions signals
+  selectedRentals = signal<Set<string>>(new Set());
+
+  formData: RentalFormData = {
     clientId: '',
     clientName: '',
     startDate: '',
@@ -594,6 +1005,9 @@ export class RentalsListComponent
     itemsCount: 0,
     totalAmount: 0,
     status: 'DRAFT',
+    description: '',
+    validUntil: '',
+    notes: '',
   };
 
   currentTheme = this.themeService.currentThemeData;
@@ -717,12 +1131,118 @@ export class RentalsListComponent
       startDate: new Date().toISOString().split('T')[0],
       itemsCount: 0,
       totalAmount: 0,
+      description: '',
+      validUntil: '',
+      notes: '',
     };
     this.isModalOpen.set(true);
   }
 
   onRowClick(rental: Rental) {
     this.router.navigate(['/rentals', rental.id]);
+  }
+
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  clearFilters() {
+    this.statusFilter.set('all');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.amountMinFilter.set(null);
+    this.amountMaxFilter.set(null);
+    this.currentPage.set(1);
+  }
+
+  refreshRentals() {
+    this.loadRentals();
+    this.toast.show('Alquileres actualizados', 'info');
+  }
+
+  toggleSelectAll() {
+    const paginated = this.paginatedRentals();
+    const currentSelected = this.selectedRentals();
+    const newSelected = new Set(currentSelected);
+
+    if (this.isAllSelected()) {
+      paginated.forEach((r) => newSelected.delete(r.id));
+    } else {
+      paginated.forEach((r) => newSelected.add(r.id));
+    }
+
+    this.selectedRentals.set(newSelected);
+  }
+
+  toggleRentalSelection(rentalId: string) {
+    const currentSelected = this.selectedRentals();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(rentalId)) {
+      newSelected.delete(rentalId);
+    } else {
+      newSelected.add(rentalId);
+    }
+
+    this.selectedRentals.set(newSelected);
+  }
+
+  clearSelection() {
+    this.selectedRentals.set(new Set());
+  }
+
+  bulkChangeStatus(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value;
+
+    if (!newStatus) return;
+
+    const selectedIds = Array.from(this.selectedRentals());
+    if (selectedIds.length === 0) return;
+
+    // Reset select
+    target.value = '';
+
+    // Simulate bulk update
+    selectedIds.forEach((id) => {
+      console.log(`Changing status of ${id} to ${newStatus}`);
+    });
+
+    this.toast.show(
+      `${selectedIds.length} alquiler${selectedIds.length === 1 ? '' : 'es'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    this.clearSelection();
+    this.refreshRentals();
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedRentals());
+    if (selectedIds.length === 0) return;
+
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar ${selectedIds.length} alquiler${selectedIds.length === 1 ? '' : 'es'}?`,
+      )
+    ) {
+      return;
+    }
+
+    // Simulate bulk delete
+    selectedIds.forEach((id) => {
+      console.log(`Deleting rental ${id}`);
+    });
+
+    this.toast.show(
+      `${selectedIds.length} alquiler${selectedIds.length === 1 ? '' : 'es'} eliminado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    this.clearSelection();
+    this.refreshRentals();
+  }
+
+  getMinDate(): string {
+    return new Date().toISOString().split('T')[0];
   }
 
   getInitials(name: string): string {
@@ -770,6 +1290,21 @@ export class RentalsListComponent
 
     if (this.formData.totalAmount && this.formData.totalAmount < 0) {
       errors.push('El importe total no puede ser negativo');
+    }
+
+    if (
+      this.formData.validUntil &&
+      new Date(this.formData.validUntil) < new Date()
+    ) {
+      errors.push('La fecha de validez no puede ser anterior a hoy');
+    }
+
+    if (this.formData.description && this.formData.description.length > 500) {
+      errors.push('La descripción no puede exceder 500 caracteres');
+    }
+
+    if (this.formData.notes && this.formData.notes.length > 1000) {
+      errors.push('Las notas no pueden exceder 1000 caracteres');
     }
 
     if (errors.length > 0) {
@@ -955,6 +1490,42 @@ export class RentalsListComponent
     const tab = this.activeTab();
     if (tab !== 'all') list = list.filter((r: Rental) => r.status === tab);
 
+    // Advanced filters
+    const statusFilter = this.statusFilter();
+    const dateFrom = this.dateFromFilter();
+    const dateTo = this.dateToFilter();
+    const amountMin = this.amountMinFilter();
+    const amountMax = this.amountMaxFilter();
+
+    if (statusFilter !== 'all') {
+      list = list.filter((r) => r.status === statusFilter);
+    }
+
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      list = list.filter((r) => {
+        const startDate = new Date(r.startDate || '');
+        return startDate >= fromDate;
+      });
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      list = list.filter((r) => {
+        const startDate = new Date(r.startDate || '');
+        return startDate <= toDate;
+      });
+    }
+
+    if (amountMin !== null) {
+      list = list.filter((r) => (r.totalAmount || 0) >= amountMin!);
+    }
+
+    if (amountMax !== null) {
+      list = list.filter((r) => (r.totalAmount || 0) <= amountMax!);
+    }
+
     const t = this.masterFilter.query().trim().toLowerCase();
 
     // 1. Search filter
@@ -1003,6 +1574,18 @@ export class RentalsListComponent
     return all.slice(start, end);
   });
 
+  selectedCount = computed(() => this.selectedRentals().size);
+
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedRentals();
+    return (
+      paginated.length > 0 &&
+      paginated.every((r) => this.selectedRentals().has(r.id))
+    );
+  });
+
+  hasSelections = computed(() => this.selectedRentals().size > 0);
+
   onPageChange(page: number) {
     this.currentPage.set(page);
   }
@@ -1021,7 +1604,12 @@ export class RentalsListComponent
 
   editRental(rental: Rental) {
     this.editingRental.set(rental);
-    this.formData = { ...rental };
+    this.formData = {
+      ...rental,
+      description: '',
+      validUntil: '',
+      notes: '',
+    };
     this.formErrors.set([]);
     this.isModalOpen.set(true);
   }

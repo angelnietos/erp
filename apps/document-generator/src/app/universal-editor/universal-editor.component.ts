@@ -829,7 +829,7 @@ export class UniversalEditorComponent {
     return false;
   }
 
-  insertTable(rows: number = 3, cols: number = 3): void {
+  insertTable(rows = 3, cols = 3): void {
     let tableHtml = '<table>\n';
 
     // Header row

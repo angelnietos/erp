@@ -292,6 +292,7 @@ export const appConfig: ApplicationConfig = {
         AlertCircle,
         CheckSquare,
         AlertOctagon,
+        StickyNote,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },

@@ -71,7 +71,7 @@ export class ReceiptsService {
 
   async getReceiptsDueSoon(
     tenantId: string,
-    days: number = 7,
+    days = 7,
   ): Promise<Receipt[]> {
     const tenantEntityId = new EntityId(tenantId);
     return this.repository.findDueSoon(tenantEntityId, days);

@@ -1628,7 +1628,7 @@ export class ThemeService {
     root: HTMLElement,
     variant: string,
     config: ThemeConfig,
-    isLight: boolean = false,
+    isLight = false,
   ): void {
     // Reset all structural tokens first
     const structuralTokens = [

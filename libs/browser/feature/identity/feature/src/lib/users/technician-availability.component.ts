@@ -671,7 +671,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return days[date.getDay()];
   }
 
-  private getRandomMockAvailability(day: number, techId: string, monthSeed: number = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
+  private getRandomMockAvailability(day: number, techId: string, monthSeed = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
      const seed = techId === 'me' ? 7 : techId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
      const finalSeed = seed + monthSeed;
      

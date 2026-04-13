@@ -63,6 +63,13 @@ export interface Project {
   createdAt: string;
 }
 
+// Extended form type for additional fields
+interface ProjectFormData extends Partial<Project> {
+  description?: string;
+  validUntil?: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'lib-projects-list',
   standalone: true,
@@ -132,7 +139,24 @@ export interface Project {
           ></ui-search>
         </div>
         <div class="actions-group">
-          <ui-button variant="ghost" size="sm" icon="filter">Filtros</ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="filter"
+            [class.active]="showAdvancedFilters()"
+            (clicked)="toggleAdvancedFilters()"
+          >
+            Filtros Avanzados
+          </ui-button>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshProjects()"
+            title="Actualizar"
+          >
+            Actualizar
+          </ui-button>
           <ui-select
             label="Estado"
             [options]="statusFilterOptions"
@@ -159,6 +183,76 @@ export interface Project {
         </div>
       </div>
 
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label" for="date-from-filter"
+                >Fecha desde</label
+              >
+              <input
+                id="date-from-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateFromFilter"
+                (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="date-to-filter"
+                >Fecha hasta</label
+              >
+              <input
+                id="date-to-filter"
+                type="date"
+                class="filter-input"
+                [(ngModel)]="dateToFilter"
+                (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
+              />
+            </div>
+            <div class="filter-actions">
+              <ui-button variant="ghost" size="sm" (clicked)="clearFilters()">
+                Limpiar filtros
+              </ui-button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <span
+              >{{ selectedCount() }} proyecto{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionado{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <select
+              class="bulk-status-select"
+              (change)="bulkChangeStatus($event)"
+            >
+              <option value="">Cambiar estado</option>
+              <option value="ACTIVE">Marcar como activo</option>
+              <option value="COMPLETED">Marcar como completado</option>
+              <option value="CANCELLED">Marcar como cancelado</option>
+            </select>
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14"></lucide-icon>
+              Eliminar seleccionados
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
+
       <!-- Projects Grid -->
       @if (isLoading()) {
         <div class="loading-container">
@@ -166,6 +260,22 @@ export interface Project {
         </div>
       } @else {
         <ui-feature-grid>
+          <!-- Selection Header -->
+          @if (paginatedProjects().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todos</span>
+              </label>
+            </div>
+          }
+
           @for (project of paginatedProjects(); track project.id) {
             <ui-feature-card
               [name]="project.name"
@@ -181,7 +291,7 @@ export interface Project {
                     ? 'info'
                     : 'danger'
               "
-              (cardClicked)="onRowClick()"
+              (cardClicked)="goToDetail(project)"
               [showEdit]="true"
               [showDuplicate]="true"
               [showDelete]="true"
@@ -204,6 +314,15 @@ export interface Project {
                 },
               ]"
             >
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedProjects().has(project.id)"
+                  (change)="toggleProjectSelection(project.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
               <p class="description">{{ project.description }}</p>
             </ui-feature-card>
           } @empty {
@@ -289,17 +408,39 @@ export interface Project {
                 icon="calendar"
                 type="date"
               ></ui-input>
+              <ui-input
+                label="Descripción"
+                [(ngModel)]="formData.description"
+                icon="file-text"
+                placeholder="Descripción del proyecto"
+              ></ui-input>
+              <div class="input-wrapper">
+                <label class="input-label" for="valid-until-input">
+                  <lucide-icon name="calendar" size="16"></lucide-icon>
+                  Válido hasta
+                </label>
+                <input
+                  id="valid-until-input"
+                  type="date"
+                  class="form-input"
+                  [(ngModel)]="formData.validUntil"
+                  [min]="getMinDate()"
+                />
+              </div>
             </div>
-          </div>
-
-          <div class="form-section">
-            <h4 class="section-title">Descripción</h4>
-            <ui-input
-              label="Descripción"
-              [(ngModel)]="formData.description"
-              icon="file-text"
-              placeholder="Descripción detallada del proyecto"
-            ></ui-input>
+            <div class="form-field">
+              <label class="field-label" for="notes-textarea">
+                <lucide-icon name="sticky-note" size="16"></lucide-icon>
+                Notas
+              </label>
+              <textarea
+                id="notes-textarea"
+                class="notes-textarea"
+                [(ngModel)]="formData.notes"
+                placeholder="Notas adicionales..."
+                rows="3"
+              ></textarea>
+            </div>
           </div>
         </div>
 
@@ -445,6 +586,201 @@ export interface Project {
         justify-content: center;
       }
 
+      .advanced-filters {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .filter-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bulk-actions-bar {
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--warning);
+        font-weight: 600;
+      }
+
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .bulk-status-select {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        background: var(--background);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+      }
+
+      .selection-header {
+        grid-column: 1 / -1;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
+      .card-selection {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .input-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .form-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
+      .form-field {
+        margin-bottom: 1.5rem;
+      }
+
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .notes-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.875rem;
+        resize: vertical;
+        min-height: 80px;
+        transition: border-color 0.2s ease;
+      }
+
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+      }
+
       @media (max-width: 768px) {
         .feature-controls {
           flex-direction: column;
@@ -501,17 +837,27 @@ export class ProjectsListComponent
   isSaving = signal(false);
   formErrors = signal<string[]>([]);
 
-  formData: Partial<Project> = {
+  formData: ProjectFormData = {
     name: '',
     description: '',
     status: 'ACTIVE',
     startDate: '',
     endDate: '',
     clientName: '',
+    validUntil: '',
+    notes: '',
   };
 
   sortField = signal<'name' | 'startDate' | 'status'>('name');
   sortDirection = signal<1 | -1>(1);
+
+  // Filter signals
+  dateFromFilter = signal<string>('');
+  dateToFilter = signal<string>('');
+  showAdvancedFilters = signal(false);
+
+  // Bulk actions signals
+  selectedProjects = signal<Set<string>>(new Set());
 
   statusFilterOptions = [
     { label: 'Todos', value: '' },
@@ -526,6 +872,28 @@ export class ProjectsListComponent
     if (st) {
       list = list.filter((p) => p.status === st);
     }
+
+    // Advanced filters
+    const dateFrom = this.dateFromFilter();
+    const dateTo = this.dateToFilter();
+
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      list = list.filter((p) => {
+        const startDate = new Date(p.startDate || '');
+        return startDate >= fromDate;
+      });
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      list = list.filter((p) => {
+        const startDate = new Date(p.startDate || '');
+        return startDate <= toDate;
+      });
+    }
+
     const term = this.masterFilter.query().trim().toLowerCase();
     if (term) {
       list = list.filter(
@@ -570,6 +938,18 @@ export class ProjectsListComponent
 
     return all.slice(start, end);
   });
+
+  selectedCount = computed(() => this.selectedProjects().size);
+
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedProjects();
+    return (
+      paginated.length > 0 &&
+      paginated.every((p) => this.selectedProjects().has(p.id))
+    );
+  });
+
+  hasSelections = computed(() => this.selectedProjects().size > 0);
 
   activeProjectsCount = computed(
     () => this.allProjects().filter((p) => p.status === 'ACTIVE').length,
@@ -760,6 +1140,8 @@ export class ProjectsListComponent
       startDate: '',
       endDate: '',
       clientName: '',
+      validUntil: '',
+      notes: '',
     };
     this.formErrors.set([]);
     this.isModalOpen.set(true);
@@ -767,7 +1149,11 @@ export class ProjectsListComponent
 
   editProject(project: Project) {
     this.editingProject.set(project);
-    this.formData = { ...project };
+    this.formData = {
+      ...project,
+      validUntil: '',
+      notes: '',
+    };
     this.formErrors.set([]);
     this.isModalOpen.set(true);
   }
@@ -791,6 +1177,21 @@ export class ProjectsListComponent
       if (endDate <= startDate) {
         errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
       }
+    }
+
+    if (
+      this.formData.validUntil &&
+      new Date(this.formData.validUntil) < new Date()
+    ) {
+      errors.push('La fecha de validez no puede ser anterior a hoy');
+    }
+
+    if (this.formData.description && this.formData.description.length > 500) {
+      errors.push('La descripción no puede exceder 500 caracteres');
+    }
+
+    if (this.formData.notes && this.formData.notes.length > 1000) {
+      errors.push('Las notas no pueden exceder 1000 caracteres');
     }
 
     if (errors.length > 0) {
@@ -846,6 +1247,110 @@ export class ProjectsListComponent
   goToDetail(project: Project) {
     // Navigate to project detail page
     this.router.navigate(['/projects', project.id]);
+  }
+
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  clearFilters() {
+    this.statusFilter.set('');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.currentPage.set(1);
+  }
+
+  refreshProjects() {
+    this.loadProjects();
+    this.toast.show('Proyectos actualizados', 'info');
+  }
+
+  toggleSelectAll() {
+    const paginated = this.paginatedProjects();
+    const currentSelected = this.selectedProjects();
+    const newSelected = new Set(currentSelected);
+
+    if (this.isAllSelected()) {
+      paginated.forEach((p) => newSelected.delete(p.id));
+    } else {
+      paginated.forEach((p) => newSelected.add(p.id));
+    }
+
+    this.selectedProjects.set(newSelected);
+  }
+
+  toggleProjectSelection(projectId: string) {
+    const currentSelected = this.selectedProjects();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(projectId)) {
+      newSelected.delete(projectId);
+    } else {
+      newSelected.add(projectId);
+    }
+
+    this.selectedProjects.set(newSelected);
+  }
+
+  clearSelection() {
+    this.selectedProjects.set(new Set());
+  }
+
+  bulkChangeStatus(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value;
+
+    if (!newStatus) return;
+
+    const selectedIds = Array.from(this.selectedProjects());
+    if (selectedIds.length === 0) return;
+
+    // Reset select
+    target.value = '';
+
+    // Simulate bulk update
+    selectedIds.forEach((id) => {
+      const project = this.allProjects().find((p) => p.id === id);
+      if (project) {
+        console.log(`Changing status of ${id} to ${newStatus}`);
+      }
+    });
+
+    this.toast.show(
+      `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    this.clearSelection();
+    this.refreshProjects();
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedProjects());
+    if (selectedIds.length === 0) return;
+
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar ${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'}?`,
+      )
+    ) {
+      return;
+    }
+
+    // Simulate bulk delete
+    selectedIds.forEach((id) => {
+      console.log(`Deleting project ${id}`);
+    });
+
+    this.toast.show(
+      `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} eliminado${selectedIds.length === 1 ? '' : 's'}`,
+      'success',
+    );
+    this.clearSelection();
+    this.refreshProjects();
+  }
+
+  getMinDate(): string {
+    return new Date().toISOString().split('T')[0];
   }
 
   private loadProjects() {
