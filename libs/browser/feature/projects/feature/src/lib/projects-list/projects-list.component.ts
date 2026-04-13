@@ -12,19 +12,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule,
-  Plus,
-  Search,
-  Edit,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Trash2,
-  Copy,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Briefcase,
-  User,
-  Calendar,
-  Layout,
-  ExternalLink,
-  ChevronRight,
 } from 'lucide-angular';
-import { take } from 'rxjs/operators';
+
 import {
   UiButtonComponent,
   UiSearchComponent,
@@ -48,10 +41,7 @@ import {
   ToastService,
   AIFormBridgeService,
 } from '@josanz-erp/shared-data-access';
-import {
-  Project,
-  ProjectsFacade,
-} from '../../../../../../data-access/projects/data-access/src/index';
+import { Project, ProjectsFacade } from '@josanz-erp/projects-data-access';
 import { Observable, of } from 'rxjs';
 
 // Extended form type for additional fields
@@ -957,7 +947,11 @@ export class ProjectsListComponent
   }
 
   onDuplicate(project: Project) {
-    const { id, createdAt, ...projectData } = project;
+    const projectData = { ...project };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (projectData as any).id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (projectData as any).createdAt;
     this.facade.createProject({
       ...projectData,
       name: `${project.name} (Copia)`,
