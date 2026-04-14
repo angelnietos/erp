@@ -85,6 +85,52 @@ interface DocumentType {
       .selected-doc-type-light .check-icon {
         color: #ffffff !important;
       }
+
+      /* Barra inferior: CTA siempre legible sobre gradiente / tema */
+      .footer-cta-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 3rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        line-height: 1.3;
+        color: #ffffff !important;
+        border: none;
+        cursor: pointer;
+        background: linear-gradient(
+          135deg,
+          var(--brand) 0%,
+          color-mix(in srgb, var(--brand) 78%, #0f172a) 100%
+        );
+        box-shadow: 0 10px 28px color-mix(in srgb, var(--brand) 38%, transparent);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      }
+
+      .footer-cta-primary:hover:not(:disabled) {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
+      }
+
+      .footer-cta-primary:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+        filter: none;
+        box-shadow: none;
+      }
+
+      .footer-cta-primary svg {
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+      }
+
+      .action-bar-panel {
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65);
+      }
     `,
   ],
   selector: 'app-document-create',
@@ -665,15 +711,14 @@ interface DocumentType {
                 }
               </div>
 
-              <div
-                class="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-soft gap-4"
-              >
+              <div class="pt-8 border-t border-soft space-y-4">
                 <button
+                  type="button"
                   (click)="goBack()"
-                  class="inline-flex items-center px-6 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-surface hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-surface text-doc-ink hover:bg-slate-50 hover:border-slate-400 transition-colors shadow-sm"
                 >
                   <svg
-                    class="w-4 h-4 mr-2"
+                    class="w-4 h-4 shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -687,150 +732,158 @@ interface DocumentType {
                   </svg>
                   Volver Atrás
                 </button>
-                <div class="flex items-center space-x-4">
-                  <div class="flex flex-col gap-3">
-                    <div class="text-sm text-muted mb-1">Importar archivo:</div>
-                    <input
-                      type="file"
-                      #fileInput
-                      hidden
-                      (change)="importDocument($event)"
-                      accept=".md,.txt,.pdf,.docx,.xlsx,.html"
-                    />
-                    <div class="flex gap-2 flex-wrap">
-                      <button
-                        (click)="fileInput.click()"
-                        class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors"
+
+                <div
+                  class="rounded-2xl border border-soft bg-[#f1f5f9] p-4 sm:p-5 action-bar-panel"
+                >
+                  <div
+                    class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end"
+                  >
+                    <div class="min-w-0 space-y-3">
+                      <p
+                        class="text-xs font-semibold uppercase tracking-wider text-doc-muted-on-light"
                       >
-                        📥 Importar Archivo
-                      </button>
-                      <button
-                        (click)="exportDocument('markdown')"
-                        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium transition-colors"
+                        Importar y exportar
+                      </p>
+                      <input
+                        type="file"
+                        #fileInput
+                        hidden
+                        (change)="importDocument($event)"
+                        accept=".md,.txt,.pdf,.docx,.xlsx,.html"
+                      />
+                      <div class="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          (click)="fileInput.click()"
+                          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-brand text-white shadow-md hover:opacity-95 transition-opacity"
+                        >
+                          📥 Importar
+                        </button>
+                        <button
+                          type="button"
+                          (click)="exportDocument('markdown')"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                        >
+                          📑 MD
+                        </button>
+                        <button
+                          type="button"
+                          (click)="exportDocument('pdf')"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                        >
+                          📄 PDF
+                        </button>
+                        <button
+                          type="button"
+                          (click)="exportDocument('xlsx')"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                        >
+                          📊 Excel
+                        </button>
+                        <button
+                          type="button"
+                          (click)="exportDocument('html')"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                        >
+                          🌐 HTML
+                        </button>
+                        <button
+                          type="button"
+                          (click)="exportDocument('txt')"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                        >
+                          📃 TXT
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:justify-end lg:min-w-[min(100%,20rem)]"
+                    >
+                      <a
+                        routerLink="/documents/bot"
+                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
                       >
-                        📑 MD
-                      </button>
-                      <button
-                        (click)="exportDocument('pdf')"
-                        class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                        <svg
+                          class="w-4 h-4 shrink-0 text-slate-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
+                          />
+                        </svg>
+                        Consultar Asistente
+                      </a>
+                      <a
+                        routerLink="/documents/analysis"
+                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
                       >
-                        📄 PDF
-                      </button>
+                        <svg
+                          class="w-4 h-4 shrink-0 text-emerald-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Analizar Propuesta
+                      </a>
                       <button
-                        (click)="exportDocument('xlsx')"
-                        class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                        type="submit"
+                        [disabled]="documentForm.invalid || isGenerating"
+                        class="footer-cta-primary w-full sm:w-auto sm:min-w-[14rem]"
                       >
-                        📊 Excel
-                      </button>
-                      <button
-                        (click)="exportDocument('html')"
-                        class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        🌐 HTML
-                      </button>
-                      <button
-                        (click)="exportDocument('txt')"
-                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors text-doc-ink"
-                      >
-                        📃 TXT
+                        @if (!isGenerating) {
+                          <svg
+                            class="w-5 h-5 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z"
+                            />
+                          </svg>
+                        }
+                        @if (isGenerating) {
+                          <svg
+                            class="w-5 h-5 shrink-0 animate-spin"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                        }
+                        <span class="text-left leading-snug">
+                          {{
+                            isGenerating
+                              ? 'Generando documento…'
+                              : 'Generar documento (PDF / Excel / HTML)'
+                          }}
+                        </span>
                       </button>
                     </div>
                   </div>
-                  <button
-                    routerLink="/documents/bot"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    <svg
-                      class="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
-                      />
-                    </svg>
-                    Consultar Asistente
-                  </button>
-                  <button
-                    routerLink="/documents/analysis"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
-                  >
-                    <svg
-                      class="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Analizar Propuesta
-                  </button>
-                  <button
-                    type="submit"
-                    [disabled]="documentForm.invalid || isGenerating"
-                    class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-brand to-brand text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 transform hover:scale-105 disabled:hover:scale-100 transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
-                  >
-                    @if (!isGenerating) {
-                      <svg
-                        class="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z"
-                        />
-                      </svg>
-                    }
-                    @if (isGenerating) {
-                      <svg
-                        class="w-5 h-5 mr-2 animate-spin"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                    }
-                    @if (isGenerating) {
-                      <svg
-                        class="w-5 h-5 mr-2 animate-spin"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                      </svg>
-                    }
-
-                    {{
-                      isGenerating
-                        ? 'Generando Documento...'
-                        : 'Generar Documento PDF / Excel / HTML'
-                    }}
-                  </button>
                 </div>
               </div>
             </form>
