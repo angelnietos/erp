@@ -9,7 +9,12 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div class="search-wrapper" [class]="'search-' + variant" [class.focused]="isFocused">
+    <div
+      class="search-wrapper"
+      [class]="'search-' + variant"
+      [class.search-dock]="dockToolbar"
+      [class.focused]="isFocused"
+    >
       <lucide-icon name="search" class="search-icon"></lucide-icon>
       <input 
         type="text" 
@@ -147,12 +152,26 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     .search-wrapper.focused .focus-indicator { transform: scaleX(1); }
+
+    /* Dentro de ui-search-toolbar (barra cápsula unificada) */
+    .search-wrapper.search-dock {
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      border-radius: 0;
+    }
+
+    .search-wrapper.search-dock .focus-indicator {
+      border-radius: 0 0 4px 4px;
+    }
   `],
 })
 export class UiSearchComponent {
   @Input() placeholder = 'BUSCAR...';
   @Input() value = '';
   @Input() variant: SearchVariant = 'default';
+  /** Integrado en barra unificada: sin marco propio (usa el del toolbar). */
+  @Input() dockToolbar = false;
   @Output() searchChange = new EventEmitter<string>();
 
   isFocused = false;

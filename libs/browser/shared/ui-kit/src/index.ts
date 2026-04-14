@@ -27,6 +27,10 @@ export { UiLoaderComponent } from './lib/loader/loader.component';
 export { UiTableComponent } from './lib/table/table.component';
 
 export { UiSearchComponent } from './lib/search/search.component';
+export type { SearchVariant } from './lib/search/search.component';
+
+export { UiSearchToolbarComponent } from './lib/search-toolbar/search-toolbar.component';
+export type { SearchToolbarAppearance } from './lib/search-toolbar/search-toolbar.component';
 
 export { UiPaginationComponent } from './lib/pagination/pagination.component';
 

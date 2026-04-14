@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiSearchToolbarComponent,
   UiLoaderComponent,
   UiModalComponent,
   UiInputComponent,
@@ -56,7 +56,7 @@ interface ClientFormData extends Partial<Client> {
     UiFeatureCardComponent,
     UiLoaderComponent,
     UiButtonComponent,
-    UiSearchComponent,
+    UiSearchToolbarComponent,
     UiTabsComponent,
     UiStatCardComponent,
     UiModalComponent,
@@ -110,14 +110,13 @@ interface ClientFormData extends Partial<Client> {
           (tabChange)="onTabChange($event)"
         ></ui-tabs>
 
-        <ui-search
-          variant="glass"
+        <ui-search-toolbar
+          [appearance]="'feature'"
+          [searchVariant]="'glass'"
           placeholder="Buscar por nombre, sector o contacto..."
+          class="filters-bar__toolbar"
           (searchChange)="onSearch($event)"
-          class="search-bar"
-        ></ui-search>
-
-        <div class="actions-group">
+        >
           <ui-button
             variant="ghost"
             size="sm"
@@ -151,42 +150,7 @@ interface ClientFormData extends Partial<Client> {
                   : 'PROYECTOS'
             }}
           </ui-button>
-        </div>
-      </div>
-      <div class="actions-group">
-        <ui-button
-          variant="ghost"
-          size="sm"
-          icon="filter"
-          [class.active]="showAdvancedFilters()"
-          (clicked)="toggleAdvancedFilters()"
-        >
-          Filtros Avanzados
-        </ui-button>
-        <ui-button
-          variant="ghost"
-          size="sm"
-          icon="rotate-cw"
-          (clicked)="refreshClients()"
-          title="Actualizar"
-        >
-          Actualizar
-        </ui-button>
-        <ui-button
-          variant="ghost"
-          size="sm"
-          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-          (clicked)="toggleSort()"
-        >
-          ORDENAR:
-          {{
-            sortField() === 'name'
-              ? 'NOMBRE'
-              : sortField() === 'revenue'
-                ? 'INGRESOS'
-                : 'PROYECTOS'
-          }}
-        </ui-button>
+        </ui-search-toolbar>
       </div>
 
       <!-- Advanced Filters -->
@@ -545,8 +509,9 @@ interface ClientFormData extends Partial<Client> {
       .flex-1 {
         flex: 1;
       }
-      .search-bar {
-        width: 350px;
+      .filters-bar__toolbar {
+        flex: 1;
+        min-width: 0;
       }
 
       .pagination-footer {
@@ -707,7 +672,7 @@ interface ClientFormData extends Partial<Client> {
       }
 
       /* Active state for filters button */
-      .actions-group .active {
+      .filters-bar__toolbar .active {
         background: var(--primary-light);
         color: var(--primary);
       }
