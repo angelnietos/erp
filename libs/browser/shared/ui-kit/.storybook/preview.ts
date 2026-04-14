@@ -119,27 +119,45 @@ h1, h2, h3, h4, h5, h6 {
   outline: 2px solid var(--ring-focus);
   outline-offset: 3px;
 }
+
+/* Storybook preview: el fondo del iframe no sea negro puro (mejor contraste con cards/tablas) */
+body.sb-show-main,
+.sb-show-main,
+#storybook-root {
+  background: radial-gradient(ellipse 100% 80% at 50% -25%, rgba(230, 0, 18, 0.07), transparent 50%),
+    linear-gradient(180deg, #141820 0%, #0c0e14 100%) !important;
+  min-height: 100%;
+}
 `;
 
 export const parameters = {
   layout: 'padded',
   actions: { argTypesRegex: '^on[A-Z].*' },
   controls: {
+    expanded: true,
     matchers: {
       color: /(background|color)$/i,
       date: /Date$/,
     },
   },
   backgrounds: {
-    default: 'dark',
+    default: 'studio',
     values: [
+      {
+        name: 'studio',
+        value: '#131722',
+      },
+      {
+        name: 'panel',
+        value: '#1a2233',
+      },
       {
         name: 'dark',
         value: '#050608',
       },
       {
         name: 'light',
-        value: '#ffffff',
+        value: '#e8ecf4',
       },
     ],
   },

@@ -1,11 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { bindStoryProps } from '../../../.storybook/bind-story-props';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiModalComponent } from './modal.component';
 
 const meta: Meta<UiModalComponent> = {
   component: UiModalComponent,
   title: 'UiModalComponent',
   tags: ['autodocs'],
+  argTypes: {
+    color: sbSelect(['default', 'primary', 'danger', 'success', 'warning', 'info'] as const, 'Color'),
+    shape: sbSelect(
+      ['auto', 'solid', 'glass', 'outline', 'flat', 'neumorphic', 'minimal', 'fullscreen'] as const,
+      'Forma',
+    ),
+    isOpen: { control: 'boolean' },
+    showFooter: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<UiModalComponent>;

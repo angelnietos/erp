@@ -1,10 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UIMascotComponent } from './mascot.component';
 
 const meta: Meta<UIMascotComponent> = {
   component: UIMascotComponent,
   title: 'UIMascotComponent',
   tags: ['autodocs'],
+  argTypes: {
+    type: sbSelect(
+      ['inventory', 'budget', 'clients', 'projects', 'fleet', 'rentals', 'audit', 'dashboard', 'universal'] as const,
+      'Contexto / tipo',
+    ),
+    personality: sbSelect(
+      ['happy', 'tech', 'mystic', 'worker', 'explorer', 'ninja', 'queen'] as const,
+      'Personalidad',
+    ),
+    rageMode: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<UIMascotComponent>;

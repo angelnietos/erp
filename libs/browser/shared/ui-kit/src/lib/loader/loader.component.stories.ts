@@ -1,10 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiLoaderComponent } from './loader.component';
 
 const meta: Meta<UiLoaderComponent> = {
   component: UiLoaderComponent,
   title: 'UiLoaderComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(
+      ['default', 'dark', 'light', 'primary', 'success', 'warning', 'danger', 'info', 'gradient'] as const,
+      'Variante',
+    ),
+  },
 };
 export default meta;
 type Story = StoryObj<UiLoaderComponent>;

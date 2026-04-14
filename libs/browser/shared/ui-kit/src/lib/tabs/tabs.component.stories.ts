@@ -1,11 +1,34 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { bindStoryProps } from '../../../.storybook/bind-story-props';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiTabsComponent } from './tabs.component';
 
 const meta: Meta<UiTabsComponent> = {
   component: UiTabsComponent,
   title: 'UiTabsComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(
+      [
+        'default',
+        'underline',
+        'pills',
+        'boxed',
+        'bordered',
+        'soft',
+        'minimal',
+        'icon',
+        'animated',
+        'gradient',
+      ] as const,
+      'Estilo de pestañas',
+    ),
+    tabs: { control: false },
+    activeTab: {
+      control: 'text',
+      description: 'Id de la pestaña activa (debe existir en `tabs`)',
+    },
+  },
 };
 export default meta;
 type Story = StoryObj<UiTabsComponent>;

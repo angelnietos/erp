@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { bindStoryProps } from '../../../.storybook/bind-story-props';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiSearchComponent } from './search.component';
 
 const meta: Meta<UiSearchComponent> = {
   component: UiSearchComponent,
   title: 'UiSearchComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(['default', 'filled', 'glass'] as const, 'Variante'),
+  },
 };
 export default meta;
 type Story = StoryObj<UiSearchComponent>;

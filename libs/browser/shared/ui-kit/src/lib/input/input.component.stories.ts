@@ -1,11 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiInputComponent } from './input.component';
-import { User } from 'lucide-angular';
 
 const meta: Meta<UiInputComponent> = {
   component: UiInputComponent,
   title: 'UiInputComponent',
   tags: ['autodocs'],
+  argTypes: {
+    color: sbSelect(
+      ['default', 'primary', 'danger', 'success', 'warning', 'info'] as const,
+      'Color',
+    ),
+    shape: sbSelect(
+      ['auto', 'solid', 'glass', 'outline', 'flat', 'neumorphic', 'underline', 'minimal', 'rounded'] as const,
+      'Forma',
+    ),
+    size: sbSelect(['sm', 'md'] as const, 'Tamaño'),
+    type: sbSelect(['text', 'email', 'password', 'number', 'search', 'tel', 'url'] as const, 'Tipo input'),
+    error: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<UiInputComponent>;

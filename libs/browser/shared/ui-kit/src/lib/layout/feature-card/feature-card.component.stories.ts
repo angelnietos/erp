@@ -1,11 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { bindStoryProps } from '../../../../.storybook/bind-story-props';
+import { sbSelect, sbHideData } from '../../../../.storybook/story-arg-types';
 import { UiFeatureCardComponent } from './feature-card.component';
 
 const meta: Meta<UiFeatureCardComponent> = {
   component: UiFeatureCardComponent,
   title: 'UiFeatureCardComponent',
   tags: ['autodocs'],
+  argTypes: {
+    status: sbSelect(['active', 'warning', 'danger', 'offline'] as const, 'Estado avatar'),
+    badgeVariant: sbSelect(
+      ['primary', 'secondary', 'success', 'warning', 'danger', 'info'] as const,
+      'Badge',
+    ),
+    isFavorite: { control: 'boolean' },
+    showEdit: { control: 'boolean' },
+    showDelete: { control: 'boolean' },
+    showDuplicate: { control: 'boolean' },
+    footerItems: sbHideData,
+  },
 };
 export default meta;
 type Story = StoryObj<UiFeatureCardComponent>;

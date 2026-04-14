@@ -6,6 +6,10 @@ const meta: Meta<UiFeatureHeaderComponent> = {
   component: UiFeatureHeaderComponent,
   title: 'UiFeatureHeaderComponent',
   tags: ['autodocs'],
+  argTypes: {
+    icon: { control: 'text', description: 'Nombre de icono Lucide' },
+    actionIcon: { control: 'text' },
+  },
 };
 export default meta;
 type Story = StoryObj<UiFeatureHeaderComponent>;

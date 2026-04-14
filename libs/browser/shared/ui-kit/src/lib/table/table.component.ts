@@ -10,8 +10,7 @@ export type TableVariant = 'default' | 'striped' | 'glass';
   imports: [CommonModule, ScrollingModule],
   template: `
     <div
-      class="table-container"
-      [class]="'table-' + variant"
+      [ngClass]="['table-container', 'table-' + variant]"
       [class.table-virtual-active]="useVirtual"
     >
       @if (useVirtual && data.length === 0) {

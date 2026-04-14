@@ -1,10 +1,38 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect, sbHideData } from '../../../.storybook/story-arg-types';
 import { UiSelectComponent } from './select.component';
 
 const meta: Meta<UiSelectComponent> = {
   component: UiSelectComponent,
   title: 'UiSelectComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(
+      [
+        'default',
+        'filled',
+        'outlined',
+        'ghost',
+        'dark',
+        'light',
+        'error',
+        'success',
+        'warning',
+        'info',
+        'theme',
+        'primary',
+        'secondary',
+        'transparent',
+        'minimal',
+        'rounded',
+        'glass',
+        'soft',
+      ] as const,
+      'Variante visual',
+    ),
+    size: sbSelect(['sm', 'md'] as const, 'Tamaño'),
+    options: sbHideData,
+  },
 };
 export default meta;
 type Story = StoryObj<UiSelectComponent>;

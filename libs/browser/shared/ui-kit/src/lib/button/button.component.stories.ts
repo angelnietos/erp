@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiButtonComponent } from './button.component';
 
 const meta: Meta<UiButtonComponent> = {
@@ -6,10 +7,18 @@ const meta: Meta<UiButtonComponent> = {
   title: 'UiButtonComponent',
   tags: ['autodocs'],
   argTypes: {
-    type: {
-      options: ['button', 'submit'],
-      control: { type: 'select' },
-    },
+    type: sbSelect(['button', 'submit'] as const, 'Tipo HTML'),
+    color: sbSelect(
+      ['primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'] as const,
+      'Color',
+    ),
+    shape: sbSelect(
+      ['auto', 'solid', 'glass', 'outline', 'flat', 'ghost', 'neumorphic', 'gradient', 'soft', 'link'] as const,
+      'Forma',
+    ),
+    size: sbSelect(['sm', 'md', 'lg'] as const, 'Tamaño'),
+    loading: { control: 'boolean' },
+    disabled: { control: 'boolean' },
   },
 };
 export default meta;

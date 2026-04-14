@@ -1,10 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiCardComponent } from './card.component';
 
 const meta: Meta<UiCardComponent> = {
   component: UiCardComponent,
   title: 'UiCardComponent',
   tags: ['autodocs'],
+  argTypes: {
+    color: sbSelect(
+      ['default', 'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'brand'] as const,
+      'Color',
+    ),
+    shape: sbSelect(
+      ['auto', 'solid', 'glass', 'outline', 'flat', 'neumorphic', 'gradient', 'minimal'] as const,
+      'Forma',
+    ),
+    hover: { control: 'boolean' },
+    interactive: { control: 'boolean' },
+    footer: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<UiCardComponent>;

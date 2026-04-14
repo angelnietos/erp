@@ -1,10 +1,45 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiBadgeComponent } from './badge.component';
 
 const meta: Meta<UiBadgeComponent> = {
   component: UiBadgeComponent,
   title: 'UiBadgeComponent',
   tags: ['autodocs'],
+  argTypes: {
+    color: sbSelect(
+      [
+        'default',
+        'primary',
+        'success',
+        'warning',
+        'danger',
+        'info',
+        'purple',
+        'indigo',
+        'teal',
+        'orange',
+        'pink',
+        'rose',
+        'violet',
+        'fuchsia',
+      ] as const,
+      'Color semántico',
+    ),
+    shape: sbSelect(
+      [
+        'auto',
+        'solid',
+        'glass',
+        'outline',
+        'flat',
+        'neumorphic',
+        'minimal',
+        'ghost',
+      ] as const,
+      'Forma / estilo',
+    ),
+  },
 };
 export default meta;
 type Story = StoryObj<UiBadgeComponent>;
@@ -62,6 +97,7 @@ export const Danger: Story = {
 export const Info: Story = {
   args: {
     color: 'info',
+    shape: 'neumorphic',
   },
   render: (args) => ({
     props: args,

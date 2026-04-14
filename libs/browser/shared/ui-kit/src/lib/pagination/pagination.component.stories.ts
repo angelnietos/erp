@@ -1,11 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { bindStoryProps } from '../../../.storybook/bind-story-props';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiPaginationComponent } from './pagination.component';
 
 const meta: Meta<UiPaginationComponent> = {
   component: UiPaginationComponent,
   title: 'UiPaginationComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(['default', 'minimal', 'glass'] as const, 'Estilo'),
+    currentPage: { control: { type: 'number', min: 1 } },
+    totalPages: { control: { type: 'number', min: 1 } },
+  },
 };
 export default meta;
 type Story = StoryObj<UiPaginationComponent>;

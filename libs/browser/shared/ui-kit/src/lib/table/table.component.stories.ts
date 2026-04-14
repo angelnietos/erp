@@ -1,10 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect, sbHideData } from '../../../.storybook/story-arg-types';
 import { UiTableComponent } from './table.component';
 
 const meta: Meta<UiTableComponent> = {
   component: UiTableComponent,
   title: 'UiTableComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(['default', 'striped', 'glass'] as const, 'Estilo de tabla'),
+    virtualScroll: {
+      control: 'boolean',
+      description: 'Scroll virtual (CDK) con muchas filas',
+    },
+    columns: sbHideData,
+    data: sbHideData,
+  },
 };
 export default meta;
 type Story = StoryObj<UiTableComponent>;
@@ -26,11 +36,12 @@ export const Default: Story = {
   args: {
     columns: sampleColumns,
     data: sampleData,
+    variant: 'default',
   },
   render: (args) => ({
     props: args,
     template: `
-      <ui-table [columns]="columns" [data]="data">
+      <ui-table [columns]="columns" [data]="data" [variant]="variant">
         <ng-template #cellTemplate let-item let-key="key">
           {{ item[key] }}
         </ng-template>
@@ -79,11 +90,12 @@ export const Empty: Story = {
   args: {
     columns: sampleColumns,
     data: [],
+    variant: 'default',
   },
   render: (args) => ({
     props: args,
     template: `
-      <ui-table [columns]="columns" [data]="data">
+      <ui-table [columns]="columns" [data]="data" [variant]="variant">
         <ng-template #cellTemplate let-item let-key="key">
           {{ item[key] }}
         </ng-template>

@@ -1,10 +1,34 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiTextareaComponent } from './textarea.component';
 
 const meta: Meta<UiTextareaComponent> = {
   component: UiTextareaComponent,
   title: 'UiTextareaComponent',
   tags: ['autodocs'],
+  argTypes: {
+    variant: sbSelect(
+      [
+        'default',
+        'filled',
+        'outlined',
+        'ghost',
+        'dark',
+        'light',
+        'error',
+        'success',
+        'warning',
+        'info',
+        'rounded',
+        'minimal',
+        'soft',
+        'glass',
+      ] as const,
+      'Variante',
+    ),
+    disabled: { control: 'boolean' },
+    error: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<UiTextareaComponent>;
