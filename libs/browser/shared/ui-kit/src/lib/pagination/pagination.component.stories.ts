@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../.storybook/bind-story-props';
 import { UiPaginationComponent } from './pagination.component';
 
 const meta: Meta<UiPaginationComponent> = {
@@ -15,7 +16,7 @@ export const Default: Story = {
     totalPages: 10,
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-pagination [currentPage]="currentPage" [totalPages]="totalPages" (pageChange)="onPageChange($event)"></ui-pagination>`,
   }),
 };
@@ -26,7 +27,7 @@ export const MiddlePage: Story = {
     totalPages: 10,
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-pagination [currentPage]="currentPage" [totalPages]="totalPages" (pageChange)="onPageChange($event)"></ui-pagination>`,
   }),
 };
@@ -37,7 +38,7 @@ export const LastPage: Story = {
     totalPages: 10,
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-pagination [currentPage]="currentPage" [totalPages]="totalPages" (pageChange)="onPageChange($event)"></ui-pagination>`,
   }),
 };
@@ -49,7 +50,7 @@ export const MinimalVariant: Story = {
     variant: 'minimal',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-pagination [currentPage]="currentPage" [totalPages]="totalPages" [variant]="variant" (pageChange)="onPageChange($event)"></ui-pagination>`,
   }),
 };
@@ -61,7 +62,7 @@ export const GlassVariant: Story = {
     variant: 'glass',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-pagination [currentPage]="currentPage" [totalPages]="totalPages" [variant]="variant" (pageChange)="onPageChange($event)"></ui-pagination>`,
   }),
 };

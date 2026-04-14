@@ -16,7 +16,7 @@ export const Default: Story = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-dynamic-canvas [htmlRef]="htmlRef" style="position: relative; width: 400px; height: 200px; border: 1px solid #ccc;"></ui-dynamic-canvas>`,
+    template: `<ui-dynamic-canvas [htmlRef]="htmlRef" style="position: relative; width: 400px; height: 200px; border: 1px solid var(--border-vibrant, rgba(255,255,255,0.2)); border-radius: var(--radius-md, 12px);"></ui-dynamic-canvas>`,
   }),
 };
 
@@ -27,6 +27,6 @@ export const WithAnimation: Story = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-dynamic-canvas [htmlRef]="htmlRef" style="position: relative; width: 200px; height: 100px; border: 1px solid #ccc;"></ui-dynamic-canvas>`,
+    template: `<ui-dynamic-canvas [htmlRef]="htmlRef" style="position: relative; width: 200px; height: 100px; border: 1px solid var(--border-vibrant, rgba(255,255,255,0.2)); border-radius: var(--radius-md, 12px);"></ui-dynamic-canvas>`,
   }),
 };

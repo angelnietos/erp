@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../.storybook/bind-story-props';
 import { NavMenuComponent } from './nav-menu.component';
 
 const meta: Meta<NavMenuComponent> = {
@@ -46,8 +47,12 @@ export const Default: Story = {
     items: sampleItems,
   },
   render: (args) => ({
-    props: args,
-    template: `<ui-nav-menu [items]="items" (itemClick)="onItemClick($event)"></ui-nav-menu>`,
+    props: bindStoryProps(args),
+    template: `
+      <div style="max-width: 280px; padding: 12px; border-radius: var(--radius-md, 12px); border: 1px solid var(--border-soft); background: var(--surface);">
+        <ui-nav-menu [items]="items" (itemClick)="onItemClick($event)"></ui-nav-menu>
+      </div>
+    `,
   }),
 };
 
@@ -57,8 +62,12 @@ export const PrimaryVariant: Story = {
     variant: 'primary',
   },
   render: (args) => ({
-    props: args,
-    template: `<ui-nav-menu [items]="items" [variant]="variant" (itemClick)="onItemClick($event)"></ui-nav-menu>`,
+    props: bindStoryProps(args),
+    template: `
+      <div style="max-width: 280px; padding: 12px; border-radius: var(--radius-md, 12px); border: 1px solid var(--border-soft); background: var(--surface);">
+        <ui-nav-menu [items]="items" [variant]="variant" (itemClick)="onItemClick($event)"></ui-nav-menu>
+      </div>
+    `,
   }),
 };
 
@@ -68,8 +77,12 @@ export const BorderedVariant: Story = {
     variant: 'bordered',
   },
   render: (args) => ({
-    props: args,
-    template: `<ui-nav-menu [items]="items" [variant]="variant" (itemClick)="onItemClick($event)"></ui-nav-menu>`,
+    props: bindStoryProps(args),
+    template: `
+      <div style="max-width: 280px; padding: 12px; border-radius: var(--radius-md, 12px); border: 1px solid var(--border-soft); background: var(--surface);">
+        <ui-nav-menu [items]="items" [variant]="variant" (itemClick)="onItemClick($event)"></ui-nav-menu>
+      </div>
+    `,
   }),
 };
 
@@ -79,7 +92,11 @@ export const CompactVariant: Story = {
     variant: 'compact',
   },
   render: (args) => ({
-    props: args,
-    template: `<ui-nav-menu [items]="items" [variant]="variant" (itemClick)="onItemClick($event)"></ui-nav-menu>`,
+    props: bindStoryProps(args),
+    template: `
+      <div style="max-width: 280px; padding: 12px; border-radius: var(--radius-md, 12px); border: 1px solid var(--border-soft); background: var(--surface);">
+        <ui-nav-menu [items]="items" [variant]="variant" (itemClick)="onItemClick($event)"></ui-nav-menu>
+      </div>
+    `,
   }),
 };

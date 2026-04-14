@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../../.storybook/bind-story-props';
 import { UiFeatureCardComponent } from './feature-card.component';
 
 const meta: Meta<UiFeatureCardComponent> = {
@@ -16,7 +17,7 @@ export const Default: Story = {
     avatarInitials: 'PA',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-feature-card
         [name]="name"
@@ -39,7 +40,7 @@ export const WithBadge: Story = {
     badgeVariant: 'primary',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-feature-card
         [name]="name"
@@ -68,7 +69,7 @@ export const WithFooter: Story = {
     showDelete: true,
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-feature-card
         [name]="name"
@@ -95,7 +96,7 @@ export const Favorite: Story = {
     isFavorite: true,
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-feature-card
         [name]="name"

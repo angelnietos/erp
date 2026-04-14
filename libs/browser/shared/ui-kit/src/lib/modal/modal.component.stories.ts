@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../.storybook/bind-story-props';
 import { UiModalComponent } from './modal.component';
 
 const meta: Meta<UiModalComponent> = {
@@ -15,7 +16,7 @@ export const Default: Story = {
     title: 'Modal Title',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-modal [isOpen]="isOpen" [title]="title" (closed)="onClosed()">
         <p>This is the modal content.</p>
@@ -34,7 +35,7 @@ export const WithoutFooter: Story = {
     showFooter: false,
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-modal [isOpen]="isOpen" [title]="title" [showFooter]="showFooter" (closed)="onClosed()">
         <p>This modal has no footer.</p>
@@ -50,7 +51,7 @@ export const DangerColor: Story = {
     color: 'danger',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-modal [isOpen]="isOpen" [title]="title" [color]="color" (closed)="onClosed()">
         <p>Danger modal content.</p>
@@ -69,7 +70,7 @@ export const GlassShape: Story = {
     shape: 'glass',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-modal [isOpen]="isOpen" [title]="title" [shape]="shape" (closed)="onClosed()">
         <p>Glass shaped modal.</p>
@@ -88,7 +89,7 @@ export const MinimalShape: Story = {
     shape: 'minimal',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `
       <ui-modal [isOpen]="isOpen" [title]="title" [shape]="shape" (closed)="onClosed()">
         <p>Minimal modal.</p>

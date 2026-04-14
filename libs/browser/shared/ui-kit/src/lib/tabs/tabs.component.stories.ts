@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../.storybook/bind-story-props';
 import { UiTabsComponent } from './tabs.component';
 
 const meta: Meta<UiTabsComponent> = {
@@ -21,7 +22,7 @@ export const Default: Story = {
     activeTab: 'tab1',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-tabs [tabs]="tabs" [activeTab]="activeTab" (tabChange)="onTabChange($event)"></ui-tabs>`,
   }),
 };
@@ -36,7 +37,7 @@ export const WithIcons: Story = {
     activeTab: 'home',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-tabs [tabs]="tabs" [activeTab]="activeTab" (tabChange)="onTabChange($event)"></ui-tabs>`,
   }),
 };
@@ -48,7 +49,7 @@ export const UnderlineVariant: Story = {
     variant: 'underline',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-tabs [tabs]="tabs" [activeTab]="activeTab" [variant]="variant" (tabChange)="onTabChange($event)"></ui-tabs>`,
   }),
 };
@@ -60,7 +61,7 @@ export const PillsVariant: Story = {
     variant: 'pills',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-tabs [tabs]="tabs" [activeTab]="activeTab" [variant]="variant" (tabChange)="onTabChange($event)"></ui-tabs>`,
   }),
 };
@@ -72,7 +73,7 @@ export const BoxedVariant: Story = {
     variant: 'boxed',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-tabs [tabs]="tabs" [activeTab]="activeTab" [variant]="variant" (tabChange)="onTabChange($event)"></ui-tabs>`,
   }),
 };
@@ -88,7 +89,7 @@ export const IconVariant: Story = {
     variant: 'icon',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-tabs [tabs]="tabs" [activeTab]="activeTab" [variant]="variant" (tabChange)="onTabChange($event)"></ui-tabs>`,
   }),
 };

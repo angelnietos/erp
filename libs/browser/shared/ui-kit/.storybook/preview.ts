@@ -1,3 +1,5 @@
+import { storybookRouterDecorator } from './storybook-providers';
+
 const cssVariables = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
 
@@ -120,6 +122,7 @@ h1, h2, h3, h4, h5, h6 {
 `;
 
 export const parameters = {
+  layout: 'padded',
   actions: { argTypesRegex: '^on[A-Z].*' },
   controls: {
     matchers: {
@@ -143,6 +146,7 @@ export const parameters = {
 };
 
 export const decorators = [
+  storybookRouterDecorator,
   (storyFn: any) => {
     // Inject CSS variables
     const style = document.createElement('style');

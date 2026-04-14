@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../../.storybook/bind-story-props';
 import { UiFeatureHeaderComponent } from './feature-header.component';
 
 const meta: Meta<UiFeatureHeaderComponent> = {
@@ -16,7 +17,7 @@ export const Default: Story = {
     icon: 'layout',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-feature-header [title]="title" [subtitle]="subtitle" [icon]="icon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
   }),
 };
@@ -30,7 +31,7 @@ export const WithAction: Story = {
     actionIcon: 'plus',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-feature-header [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
   }),
 };
@@ -44,7 +45,7 @@ export const Clients: Story = {
     actionIcon: 'user-plus',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-feature-header [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
   }),
 };

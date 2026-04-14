@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../.storybook/bind-story-props';
 import { UiSearchComponent } from './search.component';
 
 const meta: Meta<UiSearchComponent> = {
@@ -14,7 +15,7 @@ export const Default: Story = {
     placeholder: 'Buscar...',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-search [placeholder]="placeholder" (searchChange)="onSearch($event)"></ui-search>`,
   }),
 };
@@ -25,7 +26,7 @@ export const WithValue: Story = {
     value: 'laptop',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-search [placeholder]="placeholder" [value]="value" (searchChange)="onSearch($event)"></ui-search>`,
   }),
 };
@@ -36,7 +37,7 @@ export const FilledVariant: Story = {
     variant: 'filled',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-search [placeholder]="placeholder" [variant]="variant" (searchChange)="onSearch($event)"></ui-search>`,
   }),
 };
@@ -47,7 +48,7 @@ export const GlassVariant: Story = {
     variant: 'glass',
   },
   render: (args) => ({
-    props: args,
+    props: bindStoryProps(args),
     template: `<ui-search [placeholder]="placeholder" [variant]="variant" (searchChange)="onSearch($event)"></ui-search>`,
   }),
 };
