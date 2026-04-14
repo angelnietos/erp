@@ -3,6 +3,7 @@ import {
   OnInit,
   signal,
   inject,
+  computed,
   ChangeDetectionStrategy,
   NgZone,
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {
   UiButtonComponent,
   UiSelectComponent,
   UiInputComponent,
+  UiSearchComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -73,6 +75,7 @@ interface Report {
     UiButtonComponent,
     UiSelectComponent,
     UiInputComponent,
+    UiSearchComponent,
     LucideAngularModule,
   ],
   template: `
@@ -212,7 +215,7 @@ interface Report {
                 <ui-search
                   variant="glass"
                   placeholder="Buscar reportes por título o tipo..."
-                  (searchChange)="searchTerm.set($event)"
+                  (searchChange)="onSearchChange($event)"
                 ></ui-search>
               </div>
               <div class="reports-list">
@@ -661,6 +664,14 @@ export class ReportsComponent implements OnInit {
       ...(client ? { clientId: client } : {}),
       ...(f.type?.trim() ? { type: f.type.trim() } : {}),
     };
+  }
+
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+  }
+
+  onSearchChange(event: string) {
+    this.searchTerm.set(event);
   }
 
   async generateReport() {

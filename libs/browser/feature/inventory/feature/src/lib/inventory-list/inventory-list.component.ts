@@ -504,6 +504,14 @@ export class InventoryListComponent
     this.loadProducts();
   }
 
+  refreshProducts() {
+    this.facade.loadProducts();
+  }
+
+  toggleSort() {
+    this.sortDirection.set(this.sortDirection() === 1 ? -1 : 1);
+  }
+
   openCreateModal() {
     this.formData = {
       name: '',

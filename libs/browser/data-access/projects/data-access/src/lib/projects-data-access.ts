@@ -1,1 +1,2 @@
-export * from './projects-data-access.component';
+export * from './services/project.service';
+export * from './facades/projects.facade';

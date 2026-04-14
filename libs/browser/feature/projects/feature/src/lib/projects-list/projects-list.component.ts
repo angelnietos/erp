@@ -41,7 +41,8 @@ import {
   ToastService,
   AIFormBridgeService,
 } from '@josanz-erp/shared-data-access';
-import { Project, ProjectsFacade } from '@josanz-erp/projects-data-access';
+import { Project } from '../../../../../../data-access/projects/data-access/src/lib/services/project.service';
+import { ProjectsFacade } from '../../../../../../data-access/projects/data-access/src/lib/facades/projects.facade';
 import { Observable, of } from 'rxjs';
 
 // Extended form type for additional fields
@@ -657,7 +658,7 @@ export class ProjectsListComponent
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
-  private readonly facade = inject(ProjectsFacade);
+  private readonly facade = inject(ProjectsFacade) as ProjectsFacade;
 
   // Use facade signals
   projects = this.facade.projects;
@@ -752,16 +753,17 @@ export class ProjectsListComponent
   });
 
   activeProjectsCount = computed(
-    () => this.projects().filter((p) => p.status === 'ACTIVE').length,
+    () => this.projects().filter((p: Project) => p.status === 'ACTIVE').length,
   );
   completedProjectsCount = computed(
-    () => this.projects().filter((p) => p.status === 'COMPLETED').length,
+    () =>
+      this.projects().filter((p: Project) => p.status === 'COMPLETED').length,
   );
   uniqueClientsCount = computed(
     () =>
       new Set(
         this.projects()
-          .map((p) => p.clientId)
+          .map((p: Project) => p.clientId)
           .filter(Boolean),
       ).size || 8,
   );

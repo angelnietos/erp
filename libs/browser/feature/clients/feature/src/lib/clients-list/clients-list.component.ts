@@ -22,6 +22,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiTabsComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
@@ -49,16 +50,17 @@ interface ClientFormData extends Partial<Client> {
     CommonModule,
     RouterModule,
     FormsModule,
-    UiButtonComponent,
-    UiSearchComponent,
-    UiLoaderComponent,
-    UiModalComponent,
-    UiInputComponent,
-    UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
+    UiLoaderComponent,
+    UiButtonComponent,
+    UiSearchComponent,
+    UiTabsComponent,
+    UiStatCardComponent,
+    UiModalComponent,
+    UiInputComponent,
     LucideAngularModule,
   ],
   template: `
@@ -102,7 +104,7 @@ interface ClientFormData extends Partial<Client> {
 
       <div class="filters-bar">
         <ui-tabs
-          [tabs]="tabs()"
+          [tabs]="tabs"
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($event)"
@@ -152,41 +154,40 @@ interface ClientFormData extends Partial<Client> {
           </ui-button>
         </div>
       </div>
-        <div class="actions-group">
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshClients()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR:
-            {{
-              sortField() === 'name'
-                ? 'NOMBRE'
-                : sortField() === 'revenue'
-                  ? 'INGRESOS'
-                  : 'PROYECTOS'
-            }}
-          </ui-button>
-        </div>
+      <div class="actions-group">
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshClients()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'name'
+              ? 'NOMBRE'
+              : sortField() === 'revenue'
+                ? 'INGRESOS'
+                : 'PROYECTOS'
+          }}
+        </ui-button>
       </div>
 
       <!-- Advanced Filters -->
@@ -745,6 +746,9 @@ export class ClientsListComponent
   isLoading = this.facade.isLoading;
   currentPage = signal(1);
 
+  tabs = [{ id: 'all', label: 'Todos', badge: 0 }];
+  activeTab = signal('all');
+
   isModalOpen = signal(false);
   editingClient = signal<Client | null>(null);
   isSaving = signal(false);
@@ -909,6 +913,11 @@ export class ClientsListComponent
       this.formData as Record<string, unknown>,
     );
     this.masterFilter.unregisterProvider();
+  }
+
+  onTabChange(tabId: string) {
+    this.activeTab.set(tabId);
+    this.currentPage.set(1);
   }
 
   /** Lógica de filtrado para el MasterFilterService */

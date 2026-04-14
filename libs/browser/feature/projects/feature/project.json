@@ -5,6 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": ["scope:projects", "type:feature"],
+  "implicitDeps": ["projects-data-access"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
@@ -19,7 +20,3 @@
     }
   }
 }
-
-
-
-
