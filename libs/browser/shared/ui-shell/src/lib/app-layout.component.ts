@@ -18,7 +18,6 @@ import {
   Theme,
   AuthStore,
   PluginStore,
-  AIBotStore,
 } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
@@ -201,17 +200,8 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
 
-        <!-- IA Assistances Ecosystem (Global & Contextual) -->
-        <ui-ai-assistant
-          [feature]="currentFeature()"
-        ></ui-ai-assistant>
-
-        @if (aiBotStore.getBotByFeature('buddy')) {
-          <ui-ai-assistant
-            [feature]="'buddy'"
-            class="secondary-assistant"
-          ></ui-ai-assistant>
-        }
+        <!-- Un solo asistente flotante: el bot efectivo por ruta sigue en AIBotStore.getEffectiveBotForCurrentUser -->
+        <ui-ai-assistant [feature]="currentFeature()"></ui-ai-assistant>
       </div>
     </div>
   `,
@@ -698,7 +688,6 @@ export class AppLayoutComponent {
   private readonly router = inject(Router);
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
-  readonly aiBotStore = inject(AIBotStore);
   private readonly navEvents = toSignal(
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)),
   );
