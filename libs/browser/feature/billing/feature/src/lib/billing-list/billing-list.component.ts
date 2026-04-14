@@ -12,7 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiPaginationComponent,
   UiLoaderComponent,
   UiModalComponent,
@@ -53,7 +53,7 @@ interface InvoiceFormData extends Partial<Invoice> {
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
     UiModalComponent,
@@ -102,57 +102,54 @@ interface InvoiceFormData extends Partial<Invoice> {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <!-- Search and Filters -->
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por NIF, cliente o número..."
-            (searchChange)="onSearch($event)"
-          ></ui-search>
-        </div>
-        <div class="actions-group">
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar por NIF, cliente o número..."
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates>
           <ui-tabs
             [tabs]="tabs()"
             [activeTab]="activeTab()"
             variant="underline"
             (tabChange)="onTabChange($event)"
           ></ui-tabs>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshInvoices()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR:
-            {{
-              sortField() === 'issueDate'
-                ? 'FECHA'
-                : sortField() === 'total'
-                  ? 'TOTAL'
-                  : 'ESTADO'
-            }}
-          </ui-button>
         </div>
-      </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshInvoices()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'issueDate'
+              ? 'FECHA'
+              : sortField() === 'total'
+                ? 'TOTAL'
+                : 'ESTADO'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
@@ -871,21 +868,12 @@ interface InvoiceFormData extends Partial<Invoice> {
         box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
       }
 
-      /* Active state for filters button */
-      .actions-group .active {
+      :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);
       }
 
       @media (max-width: 900px) {
-        .navigation-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-        }
-        .search-bar {
-          width: 100%;
-        }
         .row {
           grid-template-columns: 1fr;
         }

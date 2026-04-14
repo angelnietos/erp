@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiSearchComponent } from '@josanz-erp/shared-ui-kit';
+import { UiFeatureFilterBarComponent } from '@josanz-erp/shared-ui-kit';
 
 export interface AiInsight {
   id: string;
@@ -19,7 +19,7 @@ export interface AiInsight {
 @Component({
   selector: 'josanz-ai-insights',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiSearchComponent],
+  imports: [CommonModule, LucideAngularModule, UiFeatureFilterBarComponent],
   template: `
     <div
       class="p-[1.5rem] w-full max-w-[1400px] mx-auto box-border pt-24 min-h-screen"
@@ -57,13 +57,12 @@ export interface AiInsight {
         </div>
       </header>
 
-      <div class="mb-6">
-        <ui-search
-          variant="glass"
-          placeholder="Buscar insights por título, contenido o bot..."
-          (searchChange)="searchTerm.set($event)"
-        ></ui-search>
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar insights por título, contenido o bot..."
+        (searchChange)="searchTerm.set($event)"
+      />
 
       <div
         *ngIf="loading()"

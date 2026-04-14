@@ -15,7 +15,7 @@ import {
   UiButtonComponent,
   UiCardComponent,
   UiModalComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
@@ -33,7 +33,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     UiCardComponent,
     UiButtonComponent,
     UiBadgeComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiStatCardComponent,
     UiModalComponent,
   ],
@@ -111,13 +111,13 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
       <div class="dashboard-grid">
         <ui-card variant="glass" title="Registro de Operaciones Fiscales">
-          <div class="mb-4">
-            <ui-search
-              variant="glass"
-              placeholder="Buscar por referencia, cliente o NIF..."
-              (searchChange)="searchTerm.set($event)"
-            ></ui-search>
-          </div>
+          <ui-feature-filter-bar
+            [framed]="false"
+            [appearance]="'feature'"
+            [searchVariant]="'glass'"
+            placeholder="Buscar por referencia, cliente o NIF..."
+            (searchChange)="searchTerm.set($event)"
+          />
           <div class="table-container">
             <table class="luxe-table">
               <thead>

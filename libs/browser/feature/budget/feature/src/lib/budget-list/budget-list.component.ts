@@ -12,7 +12,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiStatCardComponent,
   UiModalComponent,
   UiInputComponent,
@@ -52,7 +52,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     FormsModule,
     UiButtonComponent,
     UiStatCardComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiModalComponent,
     UiInputComponent,
     UiPaginationComponent,
@@ -101,51 +101,46 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <!-- Search and Filters -->
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por nombre, cliente, estado o descripción..."
-            (searchChange)="onSearch($event)"
-          ></ui-search>
-        </div>
-        <div class="actions-group">
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshBudgets()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR:
-            {{
-              sortField() === 'name'
-                ? 'NOMBRE'
-                : sortField() === 'total'
-                  ? 'TOTAL'
-                  : 'ESTADO'
-            }}
-          </ui-button>
-        </div>
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar por nombre, cliente, estado o descripción..."
+        (searchChange)="onSearch($event)"
+      >
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshBudgets()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'name'
+              ? 'NOMBRE'
+              : sortField() === 'total'
+                ? 'TOTAL'
+                : 'ESTADO'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
@@ -492,26 +487,9 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         min-height: 100vh;
       }
 
-      .feature-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: var(--surface);
-        padding: 0.5rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        gap: 2rem;
-      }
-
-      .search-container {
-        flex: 1;
-      }
-
-      .actions-group {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
+      :host ::ng-deep .feature-filter-bar ui-button.active {
+        background: var(--primary-light);
+        color: var(--primary);
       }
 
       .advanced-filters {
@@ -795,10 +773,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       }
 
       @media (max-width: 768px) {
-        .feature-controls {
-          flex-direction: column;
-          align-items: stretch;
-        }
         .form-grid {
           grid-template-columns: 1fr;
         }

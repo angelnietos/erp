@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
@@ -49,7 +49,7 @@ interface VehicleFormData extends Partial<Vehicle> {
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiLoaderComponent,
     UiModalComponent,
     UiTabsComponent,
@@ -101,42 +101,39 @@ interface VehicleFormData extends Partial<Vehicle> {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="filters-bar">
-        <ui-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($event)"
-        ></ui-tabs>
-
-        <ui-search
-          variant="glass"
-          placeholder="BUSCAR MATRÍCULA O CONDUCTOR..."
-          (searchChange)="onSearch($event)"
-          class="search-bar"
-        ></ui-search>
-
-        <div class="actions-group">
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshVehicles()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR MATRÍCULA O CONDUCTOR..."
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates>
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($event)"
+          ></ui-tabs>
         </div>
-      </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshVehicles()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
@@ -429,23 +426,8 @@ interface VehicleFormData extends Partial<Vehicle> {
         padding: 2rem;
       }
 
-      .filters-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: var(--surface);
-        padding: 0.5rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        gap: 2rem;
-      }
-
       .flex-1 {
         flex: 1;
-      }
-      .search-bar {
-        width: 350px;
       }
 
       .loader-container {
@@ -555,12 +537,6 @@ interface VehicleFormData extends Partial<Vehicle> {
         box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
       }
 
-      /* Actions Group */
-      .actions-group {
-        display: flex;
-        gap: 0.5rem;
-      }
-
       /* Bulk Actions */
       .bulk-actions-bar {
         display: flex;
@@ -646,21 +622,12 @@ interface VehicleFormData extends Partial<Vehicle> {
         box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
       }
 
-      /* Active state for filters button */
-      .actions-group .active {
+      :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);
       }
 
       @media (max-width: 900px) {
-        .navigation-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-        }
-        .search-bar {
-          width: 100%;
-        }
         .row {
           grid-template-columns: 1fr;
         }

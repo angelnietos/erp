@@ -24,7 +24,7 @@ import {
   UiButtonComponent,
   UiSelectComponent,
   UiInputComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -75,7 +75,7 @@ interface Report {
     UiButtonComponent,
     UiSelectComponent,
     UiInputComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     LucideAngularModule,
   ],
   template: `
@@ -211,13 +211,13 @@ interface Report {
               <div class="section-header">
                 <h2>Reportes Generados</h2>
               </div>
-              <div class="mb-4">
-                <ui-search
-                  variant="glass"
-                  placeholder="Buscar reportes por título o tipo..."
-                  (searchChange)="onSearchChange($event)"
-                ></ui-search>
-              </div>
+              <ui-feature-filter-bar
+                [framed]="false"
+                [appearance]="'feature'"
+                [searchVariant]="'glass'"
+                placeholder="Buscar reportes por título o tipo..."
+                (searchChange)="onSearchChange($event)"
+              />
               <div class="reports-list">
                 @for (report of filteredGeneratedReports(); track report.id) {
                   <div class="report-item">

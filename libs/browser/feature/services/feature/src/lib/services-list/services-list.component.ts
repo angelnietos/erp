@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiStatCardComponent,
   UiLoaderComponent,
   UiModalComponent,
@@ -50,7 +50,7 @@ interface ServiceFormData extends Partial<Service> {
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiStatCardComponent,
     UiLoaderComponent,
     UiModalComponent,
@@ -101,51 +101,46 @@ interface ServiceFormData extends Partial<Service> {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <!-- Search and Filters -->
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por nombre, tipo o descripción..."
-            (searchChange)="onSearchChange($event)"
-          ></ui-search>
-        </div>
-        <div class="actions-group">
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshServices()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR:
-            {{
-              sortField() === 'name'
-                ? 'NOMBRE'
-                : sortField() === 'basePrice'
-                  ? 'PRECIO'
-                  : 'TIPO'
-            }}
-          </ui-button>
-        </div>
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar por nombre, tipo o descripción..."
+        (searchChange)="onSearchChange($event)"
+      >
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshServices()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'name'
+              ? 'NOMBRE'
+              : sortField() === 'basePrice'
+                ? 'PRECIO'
+                : 'TIPO'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
@@ -475,26 +470,9 @@ interface ServiceFormData extends Partial<Service> {
         min-height: 100vh;
       }
 
-      .feature-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: var(--surface);
-        padding: 0.5rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        gap: 2rem;
-      }
-
-      .search-container {
-        flex: 1;
-      }
-
-      .actions-group {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
+      :host ::ng-deep .feature-filter-bar ui-button.active {
+        background: var(--primary-light);
+        color: var(--primary);
       }
 
       .loader-container {
@@ -775,18 +753,8 @@ interface ServiceFormData extends Partial<Service> {
       }
 
       @media (max-width: 768px) {
-        .feature-controls {
-          flex-direction: column;
-          align-items: stretch;
-        }
         .form-grid {
           grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 900px) {
-        .navigation-bar {
-          padding: 1rem;
         }
       }
     `,

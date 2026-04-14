@@ -14,7 +14,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiTabsComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
@@ -59,7 +59,7 @@ interface ProjectFormData {
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiTabsComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
@@ -108,42 +108,39 @@ interface ProjectFormData {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="filters-bar">
-        <ui-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($event)"
-        ></ui-tabs>
-
-        <ui-search
-          variant="glass"
-          placeholder="Buscar proyectos..."
-          (searchChange)="onSearchChange($event)"
-          class="search-bar"
-        ></ui-search>
-
-        <div class="actions-group">
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshProjects()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar proyectos..."
+        (searchChange)="onSearchChange($event)"
+      >
+        <div uiFeatureFilterStates>
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($event)"
+          ></ui-tabs>
         </div>
-      </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshProjects()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
@@ -398,30 +395,8 @@ interface ProjectFormData {
         padding: 2rem;
       }
 
-      .filters-bar {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: var(--surface);
-        padding: 0.5rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        gap: 1rem;
-      }
-
       .flex-1 {
         flex: 1;
-      }
-
-      .search-bar {
-        width: 350px;
-      }
-
-      .actions-group {
-        display: flex;
-        gap: 0.5rem;
-        flex-shrink: 0;
       }
 
       .loader-container {
@@ -614,21 +589,12 @@ interface ProjectFormData {
         margin-top: 1.5rem;
       }
 
-      /* Active state for filters button */
-      .actions-group .active {
+      :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);
       }
 
       @media (max-width: 900px) {
-        .filters-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-        }
-        .search-bar {
-          width: 100%;
-        }
         .form-grid {
           grid-template-columns: 1fr;
         }

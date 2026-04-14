@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { TechnicianApiService, ToastService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiCardComponent, UiBadgeComponent, UiSearchComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
+import { UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
 
@@ -24,7 +24,7 @@ interface CalendarCell {
 @Component({
   selector: 'josanz-technician-availability',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiBadgeComponent, UiSearchComponent],
+  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent],
   template: `
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->
@@ -90,11 +90,13 @@ interface CalendarCell {
             <ui-badge variant="info" class="count-badge">{{ technicians().length }}</ui-badge>
           </div>
           <div class="sidebar-search">
-            <ui-search 
-              variant="glass" 
-              placeholder="Filtro rápido..." 
+            <ui-feature-filter-bar
+              [framed]="false"
+              [appearance]="'minimal'"
+              [searchVariant]="'glass'"
+              placeholder="Filtro rápido..."
               (searchChange)="onSearch($event)"
-            ></ui-search>
+            />
           </div>
           <div class="technician-list custom-scrollbar">
             @for (tech of technicians(); track tech.id) {
@@ -286,6 +288,8 @@ interface CalendarCell {
     /* SIDEBAR */
     .team-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-search { width: 100%; }
+    .sidebar-search ::ng-deep .feature-filter-bar { margin-bottom: 1rem; }
     .sidebar-header h3 { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); margin: 0; }
     .count-badge { font-family: var(--font-gaming); }
 

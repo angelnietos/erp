@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiButtonComponent, 
-  UiSearchComponent, 
+  UiFeatureFilterBarComponent, 
   UiLoaderComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
@@ -23,7 +23,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
   imports: [
     CommonModule,
     LucideAngularModule,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiLoaderComponent,
     UiButtonComponent,
     UiStatCardComponent,
@@ -67,14 +67,12 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="navigation-bar">
-        <ui-search 
-          variant="glass"
-          placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..." 
-          (searchChange)="onSearch($event)"
-          class="flex-1"
-        ></ui-search>
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..."
+        (searchChange)="onSearch($event)"
+      ></ui-feature-filter-bar>
 
       @if (isLoading()) {
         <div class="loader-container">

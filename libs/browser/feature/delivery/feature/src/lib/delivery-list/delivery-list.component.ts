@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiLoaderComponent,
   UiModalComponent,
   UiInputComponent,
@@ -44,7 +44,7 @@ import { Observable, of } from 'rxjs';
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiLoaderComponent,
     UiModalComponent,
     UiInputComponent,
@@ -95,14 +95,12 @@ import { Observable, of } from 'rxjs';
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="navigation-bar">
-        <ui-search
-          variant="glass"
-          placeholder="BUSCAR Nº ALBARÁN, CLIENTE O REFERENCIA..."
-          (searchChange)="onSearch($event)"
-          class="flex-1"
-        ></ui-search>
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR Nº ALBARÁN, CLIENTE O REFERENCIA..."
+        (searchChange)="onSearch($event)"
+      ></ui-feature-filter-bar>
 
       @if (isLoading()) {
         <div class="loader-container">

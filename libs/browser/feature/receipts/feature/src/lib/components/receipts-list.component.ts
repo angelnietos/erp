@@ -13,7 +13,7 @@ import {
 } from 'lucide-angular';
 import { 
   UiButtonComponent, 
-  UiSearchComponent, 
+  UiFeatureFilterBarComponent, 
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -40,7 +40,7 @@ interface Receipt {
     FormsModule,
     RouterModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
@@ -85,22 +85,22 @@ interface Receipt {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="navigation-bar">
-        <ui-search 
-          variant="glass"
-          placeholder="BUSCAR POR FACTURA O IMPORTE..." 
-          (searchChange)="onSearch($event)"
-          class="flex-1"
-        ></ui-search>
-        
-        <ui-select
-          label="ESTADO"
-          [(ngModel)]="statusFilter"
-          name="status"
-          [options]="statusOptions"
-          class="status-select"
-        />
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR POR FACTURA O IMPORTE..."
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates class="receipts-filter-state">
+          <ui-select
+            label="ESTADO"
+            [(ngModel)]="statusFilter"
+            name="status"
+            [options]="statusOptions"
+            class="status-select"
+          />
+        </div>
+      </ui-feature-filter-bar>
 
       <ui-feature-grid>
         @for (receipt of filteredReceipts(); track receipt.id) {
@@ -146,19 +146,12 @@ interface Receipt {
       padding: 2rem;
     }
 
-    .navigation-bar {
-      margin-bottom: 2rem;
-      background: var(--surface);
-      padding: 0.5rem 1.5rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
+    .receipts-filter-state {
       display: flex;
-      align-items: center;
-      gap: 2rem;
+      align-items: flex-end;
     }
 
-    .flex-1 { flex: 1; }
-    .status-select { width: 250px; }
+    .status-select { width: 250px; min-width: 200px; }
 
     .card-actions { display: flex; gap: 0.25rem; }
     .text-success { color: var(--success) !important; }
@@ -177,8 +170,8 @@ interface Receipt {
     .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
     @media (max-width: 900px) {
-       .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
-       .status-select { width: 100%; }
+       .receipts-filter-state { width: 100%; }
+       .status-select { width: 100%; min-width: 0; }
     }
   `],
 })

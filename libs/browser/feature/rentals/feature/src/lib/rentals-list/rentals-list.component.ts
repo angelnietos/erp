@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Building } from 'lucide-angular';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiPaginationComponent,
   UiLoaderComponent,
   UiTabsComponent,
@@ -55,7 +55,7 @@ interface RentalFormData extends Partial<Rental> {
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
     UiTabsComponent,
@@ -108,57 +108,54 @@ interface RentalFormData extends Partial<Rental> {
         </ui-stat-card>
       </ui-feature-stats>
 
-      <!-- Search and Filters -->
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search
-            variant="glass"
-            placeholder="Buscar por propiedad, inquilino o cliente..."
-            (searchChange)="onSearch($event)"
-          ></ui-search>
-        </div>
-        <div class="actions-group">
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar por propiedad, inquilino o cliente..."
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates>
           <ui-tabs
             [tabs]="tabs"
             [activeTab]="activeTab()"
             variant="underline"
             (tabChange)="onTabChange($event)"
           ></ui-tabs>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="filter"
-            [class.active]="showAdvancedFilters()"
-            (clicked)="toggleAdvancedFilters()"
-          >
-            Filtros Avanzados
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshRentals()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR:
-            {{
-              sortField() === 'clientName'
-                ? 'CLIENTE'
-                : sortField() === 'totalAmount'
-                  ? 'TOTAL'
-                  : 'ESTADO'
-            }}
-          </ui-button>
         </div>
-      </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshRentals()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'clientName'
+              ? 'CLIENTE'
+              : sortField() === 'totalAmount'
+                ? 'TOTAL'
+                : 'ESTADO'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
@@ -577,28 +574,6 @@ interface RentalFormData extends Partial<Rental> {
         min-height: 100vh;
       }
 
-      .feature-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: var(--surface);
-        padding: 0.5rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        gap: 2rem;
-      }
-
-      .search-container {
-        flex: 1;
-      }
-
-      .actions-group {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
       .loader-container {
         display: flex;
         justify-content: center;
@@ -710,10 +685,6 @@ interface RentalFormData extends Partial<Rental> {
       }
 
       @media (max-width: 768px) {
-        .feature-controls {
-          flex-direction: column;
-          align-items: stretch;
-        }
         .form-grid {
           grid-template-columns: 1fr;
         }

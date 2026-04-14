@@ -40,7 +40,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiSelectComponent
 } from '@josanz-erp/shared-ui-kit';
 
@@ -88,7 +88,7 @@ interface EventFilter {
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiSelectComponent,
     LucideAngularModule,
   ],
@@ -128,30 +128,27 @@ interface EventFilter {
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search 
-            variant="glass"
-            placeholder="BUSCAR EVENTOS..." 
-            (searchChange)="onSearchChange($event)"
-          ></ui-search>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR EVENTOS..."
+        (searchChange)="onSearchChange($event)"
+      >
+        <div uiFeatureFilterStates class="events-filter-states">
+          <ui-select
+            label="ESTADO"
+            [(ngModel)]="filters.status"
+            name="status"
+            [options]="statusOptions"
+          />
+          <ui-select
+            label="TIPO"
+            [(ngModel)]="filters.type"
+            name="type"
+            [options]="typeOptions"
+          />
         </div>
-        
-        <div class="actions-group">
-           <ui-select
-              label="ESTADO"
-              [(ngModel)]="filters.status"
-              name="status"
-              [options]="statusOptions"
-            />
-            <ui-select
-              label="TIPO"
-              [(ngModel)]="filters.type"
-              name="type"
-              [options]="typeOptions"
-            />
-        </div>
-      </div>
+      </ui-feature-filter-bar>
 
       <ui-feature-grid>
         @for (event of filteredEvents(); track event.id) {
@@ -199,6 +196,13 @@ interface EventFilter {
 
     .event-actions { display: flex; gap: 0.25rem; }
 
+    .events-filter-states {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.25rem;
+      align-items: flex-end;
+    }
+
     .empty-state {
       grid-column: 1 / -1;
       display: flex;
@@ -213,7 +217,6 @@ interface EventFilter {
     .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
     @media (max-width: 900px) {
-       .filters-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
        .quick-filters { width: 100%; flex-direction: column; }
     }
   `],

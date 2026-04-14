@@ -21,7 +21,7 @@ import {
 } from 'lucide-angular';
 import {
   UiStatCardComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
@@ -90,7 +90,7 @@ interface DomainEventPayload {
     UiFeatureCardComponent,
     UiPaginationComponent,
     UiStatCardComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     LucideAngularModule
@@ -124,15 +124,12 @@ interface DomainEventPayload {
         </ui-stat-card>
       </ui-feature-stats>
 
-      <div class="feature-controls">
-        <div class="search-container">
-          <ui-search 
-            variant="glass"
-            placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
-            (searchChange)="onSearch($event)"
-          ></ui-search>
-        </div>
-      </div>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..."
+        (searchChange)="onSearch($event)"
+      ></ui-feature-filter-bar>
 
       <div class="audit-content">
         <ui-feature-grid>
