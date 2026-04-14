@@ -279,9 +279,6 @@ importers:
       eslint-plugin-playwright:
         specifier: ^1.6.2
         version: 1.8.3(eslint@9.39.4(jiti@1.21.7))
-      eslint-plugin-storybook:
-        specifier: 10.3.3
-        version: 10.3.3(eslint@9.39.4(jiti@1.21.7))(storybook@8.6.18(prettier@3.6.2))(typescript@5.9.3)
       jest:
         specifier: ^30.0.2
         version: 30.3.0(@types/node@20.19.9)(babel-plugin-macros@3.1.0)(esbuild-register@3.6.0(esbuild@0.25.12))(ts-node@10.9.1(@swc/core@1.15.21(@swc/helpers@0.5.21))(@types/node@20.19.9)(typescript@5.9.3))
@@ -6617,12 +6614,6 @@ packages:
     peerDependenciesMeta:
       eslint-plugin-jest:
         optional: true
-
-  eslint-plugin-storybook@10.3.3:
-    resolution: {integrity: sha512-jo8wZvKaJlxxrNvf4hCsROJP3CdlpaLiYewAs5Ww+PJxCrLelIi5XVHWOAgBvvr3H9WDKvUw8xuvqPYqAlpkFg==}
-    peerDependencies:
-      eslint: '>=8'
-      storybook: ^10.3.3
 
   eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
@@ -18420,15 +18411,6 @@ snapshots:
     dependencies:
       eslint: 9.39.4(jiti@1.21.7)
       globals: 13.24.0
-
-  eslint-plugin-storybook@10.3.3(eslint@9.39.4(jiti@1.21.7))(storybook@8.6.18(prettier@3.6.2))(typescript@5.9.3):
-    dependencies:
-      '@typescript-eslint/utils': 8.58.0(eslint@9.39.4(jiti@1.21.7))(typescript@5.9.3)
-      eslint: 9.39.4(jiti@1.21.7)
-      storybook: 8.6.18(prettier@3.6.2)
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
 
   eslint-scope@5.1.1:
     dependencies:

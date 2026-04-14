@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-
 import nx from '@nx/eslint-plugin';
 
 /** Shared options for @nx/enforce-module-boundaries (allow + depConstraints only). */
@@ -169,5 +166,4 @@ export default [
     ],
     rules: {},
   },
-  ...storybook.configs["flat/recommended"]
 ];
