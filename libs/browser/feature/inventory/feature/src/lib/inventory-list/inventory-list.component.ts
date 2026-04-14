@@ -133,7 +133,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         </div>
       } @else {
         <ui-feature-grid>
-          @for (product of products(); track product.id) {
+          @for (product of sortedProducts(); track product.id) {
             <ui-feature-card
               [name]="product.name | uppercase"
               [subtitle]="product.category | uppercase"
@@ -373,6 +373,19 @@ export class InventoryListComponent
   searchTerm = '';
   sortField = signal<'name'>('name');
   sortDirection = signal<1 | -1>(1);
+
+  /** Lista filtrada del facade, ordenada por nombre según `sortDirection`. */
+  sortedProducts = computed(() => {
+    const items = [...this.products()];
+    const dir = this.sortDirection();
+    items.sort((a, b) => {
+      const cmp = (a.name || '').localeCompare(b.name || '', 'es', {
+        sensitivity: 'base',
+      });
+      return dir === 1 ? cmp : -cmp;
+    });
+    return items;
+  });
 
   isModalOpen = signal(false);
 
