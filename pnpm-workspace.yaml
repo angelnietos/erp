@@ -1,5 +1,2 @@
 packages:
   - .
-
-patchedDependencies:
-  '@storybook/angular@8.6.18': patches/@storybook__angular@8.6.18.patch
