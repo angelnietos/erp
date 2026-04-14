@@ -1,0 +1,144 @@
+[12:12:22.713] [INFO] Running automigrations
+[12:12:22.715] [DEBUG] Extracting storybook data...
+[12:12:22.715] [DEBUG] Getting Storybook info...
+[12:12:22.851] [DEBUG] Loading main config...
+[12:12:22.851] [DEBUG] Getting stories paths...
+[12:12:22.870] [DEBUG] Getting package manager...
+[12:12:24.077] [DEBUG] Getting package.json info for C:/Users/amuni/Desktop/josanz-proyect/josanz-erp/package.json...
+[12:12:24.077] [DEBUG] Getting Storybook version...
+[12:12:24.078] [DEBUG] Detecting CSF factory usage...
+[12:12:24.094] [INFO] Checking possible migrations..
+[12:12:24.094] [DEBUG] Running eslintPlugin migration checks
+[12:12:24.095] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:24.096] [DEBUG] End of eslintPlugin migration checks
+[12:12:24.096] [INFO] 🔎 found a 'eslintPlugin' migration:
+[12:12:24.098] [INFO] We'll install and configure the Storybook ESLint plugin for you.
+[12:12:24.099] [DEBUG] Adding dependencies: eslint-plugin-storybook@10.3.3
+[12:12:24.099] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:24.099] [DEBUG] Getting CLI versions from NPM for eslint-plugin-storybook...
+[12:12:24.100] [DEBUG] Executing command: pnpm info eslint-plugin-storybook version
+[12:12:25.433] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:25.437] [DEBUG] Detected flat config at C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\eslint.config.mjs
+[12:12:25.475] [INFO] ✅ ran eslintPlugin migration
+[12:12:25.476] [INFO] Ran eslintPlugin migration
+[12:12:25.476] [DEBUG] Running addon-mdx-gfm-remove migration checks
+[12:12:25.476] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:25.476] [DEBUG] End of addon-mdx-gfm-remove migration checks
+[12:12:25.476] [DEBUG] Running addon-storysource-code-panel migration checks
+[12:12:25.476] [DEBUG] End of addon-storysource-code-panel migration checks
+[12:12:25.476] [DEBUG] Running initial-globals migration checks
+[12:12:25.479] [DEBUG] End of initial-globals migration checks
+[12:12:25.479] [DEBUG] Running addon-globals-api migration checks
+[12:12:25.482] [DEBUG] End of addon-globals-api migration checks
+[12:12:25.482] [DEBUG] Running addon-a11y-addon-test migration checks
+[12:12:25.483] [DEBUG] End of addon-a11y-addon-test migration checks
+[12:12:25.483] [DEBUG] Running consolidated-imports migration checks
+[12:12:25.484] [DEBUG] End of consolidated-imports migration checks
+[12:12:25.484] [DEBUG] Running addon-experimental-test migration checks
+[12:12:25.485] [DEBUG] Getting installed version for @storybook/experimental-addon-test...
+[12:12:25.485] [DEBUG] Executing command: pnpm list "@storybook/experimental-addon-test" --json --depth=99
+[12:12:26.607] [DEBUG] Installed version for @storybook/experimental-addon-test: null
+[12:12:26.607] [DEBUG] End of addon-experimental-test migration checks
+[12:12:26.607] [DEBUG] Running rnstorybook-config migration checks
+[12:12:26.607] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.607] [DEBUG] End of rnstorybook-config migration checks
+[12:12:26.607] [DEBUG] Running migrate-addon-console migration checks
+[12:12:26.607] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.607] [DEBUG] End of migrate-addon-console migration checks
+[12:12:26.607] [DEBUG] Running nextjs-to-nextjs-vite migration checks
+[12:12:26.607] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.607] [DEBUG] End of nextjs-to-nextjs-vite migration checks
+[12:12:26.607] [DEBUG] Running remove-addon-interactions migration checks
+[12:12:26.607] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.607] [DEBUG] End of remove-addon-interactions migration checks
+[12:12:26.607] [INFO] 🔎 found a 'remove-addon-interactions' migration:
+[12:12:26.608] [INFO] @storybook/addon-interactions has been moved to Storybook core and will be removed from your configuration.
+[12:12:26.612] [DEBUG] Uninstalling @storybook/addon-interactions
+[12:12:26.612] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.612] [DEBUG] Removing '@storybook/addon-interactions' from main.js addons field.
+[12:12:26.616] [INFO] ✅ ran remove-addon-interactions migration
+[12:12:26.616] [INFO] Ran remove-addon-interactions migration
+[12:12:26.616] [DEBUG] Running renderer-to-framework migration checks
+[12:12:26.620] [DEBUG] End of renderer-to-framework migration checks
+[12:12:26.620] [DEBUG] Running remove-essential-addons migration checks
+[12:12:26.620] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.620] [DEBUG] End of remove-essential-addons migration checks
+[12:12:26.620] [INFO] 🔎 found a 'remove-essential-addons' migration:
+[12:12:26.621] [INFO] In Storybook 9.0, several addons have been moved into Storybook's core and are no longer needed as separate packages. We'll remove the unnecessary addons from your configuration and dependencies, and update your code to use the new core features.
+[12:12:26.624] [DEBUG] Uninstalling @storybook/addon-essentials
+[12:12:26.624] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:26.624] [DEBUG] Removing '@storybook/addon-essentials' from main.js addons field.
+[12:12:26.639] [DEBUG] Getting Storybook info...
+[12:12:26.643] [DEBUG] Loading main config...
+[12:12:26.643] [DEBUG] Getting stories paths...
+[12:12:26.644] [DEBUG] Getting package manager...
+[12:12:27.041] [DEBUG] Getting package.json info for C:/Users/amuni/Desktop/josanz-proyect/josanz-erp/package.json...
+[12:12:27.041] [DEBUG] Getting Storybook version...
+[12:12:27.042] [DEBUG] Detecting CSF factory usage...
+[12:12:27.061] [INFO] Verifying @storybook/addon-docs
+[12:12:27.061] [DEBUG] Getting dependency version for storybook...
+[12:12:27.061] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:27.061] [INFO] Installing @storybook/addon-docs@10.3.3
+[12:12:27.061] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:27.061] [DEBUG] Getting CLI versions from NPM for @storybook/addon-docs...
+[12:12:27.061] [DEBUG] Executing command: pnpm info @storybook/addon-docs version
+[12:12:30.821] [DEBUG] Using cached package.json for C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\package.json...
+[12:12:30.823] [INFO] Adding '@storybook/addon-docs' to the "addons" field in .storybook\main.ts
+[12:12:30.882] [INFO] ✅ ran remove-essential-addons migration
+[12:12:30.882] [INFO] Ran remove-essential-addons migration
+[12:12:30.882] [DEBUG] Running addon-a11y-parameters migration checks
+[12:12:30.882] [DEBUG] End of addon-a11y-parameters migration checks
+[12:12:30.882] [DEBUG] Running remove-docs-autodocs migration checks
+[12:12:30.886] [DEBUG] End of remove-docs-autodocs migration checks
+[12:12:30.886] [DEBUG] Running wrap-getAbsolutePath migration checks
+[12:12:30.896] [DEBUG] End of wrap-getAbsolutePath migration checks
+[12:12:30.896] [INFO] 🔎 found a 'wrap-getAbsolutePath' migration:
+[12:12:30.901] [INFO] We have detected that you're using Storybook in a monorepo or PnP project. Some fields in your main config must be updated.
+[12:12:30.920] [INFO] ✅ ran wrap-getAbsolutePath migration
+[12:12:30.920] [INFO] Ran wrap-getAbsolutePath migration
+[12:12:30.920] [DEBUG] Running fix-faux-esm-require migration checks
+[12:12:30.923] [DEBUG] End of fix-faux-esm-require migration checks
+[12:12:30.924] [INFO] Migration check ran successfully
+[12:12:30.924] [INFO] Successful migrations:
+
+eslintPlugin, remove-addon-interactions, remove-essential-addons, wrap-getAbsolutePath
+
+─────────────────────────────────────────────────
+
+If you'd like to run the migrations again, you can do so by running 
+npx storybook automigrate
+
+The automigrations try to migrate common patterns in your project, but might not contain everything needed to migrate to the latest version of Storybook.
+
+Please check the changelog and migration guide for manual migrations and more information: 
+https://storybook.js.org/docs/releases/migration-guide?ref=upgrade
+And reach out on Discord if you need help: https://discord.gg/storybook
+[12:12:30.927] [INFO] Installing dependencies...
+[12:12:30.927] [INFO] Installing dependencies...
+[12:12:30.927] [DEBUG] Executing command: pnpm install -w
+[12:12:31.672] [INFO] Installing dependencies...:  ERR_PNPM_LOCKFILE_CONFIG_MISMATCH  Cannot proceed with the frozen installation. The current "patchedDependencies" configuration doesn't match the value found in the lockfile
+
+Update your lockfile using "pnpm install --no-frozen-lockfile"
+
+[12:12:31.673] [INFO] Installing dependencies...: ERR_PNPM_LOCKFILE_CONFIG_
+[12:12:31.705] [ERROR] Installation of dependencies failed! {"error":"ExecaError: Command failed with exit code 1: pnpm.cmd install -w\n\n\\u2009ERR_PNPM_LOCKFILE_CONFIG_MISMATCH\\u2009 Cannot proceed with the frozen installation. The current \"patchedDependencies\" configuration doesn't match the value found in the lockfile\n\nUpdate your lockfile using \"pnpm install --no-frozen-lockfile\"\n    at getFinalError (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:13109:10)\n    at makeError (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:14645:15)\n    at getAsyncResult (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:17291:158)\n    at handlePromise (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:17277:162)\n    at async Object.executeTaskWithSpinner (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-AV2LSJTV.js:3683:11)\n    at async PNPMProxy.installDependencies (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:11258:5)\n    at async doAutomigrate (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/@storybook/cli/dist/_node-chunks/run-NTMEAVO5.js:7772:32)\n    at async file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/@storybook/cli/dist/_node-chunks/run-NTMEAVO5.js:9715:90\n    at async withTelemetry (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-6PADJQ3N.js:218:12)"}
+[12:12:31.705] [ERROR] Installation of dependencies failed!
+[12:12:31.705] [ERROR] [38;2;241;97;97mExecaError: Command failed with exit code 1: pnpm.cmd install -w
+
+\u2009ERR_PNPM_LOCKFILE_CONFIG_MISMATCH\u2009 Cannot proceed with the frozen installation. The current "patchedDependencies" configuration doesn't match the value found in the lockfile
+
+Update your lockfile using "pnpm install --no-frozen-lockfile"[39m
+    at getFinalError (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:13109:10)
+    at makeError (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:14645:15)
+    at getAsyncResult (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:17291:158)
+    at handlePromise (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:17277:162)
+    at async Object.executeTaskWithSpinner (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-AV2LSJTV.js:3683:11)
+    at async PNPMProxy.installDependencies (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-NQBOIYE4.js:11258:5)
+    at async doAutomigrate (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/@storybook/cli/dist/_node-chunks/run-NTMEAVO5.js:7772:32)
+    at async file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/@storybook/cli/dist/_node-chunks/run-NTMEAVO5.js:9715:90
+    at async withTelemetry (file:///C:/Users/amuni/AppData/Local/npm-cache/_npx/7f0b12aa0cbfbce2/node_modules/storybook/dist/_node-chunks/chunk-6PADJQ3N.js:218:12)
+[12:12:31.707] [ERROR] ExecaError: Command failed with exit code 1: pnpm.cmd install -w
+
+\u2009ERR_PNPM_LOCKFILE_CONFIG_MISMATCH\u2009 Cannot proceed with the frozen installation. The current "patchedDependencies" configuration doesn't match the value found in the lockfile
+
+Update your lockfile using "pnpm install --no-frozen-lockfile"
