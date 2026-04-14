@@ -128,6 +128,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         background: white;
         border: 1px solid #e2e8f0;
         border-bottom-left-radius: 4px;
+        color: #0f172a;
       }
 
       .message.system {
@@ -458,12 +459,14 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             }
           </div>
 
-          <div class="px-4 py-2 bg-slate-50 border-t border-soft">
+          <div
+            class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light"
+          >
             <div class="flex flex-wrap gap-1">
               @for (action of quickActions; track $index) {
                 <button
                   (click)="sendQuickAction(action)"
-                  class="px-2 py-1 text-xs bg-surface border border-soft rounded hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                  class="px-2 py-1 text-xs bg-white border border-slate-200 rounded text-doc-ink hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors"
                 >
                   {{ action }}
                 </button>

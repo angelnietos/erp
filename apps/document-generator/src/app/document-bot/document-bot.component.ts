@@ -82,7 +82,7 @@ interface MessageAction {
               [class]="
                 message.sender === 'user'
                   ? 'bg-blue-500 text-white rounded-br-md'
-                  : 'bg-surface text-primary rounded-bl-md border border-soft'
+                  : 'doc-chat-bubble-bot rounded-2xl rounded-bl-md'
               "
             >
               <!-- Message Text -->
@@ -102,7 +102,7 @@ interface MessageAction {
                   [class]="
                     message.sender === 'user'
                       ? 'text-blue-600'
-                      : 'text-gray-700'
+                      : 'text-doc-muted-on-light'
                   "
                 >
                   {{ action.label }}
@@ -141,7 +141,7 @@ interface MessageAction {
             ></lucide-icon>
           </div>
           <div
-            class="bg-surface rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-soft"
+            class="doc-chat-bubble-bot rounded-2xl rounded-bl-md px-4 py-3 shadow-sm"
           >
             <div class="flex space-x-1">
               <div

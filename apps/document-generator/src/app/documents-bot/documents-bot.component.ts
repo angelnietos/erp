@@ -55,7 +55,7 @@ interface ChatMessage {
             <div class="mt-6 space-y-3">
               <button
                 (click)="quickAction('markdown')"
-                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-slate-700 hover:text-blue-700 transition-all flex items-center gap-3"
+                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-doc-ink hover:text-blue-700 transition-all flex items-center gap-3"
               >
                 <span>✨</span>
                 <span>Mejorar mi Markdown</span>
@@ -63,7 +63,7 @@ interface ChatMessage {
 
               <button
                 (click)="quickAction('templates')"
-                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-slate-700 hover:text-blue-700 transition-all flex items-center gap-3"
+                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-doc-ink hover:text-blue-700 transition-all flex items-center gap-3"
               >
                 <span>📋</span>
                 <span>Ver plantillas disponibles</span>
@@ -71,7 +71,7 @@ interface ChatMessage {
 
               <button
                 (click)="quickAction('export')"
-                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-slate-700 hover:text-blue-700 transition-all flex items-center gap-3"
+                class="w-full text-left px-4 py-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-sm text-doc-ink hover:text-blue-700 transition-all flex items-center gap-3"
               >
                 <span>📄</span>
                 <span>Exportar a PDF</span>
@@ -79,7 +79,7 @@ interface ChatMessage {
 
               <button
                 (click)="quickAction('help')"
-                class="w-full text-left px-4 py-3 bg-tertiary hover:bg-brand-ambient rounded-xl text-sm text-primary hover:text-brand transition-all flex items-center gap-3"
+                class="w-full text-left px-4 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm text-doc-ink hover:opacity-90 transition-all flex items-center gap-3"
               >
                 <span>❓</span>
                 <span>¿Como funciona esto?</span>

@@ -173,7 +173,7 @@ interface AnalysisResult {
                                 check.name
                               }}</span>
                             </div>
-                            <p class="text-sm text-muted">
+                            <p class="text-sm text-doc-muted-on-light">
                               {{ check.description }}
                             </p>
                           </div>
@@ -254,12 +254,12 @@ interface AnalysisResult {
                   <div class="text-sm text-red-600">Errores</div>
                 </div>
                 <div
-                  class="bg-slate-50 rounded-xl p-4 text-center border border-soft"
+                  class="bg-slate-50 rounded-xl p-4 text-center border border-slate-200"
                 >
-                  <div class="text-2xl font-bold text-slate-700">
+                  <div class="text-2xl font-bold text-doc-ink">
                     {{ pendingCount }}
                   </div>
-                  <div class="text-sm text-secondary">Pendientes</div>
+                  <div class="text-sm text-doc-muted-on-light">Pendientes</div>
                 </div>
               </div>
 
@@ -277,19 +277,19 @@ interface AnalysisResult {
                         >
                           {{ result.status.toUpperCase() }}
                         </span>
-                        <span class="font-medium">{{
+                        <span class="font-medium text-doc-ink">{{
                           getCheckName(result.checkId)
                         }}</span>
                       </div>
                     </div>
-                    <p class="mt-2 text-secondary">{{ result.message }}</p>
+                    <p class="mt-2 text-doc-muted-on-light">{{ result.message }}</p>
 
                     @if (result.suggestions.length > 0) {
                       <div class="mt-3 pl-4 border-l-2 border-blue-300">
                         <p class="text-sm font-medium text-blue-700 mb-2">
                           💡 Sugerencias:
                         </p>
-                        <ul class="text-sm text-secondary space-y-1">
+                        <ul class="text-sm text-doc-muted-on-light space-y-1">
                           @for (
                             suggestion of result.suggestions;
                             track $index
@@ -353,7 +353,7 @@ interface AnalysisResult {
                       [class]="
                         msg.type === 'user'
                           ? 'bg-blue-600 text-white rounded-xl px-4 py-2 max-w-md'
-                          : 'bg-surface border border-soft rounded-xl px-4 py-2 max-w-md'
+                          : 'doc-chat-bubble-bot rounded-xl px-4 py-2 max-w-md'
                       "
                     >
                       <p>{{ msg.content }}</p>

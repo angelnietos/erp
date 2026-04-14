@@ -188,9 +188,31 @@ body {
   padding: 0;
 }
 
-/* No forzar color del tema sobre el árbol de vista previa Markdown (papel claro + texto oscuro) */
-body *:not(.markdown-preview):not(.markdown-preview *) {
+/* No forzar --text-primary sobre bloques de lectura/chat con papel claro */
+body
+  *:not(.markdown-preview):not(.markdown-preview *):not(.doc-chat-bubble-bot):not(
+    .doc-chat-bubble-bot *
+  ) {
   color: var(--text-primary);
+}
+
+/* Utilidades: texto fijo legible sobre slate-50 / gradientes claros / “papel” */
+.text-doc-ink {
+  color: #0f172a !important;
+}
+.text-doc-muted-on-light {
+  color: #475569 !important;
+}
+.text-doc-subtle-on-light {
+  color: #64748b !important;
+}
+
+/* Burbuja asistente sobre fondo claro (evita texto blanco con bg-surface translúcido) */
+.doc-chat-bubble-bot {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 /* Ensure better contrast for form elements */

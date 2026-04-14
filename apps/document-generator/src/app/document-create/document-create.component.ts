@@ -730,7 +730,7 @@ interface DocumentType {
                       </button>
                       <button
                         (click)="exportDocument('txt')"
-                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                        class="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors text-doc-ink"
                       >
                         📃 TXT
                       </button>
