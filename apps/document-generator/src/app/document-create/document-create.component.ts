@@ -68,6 +68,23 @@ interface DocumentType {
       .brand-gradient {
         background: linear-gradient(135deg, var(--brand), var(--brand-surface));
       }
+
+      /* Tarjeta seleccionada: fondo claro (gradiente) → texto siempre oscuro legible */
+      .selected-doc-type-light h3 {
+        color: #0f172a !important;
+      }
+
+      .selected-doc-type-light p {
+        color: #334155 !important;
+      }
+
+      .selected-doc-type-light svg {
+        color: #475569 !important;
+      }
+
+      .selected-doc-type-light .check-icon {
+        color: #ffffff !important;
+      }
     `,
   ],
   selector: 'app-document-create',
@@ -151,6 +168,7 @@ interface DocumentType {
               tabindex="0"
               role="button"
               class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
+              [class.selected-doc-type-light]="selectedType?.id === type.id"
               [class.border-blue-500]="selectedType?.id === type.id"
               [class.bg-gradient-to-br]="selectedType?.id === type.id"
               [class.from-blue-50]="selectedType?.id === type.id"
@@ -225,10 +243,10 @@ interface DocumentType {
                 </div>
                 @if (selectedType?.id === type.id) {
                   <div
-                    class="w-6 h-6 bg-brand rounded-full flex items-center justify-center"
+                    class="check-icon w-6 h-6 bg-brand rounded-full flex items-center justify-center"
                   >
                     <svg
-                      class="w-4 h-4 text-bg-secondary"
+                      class="w-4 h-4 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -619,7 +637,7 @@ interface DocumentType {
                         Vista Previa
                       </div>
                       <div
-                        class="w-full px-4 py-3 border border-soft rounded-xl bg-slate-50 min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner"
+                        class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]"
                         [innerHTML]="previewHtml"
                         [class.h-screen]="fullscreenMode"
                       ></div>

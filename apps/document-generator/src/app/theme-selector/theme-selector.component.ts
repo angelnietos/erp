@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeManagerService, Theme } from '../services/theme-manager.service';
 
@@ -8,48 +8,55 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
   imports: [CommonModule],
   styles: [
     `
-      .theme-selector {
+      .theme-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 10490;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+      }
+
+      .theme-fab {
         position: fixed;
         right: max(20px, env(safe-area-inset-right));
         bottom: max(20px, env(safe-area-inset-bottom));
-        z-index: 10500;
-      }
-
-      .theme-btn {
+        z-index: 10502;
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        border: none;
+        border: 1px solid var(--border-soft);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 20px;
         background: var(--surface);
-        border: 1px solid var(--border-soft);
         box-shadow: var(--shadow-md);
-        transition: all var(--transition-base);
+        transition: transform var(--transition-fast), box-shadow var(--transition-fast);
         backdrop-filter: blur(16px);
       }
 
-      .theme-btn:hover {
-        transform: scale(1.1);
+      .theme-fab:hover {
+        transform: scale(1.06);
         box-shadow: var(--shadow-lg);
       }
 
       .theme-panel {
-        position: absolute;
-        right: 0;
-        bottom: 60px;
+        position: fixed;
+        right: max(20px, env(safe-area-inset-right));
+        bottom: calc(max(20px, env(safe-area-inset-bottom)) + 56px);
+        z-index: 10501;
+        width: min(380px, calc(100vw - 32px));
+        max-height: min(80vh, 640px);
+        display: flex;
+        flex-direction: column;
         background: var(--surface);
         border: 1px solid var(--border-vibrant);
         border-radius: var(--radius-xl);
         box-shadow: var(--shadow-lg);
-        padding: 16px;
-        width: 380px;
-        max-height: 80vh;
-        overflow-y: auto;
-        animation: scaleIn 0.15s ease forwards;
+        overflow: hidden;
+        animation: scaleIn 0.18s ease forwards;
         transform-origin: bottom right;
         backdrop-filter: blur(24px);
       }
@@ -58,19 +65,67 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
         display: none;
       }
 
+      .theme-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-soft);
+        background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+      }
+
+      .theme-panel-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+      }
+
+      .theme-close {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+        transition:
+          background var(--transition-fast),
+          color var(--transition-fast);
+      }
+
+      .theme-close:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+      }
+
+      .theme-panel-body {
+        padding: 12px 14px 14px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
       @keyframes scaleIn {
         from {
           opacity: 0;
-          transform: scale(0.9);
+          transform: scale(0.94) translateY(6px);
         }
         to {
           opacity: 1;
-          transform: scale(1);
+          transform: scale(1) translateY(0);
         }
       }
 
       .theme-category {
-        margin-bottom: 16px;
+        margin-bottom: 14px;
       }
 
       .category-title {
@@ -90,88 +145,147 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
       }
 
       .theme-card {
-        padding: 12px 8px;
+        margin: 0;
+        padding: 10px 6px;
         border-radius: var(--radius-md);
         cursor: pointer;
         text-align: center;
         border: 2px solid transparent;
-        transition: all var(--transition-fast);
-        background: var(--bg-tertiary);
+        font: inherit;
+        appearance: none;
+        transition:
+          transform var(--transition-fast),
+          box-shadow var(--transition-fast),
+          border-color var(--transition-fast);
       }
 
       .theme-card:hover {
-        background: var(--surface-hover);
         transform: translateY(-2px);
+        filter: brightness(1.06);
       }
 
-      .theme-card.active {
-        border-color: var(--brand);
-        background: var(--brand-surface);
-        box-shadow: 0 0 0 1px var(--brand-border-soft);
+      .theme-card:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 2px;
       }
 
       .theme-icon {
-        font-size: 24px;
-        margin-bottom: 6px;
+        font-size: 22px;
+        margin-bottom: 4px;
+        line-height: 1.2;
       }
 
       .theme-name {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-primary);
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.25;
+        word-break: break-word;
       }
 
       .variant-selector {
         display: flex;
-        gap: 8px;
-        margin-top: 16px;
-        padding-top: 16px;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+        padding-top: 12px;
         border-top: 1px solid var(--border-soft);
       }
 
       .variant-btn {
         flex: 1;
+        min-width: 72px;
         padding: 8px 4px;
         border-radius: var(--radius-md);
         border: none;
-        background: var(--bg-tertiary);
-        color: var(--text-secondary);
-        font-size: 11px;
-        font-weight: 600;
+        font-size: 10px;
+        font-weight: 700;
         cursor: pointer;
-        transition: all var(--transition-fast);
+        transition: background var(--transition-fast), color var(--transition-fast);
       }
 
       .variant-btn:hover {
-        background: var(--surface-hover);
-      }
-
-      .variant-btn.active {
-        background: var(--brand);
-        color: white;
+        filter: brightness(1.08);
       }
     `,
   ],
   template: `
-    <div class="theme-selector">
-      <button class="theme-btn" (click)="open = !open">
-        {{ currentTheme().icon }}
-      </button>
+    @if (open) {
+      <div
+        class="theme-backdrop"
+        role="presentation"
+        (click)="close()"
+        aria-hidden="true"
+      ></div>
+    }
 
-      <div class="theme-panel" [class.hidden]="!open">
+    <button
+      type="button"
+      class="theme-fab"
+      (click)="toggle($event)"
+      [attr.aria-expanded]="open"
+      [attr.aria-haspopup]="true"
+      [attr.aria-controls]="'theme-panel-dialog'"
+      title="Temas visuales"
+    >
+      {{ currentTheme().icon }}
+    </button>
+
+    @if (open) {
+    <div
+      id="theme-panel-dialog"
+      class="theme-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Selector de tema"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="theme-panel-header">
+        <span class="theme-panel-title">Tema visual</span>
+        <button
+          type="button"
+          class="theme-close"
+          (click)="close()"
+          aria-label="Cerrar selector de temas"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="theme-panel-body">
         @for (category of categories; track category.id) {
           <div class="theme-category">
             <div class="category-title">{{ category.name }}</div>
             <div class="themes-grid">
               @for (theme of category.themes; track theme.id) {
-                <div
+                <button
+                  type="button"
                   class="theme-card"
                   [class.active]="currentTheme().id === theme.id"
+                  [style.background]="theme.colors.bgSecondary"
+                  [style.border-color]="
+                    currentTheme().id === theme.id
+                      ? theme.colors.brand
+                      : 'transparent'
+                  "
+                  [style.box-shadow]="
+                    currentTheme().id === theme.id
+                      ? '0 0 0 1px ' + theme.colors.brand + ', 0 6px 20px rgba(0,0,0,.2)'
+                      : 'none'
+                  "
                   (click)="selectTheme(theme)"
                 >
-                  <div class="theme-icon">{{ theme.icon }}</div>
-                  <div class="theme-name">{{ theme.name }}</div>
-                </div>
+                  <div
+                    class="theme-icon"
+                    [style.color]="theme.colors.accent"
+                  >
+                    {{ theme.icon }}
+                  </div>
+                  <div
+                    class="theme-name"
+                    [style.color]="theme.colors.textPrimary"
+                  >
+                    {{ theme.name }}
+                  </div>
+                </button>
               }
             </div>
           </div>
@@ -180,8 +294,23 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
         <div class="variant-selector">
           @for (variant of variants; track variant.id) {
             <button
+              type="button"
               class="variant-btn"
-              [class.active]="currentTheme().uiVariant === variant.id"
+              [style.background]="
+                currentTheme().uiVariant === variant.id
+                  ? 'var(--brand)'
+                  : 'var(--bg-tertiary)'
+              "
+              [style.color]="
+                currentTheme().uiVariant === variant.id
+                  ? 'var(--text-on-brand, #fff)'
+                  : 'var(--text-secondary)'
+              "
+              [style.box-shadow]="
+                currentTheme().uiVariant === variant.id
+                  ? '0 0 0 2px var(--brand)'
+                  : 'none'
+              "
               (click)="setVariant(variant.id)"
             >
               {{ variant.name }}
@@ -190,6 +319,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
         </div>
       </div>
     </div>
+    }
   `,
 })
 export class ThemeSelectorComponent {
@@ -202,8 +332,8 @@ export class ThemeSelectorComponent {
     { id: 'glass', name: '✨ Glass' },
     { id: 'solid', name: '⬛ Solid' },
     { id: 'flat', name: '🔲 Flat' },
-    { id: 'neumorphic', name: '🔘 Neumorphic' },
-    { id: 'minimal', name: '◻️ Minimal' },
+    { id: 'neumorphic', name: '🔘 Neo' },
+    { id: 'minimal', name: '◻️ Min' },
   ];
 
   readonly categories = [
@@ -223,6 +353,23 @@ export class ThemeSelectorComponent {
       themes: this.themeManager.getThemesByCategory()['colorful'],
     },
   ];
+
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(ev: KeyboardEvent): void {
+    if (ev.key === 'Escape' && this.open) {
+      this.close();
+      ev.preventDefault();
+    }
+  }
+
+  toggle(ev: MouseEvent): void {
+    ev.stopPropagation();
+    this.open = !this.open;
+  }
+
+  close(): void {
+    this.open = false;
+  }
 
   selectTheme(theme: Theme): void {
     this.themeManager.setTheme(theme);

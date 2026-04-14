@@ -188,7 +188,8 @@ body {
   padding: 0;
 }
 
-body * {
+/* No forzar color del tema sobre el árbol de vista previa Markdown (papel claro + texto oscuro) */
+body *:not(.markdown-preview):not(.markdown-preview *) {
   color: var(--text-primary);
 }
 
@@ -211,6 +212,15 @@ button,
 .btn {
   color: var(--text-primary) !important;
   background-color: var(--bg-secondary) !important;
+}
+
+/* Selector de temas: colores vienen del propio componente (no forzar tokens globales) */
+app-theme-selector .theme-fab,
+app-theme-selector .theme-card,
+app-theme-selector .theme-close,
+app-theme-selector .variant-btn {
+  color: revert-layer !important;
+  background-color: revert-layer !important;
 }
 
 /* Ensure links have good contrast */
@@ -369,6 +379,32 @@ a svg,
   margin: 1.5rem 0;
   border: none;
   border-top: 1px solid #e2e8f0;
+}
+
+.markdown-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-preview th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.markdown-preview td {
+  background: #ffffff;
+  color: #1e293b;
 }
 
 .markdown-preview a {
