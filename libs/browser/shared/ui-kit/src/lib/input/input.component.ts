@@ -84,6 +84,80 @@ export type InputVariant = string;
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
 
+    /* Shapes — sin esto, auto/solid/outline/etc. se ven idénticos */
+    .input-wrapper.input-shape-auto {
+      --input-bg: color-mix(in srgb, var(--theme-input-bg, rgba(255,255,255,0.05)) 88%, var(--input-accent) 12%);
+      --input-border: color-mix(in srgb, var(--input-accent) 22%, var(--theme-input-border, rgba(255,255,255,0.1)));
+    }
+
+    .input-wrapper.input-shape-solid {
+      --input-bg: color-mix(in srgb, var(--surface, #12131a) 90%, var(--input-accent) 10%);
+      --input-border: color-mix(in srgb, var(--input-accent) 35%, rgba(255,255,255,0.08));
+      --input-radius: 12px;
+    }
+
+    .input-wrapper.input-shape-outline {
+      --input-bg: transparent;
+      --input-border: color-mix(in srgb, var(--input-accent) 55%, rgba(255,255,255,0.15));
+      --input-radius: 14px;
+    }
+
+    .input-wrapper.input-shape-outline input {
+      border-width: 2px;
+    }
+
+    .input-wrapper.input-shape-flat {
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --input-border: rgba(255, 255, 255, 0.06);
+      --input-radius: 10px;
+    }
+
+    .input-wrapper.input-shape-flat input {
+      box-shadow: none;
+    }
+
+    .input-wrapper.input-shape-neumorphic {
+      --input-bg: #15161d;
+      --input-border: transparent;
+      --input-radius: 16px;
+    }
+
+    .input-wrapper.input-shape-neumorphic input {
+      box-shadow:
+        6px 6px 14px rgba(0, 0, 0, 0.45),
+        -5px -5px 12px rgba(255, 255, 255, 0.04);
+    }
+
+    .input-wrapper.input-shape-underline {
+      --input-bg: transparent;
+      --input-border: transparent;
+      --input-radius: 0;
+    }
+
+    .input-wrapper.input-shape-underline input {
+      border: none;
+      border-bottom: 2px solid color-mix(in srgb, var(--input-accent) 50%, transparent);
+      border-radius: 0 !important;
+      box-shadow: none;
+      padding-left: 0.25rem;
+    }
+
+    .input-wrapper.input-shape-minimal {
+      --input-bg: rgba(255, 255, 255, 0.04);
+      --input-border: rgba(255, 255, 255, 0.07);
+      --input-radius: 8px;
+    }
+
+    .input-wrapper.input-shape-minimal input {
+      padding-top: 0.65rem;
+      padding-bottom: 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    .input-wrapper.input-shape-rounded {
+      --input-radius: 999px;
+    }
+
     /* ELEMENT BASE RULES */
     input {
       width: 100%; padding: 0.9rem 1.25rem;

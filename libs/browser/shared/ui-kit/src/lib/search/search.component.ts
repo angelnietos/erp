@@ -118,16 +118,27 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     .clear-btn lucide-icon { width: 0.8rem; height: 0.8rem; }
 
-    /* Variants */
-    .search-filled { 
-      background: var(--surface);
-      border-color: var(--border-soft);
+    /* Variants — deben distinguirse a simple vista */
+    .search-default {
+      background: color-mix(in srgb, var(--surface, #0f1016) 100%, transparent);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.35));
     }
-    
+
+    .search-filled {
+      background: color-mix(in srgb, var(--surface, #0f1016) 88%, var(--brand, #e60012) 12%);
+      border: 1px solid color-mix(in srgb, var(--brand) 35%, var(--border-soft));
+      box-shadow:
+        0 4px 18px -6px color-mix(in srgb, var(--brand) 45%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
     .search-glass {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: color-mix(in srgb, var(--surface, #0f1016) 55%, transparent);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(18px) saturate(1.2);
+      -webkit-backdrop-filter: blur(18px) saturate(1.2);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
     .focus-indicator {
