@@ -66,7 +66,11 @@ export type Theme =
   | 'cyber-ocean'
   | 'blood-moon'
   | 'midnight-sun'
-  | 'icy-phantom';
+  | 'icy-phantom'
+  | 'aurora-veil'
+  | 'obsidian-rose'
+  | 'sandstone-day'
+  | 'nocturne-slate';
 
 function hexToRgbTriplet(hex: string): string {
   const normalized = hex.replace('#', '').trim();
@@ -79,6 +83,48 @@ function hexToRgbTriplet(hex: string): string {
 function hexToRgba(hex: string, alpha: number): string {
   const t = hexToRgbTriplet(hex);
   return `rgba(${t}, ${alpha})`;
+}
+
+function parseHexColor(hex: string): { r: number; g: number; b: number } | null {
+  const s = hex.replace('#', '').trim();
+  if (s.length === 6 && /^[0-9a-fA-F]+$/.test(s)) {
+    const n = parseInt(s, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  if (s.length === 3 && /^[0-9a-fA-F]+$/.test(s)) {
+    return {
+      r: parseInt(s[0] + s[0], 16),
+      g: parseInt(s[1] + s[1], 16),
+      b: parseInt(s[2] + s[2], 16),
+    };
+  }
+  return null;
+}
+
+function mixRgbHex(
+  a: { r: number; g: number; b: number },
+  b: { r: number; g: number; b: number },
+  t: number,
+): string {
+  const u = Math.min(1, Math.max(0, t));
+  const r = Math.round(a.r * (1 - u) + b.r * u);
+  const g = Math.round(a.g * (1 - u) + b.g * u);
+  const bl = Math.round(a.b * (1 - u) + b.b * u);
+  const n = (r << 16) | (g << 8) | bl;
+  return `#${n.toString(16).padStart(6, '0')}`;
+}
+
+/** Acerca el texto secundario al color de cuerpo para mejorar legibilidad (WCAG). */
+function accessibleMutedColor(
+  mutedHex: string,
+  textHex: string,
+  isLight: boolean,
+): string {
+  const m = parseHexColor(mutedHex);
+  const t = parseHexColor(textHex);
+  if (!m || !t) return mutedHex;
+  const pull = isLight ? 0.14 : 0.26;
+  return mixRgbHex(m, t, pull);
 }
 
 export interface ThemeConfig {
@@ -1403,6 +1449,86 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     info: '#334155',
     uiVariant: 'minimal',
   },
+  'aurora-veil': {
+    name: 'Aurora Veil',
+    primary: '#22d3ee',
+    secondary: '#a78bfa',
+    background: '#06060f',
+    surface: '#101525',
+    text: '#f0f9ff',
+    textMuted: '#93c5fd',
+    border: 'rgba(34, 211, 238, 0.22)',
+    brand: '#22d3ee',
+    brandGlow: 'rgba(34, 211, 238, 0.45)',
+    bgSecondary: '#0c1220',
+    bgTertiary: '#1a2235',
+    bgStyle: 'aurora',
+    success: '#34d399',
+    warning: '#fbbf24',
+    danger: '#fb7185',
+    info: '#38bdf8',
+    uiVariant: 'glass',
+  },
+  'obsidian-rose': {
+    name: 'Obsidian Rose',
+    primary: '#fb7185',
+    secondary: '#fda4af',
+    background: '#0b0708',
+    surface: '#181115',
+    text: '#fff1f2',
+    textMuted: '#f9a8d4',
+    border: 'rgba(251, 113, 133, 0.22)',
+    brand: '#fb7185',
+    brandGlow: 'rgba(251, 113, 133, 0.42)',
+    bgSecondary: '#120c0e',
+    bgTertiary: '#24181c',
+    bgStyle: 'bokeh',
+    success: '#34d399',
+    warning: '#fbbf24',
+    danger: '#f87171',
+    info: '#f472b6',
+    uiVariant: 'glass',
+  },
+  'sandstone-day': {
+    name: 'Sandstone Day',
+    primary: '#b45309',
+    secondary: '#78716c',
+    background: '#faf8f5',
+    surface: '#ffffff',
+    text: '#1c1917',
+    textMuted: '#57534e',
+    border: 'rgba(28, 25, 23, 0.1)',
+    brand: '#d97706',
+    brandGlow: 'rgba(217, 119, 6, 0.18)',
+    bgSecondary: '#f5f0e8',
+    bgTertiary: '#e7e2da',
+    bgStyle: 'spot',
+    success: '#15803d',
+    warning: '#c2410c',
+    danger: '#b91c1c',
+    info: '#0369a1',
+    uiVariant: 'solid',
+  },
+  'nocturne-slate': {
+    name: 'Nocturne Slate',
+    primary: '#38bdf8',
+    secondary: '#64748b',
+    background: '#070a0f',
+    surface: '#111827',
+    text: '#f1f5f9',
+    textMuted: '#94a3b8',
+    border: 'rgba(148, 163, 184, 0.2)',
+    brand: '#38bdf8',
+    brandGlow: 'rgba(56, 189, 248, 0.38)',
+    bgSecondary: '#0c1018',
+    bgTertiary: '#1e293b',
+    bgStyle: 'nebula',
+    success: '#34d399',
+    warning: '#fbbf24',
+    danger: '#f87171',
+    info: '#38bdf8',
+    uiVariant: 'glass',
+  },
 };
 
 /** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
@@ -1417,6 +1543,9 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
     id: 'luxe',
     label: '✨ Premium Design',
     keys: [
+      'aurora-veil',
+      'nocturne-slate',
+      'obsidian-rose',
       'cyber-ocean',
       'blood-moon',
       'midnight-sun',
@@ -1430,6 +1559,7 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
     label: '☀️ Temas Claros',
     keys: [
       'pearl',
+      'sandstone-day',
       'sky-day',
       'rose-quartz',
       'sage',
@@ -1581,8 +1711,19 @@ export class ThemeService {
     root.style.setProperty('--theme-secondary', config.secondary);
     root.style.setProperty('--theme-background', config.background);
     root.style.setProperty('--theme-surface', config.surface);
+
+    const bgTriplet = hexToRgbTriplet(config.background).split(',').map(Number);
+    const brightness =
+      (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
+    const isLight = brightness > 180;
+    const mutedResolved = accessibleMutedColor(
+      config.textMuted,
+      config.text,
+      isLight,
+    );
+
     root.style.setProperty('--theme-text', config.text);
-    root.style.setProperty('--theme-text-muted', config.textMuted);
+    root.style.setProperty('--theme-text-muted', mutedResolved);
     root.style.setProperty('--theme-border', config.border);
 
     // Cyber-Luxe tokens
@@ -1593,15 +1734,13 @@ export class ThemeService {
     root.style.setProperty('--bg-secondary', config.bgSecondary);
     root.style.setProperty('--bg-tertiary', config.bgTertiary);
     root.style.setProperty('--text-primary', config.text);
-    root.style.setProperty('--text-secondary', config.textMuted);
+    root.style.setProperty('--text-secondary', mutedResolved);
+    root.style.setProperty('--text-muted', mutedResolved);
+    root.style.setProperty('--accent-muted', mutedResolved);
     root.style.setProperty('--border-soft', config.border);
 
     root.style.setProperty('--surface', hexToRgba(config.surface, 0.78));
     const brandRgb = hexToRgbTriplet(config.brand);
-    // ── LIGHT THEME DETECTION ──────────────────────────────────────
-    const t = hexToRgbTriplet(config.background).split(',').map(Number);
-    const brightness = (t[0] * 299 + t[1] * 587 + t[2] * 114) / 1000;
-    const isLight = brightness > 180;
 
     root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.12)`);
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);

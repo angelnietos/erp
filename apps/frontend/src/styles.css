@@ -58,6 +58,7 @@
 
 /* Light Theme Overrides */
 [data-theme="pearl"],
+[data-theme="sandstone-day"],
 [data-theme="sky-day"],
 [data-theme="rose-quartz"],
 [data-theme="sage"],
@@ -1026,6 +1027,7 @@ main .content a:not(.nav-link):not(.theme-option):not(.menu-item):hover {
    LIGHT THEME GLOBAL SUPPORT
    ===================================================== */
 html[data-theme='pearl'],
+html[data-theme='sandstone-day'],
 html[data-theme='sky-day'],
 html[data-theme='rose-quartz'],
 html[data-theme='sage'],
@@ -1046,6 +1048,7 @@ html[data-theme='light'] {
 
 /* Quitar scanline oscuro en temas claros */
 html[data-theme='pearl'] body::after,
+html[data-theme='sandstone-day'] body::after,
 html[data-theme='sky-day'] body::after,
 html[data-theme='rose-quartz'] body::after,
 html[data-theme='sage'] body::after,
@@ -1060,6 +1063,7 @@ html[data-theme='light'] body::after {
 
 /* Textos visibles en temas claros */
 html[data-theme='pearl'] .glow-text,
+html[data-theme='sandstone-day'] .glow-text,
 html[data-theme='sky-day'] .glow-text,
 html[data-theme='rose-quartz'] .glow-text,
 html[data-theme='sage'] .glow-text,

@@ -242,17 +242,17 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .top-nav {
         height: 42px; /* Reduced from 48px */
-        background: rgba(10, 10, 10, 0.82);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+        backdrop-filter: blur(18px) saturate(1.15);
+        -webkit-backdrop-filter: blur(18px) saturate(1.15);
         border-bottom: 1px solid var(--border-soft);
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 16px;
         flex-shrink: 0;
-        z-index: 100;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        z-index: 5000;
+        box-shadow: 0 4px 24px color-mix(in srgb, var(--bg-primary) 40%, transparent);
       }
 
       .search-container {
@@ -412,14 +412,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         top: 100%;
         right: 0;
         margin-top: 12px;
-        background: rgba(15, 15, 15, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        padding: 6px 4px 8px;
-        min-width: 220px;
-        max-width: min(92vw, 280px);
-        max-height: min(calc(100vh - 5.5rem), 26rem);
+        background: color-mix(
+          in srgb,
+          var(--bg-secondary) 96%,
+          var(--brand) 4%
+        );
+        backdrop-filter: blur(20px) saturate(1.2);
+        -webkit-backdrop-filter: blur(20px) saturate(1.2);
+        border: 1px solid color-mix(in srgb, var(--brand) 22%, var(--border-soft));
+        border-radius: 14px;
+        padding: 8px 6px 10px;
+        min-width: 228px;
+        max-width: min(92vw, 300px);
+        max-height: min(calc(100vh - 5.5rem), 28rem);
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -427,8 +432,11 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         scrollbar-color: color-mix(in srgb, var(--text-muted) 50%, transparent)
           transparent;
         -webkit-overflow-scrolling: touch;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        z-index: 200;
+        box-shadow:
+          0 4px 6px rgba(0, 0, 0, 0.08),
+          0 18px 48px rgba(0, 0, 0, 0.35),
+          0 0 0 1px color-mix(in srgb, var(--text-primary) 6%, transparent);
+        z-index: 5100;
         animation: menuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
@@ -576,14 +584,21 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         top: 100%;
         right: 0;
         margin-top: 16px;
-        background: rgba(15, 15, 15, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
+        background: color-mix(
+          in srgb,
+          var(--bg-secondary) 96%,
+          var(--brand) 4%
+        );
+        backdrop-filter: blur(20px) saturate(1.2);
+        -webkit-backdrop-filter: blur(20px) saturate(1.2);
+        border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border-soft));
+        border-radius: 14px;
         padding: 12px;
         min-width: 220px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-        z-index: 200;
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.4),
+          0 0 0 1px color-mix(in srgb, var(--text-primary) 6%, transparent);
+        z-index: 5100;
       }
 
       .menu-header {
