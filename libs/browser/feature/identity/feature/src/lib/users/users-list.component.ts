@@ -223,11 +223,11 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   onRowClick(user: User) {
-    this.router.navigate(['/identity', user.id]);
+    this.router.navigate(['/users', user.id]);
   }
 
   onEdit(user: User) {
-    this.router.navigate(['/identity', user.id, 'edit']);
+    this.router.navigate(['/users', user.id, 'edit']);
   }
 
   onDelete(user: User) {
