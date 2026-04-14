@@ -17,3 +17,4 @@ export * from './lib/models/ai-bot.model';
 export { AIFormBridgeService } from './lib/services/ai-form-bridge.service';
 export { OrchestrationBus } from './lib/services/ai/orchestration-bus.service';
 export type { OrchestrationTask, OrchestrationType } from './lib/services/ai/orchestration-bus.service';
+export { getAiFeatureFromUrl } from './lib/utils/ai-route-feature';

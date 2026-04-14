@@ -3,6 +3,7 @@
   [class]="'feature-' + feature"
   [class.is-open]="isOpen()"
   [class.secondary]="feature === 'buddy'"
+  [attr.data-assistant-role]="assistantRole"
   *ngIf="bot() && bot()!.status === 'active'"
 >
   <!-- Floating Mascot Bubble -->
@@ -60,7 +61,13 @@
           ></span>
           <div>
             <h4>{{ bot()!.name }}</h4>
-            <p>Tu asistente de {{ bot()!.feature }}</p>
+            <p>
+              @if (feature === 'buddy') {
+                Contexto: <strong>{{ domainFeature() }}</strong> · orquestador
+              } @else {
+                Tu asistente de {{ bot()!.feature }}
+              }
+            </p>
           </div>
         </div>
         <div class="window-actions">
@@ -83,9 +90,12 @@
       <div class="chat-messages">
         <div class="message bot-msg">
           <p>
-            ¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de **{{
-              bot()!.feature
-            }}** en tiempo real. ¿En qué puedo ayudarte hoy?
+            ¡Hola! Soy {{ bot()!.name }}.
+            @if (feature === 'buddy') {
+              Estoy contigo en el módulo **{{ domainFeature() }}** del ERP. ¿En qué puedo ayudarte?
+            } @else {
+              Estoy analizando tus datos de **{{ bot()!.feature }}** en tiempo real. ¿En qué puedo ayudarte hoy?
+            }
           </p>
           <div class="bot-skills-badges">
             <span

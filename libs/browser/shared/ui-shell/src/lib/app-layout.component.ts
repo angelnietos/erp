@@ -18,6 +18,7 @@ import {
   Theme,
   AuthStore,
   PluginStore,
+  getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
@@ -200,8 +201,15 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
 
-        <!-- Un solo asistente flotante: el bot efectivo por ruta sigue en AIBotStore.getEffectiveBotForCurrentUser -->
-        <ui-ai-assistant [feature]="currentFeature()"></ui-ai-assistant>
+        <!-- Orquestador + especialista del módulo actual (dos chats independientes) -->
+        <ui-ai-assistant
+          feature="buddy"
+          assistantRole="buddy"
+        ></ui-ai-assistant>
+        <ui-ai-assistant
+          [feature]="routeDomain()"
+          assistantRole="domain"
+        ></ui-ai-assistant>
       </div>
     </div>
   `,
@@ -686,34 +694,16 @@ export class AppLayoutComponent {
   readonly logoutClick = output<void>();
   readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+  private readonly navEvents = toSignal(
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
+  );
+  /** Dominio IA según la ruta (Stage-Bot, Lens-Bot, JAIME, …). */
+  readonly routeDomain = computed(() => {
+    this.navEvents();
+    return getAiFeatureFromUrl(this.router.url);
+  });
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
-  private readonly navEvents = toSignal(
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)),
-  );
-
-  readonly currentFeature = computed(() => {
-    // Escuchamos el signal de navegación para forzar la re-evaluación
-    this.navEvents();
-    const url = this.router.url;
-    if (url.includes('/inventory')) return 'inventory';
-    if (url.includes('/budgets')) return 'budgets';
-    if (url.includes('/projects')) return 'projects';
-    if (url.includes('/clients')) return 'clients';
-    if (url.includes('/fleet')) return 'fleet';
-    if (url.includes('/rentals')) return 'rentals';
-    if (url.includes('/audit')) return 'audit';
-    if (url.includes('/verifactu')) return 'verifactu';
-    if (url.includes('/billing')) return 'billing';
-    if (url.includes('/delivery')) return 'delivery';
-    if (url.includes('/services')) return 'services';
-    if (url.includes('/receipts')) return 'receipts';
-    if (url.includes('/events')) return 'events';
-    if (url.includes('/reports')) return 'reports';
-    if (url.includes('/availability')) return 'availability';
-    if (url.includes('/users')) return 'users';
-    return 'dashboard';
-  });
 
   showThemeMenu = signal(false);
 

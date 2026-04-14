@@ -10,9 +10,11 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import {
   AIBotStore,
   DashboardAnalyticsService,
@@ -23,6 +25,7 @@ import {
   InterBotMessage,
   OrchestrationBus,
   TechnicianApiService,
+  getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -54,6 +57,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     return this._feature();
   }
 
+  /** En layout dual: Buddy (orquestador) vs bot del módulo actual. */
+  @Input() assistantRole: 'buddy' | 'domain' = 'domain';
+
   aiBotStore = inject(AIBotStore);
   orchestrationBus = inject(OrchestrationBus);
   private technicianApi = inject(TechnicianApiService);
@@ -65,6 +71,21 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   router = inject(Router);
   ngZone = inject(NgZone);
 
+  /** Módulo ERP actual (eventos, clientes, …) para contexto cuando el shell es Buddy. */
+  private readonly navEvents = toSignal(
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
+  );
+  readonly domainFeature = computed(() => {
+    this.navEvents();
+    return getAiFeatureFromUrl(this.router.url);
+  });
+
+  /** Dominio efectivo para memoria / tracking cuando el shell es Buddy. */
+  readonly contextFeature = computed(() => {
+    const f = this._feature();
+    return f === 'buddy' ? this.domainFeature() : f;
+  });
+
   readonly currentUserId = signal<string>(
     JSON.parse(localStorage.getItem('auth_user') || 'null')?.email ||
       JSON.parse(localStorage.getItem('auth_user') || 'null')?.id ||
@@ -72,7 +93,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   );
 
   readonly currentUserPersonality = computed(() =>
-    this.aiBotStore.getUserPersonality(this.feature, this.currentUserId()),
+    this.aiBotStore.getUserPersonality(this.contextFeature(), this.currentUserId()),
   );
 
   readonly bot = computed(() =>
@@ -123,7 +144,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     msg.feedbackSubmitted = true;
     this.messages.update((m) => [...m]);
     const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...".`;
-    this.aiBotStore.remember(this.feature, fbText, type === 'positive' ? 3 : 5);
+    this.aiBotStore.remember(
+      this.contextFeature(),
+      fbText,
+      type === 'positive' ? 3 : 5,
+    );
   }
 
   isListening = signal(false);
@@ -137,10 +162,14 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     // React to inter-bot queue messages
     effect(() => {
       const b = this.bot();
+      this.aiBotStore.interBotQueue(); // re-ejecutar cuando lleguen mensajes
       console.log(`[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`);
       
       this.aiBotStore.interBotTick();
-      const items = this.aiBotStore.pullInterBotMessagesFor(this.feature);
+      const items =
+        this.feature === 'buddy'
+          ? this.aiBotStore.pullInterBotMessagesForBuddy()
+          : this.aiBotStore.pullInterBotMessagesForDomainFeature(this.feature);
       if (items.length === 0) return;
       items.forEach((item: InterBotMessage, i: number) => {
         const delay = 80 + i * 350;
@@ -158,12 +187,16 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     // React to OrchestrationBus tasks dispatched to this bot
     effect(() => {
-      const feature = this._feature();
-      if (!feature) return;
-      const pending = this.orchestrationBus.getPendingFor(feature);
+      this.orchestrationBus.tasks(); // re-ejecutar cuando haya tareas nuevas
+      const selfFeature = this._feature();
+      if (!selfFeature) return;
+      const pending =
+        selfFeature === 'buddy'
+          ? this.orchestrationBus.getPendingFor('buddy')
+          : this.orchestrationBus.getPendingFor(selfFeature);
       if (pending.length === 0) return;
 
-      pending.forEach(task => {
+      pending.forEach((task) => {
         const claimed = this.orchestrationBus.claimTask(task.id);
         if (!claimed) return;
 
@@ -171,24 +204,37 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           try {
             const instruction = (task.payload['instruction'] as string) ||
               `Ejecuta: ${task.type} — ${JSON.stringify(task.payload)}`;
+            const targetDomain = task.to;
 
-            // Show in chat that a task was received
+            const isBuddy = selfFeature === 'buddy';
+            const taskLabel = isBuddy
+              ? `🎯 **Tarea de Buddy recibida:** ${instruction}`
+              : `🎯 **Tarea en tu dominio (${targetDomain}):** ${instruction}`;
+
             this.messages.update(m => [
               ...m,
               {
                 id: `${Date.now()}-orch`,
-                text: `🎯 **Tarea de Buddy recibida:** ${instruction}`,
+                text: taskLabel,
                 role: 'bot',
               },
             ]);
             this.scrollToBottom();
 
-            // Execute the instruction via AI
-            await this.triggerAIResponse(
-              `INSTRUCCIÓN AUTOMÁTICA DEL ORQUESTADOR BUDDY:\n${instruction}\n\nEjecuta esta tarea en el contexto de tu dominio (${feature}). Responde brevemente qué hiciste y ejecuta las acciones de sistema correspondientes.`,
-            );
+            if (isBuddy) {
+              await this.triggerAIResponse(
+                `INSTRUCCIÓN AUTOMÁTICA DEL ORQUESTADOR BUDDY:\n${instruction}\n\nEjecuta esta tarea en el contexto de tu dominio (${targetDomain}). Responde brevemente qué hiciste y ejecuta las acciones de sistema correspondientes.`,
+              );
+            } else {
+              await this.triggerAIResponse(
+                `INSTRUCCIÓN DE WORKFLOW:\n${instruction}\n\nActúa como especialista del dominio **${selfFeature}** y ejecuta lo necesario en el ERP.`,
+              );
+            }
 
-            this.orchestrationBus.complete(task.id, `Bot ${feature} procesó la tarea`);
+            this.orchestrationBus.complete(
+              task.id,
+              `Bot ${targetDomain} procesó la tarea`,
+            );
           } catch (e: any) {
             this.orchestrationBus.fail(task.id, e?.message ?? String(e));
           }
@@ -361,7 +407,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     ]);
     this.currentInput = '';
     this.scrollToBottom();
-    this.aiBotStore.trackInteraction(this.feature, this.currentUserId());
+    this.aiBotStore.trackInteraction(this.contextFeature(), this.currentUserId());
     this.aiBotStore.broadcastMessage(this.feature, userInput, 'all');
     await this.triggerAIResponse(userInput);
   }
@@ -380,14 +426,20 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     try {
       // Construir contexto basado en el rol del bot y historial de conversación
-      const botMemories = this.aiBotStore.getBotContext(this.feature);
+      const memoryKeys =
+        this.feature === 'buddy'
+          ? [...new Set(['buddy', this.domainFeature()])]
+          : [this.feature];
+      const botMemories = memoryKeys.flatMap((k) =>
+        this.aiBotStore.getBotContext(k),
+      );
       const conversationHistory = this.messages()
         .slice(-6) // Últimos 6 mensajes para mantener contexto relevante
         .map((m) => `${m.role === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`)
         .join('\n');
 
       const displayName = this.aiBotStore.getBotDisplayName(this.feature);
-      const userLayer = this.aiBotStore.getUserAgentConfig(this.feature);
+      const userLayer = this.mergeUserLayersForPrompt();
       const userLayerExtras: string[] = [];
       if (userLayer.rules.trim()) {
         userLayerExtras.push(
@@ -415,7 +467,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         userLayerExtras.length > 0 ? `\n\n${userLayerExtras.join('\n\n')}` : '';
 
       let technicianSnapshot = '';
-      if (this.feature === 'users') {
+      if (this.domainFeature() === 'users') {
         try {
           const techs = await firstValueFrom(this.technicianApi.getTechnicians());
           const summary = techs.map((t) => ({
@@ -436,7 +488,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         }
       }
 
-      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
+      const domainHint =
+        this.feature === 'buddy'
+          ? ` El usuario está ahora en el módulo **${this.domainFeature()}** del ERP; prioriza ese contexto en ejemplos y acciones.`
+          : '';
+      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${this.bot()!.feature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
 
       const context =
         `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +
@@ -488,7 +544,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
       // Registrar interacción exitosa
       this.aiBotStore.recordSuccessfulInteraction(
-        this.feature,
+        this.contextFeature(),
         'current_user',
         userInput,
         'chat_response',
@@ -964,6 +1020,28 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         .join('. ') + '.';
 
     return summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
+  }
+
+  /**
+   * Capa de preferencias del usuario: Buddy + capa del módulo actual (p. ej. JAIME en panel).
+   */
+  private mergeUserLayersForPrompt() {
+    if (this.feature !== 'buddy') {
+      return this.aiBotStore.getUserAgentConfig(this.feature);
+    }
+    const b = this.aiBotStore.getUserAgentConfig('buddy');
+    const d = this.aiBotStore.getUserAgentConfig(this.domainFeature());
+    if (this.domainFeature() === 'buddy') {
+      return b;
+    }
+    return {
+      activeSkills: [...new Set([...b.activeSkills, ...d.activeSkills])],
+      rules: [b.rules, d.rules].filter(Boolean).join('\n\n'),
+      systemInstructions: [b.systemInstructions, d.systemInstructions]
+        .filter(Boolean)
+        .join('\n\n'),
+      promptPresets: [...b.promptPresets, ...d.promptPresets],
+    };
   }
 
   trackBySkill(index: number, skill: string) {

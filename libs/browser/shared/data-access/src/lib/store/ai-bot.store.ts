@@ -469,7 +469,17 @@ export class AIBotStore {
   }
 
   getBotPosition(feature: string): { x: number; y: number } {
-    return this._botPositions()[feature] || { x: 240, y: 100 };
+    const saved = this._botPositions()[feature];
+    if (saved) return saved;
+    const w =
+      typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const h =
+      typeof window !== 'undefined' ? window.innerHeight : 800;
+    const baseX = Math.max(24, w - 160);
+    if (feature === 'buddy') {
+      return { x: baseX, y: h - 140 };
+    }
+    return { x: baseX, y: h - 270 };
   }
 
   // Inter-Bot Communication
@@ -478,13 +488,45 @@ export class AIBotStore {
     this._interBotQueue.update(q => [...q, msg]);
   }
 
-  pullInterBotMessagesFor(feature: string): InterBotMessage[] {
+  /**
+   * @param includeGlobalBroadcast — solo el asistente Buddy debe poner `true` para `to === 'all'`.
+   */
+  pullInterBotMessagesForFeatures(
+    features: string[],
+    opts?: { includeGlobalBroadcast?: boolean },
+  ): InterBotMessage[] {
+    const targets = new Set(features);
     const all = this._interBotQueue();
-    const forMe = all.filter(m => m.to === feature || m.to === 'all');
+    const includeAll = opts?.includeGlobalBroadcast === true;
+    const forMe = all.filter((m) => {
+      if (targets.has(m.to)) return true;
+      if (includeAll && m.to === 'all') return true;
+      return false;
+    });
     if (forMe.length > 0) {
-      this._interBotQueue.update(q => q.filter(m => !forMe.includes(m)));
+      this._interBotQueue.update((q) => q.filter((m) => !forMe.includes(m)));
     }
     return forMe;
+  }
+
+  /** Buddy + difusiones globales (`all`). */
+  pullInterBotMessagesForBuddy(): InterBotMessage[] {
+    return this.pullInterBotMessagesForFeatures(['buddy'], {
+      includeGlobalBroadcast: true,
+    });
+  }
+
+  /** Solo el bot de dominio (sin consumir difusiones `all`, las lleva Buddy). */
+  pullInterBotMessagesForDomainFeature(feature: string): InterBotMessage[] {
+    return this.pullInterBotMessagesForFeatures([feature], {
+      includeGlobalBroadcast: false,
+    });
+  }
+
+  pullInterBotMessagesFor(feature: string): InterBotMessage[] {
+    return this.pullInterBotMessagesForFeatures([feature], {
+      includeGlobalBroadcast: true,
+    });
   }
 
   broadcastMessage(from: string, text: string, to: string) {
