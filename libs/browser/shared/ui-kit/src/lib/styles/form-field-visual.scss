@@ -1,0 +1,49 @@
+/* Tokens compartidos: campos de formulario (input, textarea, select, search, datepicker) */
+:host {
+  display: block;
+
+  --fld-brand: var(--brand, #e60012);
+  --fld-success: var(--success, #22c55e);
+  --fld-warning: var(--warning, #eab308);
+  --fld-info: var(--info, #0ea5e9);
+  --fld-danger: var(--danger, #f43f5e);
+
+  --fld-surface-deep: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--fld-brand) 12%, #161822) 0%,
+    #0b0c10 100%
+  );
+  --fld-surface-soft: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  --fld-glass: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  --fld-shine-top: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  --fld-shine-subtle: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  --fld-ring-brand: 0 0 0 3px color-mix(in srgb, var(--fld-brand) 18%, transparent);
+  --fld-shadow-brand: 0 10px 36px -12px color-mix(in srgb, var(--fld-brand) 42%, transparent);
+  --fld-shadow-float: 0 12px 40px -16px rgba(0, 0, 0, 0.55);
+
+  --fld-border-brand: color-mix(in srgb, var(--fld-brand) 48%, rgba(255, 255, 255, 0.12));
+  --fld-border-muted: rgba(255, 255, 255, 0.1);
+
+  --fld-glow-success:
+    0 0 0 1px color-mix(in srgb, var(--fld-success) 42%, transparent),
+    0 6px 22px -8px color-mix(in srgb, var(--fld-success) 28%, transparent);
+  --fld-glow-warning:
+    0 0 0 1px color-mix(in srgb, var(--fld-warning) 48%, transparent),
+    0 6px 22px -8px color-mix(in srgb, var(--fld-warning) 24%, transparent);
+  --fld-glow-info:
+    0 0 0 1px color-mix(in srgb, var(--fld-info) 42%, transparent),
+    0 6px 22px -8px color-mix(in srgb, var(--fld-info) 26%, transparent);
+  --fld-glow-danger:
+    0 0 0 1px color-mix(in srgb, var(--fld-danger) 45%, transparent),
+    0 6px 22px -8px color-mix(in srgb, var(--fld-danger) 22%, transparent);
+}

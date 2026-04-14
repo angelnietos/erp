@@ -47,10 +47,8 @@ export type InputVariant = string;
       }
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    :host {
-      display: block;
-    }
     .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
 
     .label {
@@ -65,23 +63,24 @@ export type InputVariant = string;
       --input-border: var(--theme-input-border, rgba(255, 255, 255, 0.1));
       --input-radius: var(--theme-input-radius, 14px);
       --input-color: var(--text-primary, #fff);
-      --input-accent: var(--brand, #3b82f6);
+      --input-accent: var(--fld-brand);
     }
 
     /* THEMATIC COLOR TOKENS */
-    .input-color-default { --input-accent: var(--brand); }
-    .input-color-primary { --input-accent: var(--brand); }
-    .input-color-danger { --input-accent: var(--danger, #ef4444); }
-    .input-color-success { --input-accent: var(--success, #10b981); }
-    .input-color-warning { --input-accent: var(--warning, #f59e0b); }
-    .input-color-info { --input-accent: var(--info, #3b82f6); }
+    .input-color-default { --input-accent: var(--fld-brand); }
+    .input-color-primary { --input-accent: var(--fld-brand); }
+    .input-color-danger { --input-accent: var(--fld-danger); }
+    .input-color-success { --input-accent: var(--fld-success); }
+    .input-color-warning { --input-accent: var(--fld-warning); }
+    .input-color-info { --input-accent: var(--fld-info); }
 
-    .input-wrapper.has-error { --input-border: var(--danger); --input-accent: var(--danger); }
+    .input-wrapper.has-error { --input-border: var(--fld-danger); --input-accent: var(--fld-danger); }
 
     .input-shape-glass {
-      --input-bg: var(--theme-input-bg, rgba(255, 255, 255, 0.03));
-      --input-border: var(--theme-input-border, rgba(255, 255, 255, 0.06));
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      --input-bg: color-mix(in srgb, rgba(255, 255, 255, 0.06) 40%, transparent);
+      --input-border: color-mix(in srgb, var(--fld-brand) 22%, rgba(255, 255, 255, 0.1));
+      backdrop-filter: blur(14px) saturate(1.1);
+      -webkit-backdrop-filter: blur(14px) saturate(1.1);
     }
 
     /* Shapes — sin esto, auto/solid/outline/etc. se ven idénticos */
@@ -91,8 +90,8 @@ export type InputVariant = string;
     }
 
     .input-wrapper.input-shape-solid {
-      --input-bg: color-mix(in srgb, var(--surface, #12131a) 90%, var(--input-accent) 10%);
-      --input-border: color-mix(in srgb, var(--input-accent) 35%, rgba(255,255,255,0.08));
+      --input-bg: linear-gradient(180deg, color-mix(in srgb, var(--input-accent) 14%, #151722) 0%, #0e0f14 100%);
+      --input-border: color-mix(in srgb, var(--input-accent) 38%, rgba(255, 255, 255, 0.08));
       --input-radius: 12px;
     }
 
@@ -107,25 +106,26 @@ export type InputVariant = string;
     }
 
     .input-wrapper.input-shape-flat {
-      --input-bg: rgba(255, 255, 255, 0.08);
-      --input-border: rgba(255, 255, 255, 0.06);
+      --input-bg: color-mix(in srgb, var(--fld-brand) 8%, rgba(255, 255, 255, 0.07));
+      --input-border: var(--fld-border-muted);
       --input-radius: 10px;
     }
 
     .input-wrapper.input-shape-flat input {
-      box-shadow: none;
+      box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.22);
     }
 
     .input-wrapper.input-shape-neumorphic {
-      --input-bg: #15161d;
-      --input-border: transparent;
+      --input-bg: linear-gradient(145deg, #1a1c26 0%, #12141a 100%);
+      --input-border: color-mix(in srgb, var(--input-accent) 15%, rgba(255, 255, 255, 0.06));
       --input-radius: 16px;
     }
 
     .input-wrapper.input-shape-neumorphic input {
       box-shadow:
-        6px 6px 14px rgba(0, 0, 0, 0.45),
-        -5px -5px 12px rgba(255, 255, 255, 0.04);
+        8px 8px 18px rgba(0, 0, 0, 0.5),
+        -6px -6px 14px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     .input-wrapper.input-shape-underline {
@@ -161,23 +161,24 @@ export type InputVariant = string;
     /* ELEMENT BASE RULES */
     input {
       width: 100%; padding: 0.9rem 1.25rem;
-      background: var(--input-bg); 
+      background: var(--input-bg);
       border: 1px solid var(--input-border);
-      border-radius: var(--input-radius); 
+      border-radius: var(--input-radius);
       color: var(--input-color);
-      font-size: 0.85rem; font-weight: 600; 
+      font-size: 0.85rem; font-weight: 600;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none; font-family: inherit;
-      box-shadow: var(--theme-input-shadow, inset 0 2px 4px rgba(0,0,0,0.2));
+      box-shadow: var(--fld-shine-subtle), var(--theme-input-shadow, inset 0 2px 5px rgba(0, 0, 0, 0.25));
     }
 
-    /* FOCUS STATES */
+    /* FOCUS STATES — anillo según color semántico activo */
     input:focus {
-      background: color-mix(in srgb, var(--input-bg) 80%, var(--text-primary, #fff));
-      border-color: var(--input-accent);
+      background: color-mix(in srgb, var(--input-bg) 82%, #fff 10%);
+      border-color: color-mix(in srgb, var(--input-accent) 65%, rgba(255, 255, 255, 0.2));
       box-shadow:
-        0 0 0 4px color-mix(in srgb, var(--input-accent) 15%, transparent),
-        var(--theme-input-shadow, 0 8px 30px -10px color-mix(in srgb, var(--input-accent) 40%, transparent));
+        0 0 0 3px color-mix(in srgb, var(--input-accent) 18%, transparent),
+        0 10px 32px -12px color-mix(in srgb, var(--input-accent) 36%, transparent),
+        var(--fld-shine-top);
     }
 
     input::placeholder {
@@ -201,7 +202,7 @@ export type InputVariant = string;
     input:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; margin-left: 8px; font-weight: 600; letter-spacing: 0.02em; }
-    .hint.error { color: var(--danger); text-transform: uppercase; font-size: 0.6rem; }
+    .hint.error { color: var(--fld-danger); text-transform: uppercase; font-size: 0.6rem; }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {

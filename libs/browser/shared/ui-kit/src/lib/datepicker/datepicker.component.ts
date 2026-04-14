@@ -32,6 +32,7 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
       </div>
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
     .datepicker { display: flex; flex-direction: column; gap: 6px; width: 100%; }
     .label { 
@@ -44,74 +45,77 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
     }
     .input-wrapper { position: relative; }
 
-    /* Base Input Styles */
     input {
-      width: 100%; 
-      padding: 12px 16px; 
-      border-radius: 6px;
-      font-size: 0.9rem; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-      outline: none; 
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
       font-family: var(--font-main);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
+      background:
+        var(--fld-surface-soft),
+        color-mix(in srgb, var(--bg-tertiary) 92%, var(--fld-brand) 8%);
+      border: 1px solid var(--fld-border-muted);
       color: var(--text-primary);
+      box-shadow: var(--fld-shine-subtle), inset 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
     input:focus {
-      border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
+      border-color: var(--fld-border-brand);
+      background: color-mix(in srgb, var(--bg-secondary) 88%, #fff 6%);
+      box-shadow: var(--fld-ring-brand), var(--fld-shadow-brand);
     }
 
-    /* Webkit Calendar Icon Styling */
     input::-webkit-calendar-picker-indicator {
-      filter: invert(0.8) sepia(1) saturate(5) hue-rotate(-50deg); /* Brand-ish color */
+      filter: invert(0.85) sepia(1) saturate(6) hue-rotate(320deg);
       cursor: pointer;
-      opacity: 0.6;
+      opacity: 0.65;
       transition: all 0.3s ease;
     }
-    
+
     input:focus::-webkit-calendar-picker-indicator {
       opacity: 1;
-      filter: invert(1);
+      filter: invert(0.9) sepia(1) saturate(8) hue-rotate(320deg);
     }
 
-    /* Variants */
     .datepicker-default {
-      background: var(--bg-tertiary);
-      border-color: var(--border-vibrant);
+      background: color-mix(in srgb, var(--bg-tertiary) 94%, var(--fld-brand) 6%);
+      border-color: color-mix(in srgb, var(--fld-brand) 18%, var(--border-vibrant));
     }
 
     .datepicker-filled {
-      background: color-mix(in srgb, var(--bg-tertiary) 85%, var(--brand, #e60012) 15%);
-      border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+      background: var(--fld-surface-deep);
+      border-color: var(--fld-border-brand);
+      box-shadow: var(--fld-shine-top), inset 0 3px 10px rgba(0, 0, 0, 0.35);
     }
 
     .datepicker-outlined {
       background: transparent;
-      border: 2px solid color-mix(in srgb, var(--brand) 45%, var(--border-vibrant));
+      border: 2px solid var(--fld-border-brand);
+      box-shadow: none;
     }
 
     .datepicker-ghost {
       background: transparent;
-      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border: 1px dashed color-mix(in srgb, var(--fld-brand) 28%, rgba(255, 255, 255, 0.2));
     }
 
     .datepicker-ghost:focus {
-      background: rgba(255, 255, 255, 0.04);
+      background: color-mix(in srgb, var(--fld-brand) 6%, transparent);
       border-style: solid;
     }
 
     .datepicker-dark {
-      background: #050508;
+      background: linear-gradient(180deg, #0a0b10 0%, #050508 100%);
       border-color: rgba(255, 255, 255, 0.08);
     }
 
     .datepicker-light {
-      background: rgba(248, 250, 252, 0.95);
-      border-color: rgba(15, 23, 42, 0.15);
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      border-color: color-mix(in srgb, var(--fld-brand) 16%, #cbd5e1);
       color: #0f172a;
+      box-shadow: var(--fld-shine-top), 0 4px 16px rgba(15, 23, 42, 0.06);
     }
 
     .datepicker-light::-webkit-calendar-picker-indicator {
@@ -120,23 +124,27 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
     }
 
     .datepicker-error {
-      border-color: var(--danger) !important;
-      background: color-mix(in srgb, var(--danger) 8%, var(--bg-tertiary)) !important;
+      border-color: var(--fld-danger) !important;
+      background: color-mix(in srgb, var(--fld-danger) 9%, var(--bg-tertiary)) !important;
+      box-shadow: var(--fld-glow-danger) !important;
     }
 
     .datepicker-success {
-      border-color: var(--success);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 35%, transparent);
+      border-color: color-mix(in srgb, var(--fld-success) 65%, transparent);
+      background: color-mix(in srgb, var(--fld-success) 7%, var(--bg-tertiary));
+      box-shadow: var(--fld-glow-success);
     }
 
     .datepicker-warning {
-      border-color: var(--warning);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--warning) 30%, transparent);
+      border-color: color-mix(in srgb, var(--fld-warning) 62%, transparent);
+      background: color-mix(in srgb, var(--fld-warning) 8%, var(--bg-tertiary));
+      box-shadow: var(--fld-glow-warning);
     }
 
     .datepicker-info {
-      border-color: var(--info);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--info) 30%, transparent);
+      border-color: color-mix(in srgb, var(--fld-info) 62%, transparent);
+      background: color-mix(in srgb, var(--fld-info) 8%, var(--bg-tertiary));
+      box-shadow: var(--fld-glow-info);
     }
 
     input:disabled { 

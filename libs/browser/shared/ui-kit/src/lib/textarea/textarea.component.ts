@@ -32,6 +32,7 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
       @if (hint) { <span class="hint" [class.error]="error">{{ hint }}</span> }
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
     .textarea-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
     .label {
@@ -42,79 +43,83 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
 
     textarea {
       width: 100%; padding: 1rem 1.25rem;
-      background: var(--theme-input-bg, rgba(255, 255, 255, 0.05));
-      border: 1px solid var(--theme-input-border, rgba(255, 255, 255, 0.1));
+      background:
+        var(--fld-surface-soft),
+        color-mix(in srgb, var(--theme-input-bg, #12141c) 94%, var(--fld-brand) 6%);
+      border: 1px solid var(--fld-border-muted);
       border-radius: var(--theme-input-radius, 14px);
       color: var(--text-primary, #fff);
       font-size: 0.85rem; font-weight: 600;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none; font-family: inherit;
       resize: vertical; min-height: 120px;
-      box-shadow: var(--theme-input-shadow, inset 0 2px 4px rgba(0,0,0,0.2));
+      box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.28);
     }
 
     textarea:focus {
-      background: color-mix(in srgb, var(--theme-input-bg, rgba(255, 255, 255, 0.05)) 80%, var(--text-primary, #fff));
-      border-color: var(--brand, #3b82f6);
-      box-shadow:
-        0 0 0 4px color-mix(in srgb, var(--brand, #3b82f6) 15%, transparent),
-        var(--theme-input-shadow, 0 8px 30px -10px color-mix(in srgb, var(--brand, #3b82f6) 40%, transparent));
+      background: color-mix(in srgb, var(--theme-input-bg, #12141c) 78%, #fff 8%);
+      border-color: var(--fld-border-brand);
+      box-shadow: var(--fld-ring-brand), var(--fld-shadow-brand), var(--fld-shine-top);
     }
 
     .textarea-glass {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      background: var(--fld-glass);
+      backdrop-filter: blur(16px) saturate(1.12);
+      -webkit-backdrop-filter: blur(16px) saturate(1.12);
+      border-color: color-mix(in srgb, #fff 14%, transparent);
+      box-shadow: var(--fld-shine-top), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
     .textarea-filled {
-      background: color-mix(in srgb, var(--surface, rgba(24, 26, 36, 1)) 92%, var(--brand, #e60012) 8%);
-      border-color: color-mix(in srgb, var(--border-vibrant, #fff) 22%, transparent);
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+      background: var(--fld-surface-deep);
+      border-color: var(--fld-border-brand);
+      box-shadow: var(--fld-shine-top), inset 0 4px 14px rgba(0, 0, 0, 0.45);
     }
 
     .textarea-outlined {
       background: transparent;
       border-width: 2px;
-      border-color: color-mix(in srgb, var(--text-secondary, #ccc) 45%, transparent);
+      border-color: color-mix(in srgb, var(--fld-brand) 32%, rgba(148, 163, 184, 0.45));
       box-shadow: none;
     }
 
     .textarea-ghost {
       background: transparent;
       border-color: transparent;
-      border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.12));
+      border-bottom: 2px solid color-mix(in srgb, var(--fld-brand) 28%, rgba(255, 255, 255, 0.12));
       border-radius: 0;
       box-shadow: none;
     }
 
     .textarea-dark {
-      background: #08090d;
-      border-color: rgba(255, 255, 255, 0.06);
+      background: linear-gradient(180deg, #0a0b10 0%, #050508 100%);
+      border-color: rgba(255, 255, 255, 0.07);
+      box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.55);
     }
 
     .textarea-light {
-      background: rgba(248, 250, 252, 0.96);
-      border-color: rgba(15, 23, 42, 0.12);
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      border-color: color-mix(in srgb, var(--fld-brand) 18%, #cbd5e1);
       color: #0f172a;
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+      box-shadow: var(--fld-shine-top), 0 4px 18px rgba(15, 23, 42, 0.08);
     }
 
     .textarea-success {
-      border-color: color-mix(in srgb, var(--success, #34d399) 55%, transparent);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--success, #34d399) 25%, transparent);
+      border-color: color-mix(in srgb, var(--fld-success) 62%, transparent);
+      background: color-mix(in srgb, var(--fld-success) 7%, #12141c);
+      box-shadow: var(--fld-glow-success);
     }
 
     .textarea-warning {
-      border-color: color-mix(in srgb, var(--warning, #fbbf24) 55%, transparent);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--warning, #fbbf24) 22%, transparent);
+      border-color: color-mix(in srgb, var(--fld-warning) 58%, transparent);
+      background: color-mix(in srgb, var(--fld-warning) 8%, #12141c);
+      box-shadow: var(--fld-glow-warning);
     }
 
     .textarea-info {
-      border-color: color-mix(in srgb, var(--info, #38bdf8) 55%, transparent);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--info, #38bdf8) 22%, transparent);
+      border-color: color-mix(in srgb, var(--fld-info) 58%, transparent);
+      background: color-mix(in srgb, var(--fld-info) 8%, #12141c);
+      box-shadow: var(--fld-glow-info);
     }
 
     .textarea-rounded {
@@ -122,13 +127,15 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     }
 
     .textarea-soft {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+      background: var(--fld-glass);
+      border-color: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--fld-shine-top), var(--fld-shadow-float);
     }
 
     .textarea-minimal {
-      border-bottom: 2px solid var(--border-soft) !important;
+      border-bottom: 2px solid color-mix(in srgb, var(--fld-brand) 22%, var(--border-soft, rgba(255, 255, 255, 0.12))) !important;
       padding-left: 0; padding-right: 0;
       background: transparent !important;
       border-radius: 0 !important;
@@ -136,8 +143,9 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     }
 
     .textarea-error {
-      border-color: var(--danger) !important;
-      background: color-mix(in srgb, var(--danger) 5%, var(--theme-input-bg, transparent)) !important;
+      border-color: var(--fld-danger) !important;
+      background: color-mix(in srgb, var(--fld-danger) 9%, #14161f) !important;
+      box-shadow: var(--fld-glow-danger) !important;
     }
 
     textarea:disabled {
@@ -155,7 +163,7 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
     }
 
     .hint.error {
-      color: var(--danger);
+      color: var(--fld-danger);
       font-weight: 600;
     }
   `],
