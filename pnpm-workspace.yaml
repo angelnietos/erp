@@ -1,0 +1,2 @@
+patchedDependencies:
+  '@storybook/angular@10.3.3': patches/@storybook__angular@10.3.3.patch

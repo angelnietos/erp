@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@storybook/angular@10.3.3':
+    hash: a2e64968c7936c4d03d79295d7c8f432c80b63f1c9ea266b8382bee6904f9ed6
+    path: patches/@storybook__angular@10.3.3.patch
+
 importers:
 
   .:
@@ -230,7 +235,7 @@ importers:
         version: 10.3.3(@types/react@19.2.14)(esbuild@0.28.0)(rollup@4.60.1)(storybook@10.3.3(@testing-library/dom@10.4.0)(prettier@3.6.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@20.19.9)(jiti@1.21.7)(less@4.6.4)(sass-embedded@1.99.0)(sass@1.97.3)(terser@5.46.1)(yaml@2.8.3))(webpack@5.105.4)
       '@storybook/angular':
         specifier: 10.3.3
-        version: 10.3.3(0a6d711c0e3f7b7cbb73148a84b7aaa9)
+        version: 10.3.3(patch_hash=a2e64968c7936c4d03d79295d7c8f432c80b63f1c9ea266b8382bee6904f9ed6)(0a6d711c0e3f7b7cbb73148a84b7aaa9)
       '@swc-node/register':
         specifier: ~1.11.1
         version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.21(@swc/helpers@0.5.21))(@swc/types@0.1.26)(typescript@5.9.3)
@@ -15127,7 +15132,7 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/angular@10.3.3(0a6d711c0e3f7b7cbb73148a84b7aaa9)':
+  '@storybook/angular@10.3.3(patch_hash=a2e64968c7936c4d03d79295d7c8f432c80b63f1c9ea266b8382bee6904f9ed6)(0a6d711c0e3f7b7cbb73148a84b7aaa9)':
     dependencies:
       '@angular-devkit/architect': 0.2102.6(chokidar@5.0.0)
       '@angular-devkit/build-angular': 21.2.6(8599e0554a479cfc4b1874eac62038d3)
