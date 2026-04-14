@@ -100,7 +100,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($any($event))"
-          class="flex-1"
         ></ui-tabs>
 
         <ui-search

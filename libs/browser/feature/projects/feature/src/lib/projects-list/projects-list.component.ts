@@ -117,11 +117,10 @@ interface ProjectFormData {
 
       <div class="filters-bar">
         <ui-tabs
-          [tabs]="tabs"
+          [tabs]="tabs()"
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($event)"
-          class="flex-1"
         ></ui-tabs>
 
         <ui-search
@@ -408,14 +407,14 @@ interface ProjectFormData {
 
       .filters-bar {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         margin-bottom: 2rem;
         background: var(--surface);
         padding: 0.5rem 1.5rem;
         border-radius: 16px;
         border: 1px solid var(--border-soft);
-        gap: 2rem;
+        gap: 1rem;
       }
 
       .flex-1 {
@@ -429,6 +428,7 @@ interface ProjectFormData {
       .actions-group {
         display: flex;
         gap: 0.5rem;
+        flex-shrink: 0;
       }
 
       .loader-container {

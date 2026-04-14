@@ -108,7 +108,6 @@ interface ClientFormData extends Partial<Client> {
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($event)"
-          class="flex-1"
         ></ui-tabs>
 
         <ui-search

@@ -107,7 +107,6 @@ interface VehicleFormData extends Partial<Vehicle> {
           [activeTab]="activeTab()"
           variant="underline"
           (tabChange)="onTabChange($event)"
-          class="flex-1"
         ></ui-tabs>
 
         <ui-search

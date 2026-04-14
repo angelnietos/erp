@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { Project, ProjectService } from '../services/project.service';
 
 @Injectable({ providedIn: 'root' })
@@ -18,12 +18,20 @@ export class ProjectsFacade {
   readonly error = this._error.asReadonly();
 
   // Tabs
-  readonly tabs = [
-    { id: 'all', label: 'Todos', badge: 0 },
-    { id: 'ACTIVE', label: 'Activos', badge: 0 },
-    { id: 'COMPLETED', label: 'Completados', badge: 0 },
-    { id: 'CANCELLED', label: 'Cancelados', badge: 0 },
-  ];
+  readonly tabs = computed(() => {
+    const projects = this._projects();
+    const all = projects.length;
+    const active = projects.filter((p) => p.status === 'ACTIVE').length;
+    const completed = projects.filter((p) => p.status === 'COMPLETED').length;
+    const cancelled = projects.filter((p) => p.status === 'CANCELLED').length;
+
+    return [
+      { id: 'all', label: 'Todos', badge: all },
+      { id: 'ACTIVE', label: 'Activos', badge: active },
+      { id: 'COMPLETED', label: 'Completados', badge: completed },
+      { id: 'CANCELLED', label: 'Cancelados', badge: cancelled },
+    ];
+  });
 
   // Actions
   loadProjects(force = false): void {
@@ -104,7 +112,7 @@ export class ProjectsFacade {
     });
   }
 
-  setTab(tabId: string): void {
+  setTab(_tabId: string): void {
     // Tab logic can be implemented if needed
   }
 }
