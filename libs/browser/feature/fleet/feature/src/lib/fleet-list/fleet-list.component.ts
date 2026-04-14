@@ -133,6 +133,21 @@ interface VehicleFormData extends Partial<Vehicle> {
         >
           Actualizar
         </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'plate'
+              ? 'MATRÍCULA'
+              : sortField() === 'year'
+                ? 'AÑO'
+                : 'ESTADO'
+          }}
+        </ui-button>
       </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
@@ -692,6 +707,9 @@ export class FleetListComponent
   yearMinFilter = signal<number | null>(null);
   yearMaxFilter = signal<number | null>(null);
 
+  sortField = signal<'plate' | 'year' | 'status'>('plate');
+  sortDirection = signal<1 | -1>(1);
+
   // Bulk actions
   selectedVehicles = signal<Set<string>>(new Set());
 
@@ -792,6 +810,19 @@ export class FleetListComponent
   refreshVehicles() {
     this.loadVehicles();
     this.toast.show('Vehículos actualizados', 'info');
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'plate') {
+      this.sortField.set('year');
+      this.sortDirection.set(-1);
+    } else if (this.sortField() === 'year') {
+      this.sortField.set('status');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('plate');
+      this.sortDirection.set(1);
+    }
   }
 
   // Bulk actions methods
@@ -1044,6 +1075,26 @@ export class FleetListComponent
     if (this.yearMaxFilter() !== null) {
       list = list.filter((v) => (v.year || 0) <= this.yearMaxFilter()!);
     }
+
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+      if (field === 'plate') {
+        valA = (a.plate || '').toLowerCase();
+        valB = (b.plate || '').toLowerCase();
+      } else if (field === 'year') {
+        valA = a.year ?? 0;
+        valB = b.year ?? 0;
+      } else {
+        valA = (a.status || '').toLowerCase();
+        valB = (b.status || '').toLowerCase();
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
 
     return list;
   });

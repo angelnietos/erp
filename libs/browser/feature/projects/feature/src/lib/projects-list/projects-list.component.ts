@@ -140,6 +140,21 @@ interface ProjectFormData {
         >
           Actualizar
         </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'name'
+              ? 'NOMBRE'
+              : sortField() === 'startDate'
+                ? 'FECHA INICIO'
+                : 'ESTADO'
+          }}
+        </ui-button>
       </ui-feature-filter-bar>
 
       <!-- Advanced Filters -->
@@ -682,6 +697,26 @@ export class ProjectsListComponent
         return endDate <= toDate;
       });
     }
+
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA: string | number;
+      let valB: string | number;
+      if (field === 'name') {
+        valA = (a.name || '').toLowerCase();
+        valB = (b.name || '').toLowerCase();
+      } else if (field === 'startDate') {
+        valA = a.startDate ? new Date(a.startDate).getTime() : 0;
+        valB = b.startDate ? new Date(b.startDate).getTime() : 0;
+      } else {
+        valA = (a.status || '').toLowerCase();
+        valB = (b.status || '').toLowerCase();
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
 
     return list;
   });

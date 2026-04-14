@@ -148,6 +148,21 @@ interface EventFilter {
             [options]="typeOptions"
           />
         </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'date'
+              ? 'FECHA'
+              : sortField() === 'title'
+                ? 'TÍTULO'
+                : 'ESTADO'
+          }}
+        </ui-button>
       </ui-feature-filter-bar>
 
       <ui-feature-grid>
@@ -259,6 +274,9 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
     { label: 'Presentación', value: 'presentation' },
     { label: 'Otro', value: 'other' },
   ];
+
+  sortField = signal<'date' | 'title' | 'status'>('date');
+  sortDirection = signal<1 | -1>(-1);
 
   events = signal<Event[]>([]);
   filteredEvents = signal<Event[]>([]);
@@ -504,9 +522,20 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
       filtered = filtered.filter((event: Event) => new Date(event.date) <= toDate);
     }
 
-    filtered.sort(
-      (a: Event, b: Event) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    filtered.sort((a: Event, b: Event) => {
+      let cmp = 0;
+      if (field === 'date') {
+        cmp =
+          new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (field === 'title') {
+        cmp = a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
+      } else {
+        cmp = a.status.localeCompare(b.status, 'es');
+      }
+      return cmp * dir;
+    });
 
     this.filteredEvents.set(filtered);
     this.currentPage.set(1);
@@ -520,6 +549,20 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
       dateFrom: '',
       dateTo: '',
     };
+    this.applyFilters();
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'date') {
+      this.sortField.set('title');
+      this.sortDirection.set(1);
+    } else if (this.sortField() === 'title') {
+      this.sortField.set('status');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('date');
+      this.sortDirection.set(-1);
+    }
     this.applyFilters();
   }
 

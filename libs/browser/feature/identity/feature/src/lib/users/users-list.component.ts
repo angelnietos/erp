@@ -72,7 +72,17 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
         [searchVariant]="'glass'"
         placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..."
         (searchChange)="onSearch($event)"
-      ></ui-feature-filter-bar>
+      >
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{ sortField() === 'name' ? 'NOMBRE' : 'EMAIL' }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       @if (isLoading()) {
         <div class="loader-container">
@@ -168,20 +178,49 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   users = signal<User[]>([]);
   isLoading = signal(true);
 
+  sortField = signal<'name' | 'email'>('name');
+  sortDirection = signal<1 | -1>(1);
+
   activeUsersCount = computed(() => this.users().filter((u: User) => u.isActive).length);
   rolesCount = computed(() => new Set(this.users().flatMap((u: User) => u.roles)).size);
 
   filteredUsers = computed(() => {
-    const list = this.users();
+    let list = [...this.users()];
     const t = this.masterFilter.query().trim().toLowerCase();
-    if (!t) return list;
-    return list.filter((u: User) => 
-      u.email.toLowerCase().includes(t) || 
-      (u.firstName ?? '').toLowerCase().includes(t) || 
-      (u.lastName ?? '').toLowerCase().includes(t) ||
-      u.roles.some((r: string) => r.toLowerCase().includes(t))
-    );
+    if (t) {
+      list = list.filter((u: User) =>
+        u.email.toLowerCase().includes(t) ||
+        (u.firstName ?? '').toLowerCase().includes(t) ||
+        (u.lastName ?? '').toLowerCase().includes(t) ||
+        u.roles.some((r: string) => r.toLowerCase().includes(t)),
+      );
+    }
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA = '';
+      let valB = '';
+      if (field === 'name') {
+        valA = `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim().toLowerCase();
+        valB = `${b.firstName ?? ''} ${b.lastName ?? ''}`.trim().toLowerCase();
+      } else {
+        valA = (a.email || '').toLowerCase();
+        valB = (b.email || '').toLowerCase();
+      }
+      return valA.localeCompare(valB, 'es', { sensitivity: 'base' }) * dir;
+    });
+    return list;
   });
+
+  toggleSort() {
+    if (this.sortField() === 'name') {
+      this.sortField.set('email');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('name');
+      this.sortDirection.set(1);
+    }
+  }
 
   onRowClick(user: User) {
     this.router.navigate(['/identity', user.id]);

@@ -100,6 +100,21 @@ interface Receipt {
             class="status-select"
           />
         </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'dueDate'
+              ? 'VENCIMIENTO'
+              : sortField() === 'invoiceId'
+                ? 'FACTURA'
+                : 'IMPORTE'
+          }}
+        </ui-button>
       </ui-feature-filter-bar>
 
       <ui-feature-grid>
@@ -188,6 +203,9 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly XCircle = XCircle;
 
   statusFilter = '';
+
+  sortField = signal<'dueDate' | 'invoiceId' | 'amount'>('dueDate');
+  sortDirection = signal<1 | -1>(-1);
   statusOptions = [
     { label: 'Todos los estados', value: '' },
     { label: 'Pendiente', value: 'PENDING' },
@@ -267,17 +285,39 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   ]);
 
   filteredReceipts = computed(() => {
-    let list = this.receipts();
+    let list = [...this.receipts()];
     if (this.statusFilter) {
       list = list.filter((r: Receipt) => r.status === this.statusFilter);
     }
     const t = this.masterFilter.query().trim().toLowerCase();
-    if (!t) return list;
-    return list.filter((r: Receipt) => 
-      r.invoiceId.toLowerCase().includes(t) || 
-      r.amount.toString().includes(t) ||
-      (r.paymentMethod ?? '').toLowerCase().includes(t)
-    );
+    if (t) {
+      list = list.filter(
+        (r: Receipt) =>
+          r.invoiceId.toLowerCase().includes(t) ||
+          r.amount.toString().includes(t) ||
+          (r.paymentMethod ?? '').toLowerCase().includes(t),
+      );
+    }
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA: string | number = 0;
+      let valB: string | number = 0;
+      if (field === 'dueDate') {
+        valA = new Date(a.dueDate).getTime();
+        valB = new Date(b.dueDate).getTime();
+      } else if (field === 'invoiceId') {
+        valA = (a.invoiceId || '').toLowerCase();
+        valB = (b.invoiceId || '').toLowerCase();
+      } else {
+        valA = a.amount;
+        valB = b.amount;
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
+    return list;
   });
 
   ngOnInit() {
@@ -291,6 +331,19 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
 
   onSearch(term: string) {
     this.masterFilter.search(term);
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'dueDate') {
+      this.sortField.set('invoiceId');
+      this.sortDirection.set(1);
+    } else if (this.sortField() === 'invoiceId') {
+      this.sortField.set('amount');
+      this.sortDirection.set(-1);
+    } else {
+      this.sortField.set('dueDate');
+      this.sortDirection.set(-1);
+    }
   }
 
   filter(query: string): Observable<Receipt[]> {

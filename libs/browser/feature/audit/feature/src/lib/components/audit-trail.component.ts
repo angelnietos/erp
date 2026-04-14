@@ -20,6 +20,7 @@ import {
   Clock,
 } from 'lucide-angular';
 import {
+  UiButtonComponent,
   UiStatCardComponent,
   UiFeatureFilterBarComponent,
   UiFeatureHeaderComponent,
@@ -86,6 +87,7 @@ interface DomainEventPayload {
   standalone: true,
   imports: [
     CommonModule,
+    UiButtonComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     UiPaginationComponent,
@@ -129,7 +131,23 @@ interface DomainEventPayload {
         [searchVariant]="'glass'"
         placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..."
         (searchChange)="onSearch($event)"
-      ></ui-feature-filter-bar>
+      >
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'timestamp'
+              ? 'FECHA'
+              : sortField() === 'userName'
+                ? 'USUARIO'
+                : 'ACCIÓN'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       <div class="audit-content">
         <ui-feature-grid>
@@ -266,6 +284,9 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   currentPage = signal(1);
   pageSize = 20;
 
+  sortField = signal<'timestamp' | 'userName' | 'action'>('timestamp');
+  sortDirection = signal<1 | -1>(-1);
+
   filters: AuditFilter = {
     dateFrom: '',
     dateTo: '',
@@ -389,7 +410,22 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       filtered = filtered.filter((log) => new Date(log.timestamp) <= toDate);
     }
 
-    filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    filtered.sort((a, b) => {
+      let cmp = 0;
+      if (field === 'timestamp') {
+        cmp =
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      } else if (field === 'userName') {
+        cmp = a.userName.localeCompare(b.userName, 'es', {
+          sensitivity: 'base',
+        });
+      } else {
+        cmp = a.action.localeCompare(b.action, 'es');
+      }
+      return cmp * dir;
+    });
     return filtered;
   });
 
@@ -446,6 +482,19 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
   onSearch(term: string) {
     this.masterFilter.search(term);
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'timestamp') {
+      this.sortField.set('userName');
+      this.sortDirection.set(1);
+    } else if (this.sortField() === 'userName') {
+      this.sortField.set('action');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('timestamp');
+      this.sortDirection.set(-1);
+    }
   }
 
   filter(query: string): Observable<AuditLog[]> {

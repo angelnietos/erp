@@ -100,7 +100,23 @@ import { Observable, of } from 'rxjs';
         [searchVariant]="'glass'"
         placeholder="BUSCAR Nº ALBARÁN, CLIENTE O REFERENCIA..."
         (searchChange)="onSearch($event)"
-      ></ui-feature-filter-bar>
+      >
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR:
+          {{
+            sortField() === 'deliveryDate'
+              ? 'FECHA'
+              : sortField() === 'clientName'
+                ? 'CLIENTE'
+                : 'ESTADO'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
       @if (isLoading()) {
         <div class="loader-container">
@@ -414,6 +430,9 @@ export class DeliveryListComponent
 
   isModalOpen = signal(false);
 
+  sortField = signal<'deliveryDate' | 'clientName' | 'status'>('deliveryDate');
+  sortDirection = signal<1 | -1>(-1);
+
   formData: Partial<DeliveryNote> = {
     budgetId: '',
     clientName: '',
@@ -425,15 +444,36 @@ export class DeliveryListComponent
   };
 
   filteredDeliveryNotes = computed(() => {
-    const list = this.deliveryNotes();
+    let list = [...this.deliveryNotes()];
     const t = this.masterFilter.query().trim().toLowerCase();
-    if (!t) return list;
-    return list.filter(
-      (d: DeliveryNote) =>
-        d.budgetId.toLowerCase().includes(t) ||
-        (d.clientName ?? '').toLowerCase().includes(t) ||
-        (d.notes ?? '').toLowerCase().includes(t),
-    );
+    if (t) {
+      list = list.filter(
+        (d: DeliveryNote) =>
+          d.budgetId.toLowerCase().includes(t) ||
+          (d.clientName ?? '').toLowerCase().includes(t) ||
+          (d.notes ?? '').toLowerCase().includes(t),
+      );
+    }
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+      if (field === 'deliveryDate') {
+        valA = new Date(a.deliveryDate || '').getTime();
+        valB = new Date(b.deliveryDate || '').getTime();
+      } else if (field === 'clientName') {
+        valA = (a.clientName || '').toLowerCase();
+        valB = (b.clientName || '').toLowerCase();
+      } else {
+        valA = (a.status || '').toLowerCase();
+        valB = (b.status || '').toLowerCase();
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
+    return list;
   });
 
   ngOnInit() {
@@ -458,6 +498,19 @@ export class DeliveryListComponent
   onSearch(term: string) {
     this.masterFilter.search(term);
     // Filtrado local vía computed
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'deliveryDate') {
+      this.sortField.set('clientName');
+      this.sortDirection.set(1);
+    } else if (this.sortField() === 'clientName') {
+      this.sortField.set('status');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('deliveryDate');
+      this.sortDirection.set(-1);
+    }
   }
 
   filter(query: string): Observable<DeliveryNote[]> {
