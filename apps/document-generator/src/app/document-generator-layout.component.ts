@@ -21,6 +21,12 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
 
       .nav-link.active-link {
         background: var(--primary-light);
+        border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+      }
+
+      .nav-scroll {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
       }
     `,
   ],
@@ -67,7 +73,10 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
                 </p>
               </div>
             </div>
-            <nav class="flex space-x-2">
+            <nav
+              class="nav-scroll flex flex-wrap gap-2 items-center sm:justify-end w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0"
+              aria-label="Navegación principal"
+            >
               <a
                 routerLink="/documents/list"
                 routerLinkActive="active-link shadow-md"

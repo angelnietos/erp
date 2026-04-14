@@ -10,7 +10,7 @@ import { ThemeSelectorComponent } from './theme-selector/theme-selector.componen
   styleUrl: './app.css',
 })
 export class App {
-  protected title = 'frontend';
+  protected title = 'Generador de documentos';
   private readonly authStore = inject(AuthStore);
 
   constructor() {

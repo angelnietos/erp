@@ -12,6 +12,7 @@
 
   --brand: #e60012;
   --primary: #e60012;
+  --primary-light: color-mix(in srgb, var(--primary) 24%, transparent);
   --brand-muted: color-mix(in srgb, var(--brand) 65%, #000);
   --brand-glow: color-mix(in srgb, var(--brand) 40%, transparent);
   --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
@@ -83,6 +84,7 @@
   --surface-hover: rgba(255, 255, 255, 0.95);
   --brand: #e60012;
   --primary: #e60012;
+  --primary-light: color-mix(in srgb, var(--primary) 18%, transparent);
   --brand-ambient: color-mix(in srgb, var(--brand) 4%, transparent);
   --brand-ambient-strong: color-mix(in srgb, var(--brand) 8%, transparent);
   --brand-surface: color-mix(in srgb, var(--brand) 8%, var(--bg-secondary));

@@ -86,6 +86,10 @@
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
+      "options": {
+        "port": 4210,
+        "host": "localhost"
+      },
       "configurations": {
         "production": {
           "buildTarget": "document-generator:build:production"
@@ -103,17 +107,17 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/frontend/jest.config.cts",
-        "tsConfig": "apps/frontend/tsconfig.spec.json"
+        "jestConfig": "apps/document-generator/jest.config.cts",
+        "tsConfig": "apps/document-generator/tsconfig.spec.json"
       }
     },
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "frontend:build",
-        "port": 4200,
-        "staticFilePath": "dist/apps/frontend/browser",
+        "buildTarget": "document-generator:build",
+        "port": 4210,
+        "staticFilePath": "dist/apps/document-generator/browser",
         "spa": true
       }
     }

@@ -10,9 +10,9 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
     `
       .theme-selector {
         position: fixed;
-        right: 20px;
-        bottom: 20px;
-        z-index: 99999;
+        right: max(20px, env(safe-area-inset-right));
+        bottom: max(20px, env(safe-area-inset-bottom));
+        z-index: 10500;
       }
 
       .theme-btn {
