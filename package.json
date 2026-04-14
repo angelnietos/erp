@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "postinstall": "node scripts/fix-json-schema-meta.cjs",
+    "postinstall": "node scripts/fix-json-schema-meta.cjs && prisma generate --schema=apps/backend/prisma/schema.prisma && node scripts/link-prisma-generated.cjs",
     "seed:backend": "dotenv -o -e apps/backend/.env -- npx prisma db seed --schema=apps/backend/prisma/schema.prisma",
     "kill:node": "taskkill /IM node.exe /F",
     "kill:backend": "for /f \"tokens=5\" %a in ('netstat -aon ^| find \":3100\" ^| find \"LISTENING\"') do taskkill /PID %a /F",

@@ -26,8 +26,13 @@ try {
 }
 
 try {
-  fs.symlinkSync(prismaRoot, linkPath, 'junction');
-  process.stdout.write(`[link-prisma-generated] OK\n`);
+  if (process.platform === 'win32') {
+    fs.symlinkSync(prismaRoot, linkPath, 'junction');
+  } else {
+    const rel = path.relative(path.dirname(linkPath), prismaRoot);
+    fs.symlinkSync(rel, linkPath);
+  }
+  process.stdout.write('[link-prisma-generated] OK\n');
 } catch (e) {
   process.stderr.write(`[link-prisma-generated] ${e.message}\n`);
   process.exit(1);
