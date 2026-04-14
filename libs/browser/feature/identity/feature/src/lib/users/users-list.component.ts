@@ -193,13 +193,9 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
 
   onDelete(user: User) {
     if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.email}?`)) {
-       try {
-         (this.usersService as any).remove(user.id).subscribe({
-           next: () => this.users.update(list => list.filter(u => u.id !== user.id))
-         });
-       } catch(e) {
-         console.warn('Función remove() no implementada en UsersService para borrado', e);
-       }
+      this.usersService.delete(user.id).subscribe({
+        next: () => this.users.update((list) => list.filter((u) => u.id !== user.id)),
+      });
     }
   }
 

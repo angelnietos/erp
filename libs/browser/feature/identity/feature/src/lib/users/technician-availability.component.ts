@@ -1,8 +1,15 @@
 import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TechnicianApiService, ToastService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  TechnicianApiService,
+  ToastService,
+  MasterFilterService,
+  FilterableService,
+  type Technician as ApiTechnician,
+  type TechnicianAvailability,
+} from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
+import { UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent } from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
 
@@ -22,7 +29,7 @@ interface CalendarCell {
 }
 
 @Component({
-  selector: 'josanz-technician-availability',
+  selector: 'lib-technician-availability',
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent],
   template: `
@@ -100,8 +107,9 @@ interface CalendarCell {
           </div>
           <div class="technician-list custom-scrollbar">
             @for (tech of technicians(); track tech.id) {
-              <div 
-                class="tech-card ui-neon" 
+              <button
+                type="button"
+                class="tech-card ui-neon"
                 [class.selected]="selectedTechId() === tech.id"
                 (click)="selectedTechId.set(tech.id)"
               >
@@ -116,7 +124,7 @@ interface CalendarCell {
                   <span class="tech-role">{{ tech.role }}</span>
                 </div>
                 <lucide-icon name="chevron-right" size="14" class="tech-chevron"></lucide-icon>
-              </div>
+              </button>
             }
           </div>
         </aside>
@@ -128,10 +136,12 @@ interface CalendarCell {
               <ui-card shape="auto" class="calendar-card ui-glass-panel ui-bloom">
                 <div class="calendar-card-header">
                   <div class="header-meta">
-                    <div class="tech-selector-info" *ngIf="getSelectedTechName() as name">
-                      <span class="label">CALENDARIO</span>
-                      <h2 class="tech-display-name text-uppercase">{{ name }}</h2>
-                    </div>
+                    @if (getSelectedTechName(); as name) {
+                      <div class="tech-selector-info">
+                        <span class="label">CALENDARIO</span>
+                        <h2 class="tech-display-name text-uppercase">{{ name }}</h2>
+                      </div>
+                    }
                   </div>
                   <div class="calendar-legend">
                     <div class="legend-item AVAILABLE"><span class="dot"></span><span>Disp.</span></div>
@@ -150,14 +160,15 @@ interface CalendarCell {
                   
                   <div class="calendar-grid">
                     @for (cell of calendarCells(); track cell.date) {
-                      <div 
+                      <button
+                        type="button"
                         class="calendar-cell"
                         [class.other-month]="!cell.isCurrentMonth"
                         [class.today]="cell.isToday"
                         (click)="toggleAvailability(cell)"
                       >
                         <span class="day-number">{{ cell.day }}</span>
-                        
+
                         <div class="cell-status-content">
                           @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
                              <div class="status-indicator-bar" [class]="status"></div>
@@ -169,7 +180,7 @@ interface CalendarCell {
 
                         @if (cell.isToday) { <div class="today-tag">HOY</div> }
                         <div class="cell-glow"></div>
-                      </div>
+                      </button>
                     }
                   </div>
                 </div>
@@ -294,10 +305,12 @@ interface CalendarCell {
     .count-badge { font-family: var(--font-gaming); }
 
     .technician-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 700px; overflow-y: auto; padding-right: 0.5rem; }
-    .tech-card {
+    button.tech-card {
       display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 16px;
       cursor: pointer; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
       transition: var(--transition-base); position: relative;
+      width: 100%; font: inherit; color: inherit; text-align: left;
+      appearance: none; -webkit-appearance: none;
     }
     .tech-card:hover { transform: translateX(4px); border-color: var(--brand-border-soft); background: var(--brand-ambient); }
     .tech-card.selected { border-width: 2px; border-color: var(--brand); background: var(--brand-ambient-strong); box-shadow: var(--shadow-glow); }
@@ -334,10 +347,12 @@ interface CalendarCell {
     .grid-day-label { text-align: center; color: var(--text-muted); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.1em; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; }
-    .calendar-cell {
+    button.calendar-cell {
       aspect-ratio: 1 / 1.1; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
       border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;
       position: relative; overflow: hidden; cursor: pointer; transition: var(--transition-base);
+      width: 100%; font: inherit; color: inherit; text-align: left;
+      appearance: none; -webkit-appearance: none;
     }
     .calendar-cell:hover { transform: translateY(-4px) scale(1.02); border-color: var(--brand-border-soft); background: var(--brand-ambient); z-index: 5; }
     .calendar-cell.today { border: 2px solid var(--brand); background: var(--brand-ambient); }
@@ -521,10 +536,10 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     this.isLoading.set(true);
     try {
       // Cargar técnicos del servidor
-      const techsResponse = await firstValueFrom(this.api.getTechnicians()) as any[];
+      const techsResponse = await firstValueFrom(this.api.getTechnicians());
 
       // Mapear técnicos reales si existen
-      const realTechs: Technician[] = (techsResponse || []).map((t: any) => ({
+      const realTechs: Technician[] = (techsResponse ?? []).map((t: ApiTechnician) => ({
         id: t.id,
         name: `${t.user?.firstName || ''} ${t.user?.lastName || ''}`.trim() || t.user?.email || 'Técnico',
         role: t.skills?.[0] || 'Personal Técnico',
@@ -574,7 +589,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
           // Intentar obtener datos reales del API
           const avail = await firstValueFrom(
             this.api.getAvailability(tech.id, startDate, endDate)
-          ) as any[];
+          );
 
           data[tech.id] = {};
           // Relleno inicial equilibrado con mock inteligente para que no salga todo "AVAILABLE"
@@ -585,9 +600,10 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
              data[tech.id][d] = isWeekend ? 'UNAVAILABLE' : (this.getRandomMockAvailability(d, tech.id, monthSeed).type);
           }
 
-          // Sobreescribir con datos reales del API si existen
-          (avail || []).forEach((a: any) => {
-            const dayNum = new Date(a.startDate).getUTCDate();
+          // Sobreescribir con datos reales del API si existen (Prisma expone `startDate`; el DTO tipado usa `date`)
+          (avail ?? []).forEach((a: TechnicianAvailability) => {
+            const dayNum = this.dayNumberFromAvailability(a);
+            if (dayNum < 1) return;
             data[tech.id][dayNum] = a.type;
           });
         } catch {
@@ -632,7 +648,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       next: () => {
         this.toast.show(`✅ Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error('Error guardando disponibilidad:', err);
         // Revertir cambio optimista
         this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
@@ -643,6 +659,13 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         this.toast.show('Error al guardar disponibilidad. Reinténtalo.', 'error');
       }
     });
+  }
+
+  /** Día del mes (1–31) a partir del registro de disponibilidad del API. */
+  private dayNumberFromAvailability(a: TechnicianAvailability): number {
+    const withPrisma = a as TechnicianAvailability & { startDate?: string };
+    const iso = withPrisma.date ?? withPrisma.startDate;
+    return iso ? new Date(iso).getDate() : 0;
   }
 
   getTechDayStatus(techId: string, day: number): string {
