@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiPaginationComponent,
   UiLoaderComponent,
   UiModalComponent,
@@ -45,7 +45,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     RouterModule,
     FormsModule,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
     UiModalComponent,
@@ -94,41 +94,38 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         ></ui-stat-card>
       </ui-feature-stats>
 
-      <div class="filters-bar">
-        <ui-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($any($event))"
-        ></ui-tabs>
-
-        <ui-search
-          variant="glass"
-          placeholder="BUSCAR EQUIPAMIENTO O SKU..."
-          (searchChange)="onSearch($any($event))"
-          class="search-bar"
-        ></ui-search>
-
-        <div class="actions-group">
-          <ui-button
-            variant="ghost"
-            size="sm"
-            icon="rotate-cw"
-            (clicked)="refreshProducts()"
-            title="Actualizar"
-          >
-            Actualizar
-          </ui-button>
-          <ui-button
-            variant="ghost"
-            size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-            (clicked)="toggleSort()"
-          >
-            ORDENAR: NOMBRE
-          </ui-button>
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="BUSCAR EQUIPAMIENTO O SKU..."
+        (searchChange)="onSearch($any($event))"
+      >
+        <div uiFeatureFilterStates>
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($any($event))"
+          ></ui-tabs>
         </div>
-      </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshProducts()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          ORDENAR: NOMBRE
+        </ui-button>
+      </ui-feature-filter-bar>
 
       @if (isLoading()) {
         <div class="loader-container">
@@ -275,23 +272,8 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         padding: 2rem;
       }
 
-      .filters-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: var(--surface);
-        padding: 0.5rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        gap: 2rem;
-      }
-
       .flex-1 {
         flex: 1;
-      }
-      .search-bar {
-        width: 350px;
       }
 
       .loader-container {
@@ -358,14 +340,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       }
 
       @media (max-width: 900px) {
-        .filters-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-        }
-        .search-bar {
-          width: 100%;
-        }
         .row {
           grid-template-columns: 1fr;
         }

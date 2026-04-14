@@ -32,6 +32,8 @@ export type { SearchVariant } from './lib/search/search.component';
 export { UiSearchToolbarComponent } from './lib/search-toolbar/search-toolbar.component';
 export type { SearchToolbarAppearance } from './lib/search-toolbar/search-toolbar.component';
 
+export { UiFeatureFilterBarComponent } from './lib/feature-filter-bar/feature-filter-bar.component';
+
 export { UiPaginationComponent } from './lib/pagination/pagination.component';
 
 export { UiModalComponent } from './lib/modal/modal.component';
