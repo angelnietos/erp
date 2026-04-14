@@ -5,7 +5,9 @@ const config: StorybookConfig = {
   addons: ['@storybook/addon-essentials'],
   framework: {
     name: '@storybook/angular',
-    options: {},
+    options: {
+      enableI18nLegacyMessageIdFormat: false,
+    },
   },
 };
 
