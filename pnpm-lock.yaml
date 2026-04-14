@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@storybook/angular@8.6.18':
+    hash: be9dd9b2ff0f855efd73b2d475bc6aac0e52b2709dda0e24655d8211489800dd
+    path: patches/@storybook__angular@8.6.18.patch
+
 importers:
 
   .:
@@ -233,7 +238,7 @@ importers:
         version: 8.6.18(storybook@8.6.18(prettier@3.6.2))
       '@storybook/angular':
         specifier: 8.6.18
-        version: 8.6.18(15c0ec433c1e69ab13d6f33e67722c6b)
+        version: 8.6.18(patch_hash=be9dd9b2ff0f855efd73b2d475bc6aac0e52b2709dda0e24655d8211489800dd)(15c0ec433c1e69ab13d6f33e67722c6b)
       '@swc-node/register':
         specifier: ~1.11.1
         version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.21(@swc/helpers@0.5.21))(@swc/types@0.1.26)(typescript@5.9.3)
@@ -15650,7 +15655,7 @@ snapshots:
       memoizerific: 1.11.3
       storybook: 8.6.18(prettier@3.6.2)
 
-  '@storybook/angular@8.6.18(15c0ec433c1e69ab13d6f33e67722c6b)':
+  '@storybook/angular@8.6.18(patch_hash=be9dd9b2ff0f855efd73b2d475bc6aac0e52b2709dda0e24655d8211489800dd)(15c0ec433c1e69ab13d6f33e67722c6b)':
     dependencies:
       '@angular-devkit/architect': 0.2102.6(chokidar@5.0.0)
       '@angular-devkit/build-angular': 21.2.6(485ea634abf4cf1d855ae3165fa66afc)

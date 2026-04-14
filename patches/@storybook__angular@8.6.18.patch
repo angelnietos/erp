@@ -1,0 +1,28 @@
+diff --git a/dist/builders/build-storybook/schema.json b/dist/builders/build-storybook/schema.json
+index d41e2840fe253d11de47d5d526ad7d74399f685a..1d7d2fc8899a70bcf215ccf2b0dd84d187b561e7 100644
+--- a/dist/builders/build-storybook/schema.json
++++ b/dist/builders/build-storybook/schema.json
+@@ -1,5 +1,5 @@
+ {
+-    "$schema": "http://json-schema.org/schema",
++    "$schema": "http://json-schema.org/draft-07/schema",
+     "title": "Build Storybook",
+     "description": "Serve up storybook in development mode.",
+     "type": "object",
+diff --git a/dist/builders/start-storybook/schema.json b/dist/builders/start-storybook/schema.json
+index 964a74cf7f92aceccb77f552a2273cf23f263017..27fd84f3013094328aef1bac2d2fd877528f01e5 100644
+--- a/dist/builders/start-storybook/schema.json
++++ b/dist/builders/start-storybook/schema.json
+@@ -1,5 +1,5 @@
+ {
+-    "$schema": "http://json-schema.org/schema",
++    "$schema": "http://json-schema.org/draft-07/schema",
+     "title": "Start Storybook",
+     "description": "Serve up storybook in development mode.",
+     "type": "object",
+diff --git a/scripts/postbuild.js b/scripts/postbuild.js
+deleted file mode 100644
+index cbe887dc89c53d70e9fd75ddda74669d970bdd6e..0000000000000000000000000000000000000000
+diff --git a/template/components/index.js b/template/components/index.js
+deleted file mode 100644
+index 5e8c4f41362379c69d6ac1ae14dd98fb82410534..0000000000000000000000000000000000000000
