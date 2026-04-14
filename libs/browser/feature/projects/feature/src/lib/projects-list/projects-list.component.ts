@@ -10,13 +10,7 @@ import {
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {
-  LucideAngularModule,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Trash2,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Briefcase,
-} from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 
 import {
   UiButtonComponent,
@@ -41,8 +35,7 @@ import {
   ToastService,
   AIFormBridgeService,
 } from '@josanz-erp/shared-data-access';
-import { Project } from '../../../../../../data-access/projects/data-access/src/lib/services/project.service';
-import { ProjectsFacade } from '../../../../../../data-access/projects/data-access/src/lib/facades/projects.facade';
+import { Project, ProjectsFacade } from '@josanz-erp/projects-data-access';
 import { Observable, of } from 'rxjs';
 
 // Extended form type for additional fields
