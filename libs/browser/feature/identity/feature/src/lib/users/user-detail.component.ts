@@ -63,11 +63,11 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
           </div>
           <div class="row">
             <span class="lbl">Categoría</span>
-            <span>{{ u.category || '—' }}</span>
+            <span>{{ (u.category || 'ESTÁNDAR') | uppercase }}</span>
           </div>
           <div class="row">
             <span class="lbl">Roles</span>
-            <span>{{ u.roles.join(', ') || '—' }}</span>
+            <span>{{ u.roles.length ? u.roles.join(', ') : 'SIN ROL' }}</span>
           </div>
           <div class="row">
             <span class="lbl">ID</span>
