@@ -104,6 +104,9 @@
       "@josanz-erp/clients-data-access": [
         "libs/browser/data-access/clients/data-access/src/index.ts"
       ],
+      "@josanz-erp/projects-data-access": [
+        "libs/browser/data-access/projects/data-access/src/index.ts"
+      ],
       "@josanz-erp/clients-feature": [
         "libs/browser/feature/clients/feature/src/index.ts"
       ],
