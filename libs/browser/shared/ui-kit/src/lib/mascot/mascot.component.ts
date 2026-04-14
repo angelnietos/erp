@@ -28,8 +28,7 @@ export type MascotPersonality =
   template: `
     <div
       class="mascot-container"
-      [class]="'personality-' + personality"
-      [class]="'type-' + type"
+      [ngClass]="['personality-' + personality, 'type-' + type]"
       [class.is-mushroom]="bodyShape.includes('mushroom')"
       [class.is-rage]="rageMode"
       [style.--mascot-color]="effectiveColor"

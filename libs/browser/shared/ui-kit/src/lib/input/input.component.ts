@@ -22,11 +22,9 @@ export type InputVariant = string;
     <div class="form-group" [class.disabled]="disabled">
       @if (label) { <label [for]="id" class="label">{{ label }}</label> }
       
-      <div 
-        class="input-wrapper" 
-        [class]="'input-color-' + color"
-        [class]="'input-shape-' + shape"
-        [class]="'input-' + size"
+      <div
+        class="input-wrapper"
+        [ngClass]="['input-color-' + color, 'input-shape-' + shape, 'input-' + size]"
         [class.input-auto-overrides]="shape === 'auto'"
         [class.has-icon]="icon" 
         [class.has-error]="error" 

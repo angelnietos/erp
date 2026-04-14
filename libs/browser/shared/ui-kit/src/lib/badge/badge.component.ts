@@ -10,9 +10,9 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span class="badge" 
-      [class]="'badge-color-' + color"
-      [class]="'badge-shape-' + shape"
+    <span
+      class="badge"
+      [ngClass]="['badge-color-' + color, 'badge-shape-' + shape]"
       [class.badge-auto-overrides]="shape === 'auto'"
     >
       @if (color !== 'default') { <div class="dot"></div> }

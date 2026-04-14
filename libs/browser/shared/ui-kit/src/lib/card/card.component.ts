@@ -10,10 +10,9 @@ export type CardVariant = string;
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div 
-      class="card" 
-      [class]="'card-color-' + color"
-      [class]="'card-shape-' + shape"
+    <div
+      class="card"
+      [ngClass]="['card-color-' + color, 'card-shape-' + shape]"
       [class.card-auto-overrides]="shape === 'auto'"
       [class.hover-effect]="hover || interactive"
       [class.ui-neon]="hover"
