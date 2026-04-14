@@ -30,7 +30,7 @@
         "port": 4400,
         "configDir": "libs/browser/shared/ui-kit/.storybook",
         "browserTarget": "ui-kit:build",
-        "tsConfig": "libs/browser/shared/ui-kit/tsconfig.lib.json",
+        "tsConfig": "libs/browser/shared/ui-kit/.storybook/tsconfig.json",
         "compodoc": false
       },
       "configurations": {
@@ -46,7 +46,7 @@
         "outputDir": "dist/storybook/ui-kit",
         "configDir": "libs/browser/shared/ui-kit/.storybook",
         "browserTarget": "ui-kit:build",
-        "tsConfig": "libs/browser/shared/ui-kit/tsconfig.lib.json",
+        "tsConfig": "libs/browser/shared/ui-kit/.storybook/tsconfig.json",
         "compodoc": false
       },
       "configurations": {
