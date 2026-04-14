@@ -374,14 +374,15 @@ export class InventoryListComponent
   sortField = signal<'name'>('name');
   sortDirection = signal<1 | -1>(1);
 
-  /** Lista filtrada del facade, ordenada por nombre según `sortDirection`. */
+  /** Lista filtrada del facade, ordenada según `sortField` y `sortDirection`. */
   sortedProducts = computed(() => {
     const items = [...this.products()];
     const dir = this.sortDirection();
+    const field = this.sortField();
     items.sort((a, b) => {
-      const cmp = (a.name || '').localeCompare(b.name || '', 'es', {
-        sensitivity: 'base',
-      });
+      const aVal = field === 'name' ? (a.name || '') : '';
+      const bVal = field === 'name' ? (b.name || '') : '';
+      const cmp = aVal.localeCompare(bVal, 'es', { sensitivity: 'base' });
       return dir === 1 ? cmp : -cmp;
     });
     return items;
