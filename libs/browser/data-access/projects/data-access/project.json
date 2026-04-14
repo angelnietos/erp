@@ -6,6 +6,14 @@
   "tags": ["scope:browser", "type:data-access"],
   "projectType": "library",
   "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "tsConfig": "libs/browser/data-access/projects/data-access/tsconfig.lib.json"
+      },
+      "outputPath": "dist/libs/browser/data-access/projects/data-access"
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{workspaceRoot}/reports/eslint/{projectName}.json"]
