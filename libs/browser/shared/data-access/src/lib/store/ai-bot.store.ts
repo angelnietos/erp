@@ -471,10 +471,13 @@ export class AIBotStore {
   getBotPosition(feature: string): { x: number; y: number } {
     const saved = this._botPositions()[feature];
     if (saved) return saved;
-    const w =
-      typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const h =
-      typeof window !== 'undefined' ? window.innerHeight : 800;
+
+    let w = 1200;
+    let h = 800;
+    if (typeof window !== 'undefined') {
+      w = window.innerWidth;
+      h = window.innerHeight;
+    }
     const baseX = Math.max(24, w - 160);
     if (feature === 'buddy') {
       return { x: baseX, y: h - 140 };
