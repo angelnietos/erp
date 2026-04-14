@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Hoist generated client to workspace root so TypeScript resolves `.prisma/client` from `@prisma/client` (pnpm layout).
+  output   = "../../../node_modules/.prisma/client"
 }
 
 datasource db {
