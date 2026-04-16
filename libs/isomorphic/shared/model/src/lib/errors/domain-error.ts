@@ -9,7 +9,9 @@ export abstract class DomainError extends Error {
   ) {
     super(message);
     this.name = this.constructor.name;
-    Error.captureStackTrace(this, this.constructor);
+    if ((Error as any).captureStackTrace) {
+      (Error as any).captureStackTrace(this, this.constructor);
+    }
   }
 
   toJSON(): Record<string, unknown> {
