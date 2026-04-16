@@ -23,6 +23,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiTabsComponent,
+  UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
@@ -61,6 +62,7 @@ interface ClientFormData extends Partial<Client> {
     UiStatCardComponent,
     UiModalComponent,
     UiInputComponent,
+    UiSelectComponent,
     LucideAngularModule,
   ],
   template: `
@@ -156,69 +158,71 @@ interface ClientFormData extends Partial<Client> {
         <div class="advanced-filters">
           <div class="filters-grid">
             <div class="filter-group">
-              <label class="filter-label" for="sector-filter">Sector</label>
-              <select
+              <ui-select
                 id="sector-filter"
-                class="filter-select"
-                [(ngModel)]="sectorFilter"
+                label="Sector"
+                [options]="[
+                  { value: 'all', label: 'Todos los sectores' },
+                  { value: 'Tecnología', label: 'Tecnología' },
+                  { value: 'Construcción', label: 'Construcción' },
+                  { value: 'Servicios', label: 'Servicios' },
+                  { value: 'Comercio', label: 'Comercio' },
+                  { value: 'Industria', label: 'Industria' },
+                ]"
+                [ngModel]="sectorFilter()"
                 (ngModelChange)="sectorFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los sectores</option>
-                <option value="Tecnología">Tecnología</option>
-                <option value="Construcción">Construcción</option>
-                <option value="Servicios">Servicios</option>
-                <option value="Comercio">Comercio</option>
-                <option value="Industria">Industria</option>
-              </select>
+                variant="soft"
+                size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="type-filter">Tipo</label>
-              <select
+              <ui-select
                 id="type-filter"
-                class="filter-select"
-                [(ngModel)]="typeFilter"
+                label="Tipo"
+                [options]="[
+                  { value: 'all', label: 'Todos los tipos' },
+                  { value: 'company', label: 'Empresa' },
+                  { value: 'individual', label: 'Particular' },
+                ]"
+                [ngModel]="typeFilter()"
                 (ngModelChange)="typeFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los tipos</option>
-                <option value="company">Empresa</option>
-                <option value="individual">Particular</option>
-              </select>
+                variant="soft"
+                size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="revenue-min-filter"
-                >Ingresos mínimos (€)</label
-              >
-              <input
+              <ui-input
                 id="revenue-min-filter"
+                label="Ingresos mínimos (€)"
                 type="number"
-                class="filter-input"
                 placeholder="0"
                 min="0"
                 step="0.01"
-                [(ngModel)]="revenueMinFilter"
+                [ngModel]="revenueMinFilter()"
                 (ngModelChange)="
                   revenueMinFilter.set($event ? +$event : null);
                   currentPage.set(1)
                 "
-              />
+                variant="soft"
+                size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="revenue-max-filter"
-                >Ingresos máximos (€)</label
-              >
-              <input
+              <ui-input
                 id="revenue-max-filter"
+                label="Ingresos máximos (€)"
                 type="number"
-                class="filter-input"
                 placeholder="Sin límite"
                 min="0"
                 step="0.01"
-                [(ngModel)]="revenueMaxFilter"
+                [ngModel]="revenueMaxFilter()"
                 (ngModelChange)="
                   revenueMaxFilter.set($event ? +$event : null);
                   currentPage.set(1)
                 "
-              />
+                variant="soft"
+                size="sm"
+              ></ui-input>
             </div>
           </div>
         </div>

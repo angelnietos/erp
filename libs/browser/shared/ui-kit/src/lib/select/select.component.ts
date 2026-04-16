@@ -71,6 +71,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       appearance: none;
       cursor: pointer;
       box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.28);
+      color-scheme: dark; /* Fuerza al navegador a usar UI oscura para el dropdown nativo */
     }
 
     .select-sm { padding: 0.5rem 2.25rem 0.5rem 0.85rem !important; font-size: 0.75rem !important; }
@@ -117,6 +118,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-color: color-mix(in srgb, var(--fld-brand) 18%, #cbd5e1);
       color: #0f172a;
       box-shadow: var(--fld-shine-top), 0 4px 18px rgba(15, 23, 42, 0.08);
+      color-scheme: light;
     }
 
     .select-light option {
@@ -236,7 +238,11 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       filter: drop-shadow(0 0 10px color-mix(in srgb, var(--fld-brand) 55%, transparent));
     }
 
-    option { background: var(--bg-secondary, #0c0d12); color: var(--text-primary, #fff); }
+    option { 
+      background-color: #12141c; /* Color sólido para evitar transparencias extrañas */
+      color: #ffffff; 
+    }
+
   `],
 })
 export class UiSelectComponent implements ControlValueAccessor {

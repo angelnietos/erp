@@ -72,6 +72,7 @@ html {
   font-size: 13px;
   scroll-behavior: smooth;
   overflow-x: hidden;
+  color-scheme: dark; /* Asegura que los desplegables y controles nativos usen el tema oscuro del sistema */
 }
 
 body {
