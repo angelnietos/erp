@@ -15,12 +15,13 @@ export class App {
   private readonly pluginStore = inject(PluginStore);
 
   constructor() {
+    // Fast initial render from cached JWT (may have stale permissions)
     this.authStore.loadUserFromToken();
     this.pluginStore.loadFromStorage();
-    
-    // Background refresh to ensure permissions are up to date with DB state
-    if (this.authStore.isAuthenticated()) {
-      this.authStore.refreshSession();
-    }
+
+    // ALWAYS refresh from DB immediately – overwrites stale JWT permissions.
+    // This runs async so the initial fast render above is not blocked.
+    // The sidebar and guards will re-evaluate once this resolves.
+    this.authStore.refreshSession();
   }
 }

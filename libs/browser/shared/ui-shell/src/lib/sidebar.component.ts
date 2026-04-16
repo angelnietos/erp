@@ -421,21 +421,14 @@ export class SidebarComponent {
 
   filteredNavItems = computed(() => {
     const enabled = this.pluginStore.enabledPlugins();
+    // Only filter by plugins. Permissions control UI elements INSIDE features,
+    // not whether the module appears in the sidebar.
     return this.navItems.filter((item) => {
-      // 1. Check if plugin is enabled (or it's a core item like dashboard)
-      const isEnabled = 
-        item.id === 'dashboard' || 
-        item.id === 'ai-insights' || 
-        enabled.includes(item.id || '');
-      
-      if (!isEnabled) return false;
-
-      // 2. Check if user has permission
-      if (item.permission) {
-        return this.authStore.hasPermission(item.permission);
-      }
-
-      return true;
+      return (
+        item.id === 'dashboard' ||
+        item.id === 'ai-insights' ||
+        enabled.includes(item.id || '')
+      );
     });
   });
 

@@ -97,8 +97,14 @@ export const AuthStore = signalStore(
     },
     refreshSession: rxMethod<void>(
       pipe(
-        switchMap(() => authService.refreshSession()),
-        tap((response: AuthResponse) => {
+        switchMap(() => authService.refreshSession().pipe(
+          catchError((err) => {
+            console.warn('[AuthStore] refreshSession failed:', err?.status, err?.message);
+            return of(null);
+          })
+        )),
+        tap((response: AuthResponse | null) => {
+          if (!response) return; // silently failed, keep current state
           authService.setToken(response.accessToken);
           patchState(store, { user: response.user });
           const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
