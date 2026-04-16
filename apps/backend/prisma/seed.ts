@@ -151,7 +151,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
     }
   }
 
-  // Common roles for all tenants
+  // Common roles for all tenants – always reset Administrador to ['*']
   let adminRole = await prisma.role.findFirst({ where: { tenantId, name: 'Administrador' } });
   if (!adminRole) {
     adminRole = await prisma.role.create({
@@ -162,6 +162,12 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
         permissions: ['*'],
         description: 'Control total de la empresa',
       },
+    });
+  } else {
+    // Always restore wildcard so the seed is idempotent
+    adminRole = await prisma.role.update({
+      where: { id: adminRole.id },
+      data: { permissions: ['*'] },
     });
   }
 

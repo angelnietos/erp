@@ -107,7 +107,7 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
               (deleteClicked)="onDelete(user)"
               [footerItems]="[
                 { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
-                { icon: 'key', label: user.roles.length + ' permisos' }
+                { icon: 'key', label: user.roles.length === 0 ? 'SIN ROLES' : user.roles.length + (user.roles.length === 1 ? ' ROL' : ' ROLES') }
               ]"
             >
                <div footer-extra class="users-extra-actions">

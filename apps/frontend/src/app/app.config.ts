@@ -2,6 +2,8 @@ import {
   ApplicationConfig,
   provideZoneChangeDetection,
   importProvidersFrom,
+  APP_INITIALIZER,
+  inject,
 } from '@angular/core';
 import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -9,7 +11,11 @@ import { appRoutes } from './app.routes';
 import {
   authInterceptor,
   tenantInterceptor,
+  AuthService,
 } from '@josanz-erp/identity-data-access';
+import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import { getStoredTenantId } from '@josanz-erp/identity-data-access';
+import { firstValueFrom, catchError, of } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
 import {
@@ -161,6 +167,37 @@ export const appConfig: ApplicationConfig = {
         authInterceptor,
       ]),
     ),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => {
+        const authService = inject(AuthService);
+        const globalAuthStore = inject(GlobalAuthStore);
+        return async () => {
+          const token = localStorage.getItem('auth_token');
+          if (!token) return; // Not logged in, skip
+          try {
+            const response = await firstValueFrom(
+              authService.refreshSession().pipe(catchError(() => of(null)))
+            );
+            if (response) {
+              authService.setToken(response.accessToken);
+              const u = response.user;
+              const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email;
+              globalAuthStore.setUser({
+                id: u.id,
+                email: u.email,
+                name: displayName,
+                tenantId: response.tenantId || getStoredTenantId() || '',
+                permissions: u.permissions,
+              });
+            }
+          } catch {
+            // ignore – user will be treated as if not logged in
+          }
+        };
+      },
+      multi: true,
+    },
     importProvidersFrom(
       LucideAngularModule.pick({
         User,
