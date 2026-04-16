@@ -288,6 +288,7 @@ model Tenant {
   aiInsights                   AiInsight[]
   clientContacts               ClientContact[]
   eventReports                 EventReport[]
+  roles                        Role[]
 
   @@map("tenants")
 }
@@ -626,12 +627,23 @@ model User {
 
 model Role {
   id          String     @id @default(uuid()) @db.Uuid
-  name        String     @unique
+  tenantId    String?    @map("tenant_id") @db.Uuid
+  name        String     
   description String?
+  type        RoleType   @default(USER)
   permissions String[]
   users       UserRole[]
+  tenant      Tenant?    @relation(fields: [tenantId], references: [id])
 
+  @@unique([tenantId, name], name: "tenantId_name")
   @@map("roles")
+}
+
+enum RoleType {
+  SUPERADMIN
+  ADMIN
+  RESPONSIBLE
+  USER
 }
 
 model UserRole {

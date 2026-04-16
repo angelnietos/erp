@@ -116,21 +116,98 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.user.deleteMany({ where: { tenantId, email: { not: 'admin@josanz.com' } } });
 }
 
+async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
+  const isAdminTenant = tenantSlug === 'babooni';
+
+  if (isAdminTenant) {
+    // SuperAdmin
+    const saExists = await prisma.role.findFirst({ where: { tenantId, name: 'SuperAdmin' } });
+    if (!saExists) {
+      await prisma.role.create({
+        data: {
+          tenantId,
+          name: 'SuperAdmin',
+          type: 'SUPERADMIN',
+          permissions: ['*'],
+          description: 'Acceso total al sistema Babooni',
+        },
+      });
+    }
+
+    // Babooni Admin
+    const baExists = await prisma.role.findFirst({ where: { tenantId, name: 'Admin Babooni' } });
+    if (!baExists) {
+      await prisma.role.create({
+        data: {
+          tenantId,
+          name: 'Admin Babooni',
+          type: 'ADMIN',
+          permissions: ['tenants.manage', 'users.manage'],
+          description: 'Administrador de la plataforma Babooni',
+        },
+      });
+    }
+  }
+
+  // Common roles for all tenants
+  let adminRole = await prisma.role.findFirst({ where: { tenantId, name: 'Administrador' } });
+  if (!adminRole) {
+    adminRole = await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'Administrador',
+        type: 'ADMIN',
+        permissions: ['*'],
+        description: 'Control total de la empresa',
+      },
+    });
+  }
+
+  const respExists = await prisma.role.findFirst({ where: { tenantId, name: 'Responsable' } });
+  if (!respExists) {
+    await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'Responsable',
+        type: 'RESPONSIBLE',
+        permissions: ['budgets.approve', 'rentals.approve', 'users.view'],
+        description: 'Puede aprobar operaciones de usuarios',
+      },
+    });
+  }
+
+  const userExists = await prisma.role.findFirst({ where: { tenantId, name: 'Usuario' } });
+  if (!userExists) {
+    await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'Usuario',
+        type: 'USER',
+        permissions: ['clients.view', 'products.view', 'budgets.create'],
+        description: 'Acceso limitado a funcionalidades básicas',
+      },
+    });
+  }
+
+  return adminRole;
+}
+
 async function main() {
   console.log('🌱 Seeding database...');
 
-  const adminRole = await prisma.role.upsert({
-    where: { name: 'ADMIN' },
+  // 1. BABOONI Tenant
+  const babooniTenant = await prisma.tenant.upsert({
+    where: { slug: 'babooni' },
     update: {},
-    create: { name: 'ADMIN' },
+    create: {
+      name: 'Babooni Technologies',
+      slug: 'babooni',
+    },
   });
 
-  await prisma.role.upsert({
-    where: { name: 'STAFF' },
-    update: {},
-    create: { name: 'STAFF' },
-  });
+  const babooniAdminRole = await ensureDefaultRoles(babooniTenant.id, 'babooni');
 
+  // 2. Main Demo Tenant (Josanz)
   const tenant = await prisma.tenant.upsert({
     where: { slug: 'josanz' },
     update: {},
@@ -140,7 +217,29 @@ async function main() {
     },
   });
 
+  const josanzAdminRole = await ensureDefaultRoles(tenant.id, 'josanz');
+
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
+
+  // 3. Create Admin Users for both
+  const babooniAdmin = await prisma.user.upsert({
+    where: { tenantId_email: { tenantId: babooniTenant.id, email: 'root@babooni.com' } },
+    update: { password: hashedPassword },
+    create: {
+      tenantId: babooniTenant.id,
+      email: 'root@babooni.com',
+      password: hashedPassword,
+      firstName: 'Babooni',
+      lastName: 'Root',
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: { userId_roleId: { userId: babooniAdmin.id, roleId: babooniAdminRole.id } },
+    update: {},
+    create: { userId: babooniAdmin.id, roleId: babooniAdminRole.id },
+  });
+
   const admin = await prisma.user.upsert({
     where: {
       tenantId_email: { tenantId: tenant.id, email: 'admin@josanz.com' },
@@ -156,9 +255,9 @@ async function main() {
   });
 
   await prisma.userRole.upsert({
-    where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
+    where: { userId_roleId: { userId: admin.id, roleId: josanzAdminRole.id } },
     update: {},
-    create: { userId: admin.id, roleId: adminRole.id },
+    create: { userId: admin.id, roleId: josanzAdminRole.id },
   });
 
   const rawApiKey = 'vf_dev_josanz_key';

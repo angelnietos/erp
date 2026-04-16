@@ -6,8 +6,10 @@ import { ConfigService } from '@nestjs/config';
 import { type StringValue } from 'ms';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { UsersController } from './presentation/controllers/users.controller';
+import { RolesController } from './presentation/controllers/roles.controller';
 import { AuthService } from './application/services/auth.service';
 import { UsersService } from './application/services/users.service';
+import { RolesService } from './application/services/roles.service';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
@@ -38,10 +40,11 @@ export class IdentityModule {
           },
         }),
       ],
-      controllers: [AuthController, UsersController],
+      controllers: [AuthController, UsersController, RolesController],
       providers: [
         AuthService,
         UsersService,
+        RolesService,
         JwtStrategy,
         {
           provide: USER_REPOSITORY,
