@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { UserPayload } from '@josanz-erp/identity-api';
 import { Router } from '@angular/router';
 import { AuthStore as GlobalAuthStore, DomainEventsApiService } from '@josanz-erp/shared-data-access';
+import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
 export interface AuthState {
   user: UserPayload | null;
@@ -97,7 +98,7 @@ export const AuthStore = signalStore(
     refreshSession: rxMethod<void>(
       pipe(
         switchMap(() => authService.refreshSession()),
-        tap((user) => {
+        tap((user: UserPayload) => {
           patchState(store, { user });
           const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email;
           globalAuthStore.setUser({
