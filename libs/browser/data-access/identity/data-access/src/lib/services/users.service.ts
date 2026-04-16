@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -53,8 +53,7 @@ export function mapApiUserPayload(raw: unknown): User {
 })
 export class UsersService {
   private readonly apiUrl = '/api/users';
-
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   findAll(): Observable<User[]> {
     return this.http

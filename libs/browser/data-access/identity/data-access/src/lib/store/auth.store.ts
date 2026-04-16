@@ -94,5 +94,21 @@ export const AuthStore = signalStore(
         permissions: u.permissions,
       });
     },
+    refreshSession: rxMethod<void>(
+      pipe(
+        switchMap(() => authService.refreshSession()),
+        tap((user) => {
+          patchState(store, { user });
+          const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email;
+          globalAuthStore.setUser({
+            id: user.id,
+            email: user.email,
+            name: displayName,
+            tenantId: getStoredTenantId() || '',
+            permissions: user.permissions,
+          });
+        })
+      )
+    ),
   }))
-);
+)

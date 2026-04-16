@@ -11,7 +11,7 @@ import {
   HasPermissionDirective,
 } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore, type AIBot } from '@josanz-erp/shared-data-access';
-import { RolesService, type Role, PERMISSIONS_CATALOG } from '@josanz-erp/identity-data-access';
+import { RolesService, type Role, PERMISSIONS_CATALOG, AuthStore } from '@josanz-erp/identity-data-access';
 import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
 
@@ -3010,6 +3010,7 @@ export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
   private readonly _rolesService = inject(RolesService);
+  private readonly _authStore = inject(AuthStore);
 
   readonly activeTab = signal<
     | 'general'
@@ -3105,6 +3106,8 @@ export class SettingsFeatureComponent {
 
     this._rolesService.update(roleId, { permissions }).subscribe((updated: Role) => {
       this.roles.update(list => list.map(r => r.id === roleId ? updated : r));
+      // Sincronizar permisos localmente si el rol actualizado afecta al usuario actual
+      this._authStore.refreshSession();
     });
   }
 

@@ -15,6 +15,9 @@ export interface Permission {
 }
 
 export const PERMISSIONS_CATALOG: Permission[] = [
+  // Sistema
+  { id: '*', label: 'Acceso Total (SuperAdmin)', category: 'Sistema' },
+  
   // Identity
   { id: 'users.view', label: 'Ver Usuarios', category: 'Identidad' },
   { id: 'users.manage', label: 'Gestionar Usuarios', category: 'Identidad' },

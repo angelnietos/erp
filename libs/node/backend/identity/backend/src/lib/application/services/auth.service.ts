@@ -113,8 +113,43 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         roles: user.roles,
+        permissions: [],
       };
     }
     return null;
+  }
+
+  async refreshSession(userId: string, tenantId: string): Promise<AuthenticatedUserView> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Fetch unique permissions for the user's roles
+    const userRoleLinks = await this.prisma.userRole.findMany({
+      where: { userId: user.id.value },
+      select: { roleId: true }
+    });
+    
+    const roleIds = userRoleLinks.map(l => l.roleId);
+    
+    const rolesData = await this.prisma.role.findMany({
+      where: {
+        id: { in: roleIds },
+        tenantId
+      },
+      select: { permissions: true }
+    });
+    
+    const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
+
+    return {
+      id: user.id.value,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: user.roles,
+      permissions,
+    };
   }
 }
