@@ -106,7 +106,9 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.project.deleteMany({ where: { tenantId } });
   await prisma.technician.deleteMany({ where: { tenantId } });
   await prisma.driver.deleteMany({ where: { tenantId } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).eventReport.deleteMany({ where: { tenantId } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).clientContact.deleteMany({ where: { tenantId } });
   await prisma.client.deleteMany({ where: { tenantId } });
 
@@ -433,6 +435,7 @@ async function main() {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).eventReport.create({
     data: {
       tenantId: tenant.id,
@@ -456,6 +459,7 @@ async function main() {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).eventReport.create({
     data: {
       tenantId: tenant.id,

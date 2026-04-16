@@ -18,7 +18,8 @@ import {
   UiInputComponent,
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { PluginStore, AIBotStore, type AIBot } from '@josanz-erp/shared-data-access';
+import { PluginStore, AIBotStore, type AIBot, RolesService, type Role, PERMISSIONS_CATALOG } from '@josanz-erp/shared-data-access';
+import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
 
 interface PluginDescriptor {
@@ -85,6 +86,14 @@ interface PluginDescriptor {
             >
               <lucide-icon name="lock" size="18"></lucide-icon>
               <span>Seguridad</span>
+            </button>
+            <button
+              class="nav-item"
+              [class.active]="activeTab() === 'roles'"
+              (click)="activeTab.set('roles')"
+            >
+              <lucide-icon name="shield-check" size="18"></lucide-icon>
+              <span>Roles y Permisos</span>
             </button>
             <button
               class="nav-item buddy-nav-item"
@@ -1274,6 +1283,98 @@ interface PluginDescriptor {
                     </div>
                   </div>
                 </ui-card>
+              </div>
+            </section>
+          }
+
+          @if (activeTab() === 'roles') {
+            <section class="content-section roles-management animate-fade-in">
+              <div class="roles-header-main">
+                <div class="section-title">
+                  <h2>Gestión de Roles y Permisos</h2>
+                  <p>Define quién puede hacer qué en cada módulo del sistema</p>
+                </div>
+                <ui-button variant="filled" size="sm" (click)="createNewRole()">
+                  <lucide-icon name="plus" size="16"></lucide-icon> Nuevo Rol
+                </ui-button>
+              </div>
+
+              <div class="roles-layout-grid">
+                <!-- Roles List (Sidebar-like) -->
+                <div class="roles-selector-card">
+                  <div class="selector-header">Roles Disponibles</div>
+                  <div class="roles-list-scroll">
+                    @for (role of roles(); track role.id) {
+                      <div 
+                        class="role-item-btn" 
+                        [class.active]="selectedRoleId() === role.id"
+                        (click)="selectedRoleId.set(role.id)"
+                      >
+                        <div class="role-icon-indicator" [class]="role.type"></div>
+                        <div class="role-label-content">
+                          <span class="role-name-text">{{ role.name }}</span>
+                          <span class="role-type-pill">{{ role.type }}</span>
+                        </div>
+                        <lucide-icon name="chevron-right" size="14" class="chevron"></lucide-icon>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Role Details & Matrix -->
+                <div class="role-matrix-detail">
+                  @if (selectedRole(); as role) {
+                    <ui-card variant="glass" class="role-config-card">
+                      <div class="role-config-header">
+                        <div class="role-main-info">
+                          <ui-input
+                            label="Nombre del Rol"
+                            [(ngModel)]="role.name"
+                            (ngModelChange)="roles()"
+                          ></ui-input>
+                          <div class="role-actions-btns">
+                            <ui-button variant="outline" size="sm" (click)="deleteRole(role.id)">
+                              <lucide-icon name="trash-2" size="14"></lucide-icon> Eliminar Rol
+                            </ui-button>
+                          </div>
+                        </div>
+                        <p class="role-description-hint">Configura los permisos para el rol <strong>{{ role.name }}</strong></p>
+                      </div>
+
+                      <div class="permissions-matrix-container">
+                        @for (category of ['Identidad', 'CRM/Clientes', 'Inventario', 'Finanzas', 'Operaciones']; track category) {
+                          <div class="permission-group">
+                            <h4 class="category-title">{{ category }}</h4>
+                            <div class="permission-items-grid">
+                              @for (perm of permissionsCatalog; track perm.id) {
+                                @if (perm.category === category) {
+                                  <div 
+                                    class="permission-toggle-box"
+                                    [class.active]="isPermissionActive(role.id, perm.id)"
+                                    (click)="togglePermission(role.id, perm.id)"
+                                  >
+                                    <div class="toggle-info">
+                                      <span class="perm-label">{{ perm.label }}</span>
+                                      <span class="perm-id">{{ perm.id }}</span>
+                                    </div>
+                                    <div class="toggle-ui">
+                                      <div class="toggle-pill"></div>
+                                    </div>
+                                  </div>
+                                }
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </ui-card>
+                  } @else {
+                    <div class="no-role-selected">
+                      <lucide-icon name="shield-alert" size="48" class="mb-4 opacity-20"></lucide-icon>
+                      <p>Selecciona un rol para ver y editar sus permisos</p>
+                    </div>
+                  }
+                </div>
               </div>
             </section>
           }
@@ -2537,6 +2638,364 @@ interface PluginDescriptor {
           max-width: 100%;
         }
       }
+
+      /* Roles Management - Cyber Luxe Matrix */
+      .roles-header-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+      }
+
+      .roles-layout-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+        height: calc(100vh - 280px);
+        min-height: 600px;
+      }
+
+      .roles-selector-card {
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 28px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .selector-header {
+        padding: 1.5rem;
+        font-weight: 900;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--brand);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: linear-gradient(to right, rgba(var(--brand-rgb), 0.08), transparent);
+      }
+
+      .roles-list-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .role-item-btn {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.25rem;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.02);
+        background: rgba(255, 255, 255, 0.01);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .role-item-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(var(--brand-rgb), 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .role-item-btn:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateY(-2px) translateX(4px);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .role-item-btn.active {
+        background: rgba(var(--brand-rgb), 0.12);
+        border-color: rgba(var(--brand-rgb), 0.4);
+        box-shadow: 
+          0 10px 25px rgba(0, 0, 0, 0.2),
+          inset 0 0 15px rgba(var(--brand-rgb), 0.1);
+      }
+
+      .role-item-btn.active::before {
+        opacity: 1;
+      }
+
+      .role-icon-indicator {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .role-icon-indicator::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.2;
+        filter: blur(6px);
+      }
+
+      .role-icon-indicator.SUPERADMIN { color: #facc15; }
+      .role-icon-indicator.ADMIN { color: #3b82f6; }
+      .role-icon-indicator.RESPONSIBLE { color: #10b981; }
+      .role-icon-indicator.USER { color: #94a3b8; }
+
+      .role-label-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .role-name-text {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+
+      .role-type-pill {
+        font-size: 0.62rem;
+        font-weight: 900;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        opacity: 0.7;
+      }
+
+      .role-item-btn .chevron {
+        opacity: 0.3;
+        transition: all 0.3s ease;
+        color: #fff;
+        position: relative;
+        z-index: 1;
+      }
+      .role-item-btn.active .chevron {
+        opacity: 1;
+        transform: translateX(4px);
+        color: var(--brand);
+      }
+
+      .role-matrix-detail {
+        overflow-y: auto;
+        padding-right: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .role-config-card {
+        padding: 0 !important;
+        overflow: visible;
+      }
+
+      .role-config-header {
+        padding: 2.5rem;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .role-main-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 3rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .role-actions-btns {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .role-description-hint {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        opacity: 0.8;
+      }
+
+      .permissions-matrix-container {
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 3.5rem;
+      }
+
+      .category-title {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        letter-spacing: -0.02em;
+      }
+
+      .category-title::before {
+        content: '';
+        width: 6px;
+        height: 24px;
+        background: linear-gradient(to bottom, var(--brand), transparent);
+        border-radius: 3px;
+        box-shadow: 0 0 15px var(--brand-glow);
+      }
+
+      .permission-items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .permission-toggle-box {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 22px;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .permission-toggle-box::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--brand);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 0;
+      }
+
+      .permission-toggle-box:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .permission-toggle-box.active {
+        background: rgba(var(--brand-rgb), 0.04);
+        border-color: rgba(var(--brand-rgb), 0.3);
+      }
+
+      .permission-toggle-box.active::after {
+        opacity: 0.03;
+      }
+
+      .toggle-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .perm-label {
+        font-weight: 800;
+        font-size: 0.92rem;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+
+      .perm-id {
+        font-size: 0.65rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--brand);
+        opacity: 0.6;
+        letter-spacing: 0.02em;
+      }
+
+      .toggle-ui {
+        width: 52px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 99px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        z-index: 1;
+      }
+
+      .permission-toggle-box.active {
+        background: var(--brand);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.4);
+      }
+
+      .toggle-pill {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .permission-toggle-box.active .toggle-pill {
+        left: 28px;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+      }
+
+      .no-role-selected {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        background: rgba(15, 23, 42, 0.2);
+        border: 2px dashed rgba(255, 255, 255, 0.05);
+        border-radius: 32px;
+        padding: 4rem;
+        text-align: center;
+      }
+
+      .no-role-selected p {
+        font-size: 1.1rem;
+        font-weight: 600;
+        max-width: 300px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 1600px) {
+        .permission-items-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 1200px) {
+        .roles-layout-grid {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+        .roles-selector-card {
+          height: 400px;
+        }
+        .permission-items-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -2544,6 +3003,7 @@ interface PluginDescriptor {
 export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
+  private readonly _rolesService = inject(RolesService);
 
   readonly activeTab = signal<
     | 'general'
@@ -2552,6 +3012,7 @@ export class SettingsFeatureComponent {
     | 'plugins'
     | 'notifications'
     | 'security'
+    | 'roles'
     | 'labs'
   >('general');
   readonly managingBotId = signal<string | null>(null);
@@ -2586,6 +3047,89 @@ export class SettingsFeatureComponent {
   public readonly highPerformanceMode = this._pluginStore.highPerformanceMode;
   public readonly premiumExperience = this._pluginStore.premiumExperience;
   public readonly enabledPlugins = this._pluginStore.enabledPlugins;
+
+  // Roles Management
+  readonly roles = signal<Role[]>([]);
+  readonly selectedRoleId = signal<string | null>(null);
+  readonly selectedRole = computed(() => 
+    this.roles().find(r => r.id === this.selectedRoleId()) || null
+  );
+  readonly permissionsCatalog = PERMISSIONS_CATALOG;
+  readonly isLoadingRoles = signal(false);
+
+  constructor() {
+    effect(async () => {
+      if (this.activeTab() === 'roles') {
+        await this.loadRoles();
+      }
+    });
+    
+    // Save stored companion choice
+    effect(() => {
+      localStorage.setItem(
+        SettingsFeatureComponent.COMPANION_EDITOR_STORAGE_KEY,
+        this.companionEditorFeature()
+      );
+    });
+  }
+
+  async loadRoles() {
+    this.isLoadingRoles.set(true);
+    try {
+      this._rolesService.findAll().subscribe(roles => {
+        this.roles.set(roles);
+        if (roles.length > 0 && !this.selectedRoleId()) {
+          this.selectedRoleId.set(roles[0].id);
+        }
+        this.isLoadingRoles.set(false);
+      });
+    } catch (e) {
+      this.isLoadingRoles.set(false);
+    }
+  }
+
+  togglePermission(roleId: string, permissionId: string) {
+    const role = this.roles().find(r => r.id === roleId);
+    if (!role) return;
+
+    const permissions = role.permissions.includes(permissionId)
+      ? role.permissions.filter(p => p !== permissionId)
+      : [...role.permissions, permissionId];
+
+    this._rolesService.update(roleId, { permissions }).subscribe(updated => {
+      this.roles.update(list => list.map(r => r.id === roleId ? updated : r));
+    });
+  }
+
+  isPermissionActive(roleId: string, permissionId: string): boolean {
+    const role = this.roles().find(r => r.id === roleId);
+    return role?.permissions.includes(permissionId) || false;
+  }
+
+  async createNewRole() {
+    const name = prompt('Nombre del nuevo rol:');
+    if (!name) return;
+    
+    this._rolesService.create({ 
+      name, 
+      type: RoleType.USER, 
+      permissions: [] 
+    }).subscribe(newRole => {
+      this.roles.update(list => [...list, newRole]);
+      this.selectedRoleId.set(newRole.id);
+    });
+  }
+
+  async deleteRole(id: string) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este rol?')) return;
+    
+    this._rolesService.delete(id).subscribe(() => {
+      this.roles.update(list => list.filter(r => r.id !== id));
+      if (this.selectedRoleId() === id) {
+        this.selectedRoleId.set(this.roles()[0]?.id || null);
+      }
+    });
+  }
 
   readonly plugins: PluginDescriptor[] = [
     {

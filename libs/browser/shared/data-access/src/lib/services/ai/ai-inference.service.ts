@@ -211,9 +211,10 @@ export class AIInferenceService {
         }
 
         return data.candidates[0].content.parts[0].text;
-      } catch (err: any) {
-        lastError = err.message;
-        console.error(`❌ Fallo en intento con ${model}:`, err.message);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        lastError = errorMessage;
+        console.error(`❌ Fallo en intento con ${model}:`, errorMessage);
         // Seguir al siguiente modelo en el bucle
       }
     }

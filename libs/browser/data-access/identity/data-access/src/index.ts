@@ -15,3 +15,6 @@ export {
   setStoredTenantId,
   clearStoredTenantId,
 } from './lib/interceptors/tenant.interceptor';
+// Roles
+export { RolesService } from './lib/services/roles.service';
+export * from './lib/models/role.model';

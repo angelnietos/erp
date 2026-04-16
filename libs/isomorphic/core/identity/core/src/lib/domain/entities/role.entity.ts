@@ -9,23 +9,17 @@ export interface RoleProps {
   permissions: string[];
 }
 
-export class Role extends Entity {
-  readonly id: EntityId;
-  private readonly props: RoleProps;
-
-  private constructor(id: EntityId, props: RoleProps) {
-    super();
-    this.id = id;
-    this.props = props;
+export class Role extends Entity<RoleProps> {
+  private constructor(props: RoleProps, id?: EntityId) {
+    super(props, id);
   }
 
   static create(props: RoleProps): Role {
-    const id = new EntityId();
-    return new Role(id, props);
+    return new Role(props);
   }
 
   static reconstitute(id: string, props: RoleProps): Role {
-    return new Role(new EntityId(id), props);
+    return new Role(props, new EntityId(id));
   }
 
   get tenantId(): string | undefined {

@@ -119,13 +119,15 @@ export class AiCoreService {
     throw new Error(`Fallo crítico en todos los modelos Gemini: ${lastError}`);
   }
 
-  private async processOpenAI(_apiKey: string, _prompt: string): Promise<string> {
+  private async processOpenAI(apiKey: string, prompt: string): Promise<string> {
     // Stub architecture ready for ChatGPT integration
+    this.logger.debug(`OpenAI inference requested for prompt length: ${prompt.length}. API Key present: ${!!apiKey}`);
     return 'Integración con OpenAI (GPT-4) pendiente de implementación. Usa Gemini por defecto.';
   }
 
-  private async processAnthropic(_apiKey: string, _prompt: string): Promise<string> {
+  private async processAnthropic(apiKey: string, prompt: string): Promise<string> {
     // Stub architecture ready for Claude integration
+    this.logger.debug(`Anthropic inference requested for prompt length: ${prompt.length}. API Key present: ${!!apiKey}`);
     return 'Integración con Anthropic (Claude 3.5) pendiente de implementación. Usa Gemini por defecto.';
   }
 }
