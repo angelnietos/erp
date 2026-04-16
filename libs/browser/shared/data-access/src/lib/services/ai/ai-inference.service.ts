@@ -46,12 +46,12 @@ export class AIInferenceService {
     const storedProvider = localStorage.getItem('ai_provider');
     if (storedProvider === 'grok' && AI_CONFIG.google_api_key) {
       localStorage.setItem('ai_provider', 'gemini');
-      localStorage.setItem('ai_selected_model_id', 'gemini');
+      localStorage.setItem('ai_selected_model_id', 'gemini-2.5-flash');
       this.selectedProvider.set('gemini');
-      this.selectedModelId.set('gemini');
+      this.selectedModelId.set('gemini-2.5-flash');
     } else if (!storedProvider && AI_CONFIG.google_api_key) {
       this.selectedProvider.set('gemini');
-      this.selectedModelId.set('gemini');
+      this.selectedModelId.set('gemini-2.5-flash');
     }
 
     effect(() => {
@@ -70,7 +70,8 @@ export class AIInferenceService {
   }
 
   private getInitialModelId(): string {
-    return localStorage.getItem('ai_selected_model_id') || 'gemini';
+    const model = localStorage.getItem('ai_selected_model_id');
+    return model === 'gemini' || !model ? 'gemini-2.5-flash' : model;
   }
 
   private getInitialApiKey(): string {
@@ -88,7 +89,12 @@ export class AIInferenceService {
       { value: 'grok', label: 'Grok (xAI) - Gratuito' },
       { value: 'together', label: 'Together AI - Gratuito' },
       { value: 'openrouter', label: 'OpenRouter (Gemma 4 FREE) - Gratuito' },
-      { value: 'gemini', label: 'Google Gemini 2.5 Flash (Pata Negra)' },
+      { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Default)' },
+      { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (Calidad)' },
+      { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
+      { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' },
+      { value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' },
+      { value: 'gemini-3.1-flash-live-preview', label: 'Gemini 3.1 Flash Live Preview' },
       { value: 'openai', label: 'OpenAI GPT-4o' },
       { value: 'anthropic', label: 'Anthropic Claude 3.5' },
     ];
@@ -108,9 +114,15 @@ export class AIInferenceService {
     // selectedModelId is the source of truth — it's what the Settings UI dropdown controls.
     // selectedProvider is kept in sync by setAIModel, but may lag due to HMR or initialization order.
     const modelId = this.selectedModelId();
-    const provider: AIProvider = modelId.startsWith('ollama:')
-      ? 'ollama'
-      : (modelId as AIProvider);
+    let provider: AIProvider;
+    
+    if (modelId.startsWith('ollama:')) {
+      provider = 'ollama';
+    } else if (modelId.startsWith('gemini')) {
+      provider = 'gemini';
+    } else {
+      provider = modelId as AIProvider;
+    }
 
     // Keep selectedProvider in sync silently
     if (this.selectedProvider() !== provider) {
@@ -140,7 +152,9 @@ export class AIInferenceService {
     const apiKey = AI_CONFIG.google_api_key || this.providerApiKey();
     if (!apiKey) throw new Error('API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.');
 
-    const model = AI_CONFIG.gemini_model;
+    // Use selected model if it's a Gemini model, otherwise fallback to config default
+    const modelId = this.selectedModelId();
+    const model = modelId.startsWith('gemini') ? modelId : (AI_CONFIG.gemini_model || 'gemini-2.5-flash');
     // Prepend context as part of the user message — works universally across all API versions
     const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
 

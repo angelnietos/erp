@@ -1,8 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+export const GEMINI_FREE_MODELS = {
+  PRO: 'gemini-2.5-pro',
+  FLASH: 'gemini-2.5-flash',
+  FLASH_LITE: 'gemini-2.5-flash-lite',
+  FLASH_3_PREVIEW: 'gemini-3-flash-preview',
+  FLASH_LITE_31_PREVIEW: 'gemini-3.1-flash-lite-preview',
+  FLASH_LIVE_31_PREVIEW: 'gemini-3.1-flash-live-preview',
+} as const;
+
 export interface AiPromptRequest {
   provider: 'gemini' | 'openai' | 'anthropic';
   apiKey: string;
+  model?: string;
   systemInstruction?: string;
   prompt: string;
 }
@@ -15,7 +25,7 @@ export class AiCoreService {
    * Genera texto estructurado usando el modelo de IA seleccionado por el usuario.
    */
   async generateText(request: AiPromptRequest): Promise<string> {
-    this.logger.log(`Iniciando inferencia con proveedor: ${request.provider}`);
+    this.logger.log(`Iniciando inferencia con proveedor: ${request.provider}${request.model ? ` (modelo: ${request.model})` : ''}`);
     
     if (!request.apiKey) {
       throw new Error('Critical: API Key no proporcionada para el servicio de IA.');
@@ -23,7 +33,7 @@ export class AiCoreService {
 
     switch(request.provider) {
       case 'gemini':
-        return this.processGemini(request.apiKey, request.prompt, request.systemInstruction);
+        return this.processGemini(request.apiKey, request.prompt, request.systemInstruction, request.model);
       case 'openai':
         return this.processOpenAI(request.apiKey, request.prompt);
       case 'anthropic':
@@ -33,7 +43,12 @@ export class AiCoreService {
     }
   }
 
-  private async processGemini(apiKey: string, prompt: string, systemInstruction?: string): Promise<string> {
+  private async processGemini(
+    apiKey: string, 
+    prompt: string, 
+    systemInstruction?: string, 
+    model: string = GEMINI_FREE_MODELS.FLASH
+  ): Promise<string> {
     try {
       const payload: Record<string, unknown> = {
         contents: [{ parts: [{ text: prompt }] }]
@@ -46,7 +61,7 @@ export class AiCoreService {
       }
 
       // Utilizamos fetch nativo (Node 18+) para interoperabilidad out-of-the-box sin engordar bundle
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
