@@ -16,7 +16,7 @@ import { SidebarComponent } from './sidebar.component';
 import {
   ThemeService,
   Theme,
-  AuthStore,
+  GlobalAuthStore as AuthStore,
   PluginStore,
   getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
@@ -714,7 +714,7 @@ export class AppLayoutComponent {
 
   private readonly authStore = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
-  readonly premiumExperience = this.pluginStore.premiumExperience;
+  readonly premiumExperience = computed(() => !this.pluginStore.highPerformanceMode());
 
   @HostListener('window:keydown', ['$event'])
   handleGlobalShortcuts(event: KeyboardEvent) {

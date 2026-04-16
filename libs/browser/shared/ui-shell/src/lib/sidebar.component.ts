@@ -23,7 +23,7 @@ import {
   Clock,
   BrainCircuit,
 } from 'lucide-angular';
-import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore as AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
 @Component({
@@ -421,7 +421,22 @@ export class SidebarComponent {
 
   filteredNavItems = computed(() => {
     const enabled = this.pluginStore.enabledPlugins();
-    return this.navItems.filter((item) => ['dashboard', 'ai-insights'].includes(item.id || '') || enabled.includes(item.id || ''));
+    return this.navItems.filter((item) => {
+      // 1. Check if plugin is enabled (or it's a core item like dashboard)
+      const isEnabled = 
+        item.id === 'dashboard' || 
+        item.id === 'ai-insights' || 
+        enabled.includes(item.id || '');
+      
+      if (!isEnabled) return false;
+
+      // 2. Check if user has permission
+      if (item.permission) {
+        return this.authStore.hasPermission(item.permission);
+      }
+
+      return true;
+    });
   });
 
   isCollapsed = signal(false);

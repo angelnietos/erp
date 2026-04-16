@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { UiSearchComponent } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, AuthStore, MasterFilterService } from '@josanz-erp/shared-data-access';
+import { ThemeService, GlobalAuthStore as AuthStore, MasterFilterService } from '@josanz-erp/shared-data-access';
 
 export interface CommandItem {
   id: string;

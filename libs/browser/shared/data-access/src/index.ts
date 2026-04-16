@@ -1,4 +1,4 @@
-export * from './lib/store/auth.store';
+export { GlobalAuthStore } from './lib/store/auth.store';
 export * from './lib/services/theme.service';
 export * from './lib/services/technician-api.service';
 export * from './lib/services/toast.service';

@@ -21,7 +21,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const AuthStore = signalStore(
+export const GlobalAuthStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed(({ user }) => ({

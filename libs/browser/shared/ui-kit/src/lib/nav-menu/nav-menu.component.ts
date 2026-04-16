@@ -2,7 +2,7 @@ import { Component, output, inject, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { AuthStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore as AuthStore } from '@josanz-erp/shared-data-access';
 
 export interface NavMenuItem {
   id: string;

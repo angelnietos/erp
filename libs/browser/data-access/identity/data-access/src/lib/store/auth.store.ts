@@ -5,7 +5,7 @@ import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { UserPayload } from '@josanz-erp/identity-api';
 import { Router } from '@angular/router';
-import { AuthStore as GlobalAuthStore, DomainEventsApiService } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore, DomainEventsApiService } from '@josanz-erp/shared-data-access';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
 export interface AuthState {

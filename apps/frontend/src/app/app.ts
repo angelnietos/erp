@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core'; // Re-syncing chunks
 import { RouterModule } from '@angular/router';
+import { PluginStore } from '@josanz-erp/shared-data-access';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 
 @Component({
@@ -11,8 +12,10 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
 export class App {
   protected title = 'frontend';
   private readonly authStore = inject(AuthStore);
+  private readonly pluginStore = inject(PluginStore);
 
   constructor() {
     this.authStore.loadUserFromToken();
+    this.pluginStore.loadFromStorage();
   }
 }

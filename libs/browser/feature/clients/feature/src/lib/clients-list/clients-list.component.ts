@@ -34,7 +34,7 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
-  AuthStore,
+  GlobalAuthStore as AuthStore,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';

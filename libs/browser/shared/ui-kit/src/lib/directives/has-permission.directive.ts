@@ -1,5 +1,5 @@
 import { Directive, Input, TemplateRef, ViewContainerRef, inject, effect } from '@angular/core';
-import { AuthStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore as AuthStore } from '@josanz-erp/shared-data-access';
 
 @Directive({
   selector: '[uiHasPermission]',

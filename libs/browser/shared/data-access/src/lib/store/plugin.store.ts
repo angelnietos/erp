@@ -1,4 +1,4 @@
-import { signalStore, withState, withMethods, patchState, withComputed } from '@ngrx/signals';
+import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { computed } from '@angular/core';
 
 export interface PluginState {
@@ -16,34 +16,55 @@ const initialState: PluginState = {
 export const PluginStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withComputed((state) => ({
-    premiumExperience: computed(() => !state.highPerformanceMode()),
-  })),
   withMethods((store) => ({
     togglePlugin(pluginId: string) {
       if (pluginId === 'dashboard') return;
       
       const current = store.enabledPlugins();
-      if (current.includes(pluginId)) {
-        patchState(store, { enabledPlugins: current.filter(id => id !== pluginId) });
-      } else {
-        patchState(store, { enabledPlugins: [...current, pluginId] });
-      }
+      const next = current.includes(pluginId)
+        ? current.filter(id => id !== pluginId)
+        : [...current, pluginId];
+        
+      patchState(store, { enabledPlugins: next });
+      localStorage.setItem('erp_enabled_plugins', JSON.stringify(next));
     },
     toggleRealtime() {
-      patchState(store, { realtimeSync: !store.realtimeSync() });
+      const next = !store.realtimeSync();
+      patchState(store, { realtimeSync: next });
+      localStorage.setItem('erp_realtime_sync', String(next));
     },
     togglePerformance() {
-      patchState(store, { highPerformanceMode: !store.highPerformanceMode() });
-    },
-    setPremiumExperience(enabled: boolean) {
-      patchState(store, { highPerformanceMode: !enabled });
+      const next = !store.highPerformanceMode();
+      patchState(store, { highPerformanceMode: next });
+      localStorage.setItem('erp_high_perf', String(next));
     },
     setPlugins(plugins: string[]) {
       patchState(store, { enabledPlugins: plugins });
+      localStorage.setItem('erp_enabled_plugins', JSON.stringify(plugins));
     },
     isPluginEnabled(pluginId: string) {
       return store.enabledPlugins().includes(pluginId);
+    },
+    loadFromStorage() {
+        if (typeof localStorage === 'undefined') return;
+        const stored = localStorage.getItem('erp_enabled_plugins');
+        if (stored) {
+            try {
+                patchState(store, { enabledPlugins: JSON.parse(stored) });
+            } catch (e) {
+                console.error('Failed to load plugins from storage', e);
+            }
+        }
+        
+        const sync = localStorage.getItem('erp_realtime_sync');
+        if (sync !== null) {
+            patchState(store, { realtimeSync: sync === 'true' });
+        }
+
+        const perf = localStorage.getItem('erp_high_perf');
+        if (perf !== null) {
+            patchState(store, { highPerformanceMode: perf === 'true' });
+        }
     }
   }))
 );

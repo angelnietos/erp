@@ -1,4 +1,4 @@
-import { signal, effect, computed, inject, Component, ChangeDetectionStrategy } from '@angular/core';
+import { signal, effect, computed, inject, Component, ChangeDetectionStrategy, type Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -11,7 +11,7 @@ import {
   HasPermissionDirective,
 } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore, type AIBot, ThemeService } from '@josanz-erp/shared-data-access';
-import { RolesService, type Role, PERMISSIONS_CATALOG, AuthStore, AuthService } from '@josanz-erp/identity-data-access';
+import { RolesService, type Role, PERMISSIONS_CATALOG, AuthStore } from '@josanz-erp/identity-data-access';
 import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
 
@@ -1605,16 +1605,15 @@ interface PluginDescriptor {
         gap: 2rem;
       }
 
-      /* Sidebar */
-      .settings-sidebar {
-        background: rgba(15, 23, 42, 0.4);
+      .settings-sidebar, .roles-selector-card {
+        background: rgba(15,23,42,.4);
         backdrop-filter: blur(40px) saturate(180%);
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255,255,255,.05);
         border-radius: 32px;
         display: flex;
         flex-direction: column;
         padding: 2.5rem 1.25rem;
-        box-shadow: 10px 0 50px rgba(0, 0, 0, 0.2);
+        box-shadow: 10px 0 50px rgba(0,0,0,.2);
       }
 
       .sidebar-header {
@@ -1673,12 +1672,8 @@ interface PluginDescriptor {
 
       .nav-item.active {
         color: #fff;
-        background: linear-gradient(
-          135deg,
-          rgba(var(--brand-rgb, 16, 185, 129), 0.2) 0%,
-          rgba(var(--brand-rgb, 16, 185, 129), 0.05) 100%
-        );
-        border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.3);
+        background: linear-gradient(135deg, rgba(var(--brand-rgb), 0.2), rgba(var(--brand-rgb), 0.05));
+        border-color: rgba(var(--brand-rgb), 0.3);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       }
 
@@ -1686,7 +1681,6 @@ interface PluginDescriptor {
         margin-top: 1rem;
         border-top: 1px solid var(--border-soft);
         padding-top: 1.5rem;
-        border-radius: 0 0 16px 16px;
       }
 
       .nav-item lucide-icon {
@@ -1713,12 +1707,12 @@ interface PluginDescriptor {
 
       .nav-divider {
         padding: 1.5rem 1rem 0.5rem 1.25rem;
-        font-size: 0.65rem;
-        font-weight: 800;
+        font: 800 0.65rem/1 sans-serif;
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.15em;
         opacity: 0.5;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       /* Content Area */
@@ -1752,11 +1746,7 @@ interface PluginDescriptor {
       }
 
       .labs-card {
-        background: linear-gradient(
-          135deg,
-          rgba(139, 92, 246, 0.1) 0%,
-          rgba(217, 70, 239, 0.05) 100%
-        );
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(217, 70, 239, 0.05));
         border: 1px solid rgba(139, 92, 246, 0.2);
       }
 
@@ -1798,21 +1788,18 @@ interface PluginDescriptor {
         margin: 0.4rem 0 0 0;
       }
 
-      /* Global AI Config Card - Premium Refactoring */
       .ai-global-config-card {
         position: relative;
         overflow: hidden;
-        border-radius: 28px !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        background: radial-gradient(circle at top right, rgba(var(--brand-rgb), 0.12), transparent 40%),
-                    rgba(15, 23, 42, 0.7) !important;
-        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+        border-radius: 28px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(15,23,42,.7);
+        transition: .4s ease;
+        box-shadow: 0 20px 40px rgba(0,0,0,.3);
       }
 
       .ai-global-config-card:hover {
-        border-color: rgba(var(--brand-rgb), 0.25) !important;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(var(--brand-rgb), 0.1) !important;
+        border-color: rgba(var(--brand-rgb), .25) !important;
       }
 
       .title-icon-wrapper {
@@ -1892,9 +1879,8 @@ interface PluginDescriptor {
       }
 
       @keyframes status-pulse-green {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
-        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; box-shadow: 0 0 15px #10b981; }
       }
 
       .config-body-wrapper {
@@ -1945,8 +1931,8 @@ interface PluginDescriptor {
       }
 
       @keyframes float-mascot-premium {
-        0%, 100% { transform: scale(1.6) translateY(0) rotate(-2deg); }
-        50% { transform: scale(1.6) translateY(-20px) rotate(3deg); }
+        0%, 100% { transform: scale(1.6) translateY(0); }
+        50% { transform: scale(1.6) translateY(-15px); }
       }
 
       .ollama-refresh-btn {
@@ -2105,11 +2091,10 @@ interface PluginDescriptor {
       }
 
       .category-tag {
-        font-size: 0.65rem;
+        font: 800 0.65rem/1 sans-serif;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: var(--brand);
-        font-weight: 800;
         opacity: 0.7;
       }
 
@@ -2194,24 +2179,16 @@ interface PluginDescriptor {
 
       .ai-bot-card {
         display: flex;
-        flex-direction: row;
         gap: 2rem;
-        padding: 2.25rem;
-        align-items: stretch;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.02) 0%,
-          rgba(255, 255, 255, 0.01) 100%
-        );
-        min-height: 620px; /* Increased and fixed to accommodate standard management panel */
+        padding: 2rem;
+        transition: .4s ease;
+        border: 1px solid rgba(255,255,255,.05);
+        background: rgba(255,255,255,.01);
       }
 
       .ai-bot-card:hover {
-        transform: translateY(-8px) scale(1.01);
-        border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.3);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        transform: translateY(-4px);
+        border-color: rgba(var(--brand-rgb), 0.3);
       }
 
       .bot-visual {
@@ -2413,11 +2390,7 @@ interface PluginDescriptor {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(
-          circle at 50% 50%,
-          rgba(var(--brand-rgb), 0.1),
-          transparent
-        );
+        background: radial-gradient(circle, rgba(var(--brand-rgb), 0.1), transparent);
         overflow: hidden;
       }
 
@@ -2562,7 +2535,7 @@ interface PluginDescriptor {
         align-items: center;
         gap: 1rem;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: 0.4s ease;
         user-select: none;
         min-width: 160px;
         justify-content: space-between;
@@ -2575,10 +2548,7 @@ interface PluginDescriptor {
       }
 
       .rage-toggle.active {
-        background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
-        box-shadow:
-          0 0 25px rgba(220, 38, 38, 0.5),
-          inset 0 0 10px rgba(255, 255, 255, 0.2);
+        background: #dc2626;
         border-color: #f87171;
       }
 
@@ -2790,17 +2760,7 @@ interface PluginDescriptor {
         border: none;
       }
 
-      .nav-divider {
-        padding: 1.25rem 1rem 0.5rem 1.25rem;
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        opacity: 0.5;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 0.5rem;
-      }
+      /* Removed redundant .nav-divider */
 
       .rage-text {
         color: #ef4444 !important;
@@ -2819,15 +2779,9 @@ interface PluginDescriptor {
       }
 
       .is-rage-preview {
-        border: 2px solid #dc2626 !important;
-        box-shadow:
-          0 0 40px rgba(220, 38, 38, 0.2),
-          inset 0 0 20px rgba(220, 38, 38, 0.1) !important;
-        background: radial-gradient(
-          circle at 50% 50%,
-          rgba(220, 38, 38, 0.2),
-          transparent
-        ) !important;
+        border: 2px solid #dc2626;
+        box-shadow: 0 0 40px rgba(220, 38, 38, 0.2);
+        background: radial-gradient(circle, rgba(220, 38, 38, 0.2), transparent);
       }
 
       .buddy-skills-card {
@@ -3044,9 +2998,7 @@ interface PluginDescriptor {
       .role-item-btn.active {
         background: rgba(var(--brand-rgb), 0.12);
         border-color: rgba(var(--brand-rgb), 0.4);
-        box-shadow: 
-          0 10px 25px rgba(0, 0, 0, 0.2),
-          inset 0 0 15px rgba(var(--brand-rgb), 0.1);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       }
 
       .role-item-btn.active::before {
@@ -3124,7 +3076,7 @@ interface PluginDescriptor {
       }
 
       .role-config-card {
-        padding: 0 !important;
+        padding: 0;
         overflow: visible;
       }
 
@@ -3284,43 +3236,18 @@ interface PluginDescriptor {
       }
 
       .no-role-selected {
-        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        height: 100%;
         color: var(--text-muted);
-        background: rgba(15, 23, 42, 0.2);
-        border: 2px dashed rgba(255, 255, 255, 0.05);
-        border-radius: 32px;
-        padding: 4rem;
         text-align: center;
       }
 
-      .no-role-selected p {
-        font-size: 1.1rem;
-        font-weight: 600;
-        max-width: 300px;
-        line-height: 1.5;
-      }
-
-      @media (max-width: 1600px) {
-        .permission-items-grid {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-
       @media (max-width: 1200px) {
-        .roles-layout-grid {
-          grid-template-columns: 1fr;
-          height: auto;
-        }
-        .roles-selector-card {
-          height: 400px;
-        }
-        .permission-items-grid {
-          grid-template-columns: 1fr;
-        }
+        .roles-layout-grid { grid-template-columns: 1fr; }
+        .roles-selector-card { height: 400px; }
       }
     `,
   ],
@@ -3374,7 +3301,7 @@ export class SettingsFeatureComponent {
   // Expose signals explicitly for better template inference
   public readonly realtimeSync = this._pluginStore.realtimeSync;
   public readonly highPerformanceMode = this._pluginStore.highPerformanceMode;
-  public readonly premiumExperience = this._pluginStore.premiumExperience;
+  public readonly premiumExperience = computed(() => !this._pluginStore.highPerformanceMode());
   public readonly enabledPlugins = this._pluginStore.enabledPlugins;
 
   // Roles Management
@@ -3465,11 +3392,60 @@ export class SettingsFeatureComponent {
 
   readonly plugins: PluginDescriptor[] = [
     {
+      id: 'clients',
+      name: 'Gestión de Clientes',
+      description: 'Módulo CRM para seguimiento de clientes y leads.',
+      icon: 'users',
+      category: 'core',
+    },
+    {
+      id: 'projects',
+      name: 'Proyectos y Tareas',
+      description: 'Planificación de producciones y asignación de recursos.',
+      icon: 'file-text',
+      category: 'core',
+    },
+    {
+      id: 'events',
+      name: 'Calendario de Eventos',
+      description: 'Gestión de fechas críticas y rodajes.',
+      icon: 'calendar',
+      category: 'core',
+    },
+    {
       id: 'identity',
-      name: 'Identidad y usuarios',
-      description: 'Usuarios del tenant, roles y acceso al ERP.',
+      name: 'Identidad y Usuarios',
+      description: 'Control de acceso, roles y seguridad.',
       icon: 'id-card',
       category: 'core',
+    },
+    {
+      id: 'availability',
+      name: 'Disponibilidad',
+      description: 'Control horario y cuadrante de vacaciones.',
+      icon: 'clock',
+      category: 'vertical',
+    },
+    {
+      id: 'services',
+      name: 'Catálogo de Servicios',
+      description: 'Definición de tarifas y servicios prestados.',
+      icon: 'wrench',
+      category: 'vertical',
+    },
+    {
+      id: 'reports',
+      name: 'Análisis y Reportes',
+      description: 'KPIs, métricas y exportación de datos.',
+      icon: 'pie-chart',
+      category: 'vertical',
+    },
+    {
+      id: 'audit',
+      name: 'Auditoría de Sistema',
+      description: 'Registro de actividad y trazabilidad de cambios.',
+      icon: 'shield-check',
+      category: 'vertical',
     },
     {
       id: 'inventory',
@@ -3486,6 +3462,13 @@ export class SettingsFeatureComponent {
       category: 'core',
     },
     {
+      id: 'delivery',
+      name: 'Logística y Albaranes',
+      description: 'Gestión de entregas y salidas de material.',
+      icon: 'truck',
+      category: 'vertical',
+    },
+    {
       id: 'fleet',
       name: 'Gestión de Flota',
       icon: 'car',
@@ -3498,6 +3481,13 @@ export class SettingsFeatureComponent {
       icon: 'key',
       description: 'Sistema de reservas y devoluciones.',
       category: 'vertical',
+    },
+    {
+      id: 'billing',
+      name: 'Facturación',
+      description: 'Gestión de facturas y cobros.',
+      icon: 'history',
+      category: 'core',
     },
     {
       id: 'verifactu',
