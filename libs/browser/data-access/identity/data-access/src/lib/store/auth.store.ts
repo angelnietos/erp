@@ -105,6 +105,7 @@ export const AuthStore = signalStore(
         )),
         tap((response: AuthResponse | null) => {
           if (!response) return; // silently failed, keep current state
+          console.log('[AuthStore] refreshSession response permissions:', response.user.permissions);
           authService.setToken(response.accessToken);
           patchState(store, { user: response.user });
           const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;

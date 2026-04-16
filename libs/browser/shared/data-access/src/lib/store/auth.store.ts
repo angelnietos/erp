@@ -32,9 +32,13 @@ export const GlobalAuthStore = signalStore(
     hasPermission(permission: string) {
       const user = store.user();
       if (!user) return false;
-      return user.permissions?.includes('*') || user.permissions?.includes(permission);
+      const has = user.permissions?.includes('*') || user.permissions?.includes(permission);
+      if (has) console.log(`[GlobalAuthStore] Permission GRANTED for '${permission}' (User has: ${user.permissions.join(',')})`);
+      else console.warn(`[GlobalAuthStore] Permission DENIED for '${permission}' (User has: ${user.permissions.join(',')})`);
+      return has;
     },
     setUser(user: AuthState['user']) {
+      console.log('[GlobalAuthStore] Setting user:', user?.email, 'with permissions:', user?.permissions);
       patchState(store, { user });
     },
     logout() {

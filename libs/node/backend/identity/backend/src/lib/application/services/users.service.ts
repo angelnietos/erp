@@ -13,6 +13,7 @@ import {
 import {
   User as UserApi,
 } from '@josanz-erp/identity-api';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -23,22 +24,41 @@ export class UsersService {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
+    private readonly prisma: PrismaService,
   ) {}
 
   async findAll(): Promise<UserApi[]> {
     const users = await this.userRepository.findAll();
-    return users.map((user) => ({
-      id: user.id.value,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isActive: user.isActive,
-      roles: user.roles,
-      permissions: [],
-      category: user.category,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt?.toISOString(),
-    }));
+    
+    // Fetch all roles for this tenant to resolve permissions efficiently
+    const rolesData = await this.prisma.role.findMany({
+      select: { name: true, permissions: true }
+    });
+    
+    const rolePermissionsMap = new Map<string, string[]>(
+      rolesData.map(r => [r.name, r.permissions])
+    );
+
+    return users.map((user) => {
+      const allPerms = new Set<string>();
+      user.roles.forEach(roleName => {
+        const perms = rolePermissionsMap.get(roleName) || [];
+        perms.forEach(p => allPerms.add(p));
+      });
+
+      return {
+        id: user.id.value,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isActive: user.isActive,
+        roles: user.roles,
+        permissions: Array.from(allPerms),
+        category: user.category,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt?.toISOString(),
+      };
+    });
   }
 
   async findById(id: string): Promise<UserApi> {
@@ -46,6 +66,14 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    const rolesData = await this.prisma.role.findMany({
+      where: { name: { in: user.roles } },
+      select: { permissions: true }
+    });
+    
+    const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
+
     return {
       id: user.id.value,
       email: user.email,
@@ -53,7 +81,7 @@ export class UsersService {
       lastName: user.lastName,
       isActive: user.isActive,
       roles: user.roles,
-      permissions: [],
+      permissions,
       category: user.category,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt?.toISOString(),

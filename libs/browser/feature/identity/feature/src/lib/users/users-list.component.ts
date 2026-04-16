@@ -107,7 +107,8 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
               (deleteClicked)="onDelete(user)"
               [footerItems]="[
                 { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
-                { icon: 'key', label: user.roles.length === 0 ? 'SIN ROLES' : user.roles.length + (user.roles.length === 1 ? ' ROL' : ' ROLES') }
+                { icon: 'key', label: (user.roles?.length || 0) === 0 ? 'SIN ROLES' : (user.roles?.length || 0) + ((user.roles?.length || 0) === 1 ? ' ROL' : ' ROLES') },
+                { icon: 'lock', label: (user.permissions?.length || 0) + ((user.permissions?.length || 0) === 1 ? ' PERMISO' : ' PERMISOS') }
               ]"
             >
                <div footer-extra class="users-extra-actions">
