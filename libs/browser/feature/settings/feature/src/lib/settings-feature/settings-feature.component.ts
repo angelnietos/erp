@@ -1,15 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  effect,
-  computed,
-} from '@angular/core';
+import { signal, effect, computed, inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  LucideAngularModule,
-} from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
   UiButtonComponent,
@@ -18,7 +9,8 @@ import {
   UiInputComponent,
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { PluginStore, AIBotStore, type AIBot, RolesService, type Role, PERMISSIONS_CATALOG } from '@josanz-erp/shared-data-access';
+import { PluginStore, AIBotStore, type AIBot } from '@josanz-erp/shared-data-access';
+import { RolesService, type Role, PERMISSIONS_CATALOG } from '@josanz-erp/identity-data-access';
 import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
 
@@ -1309,6 +1301,11 @@ interface PluginDescriptor {
                         class="role-item-btn" 
                         [class.active]="selectedRoleId() === role.id"
                         (click)="selectedRoleId.set(role.id)"
+                        (keydown.enter)="selectedRoleId.set(role.id)"
+                        (keydown.space)="selectedRoleId.set(role.id)"
+                        tabindex="0"
+                        role="button"
+                        [attr.aria-label]="'Seleccionar rol ' + role.name"
                       >
                         <div class="role-icon-indicator" [class]="role.type"></div>
                         <div class="role-label-content">
@@ -1352,6 +1349,12 @@ interface PluginDescriptor {
                                     class="permission-toggle-box"
                                     [class.active]="isPermissionActive(role.id, perm.id)"
                                     (click)="togglePermission(role.id, perm.id)"
+                                    (keydown.enter)="togglePermission(role.id, perm.id)"
+                                    (keydown.space)="togglePermission(role.id, perm.id)"
+                                    tabindex="0"
+                                    role="switch"
+                                    [attr.aria-checked]="isPermissionActive(role.id, perm.id)"
+                                    [attr.aria-label]="'Alternar permiso ' + perm.label"
                                   >
                                     <div class="toggle-info">
                                       <span class="perm-label">{{ perm.label }}</span>
@@ -3076,33 +3079,34 @@ export class SettingsFeatureComponent {
   async loadRoles() {
     this.isLoadingRoles.set(true);
     try {
-      this._rolesService.findAll().subscribe(roles => {
+      this._rolesService.findAll().subscribe((roles: Role[]) => {
         this.roles.set(roles);
         if (roles.length > 0 && !this.selectedRoleId()) {
           this.selectedRoleId.set(roles[0].id);
         }
         this.isLoadingRoles.set(false);
       });
-    } catch (e) {
+    } catch (err: unknown) {
       this.isLoadingRoles.set(false);
+      console.error('Error loading roles:', err);
     }
   }
 
   togglePermission(roleId: string, permissionId: string) {
-    const role = this.roles().find(r => r.id === roleId);
+    const role = this.roles().find((r: Role) => r.id === roleId);
     if (!role) return;
 
     const permissions = role.permissions.includes(permissionId)
-      ? role.permissions.filter(p => p !== permissionId)
+      ? role.permissions.filter((p: string) => p !== permissionId)
       : [...role.permissions, permissionId];
 
-    this._rolesService.update(roleId, { permissions }).subscribe(updated => {
+    this._rolesService.update(roleId, { permissions }).subscribe((updated: Role) => {
       this.roles.update(list => list.map(r => r.id === roleId ? updated : r));
     });
   }
 
   isPermissionActive(roleId: string, permissionId: string): boolean {
-    const role = this.roles().find(r => r.id === roleId);
+    const role = this.roles().find((r: Role) => r.id === roleId);
     return role?.permissions.includes(permissionId) || false;
   }
 
@@ -3114,7 +3118,7 @@ export class SettingsFeatureComponent {
       name, 
       type: RoleType.USER, 
       permissions: [] 
-    }).subscribe(newRole => {
+    }).subscribe((newRole: Role) => {
       this.roles.update(list => [...list, newRole]);
       this.selectedRoleId.set(newRole.id);
     });
@@ -3271,12 +3275,4 @@ export class SettingsFeatureComponent {
     this._pluginStore.togglePerformance();
   }
 
-  constructor() {
-    effect(() => {
-      localStorage.setItem(
-        SettingsFeatureComponent.COMPANION_EDITOR_STORAGE_KEY,
-        this.companionEditorFeature(),
-      );
-    });
-  }
 }
