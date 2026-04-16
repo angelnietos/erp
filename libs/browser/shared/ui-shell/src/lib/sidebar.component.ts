@@ -421,21 +421,7 @@ export class SidebarComponent {
 
   filteredNavItems = computed(() => {
     const enabled = this.pluginStore.enabledPlugins();
-    const user = this.authStore.user();
-    const userPerms = user?.permissions || [];
-    const hasAll = userPerms.includes('*');
-
-    return this.navItems.filter((item) => {
-      // Basic visibility for core items without specific plugins
-      const isCore = ['dashboard', 'ai-insights'].includes(item.id || '');
-      const isEnabled = isCore || enabled.includes(item.id || '');
-      
-      if (!isEnabled) return false;
-
-      // Permission check
-      if (!item.permission) return true;
-      return hasAll || userPerms.includes(item.permission);
-    });
+    return this.navItems.filter((item) => ['dashboard', 'ai-insights'].includes(item.id || '') || enabled.includes(item.id || ''));
   });
 
   isCollapsed = signal(false);
