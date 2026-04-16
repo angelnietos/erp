@@ -1496,7 +1496,7 @@ interface PluginDescriptor {
                       </div>
 
                       <div class="permissions-matrix-container">
-                        @for (category of ['Identidad', 'CRM/Clientes', 'Inventario', 'Finanzas', 'Operaciones']; track category) {
+                        @for (category of ['Sistema', 'Identidad', 'CRM/Clientes', 'Inventario', 'Finanzas', 'Operaciones']; track category) {
                           <div class="permission-group">
                             <h4 class="category-title">{{ category }}</h4>
                             <div class="permission-items-grid">
@@ -3349,9 +3349,30 @@ export class SettingsFeatureComponent {
     const role = this.roles().find((r: Role) => r.id === roleId);
     if (!role) return;
 
-    const permissions = role.permissions.includes(permissionId)
-      ? role.permissions.filter((p: string) => p !== permissionId)
-      : [...role.permissions, permissionId];
+    let permissions = [...role.permissions];
+
+    if (permissionId === '*') {
+      if (permissions.includes('*')) {
+        permissions = []; // Turn off wildcard -> zero access
+      } else {
+        permissions = ['*']; // Turn on wildcard -> wipe granular rules
+      }
+    } else {
+      if (permissions.includes('*')) {
+        // User is trying to disable a specific permission while having wildcard.
+        // We must explode the wildcard into explicit permissions, excluding the one clicked.
+        const allPerms = this.permissionsCatalog
+          .map(p => p.id)
+          .filter(id => id !== '*' && id !== permissionId);
+        permissions = allPerms;
+      } else {
+        if (permissions.includes(permissionId)) {
+          permissions = permissions.filter((p: string) => p !== permissionId);
+        } else {
+          permissions.push(permissionId);
+        }
+      }
+    }
 
     this._rolesService.update(roleId, { permissions }).subscribe((updated: Role) => {
       this.roles.update(list => list.map(r => r.id === roleId ? updated : r));
@@ -3362,7 +3383,8 @@ export class SettingsFeatureComponent {
 
   isPermissionActive(roleId: string, permissionId: string): boolean {
     const role = this.roles().find((r: Role) => r.id === roleId);
-    return role?.permissions.includes(permissionId) || false;
+    if (!role) return false;
+    return role.permissions.includes('*') || role.permissions.includes(permissionId);
   }
 
   async createNewRole() {
