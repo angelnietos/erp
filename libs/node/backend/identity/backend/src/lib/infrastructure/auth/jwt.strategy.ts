@@ -24,9 +24,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
     return { 
-      userId: payload.sub, 
+      id: payload.sub,
+      sub: payload.sub, 
       email: payload.email, 
-      roles: payload.roles 
+      roles: payload.roles,
+      tenantId: (payload as any).tenantId
     };
   }
 }

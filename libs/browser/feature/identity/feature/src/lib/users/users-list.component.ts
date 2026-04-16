@@ -14,8 +14,8 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
-import { Observable, of } from 'rxjs';
-import { ThemeService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { map, Observable, of } from 'rxjs';
+import { ThemeService, MasterFilterService, FilterableService, GlobalAuthStore } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-users-list',
@@ -33,122 +33,188 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
     UiFeatureCardComponent,
   ],
   template: `
-    <div class="users-container">
-      <ui-feature-header
-        title="Usuarios"
-        subtitle="Gestión de identidades y control de acceso"
-        icon="users"
-        actionLabel="NUEVO USUARIO"
-      ></ui-feature-header>
-
-      <ui-feature-stats>
-        <ui-stat-card 
-          label="Total Usuarios" 
-          [value]="users().length.toString()" 
-          icon="users"
-          [accent]="true">
-        </ui-stat-card>
-        <ui-stat-card 
-          label="Activos Ahora" 
-          [value]="activeUsersCount().toString()" 
-          icon="zap" 
-          [trend]="2">
-        </ui-stat-card>
-        <ui-stat-card 
-          label="Roles Definidos" 
-          [value]="rolesCount().toString()" 
-          icon="shield">
-        </ui-stat-card>
-        <ui-stat-card
-          label="Seguridad"
-          value="A+"
-          icon="lock"
-          [accent]="false"
-        ></ui-stat-card>
-      </ui-feature-stats>
-
-      <ui-feature-filter-bar
-        [appearance]="'feature'"
-        [searchVariant]="'glass'"
-        placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..."
-        (searchChange)="onSearch($event)"
-      >
-        <ui-button
-          variant="ghost"
-          size="sm"
-          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-          (clicked)="toggleSort()"
-        >
-          ORDENAR:
-          {{ sortField() === 'name' ? 'NOMBRE' : 'EMAIL' }}
-        </ui-button>
-      </ui-feature-filter-bar>
-
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-loader message="SINCRONIZANDO IDENTIDADES..."></ui-loader>
+    @if (!authStore.hasPermission('users.view')) {
+      <div class="access-denied-container">
+        <div class="denied-card">
+          <lucide-icon name="shield-off" class="denied-icon"></lucide-icon>
+          <h2>Acceso Restringido</h2>
+          <p>Tu rol actual no tiene permisos para ver o gestionar usuarios.</p>
+          <p class="hint">Consulta con un administrador para solicitar acceso a 'users.view'.</p>
+          <ui-button variant="primary" (clicked)="router.navigate(['/'])">VOLVER AL DASHBOARD</ui-button>
         </div>
-      } @else {
-        <ui-feature-grid>
-          @for (user of filteredUsers(); track user.id) {
-            <ui-feature-card
-              [name]="(user.firstName || '') + ' ' + (user.lastName || '')"
-              [subtitle]="user.email"
-              [avatarInitials]="getInitials(user.firstName, user.lastName)"
-              [avatarBackground]="getStatusGradient(user.isActive)"
-              [status]="user.isActive ? 'active' : 'offline'"
-              [badgeLabel]="user.roles[0] || 'SIN ROL'"
-              [badgeVariant]="user.isActive ? 'primary' : 'secondary'"
-              [showEdit]="true"
-              [showDuplicate]="false"
-              [showDelete]="true"
-              (cardClicked)="onRowClick(user)"
-              (editClicked)="onEdit(user)"
-              (deleteClicked)="onDelete(user)"
-              [footerItems]="[
-                { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
-                { icon: 'key', label: (user.roles?.length || 0) === 0 ? 'SIN ROLES' : (user.roles?.length || 0) + ((user.roles?.length || 0) === 1 ? ' ROL' : ' ROLES') },
-                { icon: 'lock', label: (user.permissions?.length || 0) + ((user.permissions?.length || 0) === 1 ? ' PERMISO' : ' PERMISOS') }
-              ]"
-            >
-               <div footer-extra class="users-extra-actions">
-                  <ui-button variant="ghost" size="sm" icon="triangle-alert" class="text-warning" title="Gestionar Permisos"></ui-button>
-               </div>
-            </ui-feature-card>
-          } @empty {
-            <div class="empty-state">
-              <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
-              <h3>No hay usuarios</h3>
-              <p>El directorio está vacío. Comienza invitando a un nuevo colaborador.</p>
-              <ui-button variant="solid" icon="user-plus">Invitar usuario</ui-button>
-            </div>
-          }
-        </ui-feature-grid>
-      }
-    </div>
+      </div>
+    } @else {
+      <div class="users-container">
+        <ui-feature-header
+          title="Usuarios"
+          subtitle="Gestión de identidades y control de acceso"
+          icon="users"
+          actionLabel="NUEVO USUARIO"
+        ></ui-feature-header>
+
+        <ui-feature-stats>
+          <ui-stat-card 
+            label="Total Usuarios" 
+            [value]="users().length.toString()" 
+            icon="users"
+            [accent]="true">
+          </ui-stat-card>
+          <ui-stat-card 
+            label="Activos Ahora" 
+            [value]="activeUsersCount().toString()" 
+            icon="zap" 
+            [trend]="2">
+          </ui-stat-card>
+          <ui-stat-card 
+            label="Roles Definidos" 
+            [value]="rolesCount().toString()" 
+            icon="shield">
+          </ui-stat-card>
+          <ui-stat-card
+            label="Sistema"
+            value="RBAC v2"
+            icon="lock"
+            [accent]="false"
+          ></ui-stat-card>
+        </ui-feature-stats>
+
+        <ui-feature-filter-bar
+          [appearance]="'feature'"
+          [searchVariant]="'glass'"
+          placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..."
+          (searchChange)="onSearch($event)"
+        >
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            ORDENAR:
+            {{ sortField() === 'name' ? 'NOMBRE' : 'EMAIL' }}
+          </ui-button>
+        </ui-feature-filter-bar>
+
+        @if (isLoading()) {
+          <div class="loader-container">
+            <ui-loader message="Sincronizando identidades..."></ui-loader>
+          </div>
+        } @else {
+          <ui-feature-grid>
+            @for (user of filteredUsers(); track user.id) {
+              <ui-feature-card
+                [name]="(user.firstName || '') + ' ' + (user.lastName || '')"
+                [subtitle]="user.email"
+                [avatarInitials]="getInitials(user.firstName, user.lastName)"
+                [avatarBackground]="getStatusGradient(user.isActive)"
+                [status]="user.isActive ? 'active' : 'offline'"
+                [badgeLabel]="user.roles[0] || 'SIN ROL'"
+                (detailClicked)="onRowClick(user)"
+                (editClicked)="onEdit(user)"
+                (deleteClicked)="onDelete(user)"
+                [footerItems]="[
+                  { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
+                  { icon: 'key', label: user.roles.length + (user.roles.length === 1 ? ' ROL' : ' ROLES') },
+                  { 
+                    icon: 'lock', 
+                    label: user.permissions.includes('*') 
+                      ? 'ACCESO TOTAL' 
+                      : user.permissions.length + (user.permissions.length === 1 ? ' PERMISO' : ' PERMISOS') 
+                  }
+                ]"
+              >
+                 <div footer-extra class="users-extra-actions">
+                   <button class="action-btn warning" (click)="onDeactivate(user); $event.stopPropagation()" [title]="user.isActive ? 'Desactivar' : 'Activar'">
+                     <lucide-icon [name]="user.isActive ? 'user-x' : 'user-check'" size="16"></lucide-icon>
+                   </button>
+                 </div>
+              </ui-feature-card>
+            } @empty {
+              <div class="empty-state">
+                <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>No se encontraron usuarios que coincidan con la búsqueda.</p>
+              </div>
+            }
+          </ui-feature-grid>
+        }
+      </div>
+    }
   `,
   styles: [`
     .users-container {
-      max-width: 1400px;
-      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      padding: 2rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .loader-container {
+      display: flex;
+      justify-content: center;
+      padding: 5rem;
+    }
+
+    .access-denied-container {
+      height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 2rem;
     }
 
-    .navigation-bar {
-      margin-bottom: 2rem;
-      background: var(--surface);
-      padding: 0.75rem 1.5rem;
-      border-radius: 16px;
+    .denied-card {
+      max-width: 400px;
+      padding: 3rem;
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-soft);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      text-align: center;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
     }
 
-    .flex-1 { flex: 1; }
+    .denied-icon {
+      width: 64px;
+      height: 64px;
+      color: var(--error);
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
 
-    .loader-container { display: flex; justify-content: center; padding: 5rem; }
+    .hint {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
 
-    .card-actions { display: flex; gap: 0.25rem; }
-    .text-warning { color: var(--warning) !important; }
+    .users-extra-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    .action-btn.warning:hover {
+      color: var(--warning);
+    }
 
     .empty-state {
       grid-column: 1 / -1;
@@ -163,8 +229,9 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
     }
     .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
-    @media (max-width: 900px) {
-       .navigation-bar { padding: 1rem; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -173,7 +240,8 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   private readonly usersService = inject(UsersService);
   private readonly themeService = inject(ThemeService);
   private readonly masterFilter = inject(MasterFilterService);
-  private readonly router = inject(Router);
+  public readonly authStore = inject(GlobalAuthStore);
+  public readonly router = inject(Router);
 
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
@@ -213,13 +281,45 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
     return list;
   });
 
+  ngOnInit() {
+    this.masterFilter.registerProvider(this);
+    this.loadUsers();
+  }
+
+  ngOnDestroy() {
+    this.masterFilter.unregisterProvider();
+  }
+
+  private loadUsers() {
+    this.isLoading.set(true);
+    this.usersService.findAll().subscribe((users) => {
+      this.users.set(users);
+      this.isLoading.set(false);
+    });
+  }
+
+  // Implementation of FilterableService<User>
+  filter(query: string): Observable<User[]> {
+    return this.usersService.findAll().pipe(
+      map(users => {
+        const q = query.toLowerCase().trim();
+        return users.filter(u => 
+          u.email.toLowerCase().includes(q) ||
+          (`${u.firstName} ${u.lastName}`).toLowerCase().includes(q)
+        );
+      })
+    );
+  }
+
+  onSearch(term: string) {
+    this.masterFilter.search(term);
+  }
+
   toggleSort() {
     if (this.sortField() === 'name') {
       this.sortField.set('email');
-      this.sortDirection.set(1);
     } else {
       this.sortField.set('name');
-      this.sortDirection.set(1);
     }
   }
 
@@ -239,6 +339,15 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
     }
   }
 
+  onDeactivate(user: User) {
+    const newStatus = !user.isActive;
+    this.usersService.update(user.id, { isActive: newStatus }).subscribe({
+      next: () => {
+        this.users.update(list => list.map(u => u.id === user.id ? { ...u, isActive: newStatus } : u));
+      }
+    });
+  }
+
   getInitials(first: string | undefined, last: string | undefined): string {
     return ((first?.charAt(0) || '') + (last?.charAt(0) || '')).toUpperCase() || 'U';
   }
@@ -247,39 +356,5 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
     return isActive 
       ? 'linear-gradient(135deg, #10b981, #059669)' 
       : 'linear-gradient(135deg, #6b7280, #374151)';
-  }
-
-  ngOnInit() {
-    this.masterFilter.registerProvider(this);
-    this.loadUsers();
-  }
-
-  ngOnDestroy() {
-    this.masterFilter.unregisterProvider();
-  }
-
-  onSearch(term: string) {
-    this.masterFilter.search(term);
-  }
-
-  filter(query: string): Observable<User[]> {
-    const term = query.toLowerCase();
-    const matches = this.users().filter((u: User) => 
-      u.email.toLowerCase().includes(term) || 
-      (u.firstName ?? '').toLowerCase().includes(term) || 
-      (u.lastName ?? '').toLowerCase().includes(term)
-    );
-    return of(matches);
-  }
-
-  private loadUsers() {
-    this.isLoading.set(true);
-    this.usersService.findAll().subscribe({
-      next: (list: User[]) => {
-        this.users.set(list);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
-    });
   }
 }

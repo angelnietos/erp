@@ -420,15 +420,20 @@ export class SidebarComponent {
   ];
 
   filteredNavItems = computed(() => {
-    const enabled = this.pluginStore.enabledPlugins();
-    // Only filter by plugins. Permissions control UI elements INSIDE features,
-    // not whether the module appears in the sidebar.
+    console.log('[Sidebar] Re-evaluating nav items. User permissions:', this.authStore.user()?.permissions);
     return this.navItems.filter((item) => {
-      return (
-        item.id === 'dashboard' ||
-        item.id === 'ai-insights' ||
-        enabled.includes(item.id || '')
-      );
+      // 1. Filter by plugin
+      if (item.id !== 'dashboard' && item.id !== 'ai-insights' && !this.pluginStore.enabledPlugins().includes(item.id || '')) {
+        return false;
+      }
+
+      // 2. Filter by permission (Zero Trust)
+      // If an item has a permission defined, check if the user has it.
+      if (item.permission && !this.authStore.hasPermission(item.permission)) {
+        return false;
+      }
+
+      return true;
     });
   });
 

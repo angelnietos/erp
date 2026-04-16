@@ -30,18 +30,24 @@ export class UsersService {
   async findAll(): Promise<UserApi[]> {
     const users = await this.userRepository.findAll();
     
-    // Fetch all roles for this tenant to resolve permissions efficiently
+    // Fetch only tenant-specific roles to avoid showing system roles like 'ADMIN' or 'SUPERADMIN' in the UI
     const rolesData = await this.prisma.role.findMany({
-      select: { name: true, permissions: true }
+      select: { name: true, permissions: true, tenantId: true }
     });
     
+    // Create map only for tenant roles (or all, but we will filter in the map loop)
     const rolePermissionsMap = new Map<string, string[]>(
       rolesData.map(r => [r.name, r.permissions])
     );
+    
+    const tenantRoleNames = new Set(rolesData.filter(r => r.tenantId !== null).map(r => r.name));
 
     return users.map((user) => {
+      // Filter the user's roles to only include those that are tenant-specific
+      const filteredRoles = user.roles.filter(r => tenantRoleNames.has(r));
+      
       const allPerms = new Set<string>();
-      user.roles.forEach(roleName => {
+      filteredRoles.forEach(roleName => {
         const perms = rolePermissionsMap.get(roleName) || [];
         perms.forEach(p => allPerms.add(p));
       });
@@ -52,7 +58,7 @@ export class UsersService {
         firstName: user.firstName,
         lastName: user.lastName,
         isActive: user.isActive,
-        roles: user.roles,
+        roles: filteredRoles,
         permissions: Array.from(allPerms),
         category: user.category,
         createdAt: user.createdAt.toISOString(),
@@ -68,10 +74,14 @@ export class UsersService {
     }
 
     const rolesData = await this.prisma.role.findMany({
-      where: { name: { in: user.roles } },
-      select: { permissions: true }
+      where: { 
+        name: { in: user.roles },
+        tenantId: { not: null }
+      },
+      select: { name: true, permissions: true }
     });
     
+    const filteredRoles = rolesData.map(r => r.name);
     const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
 
     return {
@@ -80,7 +90,7 @@ export class UsersService {
       firstName: user.firstName,
       lastName: user.lastName,
       isActive: user.isActive,
-      roles: user.roles,
+      roles: filteredRoles,
       permissions,
       category: user.category,
       createdAt: user.createdAt.toISOString(),

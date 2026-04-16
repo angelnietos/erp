@@ -65,18 +65,9 @@ export class AuthService {
       throw new UnauthorizedException('User is deactivated');
     }
 
-    // Fetch unique permissions for the user's roles
-    const userRoleLinks = await this.prisma.userRole.findMany({
-      where: { userId: user.id.value },
-      select: { roleId: true }
-    });
-    
-    const roleIds = userRoleLinks.map(l => l.roleId);
-    
     const rolesData = await this.prisma.role.findMany({
       where: {
-        id: { in: roleIds },
-        tenantId
+        name: { in: user.roles }
       },
       select: { permissions: true }
     });
@@ -87,7 +78,8 @@ export class AuthService {
       sub: user.id.value, 
       email: user.email, 
       roles: user.roles,
-      permissions
+      permissions,
+      tenantId
     };
 
     return {
@@ -129,18 +121,9 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    // Fetch unique permissions for the user's roles
-    const userRoleLinks = await this.prisma.userRole.findMany({
-      where: { userId: user.id.value },
-      select: { roleId: true }
-    });
-    
-    const roleIds = userRoleLinks.map(l => l.roleId);
-    
     const rolesData = await this.prisma.role.findMany({
       where: {
-        id: { in: roleIds },
-        tenantId
+        name: { in: user.roles }
       },
       select: { permissions: true }
     });
@@ -151,7 +134,8 @@ export class AuthService {
       sub: user.id.value, 
       email: user.email, 
       roles: user.roles,
-      permissions
+      permissions,
+      tenantId
     };
 
     return {
