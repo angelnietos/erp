@@ -5,6 +5,7 @@ export interface UserPayload {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  permissions: string[];
   category?: string;
 }
 
@@ -15,6 +16,7 @@ export interface User {
   lastName?: string;
   isActive: boolean;
   roles: string[];
+  permissions: string[];
   category?: string;
   createdAt: string;
   updatedAt?: string;

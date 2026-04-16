@@ -13,6 +13,7 @@ type AuthenticatedUserView = {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  permissions: string[];
 };
 
 @Injectable()
@@ -64,10 +65,29 @@ export class AuthService {
       throw new UnauthorizedException('User is deactivated');
     }
 
+    // Fetch unique permissions for the user's roles
+    const userRoleLinks = await this.prisma.userRole.findMany({
+      where: { userId: user.id.value },
+      select: { roleId: true }
+    });
+    
+    const roleIds = userRoleLinks.map(l => l.roleId);
+    
+    const rolesData = await this.prisma.role.findMany({
+      where: {
+        id: { in: roleIds },
+        tenantId
+      },
+      select: { permissions: true }
+    });
+    
+    const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
+
     const payload = { 
       sub: user.id.value, 
       email: user.email, 
-      roles: user.roles 
+      roles: user.roles,
+      permissions
     };
 
     return {
@@ -78,6 +98,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         roles: user.roles,
+        permissions,
       },
       tenantId,
     };

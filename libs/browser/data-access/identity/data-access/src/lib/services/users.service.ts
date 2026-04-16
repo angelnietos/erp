@@ -29,6 +29,10 @@ export function mapApiUserPayload(raw: unknown): User {
       return String(item);
     });
   }
+  const rawPerms = r['permissions'];
+  const permissions = Array.isArray(rawPerms)
+    ? rawPerms.filter((p): p is string => typeof p === 'string')
+    : [];
 
   return {
     id,
@@ -37,6 +41,7 @@ export function mapApiUserPayload(raw: unknown): User {
     lastName,
     isActive: isActive !== false && isActive !== 'false',
     roles,
+    permissions,
     category,
     createdAt,
     updatedAt: updatedRaw ? String(updatedRaw) : undefined,

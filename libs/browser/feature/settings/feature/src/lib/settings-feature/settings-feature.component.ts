@@ -8,6 +8,7 @@ import {
   UiBadgeComponent,
   UiInputComponent,
   UiSelectComponent,
+  HasPermissionDirective,
 } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore, type AIBot } from '@josanz-erp/shared-data-access';
 import { RolesService, type Role, PERMISSIONS_CATALOG } from '@josanz-erp/identity-data-access';
@@ -35,6 +36,7 @@ interface PluginDescriptor {
     UiBadgeComponent,
     UiInputComponent,
     UiSelectComponent,
+    HasPermissionDirective,
   ],
   template: `
     <div class="page-container animate-fade-in">
@@ -80,6 +82,7 @@ interface PluginDescriptor {
               <span>Seguridad</span>
             </button>
             <button
+              *uiHasPermission="'users.manage'"
               class="nav-item"
               [class.active]="activeTab() === 'roles'"
               (click)="activeTab.set('roles')"

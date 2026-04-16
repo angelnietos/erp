@@ -9,6 +9,7 @@ export interface AuthState {
     email: string;
     name: string;
     tenantId: string;
+    permissions: string[];
   } | null;
   loading: boolean;
   error: string | null;
@@ -25,8 +26,14 @@ export const AuthStore = signalStore(
   withState(initialState),
   withComputed(({ user }) => ({
     isAuthenticated: computed(() => !!user()),
+    permissions: computed(() => user()?.permissions || []),
   })),
   withMethods((store, router = inject(Router)) => ({
+    hasPermission(permission: string) {
+      const user = store.user();
+      if (!user) return false;
+      return user.permissions?.includes('*') || user.permissions?.includes(permission);
+    },
     setUser(user: AuthState['user']) {
       patchState(store, { user });
     },

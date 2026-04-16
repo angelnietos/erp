@@ -81,10 +81,15 @@ export class AuthService {
     const roles = Array.isArray(rawRoles)
       ? rawRoles.filter((r): r is string => typeof r === 'string')
       : [];
+    const rawPerms = payload['permissions'];
+    const permissions = Array.isArray(rawPerms)
+      ? rawPerms.filter((p): p is string => typeof p === 'string')
+      : [];
     const user: UserPayload = {
       id: payload['sub'],
       email: payload['email'],
       roles,
+      permissions,
     };
     return { user, tenantId: getStoredTenantId() ?? '' };
   }

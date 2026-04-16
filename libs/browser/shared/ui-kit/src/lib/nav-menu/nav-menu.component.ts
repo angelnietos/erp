@@ -1,7 +1,8 @@
-import { Component, Input, output } from '@angular/core';
+import { Component, output, inject, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { AuthStore } from '@josanz-erp/shared-data-access';
 
 export interface NavMenuItem {
   id: string;
@@ -10,6 +11,7 @@ export interface NavMenuItem {
   route: string;
   badge?: string;
   children?: NavMenuItem[];
+  permission?: string;
 }
 
 export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' | 'bordered' | 'compact';
@@ -19,9 +21,9 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `
-    <nav class="nav-menu" [class]="'nav-menu-' + variant">
+    <nav class="nav-menu" [class]="'nav-menu-' + variant()">
       <ul class="nav-list">
-        @for (item of items; track item.id) {
+        @for (item of filteredItems(); track item.id) {
           <li class="nav-item" [class.has-children]="item.children?.length">
             <a
               [routerLink]="item.route"
@@ -156,7 +158,33 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
   `]
 })
 export class NavMenuComponent {
-  @Input() items: NavMenuItem[] = [];
-  @Input() variant: NavMenuVariant = 'default';
+  items = input<NavMenuItem[]>([]);
+  variant = input<NavMenuVariant>('default');
   readonly itemClick = output<NavMenuItem>();
+  
+  private readonly authStore = inject(AuthStore);
+
+  filteredItems = computed(() => {
+    const user = this.authStore.user();
+    if (!user) return [];
+    
+    const userPerms = user.permissions || [];
+    const hasAll = userPerms.includes('*');
+    
+    const filterFn = (items: NavMenuItem[]): NavMenuItem[] => {
+      return items.filter(item => {
+        const hasPerm = !item.permission || hasAll || userPerms.includes(item.permission);
+        if (!hasPerm) return false;
+        
+        let children = item.children;
+        if (children) {
+          children = filterFn([...children]);
+        }
+        
+        return true;
+      });
+    };
+
+    return filterFn([...this.items()]);
+  });
 }

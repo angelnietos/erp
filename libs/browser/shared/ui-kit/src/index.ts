@@ -73,3 +73,6 @@ export { UiFeatureCardComponent } from './lib/layout/feature-card/feature-card.c
 // Pipes
 export { SelectMapperPipe } from './lib/pipes/select-mapper.pipe';
 
+// Directives
+export { HasPermissionDirective } from './lib/directives/has-permission.directive';
+

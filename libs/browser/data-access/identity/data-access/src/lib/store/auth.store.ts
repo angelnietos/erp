@@ -24,8 +24,14 @@ export const AuthStore = signalStore(
   withState(initialState),
   withComputed(({ user }) => ({
     isAuthenticated: computed(() => !!user()),
+    permissions: computed(() => user()?.permissions || []),
   })),
   withMethods((store, authService = inject(AuthService), router = inject(Router), globalAuthStore = inject(GlobalAuthStore), domainEventsApi = inject(DomainEventsApiService)) => ({
+    hasPermission(permission: string) {
+      const user = store.user();
+      if (!user) return false;
+      return user.permissions?.includes('*') || user.permissions?.includes(permission);
+    },
     login: rxMethod<{ email: string; password: string }>(
       pipe(
         tap(() => patchState(store, { loading: true, error: null })),
@@ -40,6 +46,7 @@ export const AuthStore = signalStore(
                 email: response.user.email,
                 name: response.user.email,
                 tenantId: response.tenantId,
+                permissions: response.user.permissions,
               });
               // Register audit event
               domainEventsApi.append({
@@ -84,6 +91,7 @@ export const AuthStore = signalStore(
         email: u.email,
         name: displayName,
         tenantId: session.tenantId,
+        permissions: u.permissions,
       });
     },
   }))
