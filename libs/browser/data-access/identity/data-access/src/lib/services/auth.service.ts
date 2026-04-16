@@ -41,8 +41,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, body);
   }
 
-  refreshSession(): Observable<UserPayload> {
-    return this.http.get<UserPayload>(`${this.apiUrl}/session`);
+  refreshSession(): Observable<AuthResponse> {
+    return this.http.get<AuthResponse>(`${this.apiUrl}/session`);
   }
 
   setToken(token: string): void {

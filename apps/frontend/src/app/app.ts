@@ -17,5 +17,10 @@ export class App {
   constructor() {
     this.authStore.loadUserFromToken();
     this.pluginStore.loadFromStorage();
+    
+    // Background refresh to ensure permissions are up to date with DB state
+    if (this.authStore.isAuthenticated()) {
+      this.authStore.refreshSession();
+    }
   }
 }

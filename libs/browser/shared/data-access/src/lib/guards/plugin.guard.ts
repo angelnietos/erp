@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { PluginStore } from '../store/plugin.store';
+import { GlobalAuthStore } from '../store/auth.store';
 
 export const pluginGuard = (pluginId: string): CanActivateFn => {
   return () => {
@@ -11,7 +12,20 @@ export const pluginGuard = (pluginId: string): CanActivateFn => {
       return true;
     }
 
-    // Redirect to dashboard or a "Module Disabled" page
+    void router.navigate(['/']);
+    return false;
+  };
+};
+
+export const permissionGuard = (permission: string): CanActivateFn => {
+  return () => {
+    const authStore = inject(GlobalAuthStore);
+    const router = inject(Router);
+
+    if (authStore.hasPermission(permission)) {
+      return true;
+    }
+
     void router.navigate(['/']);
     return false;
   };
@@ -20,11 +34,17 @@ export const pluginGuard = (pluginId: string): CanActivateFn => {
 /** Shell `/users` (lista + disponibilidad): al menos uno de los módulos debe estar activo */
 export const usersShellGuard: CanActivateFn = () => {
   const store = inject(PluginStore);
+  const authStore = inject(GlobalAuthStore);
   const router = inject(Router);
+  
   const p = store.enabledPlugins();
-  if (p.includes('identity') || p.includes('availability')) {
+  const hasModule = p.includes('identity') || p.includes('availability');
+  const hasPermission = authStore.hasPermission('users.view') || authStore.hasPermission('users.manage');
+
+  if (hasModule && hasPermission) {
     return true;
   }
+  
   void router.navigate(['/']);
   return false;
 };

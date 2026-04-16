@@ -119,7 +119,11 @@ export class AuthService {
     return null;
   }
 
-  async refreshSession(userId: string, tenantId: string): Promise<AuthenticatedUserView> {
+  async refreshSession(userId: string, tenantId: string): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -143,13 +147,24 @@ export class AuthService {
     
     const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
 
-    return {
-      id: user.id.value,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+    const payload = { 
+      sub: user.id.value, 
+      email: user.email, 
       roles: user.roles,
-      permissions,
+      permissions
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id.value,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+        permissions,
+      },
+      tenantId,
     };
   }
 }

@@ -3,7 +3,7 @@ import { signalStore, withState, withMethods, patchState, withComputed } from '@
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { UserPayload } from '@josanz-erp/identity-api';
+import { UserPayload, AuthResponse } from '@josanz-erp/identity-api';
 import { Router } from '@angular/router';
 import { GlobalAuthStore, DomainEventsApiService } from '@josanz-erp/shared-data-access';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
@@ -98,15 +98,16 @@ export const AuthStore = signalStore(
     refreshSession: rxMethod<void>(
       pipe(
         switchMap(() => authService.refreshSession()),
-        tap((user: UserPayload) => {
-          patchState(store, { user });
-          const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email;
+        tap((response: AuthResponse) => {
+          authService.setToken(response.accessToken);
+          patchState(store, { user: response.user });
+          const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
           globalAuthStore.setUser({
-            id: user.id,
-            email: user.email,
+            id: response.user.id,
+            email: response.user.email,
             name: displayName,
-            tenantId: getStoredTenantId() || '',
-            permissions: user.permissions,
+            tenantId: response.tenantId || getStoredTenantId() || '',
+            permissions: response.user.permissions,
           });
         })
       )
