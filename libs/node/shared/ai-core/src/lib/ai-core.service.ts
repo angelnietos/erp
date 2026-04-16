@@ -47,42 +47,76 @@ export class AiCoreService {
     apiKey: string, 
     prompt: string, 
     systemInstruction?: string, 
-    model: string = GEMINI_FREE_MODELS.FLASH
+    preferredModel: string = GEMINI_FREE_MODELS.FLASH
   ): Promise<string> {
-    try {
-      const payload: Record<string, unknown> = {
-        contents: [{ parts: [{ text: prompt }] }]
-      };
+    const fallbackChain = [
+      preferredModel,
+      GEMINI_FREE_MODELS.FLASH,
+      GEMINI_FREE_MODELS.FLASH_LITE,
+      GEMINI_FREE_MODELS.FLASH_LITE_31_PREVIEW,
+      GEMINI_FREE_MODELS.PRO,
+    ];
 
-      if (systemInstruction) {
-        payload['systemInstruction'] = {
-          parts: [{ text: systemInstruction }]
+    const modelsToTry = [...new Set(fallbackChain)];
+    let lastError = 'No se pudo obtener respuesta de ningún modelo de Gemini disponible.';
+
+    for (const model of modelsToTry) {
+      try {
+        const payload: Record<string, unknown> = {
+          contents: [{ parts: [{ text: prompt }] }]
         };
-      }
 
-      // Utilizamos fetch nativo (Node 18+) para interoperabilidad out-of-the-box sin engordar bundle
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
+        if (systemInstruction) {
+          payload['systemInstruction'] = {
+            parts: [{ text: systemInstruction }]
+          };
+        }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        this.logger.error('Gemini API Error Payload:', errorData);
-        throw new Error(`Fallo en OpenAI/Gemini Endpoint: ${response.statusText}`);
-      }
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      const data = await response.json();
-      return data.candidates[0].content.parts[0].text;
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        this.logger.error('Gemini processing failed', e.message);
+        if (response.status === 429) {
+          this.logger.warn(`⚠️ [Gemini Fallback] El modelo "${model}" ha alcanzado su límite de cuota (429). Intentando siguiente modelo...`);
+          continue;
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          const errorMsg = errorData.error?.message || `Error HTTP ${response.status}`;
+          
+          if (response.status >= 500 || errorMsg.toLowerCase().includes('overloaded') || errorMsg.toLowerCase().includes('expired')) {
+            this.logger.warn(`⚠️ [Gemini Fallback] Error temporal en "${model}": ${errorMsg}. Probando alternativa...`);
+            continue;
+          }
+          
+          throw new Error(errorMsg);
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!text) {
+          this.logger.warn(`⚠️ [Gemini Fallback] "${model}" devolvió una respuesta vacía o sin candidatos. Reintentando...`);
+          continue;
+        }
+
+        if (model !== preferredModel) {
+          this.logger.log(`✅ [Gemini Recovery] Operación completada exitosamente usando modelo de respaldo: ${model}`);
+        }
+
+        return text;
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          this.logger.error(`Fallo intento con modelo ${model}: ${e.message}`);
+          lastError = e.message;
+        }
       }
-      throw new Error('No se pudo generar la respuesta mediante Gemini.');
     }
+
+    throw new Error(`Fallo crítico en todos los modelos Gemini: ${lastError}`);
   }
 
   private async processOpenAI(_apiKey: string, _prompt: string): Promise<string> {

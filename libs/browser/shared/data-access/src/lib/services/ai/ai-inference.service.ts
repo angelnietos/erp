@@ -152,30 +152,73 @@ export class AIInferenceService {
     const apiKey = AI_CONFIG.google_api_key || this.providerApiKey();
     if (!apiKey) throw new Error('API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.');
 
-    // Use selected model if it's a Gemini model, otherwise fallback to config default
-    const modelId = this.selectedModelId();
-    const model = modelId.startsWith('gemini') ? modelId : (AI_CONFIG.gemini_model || 'gemini-2.5-flash');
-    // Prepend context as part of the user message — works universally across all API versions
-    const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
+    const selectedModelId = this.selectedModelId();
+    const primaryModel = selectedModelId.startsWith('gemini') 
+      ? selectedModelId 
+      : (AI_CONFIG.gemini_model || 'gemini-2.5-flash');
 
-    const body = {
-      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-      generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 2048 }
-    };
+    // Chain of fallbacks to ensure availability
+    const fallbackChain = [
+      primaryModel,
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-3.1-flash-lite-preview',
+      'gemini-2.5-pro'
+    ];
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    // Deduplicate while maintaining priority order
+    const modelsToTry = [...new Set(fallbackChain)];
+    let lastError = 'No se pudo obtener respuesta de ningún modelo de Gemini.';
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Error en Gemini API');
+    for (const model of modelsToTry) {
+      try {
+        // Prepend context as part of the user message — works universally across all API versions
+        const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
+
+        const body = {
+          contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+          generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 2048 }
+        };
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        if (response.status === 429) {
+          console.warn(`⚡ [AI Fallback] Modelo "${model}" agotado por cuota (429). Saltando al siguiente...`);
+          continue;
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          const errorMsg = errorData.error?.message || `Error HTTP ${response.status}`;
+          
+          // Si es un error de modelo sobrecargado o temporal, intentamos el siguiente
+          if (response.status >= 500 || errorMsg.toLowerCase().includes('overloaded') || errorMsg.toLowerCase().includes('expired')) {
+             console.warn(`⚠️ [AI Fallback] Error temporal en "${model}": ${errorMsg}. Reintentando con otro...`);
+             continue;
+          }
+
+          throw new Error(errorMsg);
+        }
+
+        const data = await response.json();
+        
+        if (model !== primaryModel) {
+          console.info(`✅ [AI Recovery] Recuperado exitosamente usando modelo de backup: ${model}`);
+        }
+
+        return data.candidates[0].content.parts[0].text;
+      } catch (err: any) {
+        lastError = err.message;
+        console.error(`❌ Fallo en intento con ${model}:`, err.message);
+        // Seguir al siguiente modelo en el bucle
+      }
     }
 
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+    throw new Error(`Fallback Fallido: ${lastError}`);
   }
 
   private async generateWithOpenAI(prompt: string, context?: string): Promise<string> {
