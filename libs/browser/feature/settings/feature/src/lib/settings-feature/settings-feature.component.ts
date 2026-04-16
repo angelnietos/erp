@@ -216,65 +216,88 @@ interface PluginDescriptor {
                 </p>
               </div>
 
-              <!-- NUEVO: Panel global de configuración del LLM -->
-              <ui-card variant="glass" class="ai-global-config-card mb-6">
+              <!-- NUEVO: Panel global de configuración del LLM - Rediseño Premium -->
+              <ui-card variant="glass" class="ai-global-config-card mb-8">
                 <div class="config-header">
                   <div class="config-title">
-                    <lucide-icon name="cpu" size="20"></lucide-icon>
-                    <h3>Motor de Inferencia (LLM)</h3>
+                    <div class="title-icon-wrapper">
+                       <lucide-icon name="cpu" size="24"></lucide-icon>
+                    </div>
+                    <div>
+                      <h3>Motor de Inferencia (LLM)</h3>
+                      <p class="config-subtitle-text">Configura el núcleo de pensamiento de tus asistentes</p>
+                    </div>
                   </div>
                   <ui-badge
                     [variant]="
                       aiBotStore.providerApiKey() ? 'success' : 'warning'
                     "
+                    class="status-badge-premium"
                   >
+                    <div class="status-dot" [class.online]="aiBotStore.providerApiKey()"></div>
                     {{
                       aiBotStore.providerApiKey()
-                        ? 'Conectado a la Nube'
-                        : 'Falta API Key'
+                        ? 'NÚCLEO CONECTADO'
+                        : 'SIN CREDENCIALES'
                     }}
                   </ui-badge>
                 </div>
 
-                <div class="config-body">
-                  <div class="form-group mb-4">
-                    <ui-select
-                      label="Proveedor de IA Base"
-                      [options]="aiBotStore.aiModelOptions()"
-                      [ngModel]="aiBotStore.selectedModelId()"
-                      (ngModelChange)="aiBotStore.setAIModel($event)"
-                    ></ui-select>
-                    <button
-                      class="mt-2 text-xs text-muted hover:text-brand transition-colors flex items-center gap-1"
-                      (click)="aiBotStore.checkOllamaAvailability(true)"
-                      style="background: none; border: none; cursor: pointer; padding: 0;"
-                    >
-                      <lucide-icon name="refresh-cw" size="12"></lucide-icon>
-                      ACTUALIZAR MODELOS OLLAMA
-                    </button>
-                  </div>
-
-                  <div class="form-group mb-4">
-                    <ui-select
-                      label="Agente Principal Activo"
-                      [options]="botOptions()"
-                      [ngModel]="aiBotStore.activeBotFeature()"
-                      (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
-                    ></ui-select>
-                  </div>
-
-                  @if (aiBotStore.needsApiKey()) {
+                <div class="config-body-wrapper">
+                  <div class="config-body">
                     <div class="form-group">
-                      <ui-input
-                        label="Clave de Autenticación API (Token)"
-                        type="password"
-                        placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
-                        hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
-                        [ngModel]="aiBotStore.providerApiKey()"
-                        (ngModelChange)="aiBotStore.providerApiKey.set($event)"
-                      ></ui-input>
+                      <ui-select
+                        label="Proveedor de IA Base"
+                        [options]="aiBotStore.aiModelOptions()"
+                        [ngModel]="aiBotStore.selectedModelId()"
+                        (ngModelChange)="aiBotStore.setAIModel($event)"
+                      ></ui-select>
+                      <button
+                        class="ollama-refresh-btn"
+                        (click)="aiBotStore.checkOllamaAvailability(true)"
+                      >
+                        <lucide-icon name="refresh-cw" size="14"></lucide-icon>
+                        ACTUALIZAR MODELOS OLLAMA
+                      </button>
                     </div>
-                  }
+
+                    <div class="form-group">
+                      <ui-select
+                        label="Agente Principal Activo"
+                        [options]="botOptions()"
+                        [ngModel]="aiBotStore.activeBotFeature()"
+                        (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
+                      ></ui-select>
+                    </div>
+
+                    @if (aiBotStore.needsApiKey()) {
+                      <div class="form-group full-width">
+                        <ui-input
+                          label="Clave de Autenticación API (Token)"
+                          type="password"
+                          placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
+                          hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
+                          [ngModel]="aiBotStore.providerApiKey()"
+                          (ngModelChange)="aiBotStore.providerApiKey.set($event)"
+                        ></ui-input>
+                      </div>
+                    }
+                  </div>
+                  
+                  <div class="config-visual-decoration">
+                    @if (aiBotStore.getBotByFeature('buddy'); as buddy) {
+                      <ui-mascot 
+                        [type]="$any(buddy.mascotType)" 
+                        [color]="buddy.color" 
+                        [secondaryColor]="buddy.secondaryColor"
+                        [personality]="$any(buddy.personality)"
+                        [bodyShape]="$any(buddy.bodyShape)"
+                        [mouthType]="mascotMouthFor(buddy)"
+                        [eyesType]="$any(buddy.eyesType)"
+                        [rageMode]="aiBotStore.rageMode()"
+                      ></ui-mascot>
+                    }
+                  </div>
                 </div>
               </ui-card>
 
@@ -1464,6 +1487,183 @@ interface PluginDescriptor {
         font-size: 0.85rem;
         color: var(--text-muted);
         margin: 0.4rem 0 0 0;
+      }
+
+      /* Global AI Config Card - Premium Refactoring */
+      .ai-global-config-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: radial-gradient(circle at top right, rgba(var(--brand-rgb), 0.12), transparent 40%),
+                    rgba(15, 23, 42, 0.7) !important;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+      }
+
+      .ai-global-config-card:hover {
+        border-color: rgba(var(--brand-rgb), 0.25) !important;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 40px rgba(var(--brand-rgb), 0.1) !important;
+      }
+
+      .title-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: rgba(var(--brand-rgb), 0.15);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(var(--brand-rgb), 0.25);
+        box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.05);
+      }
+
+      .config-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.75rem 2.5rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .config-title {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+      }
+
+      .config-title lucide-icon {
+        color: var(--brand);
+        filter: drop-shadow(0 0 10px rgba(var(--brand-rgb), 0.6));
+      }
+
+      .config-title h3 {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      .config-subtitle-text {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin: 0.15rem 0 0 0;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        opacity: 0.7;
+      }
+
+      .status-badge-premium {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.65rem 1.25rem !important;
+        border-radius: 99px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.08em !important;
+        font-size: 0.62rem !important;
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        box-shadow: 0 0 12px #ef4444;
+      }
+
+      .status-dot.online {
+        background: #10b981;
+        box-shadow: 0 0 12px #10b981;
+        animation: status-pulse-green 2s infinite;
+      }
+
+      @keyframes status-pulse-green {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+
+      .config-body-wrapper {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2.5rem;
+        align-items: flex-start;
+      }
+
+      .config-body {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+      }
+
+      .config-body .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .config-visual-decoration {
+        flex-shrink: 0;
+        width: 180px;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .config-visual-decoration::after {
+        content: '';
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        background: var(--brand);
+        filter: blur(60px);
+        opacity: 0.15;
+        border-radius: 50%;
+        z-index: 0;
+      }
+
+      .config-visual-decoration ui-mascot {
+        z-index: 1;
+        transform: scale(1.6);
+        filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
+        animation: float-mascot-premium 6s ease-in-out infinite;
+      }
+
+      @keyframes float-mascot-premium {
+        0%, 100% { transform: scale(1.6) translateY(0) rotate(-2deg); }
+        50% { transform: scale(1.6) translateY(-20px) rotate(3deg); }
+      }
+
+      .ollama-refresh-btn {
+        margin-top: 1rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.68rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .ollama-refresh-btn:hover {
+        background: rgba(var(--brand-rgb), 0.15);
+        color: var(--brand);
+        border-color: rgba(var(--brand-rgb), 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       }
 
       .companion-toolbar {
