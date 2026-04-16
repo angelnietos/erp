@@ -34,6 +34,7 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  AuthStore,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -72,9 +73,11 @@ interface ClientFormData extends Partial<Client> {
         title="Clientes"
         subtitle="Gestión completa de tu cartera de clientes"
         icon="building-2"
-        actionLabel="Nuevo Cliente"
+        [actionLabel]="canManage() ? 'Nuevo Cliente' : ''"
         (actionClicked)="openCreateModal()"
       ></ui-feature-header>
+
+      @if (canView()) {
 
       <!-- Standard Stats -->
       <ui-feature-stats>
@@ -285,9 +288,9 @@ interface ClientFormData extends Partial<Client> {
                 getClientStatus(client) === 'active' ? 'active' : 'offline'
               "
               [badgeLabel]="client.sector || 'General'"
-              [showEdit]="true"
-              [showDuplicate]="true"
-              [showDelete]="true"
+              [showEdit]="canManage()"
+              [showDuplicate]="canManage()"
+              [showDelete]="canManage()"
               (cardClicked)="goToDetail(client)"
               (editClicked)="editClient(client)"
               (duplicateClicked)="onDuplicate(client)"
@@ -329,16 +332,25 @@ interface ClientFormData extends Partial<Client> {
                 Comienza añadiendo tu primer cliente para gestionar tu cartera
                 comercial.
               </p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-              >
-                Añadir primer cliente
-              </ui-button>
+              @if (canManage()) {
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                >
+                  Añadir primer cliente
+                </ui-button>
+              }
             </div>
           }
         </ui-feature-grid>
+      }
+      } @else {
+        <div class="empty-state" style="margin-top: 2rem;">
+          <lucide-icon name="shield-alert" size="48" class="empty-icon"></lucide-icon>
+          <h3>Acceso Restringido</h3>
+          <p>No tienes permiso para ver el directorio de clientes.</p>
+        </div>
       }
 
       <!-- Create/Edit Modal -->
@@ -688,6 +700,10 @@ export class ClientsListComponent
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
+  public readonly authStore = inject(AuthStore);
+
+  readonly canView = computed(() => this.authStore.hasPermission('clients.view'));
+  readonly canManage = computed(() => this.authStore.hasPermission('clients.manage'));
 
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;

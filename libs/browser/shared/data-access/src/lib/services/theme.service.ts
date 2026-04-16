@@ -1694,6 +1694,32 @@ export class ThemeService {
     this.currentVariant.set(variant);
   }
 
+  /**
+   * Actualiza el color primario/marca de forma dinámica para todo el sistema.
+   * Útil para personalización de perfil o temas personalizados.
+   */
+  updatePrimaryColor(hex: string) {
+    const root = document.documentElement;
+    root.style.setProperty('--brand', hex);
+    root.style.setProperty('--brand-rgb', hexToRgbTriplet(hex));
+    root.style.setProperty('--primary', hex);
+    root.style.setProperty('--primary-rgb', hexToRgbTriplet(hex));
+    root.style.setProperty('--brand-glow', `rgba(${hexToRgbTriplet(hex)}, 0.5)`);
+    root.style.setProperty('--brand-ambient', `rgba(${hexToRgbTriplet(hex)}, 0.12)`);
+    root.style.setProperty('--brand-ambient-strong', `rgba(${hexToRgbTriplet(hex)}, 0.2)`);
+    
+    // Si la variante es glass, actualizamos también el borde vibrante
+    if (this.currentVariant() === 'glass') {
+      root.style.setProperty('--border-vibrant', `rgba(${hexToRgbTriplet(hex)}, 0.3)`);
+      root.style.setProperty('--card-border', `rgba(${hexToRgbTriplet(hex)}, 0.3)`);
+      root.style.setProperty('--btn-shadow', `0 4px 20px rgba(${hexToRgbTriplet(hex)}, 0.3)`);
+    }
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('custom_primary_color', hex);
+    }
+  }
+
   private applyTheme(theme: Theme, variant: string) {
     const config = THEMES[theme];
     const root = document.documentElement;

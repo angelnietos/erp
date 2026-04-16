@@ -10,8 +10,8 @@ import {
   UiSelectComponent,
   HasPermissionDirective,
 } from '@josanz-erp/shared-ui-kit';
-import { PluginStore, AIBotStore, type AIBot } from '@josanz-erp/shared-data-access';
-import { RolesService, type Role, PERMISSIONS_CATALOG, AuthStore } from '@josanz-erp/identity-data-access';
+import { PluginStore, AIBotStore, type AIBot, ThemeService } from '@josanz-erp/shared-data-access';
+import { RolesService, type Role, PERMISSIONS_CATALOG, AuthStore, AuthService } from '@josanz-erp/identity-data-access';
 import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
 
@@ -51,10 +51,18 @@ interface PluginDescriptor {
           <nav class="settings-nav">
             <button
               class="nav-item"
+              [class.active]="activeTab() === 'profile'"
+              (click)="activeTab.set('profile')"
+            >
+              <lucide-icon name="user" size="18"></lucide-icon>
+              <span>Mi Perfil</span>
+            </button>
+            <button
+              class="nav-item"
               [class.active]="activeTab() === 'general'"
               (click)="activeTab.set('general')"
             >
-              <lucide-icon name="sliders-horizontal" size="18"></lucide-icon>
+              <lucide-icon name="sliders" size="18"></lucide-icon>
               <span>General</span>
             </button>
             <button
@@ -129,6 +137,152 @@ interface PluginDescriptor {
 
         <!-- Main Content Area -->
         <main class="settings-content">
+          @if (activeTab() === 'profile') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Mi Perfil</h2>
+                <p>Gestiona tu identidad y presencia en la plataforma</p>
+              </div>
+
+              <div class="profile-layout">
+                <div class="profile-main">
+                  <ui-card variant="glass" class="id-card">
+                    <div class="user-id-header">
+                      <div class="avatar-manager">
+                         <ui-mascot 
+                           [type]="_authStore.user()?.id ? (((_authStore.user()?.id?.length ?? 0) % 2 === 0) ? 'universal' : 'dashboard') : 'universal'" 
+                           [color]="themeService.currentThemeData().primary"
+                           size="lg">
+                         </ui-mascot>
+                         <button class="edit-avatar-btn"><lucide-icon name="pencil" size="14"></lucide-icon></button>
+                      </div>
+                      <div class="user-names">
+                        <h3>{{ _authStore.user()?.firstName || 'Usuario' }} {{ _authStore.user()?.lastName || '' }}</h3>
+                        <p>{{ _authStore.user()?.email }}</p>
+                        <ui-badge variant="success">{{ _authStore.user()?.roles?.[0] || 'Miembro' }}</ui-badge>
+                      </div>
+                    </div>
+
+                    <div class="profile-fields mt-6">
+                      <div class="form-grid">
+                        <ui-input label="Nombre" [ngModel]="_authStore.user()?.firstName" placeholder="Nombre"></ui-input>
+                        <ui-input label="Apellidos" [ngModel]="_authStore.user()?.lastName" placeholder="Apellidos"></ui-input>
+                      </div>
+                      <ui-input label="Email de contacto" [ngModel]="_authStore.user()?.email" icon="mail" [disabled]="true"></ui-input>
+                    </div>
+                    
+                    <div class="card-actions mt-4">
+                      <ui-button variant="filled">Guardar Cambios</ui-button>
+                    </div>
+                  </ui-card>
+                </div>
+
+                <div class="profile-side">
+                  <ui-card variant="glass" class="id-token-card">
+                    <h4 class="small-title">Identificador de Usuario</h4>
+                    <code>{{ _authStore.user()?.id }}</code>
+                    <div class="meta-info mt-4">
+                      <div class="meta-item">
+                        <span class="label">Último Acceso</span>
+                        <span class="val">Hoy, 14:20</span>
+                      </div>
+                    </div>
+                  </ui-card>
+                </div>
+              </div>
+            </section>
+          }
+
+          @if (activeTab() === 'general') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Experiencia General</h2>
+                <p>Personaliza tu entorno de trabajo y el estilo visual global</p>
+              </div>
+
+              <div class="prefs-container grid-config">
+                <ui-card variant="glass" class="prefs-card">
+                   <div class="pref-header">
+                     <lucide-icon name="palette" size="18"></lucide-icon>
+                     <h3>Identidad de Marca</h3>
+                   </div>
+                   
+                   <div class="form-group mt-4">
+                     <span class="form-label">Color Primario del Sistema</span>
+                     <div class="color-picker-grid">
+                       @for (c of [{m: '#facc15', n: 'Amber'}, {m: '#f43f5e', n: 'Rose'}, {m: '#10b981', n: 'Emerald'}, {m: '#8b5cf6', n: 'Violet'}, {m: '#3b82f6', n: 'Blue'}, {m: '#0ea5e9', n: 'Sky'}]; track c.n) {
+                         <button type="button" class="color-swatch-item" 
+                              [class.active]="themeService.currentThemeData().primary === c.m"
+                              (click)="themeService.updatePrimaryColor(c.m)"
+                              [attr.aria-label]="'Seleccionar color ' + c.n">
+                           <div class="color-swatch" [style.background]="c.m"></div>
+                         </button>
+                       }
+                       <div class="custom-color-picker">
+                         <input type="color" [value]="themeService.currentThemeData().primary" (input)="themeService.updatePrimaryColor($any($event.target).value)">
+                       </div>
+                     </div>
+                     <p class="config-desc mt-2">Este color define el tono base de botones, estados y efectos de brillo en toda la aplicación.</p>
+                   </div>
+
+                   <hr class="divider">
+
+                   <div class="form-group">
+                    <ui-select
+                      label="Idioma de Interfaz"
+                      [options]="[
+                        { value: 'es', label: 'Español (Castellano)' },
+                        { value: 'en', label: 'English (US)' },
+                        { value: 'fr', label: 'Français' }
+                      ]"
+                      [ngModel]="aiBotStore.language()"
+                      (ngModelChange)="aiBotStore.language.set($event)"
+                    ></ui-select>
+                  </div>
+                </ui-card>
+
+                <ui-card variant="glass" class="prefs-card">
+                  <div class="pref-header">
+                     <lucide-icon name="layout" size="18"></lucide-icon>
+                     <h3>Interfaz Despejada</h3>
+                   </div>
+
+                  <div class="pref-row mt-4">
+                    <div class="pref-text">
+                      <h4>Modo Compacto</h4>
+                      <p>Reduce márgenes y tamaños de botones para ver más datos</p>
+                    </div>
+                    <div class="toggle-wrapper" 
+                         tabindex="0"
+                         role="checkbox"
+                         [attr.aria-checked]="aiBotStore.compactMode()"
+                         (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())" 
+                         (keydown.enter)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                         [class.active]="aiBotStore.compactMode()">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+
+                  <div class="pref-row">
+                    <div class="pref-text">
+                      <h4 class="premium-text">Luxe Experience (Global)</h4>
+                      <p>Habilita trazado de rayos simulado y efectos cinematográficos avanzados</p>
+                    </div>
+                    <div class="toggle-wrapper premium" 
+                         tabindex="0"
+                         role="checkbox"
+                         [attr.aria-checked]="premiumExperience()"
+                         (click)="togglePremium()" 
+                         (keydown.enter)="togglePremium()"
+                         [class.active]="premiumExperience()">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+                </ui-card>
+              </div>
+            </section>
+          }
+
           @if (activeTab() === 'plugins') {
             <section class="content-section animate-slide-up">
               <div class="section-title">
@@ -2482,6 +2636,172 @@ interface PluginDescriptor {
         transform: scale(0.97);
       }
 
+      .section-title h2 {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #fff;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+
+      /* Profile */
+      .profile-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.5rem;
+      }
+
+      .user-id-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .avatar-manager {
+        position: relative;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .edit-avatar-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--brand);
+        color: #000;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease;
+      }
+      .edit-avatar-btn:hover {
+        transform: scale(1.1) rotate(15deg);
+        filter: brightness(1.2);
+      }
+
+      .user-names h3 {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: #fff;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      .user-names p {
+        color: var(--text-muted);
+        margin: 0.25rem 0 1rem;
+        font-size: 0.95rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .small-title {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--brand);
+        margin-bottom: 1rem;
+        letter-spacing: 0.15em;
+        opacity: 0.8;
+      }
+
+      code {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        display: block;
+        color: var(--brand);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        word-break: break-all;
+      }
+
+      .meta-info {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 1rem;
+        border-radius: 12px;
+      }
+      .meta-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+      }
+      .meta-item .label { color: var(--text-muted); }
+      .meta-item .val { color: #fff; font-weight: 700; }
+
+      .config-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .pref-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #fff;
+      }
+      .pref-header h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .divider {
+        border: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        margin: 2rem 0;
+      }
+
+      .custom-color-picker {
+        width: 44px;
+        height: 44px;
+        overflow: hidden;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .custom-color-picker:hover {
+        transform: scale(1.05);
+        border-color: #fff;
+      }
+      .custom-color-picker input {
+        width: 150%;
+        height: 150%;
+        margin: -25%;
+        cursor: pointer;
+        border: none;
+      }
+
+      .nav-divider {
+        padding: 1.25rem 1rem 0.5rem 1.25rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        opacity: 0.5;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 0.5rem;
+      }
+
       .rage-text {
         color: #ef4444 !important;
         text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
@@ -3009,8 +3329,9 @@ interface PluginDescriptor {
 export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
+  public readonly themeService = inject(ThemeService);
   private readonly _rolesService = inject(RolesService);
-  private readonly _authStore = inject(AuthStore);
+  public readonly _authStore = inject(AuthStore);
 
   readonly activeTab = signal<
     | 'general'
@@ -3021,7 +3342,8 @@ export class SettingsFeatureComponent {
     | 'security'
     | 'roles'
     | 'labs'
-  >('general');
+    | 'profile'
+  >('profile');
   readonly managingBotId = signal<string | null>(null);
 
   private static readonly COMPANION_EDITOR_STORAGE_KEY =
