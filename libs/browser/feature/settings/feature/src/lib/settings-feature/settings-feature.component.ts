@@ -5,29 +5,10 @@ import {
   signal,
   effect,
   computed,
-  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LucideAngularModule,
-  Puzzle,
-  Sliders,
-  Bot,
-  Shield,
-  CheckCircle2,
-  X,
-  Cpu,
-  Smile,
-  Zap,
-  Bell,
-  Lock,
-  FlaskConical,
-  Globe,
-  Volume2,
-  Layout,
-  Clock,
-  Trash2,
-  RefreshCw,
 } from 'lucide-angular';
 import {
   UiCardComponent,
@@ -284,20 +265,21 @@ interface PluginDescriptor {
                     }
                   </div>
                   
-                  <div class="config-visual-decoration">
-                    @if (aiBotStore.getBotByFeature('buddy'); as buddy) {
-                      <ui-mascot 
-                        [type]="$any(buddy.mascotType)" 
-                        [color]="buddy.color" 
-                        [secondaryColor]="buddy.secondaryColor"
-                        [personality]="$any(buddy.personality)"
-                        [bodyShape]="$any(buddy.bodyShape)"
-                        [mouthType]="mascotMouthFor(buddy)"
-                        [eyesType]="$any(buddy.eyesType)"
-                        [rageMode]="aiBotStore.rageMode()"
-                      ></ui-mascot>
-                    }
-                  </div>
+                <div class="config-visual-decoration">
+                  @if (aiBotStore.getBotByFeature(aiBotStore.activeBotFeature()); as activeBot) {
+                    <ui-mascot 
+                      [type]="$any(activeBot.mascotType)" 
+                      [color]="activeBot.color" 
+                      [secondaryColor]="activeBot.secondaryColor"
+                      [personality]="$any(activeBot.personality)"
+                      [bodyShape]="$any(activeBot.bodyShape)"
+                      [mouthType]="mascotMouthFor(activeBot)"
+                      [eyesType]="$any(activeBot.eyesType)"
+                      [rageMode]="aiBotStore.rageMode()"
+                      [rageStyle]="$any(aiBotStore.rageStyle())"
+                    ></ui-mascot>
+                  }
+                </div>
                 </div>
               </ui-card>
 
@@ -422,28 +404,30 @@ interface PluginDescriptor {
                         ></ui-select>
 
                         <div class="form-group">
-                          <label class="form-label">Color Principal</label>
+                          <label class="form-label" [attr.for]="'color-' + bot.feature">Color Principal</label>
                           <input
+                            [id]="'color-' + bot.feature"
                             type="color"
                             class="color-input"
                             [value]="bot.color"
                             (input)="
                               aiBotStore.updateBotSkin(bot.feature, {
-                                color: $event.target.value,
+                                color: $any($event.target).value,
                               })
                             "
                           />
                         </div>
 
                         <div class="form-group">
-                          <label class="form-label">Color Secundario</label>
+                          <label class="form-label" [attr.for]="'secondary-color-' + bot.feature">Color Secundario</label>
                           <input
+                            [id]="'secondary-color-' + bot.feature"
                             type="color"
                             class="color-input"
                             [value]="bot.secondaryColor"
                             (input)="
                               aiBotStore.updateBotSkin(bot.feature, {
-                                secondaryColor: $event.target.value,
+                                secondaryColor: $any($event.target).value,
                               })
                             "
                           />
@@ -534,6 +518,12 @@ interface PluginDescriptor {
                                   (click)="
                                     aiBotStore.toggleSkill(bot.feature, skill)
                                   "
+                                  (keydown.enter)="aiBotStore.toggleSkill(bot.feature, skill)"
+                                  (keydown.space)="aiBotStore.toggleSkill(bot.feature, skill)"
+                                  tabindex="0"
+                                  role="switch"
+                                  [attr.aria-checked]="isSkillActive(bot.feature, skill)"
+                                  [attr.aria-label]="'Alternar ' + skill"
                                 >
                                   <div class="toggle-handle"></div>
                                 </div>
@@ -649,6 +639,12 @@ interface PluginDescriptor {
                           (click)="
                             aiBotStore.setRageMode(!aiBotStore.rageMode())
                           "
+                          (keydown.enter)="aiBotStore.setRageMode(!aiBotStore.rageMode())"
+                          (keydown.space)="aiBotStore.setRageMode(!aiBotStore.rageMode())"
+                          tabindex="0"
+                          role="switch"
+                          [attr.aria-checked]="aiBotStore.rageMode()"
+                          aria-label="Modo rage"
                         >
                           <div class="toggle-label">
                             <lucide-icon name="zap" size="14"></lucide-icon>
@@ -726,7 +722,7 @@ interface PluginDescriptor {
                         </div>
 
                         <div class="form-group mb-4">
-                          <label class="form-label">Color principal</label>
+                          <span class="form-label">Color principal</span>
                           <div class="color-picker-grid">
                             @for (
                               c of [
@@ -752,6 +748,11 @@ interface PluginDescriptor {
                                     secondaryColor: c.s,
                                   })
                                 "
+                                (keydown.enter)="aiBotStore.updateBotSkin(pal.feature, { color: c.m, secondaryColor: c.s })"
+                                (keydown.space)="aiBotStore.updateBotSkin(pal.feature, { color: c.m, secondaryColor: c.s })"
+                                tabindex="0"
+                                role="button"
+                                [attr.aria-label]="'Seleccionar color ' + c.n"
                               >
                                 <div
                                   class="color-swatch"
@@ -761,10 +762,11 @@ interface PluginDescriptor {
                             }
                           </div>
                           <div class="companion-custom-primary">
-                            <label class="form-label form-label-sub"
+                            <label class="form-label form-label-sub" [attr.for]="'custom-color-' + pal.feature"
                               >Cualquier color</label
                             >
                             <input
+                              [id]="'custom-color-' + pal.feature"
                               type="color"
                               class="color-input color-input-primary"
                               [value]="pal.color"
@@ -781,8 +783,9 @@ interface PluginDescriptor {
                         </div>
 
                         <div class="form-group mb-4 companion-secondary-row">
-                          <label class="form-label">Color secundario (sombra)</label>
+                          <label class="form-label" [attr.for]="'secondary-color-companion-' + pal.feature">Color secundario (sombra)</label>
                           <input
+                            [id]="'secondary-color-companion-' + pal.feature"
                             type="color"
                             class="color-input"
                             [value]="pal.secondaryColor"
@@ -930,6 +933,12 @@ interface PluginDescriptor {
                               (click)="
                                 companionToggleSkill(pal.feature, skill)
                               "
+                              (keydown.enter)="companionToggleSkill(pal.feature, skill)"
+                              (keydown.space)="companionToggleSkill(pal.feature, skill)"
+                              tabindex="0"
+                              role="switch"
+                              [attr.aria-checked]="companionSkillActive(pal.feature, skill)"
+                              [attr.aria-label]="'Alternar habilidad ' + skill"
                             >
                               <div class="toggle-handle"></div>
                             </div>
@@ -951,8 +960,9 @@ interface PluginDescriptor {
                         </p>
 
                         <div class="form-group mb-4">
-                          <label class="form-label">Reglas (texto libre)</label>
+                          <label class="form-label" for="rules-textarea">Reglas (texto libre)</label>
                           <textarea
+                            id="rules-textarea"
                             class="user-agent-textarea"
                             rows="4"
                             [ngModel]="aiBotStore.dashboardUserLayer().rules"
@@ -966,10 +976,11 @@ interface PluginDescriptor {
                         </div>
 
                         <div class="form-group mb-4">
-                          <label class="form-label"
+                          <label class="form-label" for="instructions-textarea"
                             >Instrucciones de sistema adicionales</label
                           >
                           <textarea
+                            id="instructions-textarea"
                             class="user-agent-textarea"
                             rows="4"
                             [ngModel]="
@@ -986,8 +997,8 @@ interface PluginDescriptor {
 
                         <div class="form-group mb-4">
                           <div class="preset-header">
-                            <label class="form-label mb-0"
-                              >Prompts por comportamiento</label
+                            <span class="form-label mb-0" id="presets-label"
+                              >Prompts por comportamiento</span
                             >
                             <ui-button
                               variant="outline"
@@ -997,6 +1008,7 @@ interface PluginDescriptor {
                                   'dashboard'
                                 )
                               "
+                              aria-labelledby="presets-label"
                             >
                               Añadir
                             </ui-button>
@@ -1110,7 +1122,13 @@ interface PluginDescriptor {
                       (click)="
                         aiBotStore.compactMode.set(!aiBotStore.compactMode())
                       "
+                      (keydown.enter)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                      (keydown.space)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
                       [class.active]="aiBotStore.compactMode()"
+                      tabindex="0"
+                      role="switch"
+                      [attr.aria-checked]="aiBotStore.compactMode()"
+                      aria-label="Modo compacto"
                     >
                       <div class="toggle-handle"></div>
                     </div>
@@ -1126,7 +1144,13 @@ interface PluginDescriptor {
                     <div
                       class="toggle-wrapper premium"
                       (click)="togglePremium()"
+                      (keydown.enter)="togglePremium()"
+                      (keydown.space)="togglePremium()"
                       [class.active]="premiumExperience()"
+                      tabindex="0"
+                      role="switch"
+                      [attr.aria-checked]="premiumExperience()"
+                      aria-label="Experiencia premium"
                     >
                       <div class="toggle-handle"></div>
                     </div>
@@ -1156,7 +1180,13 @@ interface PluginDescriptor {
                         !aiBotStore.notificationsEnabled()
                       )
                     "
+                    (keydown.enter)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
+                    (keydown.space)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
                     [class.active]="aiBotStore.notificationsEnabled()"
+                    tabindex="0"
+                    role="switch"
+                    [attr.aria-checked]="aiBotStore.notificationsEnabled()"
+                    aria-label="Notificaciones globales"
                   >
                     <div class="toggle-handle"></div>
                   </div>
@@ -1172,7 +1202,13 @@ interface PluginDescriptor {
                     (click)="
                       aiBotStore.soundEffects.set(!aiBotStore.soundEffects())
                     "
+                    (keydown.enter)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
+                    (keydown.space)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
                     [class.active]="aiBotStore.soundEffects()"
+                    tabindex="0"
+                    role="switch"
+                    [attr.aria-checked]="aiBotStore.soundEffects()"
+                    aria-label="Efectos de sonido"
                   >
                     <div class="toggle-handle"></div>
                   </div>
@@ -1226,7 +1262,13 @@ interface PluginDescriptor {
                       (click)="
                         aiBotStore.autoArchive.set(!aiBotStore.autoArchive())
                       "
+                      (keydown.enter)="aiBotStore.autoArchive.set(!aiBotStore.autoArchive())"
+                      (keydown.space)="aiBotStore.autoArchive.set(!aiBotStore.autoArchive())"
                       [class.active]="aiBotStore.autoArchive()"
+                      tabindex="0"
+                      role="switch"
+                      [attr.aria-checked]="aiBotStore.autoArchive()"
+                      aria-label="Auto-archivo de chats"
                     >
                       <div class="toggle-handle"></div>
                     </div>
@@ -1270,7 +1312,13 @@ interface PluginDescriptor {
                         !aiBotStore.experimentalFeatures()
                       )
                     "
+                    (keydown.enter)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
+                    (keydown.space)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
                     [class.active]="aiBotStore.experimentalFeatures()"
+                    tabindex="0"
+                    role="switch"
+                    [attr.aria-checked]="aiBotStore.experimentalFeatures()"
+                    aria-label="Habilitar funciones beta"
                   >
                     <div class="toggle-handle"></div>
                   </div>
@@ -2493,7 +2541,7 @@ interface PluginDescriptor {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SettingsFeatureComponent implements OnInit {
+export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   public readonly aiBotStore = inject(AIBotStore);
 
@@ -2585,10 +2633,20 @@ export class SettingsFeatureComponent implements OnInit {
   ];
 
   readonly botOptions = computed(() =>
-    this.aiBotStore.bots().map((bot) => ({
-      value: bot.feature,
-      label: `${bot.name} (${bot.feature})`,
-    })),
+    this.aiBotStore
+      .bots()
+      .map((bot) => ({
+        value: bot.feature,
+        label: `${this.aiBotStore.getBotDisplayName(bot.feature)} (${bot.feature})`,
+      }))
+      .sort((a, b) => {
+        // Priorizar Buddy y Dashboard (JAIME) en la parte superior
+        if (a.value === 'buddy') return -1;
+        if (b.value === 'buddy') return 1;
+        if (a.value === 'dashboard') return -1;
+        if (b.value === 'dashboard') return 1;
+        return a.label.localeCompare(b.label);
+      }),
   );
 
   isSkillActive(botId: string, skill: string) {
@@ -2667,10 +2725,6 @@ export class SettingsFeatureComponent implements OnInit {
 
   togglePremium() {
     this._pluginStore.togglePerformance();
-  }
-  ngOnInit() {
-    // No realizamos auto-detección al inicio para evitar ruidos en consola si Ollama no está activo.
-    // El usuario puede usar el botón de 'Actualizar' si desea escanear modelos locales.
   }
 
   constructor() {
