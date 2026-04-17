@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -58,7 +58,10 @@ interface CalendarCell {
         permissionHint="users.view"
       />
     } @else {
-    <div class="availability-dashboard availability-container animate-fade-in">
+    <div
+      class="availability-dashboard availability-container animate-fade-in"
+      [class.availability-dashboard--team]="viewMode() === 'team'"
+    >
       <ui-feature-header
         title="Disponibilidad técnica"
         subtitle="Consulta el cuadrante. Los cambios de estado se gestionan solo mediante «Pedir días» y aprobación de RRHH (no edites celdas manualmente)."
@@ -134,7 +137,7 @@ interface CalendarCell {
         </div>
       </header>
 
-      <div class="dashboard-layout">
+      <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'">
         <!-- SIDEBAR: TEAM LIST -->
         <aside class="team-sidebar animate-slide-right">
           <div class="sidebar-header">
@@ -243,8 +246,19 @@ interface CalendarCell {
                     </h2>
                     <p class="team-board-hint">
                       <lucide-icon name="users" size="14"></lucide-icon>
-                      {{ displayedTechnicians().length }} operarios · desplaza horizontalmente para ver el mes
+                      {{ displayedTechnicians().length }} operarios · vista mensual completa del equipo
                     </p>
+                    @if (!isCompactTeamNav()) {
+                      <p class="team-board-scroll-hint-desktop" aria-live="polite">
+                        <lucide-icon name="calendar-days" size="14"></lucide-icon>
+                        Día {{ teamScrollLabel().center }} de {{ teamScrollLabel().total }}
+                        @if (teamScrollLabel().from !== teamScrollLabel().to) {
+                          <span class="team-board-scroll-hint-desktop__range">
+                            · visible {{ teamScrollLabel().from }}–{{ teamScrollLabel().to }}
+                          </span>
+                        }
+                      </p>
+                    }
                   </div>
                   <div class="calendar-legend team-board-legend">
                     <div class="legend-item AVAILABLE"><span class="dot"></span><span>Disp.</span></div>
@@ -254,7 +268,46 @@ interface CalendarCell {
                   </div>
                 </div>
 
-                <div class="team-board-scroll custom-scrollbar-h" tabindex="0">
+                @if (isCompactTeamNav()) {
+                  <div class="team-mobile-day-bar" aria-live="polite">
+                    <div class="team-mobile-day-bar__inner">
+                      <button
+                        type="button"
+                        class="team-mobile-day-bar__btn"
+                        (click)="scrollTeamHorizontalByDays(-7)"
+                        title="Ver días anteriores"
+                      >
+                        <lucide-icon name="chevron-left" size="18"></lucide-icon>
+                      </button>
+                      <div class="team-mobile-day-bar__text">
+                        <span class="team-mobile-day-bar__label">Día {{ teamScrollLabel().center }} de {{ teamScrollLabel().total }}</span>
+                        @if (teamScrollLabel().from !== teamScrollLabel().to) {
+                          <span class="team-mobile-day-bar__sub">
+                            Visible: {{ teamScrollLabel().from }}–{{ teamScrollLabel().to }}
+                          </span>
+                        }
+                      </div>
+                      <button
+                        type="button"
+                        class="team-mobile-day-bar__btn team-mobile-day-bar__btn--accent"
+                        (click)="scrollTeamHorizontalToToday()"
+                        title="Ir a hoy"
+                      >
+                        Hoy
+                      </button>
+                      <button
+                        type="button"
+                        class="team-mobile-day-bar__btn"
+                        (click)="scrollTeamHorizontalByDays(7)"
+                        title="Ver días siguientes"
+                      >
+                        <lucide-icon name="chevron-right" size="18"></lucide-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                <div class="team-board-scroll custom-scrollbar-h" tabindex="0" (scroll)="onTeamHorizontalScroll($event)">
                   <div class="team-board-matrix" [style.--team-day-cols]="calendarCells().length">
                     <div class="board-header">
                       <div class="header-col persona-col sticky-col">
@@ -265,6 +318,7 @@ interface CalendarCell {
                         @for (cell of calendarCells(); track cell.date) {
                           <div
                             class="day-header-col"
+                            [attr.data-team-day]="cell.day"
                             [class.is-today]="cell.isToday"
                             [class.is-weekend]="isWeekend(cell.day)"
                           >
@@ -332,6 +386,8 @@ interface CalendarCell {
     .availability-dashboard {
       display: flex; flex-direction: column; gap: 1.25rem;
       padding: 0 1rem 2rem;
+      --avail-persona-width: 280px;
+      --avail-day-cell-width: 52px;
     }
 
     .legal-hint {
@@ -434,10 +490,17 @@ interface CalendarCell {
     .toggle-btn.active { background: var(--brand); color: #000; box-shadow: 0 4px 15px var(--brand-glow); }
     .toggle-btn.active lucide-icon { opacity: 1; }
 
-    .dashboard-layout { display: grid; grid-template-columns: 340px 1fr; gap: 2rem; margin-top: 1rem; }
+    .dashboard-layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 2rem; margin-top: 1rem; align-items: start; }
+
+    .dashboard-layout--team {
+      grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .main-content { min-width: 0; }
 
     /* SIDEBAR */
-    .team-sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+    .team-sidebar { display: flex; flex-direction: column; gap: 1.5rem; min-height: 0; }
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; }
     .sidebar-search { width: 100%; }
     .sidebar-search ::ng-deep .feature-filter-bar { margin-bottom: 1rem; }
@@ -445,6 +508,30 @@ interface CalendarCell {
     .count-badge { font-family: var(--font-gaming); }
 
     .technician-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 700px; overflow-y: auto; padding-right: 0.5rem; }
+
+    /* Vista equipo: lista y cuadrante a altura natural (panorámica); scroll de página si hace falta */
+    .dashboard-layout--team .technician-list {
+      max-height: none;
+      overflow-y: visible;
+    }
+
+    @media (max-width: 960px) {
+      .dashboard-layout--team {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .availability-dashboard--team .team-board-wrapper {
+      min-height: min-content;
+      width: 100%;
+    }
+
+    .dashboard-layout--team .tech-card {
+      min-height: 58px;
+      box-sizing: border-box;
+      align-items: center;
+      padding-block: 0.65rem;
+    }
     button.tech-card {
       display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 16px;
       cursor: pointer; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
@@ -572,10 +659,94 @@ interface CalendarCell {
       font-weight: 600;
       color: var(--text-muted);
     }
+    .team-board-scroll-hint-desktop {
+      margin: 0.35rem 0 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .team-board-scroll-hint-desktop lucide-icon {
+      opacity: 0.65;
+    }
+    .team-board-scroll-hint-desktop__range {
+      font-weight: 600;
+      opacity: 0.85;
+    }
     .team-board-legend {
       flex-wrap: wrap;
       justify-content: flex-end;
       max-width: 100%;
+    }
+
+    .team-mobile-day-bar {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--bg-tertiary) 55%, var(--bg-secondary));
+    }
+    .team-mobile-day-bar__inner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: space-between;
+      max-width: 100%;
+    }
+    .team-mobile-day-bar__text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.1rem;
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+    }
+    .team-mobile-day-bar__label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+    }
+    .team-mobile-day-bar__sub {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .team-mobile-day-bar__btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: var(--transition-base, 0.15s ease);
+    }
+    .team-mobile-day-bar__btn:hover {
+      border-color: var(--brand-border-soft);
+      background: var(--brand-ambient);
+      color: var(--brand);
+    }
+    .team-mobile-day-bar__btn--accent {
+      width: auto;
+      padding: 0 0.75rem;
+      font-size: 0.65rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--brand);
+      color: #0a0a0a;
+      border-color: transparent;
+    }
+    .team-mobile-day-bar__btn--accent:hover {
+      filter: brightness(1.06);
+      color: #0a0a0a;
     }
 
     .team-board-scroll {
@@ -583,6 +754,7 @@ interface CalendarCell {
       overflow-y: visible;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
+      width: 100%;
     }
     .team-board-scroll:focus-visible {
       outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
@@ -591,11 +763,13 @@ interface CalendarCell {
 
     .team-board-matrix {
       --team-day-cols: 31;
-      min-width: min(100%, calc(260px + var(--team-day-cols, 31) * 52px));
+      width: 100%;
+      min-width: 0;
     }
 
     .board-header {
-      display: flex;
+      display: grid;
+      grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
       position: sticky;
       top: 0;
       z-index: 4;
@@ -608,7 +782,9 @@ interface CalendarCell {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      width: 260px;
+      width: var(--avail-persona-width);
+      min-width: var(--avail-persona-width);
+      max-width: var(--avail-persona-width);
       flex-shrink: 0;
       padding: 0.85rem 1rem;
       font-weight: 800;
@@ -644,14 +820,15 @@ interface CalendarCell {
     }
 
     .days-row {
-      display: flex;
-      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(var(--team-day-cols, 31), minmax(0, 1fr));
       min-width: 0;
+      width: 100%;
     }
 
     .day-header-col {
-      width: 52px;
-      flex-shrink: 0;
+      min-width: 0;
+      width: auto;
       border-right: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
@@ -669,9 +846,14 @@ interface CalendarCell {
       box-shadow: inset 0 -3px 0 var(--brand);
     }
     .day-header-col.is-today .d-n { color: var(--brand); }
-    .day-header-col .d-n { font-size: 0.88rem; font-weight: 900; line-height: 1; color: var(--text-primary); }
+    .day-header-col .d-n {
+      font-size: clamp(0.55rem, 2.1vmin, 0.88rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--text-primary);
+    }
     .day-header-col .d-l {
-      font-size: 0.58rem;
+      font-size: clamp(0.45rem, 1.6vmin, 0.58rem);
       font-weight: 800;
       text-transform: capitalize;
       opacity: 0.55;
@@ -682,7 +864,8 @@ interface CalendarCell {
     .board-body { background: var(--bg-tertiary); }
 
     .board-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
       border-bottom: 1px solid var(--border-soft);
       min-height: 58px;
       transition: background 0.15s ease, box-shadow 0.15s ease;
@@ -703,7 +886,9 @@ interface CalendarCell {
     }
 
     .board-tech-info {
-      width: 260px;
+      width: var(--avail-persona-width);
+      min-width: var(--avail-persona-width);
+      max-width: var(--avail-persona-width);
       flex-shrink: 0;
       padding: 0 1rem;
       display: flex;
@@ -743,11 +928,9 @@ interface CalendarCell {
       text-overflow: ellipsis;
     }
 
-    .board-cells-row { flex: 1; min-width: 0; }
-
     .board-day-cell {
-      width: 52px;
-      flex-shrink: 0;
+      min-width: 0;
+      width: auto;
       border-right: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
@@ -763,8 +946,9 @@ interface CalendarCell {
     }
 
     .status-chip {
-      width: 22px;
-      height: 22px;
+      width: min(22px, 85%);
+      height: min(22px, 85%);
+      max-width: 100%;
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -803,10 +987,23 @@ interface CalendarCell {
   `]
 })
 export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, FilterableService<Technician> {
+  /** Alineado con CSS `--avail-persona-width` / `--avail-day-cell-width`. */
+  private static readonly TEAM_PERSONA_PX = 280;
+  private static readonly TEAM_DAY_PX = 52;
+
   private readonly api = inject(TechnicianApiService);
   private readonly toast = inject(ToastService);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly authStore = inject(GlobalAuthStore);
+  private readonly hostEl = inject(ElementRef<HTMLElement>);
+  private compactTeamMql?: MediaQueryList;
+  private readonly onCompactTeamMqlChange = (): void => {
+    this.isCompactTeamNav.set(!!this.compactTeamMql?.matches);
+  };
+
+  private readonly onWindowResize = (): void => {
+    this.refreshTeamHorizontalMetrics();
+  };
   readonly canAccess = rbacAllows(this.authStore, 'users.view', 'users.manage');
   /** RRHH / admin: ve equipo completo y puede aprobar solicitudes. */
   readonly canManageTeam = rbacAllows(this.authStore, 'users.manage');
@@ -854,6 +1051,43 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
   readonly isLoading = signal<boolean>(false);
 
+  /** Barra «día X de Y» y saltos ±7: solo vista compacta (móvil / tablet estrecha). */
+  readonly isCompactTeamNav = signal(false);
+
+  /** Estado del scroll horizontal del cuadrante (indicador de días). */
+  private readonly teamHScrollState = signal({ scrollLeft: 0, clientWidth: 720, scrollWidth: 720 });
+
+  readonly teamScrollLabel = computed(() => {
+    const total = this.calendarCells().length;
+    const { scrollLeft, clientWidth, scrollWidth } = this.teamHScrollState();
+    const pw = TechnicianAvailabilityComponent.TEAM_PERSONA_PX;
+    if (total < 1) {
+      return { from: 1, to: 1, center: 1, total: 0 };
+    }
+    /** Mes completo visible (columnas fluidas): sin scroll horizontal útil. */
+    if (scrollWidth <= clientWidth + 2 || clientWidth < 24) {
+      const today =
+        this.calendarCells().find((c) => c.isToday)?.day ??
+        Math.min(total, Math.max(1, Math.ceil(total / 2)));
+      return { from: 1, to: total, center: today, total };
+    }
+    const dayW = Math.max(1, (scrollWidth - pw) / total);
+    const inner = scrollLeft + clientWidth;
+    let from = 1;
+    if (scrollLeft > pw - 1) {
+      from = Math.max(1, Math.floor((scrollLeft - pw + 1e-6) / dayW) + 1);
+    }
+    const rawTo = Math.ceil((Math.max(inner, pw) - pw) / dayW);
+    const to = Math.min(total, Math.max(from, rawTo));
+    const cx = scrollLeft + clientWidth / 2;
+    let center = Math.floor((cx - pw) / dayW) + 1;
+    if (cx <= pw) {
+      center = 1;
+    }
+    center = Math.max(1, Math.min(total, center));
+    return { from: Math.min(from, to), to, center, total };
+  });
+
   currentMonth = signal<number>(new Date().getMonth());
   currentYear = signal<number>(new Date().getFullYear());
 
@@ -871,14 +1105,33 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       },
       { allowSignalWrites: true },
     );
+    effect(() => {
+      if (this.viewMode() === 'team') {
+        queueMicrotask(() => {
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => this.refreshTeamHorizontalMetrics()),
+          );
+        });
+      }
+    });
   }
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      this.compactTeamMql = window.matchMedia('(max-width: 900px)');
+      this.compactTeamMql.addEventListener('change', this.onCompactTeamMqlChange);
+      this.isCompactTeamNav.set(this.compactTeamMql.matches);
+      window.addEventListener('resize', this.onWindowResize);
+    }
   }
 
   ngOnDestroy() {
     this.masterFilter.unregisterProvider();
+    this.compactTeamMql?.removeEventListener('change', this.onCompactTeamMqlChange);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.onWindowResize);
+    }
   }
 
   /** Lógica de filtrado para el MasterFilterService */
@@ -905,6 +1158,68 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     if (match) {
       this.selectedTechId.set(match.id);
     }
+  }
+
+  onTeamHorizontalScroll(ev: Event): void {
+    const el = ev.currentTarget as HTMLElement;
+    this.teamHScrollState.set({
+      scrollLeft: el.scrollLeft,
+      clientWidth: el.clientWidth,
+      scrollWidth: el.scrollWidth,
+    });
+  }
+
+  scrollTeamHorizontalByDays(deltaDays: number): void {
+    const el = this.hostEl.nativeElement.querySelector('.team-board-scroll') as HTMLElement | null;
+    if (!el) {
+      return;
+    }
+    const total = this.calendarCells().length;
+    const pw = TechnicianAvailabilityComponent.TEAM_PERSONA_PX;
+    const dayW = total > 0 ? Math.max(1, (el.scrollWidth - pw) / total) : TechnicianAvailabilityComponent.TEAM_DAY_PX;
+    el.scrollBy({ left: deltaDays * dayW, behavior: 'smooth' });
+    queueMicrotask(() => this.refreshTeamHorizontalMetrics());
+  }
+
+  scrollTeamHorizontalToToday(): void {
+    const cells = this.calendarCells();
+    const todayCell = cells.find((c) => c.isToday);
+    const day = todayCell?.day ?? cells[0]?.day ?? 1;
+    this.scrollTeamHorizontalToDay(day);
+  }
+
+  scrollTeamHorizontalToDay(day: number): void {
+    const total = this.calendarCells().length;
+    const d = Math.max(1, Math.min(total, day));
+    const header = this.hostEl.nativeElement.querySelector(
+      `.board-header .day-header-col[data-team-day="${d}"]`,
+    ) as HTMLElement | null;
+    const container = this.hostEl.nativeElement.querySelector('.team-board-scroll') as HTMLElement | null;
+    if (!header || !container) {
+      return;
+    }
+    if (container.scrollWidth <= container.clientWidth + 2) {
+      header.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    } else {
+      const pw = TechnicianAvailabilityComponent.TEAM_PERSONA_PX;
+      const dayW = total > 0 ? Math.max(1, (container.scrollWidth - pw) / total) : TechnicianAvailabilityComponent.TEAM_DAY_PX;
+      const ideal = pw + (d - 0.5) * dayW - container.clientWidth / 2;
+      const max = Math.max(0, container.scrollWidth - container.clientWidth);
+      container.scrollTo({ left: Math.max(0, Math.min(max, ideal)), behavior: 'smooth' });
+    }
+    queueMicrotask(() => this.refreshTeamHorizontalMetrics());
+  }
+
+  private refreshTeamHorizontalMetrics(): void {
+    const el = this.hostEl.nativeElement.querySelector('.team-board-scroll') as HTMLElement | null;
+    if (!el) {
+      return;
+    }
+    this.teamHScrollState.set({
+      scrollLeft: el.scrollLeft,
+      clientWidth: el.clientWidth,
+      scrollWidth: el.scrollWidth,
+    });
   }
 
   getMonthName(): string {
@@ -1065,6 +1380,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       this.initTeamData();
     } finally {
       this.isLoading.set(false);
+      queueMicrotask(() => this.refreshTeamHorizontalMetrics());
     }
   }
 
