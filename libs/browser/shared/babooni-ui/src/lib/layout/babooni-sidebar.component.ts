@@ -13,12 +13,15 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
   template: `
     <aside class="bb-sidebar" [class.collapsed]="isCollapsed()">
       <div class="bb-sidebar__header">
-        @if (!isCollapsed()) {
-          <div class="bb-sidebar__brand">
-            <span class="bb-sidebar__mark"></span>
-            <span class="bb-sidebar__title">Babooni</span>
-          </div>
-        }
+        <div class="bb-sidebar__brand">
+          <div class="bb-sidebar__logo-icon" aria-hidden="true">B</div>
+          @if (!isCollapsed()) {
+            <div class="bb-sidebar__brand-text">
+              <span class="bb-sidebar__title">Babooni</span>
+              <span class="bb-sidebar__subtitle">ERP</span>
+            </div>
+          }
+        </div>
         <button
           type="button"
           class="bb-sidebar__toggle"

@@ -1,14 +1,71 @@
 /**
- * Primitivos de layout Babooni / Biosstel (referencia front-biosstel).
- * Los colores de marca vienen de ThemeService.applyBabooniBiosstelTenantSkinIfNeeded
- * (--brand, --bg-primary, …). Esta hoja solo añade espaciado y sombras del shell.
+ * Biosstel — espaciado y tokens de layout (referencia front-biosstel `theme.css`).
+ * Colores de marca en runtime: ThemeService (`--brand`, `--text-primary`, …).
+ * Aquí fijamos la escala Biosstel para que shell + futuros componentes `.bb-*` coincidan con el ejemplo.
  */
 .bb-shell {
-  --bb-sidebar-width: 212px;
+  /* ── Paleta Biosstel (theme.css) ── */
+  --bio-primary: #004b93;
+  --bio-button-primary: #1b1b1b;
+  --bio-button-dark: #080808;
+  --bio-accent-blue: #185c80;
+  --bio-accent-teal: #187980;
+  --bio-gray-900: #080808;
+  --bio-gray-800: #1b1b1b;
+  --bio-gray-600: #646464;
+  --bio-gray-500: #747474;
+  --bio-gray-400: #7c7c7c;
+  --bio-gray-300: #b6b6b6;
+  --bio-gray-200: #e6e6e6;
+  --bio-gray-100: #f7f7f7;
+  --bio-blue-50: #eef5fc;
+  --bio-blue-400: #59a8f4;
+  --bio-white: #fffefe;
+  --bio-success: #21b158;
+  --bio-error: #ef4444;
+  --bio-info: #5966f4;
+
+  /* ── Layout shell ── */
+  --bb-sidebar-width: 244px;
   --bb-sidebar-collapsed: 56px;
-  --bb-topbar-height: 48px;
-  --bb-sidebar-bg: #ffffff;
-  --bb-sidebar-border: color-mix(in srgb, var(--brand) 18%, transparent);
-  --bb-topbar-bg: color-mix(in srgb, #ffffff 92%, var(--brand) 8%);
+  --bb-topbar-height: 56px;
+  --bb-radius-sm: 8px;
+  --bb-radius-md: 12px;
+  --bb-radius-lg: 14px;
+  --bb-radius-xl: 18px;
+
+  --bb-page-bg: var(--bio-gray-100);
+  --bb-surface: var(--bio-white);
+  --bb-border: var(--bio-gray-200);
+  --bb-sidebar-bg: var(--bio-gray-100);
+  --bb-sidebar-border: var(--bio-gray-200);
+  --bb-topbar-bg: var(--bio-white);
   --bb-content-max: 100%;
+
+  --bb-shadow-bar: 0 1px 0 rgba(8, 8, 8, 0.06);
+  --bb-shadow-float: 0 4px 24px rgba(8, 8, 8, 0.08);
+}
+
+/**
+ * Tarjetas / paneles de contenido (usar en features Babooni).
+ */
+.bb-card {
+  background: var(--bio-white);
+  border: 1px solid var(--bio-gray-200);
+  border-radius: var(--bb-radius-lg);
+  box-shadow: var(--bb-shadow-bar);
+}
+
+.bb-muted {
+  color: var(--bio-gray-600);
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.bb-page-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--bio-gray-900);
+  line-height: 1.3;
 }

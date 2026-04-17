@@ -1,0 +1,226 @@
+/**
+ * Babooni — listas y estados vacíos alineados con Biosstel (front-biosstel / Figma).
+ * Solo aplica con html[data-erp-tenant='babooni'].
+ */
+
+/* ── Contenedores de feature (inventario, presupuestos, clientes, …) ── */
+html[data-erp-tenant='babooni'] .inventory-container,
+html[data-erp-tenant='babooni'] .budgets-container,
+html[data-erp-tenant='babooni'] .clients-container {
+  padding: 0 0 1.5rem !important;
+}
+
+/* ── Cabecera de módulo (ui-feature-header) ── */
+html[data-erp-tenant='babooni'] ui-feature-header .header-content {
+  background: #fffefe !important;
+  border: 1px solid #e6e6e6 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 14px rgba(8, 8, 8, 0.06) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-header .main-title {
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+  color: #004b93 !important;
+  font-weight: 700 !important;
+  font-size: 1.65rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-header .subtitle {
+  color: #646464 !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-header .icon-box {
+  border-radius: 14px !important;
+  box-shadow: 0 6px 20px rgba(0, 75, 147, 0.22) !important;
+}
+
+/* ── Métricas colapsables (ui-feature-stats) ── */
+html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn {
+  background: #f7f7f7 !important;
+  border: 1px solid #e6e6e6 !important;
+  color: #646464 !important;
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 3px rgba(8, 8, 8, 0.05) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn:hover {
+  border-color: #004b93 !important;
+  color: #004b93 !important;
+  background: #eef5fc !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-stats .stats-grid {
+  gap: 1rem !important;
+}
+
+/* ── Tarjetas de estadística ── */
+html[data-erp-tenant='babooni'] ui-stat-card .stat-card {
+  border-radius: 14px !important;
+  background: #fffefe !important;
+  border: 1px solid #e6e6e6 !important;
+  box-shadow: 0 2px 10px rgba(8, 8, 8, 0.05) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: color-mix(in srgb, #004b93 35%, #e6e6e6) !important;
+  box-shadow: 0 8px 28px rgba(0, 75, 147, 0.12) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-stat-card .stat-icon-wrapper {
+  border-radius: 12px !important;
+}
+
+/* ── Fila filtros + barra búsqueda (ui-feature-filter-bar) ── */
+html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--framed {
+  background: #fffefe !important;
+  border: 1px solid #e6e6e6 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 12px rgba(8, 8, 8, 0.05) !important;
+  padding: 0.65rem 1rem !important;
+}
+
+/* Barra cápsula oscura tipo Biosstel / referencia ERP (botones #1B1B1B) */
+html[data-erp-tenant='babooni'] ui-search-toolbar {
+  --toolbar-bar-bg: linear-gradient(180deg, #2a2a2a 0%, #1b1b1b 100%) !important;
+  --toolbar-bar-border: rgba(255, 255, 255, 0.1) !important;
+  --toolbar-accent: rgba(0, 75, 147, 0.55) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-search-toolbar .search-toolbar--feature {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 18px rgba(8, 8, 8, 0.2) !important;
+}
+
+/* Búsqueda integrada en la barra oscura */
+html[data-erp-tenant='babooni']
+  ui-search-toolbar
+  .search-wrapper.search-glass.search-dock {
+  background: transparent !important;
+  border: none !important;
+}
+
+html[data-erp-tenant='babooni'] ui-search-toolbar .search-wrapper.search-dock input {
+  color: #f7f7f7 !important;
+  font-weight: 600 !important;
+  font-size: 0.62rem !important;
+}
+
+html[data-erp-tenant='babooni']
+  ui-search-toolbar
+  .search-wrapper.search-dock
+  input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-search-toolbar .search-wrapper.search-dock .search-icon {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-search-toolbar .search-toolbar__actions .btn {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-search-toolbar .search-toolbar__actions .btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-search-toolbar .search-toolbar__actions .btn-icon {
+  color: inherit !important;
+}
+
+/* Pestañas underline junto a la barra */
+html[data-erp-tenant='babooni'] ui-tabs .tabs-underline {
+  border-bottom-color: #e6e6e6 !important;
+  gap: 10px !important;
+}
+
+html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item {
+  color: #646464 !important;
+  font-weight: 600 !important;
+}
+
+html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active {
+  color: #004b93 !important;
+}
+
+html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active-indicator {
+  background: #004b93 !important;
+  height: 3px !important;
+  border-radius: 2px 2px 0 0;
+}
+
+/* ── Estados vacíos en grillas de módulo (no afecta celdas tabla sueltas) ── */
+html[data-erp-tenant='babooni'] ui-feature-grid .empty-state {
+  grid-column: 1 / -1;
+  background: #fffefe !important;
+  border: 1px solid #e6e6e6 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 28px rgba(8, 8, 8, 0.07) !important;
+  padding: 3.5rem 2rem !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-grid .empty-state h3 {
+  color: #080808 !important;
+  font-weight: 600 !important;
+  font-size: 1.2rem !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 0.5rem !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-grid .empty-state p {
+  color: #646464 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.45 !important;
+  max-width: 26rem;
+  margin: 0 0 1.25rem !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-grid .empty-icon {
+  color: #004b93 !important;
+  opacity: 0.35 !important;
+  margin-bottom: 1.25rem !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-grid .empty-state ui-button .btn-shape-solid.btn-color-app,
+html[data-erp-tenant='babooni'] ui-feature-grid .empty-state ui-button .btn-shape-solid.btn-color-primary {
+  border-radius: 999px !important;
+  text-transform: none !important;
+  letter-spacing: 0.04em !important;
+  font-weight: 700 !important;
+}
+
+/* ── Filtros avanzados y paneles auxiliares ── */
+html[data-erp-tenant='babooni'] .advanced-filters {
+  background: #fffefe !important;
+  border: 1px solid #e6e6e6 !important;
+  border-radius: 14px !important;
+  padding: 1rem 1.25rem !important;
+  margin-bottom: 1rem !important;
+  box-shadow: 0 2px 10px rgba(8, 8, 8, 0.04) !important;
+}
+
+html[data-erp-tenant='babooni'] .filter-label {
+  color: #646464 !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+}
+
+html[data-erp-tenant='babooni'] .filter-select,
+html[data-erp-tenant='babooni'] .filter-input {
+  border: 1px solid #e6e6e6 !important;
+  border-radius: 10px !important;
+  background: #f7f7f7 !important;
+}
+
+/* Loader centrado */
+html[data-erp-tenant='babooni'] .loader-container {
+  padding: 4rem !important;
+}

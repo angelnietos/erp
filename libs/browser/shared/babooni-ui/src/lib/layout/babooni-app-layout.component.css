@@ -5,14 +5,16 @@
   height: 100vh;
   overflow: hidden;
   font-family: var(--font-main);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--text-primary);
 }
 
 .bb-shell {
   display: flex;
   height: 100%;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bb-page-bg);
+  color: var(--bio-gray-900);
 }
 
 .bb-shell__main {
@@ -23,103 +25,115 @@
   min-width: 0;
 }
 
+/* Barra superior: superficie blanca, borde gris Biosstel */
 .bb-topbar {
   height: var(--bb-topbar-height);
   background: var(--bb-topbar-bg);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--bb-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   flex-shrink: 0;
   z-index: 5000;
-  box-shadow: 0 2px 14px rgba(0, 35, 80, 0.06);
+  box-shadow: var(--bb-shadow-bar);
 }
 
 .bb-search {
   flex: 1;
-  max-width: 420px;
+  max-width: 440px;
 }
 
 .bb-search__box {
   position: relative;
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 8px;
-  padding: 0 12px;
-  height: 34px;
-  border: 1px solid var(--border-soft);
+  gap: 10px;
+  background: var(--bio-gray-100);
+  border-radius: var(--bb-radius-xl);
+  padding: 0 14px;
+  height: 40px;
+  border: 1px solid var(--bb-border);
   cursor: pointer;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .bb-search__box:hover {
-  border-color: color-mix(in srgb, var(--brand) 35%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent);
+  border-color: var(--bio-gray-300);
+  background: var(--bio-white);
 }
 
 .bb-search__box:focus-within {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 18%, transparent);
+  border-color: var(--bio-primary);
+  background: var(--bio-white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bio-primary) 18%, transparent);
+}
+
+.bb-search__box lucide-icon {
+  color: var(--bio-gray-400);
+  flex-shrink: 0;
 }
 
 .bb-search__box input {
   flex: 1;
   border: none;
   background: transparent;
-  color: var(--text-primary);
-  font-size: 0.82rem;
+  color: var(--bio-gray-900);
+  font-size: 0.875rem;
+  font-weight: 500;
   outline: none;
   cursor: pointer;
 }
 
 .bb-search__box input::placeholder {
-  color: var(--text-muted);
+  color: var(--bio-gray-500);
+  font-weight: 400;
 }
 
 .bb-search__kbd {
   font-size: 0.65rem;
-  font-weight: 800;
+  font-weight: 700;
   padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border-soft);
-  color: var(--text-muted);
-  background: color-mix(in srgb, var(--bg-tertiary) 80%, #fff);
+  border-radius: var(--bb-radius-sm);
+  border: 1px solid var(--bb-border);
+  color: var(--bio-gray-500);
+  background: var(--bio-white);
+  font-family: var(--font-main);
 }
 
 .bb-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
+/* Badge tipo Biosstel badge-cyan / primary */
 .bb-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--bb-radius-md);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--brand) 10%, #fff);
-  color: var(--brand);
-  border: 1px solid color-mix(in srgb, var(--brand) 28%, transparent);
+  background: var(--bio-blue-50);
+  color: var(--bio-primary);
+  border: 1px solid color-mix(in srgb, var(--bio-primary) 20%, transparent);
 }
 
 .bb-icon-btn {
   position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border-soft);
-  background: #fff;
-  color: var(--text-secondary);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--bb-radius-md);
+  border: 1px solid var(--bb-border);
+  background: var(--bio-white);
+  color: var(--bio-gray-600);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,24 +141,25 @@
   transition:
     border-color 0.2s ease,
     color 0.2s ease,
+    background 0.2s ease,
     box-shadow 0.2s ease;
 }
 
 .bb-icon-btn:hover {
-  border-color: color-mix(in srgb, var(--brand) 40%, transparent);
-  color: var(--brand);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--brand) 15%, transparent);
+  border-color: var(--bio-primary);
+  color: var(--bio-primary);
+  background: var(--bio-blue-50);
 }
 
 .bb-dot {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 9px;
+  right: 9px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--brand);
-  border: 2px solid #fff;
+  background: var(--bio-primary);
+  border: 2px solid var(--bio-white);
 }
 
 .bb-theme-wrap {
@@ -155,34 +170,32 @@
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 10px;
-  background: #fff;
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  margin-top: 8px;
+  background: var(--bio-white);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-lg);
   padding: 8px 6px 10px;
-  min-width: 220px;
+  min-width: 232px;
   max-width: min(92vw, 300px);
   max-height: min(calc(100vh - 5.5rem), 28rem);
   overflow: auto;
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.06),
-    0 18px 40px rgba(0, 35, 80, 0.12);
+  box-shadow: var(--bb-shadow-float);
   z-index: 5100;
 }
 
 .bb-theme-section + .bb-theme-section {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--bio-gray-200);
 }
 
 .bb-theme-section-label {
   padding: 6px 12px 4px;
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--bio-gray-500);
 }
 
 .bb-theme-option {
@@ -192,30 +205,31 @@
   width: 100%;
   padding: 8px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--bb-radius-sm);
   background: transparent;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--bio-gray-800);
   text-align: left;
   transition: background 0.15s ease;
 }
 
 .bb-theme-option:hover {
-  background: color-mix(in srgb, var(--brand) 8%, #fff);
+  background: var(--bio-gray-100);
 }
 
 .bb-theme-option.is-active {
-  background: color-mix(in srgb, var(--brand) 14%, #fff);
-  color: var(--brand);
+  background: var(--bio-blue-50);
+  color: var(--bio-primary);
+  font-weight: 600;
 }
 
 .bb-theme-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid var(--border-soft);
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--bb-border);
   flex-shrink: 0;
 }
 
@@ -223,8 +237,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-left: 12px;
-  border-left: 1px solid var(--border-soft);
+  padding-left: 16px;
+  border-left: 1px solid var(--bb-border);
   position: relative;
   cursor: pointer;
 }
@@ -237,47 +251,46 @@
 }
 
 .bb-user__name {
-  font-weight: 700;
-  font-size: 0.72rem;
-  color: var(--text-primary);
-  max-width: 160px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--bio-gray-900);
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.01em;
 }
 
 .bb-user__role {
-  font-size: 0.58rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--bio-gray-500);
 }
 
 .bb-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--brand), color-mix(in srgb, var(--brand) 70%, #000));
-  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--bb-radius-md);
+  background: var(--bio-button-primary);
+  color: var(--bio-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--brand) 35%, transparent);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--brand) 25%, transparent);
+  border: 1px solid var(--bio-gray-800);
+  box-shadow: 0 2px 8px rgba(8, 8, 8, 0.12);
 }
 
 .bb-user-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 10px;
-  background: #fff;
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 10px;
-  min-width: 220px;
-  box-shadow: 0 12px 36px rgba(0, 35, 80, 0.14);
+  margin-top: 8px;
+  background: var(--bio-white);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-lg);
+  padding: 8px;
+  min-width: 228px;
+  box-shadow: var(--bb-shadow-float);
   z-index: 5100;
 }
 
@@ -288,33 +301,33 @@
   width: 100%;
   padding: 10px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--bb-radius-sm);
   background: transparent;
   cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--bio-gray-800);
+  text-align: left;
+  font-family: var(--font-main);
 }
 
 .bb-user-menu__row:hover {
-  background: color-mix(in srgb, var(--brand) 8%, #fff);
+  background: var(--bio-gray-100);
 }
 
 .bb-user-menu__row--danger:hover {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--danger, #ef4444);
+  color: var(--bio-error);
 }
 
 .bb-scroll {
   flex: 1;
   overflow-y: auto;
-  background: var(--bg-primary);
+  background: var(--bb-page-bg);
 }
 
 .bb-content {
-  padding: 0 14px 120px;
+  padding: 16px 20px 120px;
   max-width: var(--bb-content-max);
   margin: 0 auto;
 }
@@ -323,19 +336,22 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 0.58rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   border: 1px solid;
-  background: #fff;
+  background: var(--bio-white);
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--text-muted) 40%, transparent);
+  background: var(--bio-gray-300);
   border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
