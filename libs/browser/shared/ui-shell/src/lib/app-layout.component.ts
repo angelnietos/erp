@@ -18,6 +18,7 @@ import {
   Theme,
   GlobalAuthStore as AuthStore,
   PluginStore,
+  AIBotStore,
   getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
@@ -201,15 +202,17 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
 
-        <!-- Orquestador + especialista del módulo actual (dos chats independientes) -->
+        <!-- Agente principal (sustituye a Buddy si eliges otro, p. ej. JAIME/dashboard) + especialista del módulo -->
         <ui-ai-assistant
-          feature="buddy"
+          [feature]="aiBotStore.activeBotFeature()"
           assistantRole="buddy"
         ></ui-ai-assistant>
-        <ui-ai-assistant
-          [feature]="routeDomain()"
-          assistantRole="domain"
-        ></ui-ai-assistant>
+        @if (routeDomain() !== aiBotStore.activeBotFeature()) {
+          <ui-ai-assistant
+            [feature]="routeDomain()"
+            assistantRole="domain"
+          ></ui-ai-assistant>
+        }
       </div>
     </div>
   `,
@@ -714,6 +717,7 @@ export class AppLayoutComponent {
 
   private readonly authStore = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
+  readonly aiBotStore = inject(AIBotStore);
   readonly premiumExperience = computed(() => !this.pluginStore.highPerformanceMode());
 
   @HostListener('window:keydown', ['$event'])

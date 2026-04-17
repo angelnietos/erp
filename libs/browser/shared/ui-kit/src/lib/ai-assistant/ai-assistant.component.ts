@@ -80,10 +80,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     return getAiFeatureFromUrl(this.router.url);
   });
 
-  /** Dominio efectivo para memoria / tracking cuando el shell es Buddy. */
+  /** Dominio ERP para memoria cuando este chat es el orquestador (antiguo Buddy). */
   readonly contextFeature = computed(() => {
     const f = this._feature();
-    return f === 'buddy' ? this.domainFeature() : f;
+    return this.assistantRole === 'buddy' ? this.domainFeature() : f;
   });
 
   readonly currentUserId = signal<string>(
@@ -167,8 +167,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       
       this.aiBotStore.interBotTick();
       const items =
-        this.feature === 'buddy'
-          ? this.aiBotStore.pullInterBotMessagesForBuddy()
+        this.assistantRole === 'buddy'
+          ? this.aiBotStore.pullInterBotMessagesForFeatures([this._feature()], {
+              includeGlobalBroadcast: true,
+            })
           : this.aiBotStore.pullInterBotMessagesForDomainFeature(this.feature);
       if (items.length === 0) return;
       items.forEach((item: InterBotMessage, i: number) => {
@@ -190,10 +192,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       this.orchestrationBus.tasks(); // re-ejecutar cuando haya tareas nuevas
       const selfFeature = this._feature();
       if (!selfFeature) return;
-      const pending =
-        selfFeature === 'buddy'
-          ? this.orchestrationBus.getPendingFor('buddy')
-          : this.orchestrationBus.getPendingFor(selfFeature);
+      const pending = this.orchestrationBus.getPendingFor(selfFeature);
       if (pending.length === 0) return;
 
       pending.forEach((task) => {
@@ -206,9 +205,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               `Ejecuta: ${task.type} — ${JSON.stringify(task.payload)}`;
             const targetDomain = task.to;
 
-            const isBuddy = selfFeature === 'buddy';
-            const taskLabel = isBuddy
-              ? `🎯 **Tarea de Buddy recibida:** ${instruction}`
+            const isOrchestrator = this.assistantRole === 'buddy';
+            const orchName = this.aiBotStore.getBotDisplayName(selfFeature);
+            const taskLabel = isOrchestrator
+              ? `🎯 **Tarea de ${orchName} (orquestador):** ${instruction}`
               : `🎯 **Tarea en tu dominio (${targetDomain}):** ${instruction}`;
 
             this.messages.update(m => [
@@ -221,9 +221,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             ]);
             this.scrollToBottom();
 
-            if (isBuddy) {
+            if (isOrchestrator) {
               await this.triggerAIResponse(
-                `INSTRUCCIÓN AUTOMÁTICA DEL ORQUESTADOR BUDDY:\n${instruction}\n\nEjecuta esta tarea en el contexto de tu dominio (${targetDomain}). Responde brevemente qué hiciste y ejecuta las acciones de sistema correspondientes.`,
+                `INSTRUCCIÓN AUTOMÁTICA DEL ORQUESTADOR (${orchName}):\n${instruction}\n\nEjecuta esta tarea en el contexto de tu dominio (${targetDomain}). Responde brevemente qué hiciste y ejecuta las acciones de sistema correspondientes.`,
               );
             } else {
               await this.triggerAIResponse(
@@ -427,8 +427,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     try {
       // Construir contexto basado en el rol del bot y historial de conversación
       const memoryKeys =
-        this.feature === 'buddy'
-          ? [...new Set(['buddy', this.domainFeature()])]
+        this.assistantRole === 'buddy'
+          ? [...new Set([this._feature(), this.domainFeature()])]
           : [this.feature];
       const botMemories = memoryKeys.flatMap((k) =>
         this.aiBotStore.getBotContext(k),
@@ -489,7 +489,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       }
 
       const domainHint =
-        this.feature === 'buddy'
+        this.assistantRole === 'buddy'
           ? ` El usuario está ahora en el módulo **${this.domainFeature()}** del ERP; prioriza ese contexto en ejemplos y acciones.`
           : '';
       const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${this.bot()!.feature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
@@ -1026,12 +1026,14 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
    * Capa de preferencias del usuario: Buddy + capa del módulo actual (p. ej. JAIME en panel).
    */
   private mergeUserLayersForPrompt() {
-    if (this.feature !== 'buddy') {
+    if (this.assistantRole !== 'buddy') {
       return this.aiBotStore.getUserAgentConfig(this.feature);
     }
-    const b = this.aiBotStore.getUserAgentConfig('buddy');
-    const d = this.aiBotStore.getUserAgentConfig(this.domainFeature());
-    if (this.domainFeature() === 'buddy') {
+    const principal = this._feature();
+    const b = this.aiBotStore.getUserAgentConfig(principal);
+    const dom = this.domainFeature();
+    const d = this.aiBotStore.getUserAgentConfig(dom);
+    if (dom === principal) {
       return b;
     }
     return {

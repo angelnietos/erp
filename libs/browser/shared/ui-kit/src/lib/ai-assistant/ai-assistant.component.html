@@ -2,7 +2,7 @@
   class="ai-assistant-wrapper"
   [class]="'feature-' + feature"
   [class.is-open]="isOpen()"
-  [class.secondary]="feature === 'buddy'"
+  [class.secondary]="assistantRole === 'buddy'"
   [attr.data-assistant-role]="assistantRole"
   *ngIf="bot() && bot()!.status === 'active'"
 >
@@ -62,7 +62,7 @@
           <div>
             <h4>{{ bot()!.name }}</h4>
             <p>
-              @if (feature === 'buddy') {
+              @if (assistantRole === 'buddy') {
                 Contexto: <strong>{{ domainFeature() }}</strong> · orquestador
               } @else {
                 Tu asistente de {{ bot()!.feature }}
@@ -91,7 +91,7 @@
         <div class="message bot-msg">
           <p>
             ¡Hola! Soy {{ bot()!.name }}.
-            @if (feature === 'buddy') {
+            @if (assistantRole === 'buddy') {
               Estoy contigo en el módulo **{{ domainFeature() }}** del ERP. ¿En qué puedo ayudarte?
             } @else {
               Estoy analizando tus datos de **{{ bot()!.feature }}** en tiempo real. ¿En qué puedo ayudarte hoy?
@@ -107,7 +107,7 @@
               {{ skill }}
             </span>
           </div>
-          <div class="commands-help" *ngIf="bot()!.feature === 'buddy'">
+          <div class="commands-help" *ngIf="assistantRole === 'buddy'">
             <p><strong>Comandos disponibles:</strong></p>
             <ul>
               <li><code>calcula [expresión]</code> - Cálculos matemáticos</li>

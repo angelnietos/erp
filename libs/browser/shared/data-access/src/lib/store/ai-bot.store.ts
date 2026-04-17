@@ -479,7 +479,9 @@ export class AIBotStore {
       h = window.innerHeight;
     }
     const baseX = Math.max(24, w - 160);
-    if (feature === 'buddy') {
+    /** Misma esquina que el antiguo Buddy: burbuja del agente principal del shell. */
+    const principal = this.activeBotFeature();
+    if (feature === principal) {
       return { x: baseX, y: h - 140 };
     }
     return { x: baseX, y: h - 270 };

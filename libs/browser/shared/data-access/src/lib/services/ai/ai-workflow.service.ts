@@ -212,7 +212,10 @@ export class AIWorkflowService {
           (payload['followNavigate'] as boolean | undefined) !== false;
 
         const orchestrator =
-          this.workflowOrchestratorFeature ?? 'buddy';
+          this.workflowOrchestratorFeature ??
+          (typeof localStorage !== 'undefined'
+            ? localStorage.getItem('ai_active_bot_feature') || 'buddy'
+            : 'buddy');
 
         if (delegatedActionObj) {
           // This is a structured action → dispatch to OrchestrationBus
