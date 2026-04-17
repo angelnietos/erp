@@ -22,7 +22,7 @@ html[data-erp-tenant='babooni'] ui-feature-header .main-title {
   background: none !important;
   -webkit-text-fill-color: unset !important;
   background-clip: unset !important;
-  color: #004b93 !important;
+  color: var(--brand, #004b93) !important;
   font-weight: 700 !important;
   font-size: 1.65rem !important;
   letter-spacing: -0.02em !important;
@@ -36,7 +36,7 @@ html[data-erp-tenant='babooni'] ui-feature-header .subtitle {
 
 html[data-erp-tenant='babooni'] ui-feature-header .icon-box {
   border-radius: 14px !important;
-  box-shadow: 0 6px 20px rgba(0, 75, 147, 0.22) !important;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--brand, #004b93) 32%, transparent) !important;
 }
 
 /* ── Métricas colapsables (ui-feature-stats) ── */
@@ -50,9 +50,9 @@ html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn {
 }
 
 html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn:hover {
-  border-color: #004b93 !important;
-  color: #004b93 !important;
-  background: #eef5fc !important;
+  border-color: var(--brand, #004b93) !important;
+  color: var(--brand, #004b93) !important;
+  background: color-mix(in srgb, var(--brand, #004b93) 9%, #ffffff) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-stats .stats-grid {
@@ -69,8 +69,8 @@ html[data-erp-tenant='babooni'] ui-stat-card .stat-card {
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover {
   transform: translateY(-3px) !important;
-  border-color: color-mix(in srgb, #004b93 35%, #e6e6e6) !important;
-  box-shadow: 0 8px 28px rgba(0, 75, 147, 0.12) !important;
+  border-color: color-mix(in srgb, var(--brand, #004b93) 38%, #e6e6e6) !important;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--brand, #004b93) 22%, transparent) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-icon-wrapper {
@@ -90,7 +90,7 @@ html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--frame
 html[data-erp-tenant='babooni'] ui-search-toolbar {
   --toolbar-bar-bg: linear-gradient(180deg, #2a2a2a 0%, #1b1b1b 100%) !important;
   --toolbar-bar-border: rgba(255, 255, 255, 0.1) !important;
-  --toolbar-accent: rgba(0, 75, 147, 0.55) !important;
+  --toolbar-accent: color-mix(in srgb, var(--brand, #004b93) 52%, transparent) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-search-toolbar .search-toolbar--feature {
@@ -148,11 +148,11 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item {
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active {
-  color: #004b93 !important;
+  color: var(--brand, #004b93) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active-indicator {
-  background: #004b93 !important;
+  background: var(--brand, #004b93) !important;
   height: 3px !important;
   border-radius: 2px 2px 0 0;
 }
@@ -184,7 +184,7 @@ html[data-erp-tenant='babooni'] ui-feature-grid .empty-state p {
 }
 
 html[data-erp-tenant='babooni'] ui-feature-grid .empty-icon {
-  color: #004b93 !important;
+  color: var(--brand, #004b93) !important;
   opacity: 0.35 !important;
   margin-bottom: 1.25rem !important;
 }

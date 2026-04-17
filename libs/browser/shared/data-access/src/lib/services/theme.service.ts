@@ -1871,14 +1871,26 @@ export class ThemeService {
       return;
     }
 
+    const brandChroma = parseHexColor(baseConfig.brand);
+    /** Ligerísimo tinte del matiz del tema en fondos (sidebar / página) para que el cambio sea obvio. */
+    const tintedPageBg = brandChroma
+      ? mixRgbHex({ r: 247, g: 247, b: 247 }, brandChroma, 0.07)
+      : '#F7F7F7';
+    const tintedBandBg = brandChroma
+      ? mixRgbHex({ r: 247, g: 247, b: 247 }, brandChroma, 0.11)
+      : '#F7F7F7';
+    const tintedTertiary = brandChroma
+      ? mixRgbHex({ r: 230, g: 230, b: 230 }, brandChroma, 0.09)
+      : '#E6E6E6';
+
     const kitNeutrals = {
-      background: '#F7F7F7',
+      background: tintedPageBg,
       surface: '#FFFEFE',
       text: '#080808',
       textMuted: '#646464',
       border: 'rgba(8, 8, 8, 0.1)',
-      bgSecondary: '#FFFEFE',
-      bgTertiary: '#E6E6E6',
+      bgSecondary: tintedBandBg,
+      bgTertiary: tintedTertiary,
       success: '#21B158',
     } as const;
 

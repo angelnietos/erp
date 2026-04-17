@@ -1,15 +1,16 @@
 /**
  * Biosstel — espaciado y tokens de layout (referencia front-biosstel `theme.css`).
- * Colores de marca en runtime: ThemeService (`--brand`, `--text-primary`, …).
- * Aquí fijamos la escala Biosstel para que shell + futuros componentes `.bb-*` coincidan con el ejemplo.
+ * Marca y fondos: enlazados a ThemeService en `:root` (`--brand`, `--bg-primary`, …)
+ * para que las variantes premium en tenant Babooni cambien sidebar, badges y acentos.
+ * Los fallbacks hex conservan el look oficial si aún no hay tema aplicado.
  */
 .bb-shell {
-  /* ── Paleta Biosstel (theme.css) ── */
-  --bio-primary: #004b93;
+  /* ── Paleta Biosstel (theme.css) — acentos siguen al tema activo ── */
+  --bio-primary: var(--brand, #004b93);
   --bio-button-primary: #1b1b1b;
   --bio-button-dark: #080808;
-  --bio-accent-blue: #185c80;
-  --bio-accent-teal: #187980;
+  --bio-accent-blue: var(--theme-secondary, #185c80);
+  --bio-accent-teal: color-mix(in srgb, var(--bio-primary) 42%, #187980);
   --bio-gray-900: #080808;
   --bio-gray-800: #1b1b1b;
   --bio-gray-600: #646464;
@@ -34,12 +35,12 @@
   --bb-radius-lg: 14px;
   --bb-radius-xl: 18px;
 
-  --bb-page-bg: var(--bio-gray-100);
-  --bb-surface: var(--bio-white);
-  --bb-border: var(--bio-gray-200);
-  --bb-sidebar-bg: var(--bio-gray-100);
-  --bb-sidebar-border: var(--bio-gray-200);
-  --bb-topbar-bg: var(--bio-white);
+  --bb-page-bg: var(--bg-primary, var(--bio-gray-100));
+  --bb-surface: var(--theme-surface, var(--bio-white));
+  --bb-border: var(--theme-border, var(--bio-gray-200));
+  --bb-sidebar-bg: var(--bg-secondary, var(--bio-gray-100));
+  --bb-sidebar-border: var(--theme-border, var(--bio-gray-200));
+  --bb-topbar-bg: var(--theme-surface, var(--bio-white));
   --bb-content-max: 100%;
 
   --bb-shadow-bar: 0 1px 0 rgba(8, 8, 8, 0.06);
