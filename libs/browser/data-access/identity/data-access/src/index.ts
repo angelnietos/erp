@@ -5,7 +5,10 @@ export {
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
 } from './lib/services/auth.service';
-export { syncErpTenantHtmlTheme } from './lib/utils/erp-tenant-theme';
+export {
+  getErpTenantSlug,
+  syncErpTenantHtmlTheme,
+} from './lib/utils/erp-tenant-theme';
 
 // Users
 export { UsersService } from './lib/services/users.service';

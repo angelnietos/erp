@@ -1,0 +1,14 @@
+/**
+ * Primitivos de layout Babooni / Biosstel (referencia front-biosstel).
+ * Los colores de marca vienen de ThemeService.applyBabooniBiosstelTenantSkinIfNeeded
+ * (--brand, --bg-primary, …). Esta hoja solo añade espaciado y sombras del shell.
+ */
+.bb-shell {
+  --bb-sidebar-width: 212px;
+  --bb-sidebar-collapsed: 56px;
+  --bb-topbar-height: 48px;
+  --bb-sidebar-bg: #ffffff;
+  --bb-sidebar-border: color-mix(in srgb, var(--brand) 18%, transparent);
+  --bb-topbar-bg: color-mix(in srgb, #ffffff 92%, var(--brand) 8%);
+  --bb-content-max: 100%;
+}

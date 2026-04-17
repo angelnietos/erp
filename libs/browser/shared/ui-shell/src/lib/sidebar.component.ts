@@ -25,7 +25,7 @@ import {
 } from 'lucide-angular';
 import { PluginStore } from '@josanz-erp/shared-data-access';
 import { AuthStore } from '@josanz-erp/identity-data-access';
-import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
+import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 
 @Component({
   selector: 'josanz-sidebar',
@@ -354,65 +354,7 @@ export class SidebarComponent {
   private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
 
-  private readonly navItems: NavMenuItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'layout-dashboard',
-      route: '/',
-    },
-    { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
-    {
-      id: 'projects',
-      label: 'Proyectos',
-      icon: 'file-text',
-      route: '/projects',
-    },
-    { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events' },
-    {
-      id: 'identity',
-      label: 'Identidad',
-      icon: 'id-card',
-      route: '/users',
-    },
-    {
-      id: 'availability',
-      label: 'Disponibilidad',
-      icon: 'clock',
-      route: '/users/availability',
-    },
-    { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
-    { id: 'reports', label: 'Reportes', icon: 'ChartPie', route: '/reports' },
-    { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },
-    {
-      id: 'inventory',
-      label: 'Inventario',
-      icon: 'package',
-      route: '/inventory',
-    },
-    {
-      id: 'budgets',
-      label: 'Presupuestos',
-      icon: 'receipt',
-      route: '/budgets',
-    },
-    { id: 'delivery', label: 'Albaranes', icon: 'truck', route: '/delivery' },
-    { id: 'fleet', label: 'Flota', icon: 'car', route: '/fleet' },
-    { id: 'rentals', label: 'Alquileres', icon: 'key', route: '/rentals' },
-    { id: 'billing', label: 'Facturación', icon: 'history', route: '/billing' },
-    {
-      id: 'verifactu',
-      label: 'VeriFactu',
-      icon: 'file-check',
-      route: '/verifactu',
-    },
-    {
-      id: 'ai-insights',
-      label: 'AI Insights',
-      icon: 'cpu',
-      route: '/ai-insights',
-    },
-  ];
+  private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
   /** Entradas del menú: solo módulos/plugins activos. RBAC aplica en features y listas, no aquí. */
   filteredNavItems = computed(() => {
