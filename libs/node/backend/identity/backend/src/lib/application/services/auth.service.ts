@@ -18,6 +18,7 @@ type AuthenticatedUserView = {
   lastName?: string;
   roles: string[];
   permissions: string[];
+  extraPermissions?: string[];
 };
 
 @Injectable()
