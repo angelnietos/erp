@@ -37,7 +37,8 @@ html[data-erp-tenant='babooni'] .services-container,
 html[data-erp-tenant='babooni'] .billing-container,
 html[data-erp-tenant='babooni'] .receipts-container,
 html[data-erp-tenant='babooni'] .events-container,
-html[data-erp-tenant='babooni'] .users-container {
+html[data-erp-tenant='babooni'] .users-container,
+html[data-erp-tenant='babooni'] .availability-container {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 clamp(0.75rem, 2vw, 1.25rem) 2rem !important;

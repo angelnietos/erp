@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   TechnicianApiService,
   ToastService,
@@ -16,6 +17,7 @@ import {
   UiBadgeComponent,
   UiFeatureFilterBarComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeatureHeaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
@@ -45,6 +47,7 @@ interface CalendarCell {
     UiBadgeComponent,
     UiFeatureFilterBarComponent,
     UiFeatureAccessDeniedComponent,
+    UiFeatureHeaderComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -53,18 +56,16 @@ interface CalendarCell {
         permissionHint="users.view"
       />
     } @else {
-    <div class="availability-dashboard animate-fade-in">
-      <!-- DASHBOARD HEADER -->
-      <header class="dashboard-header">
-        <div class="header-info animate-slide-right">
-          <div class="breadcrumb">RRHH / GESTIÓN DE EQUIPO</div>
-          <h1 class="page-title text-uppercase glow-text">Disponibilidad <span class="text-brand">Técnica</span></h1>
-          <p class="text-friendly">Supervisión en tiempo real de cuadrantes y estatus operativo del personal.</p>
-        </div>
-        
-        <div class="header-actions animate-slide-left">
-           <!-- MONTH NAVIGATION -->
-           <div class="month-navigator ui-glass">
+    <div class="availability-dashboard availability-container animate-fade-in">
+      <ui-feature-header
+        title="Disponibilidad técnica"
+        subtitle="Cuadrante mensual del equipo: disponible, ocupado, vacaciones o incidencia por día."
+        icon="calendar-days"
+      />
+
+      <header class="dashboard-toolbar">
+        <div class="header-actions">
+           <div class="month-navigator">
               <button class="nav-btn ripple" (click)="prevMonth()" title="Anterior">
                  <lucide-icon name="chevron-left" size="18"></lucide-icon>
               </button>
@@ -77,7 +78,7 @@ interface CalendarCell {
               </button>
            </div>
 
-           <div class="view-toggle ui-glass">
+           <div class="view-toggle">
               <button 
                 class="toggle-btn" 
                 [class.active]="viewMode() === 'personal'"
@@ -118,10 +119,10 @@ interface CalendarCell {
           </div>
           <div class="sidebar-search">
             <ui-feature-filter-bar
-              [framed]="false"
-              [appearance]="'minimal'"
+              [framed]="true"
+              [appearance]="'feature'"
               [searchVariant]="'glass'"
-              placeholder="Filtro rápido..."
+              placeholder="Buscar técnico…"
               (searchChange)="onSearch($event)"
             />
           </div>
@@ -129,7 +130,7 @@ interface CalendarCell {
             @for (tech of technicians(); track tech.id) {
               <button
                 type="button"
-                class="tech-card ui-neon"
+                class="tech-card"
                 [class.selected]="selectedTechId() === tech.id"
                 (click)="selectedTechId.set(tech.id)"
               >
@@ -153,13 +154,13 @@ interface CalendarCell {
         <main class="main-content">
           @if (viewMode() === 'personal') {
             <div class="calendar-wrapper animate-slide-up">
-              <ui-card shape="auto" class="calendar-card ui-glass-panel ui-bloom">
+              <ui-card shape="auto" class="calendar-card">
                 <div class="calendar-card-header">
                   <div class="header-meta">
                     @if (getSelectedTechName(); as name) {
                       <div class="tech-selector-info">
-                        <span class="label">CALENDARIO</span>
-                        <h2 class="tech-display-name text-uppercase">{{ name }}</h2>
+                        <span class="label">Calendario</span>
+                        <h2 class="tech-display-name">{{ name }}</h2>
                       </div>
                     }
                   </div>
@@ -199,7 +200,6 @@ interface CalendarCell {
                         </div>
 
                         @if (cell.isToday) { <div class="today-tag">HOY</div> }
-                        <div class="cell-glow"></div>
                       </button>
                     }
                   </div>
@@ -209,7 +209,7 @@ interface CalendarCell {
           } @else {
             <!-- TEAM BOARD VIEW -->
             <div class="team-board-wrapper animate-slide-up">
-              <ui-card shape="auto" class="team-board-card ui-glass-panel">
+              <ui-card shape="auto" class="team-board-card">
                 <div class="board-header">
                    <div class="header-col persona-col">Equipo Josanz</div>
                    <div class="days-column-container custom-scrollbar-h">
@@ -256,21 +256,21 @@ interface CalendarCell {
   `,
   styles: [`
     .availability-dashboard {
-      display: flex; flex-direction: column; gap: 2rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
       padding: 0 1rem 2rem;
     }
 
-    .text-brand { color: var(--brand); }
-    .breadcrumb { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .page-title { margin: 0; font-size: 2.5rem; font-weight: 950; letter-spacing: -0.02em; line-height: 1; }
-    .text-friendly { margin: 0.75rem 0 0; font-size: 1rem; color: var(--text-secondary); }
-
-    .dashboard-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      padding: 1rem 0 2rem; border-bottom: 1px solid var(--border-soft);
+    .dashboard-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.75rem 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
     }
 
-    .header-actions { display: flex; gap: 1rem; align-items: center; }
+    .header-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 
     /* MONTH NAVIGATOR */
     .month-navigator {
@@ -334,7 +334,7 @@ interface CalendarCell {
       appearance: none; -webkit-appearance: none;
     }
     .tech-card:hover { transform: translateX(4px); border-color: var(--brand-border-soft); background: var(--brand-ambient); }
-    .tech-card.selected { border-width: 2px; border-color: var(--brand); background: var(--brand-ambient-strong); box-shadow: var(--shadow-glow); }
+    .tech-card.selected { border-width: 2px; border-color: var(--brand); background: var(--brand-ambient-strong); box-shadow: var(--shadow-sm); }
 
     .tech-avatar-wrapper { position: relative; }
     .tech-avatar { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.95rem; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
@@ -353,7 +353,14 @@ interface CalendarCell {
     .calendar-card { border-radius: 24px !important; overflow: hidden; border: 1px solid var(--border-soft); }
     .calendar-card-header { display: flex; justify-content: space-between; align-items: center; padding: 2.5rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-soft); }
     .label { font-size: 0.6rem; font-weight: 800; color: var(--brand); letter-spacing: 0.2em; }
-    .tech-display-name { margin: 0.2rem 0 0; font-size: 1.8rem; font-weight: 950; letter-spacing: -0.02em; }
+    .tech-display-name {
+      margin: 0.2rem 0 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      font-family: inherit;
+    }
 
     .calendar-legend { display: flex; gap: 1rem; }
     .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
@@ -379,7 +386,7 @@ interface CalendarCell {
     .calendar-cell.today { border: 2px solid var(--brand); background: var(--brand-ambient); }
     .calendar-cell.other-month { opacity: 0.1; pointer-events: none; }
 
-    .day-number { font-size: 1.4rem; font-weight: 900; font-family: var(--font-gaming); color: var(--text-primary); opacity: 0.3; }
+    .day-number { font-size: 1.25rem; font-weight: 800; font-family: inherit; color: var(--text-primary); opacity: 0.35; }
     .today .day-number { color: var(--brand); opacity: 1; }
 
     .cell-status-content { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -389,7 +396,7 @@ interface CalendarCell {
     .status-indicator-bar.HOLIDAY { background: var(--info); opacity: 1; box-shadow: 0 2px 8px var(--info); }
     .status-indicator-bar.SICK_LEAVE { background: var(--warning); opacity: 1; box-shadow: 0 2px 8px var(--warning); }
 
-    .status-tag { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); opacity: 0.5; }
+    .status-tag { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); opacity: 0.65; }
     .status-tag.AVAILABLE { color: var(--success); opacity: 1; }
     .status-tag.UNAVAILABLE { color: var(--danger); opacity: 1; }
     .status-tag.HOLIDAY { color: var(--info); opacity: 1; }
@@ -605,7 +612,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         try {
           // Ignorar llamadas al API para los técnicos de relleno (mocks locales)
           // que usan IDs como 't1', 't2' ya que Postgres lanzará 500 al esperar UUIDs.
-          if (tech.id.startsWith('t') && tech.id.length < 5) {
+          if (this.isLocalMockTechnicianId(tech.id)) {
             throw new Error('Local mock tech, skip API');
           }
 
@@ -658,30 +665,92 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     const currentIdx = types.indexOf(currentStatus);
     const nextType = types[(currentIdx + 1) % types.length];
 
-    // Actualizar UI de inmediato (optimistic update)
-    this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
-      const updated = { ...prev };
-      if (!updated[currentTechId]) updated[currentTechId] = {};
-      updated[currentTechId][cell.day] = nextType;
-      return updated;
-    });
+    const applyOptimistic = () => {
+      this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
+        const updated = { ...prev };
+        if (!updated[currentTechId]) updated[currentTechId] = {};
+        updated[currentTechId][cell.day] = nextType;
+        return updated;
+      });
+    };
 
-    // Guardar en backend
+    if (this.isLocalMockTechnicianId(currentTechId)) {
+      applyOptimistic();
+      this.toast.show(
+        `${this.getShortLabel(nextType)} (solo en esta vista demo; elige un técnico real para sincronizar).`,
+        'success',
+        2800
+      );
+      return;
+    }
+
+    if (!this.isPersistableTechnicianId(currentTechId)) {
+      this.toast.show(
+        'No se puede guardar en el servidor: el técnico seleccionado no tiene un id válido. Recarga o elige un técnico cargado desde el ERP.',
+        'error',
+        4500
+      );
+      return;
+    }
+
+    applyOptimistic();
+
     this.api.setFullDayAvailability(currentTechId, cell.date, nextType).subscribe({
       next: () => {
-        this.toast.show(`✅ Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
+        this.toast.show(`Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
       },
       error: (err: unknown) => {
         console.error('Error guardando disponibilidad:', err);
-        // Revertir cambio optimista
         this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
           const reverted = { ...prev };
           if (reverted[currentTechId]) reverted[currentTechId][cell.day] = currentStatus;
           return reverted;
         });
-        this.toast.show('Error al guardar disponibilidad. Reinténtalo.', 'error');
+        this.toast.show(this.availabilitySaveErrorMessage(err), 'error', 5000);
       }
     });
+  }
+
+  private availabilitySaveErrorMessage(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      const body = err.error;
+      if (typeof body === 'object' && body !== null && 'message' in body) {
+        const m = (body as { message: unknown }).message;
+        if (typeof m === 'string' && m.trim()) {
+          return m;
+        }
+        if (Array.isArray(m) && m.length) {
+          return m.map(String).join(' ');
+        }
+      }
+      if (err.status === 401) {
+        return 'No autorizado: falta tenant o sesión. Cierra sesión y vuelve a entrar.';
+      }
+      if (err.status === 403) {
+        return 'Acceso denegado para este tenant.';
+      }
+      if (err.status === 404) {
+        return 'Técnico no encontrado en este tenant.';
+      }
+      if (err.status === 400) {
+        return 'Datos no válidos para el servidor. Revisa fecha y estado.';
+      }
+    }
+    return 'Error al guardar disponibilidad. Reinténtalo.';
+  }
+
+  /** IDs de relleno tipo `t1`… no son UUID de Postgres: no llamar al API. */
+  private isLocalMockTechnicianId(id: string): boolean {
+    return /^t\d+$/i.test(id.trim());
+  }
+
+  /** `me` lo resuelve el backend; resto deben ser UUID de Postgres. */
+  private isPersistableTechnicianId(id: string): boolean {
+    const v = id.trim();
+    if (v === 'me') {
+      return true;
+    }
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
   }
 
   /** Día del mes (1–31) a partir del registro de disponibilidad del API. */

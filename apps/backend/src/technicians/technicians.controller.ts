@@ -10,11 +10,11 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { TechniciansService } from './technicians.service';
 import {
-  TechniciansService,
-  SetAvailabilityDto,
-  BulkAvailabilityDto,
-} from './technicians.service';
+  SetAvailabilityBodyDto,
+  BulkAvailabilityBodyDto,
+} from './technicians.dto';
 import type { Request } from 'express';
 
 @Controller('technicians')
@@ -55,7 +55,7 @@ export class TechniciansController {
   async setDayAvailability(
     @Req() req: Request,
     @Param('id') id: string,
-    @Body() dto: SetAvailabilityDto,
+    @Body() dto: SetAvailabilityBodyDto,
   ) {
     return this.techniciansService.setDayAvailability(
       this.getTenantId(req),
@@ -70,7 +70,7 @@ export class TechniciansController {
   async setBulkAvailability(
     @Req() req: Request,
     @Param('id') id: string,
-    @Body() dto: BulkAvailabilityDto,
+    @Body() dto: BulkAvailabilityBodyDto,
   ) {
     return this.techniciansService.setBulkAvailability(
       this.getTenantId(req),

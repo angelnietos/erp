@@ -60,11 +60,14 @@ export class TechnicianApiService {
 
   /** Guarda disponibilidad de un día concreto */
   setFullDayAvailability(technicianId: string, date: string, type: string, notes?: string): Observable<TechnicianAvailability> {
-    return this.http.post<TechnicianAvailability>(`${this.baseUrl}/${technicianId}/availability`, {
-      date,
-      type,
-      notes
-    });
+    const body: { date: string; type: string; notes?: string } = { date, type };
+    if (notes !== undefined && notes !== '') {
+      body.notes = notes;
+    }
+    return this.http.post<TechnicianAvailability>(
+      `${this.baseUrl}/${technicianId}/availability`,
+      body,
+    );
   }
 
   /** Guarda disponibilidad en bloque (usado por el bot) */
