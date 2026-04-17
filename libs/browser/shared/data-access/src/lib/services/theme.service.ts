@@ -70,7 +70,9 @@ export type Theme =
   | 'aurora-veil'
   | 'obsidian-rose'
   | 'sandstone-day'
-  | 'nocturne-slate';
+  | 'nocturne-slate'
+  /** Paleta oficial Babooni / Biosstel (kit); el resto de temas son variantes de acento sobre este kit en tenant `babooni`. */
+  | 'babooni';
 
 function hexToRgbTriplet(hex: string): string {
   const normalized = hex.replace('#', '').trim();
@@ -1529,6 +1531,27 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     info: '#38bdf8',
     uiVariant: 'glass',
   },
+  /** Tema principal Babooni — alineado con Biosstel (`theme.css`); sin capa extra en `applyBabooniBiosstelTenantSkinIfNeeded`. */
+  babooni: {
+    name: 'Babooni · Biosstel',
+    primary: '#004B93',
+    secondary: '#185C80',
+    background: '#F7F7F7',
+    surface: '#FFFEFE',
+    text: '#080808',
+    textMuted: '#646464',
+    border: 'rgba(8, 8, 8, 0.1)',
+    brand: '#004B93',
+    brandGlow: 'rgba(0, 75, 147, 0.22)',
+    bgSecondary: '#FFFEFE',
+    bgTertiary: '#E6E6E6',
+    bgStyle: 'bokeh',
+    success: '#21B158',
+    warning: '#f59e0b',
+    danger: '#EF4444',
+    info: '#5966F4',
+    uiVariant: 'glass',
+  },
 };
 
 /** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
@@ -1622,22 +1645,43 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
   },
 ];
 
-function buildThemeMenuSections(): ThemeMenuSection[] {
+function buildThemeMenuSections(
+  base: readonly ThemeMenuSection[] = THEME_MENU_SECTIONS_BASE,
+  excludeFromOthers: readonly Theme[] = ['babooni'],
+): ThemeMenuSection[] {
   const used = new Set<Theme>();
-  const sections: ThemeMenuSection[] = THEME_MENU_SECTIONS_BASE.map((s) => {
+  const sections: ThemeMenuSection[] = base.map((s) => {
     for (const k of s.keys) {
       used.add(k);
     }
     return { id: s.id, label: s.label, keys: [...s.keys] };
   });
-  const missing = (Object.keys(THEMES) as Theme[]).filter((k) => !used.has(k));
+  const missing = (Object.keys(THEMES) as Theme[]).filter(
+    (k) => !used.has(k) && !excludeFromOthers.includes(k),
+  );
   if (missing.length > 0) {
     sections.push({ id: 'other', label: 'Otros', keys: missing });
   }
   return sections;
 }
 
-const THEME_MENU_SECTIONS = buildThemeMenuSections();
+/** Menú del selector cuando `data-erp-tenant="babooni"`: primero el kit oficial, luego variantes premium y el resto. */
+const BABOONI_THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
+  {
+    id: 'babooni-official',
+    label: 'Babooni — tema principal',
+    keys: ['babooni'],
+  },
+  {
+    id: 'luxe',
+    label: '✨ Variantes premium (sobre el kit Babooni)',
+    keys: [...THEME_MENU_SECTIONS_BASE[0].keys],
+  },
+  ...THEME_MENU_SECTIONS_BASE.slice(1),
+];
+
+const THEME_MENU_SECTIONS = buildThemeMenuSections(THEME_MENU_SECTIONS_BASE, ['babooni']);
+const BABOONI_THEME_MENU_SECTIONS = buildThemeMenuSections(BABOONI_THEME_MENU_SECTIONS_BASE, []);
 
 const UI_VARIANT_KEYS = [
   'glass',
@@ -1660,13 +1704,31 @@ export class ThemeService {
   readonly currentThemeData = computed(() => THEMES[this.currentTheme()]);
   readonly currentVariant = signal<string>('glass');
   readonly themes = THEMES;
-  readonly themeMenuSections = THEME_MENU_SECTIONS;
   private readonly isHighPerf = signal<boolean>(false);
+
+  /** Secciones del selector: en tenant Babooni, el kit oficial primero y premium como variantes del kit. */
+  get themeMenuSections(): ThemeMenuSection[] {
+    if (typeof document === 'undefined') {
+      return THEME_MENU_SECTIONS;
+    }
+    const tenant = document.documentElement
+      .getAttribute('data-erp-tenant')
+      ?.trim()
+      .toLowerCase();
+    return tenant === 'babooni' ? BABOONI_THEME_MENU_SECTIONS : THEME_MENU_SECTIONS;
+  }
 
   constructor() {
     const stored = this.getStoredTheme();
     const storedVariant = this.getStoredVariant();
-    const initialTheme = stored || 'light';
+    const tenant =
+      typeof document !== 'undefined'
+        ? document.documentElement
+            .getAttribute('data-erp-tenant')
+            ?.trim()
+            .toLowerCase() ?? ''
+        : '';
+    const initialTheme = stored || (tenant === 'babooni' ? 'babooni' : 'light');
     const initialVariant = storedVariant || THEMES[initialTheme].uiVariant || 'glass';
     
     this.currentTheme.set(initialTheme);
@@ -1788,19 +1850,25 @@ export class ThemeService {
     // CSS-rule-level html[data-ui-variant] overrides, but they CAN inherit
     // inline CSS variables from :root / documentElement).
     this.applyStructuralTokens(root, variant, config, isLight);
-    this.applyBabooniBiosstelTenantSkinIfNeeded(root, variant, config);
+    this.applyBabooniBiosstelTenantSkinIfNeeded(root, variant, config, theme);
   }
 
   /**
    * Tenant `babooni`: paleta inspirada en Biosstel (front-biosstel `theme.css`).
    * Se aplica después del tema elegido por el usuario porque los tokens van en `style` inline.
+   * Si el tema activo es `babooni`, no se duplica (ya viene de `THEMES.babooni`).
+   * Con otros temas premium, se mantiene la marca Biosstel y la variante aporta acentos / `bgStyle` / etc.
    */
   private applyBabooniBiosstelTenantSkinIfNeeded(
     root: HTMLElement,
     variant: string,
     baseConfig: ThemeConfig,
+    themeKey: Theme,
   ): void {
     if (root.getAttribute('data-erp-tenant') !== 'babooni') {
+      return;
+    }
+    if (themeKey === 'babooni') {
       return;
     }
 
