@@ -39,6 +39,15 @@ export const TENANT_MODULE_LABELS_ES: Readonly<Record<string, string>> = {
   verifactu: 'Verifactu',
 };
 
+export type TenantModuleCatalogEntry = { id: string; label: string };
+
+/** Lista id + etiqueta para UI (panel SaaS). */
+export const TENANT_MODULE_CATALOG: readonly TenantModuleCatalogEntry[] =
+  TENANT_MODULE_IDS.map((id) => ({
+    id,
+    label: TENANT_MODULE_LABELS_ES[id] ?? id,
+  }));
+
 export function normalizeTenantModuleIds(ids: readonly string[]): string[] {
   const allowed = new Set(TENANT_MODULE_IDS);
   const next = [...new Set(ids.filter((id) => allowed.has(id)))];

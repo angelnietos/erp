@@ -37,17 +37,23 @@ export class PlatformTenantsController {
 
   @Get('tenants')
   async listTenants() {
-    return this.prisma.tenant.findMany({
+    const rows = await this.prisma.tenant.findMany({
       select: {
         id: true,
         name: true,
         slug: true,
         isActive: true,
-        enabledModuleIds: true,
         createdAt: true,
       },
       orderBy: { name: 'asc' },
     });
+    /** Misma lógica que GET /tenant/modules (vacío en BD → catálogo por defecto). */
+    return Promise.all(
+      rows.map(async (row) => ({
+        ...row,
+        enabledModuleIds: await this.tenantModules.getEnabledModuleIds(row.id),
+      })),
+    );
   }
 
   @Put('tenants/:tenantId/modules')

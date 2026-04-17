@@ -21,6 +21,7 @@ import {
 import { isPermissionAllowedForModules } from '@josanz-erp/identity-api';
 import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 interface PluginDescriptor {
   id: string;
@@ -3364,6 +3365,7 @@ interface PluginDescriptor {
 export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   private readonly _tenantModulesApi = inject(TenantModulesApiService);
+  private _pluginsTabModulesSub?: Subscription;
   public readonly aiBotStore = inject(AIBotStore);
   public readonly themeService = inject(ThemeService);
   private readonly _rolesService = inject(RolesService);
@@ -3470,7 +3472,22 @@ export class SettingsFeatureComponent {
         await this.loadRoles();
       }
     });
-    
+    /** Al abrir Módulos & Plugins, alinear PluginStore con el backend (p. ej. cambios desde panel SaaS). */
+    effect(() => {
+      if (this.activeTab() !== 'plugins') {
+        return;
+      }
+      this._pluginsTabModulesSub?.unsubscribe();
+      this._pluginsTabModulesSub = this._tenantModulesApi
+        .fetchEnabledModules()
+        .subscribe({
+          next: (r) => this._pluginStore.setPlugins(r.enabledModuleIds),
+          error: () => {
+            /* mantener estado en memoria / caché local */
+          },
+        });
+    });
+
     // Save stored companion choice
     effect(() => {
       localStorage.setItem(

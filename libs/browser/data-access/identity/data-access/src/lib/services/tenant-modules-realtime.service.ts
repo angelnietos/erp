@@ -51,7 +51,7 @@ export class TenantModulesRealtimeService {
     socket.on(
       'tenant.modules.updated',
       (payload: { tenantId?: string; enabledModuleIds?: string[] }) => {
-        const tid = getStoredTenantId();
+        const tid = this.resolveCurrentTenantId();
         if (
           payload?.tenantId &&
           tid &&
@@ -90,6 +90,38 @@ export class TenantModulesRealtimeService {
 
   private normalizeOrigin(origin: string): string {
     return origin?.replace(/\/$/, '').trim() ?? '';
+  }
+
+  /** `localStorage` o `tenantId` del JWT (p. ej. tras login antes de persistir). */
+  private resolveCurrentTenantId(): string | null {
+    const fromLs = getStoredTenantId();
+    if (fromLs) {
+      return fromLs;
+    }
+    return this.parseTenantIdFromJwt(this.auth.getToken());
+  }
+
+  private parseTenantIdFromJwt(token: string | null): string | null {
+    if (!token) {
+      return null;
+    }
+    try {
+      const parts = token.split('.');
+      if (parts.length < 2) {
+        return null;
+      }
+      const segment = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = segment.padEnd(
+        segment.length + ((4 - (segment.length % 4)) % 4),
+        '=',
+      );
+      const json = atob(padded);
+      const payload = JSON.parse(json) as { tenantId?: unknown };
+      const tid = payload.tenantId;
+      return typeof tid === 'string' && tid.length >= 32 ? tid : null;
+    } catch {
+      return null;
+    }
   }
 
   private emitAuthenticate(socket: Socket): void {
