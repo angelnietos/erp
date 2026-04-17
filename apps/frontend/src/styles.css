@@ -1295,3 +1295,9 @@ tr:hover .row-actions,
     grid-template-columns: 1fr;
   }
 }
+
+/* Settings: modal baja de módulo (fuera del presupuesto del componente) */
+.settings-module-disable-lead{margin:0 0 1rem;line-height:1.5;color:var(--text-primary,#e2e8f0)}
+.settings-module-disable-warning{margin:0 0 1.25rem;line-height:1.55;font-size:.9rem;color:var(--text-muted,#94a3b8)}
+.settings-module-disable-terms{display:flex;gap:.75rem;align-items:flex-start;cursor:pointer;font-size:.85rem;color:var(--text-muted,#94a3b8)}
+.settings-module-disable-terms input{margin-top:.2rem;flex-shrink:0}

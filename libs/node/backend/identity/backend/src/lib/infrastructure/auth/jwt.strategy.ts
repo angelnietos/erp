@@ -29,7 +29,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       id: payload.sub,
       sub: payload.sub,
       email: payload.email,
-      roles: payload.roles,
+      roles: Array.isArray(payload.roles)
+        ? payload.roles.filter((x): x is string => typeof x === 'string')
+        : [],
       permissions: Array.isArray(payload.permissions)
         ? payload.permissions.filter((x): x is string => typeof x === 'string')
         : [],

@@ -8,6 +8,7 @@ import {
   UiBadgeComponent,
   UiInputComponent,
   UiSelectComponent,
+  UiModalComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore, type AIBot, ThemeService } from '@josanz-erp/shared-data-access';
 import {
@@ -42,6 +43,7 @@ interface PluginDescriptor {
     UiBadgeComponent,
     UiInputComponent,
     UiSelectComponent,
+    UiModalComponent,
   ],
   template: `
     <div class="page-container animate-fade-in">
@@ -333,17 +335,45 @@ interface PluginDescriptor {
                       >
                         {{ isPluginEnabled(plugin.id) ? 'Activo' : 'Inactivo' }}
                       </ui-badge>
-                      <ui-button
-                        [variant]="
-                          isPluginEnabled(plugin.id) ? 'outline' : 'filled'
-                        "
-                        size="sm"
-                        (click)="toggleTenantPlugin(plugin.id)"
-                      >
-                        {{
-                          isPluginEnabled(plugin.id) ? 'Desactivar' : 'Activar'
-                        }}
-                      </ui-button>
+                      @if (isPluginEnabled(plugin.id)) {
+                        @if (canDeactivateTenantModules()) {
+                          <ui-button
+                            variant="outline"
+                            size="sm"
+                            (click)="requestTenantPluginToggle(plugin.id)"
+                          >
+                            Desactivar
+                          </ui-button>
+                        } @else {
+                          <ui-button
+                            variant="outline"
+                            size="sm"
+                            [disabled]="true"
+                            title="Solo el SuperAdmin puede desactivar módulos"
+                          >
+                            Desactivar
+                          </ui-button>
+                        }
+                      } @else {
+                        @if (canActivateTenantModules()) {
+                          <ui-button
+                            variant="filled"
+                            size="sm"
+                            (click)="requestTenantPluginToggle(plugin.id)"
+                          >
+                            Activar
+                          </ui-button>
+                        } @else {
+                          <ui-button
+                            variant="filled"
+                            size="sm"
+                            [disabled]="true"
+                            title="No tienes permiso para activar módulos"
+                          >
+                            Activar
+                          </ui-button>
+                        }
+                      }
                     </div>
                   </ui-card>
                 }
@@ -1616,6 +1646,49 @@ interface PluginDescriptor {
           }
         </main>
       </div>
+
+      <ui-modal
+        [isOpen]="deactivateModuleModalOpen()"
+        [title]="'Baja de módulo'"
+        color="danger"
+        shape="glass"
+        (closed)="closeDeactivatePluginModal()"
+      >
+        <p class="settings-module-disable-lead">
+          Vas a solicitar la desactivación de
+          <strong>{{ pendingPluginDeactivateLabel() }}</strong>.
+        </p>
+        <p class="settings-module-disable-warning">
+          La baja surtirá efecto a <strong>final del mes en curso</strong>
+          ({{ moduleDeactivateEffectiveDate() }}). La cuota de suscripción se
+          ajustará en la siguiente renovación según las condiciones contratadas.
+        </p>
+        <label class="settings-module-disable-terms">
+          <input
+            type="checkbox"
+            [checked]="moduleDisableTermsAccepted()"
+            (change)="
+              moduleDisableTermsAccepted.set($any($event.target).checked)
+            "
+          />
+          <span>
+            Acepto esta condición y confirmo que entiendo que el módulo dejará
+            de estar disponible según el calendario indicado y la suscripción.
+          </span>
+        </label>
+        <div modal-footer>
+          <ui-button variant="outline" (click)="closeDeactivatePluginModal()">
+            Cancelar
+          </ui-button>
+          <ui-button
+            variant="filled"
+            [disabled]="!moduleDisableTermsAccepted()"
+            (click)="confirmPluginDisable()"
+          >
+            Aceptar y desactivar
+          </ui-button>
+        </div>
+      </ui-modal>
     </div>
   `,
   styles: [
@@ -3596,6 +3669,39 @@ export class SettingsFeatureComponent {
     },
   ];
 
+  readonly deactivateModuleModalOpen = signal(false);
+  readonly pendingPluginDisableId = signal<string | null>(null);
+  readonly moduleDisableTermsAccepted = signal(false);
+
+  /** Activar módulos: administradores con gestión de usuarios/roles. */
+  readonly canActivateTenantModules = computed(() => {
+    const p = this._authStore.user()?.permissions ?? [];
+    return (
+      p.includes('*') ||
+      p.includes('users.manage') ||
+      p.includes('roles.manage')
+    );
+  });
+
+  /** Desactivar módulos: solo rol SuperAdmin (coincide con matriz de roles). */
+  readonly canDeactivateTenantModules = this.canSeeRolesAdmin;
+
+  readonly moduleDeactivateEffectiveDate = computed(() => {
+    const last = new Date();
+    last.setMonth(last.getMonth() + 1, 0);
+    return last.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  });
+
+  readonly pendingPluginDeactivateLabel = computed(() => {
+    const id = this.pendingPluginDisableId();
+    if (!id) return '';
+    return this.plugins.find((p) => p.id === id)?.name ?? id;
+  });
+
   readonly botOptions = computed(() =>
     this.aiBotStore
       .bots()
@@ -3680,14 +3786,42 @@ export class SettingsFeatureComponent {
   }
 
   /**
-   * Persiste módulos activos en el tenant (API) y actualiza PluginStore.
-   * Sin esto, los permisos por módulo no estarían alineados por empresa.
+   * Activa/desactiva según permisos; la baja de un módulo activo abre el modal (SuperAdmin).
    */
-  toggleTenantPlugin(pluginId: string) {
+  requestTenantPluginToggle(pluginId: string): void {
+    if (pluginId === 'dashboard') return;
+    const enabled = this.isPluginEnabled(pluginId);
+    if (!enabled) {
+      if (!this.canActivateTenantModules()) return;
+      this.applyTenantPluginToggle(pluginId);
+      return;
+    }
+    if (!this.canDeactivateTenantModules()) return;
+    this.pendingPluginDisableId.set(pluginId);
+    this.moduleDisableTermsAccepted.set(false);
+    this.deactivateModuleModalOpen.set(true);
+  }
+
+  closeDeactivatePluginModal(): void {
+    this.deactivateModuleModalOpen.set(false);
+    this.pendingPluginDisableId.set(null);
+    this.moduleDisableTermsAccepted.set(false);
+  }
+
+  confirmPluginDisable(): void {
+    if (!this.moduleDisableTermsAccepted()) return;
+    const id = this.pendingPluginDisableId();
+    if (!id) return;
+    this.applyTenantPluginToggle(id);
+    this.closeDeactivatePluginModal();
+  }
+
+  /** Persiste módulos en el tenant (API) y sincroniza PluginStore. */
+  private applyTenantPluginToggle(pluginId: string): void {
     if (pluginId === 'dashboard') return;
     const current = this._pluginStore.enabledPlugins();
     const next = current.includes(pluginId)
-      ? current.filter((id) => id !== pluginId)
+      ? current.filter((i) => i !== pluginId)
       : [...current, pluginId];
     const ensured = next.includes('dashboard') ? next : ['dashboard', ...next];
     this._tenantModulesApi.updateEnabledModules(ensured).subscribe({

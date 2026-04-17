@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import {
   DEFAULT_TENANT_MODULE_IDS,
@@ -34,13 +30,7 @@ export class TenantModulesService {
   async updateEnabledModuleIds(
     tenantId: string,
     body: { enabledModuleIds: string[] },
-    canManage: boolean,
   ): Promise<{ enabledModuleIds: string[] }> {
-    if (!canManage) {
-      throw new ForbiddenException(
-        'No tienes permiso para cambiar los módulos del tenant',
-      );
-    }
     const next = normalizeTenantModuleIds(body.enabledModuleIds ?? []);
     if (next.length === 0) {
       throw new BadRequestException('Al menos un módulo debe estar activo');
