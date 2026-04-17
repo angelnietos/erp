@@ -26,7 +26,7 @@ export type TabsVariant =
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div class="tabs" [class]="'tabs-' + variant">
+    <div [class]="'tabs tabs-' + variant">
       @for (tab of tabs; track tab.id) {
         <button
           class="tab-item"

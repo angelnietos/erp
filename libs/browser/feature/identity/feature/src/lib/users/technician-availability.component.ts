@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import {
   TechnicianApiService,
   ToastService,
@@ -42,6 +43,7 @@ interface CalendarCell {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     LucideAngularModule,
     UiCardComponent,
     UiBadgeComponent,
@@ -98,6 +100,16 @@ interface CalendarCell {
            </div>
            
            <div class="header-actions-extra">
+              <button
+                type="button"
+                class="request-days-btn"
+                [routerLink]="['/users/availability', 'request']"
+                [queryParams]="{ techId: selectedTechId() }"
+                title="Solicitar vacaciones o ausencias en bloque"
+              >
+                <lucide-icon name="calendar-plus" size="18"></lucide-icon>
+                Pedir días
+              </button>
               <button 
                 class="nav-btn ripple refresh-btn" 
                 (click)="loadMonth()" 
@@ -285,7 +297,34 @@ interface CalendarCell {
     }
     .nav-btn:hover { background: var(--brand-ambient); color: var(--brand); transform: scale(1.1); }
     
-    .header-actions-extra { display: flex; align-items: center; padding-left: 0.5rem; }
+    .header-actions-extra {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-left: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .request-days-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 0.95rem;
+      border-radius: 12px;
+      border: 1px solid var(--brand-border-soft, color-mix(in srgb, var(--brand) 35%, transparent));
+      background: var(--brand);
+      color: #0a0a0a;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-base, 0.2s ease);
+    }
+    .request-days-btn:hover {
+      filter: brightness(1.05);
+      box-shadow: var(--shadow-glow-soft, 0 4px 20px rgba(0, 0, 0, 0.12));
+    }
     .refresh-btn { 
       background: var(--bg-secondary); 
       border: 1px solid var(--border-soft); 
