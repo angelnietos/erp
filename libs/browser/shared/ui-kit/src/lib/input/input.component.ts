@@ -201,6 +201,23 @@ export type InputVariant = string;
 
     input:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* Babooni: campos claros (misma línea que ui-select / theme-input-bg) */
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper.input-shape-auto,
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper.input-shape-glass,
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper.input-shape-flat {
+      --input-bg: color-mix(in srgb, var(--theme-surface, #fffefe) 93%, var(--fld-brand) 7%);
+      --input-border: var(--border-soft, rgba(8, 8, 8, 0.12));
+      --input-color: var(--text-primary, #080808);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input {
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 1px 2px rgba(8, 8, 8, 0.06);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input::placeholder {
+      opacity: 0.72;
+    }
+
     .hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; margin-left: 8px; font-weight: 600; letter-spacing: 0.02em; }
     .hint.error { color: var(--fld-danger); text-transform: uppercase; font-size: 0.6rem; }
   `],

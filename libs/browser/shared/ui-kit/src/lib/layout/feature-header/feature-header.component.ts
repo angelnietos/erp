@@ -132,7 +132,7 @@ import { UiButtonComponent } from '../../button/button.component';
 
     :host-context(html[data-erp-tenant='babooni']) .subtitle {
       font-size: 0.875rem;
-      color: #646464;
+      color: var(--text-muted);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .icon-box {
@@ -142,9 +142,9 @@ import { UiButtonComponent } from '../../button/button.component';
     }
 
     :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn {
-      background: #1b1b1b;
-      border-color: #080808;
-      color: #fffefe;
+      background: color-mix(in srgb, var(--text-primary, #080808) 92%, var(--theme-surface) 8%);
+      border-color: color-mix(in srgb, var(--text-primary, #080808) 88%, var(--border-soft) 12%);
+      color: var(--theme-surface, #fffefe);
       text-transform: none;
       letter-spacing: 0.03em;
       font-weight: 600;

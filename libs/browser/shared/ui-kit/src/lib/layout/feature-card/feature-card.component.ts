@@ -292,6 +292,15 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       font-weight: 500;
       color: var(--text-muted);
     }
+
+    :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost {
+      color: color-mix(in srgb, var(--text-primary) 78%, var(--brand) 22%) !important;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost:hover {
+      color: var(--brand) !important;
+      background: color-mix(in srgb, var(--brand) 10%, transparent) !important;
+    }
   `]
 })
 export class UiFeatureCardComponent {

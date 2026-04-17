@@ -153,6 +153,31 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
       cursor: not-allowed;
       filter: grayscale(1);
     }
+
+    :host-context(html[data-erp-tenant='babooni']) textarea:not(.textarea-dark):not(.textarea-light) {
+      background:
+        linear-gradient(
+          180deg,
+          var(--theme-surface, #fffefe) 0%,
+          color-mix(in srgb, var(--theme-surface, #fffefe) 88%, var(--bg-secondary, #f7f7f7)) 100%
+        ),
+        color-mix(in srgb, var(--theme-surface, #fffefe) 94%, var(--fld-brand) 6%);
+      border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.1));
+      color: var(--text-primary, #080808);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 1px 2px rgba(8, 8, 8, 0.06);
+      color-scheme: light;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) textarea:not(.textarea-dark):not(.textarea-light):focus {
+      background: color-mix(in srgb, var(--theme-surface, #fffefe) 82%, var(--fld-brand) 10%);
+      border-color: var(--fld-border-brand);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .textarea-glass,
+    :host-context(html[data-erp-tenant='babooni']) .textarea-soft {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
     
     .hint {
       font-size: 0.72rem;

@@ -130,6 +130,30 @@ import { LucideAngularModule } from 'lucide-angular';
         transform: scaleX(0); transition: transform 0.4s; transform-origin: left;
       }
       .stat-card:hover .accent-line { transform: scaleX(1); }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card {
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(8, 8, 8, 0.05);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--brand) 18%, rgba(8, 8, 8, 0.08));
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: none;
+        color: var(--text-muted);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-value {
+        font-size: 1.85rem;
+        font-weight: 700;
+        font-family: var(--font-main, inherit);
+      }
     `,
   ],
 })

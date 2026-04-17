@@ -120,11 +120,35 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       padding-left: 0; padding-right: 0;
     }
 
-    /* Babooni: “success” con texto más oscuro sobre tinte suave (evita verde claro sobre verde) */
+    /* Babooni: badges con contraste sobre superficie clara + tokens de tema */
+    :host-context(html[data-erp-tenant='babooni']) .badge-color-primary {
+      --badge-bg: color-mix(in srgb, var(--brand) 14%, var(--theme-surface, #fffefe));
+      --badge-color: color-mix(in srgb, var(--brand) 68%, #0a0a0a);
+      --badge-border: color-mix(in srgb, var(--brand) 32%, transparent);
+    }
+
     :host-context(html[data-erp-tenant='babooni']) .badge-color-success {
       --badge-bg: color-mix(in srgb, var(--success, #21b158) 16%, var(--theme-surface, #fffefe));
       --badge-color: color-mix(in srgb, var(--success, #21b158) 55%, #0a0a0a);
       --badge-border: color-mix(in srgb, var(--success, #21b158) 38%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .badge-color-warning {
+      --badge-bg: color-mix(in srgb, var(--warning, #f59e0b) 18%, var(--theme-surface, #fffefe));
+      --badge-color: color-mix(in srgb, var(--warning) 48%, #422006);
+      --badge-border: color-mix(in srgb, var(--warning) 35%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .badge-color-danger {
+      --badge-bg: color-mix(in srgb, var(--danger, #ef4444) 14%, var(--theme-surface, #fffefe));
+      --badge-color: color-mix(in srgb, var(--danger) 50%, #450a0a);
+      --badge-border: color-mix(in srgb, var(--danger) 34%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .badge-color-info {
+      --badge-bg: color-mix(in srgb, var(--info, #5966f4) 14%, var(--theme-surface, #fffefe));
+      --badge-color: color-mix(in srgb, var(--info) 45%, #0f172a);
+      --badge-border: color-mix(in srgb, var(--info) 32%, transparent);
     }
   `],
 })

@@ -262,6 +262,37 @@ export type TabsVariant =
       .tabs-gradient .tab-list {
         background: linear-gradient(180deg, var(--bg-tertiary), transparent);
       }
+
+      /* Babooni: pestañas menos “gaming”, alineadas con Biosstel */
+      :host-context(html[data-erp-tenant='babooni']) .tabs-default {
+        background: color-mix(in srgb, var(--theme-surface, #fffefe) 94%, var(--text-primary) 4%);
+        border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.1));
+        box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-default .tab-item {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.02em;
+        color: var(--text-muted);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-default .tab-item:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--brand) 8%, transparent);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-default .tab-item.active {
+        color: #fff;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.02em;
+      }
     `,
   ],
 })
