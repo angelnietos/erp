@@ -57,8 +57,16 @@
     </button>
 
     <p class="tenant-hint">
-      Cuentas de prueba (seed): <strong>Josanz</strong> — admin&#64;josanz.com ·
-      <strong>Babooni</strong> — root&#64;babooni.com (misma contraseña de seed).
+      <strong>Slugs para login:</strong> <code>josanz</code> y <code>babooni</code> (van al API como
+      <code>tenantSlug</code>). Cuentas seed: admin&#64;josanz.com · root&#64;babooni.com (contraseña
+      típica del seed).
+    </p>
+    <p class="tenant-hint tenant-hint--sub">
+      Los <strong>UUID de tenant</strong> (cabecera <code>x-tenant-id</code>,
+      <code>localStorage.tenant_id</code>) los asigna la BD al hacer seed: no son fijos en código.
+      Para verlos: <code>npx prisma studio --schema=apps/backend/prisma/schema.prisma</code> → tabla
+      <code>Tenant</code>, o el script <code>apps/backend/prisma/list-tenants.ts</code> con tu
+      <code>.env</code> cargado.
     </p>
   </div>
 </div>
