@@ -164,27 +164,10 @@ export class NavMenuComponent {
   
   private readonly authStore = inject(AuthStore);
 
+  /** Visibilidad por contexto (p. ej. shell); no filtrar por permisos RBAC aquí. */
   filteredItems = computed(() => {
     const user = this.authStore.user();
     if (!user) return [];
-    
-    const userPerms = user.permissions || [];
-    const hasAll = userPerms.includes('*');
-    
-    const filterFn = (items: NavMenuItem[]): NavMenuItem[] => {
-      return items.filter(item => {
-        const hasPerm = !item.permission || hasAll || userPerms.includes(item.permission);
-        if (!hasPerm) return false;
-        
-        let children = item.children;
-        if (children) {
-          children = filterFn([...children]);
-        }
-        
-        return true;
-      });
-    };
-
-    return filterFn([...this.items()]);
+    return [...this.items()];
   });
 }

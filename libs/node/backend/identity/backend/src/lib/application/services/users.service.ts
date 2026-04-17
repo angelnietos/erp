@@ -3,7 +3,9 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
 import {
   UserRepositoryPort,
@@ -13,7 +15,10 @@ import {
 import {
   User as UserApi,
 } from '@josanz-erp/identity-api';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import {
+  PrismaService,
+  TenantContext,
+} from '@josanz-erp/shared-infrastructure';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -25,31 +30,41 @@ export class UsersService {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
     private readonly prisma: PrismaService,
+    private readonly cls: ClsService<TenantContext>,
   ) {}
 
+  private requireTenantId(): string {
+    const tenantId = this.cls.get('tenantId');
+    if (!tenantId) {
+      throw new UnauthorizedException(
+        'Missing tenant context: x-tenant-id header is required for this operation.',
+      );
+    }
+    return tenantId;
+  }
+
   async findAll(): Promise<UserApi[]> {
+    const tenantId = this.requireTenantId();
     const users = await this.userRepository.findAll();
-    
-    // Fetch only tenant-specific roles to avoid showing system roles like 'ADMIN' or 'SUPERADMIN' in the UI
+
     const rolesData = await this.prisma.role.findMany({
-      select: { name: true, permissions: true, tenantId: true }
+      where: { tenantId },
+      select: { name: true, permissions: true },
     });
-    
-    // Create map only for tenant roles (or all, but we will filter in the map loop)
+
     const rolePermissionsMap = new Map<string, string[]>(
-      rolesData.map(r => [r.name, r.permissions])
+      rolesData.map((r) => [r.name, r.permissions]),
     );
-    
-    const tenantRoleNames = new Set(rolesData.filter(r => r.tenantId !== null).map(r => r.name));
+
+    const tenantRoleNames = new Set(rolesData.map((r) => r.name));
 
     return users.map((user) => {
-      // Filter the user's roles to only include those that are tenant-specific
-      const filteredRoles = user.roles.filter(r => tenantRoleNames.has(r));
-      
+      const filteredRoles = user.roles.filter((r) => tenantRoleNames.has(r));
+
       const allPerms = new Set<string>();
-      filteredRoles.forEach(roleName => {
+      filteredRoles.forEach((roleName) => {
         const perms = rolePermissionsMap.get(roleName) || [];
-        perms.forEach(p => allPerms.add(p));
+        perms.forEach((p) => allPerms.add(p));
       });
 
       return {
@@ -68,21 +83,22 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<UserApi> {
+    const tenantId = this.requireTenantId();
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     const rolesData = await this.prisma.role.findMany({
-      where: { 
+      where: {
+        tenantId,
         name: { in: user.roles },
-        tenantId: { not: null }
       },
-      select: { name: true, permissions: true }
+      select: { name: true, permissions: true },
     });
-    
-    const filteredRoles = rolesData.map(r => r.name);
-    const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
+
+    const filteredRoles = rolesData.map((r) => r.name);
+    const permissions = Array.from(new Set(rolesData.flatMap((r) => r.permissions)));
 
     return {
       id: user.id.value,

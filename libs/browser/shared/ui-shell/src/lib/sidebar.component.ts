@@ -360,56 +360,50 @@ export class SidebarComponent {
       icon: 'layout-dashboard',
       route: '/',
     },
-    { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients', permission: 'clients.view' },
+    { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
     {
       id: 'projects',
       label: 'Proyectos',
       icon: 'file-text',
       route: '/projects',
-      permission: 'projects.view',
     },
-    { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events', permission: 'events.view' },
+    { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events' },
     {
       id: 'identity',
       label: 'Identidad',
       icon: 'id-card',
       route: '/users',
-      permission: 'users.manage',
     },
     {
       id: 'availability',
       label: 'Disponibilidad',
       icon: 'clock',
       route: '/users/availability',
-      permission: 'users.view',
     },
-    { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services', permission: 'services.view' },
-    { id: 'reports', label: 'Reportes', icon: 'ChartPie', route: '/reports', permission: 'reports.view' },
-    { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit', permission: 'audit.view' },
+    { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
+    { id: 'reports', label: 'Reportes', icon: 'ChartPie', route: '/reports' },
+    { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },
     {
       id: 'inventory',
       label: 'Inventario',
       icon: 'package',
       route: '/inventory',
-      permission: 'inventory.view',
     },
     {
       id: 'budgets',
       label: 'Presupuestos',
       icon: 'receipt',
       route: '/budgets',
-      permission: 'budgets.view',
     },
-    { id: 'delivery', label: 'Albaranes', icon: 'truck', route: '/delivery', permission: 'delivery.view' },
-    { id: 'fleet', label: 'Flota', icon: 'car', route: '/fleet', permission: 'fleet.view' },
-    { id: 'rentals', label: 'Alquileres', icon: 'key', route: '/rentals', permission: 'rentals.view' },
-    { id: 'billing', label: 'Facturación', icon: 'history', route: '/billing', permission: 'billing.view' },
+    { id: 'delivery', label: 'Albaranes', icon: 'truck', route: '/delivery' },
+    { id: 'fleet', label: 'Flota', icon: 'car', route: '/fleet' },
+    { id: 'rentals', label: 'Alquileres', icon: 'key', route: '/rentals' },
+    { id: 'billing', label: 'Facturación', icon: 'history', route: '/billing' },
     {
       id: 'verifactu',
       label: 'VeriFactu',
       icon: 'file-check',
       route: '/verifactu',
-      permission: 'verifactu.view',
     },
     {
       id: 'ai-insights',
@@ -419,20 +413,12 @@ export class SidebarComponent {
     },
   ];
 
+  /** Entradas del menú: solo módulos/plugins activos. RBAC aplica en features y listas, no aquí. */
   filteredNavItems = computed(() => {
-    console.log('[Sidebar] Re-evaluating nav items. User permissions:', this.authStore.user()?.permissions);
     return this.navItems.filter((item) => {
-      // 1. Filter by plugin
       if (item.id !== 'dashboard' && item.id !== 'ai-insights' && !this.pluginStore.enabledPlugins().includes(item.id || '')) {
         return false;
       }
-
-      // 2. Filter by permission (Zero Trust)
-      // If an item has a permission defined, check if the user has it.
-      if (item.permission && !this.authStore.hasPermission(item.permission)) {
-        return false;
-      }
-
       return true;
     });
   });

@@ -67,19 +67,20 @@ export class AuthService {
 
     const rolesData = await this.prisma.role.findMany({
       where: {
-        name: { in: user.roles }
+        tenantId,
+        name: { in: user.roles },
       },
-      select: { permissions: true }
+      select: { permissions: true },
     });
-    
-    const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
 
-    const payload = { 
-      sub: user.id.value, 
-      email: user.email, 
+    const permissions = Array.from(new Set(rolesData.flatMap((r) => r.permissions)));
+
+    const payload = {
+      sub: user.id.value,
+      email: user.email,
       roles: user.roles,
       permissions,
-      tenantId
+      tenantId,
     };
 
     return {
@@ -121,21 +122,31 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    const userRow = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { tenantId: true },
+    });
+    const effectiveTenantId = userRow?.tenantId ?? tenantId;
+    if (!effectiveTenantId) {
+      throw new UnauthorizedException('User not found');
+    }
+
     const rolesData = await this.prisma.role.findMany({
       where: {
-        name: { in: user.roles }
+        tenantId: effectiveTenantId,
+        name: { in: user.roles },
       },
-      select: { permissions: true }
+      select: { permissions: true },
     });
-    
-    const permissions = Array.from(new Set(rolesData.flatMap(r => r.permissions)));
 
-    const payload = { 
-      sub: user.id.value, 
-      email: user.email, 
+    const permissions = Array.from(new Set(rolesData.flatMap((r) => r.permissions)));
+
+    const payload = {
+      sub: user.id.value,
+      email: user.email,
       roles: user.roles,
       permissions,
-      tenantId
+      tenantId: effectiveTenantId,
     };
 
     return {
@@ -148,7 +159,7 @@ export class AuthService {
         roles: user.roles,
         permissions,
       },
-      tenantId,
+      tenantId: effectiveTenantId,
     };
   }
 }

@@ -33,7 +33,7 @@ import { ThemeService, MasterFilterService, FilterableService, GlobalAuthStore }
     UiFeatureCardComponent,
   ],
   template: `
-    @if (!authStore.hasPermission('users.view')) {
+    @if (!canViewUsers()) {
       <div class="access-denied-container">
         <div class="denied-card">
           <lucide-icon name="shield-off" class="denied-icon"></lucide-icon>
@@ -242,6 +242,12 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   private readonly masterFilter = inject(MasterFilterService);
   public readonly authStore = inject(GlobalAuthStore);
   public readonly router = inject(Router);
+
+  /** Lee `permissions` como signal para que OnPush reaccione al refrescar sesión tras cambiar roles. */
+  readonly canViewUsers = computed(() => {
+    const p = this.authStore.permissions();
+    return p.includes('*') || p.includes('users.view');
+  });
 
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);

@@ -31,20 +31,18 @@ export const permissionGuard = (permission: string): CanActivateFn => {
   };
 };
 
-/** Shell `/users` (lista + disponibilidad): al menos uno de los módulos debe estar activo */
+/** Shell `/users`: módulos identity y/o availability activos en PluginStore. RBAC en pantallas hijas. */
 export const usersShellGuard: CanActivateFn = () => {
   const store = inject(PluginStore);
-  const authStore = inject(GlobalAuthStore);
   const router = inject(Router);
-  
+
   const p = store.enabledPlugins();
   const hasModule = p.includes('identity') || p.includes('availability');
-  const hasPermission = authStore.hasPermission('users.view') || authStore.hasPermission('users.manage');
 
-  if (hasModule && hasPermission) {
+  if (hasModule) {
     return true;
   }
-  
+
   void router.navigate(['/']);
   return false;
 };
