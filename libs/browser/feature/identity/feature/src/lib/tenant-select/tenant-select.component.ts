@@ -8,7 +8,11 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { ERP_TENANT_SLUG_SESSION_KEY } from '@josanz-erp/identity-data-access';
+import {
+  ERP_TENANT_SLUG_SESSION_KEY,
+  syncErpTenantHtmlTheme,
+} from '@josanz-erp/identity-data-access';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent } from '../animated-background/animated-background.component';
 import type { BackgroundTheme } from '../animated-background/animated-background.component';
 
@@ -28,6 +32,7 @@ export interface TenantChoice {
 })
 export class TenantSelectComponent {
   private readonly router = inject(Router);
+  private readonly theme = inject(ThemeService);
 
   /** Alineado con seed: `josanz`, `babooni` en `prisma/seed.ts`. */
   readonly tenants: TenantChoice[] = [
@@ -59,6 +64,8 @@ export class TenantSelectComponent {
       this.customSlug().trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!slug) return;
     sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
+    syncErpTenantHtmlTheme();
+    this.theme.reapplyTheme();
     void this.router.navigate(['/auth/login'], {
       queryParams: { tenant: slug },
     });

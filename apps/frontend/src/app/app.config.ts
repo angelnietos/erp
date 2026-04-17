@@ -17,6 +17,7 @@ import {
   TenantModulesRealtimeService,
   TENANT_MODULES_REALTIME_API_ORIGIN,
   getStoredTenantId,
+  syncErpTenantHtmlTheme,
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { firstValueFrom, catchError, of, tap } from 'rxjs';
@@ -166,6 +167,14 @@ import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    /** Antes de cualquier tema: marca `data-erp-tenant` desde session (babooni → Biosstel). */
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => () => {
+        syncErpTenantHtmlTheme();
+      },
+    },
     {
       provide: TENANT_MODULES_REALTIME_API_ORIGIN,
       useFactory: () => environment.apiOrigin?.replace(/\/$/, '') ?? '',

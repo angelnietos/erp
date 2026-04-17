@@ -1695,6 +1695,13 @@ export class ThemeService {
   }
 
   /**
+   * Vuelve a aplicar variables CSS (p. ej. tras cambiar `data-erp-tenant` en `<html>`).
+   */
+  reapplyTheme(): void {
+    this.applyTheme(this.currentTheme(), this.currentVariant());
+  }
+
+  /**
    * Actualiza el color primario/marca de forma dinámica para todo el sistema.
    * Útil para personalización de perfil o temas personalizados.
    */
@@ -1781,6 +1788,83 @@ export class ThemeService {
     // CSS-rule-level html[data-ui-variant] overrides, but they CAN inherit
     // inline CSS variables from :root / documentElement).
     this.applyStructuralTokens(root, variant, config, isLight);
+    this.applyBabooniBiosstelTenantSkinIfNeeded(root, variant, config);
+  }
+
+  /**
+   * Tenant `babooni`: paleta inspirada en Biosstel (front-biosstel `theme.css`).
+   * Se aplica después del tema elegido por el usuario porque los tokens van en `style` inline.
+   */
+  private applyBabooniBiosstelTenantSkinIfNeeded(
+    root: HTMLElement,
+    variant: string,
+    baseConfig: ThemeConfig,
+  ): void {
+    if (root.getAttribute('data-erp-tenant') !== 'babooni') {
+      return;
+    }
+
+    const bio: ThemeConfig = {
+      ...baseConfig,
+      name: 'Babooni (Biosstel)',
+      primary: '#004B93',
+      secondary: '#185C80',
+      background: '#F7F7F7',
+      surface: '#FFFEFE',
+      text: '#080808',
+      textMuted: '#646464',
+      border: 'rgba(8, 8, 8, 0.1)',
+      brand: '#004B93',
+      brandGlow: 'rgba(0, 75, 147, 0.22)',
+      bgSecondary: '#FFFEFE',
+      bgTertiary: '#E6E6E6',
+      success: '#21B158',
+      warning: '#f59e0b',
+      danger: '#EF4444',
+      info: '#5966F4',
+    };
+
+    const bgTriplet = hexToRgbTriplet(bio.background).split(',').map(Number);
+    const brightness =
+      (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
+    const isLight = brightness > 180;
+    const mutedResolved = accessibleMutedColor(
+      bio.textMuted,
+      bio.text,
+      isLight,
+    );
+
+    root.style.setProperty('--theme-primary', bio.primary);
+    root.style.setProperty('--theme-primary-rgb', hexToRgbTriplet(bio.primary));
+    root.style.setProperty('--primary', bio.primary);
+    root.style.setProperty('--primary-rgb', hexToRgbTriplet(bio.primary));
+    root.style.setProperty('--accent-rgb', hexToRgbTriplet(bio.secondary));
+    root.style.setProperty('--theme-secondary', bio.secondary);
+    root.style.setProperty('--theme-background', bio.background);
+    root.style.setProperty('--theme-surface', bio.surface);
+    root.style.setProperty('--theme-text', bio.text);
+    root.style.setProperty('--theme-text-muted', mutedResolved);
+    root.style.setProperty('--theme-border', bio.border);
+
+    root.style.setProperty('--brand', bio.brand);
+    root.style.setProperty('--brand-rgb', hexToRgbTriplet(bio.brand));
+    root.style.setProperty('--brand-glow', bio.brandGlow);
+    root.style.setProperty('--bg-primary', bio.background);
+    root.style.setProperty('--bg-secondary', bio.bgSecondary);
+    root.style.setProperty('--bg-tertiary', bio.bgTertiary);
+    root.style.setProperty('--text-primary', bio.text);
+    root.style.setProperty('--text-secondary', mutedResolved);
+    root.style.setProperty('--text-muted', mutedResolved);
+    root.style.setProperty('--accent-muted', mutedResolved);
+    root.style.setProperty('--border-soft', bio.border);
+
+    root.style.setProperty('--surface', hexToRgba(bio.surface, 0.94));
+    const brandRgb = hexToRgbTriplet(bio.brand);
+    root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.1)`);
+    root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.18)`);
+    root.style.setProperty('--surface-opacity', '0.96');
+
+    this.applyStructuralTokens(root, variant, bio, true);
   }
 
   /**

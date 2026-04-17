@@ -1301,3 +1301,8 @@ tr:hover .row-actions,
 .settings-module-disable-warning{margin:0 0 1.25rem;line-height:1.55;font-size:.9rem;color:var(--text-muted,#94a3b8)}
 .settings-module-disable-terms{display:flex;gap:.75rem;align-items:flex-start;cursor:pointer;font-size:.85rem;color:var(--text-muted,#94a3b8)}
 .settings-module-disable-terms input{margin-top:.2rem;flex-shrink:0}
+
+/* ── Tenant Babooni: look Biosstel (variables en ThemeService); refuerzo UI nativa ── */
+html[data-erp-tenant='babooni'] {
+  color-scheme: light;
+}

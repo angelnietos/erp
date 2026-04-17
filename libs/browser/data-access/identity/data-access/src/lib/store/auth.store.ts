@@ -4,9 +4,10 @@ import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService, ERP_TENANT_SLUG_SESSION_KEY } from '../services/auth.service';
+import { syncErpTenantHtmlTheme } from '../utils/erp-tenant-theme';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
-import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
 import { AuthResponse, UserPayload } from '@josanz-erp/identity-api';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
@@ -32,6 +33,7 @@ export const AuthStore = signalStore(
     const tenantModulesApi = inject(TenantModulesApiService);
     const tenantModulesRealtime = inject(TenantModulesRealtimeService);
     const pluginStore = inject(PluginStore);
+    const themeService = inject(ThemeService);
 
     return {
       loadUserFromToken() {
@@ -97,6 +99,8 @@ export const AuthStore = signalStore(
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
         }
+        syncErpTenantHtmlTheme();
+        themeService.reapplyTheme();
         void router.navigateByUrl('/auth/tenant', { replaceUrl: true });
       },
 

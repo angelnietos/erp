@@ -13,7 +13,9 @@ import {
   AuthStore,
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
+  syncErpTenantHtmlTheme,
 } from '@josanz-erp/identity-data-access';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, User, Lock, ArrowRight, Sparkles, Palette, Zap, Waves, Cpu, Volume2, Grid, Aperture, Search, Moon } from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
@@ -49,6 +51,7 @@ export class LoginComponent implements OnInit {
   readonly store = inject(AuthStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly theme = inject(ThemeService);
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -108,12 +111,16 @@ export class LoginComponent implements OnInit {
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     }
+    syncErpTenantHtmlTheme();
+    this.theme.reapplyTheme();
   }
 
   goChangeTenant(): void {
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
     }
+    syncErpTenantHtmlTheme();
+    this.theme.reapplyTheme();
     void this.router.navigate(['/auth/tenant']);
   }
 
