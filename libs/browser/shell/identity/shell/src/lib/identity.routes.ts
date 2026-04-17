@@ -3,8 +3,13 @@ import { Routes } from '@angular/router';
 export const identityRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'tenant',
     pathMatch: 'full',
+  },
+  {
+    path: 'tenant',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.TenantSelectComponent),
   },
   {
     path: 'login',

@@ -1,7 +1,6 @@
 import { inject ,computed } from '@angular/core';
 import { signalStore, withState, withMethods, patchState, withComputed } from '@ngrx/signals';
 // import { pipe, tap, switchMap, catchError, of } from 'rxjs';
-import { Router } from '@angular/router';
 
 export interface AuthState {
   user: {
@@ -28,7 +27,7 @@ export const GlobalAuthStore = signalStore(
     isAuthenticated: computed(() => !!user()),
     permissions: computed(() => user()?.permissions || []),
   })),
-  withMethods((store, router = inject(Router)) => ({
+  withMethods((store) => ({
     hasPermission(permission: string) {
       const user = store.user();
       if (!user) return false;
@@ -43,7 +42,6 @@ export const GlobalAuthStore = signalStore(
     },
     logout() {
       patchState(store, { user: null });
-      router.navigate(['/auth/login']);
     },
     setLoading(loading: boolean) {
       patchState(store, { loading });

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService, ERP_TENANT_SLUG_SESSION_KEY } from '../services/auth.service';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
@@ -94,7 +94,10 @@ export const AuthStore = signalStore(
         authService.removeToken();
         patchState(store, { user: null });
         globalAuthStore.logout();
-        router.navigate(['/auth/login']);
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
+        }
+        router.navigate(['/auth/tenant']);
       },
 
       refreshSession: rxMethod<void>(

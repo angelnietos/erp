@@ -11,6 +11,17 @@
       <h1 class="animate-in stagger-2">Acceso ERP</h1>
     </div>
 
+    <div class="tenant-context animate-in stagger-3">
+      <div class="tenant-pill">
+        <lucide-icon name="building-2" size="14"></lucide-icon>
+        <span>{{ tenantLabel() }}</span>
+        <span class="tenant-pill__slug">· {{ tenantSlug() }}</span>
+      </div>
+      <button type="button" class="link-muted" (click)="goChangeTenant()">
+        Cambiar organización
+      </button>
+    </div>
+
     <!-- Theme Selector -->
     <div class="theme-selector-container animate-in stagger-3">
       <div class="theme-label">

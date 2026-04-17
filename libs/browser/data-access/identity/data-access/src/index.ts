@@ -1,6 +1,10 @@
 // Auth
 export { AuthStore } from './lib/store/auth.store';
-export { AuthService } from './lib/services/auth.service';
+export {
+  AuthService,
+  DEFAULT_LOGIN_TENANT_SLUG,
+  ERP_TENANT_SLUG_SESSION_KEY,
+} from './lib/services/auth.service';
 
 // Users
 export { UsersService } from './lib/services/users.service';

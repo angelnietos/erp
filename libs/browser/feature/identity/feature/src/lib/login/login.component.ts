@@ -1,7 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  computed,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { AuthStore } from '@josanz-erp/identity-data-access';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AuthStore,
+  DEFAULT_LOGIN_TENANT_SLUG,
+  ERP_TENANT_SLUG_SESSION_KEY,
+} from '@josanz-erp/identity-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule, User, Lock, ArrowRight, Sparkles, Palette, Zap, Waves, Cpu, Volume2, Grid, Aperture, Search, Moon } from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
@@ -17,14 +29,26 @@ interface BackgroundThemeOption {
 @Component({
   selector: 'lib-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, UiInputComponent, UiButtonComponent, UiAlertComponent, AnimatedBackgroundComponent, DynamicCanvasComponent, UIAIChatComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    LucideAngularModule,
+    UiInputComponent,
+    UiButtonComponent,
+    UiAlertComponent,
+    AnimatedBackgroundComponent,
+    DynamicCanvasComponent,
+    UIAIChatComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   readonly store = inject(AuthStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -39,6 +63,18 @@ export class LoginComponent {
   
   readonly backgroundTheme = signal<BackgroundTheme>('josanz-classic');
   
+  /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
+  readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
+
+  readonly tenantLabel = computed(() => {
+    const slug = this.tenantSlug();
+    const known: Record<string, string> = {
+      josanz: 'Josanz Audiovisuales',
+      babooni: 'Babooni Technologies',
+    };
+    return known[slug] ?? slug;
+  });
+
   readonly themes: BackgroundThemeOption[] = [
     { id: 'josanz-classic', name: 'Josanz Classic', icon: Palette, color: '#dc2626' },
     { id: 'cyber-neon', name: 'Cyber Neon', icon: Zap, color: '#06b6d4' },
@@ -56,10 +92,39 @@ export class LoginComponent {
     this.backgroundTheme.set(theme);
   }
 
+  ngOnInit(): void {
+    const fromQuery = this.route.snapshot.queryParamMap.get('tenant');
+    const fromStore =
+      typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem(ERP_TENANT_SLUG_SESSION_KEY)
+        : null;
+    const raw = (fromQuery || fromStore || '').trim().toLowerCase();
+    const slug = raw.replace(/[^a-z0-9-]/g, '');
+    if (!slug) {
+      void this.router.navigate(['/auth/tenant'], { replaceUrl: true });
+      return;
+    }
+    this.tenantSlug.set(slug);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
+    }
+  }
+
+  goChangeTenant(): void {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
+    }
+    void this.router.navigate(['/auth/tenant']);
+  }
+
   onSubmit() {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.getRawValue();
-      this.store.login({ email, password });
+      this.store.login({
+        email,
+        password,
+        tenantSlug: this.tenantSlug(),
+      });
     }
   }
 }

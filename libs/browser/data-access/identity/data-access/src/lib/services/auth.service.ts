@@ -26,6 +26,9 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 /** Default slug matches `prisma/seed.ts` tenant (`slug: 'josanz'`). */
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 
+/** `sessionStorage`: tenant elegido en la pantalla previa (`/auth/tenant`). */
+export const ERP_TENANT_SLUG_SESSION_KEY = 'erp_tenant_slug';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
