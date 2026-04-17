@@ -157,6 +157,62 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
         padding: 0.5rem 0.65rem 0.65rem;
       }
     }
+
+    /**
+     * Babooni / Biosstel: barra clara (referencia SearchInput en front-biosstel),
+     * sin cápsula oscura; texto y acciones legibles.
+     */
+    :host-context(html[data-erp-tenant='babooni']) {
+      --toolbar-bar-bg: linear-gradient(180deg, #ffffff 0%, #f4f5f7 100%);
+      --toolbar-bar-border: rgba(8, 8, 8, 0.1);
+      --toolbar-accent: var(--brand, #004b93);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature {
+      border-radius: 14px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 1px 2px rgba(8, 8, 8, 0.04),
+        0 6px 20px rgba(8, 8, 8, 0.06);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature .search-toolbar__divider {
+      background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(8, 8, 8, 0.08) 35%,
+        rgba(8, 8, 8, 0.08) 65%,
+        transparent
+      );
+    }
+
+    :host-context(html[data-erp-tenant='babooni'])
+      .search-toolbar--feature
+      .search-toolbar__actions
+      ::ng-deep
+      .btn-shape-ghost,
+    :host-context(html[data-erp-tenant='babooni'])
+      .search-toolbar--feature
+      .search-toolbar__actions
+      ::ng-deep
+      .btn-shape-auto,
+    :host-context(html[data-erp-tenant='babooni'])
+      .search-toolbar--feature
+      .search-toolbar__actions
+      ::ng-deep
+      .btn-shape-solid {
+      --btn-accent: var(--toolbar-accent);
+      color: color-mix(in srgb, var(--text-primary, #1b1b1b) 92%, var(--toolbar-accent) 8%);
+    }
+
+    :host-context(html[data-erp-tenant='babooni'])
+      .search-toolbar--feature
+      .search-toolbar__actions
+      ::ng-deep
+      .btn:hover {
+      filter: none;
+      background: color-mix(in srgb, var(--toolbar-accent) 10%, transparent);
+    }
   `],
 })
 export class UiSearchToolbarComponent {

@@ -164,6 +164,32 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     .search-wrapper.search-dock .focus-indicator {
       border-radius: 0 0 4px 4px;
     }
+
+    /* Babooni: búsqueda integrada en barra clara — tipografía legible, sin placeholder microscópico */
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock input {
+      color: var(--text-primary, #080808);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock input::placeholder {
+      color: var(--text-muted, #646464);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0.01em;
+      opacity: 0.9;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock .search-icon {
+      color: var(--text-muted, #747474);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock.focused .search-icon {
+      color: var(--brand, #004b93);
+    }
   `],
 })
 export class UiSearchComponent {
