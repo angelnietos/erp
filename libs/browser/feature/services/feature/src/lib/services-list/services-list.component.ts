@@ -141,13 +141,13 @@ interface ServiceFormData extends Partial<Service> {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'name'
-              ? 'NOMBRE'
+              ? 'nombre'
               : sortField() === 'basePrice'
-                ? 'PRECIO'
-                : 'TIPO'
+                ? 'precio'
+                : 'tipo'
           }}
         </ui-button>
       </ui-feature-filter-bar>

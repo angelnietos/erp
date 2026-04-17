@@ -114,7 +114,7 @@ interface VehicleFormData extends Partial<Vehicle> {
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="BUSCAR MATRÍCULA O CONDUCTOR..."
+        placeholder="Buscar matrícula o conductor…"
         (searchChange)="onSearch($event)"
       >
         <div uiFeatureFilterStates>
@@ -149,13 +149,13 @@ interface VehicleFormData extends Partial<Vehicle> {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'plate'
-              ? 'MATRÍCULA'
+              ? 'matrícula'
               : sortField() === 'year'
-                ? 'AÑO'
-                : 'ESTADO'
+                ? 'año'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

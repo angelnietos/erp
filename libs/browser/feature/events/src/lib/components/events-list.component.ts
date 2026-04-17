@@ -146,7 +146,7 @@ interface EventFilter {
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="BUSCAR EVENTOS..."
+        placeholder="Buscar eventos…"
         (searchChange)="onSearchChange($event)"
       >
         <div uiFeatureFilterStates class="events-filter-states">
@@ -169,13 +169,13 @@ interface EventFilter {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'date'
-              ? 'FECHA'
+              ? 'fecha'
               : sortField() === 'title'
-                ? 'TÍTULO'
-                : 'ESTADO'
+                ? 'título'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

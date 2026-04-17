@@ -103,7 +103,7 @@ interface Receipt {
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="BUSCAR POR FACTURA O IMPORTE..."
+        placeholder="Buscar por factura o importe…"
         (searchChange)="onSearch($event)"
       >
         <div uiFeatureFilterStates class="receipts-filter-state">
@@ -121,13 +121,13 @@ interface Receipt {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'dueDate'
-              ? 'VENCIMIENTO'
+              ? 'vencimiento'
               : sortField() === 'invoiceId'
-                ? 'FACTURA'
-                : 'IMPORTE'
+                ? 'factura'
+                : 'importe'
           }}
         </ui-button>
       </ui-feature-filter-bar>

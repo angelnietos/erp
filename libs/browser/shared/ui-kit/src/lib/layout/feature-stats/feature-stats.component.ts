@@ -12,7 +12,7 @@ import { LucideAngularModule } from 'lucide-angular';
         <div class="header-line"></div>
         <button class="collapse-btn" [attr.aria-expanded]="!isCollapsed()">
           <lucide-icon [name]="isCollapsed() ? 'chevron-down' : 'chevron-up'" size="14"></lucide-icon>
-          <span>{{ isCollapsed() ? 'Mostrar Métricas' : 'Ocultar' }}</span>
+          <span>{{ isCollapsed() ? 'Mostrar métricas' : 'Ocultar métricas' }}</span>
         </button>
         <div class="header-line"></div>
       </div>
@@ -129,8 +129,9 @@ import { LucideAngularModule } from 'lucide-angular';
 
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn {
       border-radius: 999px;
-      font-size: 0.7rem;
+      font-size: 0.8125rem;
       font-weight: 600;
+      color: color-mix(in srgb, var(--text-primary, #080808) 82%, var(--text-muted, #646464));
     }
   `]
 })

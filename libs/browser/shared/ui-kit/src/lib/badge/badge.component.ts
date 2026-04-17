@@ -119,6 +119,13 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       --badge-radius: 0px;
       padding-left: 0; padding-right: 0;
     }
+
+    /* Babooni: “success” con texto más oscuro sobre tinte suave (evita verde claro sobre verde) */
+    :host-context(html[data-erp-tenant='babooni']) .badge-color-success {
+      --badge-bg: color-mix(in srgb, var(--success, #21b158) 16%, var(--theme-surface, #fffefe));
+      --badge-color: color-mix(in srgb, var(--success, #21b158) 55%, #0a0a0a);
+      --badge-border: color-mix(in srgb, var(--success, #21b158) 38%, transparent);
+    }
   `],
 })
 export class UiBadgeComponent {

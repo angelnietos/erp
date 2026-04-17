@@ -120,7 +120,8 @@ import type { SearchVariant } from '../search/search.component';
   `],
 })
 export class UiFeatureFilterBarComponent {
-  @Input() placeholder = 'BUSCAR...';
+  /** Mismo tono que la búsqueda global del shell (`Buscar…`); cada lista puede acotar el alcance. */
+  @Input() placeholder = 'Buscar…';
   @Input() value = '';
   @Input() searchVariant: SearchVariant = 'glass';
   @Input() appearance: SearchToolbarAppearance = 'feature';

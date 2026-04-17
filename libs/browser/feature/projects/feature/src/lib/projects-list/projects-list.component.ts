@@ -121,7 +121,7 @@ interface ProjectFormData {
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="Buscar proyectos..."
+        placeholder="Buscar proyectos…"
         (searchChange)="onSearchChange($event)"
       >
         <div uiFeatureFilterStates>
@@ -156,13 +156,13 @@ interface ProjectFormData {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'name'
-              ? 'NOMBRE'
+              ? 'nombre'
               : sortField() === 'startDate'
-                ? 'FECHA INICIO'
-                : 'ESTADO'
+                ? 'fecha de inicio'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

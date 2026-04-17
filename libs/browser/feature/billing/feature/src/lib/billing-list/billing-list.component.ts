@@ -150,13 +150,13 @@ interface InvoiceFormData extends Partial<Invoice> {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'issueDate'
-              ? 'FECHA'
+              ? 'fecha'
               : sortField() === 'total'
-                ? 'TOTAL'
-                : 'ESTADO'
+                ? 'total'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

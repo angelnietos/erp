@@ -165,22 +165,37 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       border-radius: 0 0 4px 4px;
     }
 
-    /* Babooni: búsqueda integrada en barra clara — tipografía legible, sin placeholder microscópico */
-    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock input {
-      color: var(--text-primary, #080808);
+    /**
+     * Búsqueda empotrada en ui-search-toolbar: misma jerarquía visual que la barra global
+     * (tipografía legible, placeholder sin micro–MAYÚSCULAS forzadas en todo el ERP).
+     */
+    .search-wrapper.search-dock input {
+      color: var(--text-primary);
       font-size: 0.875rem;
       font-weight: 500;
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
+      padding-left: 2.5rem;
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock input::placeholder {
-      color: var(--text-muted, #646464);
+    .search-wrapper.search-dock input::placeholder {
+      color: var(--text-muted);
       font-size: 0.8125rem;
       font-weight: 500;
       text-transform: none;
       letter-spacing: 0.01em;
-      opacity: 0.9;
+      opacity: 0.88;
+    }
+
+    .search-wrapper.search-dock .search-icon {
+      left: 0.85rem;
+      width: 1rem;
+      height: 1rem;
+      color: var(--text-muted);
+    }
+
+    .search-wrapper.search-dock.focused .search-icon {
+      color: var(--brand);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock .search-icon {

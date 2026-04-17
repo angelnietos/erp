@@ -84,7 +84,7 @@ import {
         <ui-feature-filter-bar
           [appearance]="'feature'"
           [searchVariant]="'glass'"
-          placeholder="BUSCAR POR NOMBRE, EMAIL O ROL..."
+          placeholder="Buscar usuarios por nombre, email o rol…"
           (searchChange)="onSearch($event)"
         >
           <ui-button
@@ -93,8 +93,8 @@ import {
             [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
             (clicked)="toggleSort()"
           >
-            ORDENAR:
-            {{ sortField() === 'name' ? 'NOMBRE' : 'EMAIL' }}
+            Ordenar:
+            {{ sortField() === 'name' ? 'nombre' : 'email' }}
           </ui-button>
         </ui-feature-filter-bar>
 

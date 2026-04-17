@@ -108,7 +108,7 @@ import { Observable, of } from 'rxjs';
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="BUSCAR Nº ALBARÁN, CLIENTE O REFERENCIA..."
+        placeholder="Buscar albarán, cliente o referencia…"
         (searchChange)="onSearch($event)"
       >
         <ui-button
@@ -117,13 +117,13 @@ import { Observable, of } from 'rxjs';
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'deliveryDate'
-              ? 'FECHA'
+              ? 'fecha'
               : sortField() === 'clientName'
-                ? 'CLIENTE'
-                : 'ESTADO'
+                ? 'cliente'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

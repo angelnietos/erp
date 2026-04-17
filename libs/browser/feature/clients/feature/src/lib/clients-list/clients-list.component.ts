@@ -148,13 +148,13 @@ interface ClientFormData extends Partial<Client> {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'name'
-              ? 'NOMBRE'
+              ? 'nombre'
               : sortField() === 'revenue'
-                ? 'INGRESOS'
-                : 'PROYECTOS'
+                ? 'ingresos'
+                : 'proyectos'
           }}
         </ui-button>
       </ui-feature-filter-bar>

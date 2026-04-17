@@ -1843,6 +1843,7 @@ export class ThemeService {
 
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-ui-variant', variant);
+    root.setAttribute('data-theme-is-light', isLight ? 'true' : 'false');
 
     // ── STRUCTURAL TOKENS ──────────────────────────────────────────────
     // Apply variant-specific tokens directly via inline style to bypass
@@ -1851,6 +1852,10 @@ export class ThemeService {
     // inline CSS variables from :root / documentElement).
     this.applyStructuralTokens(root, variant, config, isLight);
     this.applyBabooniBiosstelTenantSkinIfNeeded(root, variant, config, theme);
+
+    const surfaceResolved =
+      root.style.getPropertyValue('--theme-surface').trim() || config.surface;
+    root.style.setProperty('--theme-input-bg', surfaceResolved);
   }
 
   /**
@@ -1945,6 +1950,8 @@ export class ThemeService {
     root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.1)`);
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.18)`);
     root.style.setProperty('--surface-opacity', '0.96');
+
+    root.setAttribute('data-theme-is-light', isLight ? 'true' : 'false');
 
     this.applyStructuralTokens(root, variant, merged, isLight);
   }

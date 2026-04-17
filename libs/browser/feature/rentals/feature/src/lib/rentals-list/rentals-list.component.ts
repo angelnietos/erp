@@ -156,13 +156,13 @@ interface RentalFormData extends Partial<Rental> {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'clientName'
-              ? 'CLIENTE'
+              ? 'cliente'
               : sortField() === 'totalAmount'
-                ? 'TOTAL'
-                : 'ESTADO'
+                ? 'total'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

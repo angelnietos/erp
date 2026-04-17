@@ -71,7 +71,15 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       appearance: none;
       cursor: pointer;
       box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.28);
-      color-scheme: dark; /* Fuerza al navegador a usar UI oscura para el dropdown nativo */
+    }
+
+    :host-context(html[data-theme-is-light='true']) select {
+      color-scheme: light;
+      box-shadow: var(--fld-shine-subtle), inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    :host-context(html[data-theme-is-light='false']) select {
+      color-scheme: dark;
     }
 
     .select-sm { padding: 0.5rem 2.25rem 0.5rem 0.85rem !important; font-size: 0.75rem !important; }
@@ -238,9 +246,99 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       filter: drop-shadow(0 0 10px color-mix(in srgb, var(--fld-brand) 55%, transparent));
     }
 
-    option { 
-      background-color: #12141c; /* Color sólido para evitar transparencias extrañas */
-      color: #ffffff; 
+    option {
+      background-color: var(--theme-input-bg, #12141c);
+      color: var(--text-primary, #ffffff);
+    }
+
+    /**
+     * Babooni: el select base asume campo “oscuro” (texto claro + color-scheme dark).
+     * En tenant Babooni el kit fija texto oscuro sobre superficies claras → contraste ilegible.
+     * Aquí alineamos fondo, texto, options y bordes con tokens de ThemeService (también con variantes premium).
+     */
+    :host-context(html[data-erp-tenant='babooni']) {
+      --fld-border-muted: color-mix(in srgb, var(--text-primary, #080808) 14%, transparent);
+      --fld-border-brand: color-mix(in srgb, var(--fld-brand) 52%, rgba(8, 8, 8, 0.14));
+      --fld-surface-soft: linear-gradient(
+        180deg,
+        var(--theme-surface, #fffefe) 0%,
+        color-mix(in srgb, var(--theme-surface, #fffefe) 88%, var(--bg-secondary, #f7f7f7)) 100%
+      );
+      --fld-glass: linear-gradient(
+        155deg,
+        color-mix(in srgb, var(--theme-surface, #fffefe) 92%, var(--fld-brand) 8%) 0%,
+        color-mix(in srgb, var(--bg-secondary, #f7f7f7) 94%, var(--fld-brand) 6%) 100%
+      );
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) select {
+      background:
+        var(--fld-surface-soft),
+        color-mix(in srgb, var(--theme-surface, #fffefe) 94%, var(--fld-brand) 6%);
+      border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.1));
+      color: var(--text-primary, #080808);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85) inset,
+        0 1px 2px rgba(8, 8, 8, 0.06);
+      color-scheme: light;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) select:focus {
+      background: color-mix(in srgb, var(--theme-surface, #fffefe) 82%, var(--fld-brand) 10%);
+      border-color: var(--fld-border-brand);
+      box-shadow: var(--fld-ring-brand), 0 6px 20px rgba(8, 8, 8, 0.08);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .select-filled,
+    :host-context(html[data-erp-tenant='babooni']) .select-soft,
+    :host-context(html[data-erp-tenant='babooni']) .select-glass,
+    :host-context(html[data-erp-tenant='babooni']) .select-secondary,
+    :host-context(html[data-erp-tenant='babooni']) .select-theme,
+    :host-context(html[data-erp-tenant='babooni']) .select-minimal {
+      background: color-mix(in srgb, var(--theme-surface, #fffefe) 92%, var(--fld-brand) 8%);
+      border-color: var(--border-soft, rgba(8, 8, 8, 0.1));
+      color: var(--text-primary);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 1px 3px rgba(8, 8, 8, 0.05);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .select-outlined {
+      background: transparent;
+      border-color: color-mix(in srgb, var(--fld-brand) 35%, rgba(8, 8, 8, 0.12));
+      color: var(--text-primary);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .select-ghost {
+      border-bottom-color: color-mix(in srgb, var(--fld-brand) 40%, rgba(8, 8, 8, 0.12));
+      color: var(--text-primary);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .select-primary {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--fld-brand) 22%, var(--theme-surface)) 0%,
+        color-mix(in srgb, var(--fld-brand) 10%, var(--bg-secondary)) 100%
+      );
+      border-color: color-mix(in srgb, var(--fld-brand) 45%, rgba(8, 8, 8, 0.12));
+      color: var(--text-primary);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .select-error,
+    :host-context(html[data-erp-tenant='babooni']) .select-success,
+    :host-context(html[data-erp-tenant='babooni']) .select-warning,
+    :host-context(html[data-erp-tenant='babooni']) .select-info {
+      color: var(--text-primary);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) option {
+      background-color: var(--theme-surface, #fffefe);
+      color: var(--text-primary, #080808);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .chevron {
+      border-right-color: var(--text-muted, #646464);
+      border-bottom-color: var(--text-muted, #646464);
     }
 
   `],

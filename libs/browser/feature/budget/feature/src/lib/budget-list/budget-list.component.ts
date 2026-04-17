@@ -141,13 +141,13 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'name'
-              ? 'NOMBRE'
+              ? 'nombre'
               : sortField() === 'total'
-                ? 'TOTAL'
-                : 'ESTADO'
+                ? 'total'
+                : 'estado'
           }}
         </ui-button>
       </ui-feature-filter-bar>

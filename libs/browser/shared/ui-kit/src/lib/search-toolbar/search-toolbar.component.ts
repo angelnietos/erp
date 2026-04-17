@@ -92,7 +92,26 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature .search-toolbar__field {
-      padding: 0.15rem 0 0.15rem 0.35rem;
+      align-self: center;
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0.35rem 0.4rem 0.35rem 0.55rem;
+      padding: 0.05rem 0.45rem 0.05rem 0.2rem;
+      border-radius: 12px;
+      background: color-mix(
+        in srgb,
+        var(--text-primary) 5.5%,
+        var(--theme-surface, var(--surface))
+      );
+      border: 1px solid var(--border-soft);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    :host-context(html[data-theme-is-light='false'])
+      .search-toolbar--feature
+      .search-toolbar__field {
+      background: color-mix(in srgb, var(--theme-surface) 92%, var(--text-primary) 8%);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
     }
 
     .search-toolbar__divider {
@@ -156,6 +175,12 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
         justify-content: flex-start;
         padding: 0.5rem 0.65rem 0.65rem;
       }
+
+      .search-toolbar--feature .search-toolbar__field {
+        width: calc(100% - 1rem);
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
     }
 
     /**
@@ -174,6 +199,12 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
         0 1px 0 rgba(255, 255, 255, 0.9) inset,
         0 1px 2px rgba(8, 8, 8, 0.04),
         0 6px 20px rgba(8, 8, 8, 0.06);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature .search-toolbar__field {
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--text-primary, #080808) 5%, #f3f4f6);
+      border-color: rgba(8, 8, 8, 0.1);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature .search-toolbar__divider {
@@ -216,7 +247,7 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
   `],
 })
 export class UiSearchToolbarComponent {
-  @Input() placeholder = 'BUSCAR...';
+  @Input() placeholder = 'Buscar…';
   @Input() value = '';
   @Input() searchVariant: SearchVariant = 'glass';
   /** feature = cápsula unificada (listas); minimal = fila flexible sin marco */

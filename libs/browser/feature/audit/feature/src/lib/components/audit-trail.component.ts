@@ -139,7 +139,7 @@ interface DomainEventPayload {
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..."
+        placeholder="Buscar en el log por usuario, acción o entidad…"
         (searchChange)="onSearch($event)"
       >
         <ui-button
@@ -148,13 +148,13 @@ interface DomainEventPayload {
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR:
+          Ordenar:
           {{
             sortField() === 'timestamp'
-              ? 'FECHA'
+              ? 'fecha'
               : sortField() === 'userName'
-                ? 'USUARIO'
-                : 'ACCIÓN'
+                ? 'usuario'
+                : 'acción'
           }}
         </ui-button>
       </ui-feature-filter-bar>

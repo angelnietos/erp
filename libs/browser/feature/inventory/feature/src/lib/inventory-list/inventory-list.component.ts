@@ -107,7 +107,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="BUSCAR EQUIPAMIENTO O SKU..."
+        placeholder="Buscar equipamiento o SKU…"
         (searchChange)="onSearch($any($event))"
       >
         <div uiFeatureFilterStates>
@@ -133,7 +133,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
-          ORDENAR: NOMBRE
+          Ordenar: nombre
         </ui-button>
       </ui-feature-filter-bar>
 
