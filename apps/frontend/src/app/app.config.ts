@@ -12,10 +12,11 @@ import {
   authInterceptor,
   tenantInterceptor,
   AuthService,
+  TenantModulesApiService,
+  getStoredTenantId,
 } from '@josanz-erp/identity-data-access';
-import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
-import { getStoredTenantId } from '@josanz-erp/identity-data-access';
-import { firstValueFrom, catchError, of } from 'rxjs';
+import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { firstValueFrom, catchError, of, tap } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
 import {
@@ -176,15 +177,23 @@ export const appConfig: ApplicationConfig = {
       useFactory: () => {
         const authService = inject(AuthService);
         const globalAuthStore = inject(GlobalAuthStore);
+        const tenantModulesApi = inject(TenantModulesApiService);
+        const pluginStore = inject(PluginStore);
         return async () => {
           const token = localStorage.getItem('auth_token');
-          if (!token) return; // Not logged in, skip
+          if (!token) {
+            pluginStore.loadFromStorage();
+            return;
+          }
           try {
             const response = await firstValueFrom(
               authService.refreshSession().pipe(catchError(() => of(null)))
             );
             if (response) {
               authService.setToken(response.accessToken);
+              if (response.tenantId) {
+                authService.setTenantId(response.tenantId);
+              }
               const u = response.user;
               const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email;
               globalAuthStore.setUser({
@@ -194,9 +203,20 @@ export const appConfig: ApplicationConfig = {
                 tenantId: response.tenantId || getStoredTenantId() || '',
                 permissions: u.permissions,
               });
+              await firstValueFrom(
+                tenantModulesApi.fetchEnabledModules().pipe(
+                  tap((r) => pluginStore.setPlugins(r.enabledModuleIds)),
+                  catchError(() => {
+                    pluginStore.loadFromStorage();
+                    return of(null);
+                  })
+                )
+              );
+            } else {
+              pluginStore.loadFromStorage();
             }
           } catch {
-            // ignore – user will be treated as if not logged in
+            pluginStore.loadFromStorage();
           }
         };
       },

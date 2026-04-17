@@ -15,6 +15,9 @@ export {
   setStoredTenantId,
   clearStoredTenantId,
 } from './lib/interceptors/tenant.interceptor';
+// Tenant modules (persistidos por tenant en backend)
+export { TenantModulesApiService } from './lib/services/tenant-modules-api.service';
+
 // Roles
 export { RolesService } from './lib/services/roles.service';
 export * from './lib/models/role.model';

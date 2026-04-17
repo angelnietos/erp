@@ -1,10 +1,32 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import { RoleType } from '@josanz-erp/identity-core';
+import {
+  DEFAULT_TENANT_MODULE_IDS,
+  filterPermissionsToEnabledModules,
+  normalizeTenantModuleIds,
+} from '@josanz-erp/identity-api';
 
 @Injectable()
 export class RolesService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private async resolveTenantEnabledModules(tenantId: string): Promise<string[]> {
+    const t = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { enabledModuleIds: true },
+    });
+    const raw = t?.enabledModuleIds;
+    if (raw && raw.length > 0) {
+      return normalizeTenantModuleIds(raw);
+    }
+    return [...DEFAULT_TENANT_MODULE_IDS];
+  }
 
   async findAll(tenantId: string) {
     return this.prisma.role.findMany({
@@ -32,16 +54,23 @@ export class RolesService {
     });
     if (existing) throw new ConflictException('A role with this name already exists for this company');
 
+    const mods = await this.resolveTenantEnabledModules(tenantId);
+    const permissions = filterPermissionsToEnabledModules(data.permissions, mods);
+
     return this.prisma.role.create({
       data: {
         ...data,
+        permissions,
         tenantId,
       },
     });
   }
 
   async update(id: string, tenantId: string, data: { name?: string; description?: string; permissions?: string[] }) {
-    await this.findById(id, tenantId);
+    const current = await this.findById(id, tenantId);
+    if (current.type === RoleType.SUPERADMIN) {
+      throw new ForbiddenException('El rol SuperAdmin no se puede editar desde la aplicación');
+    }
 
     if (data.name) {
       const existing = await this.prisma.role.findFirst({
@@ -50,18 +79,27 @@ export class RolesService {
       if (existing) throw new ConflictException('A role with this name already exists');
     }
 
+    let nextData = { ...data };
+    if (data.permissions) {
+      const mods = await this.resolveTenantEnabledModules(tenantId);
+      nextData = {
+        ...nextData,
+        permissions: filterPermissionsToEnabledModules(data.permissions, mods),
+      };
+    }
+
     return this.prisma.role.update({
       where: { id },
-      data,
+      data: nextData,
     });
   }
 
   async delete(id: string, tenantId: string) {
     const role = await this.findById(id, tenantId);
-    
-    // Prevent deletion of Admin roles if strictly required, but usually we just allow it
-    // if it's not the last one.
-    
+    if (role.type === RoleType.SUPERADMIN) {
+      throw new ForbiddenException('El rol SuperAdmin no se puede eliminar');
+    }
+
     return this.prisma.role.delete({
       where: { id },
     });

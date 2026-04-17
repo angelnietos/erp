@@ -10,7 +10,14 @@ import {
   UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, AIBotStore, type AIBot, ThemeService } from '@josanz-erp/shared-data-access';
-import { RolesService, type Role, PERMISSIONS_CATALOG, AuthStore } from '@josanz-erp/identity-data-access';
+import {
+  RolesService,
+  type Role,
+  PERMISSIONS_CATALOG,
+  AuthStore,
+  TenantModulesApiService,
+} from '@josanz-erp/identity-data-access';
+import { isPermissionAllowedForModules } from '@josanz-erp/identity-api';
 import { RoleType } from '@josanz-erp/identity-core';
 import { FormsModule } from '@angular/forms';
 
@@ -331,7 +338,7 @@ interface PluginDescriptor {
                           isPluginEnabled(plugin.id) ? 'outline' : 'filled'
                         "
                         size="sm"
-                        (click)="togglePlugin(plugin.id)"
+                        (click)="toggleTenantPlugin(plugin.id)"
                       >
                         {{
                           isPluginEnabled(plugin.id) ? 'Desactivar' : 'Activar'
@@ -1477,53 +1484,74 @@ interface PluginDescriptor {
                 <!-- Role Details & Matrix -->
                 <div class="role-matrix-detail">
                   @if (selectedRole(); as role) {
-                    <ui-card variant="glass" class="role-config-card">
+                    <ui-card
+                      variant="glass"
+                      class="role-config-card"
+                      [class.readonly-role]="isSelectedRoleSuperAdmin()"
+                    >
                       <div class="role-config-header">
                         <div class="role-main-info">
                           <ui-input
                             label="Nombre del Rol"
                             [(ngModel)]="role.name"
-                            (ngModelChange)="roles()"
+                            [disabled]="isSelectedRoleSuperAdmin()"
                           ></ui-input>
                           <div class="role-actions-btns">
-                            <ui-button variant="outline" size="sm" (click)="deleteRole(role.id)">
-                              <lucide-icon name="trash-2" size="14"></lucide-icon> Eliminar Rol
-                            </ui-button>
+                            @if (!isSelectedRoleSuperAdmin()) {
+                              <ui-button variant="outline" size="sm" (click)="deleteRole(role.id)">
+                                <lucide-icon name="trash-2" size="14"></lucide-icon> Eliminar Rol
+                              </ui-button>
+                            }
                           </div>
                         </div>
-                        <p class="role-description-hint">Configura los permisos para el rol <strong>{{ role.name }}</strong></p>
+                        @if (isSelectedRoleSuperAdmin()) {
+                          <p class="role-locked-notice">
+                            El rol <strong>SuperAdmin</strong> está protegido: el acceso total no se modifica desde aquí.
+                          </p>
+                        }
+                        <p class="role-description-hint">
+                          @if (!isSelectedRoleSuperAdmin()) {
+                            Configura los permisos para el rol <strong>{{ role.name }}</strong>
+                          } @else {
+                            Vista de solo lectura de los permisos del rol <strong>{{ role.name }}</strong>
+                          }
+                        </p>
                       </div>
 
                       <div class="permissions-matrix-container">
-                        @for (category of ['Sistema', 'Identidad', 'CRM/Clientes', 'Inventario', 'Finanzas', 'Operaciones']; track category) {
-                          <div class="permission-group">
-                            <h4 class="category-title">{{ category }}</h4>
-                            <div class="permission-items-grid">
-                              @for (perm of permissionsCatalog; track perm.id) {
-                                @if (perm.category === category) {
-                                  <div 
-                                    class="permission-toggle-box"
-                                    [class.active]="isPermissionActive(role.id, perm.id)"
-                                    (click)="togglePermission(role.id, perm.id)"
-                                    (keydown.enter)="togglePermission(role.id, perm.id)"
-                                    (keydown.space)="togglePermission(role.id, perm.id)"
-                                    tabindex="0"
-                                    role="switch"
-                                    [attr.aria-checked]="isPermissionActive(role.id, perm.id)"
-                                    [attr.aria-label]="'Alternar permiso ' + perm.label"
-                                  >
-                                    <div class="toggle-info">
-                                      <span class="perm-label">{{ perm.label }}</span>
-                                      <span class="perm-id">{{ perm.id }}</span>
+                        @for (category of permissionCategoryOrder; track category) {
+                          @if (categoryHasVisiblePerms(category)) {
+                            <div class="permission-group">
+                              <h4 class="category-title">{{ category }}</h4>
+                              <div class="permission-items-grid">
+                                @for (perm of permissionsCatalogForUi(); track perm.id) {
+                                  @if (perm.category === category) {
+                                    <div
+                                      class="permission-toggle-box"
+                                      [class.active]="isPermissionActive(role.id, perm.id)"
+                                      [class.readonly-perm]="isSelectedRoleSuperAdmin()"
+                                      (click)="togglePermission(role.id, perm.id)"
+                                      (keydown.enter)="togglePermission(role.id, perm.id)"
+                                      (keydown.space)="togglePermission(role.id, perm.id)"
+                                      [tabindex]="isSelectedRoleSuperAdmin() ? -1 : 0"
+                                      role="switch"
+                                      [attr.aria-disabled]="isSelectedRoleSuperAdmin()"
+                                      [attr.aria-checked]="isPermissionActive(role.id, perm.id)"
+                                      [attr.aria-label]="'Alternar permiso ' + perm.label"
+                                    >
+                                      <div class="toggle-info">
+                                        <span class="perm-label">{{ perm.label }}</span>
+                                        <span class="perm-id">{{ perm.id }}</span>
+                                      </div>
+                                      <div class="toggle-ui">
+                                        <div class="toggle-pill"></div>
+                                      </div>
                                     </div>
-                                    <div class="toggle-ui">
-                                      <div class="toggle-pill"></div>
-                                    </div>
-                                  </div>
+                                  }
                                 }
-                              }
+                              </div>
                             </div>
-                          </div>
+                          }
                         }
                       </div>
                     </ui-card>
@@ -3104,6 +3132,22 @@ interface PluginDescriptor {
         opacity: 0.8;
       }
 
+      .role-locked-notice {
+        font-size: 0.85rem;
+        color: var(--brand);
+        margin: 0 0 0.75rem;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .permission-toggle-box.readonly-perm {
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.88;
+      }
+
       .permissions-matrix-container {
         padding: 2.5rem;
         display: flex;
@@ -3254,6 +3298,7 @@ interface PluginDescriptor {
 })
 export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
+  private readonly _tenantModulesApi = inject(TenantModulesApiService);
   public readonly aiBotStore = inject(AIBotStore);
   public readonly themeService = inject(ThemeService);
   private readonly _rolesService = inject(RolesService);
@@ -3315,8 +3360,39 @@ export class SettingsFeatureComponent {
   readonly selectedRole = computed(() => 
     this.roles().find(r => r.id === this.selectedRoleId()) || null
   );
-  readonly permissionsCatalog = PERMISSIONS_CATALOG;
+
+  /** Orden de grupos en la matriz (coincide con categorías del catálogo). */
+  readonly permissionCategoryOrder = [
+    'Sistema',
+    'General',
+    'Identidad',
+    'CRM/Clientes',
+    'Inventario',
+    'Finanzas',
+    'Operaciones',
+    'Analítica',
+    'Cumplimiento',
+    'Logística',
+  ] as const;
+
+  /** Permisos visibles según módulos activos del tenant (PluginStore ↔ API). */
+  readonly permissionsCatalogForUi = computed(() => {
+    const enabled = this._pluginStore.enabledPlugins();
+    return PERMISSIONS_CATALOG.filter((p) =>
+      isPermissionAllowedForModules(p.id, enabled),
+    );
+  });
+
+  readonly isSelectedRoleSuperAdmin = computed(() => {
+    const r = this.selectedRole();
+    return r?.type === RoleType.SUPERADMIN;
+  });
+
   readonly isLoadingRoles = signal(false);
+
+  categoryHasVisiblePerms(category: string): boolean {
+    return this.permissionsCatalogForUi().some((p) => p.category === category);
+  }
 
   constructor() {
     effect(() => {
@@ -3358,6 +3434,7 @@ export class SettingsFeatureComponent {
   togglePermission(roleId: string, permissionId: string) {
     const role = this.roles().find((r: Role) => r.id === roleId);
     if (!role) return;
+    if (role.type === RoleType.SUPERADMIN) return;
 
     let permissions = [...role.permissions];
 
@@ -3371,9 +3448,9 @@ export class SettingsFeatureComponent {
       if (permissions.includes('*')) {
         // User is trying to disable a specific permission while having wildcard.
         // We must explode the wildcard into explicit permissions, excluding the one clicked.
-        const allPerms = this.permissionsCatalog
-          .map(p => p.id)
-          .filter(id => id !== '*' && id !== permissionId);
+        const allPerms = this.permissionsCatalogForUi()
+          .map((p) => p.id)
+          .filter((id) => id !== '*' && id !== permissionId);
         permissions = allPerms;
       } else {
         if (permissions.includes(permissionId)) {
@@ -3412,8 +3489,10 @@ export class SettingsFeatureComponent {
   }
 
   async deleteRole(id: string) {
+    const r = this.roles().find((x) => x.id === id);
+    if (r?.type === RoleType.SUPERADMIN) return;
     if (!confirm('¿Estás seguro de que deseas eliminar este rol?')) return;
-    
+
     this._rolesService.delete(id).subscribe(() => {
       this.roles.update(list => list.filter(r => r.id !== id));
       if (this.selectedRoleId() === id) {
@@ -3613,8 +3692,21 @@ export class SettingsFeatureComponent {
     return this.enabledPlugins().includes(id);
   }
 
-  togglePlugin(id: string) {
-    this._pluginStore.togglePlugin(id);
+  /**
+   * Persiste módulos activos en el tenant (API) y actualiza PluginStore.
+   * Sin esto, los permisos por módulo no estarían alineados por empresa.
+   */
+  toggleTenantPlugin(pluginId: string) {
+    if (pluginId === 'dashboard') return;
+    const current = this._pluginStore.enabledPlugins();
+    const next = current.includes(pluginId)
+      ? current.filter((id) => id !== pluginId)
+      : [...current, pluginId];
+    const ensured = next.includes('dashboard') ? next : ['dashboard', ...next];
+    this._tenantModulesApi.updateEnabledModules(ensured).subscribe({
+      next: (r) => this._pluginStore.setPlugins(r.enabledModuleIds),
+      error: (err) => console.error('[tenant modules]', err),
+    });
   }
 
   toggleRealtime() {

@@ -1,5 +1,12 @@
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-import { computed } from '@angular/core';
+
+function pluginsStorageKey(): string {
+  if (typeof localStorage === 'undefined') {
+    return 'erp_enabled_plugins';
+  }
+  const tid = localStorage.getItem('tenant_id');
+  return tid ? `erp_enabled_plugins_${tid}` : 'erp_enabled_plugins';
+}
 
 export interface PluginState {
   enabledPlugins: string[];
@@ -26,7 +33,7 @@ export const PluginStore = signalStore(
         : [...current, pluginId];
         
       patchState(store, { enabledPlugins: next });
-      localStorage.setItem('erp_enabled_plugins', JSON.stringify(next));
+      localStorage.setItem(pluginsStorageKey(), JSON.stringify(next));
     },
     toggleRealtime() {
       const next = !store.realtimeSync();
@@ -40,14 +47,17 @@ export const PluginStore = signalStore(
     },
     setPlugins(plugins: string[]) {
       patchState(store, { enabledPlugins: plugins });
-      localStorage.setItem('erp_enabled_plugins', JSON.stringify(plugins));
+      localStorage.setItem(pluginsStorageKey(), JSON.stringify(plugins));
     },
     isPluginEnabled(pluginId: string) {
       return store.enabledPlugins().includes(pluginId);
     },
     loadFromStorage() {
         if (typeof localStorage === 'undefined') return;
-        const stored = localStorage.getItem('erp_enabled_plugins');
+        const key = pluginsStorageKey();
+        const stored =
+          localStorage.getItem(key) ??
+          localStorage.getItem('erp_enabled_plugins');
         if (stored) {
             try {
                 patchState(store, { enabledPlugins: JSON.parse(stored) });

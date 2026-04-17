@@ -1,3 +1,11 @@
+export {
+  DEFAULT_TENANT_MODULE_IDS,
+  requiredModuleIdsForPermission,
+  isPermissionAllowedForModules,
+  filterPermissionsToEnabledModules,
+  normalizeTenantModuleIds,
+} from './lib/tenant-modules';
+
 // Shared interfaces for Identity domain
 export interface UserPayload {
   id: string;

@@ -4,7 +4,8 @@ import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import { TenantModulesApiService } from '../services/tenant-modules-api.service';
+import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { AuthResponse, UserPayload } from '@josanz-erp/identity-api';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
@@ -27,6 +28,8 @@ export const AuthStore = signalStore(
     const authService = inject(AuthService);
     const globalAuthStore = inject(GlobalAuthStore);
     const router = inject(Router);
+    const tenantModulesApi = inject(TenantModulesApiService);
+    const pluginStore = inject(PluginStore);
 
     return {
       loadUserFromToken() {
@@ -60,6 +63,11 @@ export const AuthStore = signalStore(
                   name: displayName,
                   tenantId: response.tenantId,
                   permissions: response.user.permissions,
+                });
+
+                tenantModulesApi.fetchEnabledModules().subscribe({
+                  next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
+                  error: () => pluginStore.loadFromStorage(),
                 });
 
                 router.navigate(['/']);
@@ -98,8 +106,11 @@ export const AuthStore = signalStore(
             console.log('[AuthStore] refreshSession response permissions:', response.user.permissions);
             
             authService.setToken(response.accessToken);
+            if (response.tenantId) {
+              authService.setTenantId(response.tenantId);
+            }
             patchState(store, { user: response.user });
-            
+
             const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
             globalAuthStore.setUser({
               id: response.user.id,
@@ -107,6 +118,11 @@ export const AuthStore = signalStore(
               name: displayName,
               tenantId: response.tenantId || getStoredTenantId() || '',
               permissions: response.user.permissions,
+            });
+
+            tenantModulesApi.fetchEnabledModules().subscribe({
+              next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
+              error: () => pluginStore.loadFromStorage(),
             });
           })
         )

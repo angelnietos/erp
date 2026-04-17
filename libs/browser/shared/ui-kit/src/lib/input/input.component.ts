@@ -235,7 +235,7 @@ export class UiInputComponent implements ControlValueAccessor {
   }
 
   value = '';
-  disabled = false;
+  @Input() disabled = false;
   onChange: (value: string) => void = () => { /* empty */ };
   onTouched = () => { /* empty */ };
 
