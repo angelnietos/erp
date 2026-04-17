@@ -23,7 +23,8 @@ import {
   Clock,
   BrainCircuit,
 } from 'lucide-angular';
-import { GlobalAuthStore as AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { PluginStore } from '@josanz-erp/shared-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
 @Component({
@@ -350,7 +351,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
 })
 export class SidebarComponent {
-  private readonly authStore = inject(AuthStore);
+  private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
 
   private readonly navItems: NavMenuItem[] = [
@@ -430,6 +431,6 @@ export class SidebarComponent {
   }
 
   logout() {
-    this.authStore.logout();
+    this.identityAuth.logout();
   }
 }

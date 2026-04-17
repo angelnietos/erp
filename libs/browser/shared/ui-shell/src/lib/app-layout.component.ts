@@ -16,11 +16,11 @@ import { SidebarComponent } from './sidebar.component';
 import {
   ThemeService,
   Theme,
-  GlobalAuthStore as AuthStore,
   PluginStore,
   AIBotStore,
   getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
@@ -715,7 +715,7 @@ export class AppLayoutComponent {
   showCommandPalette = signal(false);
   showUserMenu = signal(false);
 
-  private readonly authStore = inject(AuthStore);
+  private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
   readonly aiBotStore = inject(AIBotStore);
   readonly premiumExperience = computed(() => !this.pluginStore.highPerformanceMode());
@@ -749,7 +749,7 @@ export class AppLayoutComponent {
   }
 
   logout() {
-    this.authStore.logout();
+    this.identityAuth.logout();
   }
 
   setTheme(theme: Theme) {

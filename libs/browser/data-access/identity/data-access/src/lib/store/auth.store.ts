@@ -97,7 +97,7 @@ export const AuthStore = signalStore(
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
         }
-        router.navigate(['/auth/tenant']);
+        void router.navigateByUrl('/auth/tenant', { replaceUrl: true });
       },
 
       refreshSession: rxMethod<void>(
