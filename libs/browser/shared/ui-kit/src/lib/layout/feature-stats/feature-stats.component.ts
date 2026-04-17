@@ -113,6 +113,25 @@ import { LucideAngularModule } from 'lucide-angular';
       transform: translateY(0);
       transition: all 0.5s var(--ease-out-expo);
     }
+
+    :host-context(html[data-erp-tenant='babooni']) {
+      padding: 0 clamp(0.75rem, 2vw, 1.25rem);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .stats-wrapper {
+      margin-bottom: 1.25rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .stats-grid {
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .collapse-btn {
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
   `]
 })
 export class UiFeatureStatsComponent {

@@ -1,13 +1,47 @@
 /**
- * Babooni — listas y estados vacíos alineados con Biosstel (front-biosstel / Figma).
+ * Babooni — capa visual global + overrides de shell para acercar el ERP a
+ * front-biosstel (theme.css / globals.css). Los patrones de tarjeta y cabecera
+ * viven en shared-ui-kit con :host-context(babooni).
  * Solo aplica con html[data-erp-tenant='babooni'].
  */
+
+/* Scrollbars finas como globals.css de Biosstel */
+html[data-erp-tenant='babooni'] * {
+  scrollbar-width: thin;
+  scrollbar-color: #b6b6b6 transparent;
+}
+
+html[data-erp-tenant='babooni'] *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+html[data-erp-tenant='babooni'] *::-webkit-scrollbar-thumb {
+  background-color: #b6b6b6;
+  border-radius: 3px;
+}
+
+html[data-erp-tenant='babooni'] *::-webkit-scrollbar-thumb:hover {
+  background-color: #9c9c9c;
+}
 
 /* ── Contenedores de feature (inventario, presupuestos, clientes, …) ── */
 html[data-erp-tenant='babooni'] .inventory-container,
 html[data-erp-tenant='babooni'] .budgets-container,
-html[data-erp-tenant='babooni'] .clients-container {
-  padding: 0 0 1.5rem !important;
+html[data-erp-tenant='babooni'] .clients-container,
+html[data-erp-tenant='babooni'] .fleet-container,
+html[data-erp-tenant='babooni'] .rentals-container,
+html[data-erp-tenant='babooni'] .delivery-container,
+html[data-erp-tenant='babooni'] .projects-container,
+html[data-erp-tenant='babooni'] .services-container,
+html[data-erp-tenant='babooni'] .billing-container,
+html[data-erp-tenant='babooni'] .receipts-container,
+html[data-erp-tenant='babooni'] .events-container,
+html[data-erp-tenant='babooni'] .users-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(0.75rem, 2vw, 1.25rem) 2rem !important;
+  box-sizing: border-box;
 }
 
 /* ── Cabecera de módulo (ui-feature-header) ── */

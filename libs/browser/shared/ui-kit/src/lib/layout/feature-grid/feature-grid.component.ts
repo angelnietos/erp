@@ -22,6 +22,11 @@ import { CommonModule } from '@angular/common';
         grid-template-columns: 1fr !important;
       }
     }
+
+    :host-context(html[data-erp-tenant='babooni']) .feature-grid {
+      gap: 1rem;
+      margin-top: 0.65rem;
+    }
   `]
 })
 export class UiFeatureGridComponent {

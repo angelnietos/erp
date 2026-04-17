@@ -45,6 +45,10 @@
 
   --bb-shadow-bar: 0 1px 0 rgba(8, 8, 8, 0.06);
   --bb-shadow-float: 0 4px 24px rgba(8, 8, 8, 0.08);
+  /* Biosstel theme.css — sombras de tarjeta / fila */
+  --bb-shadow-card: 0 2px 8px 0 rgba(189, 189, 189, 0.3);
+  --bb-shadow-row: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+  --bb-shadow-button: 0 4px 7px 0 rgba(221, 221, 221, 0.5);
 }
 
 /**

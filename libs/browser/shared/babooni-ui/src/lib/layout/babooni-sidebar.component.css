@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 75, 147, 0.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--bio-primary) 28%, transparent);
 }
 
 .bb-sidebar__brand-text {

@@ -249,6 +249,49 @@ import { UiBadgeComponent } from '../../badge/badge.component';
        .card-footer { flex-direction: column; gap: 1rem; align-items: flex-start; }
        .footer-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
     }
+
+    /* Babooni: tarjetas lista alineadas con Biosstel (shadow-card, borde card, tipografía cuerpo) */
+    :host-context(html[data-erp-tenant='babooni']) .feature-card {
+      border-radius: 12px;
+      border: 1px solid #ecebeb;
+      box-shadow: 0 2px 8px 0 rgba(189, 189, 189, 0.28);
+      background: #fffefe;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .feature-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(189, 189, 189, 0.35);
+      border-color: color-mix(in srgb, var(--brand, #004b93) 22%, #ecebeb);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .avatar-bg {
+      border-radius: 10px;
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .item-name {
+      font-size: clamp(1rem, 0.8vw + 0.65rem, 1.125rem);
+      font-weight: 600;
+      color: #080808;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .subtitle {
+      font-size: 0.8125rem;
+      color: #646464;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-footer {
+      background: #f9f9f9;
+      border-top-color: #e6e6e6;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .footer-item {
+      text-transform: none;
+      letter-spacing: 0.01em;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #646464;
+    }
   `]
 })
 export class UiFeatureCardComponent {

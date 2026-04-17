@@ -111,6 +111,52 @@ import { UiButtonComponent } from '../../button/button.component';
       transform: translateY(-3px) scale(1.02) !important;
     }
 
+    /* Babooni: cabecera tipo Biosstel (título marca, CTA oscuro, menos “hero” gaming) */
+    :host-context(html[data-erp-tenant='babooni']) .feature-header {
+      margin-bottom: 1.25rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .header-content {
+      padding: 1.15rem 1.35rem;
+      border-radius: 14px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .main-title {
+      font-size: clamp(1.25rem, 1.2vw + 0.85rem, 1.625rem);
+      font-weight: 700;
+      color: var(--brand, #004b93);
+      background: none;
+      -webkit-text-fill-color: var(--brand, #004b93);
+      background-clip: unset;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .subtitle {
+      font-size: 0.875rem;
+      color: #646464;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn {
+      background: #1b1b1b;
+      border-color: #080808;
+      color: #fffefe;
+      text-transform: none;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+      border-radius: 10px;
+      box-shadow: 0 4px 7px 0 rgba(221, 221, 221, 0.45);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
     @media (max-width: 768px) {
       .header-content {
         flex-direction: column;
