@@ -53,7 +53,9 @@ export type ModalVariant = string;
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       display: flex; align-items: center;
-      justify-content: center; z-index: 1000; 
+      justify-content: center;
+      /* Por encima de cabecera shell (≈5k) y toasts (3k) */
+      z-index: 20000;
       animation: modalFadeIn 0.35s ease-out;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(12px) saturate(1.2);

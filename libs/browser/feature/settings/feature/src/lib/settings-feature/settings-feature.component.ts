@@ -336,30 +336,19 @@ interface PluginDescriptor {
                         {{ isPluginEnabled(plugin.id) ? 'Activo' : 'Inactivo' }}
                       </ui-badge>
                       @if (isPluginEnabled(plugin.id)) {
-                        @if (canDeactivateTenantModules()) {
-                          <ui-button
-                            variant="outline"
-                            size="sm"
-                            (click)="requestTenantPluginToggle(plugin.id)"
-                          >
-                            Desactivar
-                          </ui-button>
-                        } @else {
-                          <ui-button
-                            variant="outline"
-                            size="sm"
-                            [disabled]="true"
-                            title="Solo el SuperAdmin puede desactivar módulos"
-                          >
-                            Desactivar
-                          </ui-button>
-                        }
+                        <ui-button
+                          variant="outline"
+                          size="sm"
+                          (click)="onRequestDeactivateModule(plugin.id)"
+                        >
+                          Desactivar
+                        </ui-button>
                       } @else {
                         @if (canActivateTenantModules()) {
                           <ui-button
                             variant="filled"
                             size="sm"
-                            (click)="requestTenantPluginToggle(plugin.id)"
+                            (click)="onRequestActivateModule(plugin.id)"
                           >
                             Activar
                           </ui-button>
@@ -1649,44 +1638,60 @@ interface PluginDescriptor {
 
       <ui-modal
         [isOpen]="deactivateModuleModalOpen()"
-        [title]="'Baja de módulo'"
-        color="danger"
+        [title]="deactivateModalTitle()"
+        [color]="deactivateModalMode() === 'terms' ? 'danger' : 'warning'"
         shape="glass"
         (closed)="closeDeactivatePluginModal()"
       >
-        <p class="settings-module-disable-lead">
-          Vas a solicitar la desactivación de
-          <strong>{{ pendingPluginDeactivateLabel() }}</strong>.
-        </p>
-        <p class="settings-module-disable-warning">
-          La baja surtirá efecto a <strong>final del mes en curso</strong>
-          ({{ moduleDeactivateEffectiveDate() }}). La cuota de suscripción se
-          ajustará en la siguiente renovación según las condiciones contratadas.
-        </p>
-        <label class="settings-module-disable-terms">
-          <input
-            type="checkbox"
-            [checked]="moduleDisableTermsAccepted()"
-            (change)="
-              moduleDisableTermsAccepted.set($any($event.target).checked)
-            "
-          />
-          <span>
-            Acepto esta condición y confirmo que entiendo que el módulo dejará
-            de estar disponible según el calendario indicado y la suscripción.
-          </span>
-        </label>
+        @if (deactivateModalMode() === 'terms') {
+          <p class="settings-module-disable-lead">
+            Vas a solicitar la desactivación de
+            <strong>{{ pendingPluginDeactivateLabel() }}</strong>.
+          </p>
+          <p class="settings-module-disable-warning">
+            La baja surtirá efecto a <strong>final del mes en curso</strong>
+            ({{ moduleDeactivateEffectiveDate() }}). La cuota de suscripción se
+            ajustará en la siguiente renovación según las condiciones contratadas.
+          </p>
+          <label class="settings-module-disable-terms">
+            <input
+              type="checkbox"
+              [checked]="moduleDisableTermsAccepted()"
+              (change)="
+                moduleDisableTermsAccepted.set($any($event.target).checked)
+              "
+            />
+            <span>
+              Acepto esta condición y confirmo que entiendo que el módulo dejará
+              de estar disponible según el calendario indicado y la suscripción.
+            </span>
+          </label>
+        } @else {
+          <p class="settings-module-disable-lead">
+            Solo el rol <strong>SuperAdmin</strong> puede desactivar módulos
+            para la organización.
+          </p>
+          <p class="settings-module-disable-warning">
+            Si necesitas una baja, contacta con un SuperAdmin de tu empresa.
+          </p>
+        }
         <div modal-footer>
-          <ui-button variant="outline" (click)="closeDeactivatePluginModal()">
-            Cancelar
-          </ui-button>
-          <ui-button
-            variant="filled"
-            [disabled]="!moduleDisableTermsAccepted()"
-            (click)="confirmPluginDisable()"
-          >
-            Aceptar y desactivar
-          </ui-button>
+          @if (deactivateModalMode() === 'terms') {
+            <ui-button variant="outline" (click)="closeDeactivatePluginModal()">
+              Cancelar
+            </ui-button>
+            <ui-button
+              variant="filled"
+              [disabled]="!moduleDisableTermsAccepted()"
+              (click)="confirmPluginDisable()"
+            >
+              Aceptar y desactivar
+            </ui-button>
+          } @else {
+            <ui-button variant="filled" (click)="closeDeactivatePluginModal()">
+              Entendido
+            </ui-button>
+          }
         </div>
       </ui-modal>
     </div>
@@ -3670,8 +3675,16 @@ export class SettingsFeatureComponent {
   ];
 
   readonly deactivateModuleModalOpen = signal(false);
+  /** `terms`: SuperAdmin + checkbox; `forbidden`: resto de usuarios. */
+  readonly deactivateModalMode = signal<'terms' | 'forbidden'>('terms');
   readonly pendingPluginDisableId = signal<string | null>(null);
   readonly moduleDisableTermsAccepted = signal(false);
+
+  readonly deactivateModalTitle = computed(() =>
+    this.deactivateModalMode() === 'terms'
+      ? 'Baja de módulo'
+      : 'No puedes desactivar este módulo',
+  );
 
   /** Activar módulos: administradores con gestión de usuarios/roles. */
   readonly canActivateTenantModules = computed(() => {
@@ -3785,25 +3798,33 @@ export class SettingsFeatureComponent {
     return this.enabledPlugins().includes(id);
   }
 
-  /**
-   * Activa/desactiva según permisos; la baja de un módulo activo abre el modal (SuperAdmin).
-   */
-  requestTenantPluginToggle(pluginId: string): void {
+  /** Activa un módulo inactivo (permisos de administración). */
+  onRequestActivateModule(pluginId: string): void {
     if (pluginId === 'dashboard') return;
-    const enabled = this.isPluginEnabled(pluginId);
-    if (!enabled) {
-      if (!this.canActivateTenantModules()) return;
-      this.applyTenantPluginToggle(pluginId);
-      return;
-    }
-    if (!this.canDeactivateTenantModules()) return;
+    if (!this.canActivateTenantModules()) return;
+    this.applyTenantPluginToggle(pluginId);
+  }
+
+  /**
+   * Desactivar: siempre abre modal (advertencia + términos si es SuperAdmin;
+   * si no, mensaje informativo).
+   */
+  onRequestDeactivateModule(pluginId: string): void {
+    if (pluginId === 'dashboard') return;
+    if (!this.isPluginEnabled(pluginId)) return;
     this.pendingPluginDisableId.set(pluginId);
-    this.moduleDisableTermsAccepted.set(false);
+    if (this.canDeactivateTenantModules()) {
+      this.deactivateModalMode.set('terms');
+      this.moduleDisableTermsAccepted.set(false);
+    } else {
+      this.deactivateModalMode.set('forbidden');
+    }
     this.deactivateModuleModalOpen.set(true);
   }
 
   closeDeactivatePluginModal(): void {
     this.deactivateModuleModalOpen.set(false);
+    this.deactivateModalMode.set('terms');
     this.pendingPluginDisableId.set(null);
     this.moduleDisableTermsAccepted.set(false);
   }
