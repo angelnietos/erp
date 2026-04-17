@@ -2,7 +2,14 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ReceiptsApiService, ThemeService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  ReceiptsApiService,
+  ThemeService,
+  MasterFilterService,
+  FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import {
   LucideAngularModule,
@@ -20,6 +27,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiSelectComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -48,8 +56,15 @@ interface Receipt {
     UiFeatureCardComponent,
     UiSelectComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver recibos."
+        permissionHint="receipts.view"
+      />
+    } @else {
     <div class="receipts-container">
       <ui-feature-header
         title="Recibos"
@@ -153,6 +168,7 @@ interface Receipt {
         }
       </ui-feature-grid>
     </div>
+    }
   `,
   styles: [`
     .receipts-container {
@@ -195,6 +211,8 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
   private readonly receiptsApi = inject(ReceiptsApiService);
   private readonly themeService = inject(ThemeService);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'receipts.view');
 
   currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;

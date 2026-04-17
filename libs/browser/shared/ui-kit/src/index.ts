@@ -34,6 +34,8 @@ export type { SearchToolbarAppearance } from './lib/search-toolbar/search-toolba
 
 export { UiFeatureFilterBarComponent } from './lib/feature-filter-bar/feature-filter-bar.component';
 
+export { UiFeatureAccessDeniedComponent } from './lib/feature-access-denied/feature-access-denied.component';
+
 export { UiPaginationComponent } from './lib/pagination/pagination.component';
 
 export { UiModalComponent } from './lib/modal/modal.component';

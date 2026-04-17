@@ -24,6 +24,7 @@ import {
   UiFeatureCardComponent,
   UiTabsComponent,
   UiSelectComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
@@ -35,6 +36,7 @@ import {
   AIFormBridgeService,
   ToastService,
   GlobalAuthStore as AuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
@@ -65,6 +67,7 @@ interface ClientFormData extends Partial<Client> {
     UiInputComponent,
     UiSelectComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
     <div class="clients-container">
@@ -346,11 +349,10 @@ interface ClientFormData extends Partial<Client> {
         </ui-feature-grid>
       }
       } @else {
-        <div class="empty-state" style="margin-top: 2rem;">
-          <lucide-icon name="shield-alert" size="48" class="empty-icon"></lucide-icon>
-          <h3>Acceso Restringido</h3>
-          <p>No tienes permiso para ver el directorio de clientes.</p>
-        </div>
+        <ui-feature-access-denied
+          message="No tienes permiso para ver el directorio de clientes."
+          permissionHint="clients.view"
+        />
       }
 
       <!-- Create/Edit Modal -->
@@ -702,8 +704,8 @@ export class ClientsListComponent
   public readonly config = inject(CLIENTS_FEATURE_CONFIG);
   public readonly authStore = inject(AuthStore);
 
-  readonly canView = computed(() => this.authStore.hasPermission('clients.view'));
-  readonly canManage = computed(() => this.authStore.hasPermission('clients.manage'));
+  readonly canView = rbacAllows(this.authStore, 'clients.view');
+  readonly canManage = rbacAllows(this.authStore, 'clients.manage');
 
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;

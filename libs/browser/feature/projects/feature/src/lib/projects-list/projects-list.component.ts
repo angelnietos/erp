@@ -24,6 +24,7 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiInputComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -34,6 +35,8 @@ import {
   DomainEventsApiService,
   ToastService,
   AIFormBridgeService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Project, ProjectsFacade } from '@josanz-erp/projects-data-access';
 import { Observable, of } from 'rxjs';
@@ -70,10 +73,17 @@ interface ProjectFormData {
     UiModalComponent,
     UiInputComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
   template: `
     <div class="projects-container">
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver proyectos."
+          permissionHint="projects.view"
+        />
+      } @else {
       <ui-feature-header
         title="Proyectos"
         subtitle="Gestión operativa y seguimiento de proyectos"
@@ -400,6 +410,7 @@ interface ProjectFormData {
           </ui-button>
         </div>
       </ui-modal>
+      }
     </div>
   `,
   styles: [
@@ -633,6 +644,8 @@ export class ProjectsListComponent
   private readonly toast = inject(ToastService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly facade = inject(ProjectsFacade) as ProjectsFacade;
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'projects.view', 'projects.manage');
 
   // Use facade signals
   projects = this.facade.projects;

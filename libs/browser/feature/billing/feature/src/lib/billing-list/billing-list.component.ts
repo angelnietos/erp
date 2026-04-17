@@ -23,6 +23,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -32,6 +33,8 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
@@ -65,8 +68,15 @@ interface InvoiceFormData extends Partial<Invoice> {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver facturación."
+        permissionHint="invoices.view"
+      />
+    } @else {
     <div class="billing-container">
       <ui-feature-header
         title="Facturación"
@@ -561,6 +571,7 @@ interface InvoiceFormData extends Partial<Invoice> {
         </div>
       }
     </ui-modal>
+    }
   `,
   styles: [
     `
@@ -893,6 +904,12 @@ export class BillingListComponent
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
   readonly verifactuStore = inject<VerifactuStore>(VerifactuStore);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(
+    this.authStore,
+    'invoices.view',
+    'billing.view',
+  );
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;

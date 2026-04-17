@@ -21,6 +21,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -29,6 +30,8 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -61,9 +64,16 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
     <div class="budgets-container">
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver presupuestos."
+          permissionHint="budgets.view"
+        />
+      } @else {
       <ui-feature-header
         title="Presupuestos"
         subtitle="Gestión comercial y pipeline de ventas"
@@ -476,6 +486,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
           </ui-button>
         </div>
       </ui-modal>
+      }
     </div>
   `,
   styles: [
@@ -792,6 +803,13 @@ export class BudgetListComponent
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(
+    this.authStore,
+    'budgets.view',
+    'budgets.create',
+    'budgets.approve',
+  );
 
   // Signals for UI state
   isModalOpen = signal(false);

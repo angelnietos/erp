@@ -25,11 +25,14 @@ import {
   UiSelectComponent,
   UiInputComponent,
   UiFeatureFilterBarComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
   PluginStore,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { escapeHtml, openPrintableDocument } from '@josanz-erp/shared-utils';
 
@@ -77,12 +80,19 @@ interface Report {
     UiInputComponent,
     UiFeatureFilterBarComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
     <div
       class="page-container animate-fade-in"
       [class.perf-optimized]="pluginStore.highPerformanceMode()"
     >
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver reportes."
+          permissionHint="reports.view"
+        />
+      } @else {
       <header
         class="page-header"
         [style.border-bottom-color]="currentTheme().primary + '33'"
@@ -286,6 +296,7 @@ interface Report {
           </div>
         }
       </div>
+      }
     </div>
   `,
   styles: [
@@ -526,6 +537,8 @@ interface Report {
 export class ReportsComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'reports.view');
   private readonly http = inject(HttpClient);
   private readonly toast = inject(ToastService);
   private readonly ngZone = inject(NgZone);

@@ -24,6 +24,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import {
@@ -33,6 +34,8 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -57,8 +60,15 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver inventario."
+        permissionHint="products.view"
+      />
+    } @else {
     <div class="inventory-container">
       <ui-feature-header
         title="Inventario"
@@ -263,6 +273,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         </ui-button>
       </div>
     </ui-modal>
+    }
   `,
   styles: [
     `
@@ -359,6 +370,8 @@ export class InventoryListComponent
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'products.view', 'products.manage');
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;

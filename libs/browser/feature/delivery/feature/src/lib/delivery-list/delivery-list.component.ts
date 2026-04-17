@@ -23,6 +23,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { DeliveryFacade, DeliveryNote } from '@josanz-erp/delivery-data-access';
 import {
@@ -32,6 +33,8 @@ import {
   FilterableService,
   ToastService,
   AIFormBridgeService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { DELIVERY_FEATURE_CONFIG } from '../delivery-feature.config';
 import { Observable, of } from 'rxjs';
@@ -55,8 +58,15 @@ import { Observable, of } from 'rxjs';
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver albaranes."
+        permissionHint="delivery.view"
+      />
+    } @else {
     <div class="delivery-container">
       <ui-feature-header
         title="Albaranes"
@@ -250,6 +260,7 @@ import { Observable, of } from 'rxjs';
         </ui-button>
       </div>
     </ui-modal>
+    }
   `,
   styles: [
     `
@@ -357,6 +368,8 @@ export class DeliveryListComponent
   private readonly masterFilter = inject(MasterFilterService);
   private readonly toast = inject(ToastService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'delivery.view', 'delivery.manage');
 
   currentTheme = this.themeService.currentThemeData;
 

@@ -27,7 +27,8 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
-  UiPaginationComponent
+  UiPaginationComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DomainEventsApiService,
@@ -35,6 +36,8 @@ import {
   PluginStore,
   MasterFilterService,
   FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 
@@ -95,11 +98,18 @@ interface DomainEventPayload {
     UiFeatureFilterBarComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver el registro de auditoría."
+          permissionHint="audit.view"
+        />
+      } @else {
       <ui-feature-header
         title="Auditoría de Sistema"
         subtitle="Trazabilidad completa de operaciones y seguridad"
@@ -211,6 +221,7 @@ interface DomainEventPayload {
           ></ui-pagination>
         </footer>
       </div>
+      }
     </div>
   `,
   styles: [`
@@ -262,6 +273,8 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   public readonly pluginStore = inject(PluginStore);
   private readonly domainEventsApi = inject(DomainEventsApiService);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'audit.view');
 
   currentTheme = this.themeService.currentThemeData;
 

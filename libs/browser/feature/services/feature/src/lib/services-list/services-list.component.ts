@@ -23,6 +23,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -31,6 +32,8 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { ServicesStore, Service } from '../services.store';
@@ -61,9 +64,16 @@ interface ServiceFormData extends Partial<Service> {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
     <div class="services-container">
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver el catálogo de servicios."
+          permissionHint="services.view"
+        />
+      } @else {
       <ui-feature-header
         title="Servicios"
         subtitle="Catálogo de operaciones y tarifas vigentes"
@@ -459,6 +469,7 @@ interface ServiceFormData extends Partial<Service> {
           </ui-button>
         </div>
       </ui-modal>
+      }
     </div>
   `,
   styles: [
@@ -770,6 +781,8 @@ export class ServicesListComponent
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
   readonly store = inject(ServicesStore);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'services.view', 'services.manage');
 
   // Signals for UI state
   isModalOpen = signal(false);

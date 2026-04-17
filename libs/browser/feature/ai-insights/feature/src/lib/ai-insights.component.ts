@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiFeatureFilterBarComponent } from '@josanz-erp/shared-ui-kit';
+import {
+  UiFeatureFilterBarComponent,
+  UiFeatureAccessDeniedComponent,
+} from '@josanz-erp/shared-ui-kit';
+import { GlobalAuthStore, rbacAllows } from '@josanz-erp/shared-data-access';
 
 export interface AiInsight {
   id: string;
@@ -19,8 +23,19 @@ export interface AiInsight {
 @Component({
   selector: 'josanz-ai-insights',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiFeatureFilterBarComponent],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    UiFeatureFilterBarComponent,
+    UiFeatureAccessDeniedComponent,
+  ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver AI Insights."
+        permissionHint="ai.view"
+      />
+    } @else {
     <div
       class="p-[1.5rem] w-full max-w-[1400px] mx-auto box-border pt-24 min-h-screen"
     >
@@ -157,6 +172,7 @@ export interface AiInsight {
         </div>
       </div>
     </div>
+    }
   `,
   styles: [
     `
@@ -168,6 +184,8 @@ export interface AiInsight {
 })
 export class AiInsightsComponent implements OnInit {
   private http = inject(HttpClient);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'ai.view');
 
   insights = signal<AiInsight[]>([]);
   loading = signal(true);

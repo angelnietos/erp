@@ -23,6 +23,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -31,6 +32,8 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
@@ -60,8 +63,15 @@ interface VehicleFormData extends Partial<Vehicle> {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver la flota."
+        permissionHint="fleet.view"
+      />
+    } @else {
     <div class="fleet-container">
       <ui-feature-header
         title="Flota Logística"
@@ -432,6 +442,7 @@ interface VehicleFormData extends Partial<Vehicle> {
         >
       </div>
     </ui-modal>
+    }
   `,
   styles: [
     `
@@ -660,6 +671,8 @@ export class FleetListComponent
   private readonly masterFilter = inject(MasterFilterService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'fleet.view', 'fleet.manage');
 
   currentTheme = this.themeService.currentThemeData;
 

@@ -31,7 +31,14 @@ import {
   CirclePlus
 } from 'lucide-angular';
 import { take } from 'rxjs/operators';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import {
   UiButtonComponent,
@@ -41,7 +48,8 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureFilterBarComponent,
-  UiSelectComponent
+  UiSelectComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Event {
@@ -91,9 +99,16 @@ interface EventFilter {
     UiFeatureFilterBarComponent,
     UiSelectComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
     <div class="events-container">
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver eventos."
+          permissionHint="events.view"
+        />
+      } @else {
       <ui-feature-header
         title="Eventos"
         subtitle="Planificación y gestión de eventos corporativos"
@@ -200,6 +215,7 @@ interface EventFilter {
           </div>
         }
       </ui-feature-grid>
+      }
     </div>
   `,
   styles: [`
@@ -242,6 +258,8 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'events.view', 'events.manage');
 
   currentTheme = this.themeService.currentThemeData;
 

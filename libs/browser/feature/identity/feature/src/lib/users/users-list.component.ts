@@ -11,11 +11,18 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
 import { map, Observable, of } from 'rxjs';
-import { ThemeService, MasterFilterService, FilterableService, GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  MasterFilterService,
+  FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-users-list',
@@ -31,18 +38,14 @@ import { ThemeService, MasterFilterService, FilterableService, GlobalAuthStore }
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
     UiFeatureCardComponent,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
     @if (!canViewUsers()) {
-      <div class="access-denied-container">
-        <div class="denied-card">
-          <lucide-icon name="shield-off" class="denied-icon"></lucide-icon>
-          <h2>Acceso Restringido</h2>
-          <p>Tu rol actual no tiene permisos para ver o gestionar usuarios.</p>
-          <p class="hint">Consulta con un administrador para solicitar acceso a 'users.view'.</p>
-          <ui-button variant="primary" (clicked)="router.navigate(['/'])">VOLVER AL DASHBOARD</ui-button>
-        </div>
-      </div>
+      <ui-feature-access-denied
+        message="Tu rol no incluye permiso para ver o gestionar usuarios."
+        permissionHint="users.view o users.manage"
+      />
     } @else {
       <div class="users-container">
         <ui-feature-header
@@ -243,11 +246,7 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   public readonly authStore = inject(GlobalAuthStore);
   public readonly router = inject(Router);
 
-  /** Lee `permissions` como signal para que OnPush reaccione al refrescar sesión tras cambiar roles. */
-  readonly canViewUsers = computed(() => {
-    const p = this.authStore.permissions();
-    return p.includes('*') || p.includes('users.view');
-  });
+  readonly canViewUsers = rbacAllows(this.authStore, 'users.view', 'users.manage');
 
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);

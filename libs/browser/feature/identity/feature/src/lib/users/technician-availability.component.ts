@@ -5,11 +5,18 @@ import {
   ToastService,
   MasterFilterService,
   FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
   type Technician as ApiTechnician,
   type TechnicianAvailability,
 } from '@josanz-erp/shared-data-access';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent } from '@josanz-erp/shared-ui-kit';
+import {
+  UiCardComponent,
+  UiBadgeComponent,
+  UiFeatureFilterBarComponent,
+  UiFeatureAccessDeniedComponent,
+} from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
 
@@ -31,8 +38,21 @@ interface CalendarCell {
 @Component({
   selector: 'lib-technician-availability',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiBadgeComponent, UiFeatureFilterBarComponent],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    UiCardComponent,
+    UiBadgeComponent,
+    UiFeatureFilterBarComponent,
+    UiFeatureAccessDeniedComponent,
+  ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver disponibilidad del equipo."
+        permissionHint="users.view"
+      />
+    } @else {
     <div class="availability-dashboard animate-fade-in">
       <!-- DASHBOARD HEADER -->
       <header class="dashboard-header">
@@ -232,6 +252,7 @@ interface CalendarCell {
         </main>
       </div>
     </div>
+    }
   `,
   styles: [`
     .availability-dashboard {
@@ -416,7 +437,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   private readonly api = inject(TechnicianApiService);
   private readonly toast = inject(ToastService);
   private readonly masterFilter = inject(MasterFilterService);
-  
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'users.view', 'users.manage');
+
   calendarCells = signal<CalendarCell[]>([]);
   viewMode = signal<'personal' | 'team'>('personal');
   selectedTechId = signal<string>('me');

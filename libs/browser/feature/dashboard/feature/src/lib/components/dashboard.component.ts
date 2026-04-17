@@ -18,13 +18,16 @@ import {
   UiCardComponent,
   UiButtonComponent,
   UiStatCardComponent,
-  UiFeatureStatsComponent
+  UiFeatureStatsComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
   DashboardSummaryDto,
   NotificationFeedStore,
   ThemeService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 
 interface MetricCard {
@@ -63,8 +66,15 @@ interface QuickAction {
     UiStatCardComponent,
     LucideAngularModule,
     UiFeatureStatsComponent,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver el panel principal."
+        permissionHint="dashboard.view"
+      />
+    } @else {
     <div class="dashboard-wrapper animate-fade-in">
       <!-- Premium Hero Header -->
       <section class="dashboard-hero">
@@ -206,6 +216,7 @@ interface QuickAction {
         </aside>
       </div>
     </div>
+    }
   `,
   styles: [`
     .dashboard-wrapper {
@@ -365,6 +376,8 @@ export class DashboardComponent implements OnInit {
   private readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'dashboard.view');
 
   currentTheme = this.themeService.currentThemeData;
   currentDate = signal(

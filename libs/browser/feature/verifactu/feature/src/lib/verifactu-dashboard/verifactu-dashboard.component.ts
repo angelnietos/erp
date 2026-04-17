@@ -17,11 +17,17 @@ import {
   UiModalComponent,
   UiFeatureFilterBarComponent,
   UiStatCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
 import { getStoredTenantId } from '@josanz-erp/identity-data-access';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'verifactu-dashboard',
@@ -36,8 +42,15 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
     UiFeatureFilterBarComponent,
     UiStatCardComponent,
     UiModalComponent,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver VeriFactu."
+        permissionHint="verifactu.view"
+      />
+    } @else {
     <div
       class="page-container animate-fade-in"
       [class.high-perf]="pluginStore.highPerformanceMode()"
@@ -281,6 +294,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         >
       </div>
     </ui-modal>
+    }
   `,
   styles: [
     `
@@ -571,6 +585,12 @@ export class VerifactuDashboardComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(
+    this.authStore,
+    'verifactu.view',
+    'invoices.submit',
+  );
 
   currentTheme = this.themeService.currentThemeData;
   tenantId = signal('');

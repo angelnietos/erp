@@ -24,6 +24,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
   UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -32,6 +33,8 @@ import {
   FilterableService,
   AIFormBridgeService,
   ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import {
@@ -67,8 +70,15 @@ interface RentalFormData extends Partial<Rental> {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
   ],
   template: `
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver alquileres."
+        permissionHint="rentals.view"
+      />
+    } @else {
     <div class="rentals-container">
       <ui-feature-header
         title="Alquileres"
@@ -564,6 +574,7 @@ interface RentalFormData extends Partial<Rental> {
         >
       </div>
     </ui-modal>
+    }
   `,
   styles: [
     `
@@ -937,6 +948,13 @@ export class RentalsListComponent
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(
+    this.authStore,
+    'rentals.view',
+    'rentals.manage',
+    'rentals.approve',
+  );
 
   // Signals for UI state
   isModalOpen = signal(false);
