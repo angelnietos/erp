@@ -16,6 +16,11 @@ import {
   User as UserApi,
 } from '@josanz-erp/identity-api';
 import {
+  DEFAULT_TENANT_MODULE_IDS,
+  filterPermissionsToEnabledModules,
+  normalizeTenantModuleIds,
+} from '@josanz-erp/identity-api';
+import {
   PrismaService,
   TenantContext,
 } from '@josanz-erp/shared-infrastructure';
@@ -23,6 +28,7 @@ import {
   CreateUserDto,
   UpdateUserDto,
 } from '../dtos/user.dtos';
+import { TenantIdentityNotifierService } from './tenant-identity-notifier.service';
 
 @Injectable()
 export class UsersService {
@@ -31,6 +37,7 @@ export class UsersService {
     private readonly userRepository: UserRepositoryPort,
     private readonly prisma: PrismaService,
     private readonly cls: ClsService<TenantContext>,
+    private readonly identityNotifier: TenantIdentityNotifierService,
   ) {}
 
   private requireTenantId(): string {
@@ -41,6 +48,32 @@ export class UsersService {
       );
     }
     return tenantId;
+  }
+
+  private async resolveTenantEnabledModules(tenantId: string): Promise<string[]> {
+    const t = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { enabledModuleIds: true },
+    });
+    const raw = t?.enabledModuleIds;
+    if (raw && raw.length > 0) {
+      return normalizeTenantModuleIds(raw);
+    }
+    return [...DEFAULT_TENANT_MODULE_IDS];
+  }
+
+  private mergePermissionSets(
+    filteredRoles: string[],
+    rolePermissionsMap: Map<string, string[]>,
+    extraPermissions: string[],
+  ): string[] {
+    const allPerms = new Set<string>();
+    filteredRoles.forEach((roleName) => {
+      const perms = rolePermissionsMap.get(roleName) || [];
+      perms.forEach((p) => allPerms.add(p));
+    });
+    extraPermissions.forEach((p) => allPerms.add(p));
+    return Array.from(allPerms);
   }
 
   async findAll(): Promise<UserApi[]> {
@@ -60,12 +93,11 @@ export class UsersService {
 
     return users.map((user) => {
       const filteredRoles = user.roles.filter((r) => tenantRoleNames.has(r));
-
-      const allPerms = new Set<string>();
-      filteredRoles.forEach((roleName) => {
-        const perms = rolePermissionsMap.get(roleName) || [];
-        perms.forEach((p) => allPerms.add(p));
-      });
+      const permissions = this.mergePermissionSets(
+        filteredRoles,
+        rolePermissionsMap,
+        user.extraPermissions ?? [],
+      );
 
       return {
         id: user.id.value,
@@ -74,7 +106,8 @@ export class UsersService {
         lastName: user.lastName,
         isActive: user.isActive,
         roles: filteredRoles,
-        permissions: Array.from(allPerms),
+        permissions,
+        extraPermissions: user.extraPermissions ?? [],
         category: user.category,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt?.toISOString(),
@@ -97,8 +130,13 @@ export class UsersService {
       select: { name: true, permissions: true },
     });
 
+    const rolePermissionsMap = new Map(rolesData.map((r) => [r.name, r.permissions]));
     const filteredRoles = rolesData.map((r) => r.name);
-    const permissions = Array.from(new Set(rolesData.flatMap((r) => r.permissions)));
+    const permissions = this.mergePermissionSets(
+      filteredRoles,
+      rolePermissionsMap,
+      user.extraPermissions ?? [],
+    );
 
     return {
       id: user.id.value,
@@ -108,6 +146,7 @@ export class UsersService {
       isActive: user.isActive,
       roles: filteredRoles,
       permissions,
+      extraPermissions: user.extraPermissions ?? [],
       category: user.category,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt?.toISOString(),
@@ -115,11 +154,23 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto): Promise<UserApi> {
-    // Check if email already exists
+    const tenantId = this.requireTenantId();
     const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
       throw new BadRequestException('Email already exists');
     }
+
+    const tenantRoles = await this.prisma.role.findMany({
+      where: { tenantId },
+      select: { name: true },
+    });
+    const allowed = new Set(tenantRoles.map((r) => r.name));
+    const roles = (dto.roles || []).filter((n) => allowed.has(n));
+
+    const mods = await this.resolveTenantEnabledModules(tenantId);
+    const extraPermissions = dto.extraPermissions?.length
+      ? filterPermissionsToEnabledModules(dto.extraPermissions, mods)
+      : [];
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = User.create({
@@ -127,32 +178,24 @@ export class UsersService {
       passwordHash: hashedPassword,
       firstName: dto.firstName,
       lastName: dto.lastName,
-      roles: dto.roles,
+      roles,
+      extraPermissions,
       category: dto.category,
     });
 
     await this.userRepository.save(user);
+    this.identityNotifier.notifyIdentityUpdated(tenantId);
 
-    return {
-      id: user.id.value,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isActive: user.isActive,
-      roles: user.roles,
-      permissions: [],
-      category: user.category,
-      createdAt: user.createdAt.toISOString(),
-    };
+    return this.findById(user.id.value);
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<UserApi> {
+    const tenantId = this.requireTenantId();
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Check email uniqueness if email is being changed
     if (dto.email && dto.email !== user.email) {
       const existingUser = await this.userRepository.findByEmail(dto.email);
       if (existingUser) {
@@ -160,46 +203,46 @@ export class UsersService {
       }
     }
 
-    // Update user entity
     user.updateProfile(dto.firstName, dto.lastName, dto.category);
 
-    // Update email if provided
     if (dto.email) {
-      (user as any).props.email = dto.email;
+      user.updateEmail(dto.email);
     }
 
-    // Update roles if provided
     if (dto.roles) {
-      (user as any).props.roles = dto.roles;
+      const tenantRoles = await this.prisma.role.findMany({
+        where: { tenantId },
+        select: { name: true },
+      });
+      const allowed = new Set(tenantRoles.map((r) => r.name));
+      user.setRoles(dto.roles.filter((n) => allowed.has(n)));
     }
 
-    // Update active status if provided
+    if (dto.extraPermissions !== undefined) {
+      const mods = await this.resolveTenantEnabledModules(tenantId);
+      user.setExtraPermissions(
+        filterPermissionsToEnabledModules(dto.extraPermissions, mods),
+      );
+    }
+
     if (dto.isActive !== undefined) {
-      (user as any).props.isActive = dto.isActive;
+      user.setIsActive(dto.isActive);
     }
 
     await this.userRepository.save(user);
+    this.identityNotifier.notifyIdentityUpdated(tenantId);
 
-    return {
-      id: user.id.value,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isActive: user.isActive,
-      roles: user.roles,
-      permissions: [],
-      category: user.category,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt?.toISOString(),
-    };
+    return this.findById(id);
   }
 
   async delete(id: string): Promise<void> {
+    const tenantId = this.requireTenantId();
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     await this.userRepository.delete(id);
+    this.identityNotifier.notifyIdentityUpdated(tenantId);
   }
 }

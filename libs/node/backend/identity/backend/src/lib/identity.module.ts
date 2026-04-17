@@ -15,6 +15,7 @@ import { UsersService } from './application/services/users.service';
 import { RolesService } from './application/services/roles.service';
 import { TenantModulesService } from './application/services/tenant-modules.service';
 import { TenantModulesNotifierService } from './application/services/tenant-modules-notifier.service';
+import { TenantIdentityNotifierService } from './application/services/tenant-identity-notifier.service';
 import { TenantModulesRealtimeGateway } from './infrastructure/realtime/tenant-modules-realtime.gateway';
 import { PlatformOwnerGuard } from './presentation/guards/platform-owner.guard';
 import { PlatformJwtGuard } from './presentation/guards/platform-jwt.guard';
@@ -62,6 +63,7 @@ export class IdentityModule {
         RolesService,
         TenantModulesService,
         TenantModulesNotifierService,
+        TenantIdentityNotifierService,
         TenantModulesRealtimeGateway,
         PlatformOwnerGuard,
         PlatformJwtGuard,

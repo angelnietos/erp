@@ -69,15 +69,11 @@ export class AuthService {
       throw new UnauthorizedException('User is deactivated');
     }
 
-    const rolesData = await this.prisma.role.findMany({
-      where: {
-        tenantId,
-        name: { in: user.roles },
-      },
-      select: { permissions: true },
-    });
-
-    const permissions = Array.from(new Set(rolesData.flatMap((r) => r.permissions)));
+    const permissions = await this.mergeEffectivePermissions(
+      tenantId,
+      user.roles,
+      user.extraPermissions ?? [],
+    );
 
     const payload = {
       sub: user.id.value,
@@ -96,6 +92,7 @@ export class AuthService {
         lastName: user.lastName,
         roles: user.roles,
         permissions,
+        extraPermissions: user.extraPermissions,
       },
       tenantId,
     };
@@ -214,15 +211,11 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const rolesData = await this.prisma.role.findMany({
-      where: {
-        tenantId: effectiveTenantId,
-        name: { in: user.roles },
-      },
-      select: { permissions: true },
-    });
-
-    const permissions = Array.from(new Set(rolesData.flatMap((r) => r.permissions)));
+    const permissions = await this.mergeEffectivePermissions(
+      effectiveTenantId,
+      user.roles,
+      user.extraPermissions ?? [],
+    );
 
     const payload = {
       sub: user.id.value,
@@ -241,8 +234,22 @@ export class AuthService {
         lastName: user.lastName,
         roles: user.roles,
         permissions,
+        extraPermissions: user.extraPermissions,
       },
       tenantId: effectiveTenantId,
     };
+  }
+
+  private async mergeEffectivePermissions(
+    tenantId: string,
+    roleNames: string[],
+    extraPermissions: string[],
+  ): Promise<string[]> {
+    const rolesData = await this.prisma.role.findMany({
+      where: { tenantId, name: { in: roleNames } },
+      select: { permissions: true },
+    });
+    const fromRoles = rolesData.flatMap((r) => r.permissions);
+    return Array.from(new Set([...fromRoles, ...extraPermissions]));
   }
 }

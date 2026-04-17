@@ -15,6 +15,8 @@ export interface UserPayload {
   lastName?: string;
   roles: string[];
   permissions: string[];
+  /** Permisos asignados al usuario además de los de sus roles (se fusionan en el JWT). */
+  extraPermissions?: string[];
   category?: string;
 }
 
@@ -26,6 +28,7 @@ export interface User {
   isActive: boolean;
   roles: string[];
   permissions: string[];
+  extraPermissions?: string[];
   category?: string;
   createdAt: string;
   updatedAt?: string;
@@ -52,6 +55,7 @@ export interface CreateUserDto {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  extraPermissions?: string[];
   category?: string;
 }
 
@@ -60,6 +64,7 @@ export interface UpdateUserDto {
   firstName?: string;
   lastName?: string;
   roles?: string[];
+  extraPermissions?: string[];
   category?: string;
   isActive?: boolean;
 }

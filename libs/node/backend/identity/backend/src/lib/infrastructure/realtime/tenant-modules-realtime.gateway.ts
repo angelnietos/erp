@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { TenantModulesNotifierService } from '../../application/services/tenant-modules-notifier.service';
+import { TenantIdentityNotifierService } from '../../application/services/tenant-identity-notifier.service';
 
 interface JwtPayload {
   sub?: string;
@@ -18,7 +19,8 @@ interface JwtPayload {
 
 /**
  * Namespace `/realtime` — los clientes ERP se unen a la sala `tenant:<uuid>` tras autenticar.
- * Evento: `tenant.modules.updated` { tenantId, enabledModuleIds }.
+ * Eventos: `tenant.modules.updated` { tenantId, enabledModuleIds };
+ * `tenant.identity.updated` { tenantId } (roles / usuarios / permisos).
  */
 @WebSocketGateway({
   namespace: '/realtime',
@@ -38,6 +40,7 @@ export class TenantModulesRealtimeGateway
   constructor(
     private readonly jwtService: JwtService,
     private readonly notifier: TenantModulesNotifierService,
+    private readonly identityNotifier: TenantIdentityNotifierService,
   ) {}
 
   onModuleInit(): void {
@@ -46,10 +49,16 @@ export class TenantModulesRealtimeGateway
         ?.to(`tenant:${tenantId}`)
         .emit('tenant.modules.updated', { tenantId, enabledModuleIds });
     });
+    this.identityNotifier.setBroadcaster((tenantId) => {
+      this.server
+        ?.to(`tenant:${tenantId}`)
+        .emit('tenant.identity.updated', { tenantId });
+    });
   }
 
   onModuleDestroy(): void {
     this.notifier.setBroadcaster(null);
+    this.identityNotifier.setBroadcaster(null);
   }
 
   handleConnection(client: Socket): void {

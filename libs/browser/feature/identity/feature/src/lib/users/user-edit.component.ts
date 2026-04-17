@@ -3,6 +3,7 @@ import {
   OnInit,
   inject,
   signal,
+  computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -14,9 +15,14 @@ import {
   UiLoaderComponent,
   UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { UsersService } from '@josanz-erp/identity-data-access';
+import {
+  UsersService,
+  RolesService,
+  Role,
+} from '@josanz-erp/identity-data-access';
 import { User, UpdateUserDto } from '@josanz-erp/identity-api';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'lib-user-edit',
@@ -77,6 +83,48 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
             </label>
           </div>
 
+          <section class="section">
+            <h2 class="section-title">Roles del tenant</h2>
+            <p class="section-hint">Un usuario puede tener varios roles; los permisos se unen.</p>
+            <div class="role-grid">
+              @for (r of tenantRoles(); track r.id) {
+                <label class="role-pill">
+                  <input
+                    type="checkbox"
+                    [checked]="isRoleSelected(r.name)"
+                    (change)="toggleRole(r.name, $any($event.target).checked)"
+                  />
+                  <span>{{ r.name }}</span>
+                  <span class="role-type">{{ r.type }}</span>
+                </label>
+              }
+            </div>
+          </section>
+
+          <section class="section">
+            <h2 class="section-title">Permisos adicionales</h2>
+            <p class="section-hint">
+              Añade permisos puntuales fuera del alcance de los roles (p. ej. solo ver clientes).
+            </p>
+            @for (g of permissionGroups(); track g.name) {
+              <div class="perm-group">
+                <h3 class="perm-group-title">{{ g.name }}</h3>
+                <div class="perm-grid">
+                  @for (p of g.items; track p.id) {
+                    <label class="perm-row">
+                      <input
+                        type="checkbox"
+                        [checked]="draft.extraPermissions.includes(p.id)"
+                        (change)="toggleExtra(p.id, $any($event.target).checked)"
+                      />
+                      <span>{{ p.label }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </section>
+
           <div class="actions">
             <ui-button type="button" variant="ghost" routerLink="/users">Cancelar</ui-button>
             <ui-button type="submit" variant="solid" icon="save" [disabled]="saving()">
@@ -90,7 +138,7 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
   styles: [
     `
       .user-edit {
-        max-width: 560px;
+        max-width: 720px;
         margin: 0 auto;
         padding: 2rem;
       }
@@ -144,6 +192,65 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
         font-size: 0.9rem;
         cursor: pointer;
       }
+      .section {
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border-soft);
+      }
+      .section-title {
+        margin: 0 0 0.35rem;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .section-hint {
+        margin: 0 0 1rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+      .role-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .role-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-soft);
+        background: rgba(255, 255, 255, 0.02);
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      .role-type {
+        font-size: 0.65rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .perm-group {
+        margin-bottom: 1.25rem;
+      }
+      .perm-group-title {
+        margin: 0 0 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+      .perm-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .perm-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
       .actions {
         display: flex;
         justify-content: flex-end;
@@ -157,6 +264,7 @@ export class UserEditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
+  private readonly rolesApi = inject(RolesService);
   private readonly toast = inject(ToastService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
@@ -166,7 +274,31 @@ export class UserEditComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
 
-  draft: UpdateUserDto & { email?: string; isActive?: boolean } = {};
+  tenantRoles = signal<Role[]>([]);
+  private readonly permCatalog = signal<{ id: string; label: string; group: string }[]>([]);
+
+  permissionGroups = computed(() => {
+    const list = this.permCatalog().filter((p) => p.id !== '*');
+    const map = new Map<string, { id: string; label: string; group: string }[]>();
+    for (const p of list) {
+      const g = p.group || 'General';
+      if (!map.has(g)) {
+        map.set(g, []);
+      }
+      map.get(g)!.push(p);
+    }
+    return Array.from(map.entries()).map(([name, items]) => ({ name, items }));
+  });
+
+  draft: UpdateUserDto & {
+    email?: string;
+    isActive?: boolean;
+    roleNames: string[];
+    extraPermissions: string[];
+  } = {
+    roleNames: [],
+    extraPermissions: [],
+  };
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -176,14 +308,15 @@ export class UserEditComponent implements OnInit {
       return;
     }
     this.userId.set(id);
-    this.usersService.findById(id).subscribe({
-      next: (u: User) => {
-        this.draft = {
-          firstName: u.firstName,
-          lastName: u.lastName,
-          email: u.email,
-          isActive: u.isActive,
-        };
+    forkJoin({
+      user: this.usersService.findById(id),
+      roles: this.rolesApi.findAll(),
+      catalog: this.rolesApi.getPermissionsCatalog(),
+    }).subscribe({
+      next: ({ user, roles, catalog }) => {
+        this.applyUser(user);
+        this.tenantRoles.set(roles);
+        this.permCatalog.set(catalog);
         this.isLoading.set(false);
       },
       error: () => {
@@ -191,6 +324,41 @@ export class UserEditComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private applyUser(u: User): void {
+    this.draft = {
+      firstName: u.firstName,
+      lastName: u.lastName,
+      email: u.email,
+      isActive: u.isActive,
+      roleNames: [...(u.roles || [])],
+      extraPermissions: [...(u.extraPermissions || [])],
+    };
+  }
+
+  isRoleSelected(name: string): boolean {
+    return this.draft.roleNames.includes(name);
+  }
+
+  toggleRole(name: string, checked: boolean): void {
+    const set = new Set(this.draft.roleNames);
+    if (checked) {
+      set.add(name);
+    } else {
+      set.delete(name);
+    }
+    this.draft.roleNames = Array.from(set);
+  }
+
+  toggleExtra(id: string, checked: boolean): void {
+    const set = new Set(this.draft.extraPermissions);
+    if (checked) {
+      set.add(id);
+    } else {
+      set.delete(id);
+    }
+    this.draft.extraPermissions = Array.from(set);
   }
 
   save(): void {
@@ -202,6 +370,8 @@ export class UserEditComponent implements OnInit {
       lastName: this.draft.lastName,
       email: this.draft.email,
       isActive: this.draft.isActive,
+      roles: this.draft.roleNames,
+      extraPermissions: this.draft.extraPermissions,
     };
     this.usersService.update(id, body).subscribe({
       next: () => {

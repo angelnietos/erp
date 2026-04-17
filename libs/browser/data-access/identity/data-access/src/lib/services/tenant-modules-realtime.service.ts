@@ -21,6 +21,13 @@ export class TenantModulesRealtimeService {
   private socket: Socket | null = null;
   /** Último origen usado en `connect()` (tiene prioridad sobre el token inyectado). */
   private lastConnectOrigin = '';
+  /** Registrado desde `APP_INITIALIZER` para evitar dependencia circular con `AuthStore`. */
+  private identityRefresh: (() => void) | null = null;
+
+  /** Tras login, los clientes ERP deben refrescar JWT cuando cambian roles/permisos en el tenant. */
+  registerIdentityRefresh(handler: () => void): void {
+    this.identityRefresh = handler;
+  }
 
   /**
    * Conecta al namespace `/realtime` y escucha cambios de módulos del tenant actual.
@@ -62,6 +69,13 @@ export class TenantModulesRealtimeService {
         }
       },
     );
+
+    socket.on('tenant.identity.updated', (payload: { tenantId?: string }) => {
+      const tid = this.resolveCurrentTenantId();
+      if (payload?.tenantId && tid && payload.tenantId === tid) {
+        this.identityRefresh?.();
+      }
+    });
   }
 
   /**

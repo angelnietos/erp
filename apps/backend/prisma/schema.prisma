@@ -627,6 +627,8 @@ model User {
   lastName      String?        @map("last_name")
   isActive      Boolean        @default(true) @map("is_active")
   category      String?        @map("category")
+  /// Permisos adicionales fuera del alcance de los roles (merge con permisos de rol en JWT).
+  extraPermissions String[]    @default([]) @map("extra_permissions")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime?      @map("updated_at")
   roles         UserRole[]

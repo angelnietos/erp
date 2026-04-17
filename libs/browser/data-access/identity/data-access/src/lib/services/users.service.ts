@@ -33,6 +33,10 @@ export function mapApiUserPayload(raw: unknown): User {
   const permissions = Array.isArray(rawPerms)
     ? rawPerms.filter((p): p is string => typeof p === 'string')
     : [];
+  const rawExtra = r['extraPermissions'] ?? r['extra_permissions'];
+  const extraPermissions = Array.isArray(rawExtra)
+    ? rawExtra.filter((p): p is string => typeof p === 'string')
+    : [];
 
   return {
     id,
@@ -42,6 +46,7 @@ export function mapApiUserPayload(raw: unknown): User {
     isActive: isActive !== false && isActive !== 'false',
     roles,
     permissions,
+    extraPermissions,
     category,
     createdAt,
     updatedAt: updatedRaw ? String(updatedRaw) : undefined,
@@ -68,11 +73,15 @@ export class UsersService {
   }
 
   create(dto: CreateUserDto): Observable<User> {
-    return this.http.post<User>(this.apiUrl, dto);
+    return this.http
+      .post<unknown>(this.apiUrl, dto)
+      .pipe(map(mapApiUserPayload));
   }
 
   update(id: string, dto: UpdateUserDto): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, dto);
+    return this.http
+      .put<unknown>(`${this.apiUrl}/${id}`, dto)
+      .pipe(map(mapApiUserPayload));
   }
 
   delete(id: string): Observable<void> {

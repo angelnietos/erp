@@ -46,6 +46,11 @@ export class CreateUserDto implements ICreateUserDto {
   roles!: string[];
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  extraPermissions?: string[];
+
+  @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(50)
@@ -77,6 +82,11 @@ export class UpdateUserDto implements IUpdateUserDto {
   @IsArray()
   @IsString({ each: true })
   roles?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  extraPermissions?: string[];
 
   @IsOptional()
   @IsString()

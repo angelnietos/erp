@@ -12,6 +12,7 @@ import {
   authInterceptor,
   tenantInterceptor,
   AuthService,
+  AuthStore,
   TenantModulesApiService,
   TenantModulesRealtimeService,
   TENANT_MODULES_REALTIME_API_ORIGIN,
@@ -186,7 +187,11 @@ export const appConfig: ApplicationConfig = {
         const globalAuthStore = inject(GlobalAuthStore);
         const tenantModulesApi = inject(TenantModulesApiService);
         const tenantModulesRealtime = inject(TenantModulesRealtimeService);
+        const authStore = inject(AuthStore);
         const pluginStore = inject(PluginStore);
+        tenantModulesRealtime.registerIdentityRefresh(() => {
+          authStore.refreshSession();
+        });
         return async () => {
           const token = localStorage.getItem('auth_token');
           if (!token) {

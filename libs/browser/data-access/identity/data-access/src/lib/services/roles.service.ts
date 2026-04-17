@@ -14,6 +14,13 @@ export class RolesService {
     return this.http.get<Role[]>(this.apiUrl);
   }
 
+  /** Lista estática de permisos (id, label, group) para matrices / overrides por usuario. */
+  getPermissionsCatalog(): Observable<{ id: string; label: string; group: string }[]> {
+    return this.http.get<{ id: string; label: string; group: string }[]>(
+      `${this.apiUrl}/permissions`,
+    );
+  }
+
   findById(id: string): Observable<Role> {
     return this.http.get<Role>(`${this.apiUrl}/${id}`);
   }

@@ -11,10 +11,14 @@ import {
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
 } from '@josanz-erp/identity-api';
+import { TenantIdentityNotifierService } from './tenant-identity-notifier.service';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly identityNotifier: TenantIdentityNotifierService,
+  ) {}
 
   private async resolveTenantEnabledModules(tenantId: string): Promise<string[]> {
     const t = await this.prisma.tenant.findUnique({
@@ -57,13 +61,15 @@ export class RolesService {
     const mods = await this.resolveTenantEnabledModules(tenantId);
     const permissions = filterPermissionsToEnabledModules(data.permissions, mods);
 
-    return this.prisma.role.create({
+    const created = await this.prisma.role.create({
       data: {
         ...data,
         permissions,
         tenantId,
       },
     });
+    this.identityNotifier.notifyIdentityUpdated(tenantId);
+    return created;
   }
 
   async update(id: string, tenantId: string, data: { name?: string; description?: string; permissions?: string[] }) {
@@ -88,10 +94,12 @@ export class RolesService {
       };
     }
 
-    return this.prisma.role.update({
+    const updated = await this.prisma.role.update({
       where: { id },
       data: nextData,
     });
+    this.identityNotifier.notifyIdentityUpdated(tenantId);
+    return updated;
   }
 
   async delete(id: string, tenantId: string) {
@@ -100,9 +108,11 @@ export class RolesService {
       throw new ForbiddenException('El rol SuperAdmin no se puede eliminar');
     }
 
-    return this.prisma.role.delete({
+    const deleted = await this.prisma.role.delete({
       where: { id },
     });
+    this.identityNotifier.notifyIdentityUpdated(tenantId);
+    return deleted;
   }
 
   async getPermissionsList() {
