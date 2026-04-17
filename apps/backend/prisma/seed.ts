@@ -59,6 +59,79 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
 }) as unknown as PrismaWithPhase4;
 
+/**
+ * Catálogo explícito alineado con `PERMISSIONS_CATALOG` (identity).
+ * Los roles con `*` lo llevan además del comodín para que cuentas sin `*` en JWT
+ * (p. ej. copias de rol) sigan teniendo acceso granular coherente.
+ */
+const ALL_APP_PERMISSIONS: readonly string[] = [
+  'dashboard.view',
+  'users.view',
+  'users.manage',
+  'roles.manage',
+  'tenants.manage',
+  'clients.view',
+  'clients.manage',
+  'products.view',
+  'products.manage',
+  'inventory.movement',
+  'budgets.view',
+  'budgets.create',
+  'budgets.approve',
+  'invoices.view',
+  'invoices.submit',
+  'rentals.view',
+  'rentals.manage',
+  'rentals.approve',
+  'projects.view',
+  'projects.manage',
+  'fleet.view',
+  'fleet.manage',
+  'events.view',
+  'events.manage',
+  'services.view',
+  'services.manage',
+  'reports.view',
+  'audit.view',
+  'delivery.view',
+  'delivery.manage',
+  'billing.view',
+  'verifactu.view',
+  'receipts.view',
+  'ai.view',
+];
+
+function uniquePermissions(perms: readonly string[]): string[] {
+  return Array.from(new Set(perms));
+}
+
+/** `*` más todo el catálogo granular (SuperAdmin / Administrador). */
+const FULL_ACCESS_ROLE_PERMISSIONS = uniquePermissions(['*', ...ALL_APP_PERMISSIONS]);
+
+/** Sin comodín: aprobaciones y contexto de lectura. */
+const RESPONSABLE_ROLE_PERMISSIONS = uniquePermissions([
+  'dashboard.view',
+  'users.view',
+  'budgets.view',
+  'budgets.approve',
+  'rentals.view',
+  'rentals.approve',
+  'projects.view',
+  'clients.view',
+  'reports.view',
+]);
+
+/** Sin comodín: usuario operativo con navegación básica. */
+const BASIC_USER_ROLE_PERMISSIONS = uniquePermissions([
+  'dashboard.view',
+  'clients.view',
+  'products.view',
+  'budgets.create',
+  'events.view',
+  'services.view',
+  'projects.view',
+]);
+
 /** Removes demo rows for this tenant so `prisma db seed` is idempotent. */
 async function clearTenantDemoData(tenantId: string) {
   await prisma.integrationWebhookDelivery.deleteMany({ where: { tenantId } });
@@ -119,38 +192,54 @@ async function clearTenantDemoData(tenantId: string) {
 }
 
 async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
-  const saExists = await prisma.role.findFirst({ where: { tenantId, name: 'SuperAdmin' } });
-  if (!saExists) {
-    await prisma.role.create({
+  let superAdminRole = await prisma.role.findFirst({
+    where: { tenantId, name: 'SuperAdmin' },
+  });
+  if (!superAdminRole) {
+    superAdminRole = await prisma.role.create({
       data: {
         tenantId,
         name: 'SuperAdmin',
         type: 'SUPERADMIN',
-        permissions: ['*'],
+        permissions: FULL_ACCESS_ROLE_PERMISSIONS,
         description: 'Super administrador: acceso total y configuración de roles y permisos',
       },
+    });
+  } else {
+    superAdminRole = await prisma.role.update({
+      where: { id: superAdminRole.id },
+      data: { permissions: FULL_ACCESS_ROLE_PERMISSIONS },
     });
   }
 
   const isAdminTenant = tenantSlug === 'babooni';
 
   if (isAdminTenant) {
-    // Babooni Admin
-    const baExists = await prisma.role.findFirst({ where: { tenantId, name: 'Admin Babooni' } });
-    if (!baExists) {
-      await prisma.role.create({
+    const babooniPlatformPerms = uniquePermissions([
+      'tenants.manage',
+      'users.manage',
+      'dashboard.view',
+      'reports.view',
+    ]);
+    let ba = await prisma.role.findFirst({ where: { tenantId, name: 'Admin Babooni' } });
+    if (!ba) {
+      ba = await prisma.role.create({
         data: {
           tenantId,
           name: 'Admin Babooni',
           type: 'ADMIN',
-          permissions: ['tenants.manage', 'users.manage'],
+          permissions: babooniPlatformPerms,
           description: 'Administrador de la plataforma Babooni',
         },
+      });
+    } else {
+      await prisma.role.update({
+        where: { id: ba.id },
+        data: { permissions: babooniPlatformPerms },
       });
     }
   }
 
-  // Common roles for all tenants – always reset Administrador to ['*']
   let adminRole = await prisma.role.findFirst({ where: { tenantId, name: 'Administrador' } });
   if (!adminRole) {
     adminRole = await prisma.role.create({
@@ -158,41 +247,50 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
         tenantId,
         name: 'Administrador',
         type: 'ADMIN',
-        permissions: ['*'],
+        permissions: FULL_ACCESS_ROLE_PERMISSIONS,
         description: 'Control total de la empresa',
       },
     });
   } else {
-    // Always restore wildcard so the seed is idempotent
     adminRole = await prisma.role.update({
       where: { id: adminRole.id },
-      data: { permissions: ['*'] },
+      data: { permissions: FULL_ACCESS_ROLE_PERMISSIONS },
     });
   }
 
-  const respExists = await prisma.role.findFirst({ where: { tenantId, name: 'Responsable' } });
-  if (!respExists) {
-    await prisma.role.create({
+  let respRole = await prisma.role.findFirst({ where: { tenantId, name: 'Responsable' } });
+  if (!respRole) {
+    respRole = await prisma.role.create({
       data: {
         tenantId,
         name: 'Responsable',
         type: 'RESPONSIBLE',
-        permissions: ['budgets.approve', 'rentals.approve', 'users.view'],
-        description: 'Puede aprobar operaciones de usuarios',
+        permissions: RESPONSABLE_ROLE_PERMISSIONS,
+        description: 'Puede aprobar operaciones y ver contexto operativo',
       },
+    });
+  } else {
+    await prisma.role.update({
+      where: { id: respRole.id },
+      data: { permissions: RESPONSABLE_ROLE_PERMISSIONS },
     });
   }
 
-  const userExists = await prisma.role.findFirst({ where: { tenantId, name: 'Usuario' } });
-  if (!userExists) {
-    await prisma.role.create({
+  let userRole = await prisma.role.findFirst({ where: { tenantId, name: 'Usuario' } });
+  if (!userRole) {
+    userRole = await prisma.role.create({
       data: {
         tenantId,
         name: 'Usuario',
         type: 'USER',
-        permissions: ['clients.view', 'products.view', 'budgets.create'],
+        permissions: BASIC_USER_ROLE_PERMISSIONS,
         description: 'Acceso limitado a funcionalidades básicas',
       },
+    });
+  } else {
+    await prisma.role.update({
+      where: { id: userRole.id },
+      data: { permissions: BASIC_USER_ROLE_PERMISSIONS },
     });
   }
 
