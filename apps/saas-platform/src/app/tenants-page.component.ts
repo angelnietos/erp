@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
-  DEFAULT_TENANT_MODULE_IDS,
   normalizeTenantModuleIds,
+  TENANT_MODULE_IDS,
   TENANT_MODULE_LABELS_ES,
-} from '@josanz-erp/identity-api';
+} from './tenant-module-catalog';
 import { clearPlatformToken, setPlatformToken } from './platform-auth.interceptor';
 
 interface TenantRow {
@@ -186,7 +186,7 @@ export class TenantsPageComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  readonly moduleIds = [...DEFAULT_TENANT_MODULE_IDS];
+  readonly moduleIds = [...TENANT_MODULE_IDS];
   readonly tenants = signal<TenantRow[]>([]);
   /** Módulos activos por tenant (ids normalizados). */
   readonly selected = signal<Record<string, string[]>>({});

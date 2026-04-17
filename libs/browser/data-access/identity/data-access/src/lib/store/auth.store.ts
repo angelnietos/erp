@@ -65,7 +65,7 @@ export const AuthStore = signalStore(
                   id: response.user.id,
                   email: response.user.email,
                   name: displayName,
-                  tenantId: response.tenantId,
+                  tenantId: response.tenantId ?? getStoredTenantId() ?? '',
                   permissions: response.user.permissions,
                 });
 
