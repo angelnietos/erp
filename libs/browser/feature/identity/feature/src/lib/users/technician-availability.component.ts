@@ -255,7 +255,7 @@ interface CalendarCell {
                 </div>
 
                 <div class="team-board-scroll custom-scrollbar-h" tabindex="0">
-                  <div class="team-board-matrix">
+                  <div class="team-board-matrix" [style.--team-day-cols]="calendarCells().length">
                     <div class="board-header">
                       <div class="header-col persona-col sticky-col">
                         <lucide-icon name="user-circle" size="18"></lucide-icon>
@@ -530,33 +530,270 @@ interface CalendarCell {
     .today-tag { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--brand); color: #000; font-size: 0.5rem; font-weight: 950; padding: 2px 6px; border-radius: 4px; box-shadow: 0 0 10px var(--brand-glow); }
 
     /* TEAM BOARD */
-    .team-board-card { padding: 0 !important; border-radius: 20px !important; overflow: hidden; }
-    .board-header { display: flex; background: var(--bg-secondary); border-bottom: 2px solid var(--border-soft); }
-    .persona-col { width: 240px; flex-shrink: 0; padding: 1.5rem; font-weight: 900; text-transform: uppercase; color: var(--brand); font-size: 0.7rem; border-right: 1px solid var(--border-soft); }
-    .days-column-container { display: flex; overflow-x: auto; flex: 1; }
-    .day-header-col { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0; gap: 2px; }
-    .day-header-col.is-today { background: var(--brand-ambient); }
-    .day-header-col .d-n { font-size: 0.9rem; font-weight: 900; }
-    .day-header-col .d-l { font-size: 0.55rem; opacity: 0.5; font-weight: 800; }
+    .team-board-wrapper { min-width: 0; }
+    .team-board-card {
+      padding: 0 !important;
+      border-radius: 22px !important;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-sm, 0 8px 32px rgba(0, 0, 0, 0.06));
+    }
 
-    .board-row { display: flex; border-bottom: 1px solid var(--border-soft); height: 56px; transition: var(--transition-fast); }
-    .board-row:hover { background: var(--bg-secondary); }
-    .board-row.is-selected { background: var(--brand-ambient); }
-    
-    .board-tech-info { width: 240px; flex-shrink: 0; padding: 0 1.5rem; display: flex; align-items: center; gap: 0.75rem; border-right: 1px solid var(--border-soft); }
-    .mini-avatar { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: #fff; }
-    .mini-meta { display: flex; flex-direction: column; }
-    .mini-meta .n { font-size: 0.85rem; font-weight: 800; color: var(--text-primary); }
-    .mini-meta .r { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+    .team-board-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1.25rem;
+      padding: 1.35rem 1.5rem 1rem;
+      background: linear-gradient(165deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-tertiary) 88%, var(--bg-secondary)) 100%);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .team-board-toolbar__meta { min-width: 0; flex: 1; }
+    .team-board-title {
+      margin: 0.35rem 0 0.25rem;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .team-board-month {
+      display: inline;
+      font-weight: 700;
+      color: var(--brand);
+    }
+    .team-board-hint {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .team-board-legend {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 100%;
+    }
 
-    .board-cells-container { display: flex; flex: 1; overflow-x: auto; }
-    .board-day-cell { width: 44px; flex-shrink: 0; border-right: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: center; }
-    .board-day-cell.is-today { background: rgba(255,255,255,0.02); }
-    .status-marker { width: 24px; height: 6px; border-radius: 10px; background: rgba(255,255,255,0.05); }
-    .status-marker.AVAILABLE { background: var(--success); box-shadow: 0 0 6px var(--success); }
-    .status-marker.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
-    .status-marker.HOLIDAY { background: var(--info); box-shadow: 0 0 6px var(--info); }
-    .status-marker.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+    .team-board-scroll {
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    .team-board-scroll:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
+      outline-offset: 2px;
+    }
+
+    .team-board-matrix {
+      --team-day-cols: 31;
+      min-width: min(100%, calc(260px + var(--team-day-cols, 31) * 52px));
+    }
+
+    .board-header {
+      display: flex;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-soft);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .header-col.persona-col {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 260px;
+      flex-shrink: 0;
+      padding: 0.85rem 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--brand);
+      font-size: 0.65rem;
+      border-right: 1px solid var(--border-soft);
+    }
+    .header-col.persona-col lucide-icon { opacity: 0.85; }
+
+    .sticky-col {
+      position: sticky;
+      left: 0;
+      background: var(--bg-secondary);
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.06);
+    }
+    .board-header .sticky-col {
+      z-index: 5;
+    }
+    .board-tech-info.sticky-col {
+      z-index: 2;
+      background: var(--bg-tertiary);
+    }
+    .board-row.is-alt .board-tech-info.sticky-col {
+      background: color-mix(in srgb, var(--bg-tertiary) 92%, var(--bg-secondary));
+    }
+    .board-row:hover .board-tech-info.sticky-col {
+      background: var(--bg-secondary);
+    }
+    .board-row.is-selected .board-tech-info.sticky-col {
+      background: var(--brand-ambient);
+    }
+
+    .days-row {
+      display: flex;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .day-header-col {
+      width: 52px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.65rem 0.15rem;
+      gap: 3px;
+      background: var(--bg-secondary);
+    }
+    .day-header-col.is-weekend {
+      background: color-mix(in srgb, var(--text-muted) 8%, var(--bg-secondary));
+    }
+    .day-header-col.is-today {
+      background: var(--brand-ambient);
+      box-shadow: inset 0 -3px 0 var(--brand);
+    }
+    .day-header-col.is-today .d-n { color: var(--brand); }
+    .day-header-col .d-n { font-size: 0.88rem; font-weight: 900; line-height: 1; color: var(--text-primary); }
+    .day-header-col .d-l {
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: capitalize;
+      opacity: 0.55;
+      letter-spacing: 0.02em;
+    }
+    .day-header-col.is-weekend .d-l { opacity: 0.75; color: var(--text-muted); }
+
+    .board-body { background: var(--bg-tertiary); }
+
+    .board-row {
+      display: flex;
+      border-bottom: 1px solid var(--border-soft);
+      min-height: 58px;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      outline: none;
+    }
+    .board-row:last-child { border-bottom: none; }
+    .board-row.is-alt { background: color-mix(in srgb, var(--bg-secondary) 35%, var(--bg-tertiary)); }
+    .board-row:hover {
+      background: color-mix(in srgb, var(--brand) 6%, var(--bg-secondary));
+    }
+    .board-row.is-selected {
+      background: var(--brand-ambient);
+      box-shadow: inset 3px 0 0 var(--brand);
+    }
+    .board-row:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--brand);
+    }
+
+    .board-tech-info {
+      width: 260px;
+      flex-shrink: 0;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-right: 1px solid var(--border-soft);
+    }
+    .mini-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .mini-meta { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+    .mini-meta .n {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mini-meta .r {
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .board-cells-row { flex: 1; min-width: 0; }
+
+    .board-day-cell {
+      width: 52px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.35rem 0;
+    }
+    .board-day-cell.is-weekend {
+      background: color-mix(in srgb, var(--text-muted) 6%, transparent);
+    }
+    .board-day-cell.is-today {
+      background: color-mix(in srgb, var(--brand) 14%, transparent);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 35%, transparent);
+    }
+
+    .status-chip {
+      width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.12s ease;
+    }
+    .board-row:hover .status-chip { transform: scale(1.06); }
+    .status-chip.AVAILABLE {
+      background: color-mix(in srgb, var(--success) 28%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--success) 45%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 20%, transparent), 0 2px 10px color-mix(in srgb, var(--success) 35%, transparent);
+    }
+    .status-chip.UNAVAILABLE {
+      background: color-mix(in srgb, var(--danger) 26%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--danger) 28%, transparent);
+    }
+    .status-chip.HOLIDAY {
+      background: color-mix(in srgb, var(--info) 28%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--info) 42%, transparent);
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--info) 30%, transparent);
+    }
+    .status-chip.SICK_LEAVE {
+      background: color-mix(in srgb, var(--warning) 30%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--warning) 45%, transparent);
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--warning) 28%, transparent);
+    }
+    .status-chip.default {
+      opacity: 0.35;
+    }
 
     /* UTILS */
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -871,6 +1108,18 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     const date = new Date(this.currentYear(), this.currentMonth(), day); 
     return days[date.getDay()];
+  }
+
+  /** Abreviatura de tres letras (Lun, Mar…) para cabecera del cuadrante de equipo. */
+  getDayOfWeekShort(day: number): string {
+    return this.getDayOfWeekName(day).substring(0, 3);
+  }
+
+  /** Sábado / domingo para resaltar columnas en vista equipo. */
+  isWeekend(day: number): boolean {
+    const d = new Date(this.currentYear(), this.currentMonth(), day);
+    const wd = d.getDay();
+    return wd === 0 || wd === 6;
   }
 
   private getRandomMockAvailability(day: number, techId: string, monthSeed = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
