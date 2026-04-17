@@ -1,5 +1,6 @@
 export {
   DEFAULT_TENANT_MODULE_IDS,
+  TENANT_MODULE_LABELS_ES,
   requiredModuleIdsForPermission,
   isPermissionAllowedForModules,
   filterPermissionsToEnabledModules,
@@ -33,8 +34,8 @@ export interface User {
 export interface AuthResponse {
   accessToken: string;
   user: UserPayload;
-  /** Resolved tenant UUID; store and send as x-tenant-id on subsequent API calls. */
-  tenantId: string;
+  /** Tenant cliente (UUID). Vacío en login del panel SaaS (`platform_users`). */
+  tenantId?: string;
 }
 
 // DTOs shared between Backend and Frontend (no decorators - pure types)

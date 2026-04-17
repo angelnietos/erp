@@ -14,6 +14,7 @@ import {
   AuthService,
   TenantModulesApiService,
   TenantModulesRealtimeService,
+  TENANT_MODULES_REALTIME_API_ORIGIN,
   getStoredTenantId,
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
@@ -164,6 +165,10 @@ import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: TENANT_MODULES_REALTIME_API_ORIGIN,
+      useFactory: () => environment.apiOrigin?.replace(/\/$/, '') ?? '',
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideHttpClient(

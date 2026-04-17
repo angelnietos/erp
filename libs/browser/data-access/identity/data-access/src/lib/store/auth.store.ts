@@ -5,6 +5,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
+import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { AuthResponse, UserPayload } from '@josanz-erp/identity-api';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
@@ -29,6 +30,7 @@ export const AuthStore = signalStore(
     const globalAuthStore = inject(GlobalAuthStore);
     const router = inject(Router);
     const tenantModulesApi = inject(TenantModulesApiService);
+    const tenantModulesRealtime = inject(TenantModulesRealtimeService);
     const pluginStore = inject(PluginStore);
 
     return {
@@ -53,7 +55,9 @@ export const AuthStore = signalStore(
             authService.login(email, password, tenantSlug).pipe(
               tap((response) => {
                 authService.setToken(response.accessToken);
-                authService.setTenantId(response.tenantId);
+                if (response.tenantId) {
+                  authService.setTenantId(response.tenantId);
+                }
                 patchState(store, { user: response.user, loading: false });
                 
                 const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
@@ -69,6 +73,7 @@ export const AuthStore = signalStore(
                   next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
                   error: () => pluginStore.loadFromStorage(),
                 });
+                tenantModulesRealtime.afterAccessTokenChanged();
 
                 router.navigate(['/']);
               }),
@@ -85,6 +90,7 @@ export const AuthStore = signalStore(
       ),
 
       logout() {
+        tenantModulesRealtime.disconnect();
         authService.removeToken();
         patchState(store, { user: null });
         globalAuthStore.logout();
@@ -124,6 +130,7 @@ export const AuthStore = signalStore(
               next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
               error: () => pluginStore.loadFromStorage(),
             });
+            tenantModulesRealtime.afterAccessTokenChanged();
           })
         )
       ),

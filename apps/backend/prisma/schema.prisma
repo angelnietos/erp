@@ -294,6 +294,20 @@ model Tenant {
   @@map("tenants")
 }
 
+/** Cuentas del panel SaaS (dueños del producto). No pertenecen a un tenant cliente. */
+model PlatformUser {
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique
+  password  String
+  firstName String?   @map("first_name")
+  lastName  String?   @map("last_name")
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("platform_users")
+}
+
 model TenantApiKey {
   id        String   @id @default(uuid()) @db.Uuid
   tenantId  String   @map("tenant_id") @db.Uuid

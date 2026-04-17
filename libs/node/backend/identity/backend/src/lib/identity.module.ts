@@ -9,6 +9,7 @@ import { UsersController } from './presentation/controllers/users.controller';
 import { RolesController } from './presentation/controllers/roles.controller';
 import { TenantModulesController } from './presentation/controllers/tenant-modules.controller';
 import { PlatformTenantsController } from './presentation/controllers/platform-tenants.controller';
+import { PlatformAuthController } from './presentation/controllers/platform-auth.controller';
 import { AuthService } from './application/services/auth.service';
 import { UsersService } from './application/services/users.service';
 import { RolesService } from './application/services/roles.service';
@@ -16,6 +17,7 @@ import { TenantModulesService } from './application/services/tenant-modules.serv
 import { TenantModulesNotifierService } from './application/services/tenant-modules-notifier.service';
 import { TenantModulesRealtimeGateway } from './infrastructure/realtime/tenant-modules-realtime.gateway';
 import { PlatformOwnerGuard } from './presentation/guards/platform-owner.guard';
+import { PlatformJwtGuard } from './presentation/guards/platform-jwt.guard';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
@@ -52,6 +54,7 @@ export class IdentityModule {
         RolesController,
         TenantModulesController,
         PlatformTenantsController,
+        PlatformAuthController,
       ],
       providers: [
         AuthService,
@@ -61,6 +64,7 @@ export class IdentityModule {
         TenantModulesNotifierService,
         TenantModulesRealtimeGateway,
         PlatformOwnerGuard,
+        PlatformJwtGuard,
         JwtStrategy,
         {
           provide: USER_REPOSITORY,

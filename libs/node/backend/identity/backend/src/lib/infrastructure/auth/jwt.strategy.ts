@@ -9,6 +9,8 @@ interface JwtPayload {
   roles: string[];
   permissions?: string[];
   tenantId?: string;
+  /** Panel SaaS (sin tenant cliente). */
+  kind?: string;
 }
 
 @Injectable()
@@ -36,6 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         ? payload.permissions.filter((x): x is string => typeof x === 'string')
         : [],
       tenantId: payload.tenantId,
+      kind: payload.kind,
     };
   }
 }

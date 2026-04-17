@@ -6,6 +6,10 @@ import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import { TenantContext, isTenantUuid } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
+import { PlatformLoginDto } from '../dtos/platform-login.dto';
+
+const PLATFORM_JWT_ROLES = ['PlatformOwner'] as const;
+const PLATFORM_JWT_PERMISSIONS = ['platform.tenants.manage'] as const;
 
 type AuthenticatedUserView = {
   id: string;
@@ -110,6 +114,85 @@ export class AuthService {
       };
     }
     return null;
+  }
+
+  async platformLogin(dto: PlatformLoginDto): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const email = dto.email.trim().toLowerCase();
+    const row = await this.prisma.platformUser.findUnique({
+      where: { email },
+    });
+    if (
+      !row ||
+      !(await bcrypt.compare(dto.password, row.password))
+    ) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!row.isActive) {
+      throw new UnauthorizedException('User is deactivated');
+    }
+
+    const userView: AuthenticatedUserView = {
+      id: row.id,
+      email: row.email,
+      firstName: row.firstName ?? undefined,
+      lastName: row.lastName ?? undefined,
+      roles: [...PLATFORM_JWT_ROLES],
+      permissions: [...PLATFORM_JWT_PERMISSIONS],
+    };
+
+    const payload = {
+      sub: row.id,
+      email: row.email,
+      roles: userView.roles,
+      permissions: userView.permissions,
+      kind: 'platform',
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: userView,
+      tenantId: '',
+    };
+  }
+
+  async refreshPlatformSession(userId: string): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const row = await this.prisma.platformUser.findUnique({
+      where: { id: userId },
+    });
+    if (!row || !row.isActive) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const userView: AuthenticatedUserView = {
+      id: row.id,
+      email: row.email,
+      firstName: row.firstName ?? undefined,
+      lastName: row.lastName ?? undefined,
+      roles: [...PLATFORM_JWT_ROLES],
+      permissions: [...PLATFORM_JWT_PERMISSIONS],
+    };
+
+    const payload = {
+      sub: row.id,
+      email: row.email,
+      roles: userView.roles,
+      permissions: userView.permissions,
+      kind: 'platform',
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: userView,
+      tenantId: '',
+    };
   }
 
   async refreshSession(userId: string, tenantId: string): Promise<{

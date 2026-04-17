@@ -1,9 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { clearPlatformToken } from './platform-auth.interceptor';
+import {
+  DEFAULT_TENANT_MODULE_IDS,
+  normalizeTenantModuleIds,
+  TENANT_MODULE_LABELS_ES,
+} from '@josanz-erp/identity-api';
+import { clearPlatformToken, setPlatformToken } from './platform-auth.interceptor';
 
 interface TenantRow {
   id: string;
@@ -16,7 +20,7 @@ interface TenantRow {
 @Component({
   standalone: true,
   selector: 'app-tenants-page',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   template: `
     <div class="shell">
       <header class="top">
@@ -41,13 +45,22 @@ interface TenantRow {
                 <h2>{{ t.name }}</h2>
                 <span class="slug">{{ t.slug }}</span>
               </div>
-              <label [attr.for]="'mods-' + t.id">Módulos (JSON array de ids)</label>
-              <textarea
-                [id]="'mods-' + t.id"
-                rows="4"
-                [ngModel]="draft()[t.id]"
-                (ngModelChange)="patchDraft(t.id, $event)"
-              ></textarea>
+              <p class="mods-title">Módulos contratados</p>
+              <ul class="mod-list">
+                @for (mid of moduleIds; track mid) {
+                  <li>
+                    <label class="mod-row">
+                      <input
+                        type="checkbox"
+                        [checked]="isOn(t.id, mid)"
+                        [disabled]="mid === 'dashboard'"
+                        (change)="toggle(t.id, mid)"
+                      />
+                      <span>{{ label(mid) }}</span>
+                    </label>
+                  </li>
+                }
+              </ul>
               @if (saveError()[t.id]) {
                 <p class="err small">{{ saveError()[t.id] }}</p>
               }
@@ -120,24 +133,30 @@ interface TenantRow {
       font-size: 0.8rem;
       color: #64748b;
     }
-    label {
-      display: block;
+    .mods-title {
+      margin: 0 0 0.5rem;
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: #94a3b8;
-      margin-bottom: 0.35rem;
     }
-    textarea {
-      width: 100%;
-      font-family: ui-monospace, monospace;
-      font-size: 0.8rem;
-      padding: 0.5rem 0.6rem;
-      border-radius: 0.5rem;
-      border: 1px solid #334155;
-      background: #0f172a;
-      color: #f8fafc;
-      resize: vertical;
+    .mod-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .mod-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.88rem;
+      padding: 0.25rem 0;
+    }
+    .mod-row input[disabled] + span {
+      opacity: 0.7;
     }
     button[type='button'] {
       margin-top: 0.75rem;
@@ -167,28 +186,67 @@ export class TenantsPageComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
+  readonly moduleIds = [...DEFAULT_TENANT_MODULE_IDS];
   readonly tenants = signal<TenantRow[]>([]);
-  readonly draft = signal<Record<string, string>>({});
+  /** Módulos activos por tenant (ids normalizados). */
+  readonly selected = signal<Record<string, string[]>>({});
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);
   readonly saving = signal<Record<string, boolean>>({});
   readonly saveError = signal<Record<string, string | undefined>>({});
 
-  ngOnInit(): void {
-    this.refresh();
+  label(id: string): string {
+    return TENANT_MODULE_LABELS_ES[id] ?? id;
   }
 
-  refresh(): void {
+  isOn(tenantId: string, moduleId: string): boolean {
+    return (this.selected()[tenantId] ?? []).includes(moduleId);
+  }
+
+  toggle(tenantId: string, moduleId: string): void {
+    if (moduleId === 'dashboard') {
+      return;
+    }
+    this.selected.update((m) => {
+      const prev = m[tenantId] ?? ['dashboard'];
+      const set = new Set(prev);
+      if (set.has(moduleId)) {
+        set.delete(moduleId);
+      } else {
+        set.add(moduleId);
+      }
+      if (!set.has('dashboard')) {
+        set.add('dashboard');
+      }
+      return { ...m, [tenantId]: normalizeTenantModuleIds([...set]) };
+    });
+  }
+
+  ngOnInit(): void {
+    this.http
+      .get<{ accessToken: string }>('/api/platform/auth/session')
+      .subscribe({
+        next: (r) => {
+          if (r.accessToken) {
+            setPlatformToken(r.accessToken);
+          }
+          this.loadTenants();
+        },
+        error: () => this.loadTenants(),
+      });
+  }
+
+  private loadTenants(): void {
     this.loading.set(true);
     this.loadError.set(null);
     this.http.get<TenantRow[]>('/api/platform/tenants').subscribe({
       next: (rows) => {
         this.tenants.set(rows);
-        const d: Record<string, string> = {};
+        const sel: Record<string, string[]> = {};
         for (const t of rows) {
-          d[t.id] = JSON.stringify(t.enabledModuleIds ?? [], null, 2);
+          sel[t.id] = normalizeTenantModuleIds(t.enabledModuleIds ?? []);
         }
-        this.draft.set(d);
+        this.selected.set(sel);
         this.loading.set(false);
       },
       error: () => {
@@ -198,25 +256,8 @@ export class TenantsPageComponent implements OnInit {
     });
   }
 
-  patchDraft(id: string, value: string): void {
-    this.draft.update((m) => ({ ...m, [id]: value }));
-  }
-
   save(tenantId: string): void {
-    const raw = this.draft()[tenantId];
-    let ids: string[];
-    try {
-      ids = JSON.parse(raw) as string[];
-      if (!Array.isArray(ids) || !ids.every((x) => typeof x === 'string')) {
-        throw new Error('invalid');
-      }
-    } catch {
-      this.saveError.update((m) => ({
-        ...m,
-        [tenantId]: 'JSON inválido: debe ser un array de strings.',
-      }));
-      return;
-    }
+    const ids = normalizeTenantModuleIds(this.selected()[tenantId] ?? []);
     this.saveError.update((m) => ({ ...m, [tenantId]: undefined }));
     this.saving.update((m) => ({ ...m, [tenantId]: true }));
     this.http
@@ -231,9 +272,9 @@ export class TenantsPageComponent implements OnInit {
               t.id === tenantId ? { ...t, enabledModuleIds: r.enabledModuleIds } : t,
             ),
           );
-          this.draft.update((m) => ({
+          this.selected.update((m) => ({
             ...m,
-            [tenantId]: JSON.stringify(r.enabledModuleIds, null, 2),
+            [tenantId]: normalizeTenantModuleIds(r.enabledModuleIds),
           }));
           this.saving.update((m) => ({ ...m, [tenantId]: false }));
         },

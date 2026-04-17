@@ -1,6 +1,26 @@
 /**
  * Módulos ERP activables (PluginStore / rutas). Debe coincidir con la lista del cliente.
  */
+/** Etiquetas para UI (p. ej. panel SaaS). */
+export const TENANT_MODULE_LABELS_ES: Readonly<Record<string, string>> = {
+  dashboard: 'Dashboard',
+  clients: 'Clientes',
+  projects: 'Proyectos',
+  events: 'Eventos',
+  identity: 'Identidad y usuarios',
+  availability: 'Disponibilidad',
+  services: 'Servicios',
+  reports: 'Informes',
+  audit: 'Auditoría',
+  inventory: 'Inventario',
+  budgets: 'Presupuestos',
+  delivery: 'Entregas',
+  fleet: 'Flota',
+  rentals: 'Alquileres',
+  billing: 'Facturación',
+  verifactu: 'Verifactu',
+};
+
 export const DEFAULT_TENANT_MODULE_IDS: readonly string[] = [
   'dashboard',
   'clients',

@@ -314,56 +314,19 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
 
-  // 1b. SaaS platform tenant (panel dueños — rol PlatformOwner)
-  const platformTenant = await prisma.tenant.upsert({
-    where: { slug: 'josanz-platform' },
-    update: {},
-    create: {
-      name: 'Josanz Platform (SaaS)',
-      slug: 'josanz-platform',
+  // 1b. Panel SaaS (tabla `platform_users`, sin tenant cliente)
+  await prisma.platformUser.upsert({
+    where: { email: 'platform@josanz.com' },
+    update: {
+      password: hashedPassword,
+      isActive: true,
     },
-  });
-
-  let platformOwnerRole = await prisma.role.findFirst({
-    where: { tenantId: platformTenant.id, name: 'PlatformOwner' },
-  });
-  if (!platformOwnerRole) {
-    platformOwnerRole = await prisma.role.create({
-      data: {
-        tenantId: platformTenant.id,
-        name: 'PlatformOwner',
-        type: 'SUPERADMIN',
-        permissions: ['platform.tenants.manage'],
-        description: 'Gestión global de tenants y módulos (panel SaaS)',
-      },
-    });
-  } else {
-    await prisma.role.update({
-      where: { id: platformOwnerRole.id },
-      data: { permissions: ['platform.tenants.manage'] },
-    });
-  }
-
-  const platformUser = await prisma.user.upsert({
-    where: {
-      tenantId_email: {
-        tenantId: platformTenant.id,
-        email: 'platform@josanz.com',
-      },
-    },
-    update: { password: hashedPassword },
     create: {
-      tenantId: platformTenant.id,
       email: 'platform@josanz.com',
       password: hashedPassword,
       firstName: 'Platform',
       lastName: 'Owner',
     },
-  });
-
-  await prisma.userRole.deleteMany({ where: { userId: platformUser.id } });
-  await prisma.userRole.create({
-    data: { userId: platformUser.id, roleId: platformOwnerRole.id },
   });
 
   // 2. Main Demo Tenant (Josanz)

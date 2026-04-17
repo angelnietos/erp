@@ -1,7 +1,7 @@
 {
   "name": "identity-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/identity/api/src",
+  "sourceRoot": "libs/isomorphic/api/identity/api/src",
   "projectType": "library",
   "tags": [
     "scope:identity",
@@ -14,12 +14,9 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/libs/identity/api",
-        "main": "libs/identity/api/src/index.ts",
-        "tsConfig": "libs/identity/api/tsconfig.lib.json",
-        "assets": [
-          "libs/identity/api/*.md"
-        ]
+        "outputPath": "dist/libs/isomorphic/api/identity/api",
+        "main": "libs/isomorphic/api/identity/api/src/index.ts",
+        "tsConfig": "libs/isomorphic/api/identity/api/tsconfig.lib.json"
       }
     },
     "test": {
@@ -28,7 +25,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/identity/api/jest.config.cts"
+        "jestConfig": "libs/isomorphic/api/identity/api/jest.config.cts"
       }
     }
   }

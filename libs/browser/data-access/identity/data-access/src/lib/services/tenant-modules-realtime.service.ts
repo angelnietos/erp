@@ -1,14 +1,26 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, InjectionToken } from '@angular/core';
 import { io, type Socket } from 'socket.io-client';
 import { PluginStore } from '@josanz-erp/shared-data-access';
 import { AuthService } from './auth.service';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
+/**
+ * Origen del API (p. ej. `http://localhost:3000`) para reconectar tras refresh de token.
+ * Proporcionar desde `app.config` con el mismo valor que `environment.apiOrigin`.
+ */
+export const TENANT_MODULES_REALTIME_API_ORIGIN = new InjectionToken<string>(
+  'TENANT_MODULES_REALTIME_API_ORIGIN',
+  { factory: () => '' },
+);
+
 @Injectable({ providedIn: 'root' })
 export class TenantModulesRealtimeService {
   private readonly auth = inject(AuthService);
   private readonly plugins = inject(PluginStore);
+  private readonly defaultApiOrigin = inject(TENANT_MODULES_REALTIME_API_ORIGIN);
   private socket: Socket | null = null;
+  /** Último origen usado en `connect()` (tiene prioridad sobre el token inyectado). */
+  private lastConnectOrigin = '';
 
   /**
    * Conecta al namespace `/realtime` y escucha cambios de módulos del tenant actual.
@@ -16,10 +28,11 @@ export class TenantModulesRealtimeService {
    */
   connect(apiOrigin: string): void {
     this.disconnect();
-    const base = apiOrigin?.replace(/\/$/, '').trim();
+    const base = this.normalizeOrigin(apiOrigin);
     if (!base) {
       return;
     }
+    this.lastConnectOrigin = base;
     const token = this.auth.getToken();
     if (!token) {
       return;
@@ -32,15 +45,7 @@ export class TenantModulesRealtimeService {
     this.socket = socket;
 
     socket.on('connect', () => {
-      socket.emit(
-        'authenticate',
-        { token },
-        (ack: { ok?: boolean; error?: string } | undefined) => {
-          if (!ack?.ok) {
-            console.warn('[tenant-modules-realtime] auth failed', ack?.error);
-          }
-        },
-      );
+      this.emitAuthenticate(socket);
     });
 
     socket.on(
@@ -57,10 +62,22 @@ export class TenantModulesRealtimeService {
         }
       },
     );
+  }
 
-    socket.on('disconnect', () => {
-      /* noop */
-    });
+  /**
+   * Tras login o `refreshSession`, reenvía el JWT al socket o reconecta si hace falta.
+   */
+  afterAccessTokenChanged(): void {
+    const base = this.lastConnectOrigin || this.normalizeOrigin(this.defaultApiOrigin);
+    const token = this.auth.getToken();
+    if (!base || !token) {
+      return;
+    }
+    if (this.socket?.connected) {
+      this.emitAuthenticate(this.socket);
+      return;
+    }
+    this.connect(base);
   }
 
   disconnect(): void {
@@ -69,5 +86,25 @@ export class TenantModulesRealtimeService {
       this.socket.disconnect();
       this.socket = null;
     }
+  }
+
+  private normalizeOrigin(origin: string): string {
+    return origin?.replace(/\/$/, '').trim() ?? '';
+  }
+
+  private emitAuthenticate(socket: Socket): void {
+    const token = this.auth.getToken();
+    if (!token) {
+      return;
+    }
+    socket.emit(
+      'authenticate',
+      { token },
+      (ack: { ok?: boolean; error?: string } | undefined) => {
+        if (!ack?.ok) {
+          console.warn('[tenant-modules-realtime] auth failed', ack?.error);
+        }
+      },
+    );
   }
 }

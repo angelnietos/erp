@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-/** JWT must include this role name (seed: tenant `josanz-platform`, rol `PlatformOwner`). */
+/** JWT debe incluir el rol `PlatformOwner` (cuenta en tabla `platform_users`, panel SaaS). */
 export const PLATFORM_OWNER_ROLE = 'PlatformOwner';
 
 @Injectable()

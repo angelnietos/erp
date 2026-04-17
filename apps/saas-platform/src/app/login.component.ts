@@ -36,9 +36,9 @@ import { setPlatformToken } from './platform-auth.interceptor';
           Entrar
         </button>
         <p class="hint">
-          Usuario seed: <code>platform&#64;josanz.com</code> · tenant
-          <code>josanz-platform</code> (misma contraseña que el seed:
-          Admin123!)
+          Cuenta en <code>platform_users</code> (seed):
+          <code>platform&#64;josanz.com</code> · contraseña típica del seed:
+          Admin123!
         </p>
       </div>
     </div>
@@ -137,10 +137,9 @@ export class LoginComponent {
     this.error.set(null);
     this.loading.set(true);
     this.http
-      .post<{ accessToken: string }>('/api/auth/login', {
+      .post<{ accessToken: string }>('/api/platform/auth/login', {
         email: this.email,
         password: this.password,
-        tenantSlug: 'josanz-platform',
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({

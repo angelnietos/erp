@@ -17,7 +17,10 @@ export {
 } from './lib/interceptors/tenant.interceptor';
 // Tenant modules (persistidos por tenant en backend)
 export { TenantModulesApiService } from './lib/services/tenant-modules-api.service';
-export { TenantModulesRealtimeService } from './lib/services/tenant-modules-realtime.service';
+export {
+  TenantModulesRealtimeService,
+  TENANT_MODULES_REALTIME_API_ORIGIN,
+} from './lib/services/tenant-modules-realtime.service';
 
 // Roles
 export { RolesService } from './lib/services/roles.service';
