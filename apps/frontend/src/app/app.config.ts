@@ -13,6 +13,7 @@ import {
   tenantInterceptor,
   AuthService,
   TenantModulesApiService,
+  TenantModulesRealtimeService,
   getStoredTenantId,
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
@@ -159,6 +160,7 @@ import {
   ShieldAlert,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -178,6 +180,7 @@ export const appConfig: ApplicationConfig = {
         const authService = inject(AuthService);
         const globalAuthStore = inject(GlobalAuthStore);
         const tenantModulesApi = inject(TenantModulesApiService);
+        const tenantModulesRealtime = inject(TenantModulesRealtimeService);
         const pluginStore = inject(PluginStore);
         return async () => {
           const token = localStorage.getItem('auth_token');
@@ -211,6 +214,9 @@ export const appConfig: ApplicationConfig = {
                     return of(null);
                   })
                 )
+              );
+              tenantModulesRealtime.connect(
+                environment.apiOrigin?.replace(/\/$/, '') ?? '',
               );
             } else {
               pluginStore.loadFromStorage();

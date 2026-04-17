@@ -5,10 +5,14 @@ import {
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
 } from '@josanz-erp/identity-api';
+import { TenantModulesNotifierService } from './tenant-modules-notifier.service';
 
 @Injectable()
 export class TenantModulesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifier: TenantModulesNotifierService,
+  ) {}
 
   private effectiveModuleIds(
     raw: string[] | null | undefined,
@@ -42,6 +46,8 @@ export class TenantModulesService {
     });
 
     await this.stripRolePermissionsForDisabledModules(tenantId, next);
+
+    this.notifier.notifyModulesUpdated(tenantId, next);
 
     return { enabledModuleIds: next };
   }

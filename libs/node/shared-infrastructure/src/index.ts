@@ -2,6 +2,7 @@ export * from './lib/shared-infrastructure.module';
 export * from './lib/utils/tenant-uuid';
 export * from './lib/middleware/tenant.middleware';
 export * from './lib/decorators/public.decorator';
+export * from './lib/decorators/skip-tenant.decorator';
 export * from './lib/guards/tenant.guard';
 export * from './lib/guards/jwt-auth.guard';
 export * from './lib/prisma/prisma.module';
