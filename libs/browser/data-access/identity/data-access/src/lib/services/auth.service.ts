@@ -98,6 +98,12 @@ export class AuthService {
       roles,
       permissions,
     };
-    return { user, tenantId: getStoredTenantId() ?? '' };
+    /** Alinear localStorage con el JWT (si falta `tenant_id`, las APIs no enviaban `x-tenant-id`). */
+    const tidFromJwt =
+      typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
+    if (tidFromJwt) {
+      setStoredTenantId(tidFromJwt);
+    }
+    return { user, tenantId: getStoredTenantId() ?? tidFromJwt ?? '' };
   }
 }

@@ -16,7 +16,7 @@ import {
   CreateProjectDto,
   UpdateProjectDto,
 } from '../../application/dtos/create-project.dto';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -25,12 +25,7 @@ export class ProjectsController {
 
   @Get()
   async findAll(@Req() req: Request, @Query('clientId') clientId?: string) {
-    const r = req as unknown as {
-      tenantId?: string;
-      headers: { [key: string]: string };
-    };
-    const tenantId = r.tenantId || r.headers['x-tenant-id'];
-    return this.projectsService.getProjectsList(tenantId, clientId);
+    return this.projectsService.getProjectsList(requireRequestTenantId(req), clientId);
   }
 
   @Post()

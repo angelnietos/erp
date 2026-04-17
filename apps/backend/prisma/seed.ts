@@ -201,7 +201,11 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.outboxEvent.deleteMany({});
   await prisma.idempotencyKey.deleteMany({});
   await prisma.auditLog.deleteMany({});
-  await prisma.user.deleteMany({ where: { tenantId, email: { not: 'admin@josanz.com' } } });
+  /** Cuentas semilla que no deben borrarse al repetir `db seed`. */
+  const SEED_PROTECTED_USER_EMAILS = ['admin@josanz.com', 'root@babooni.com'] as const;
+  await prisma.user.deleteMany({
+    where: { tenantId, email: { notIn: [...SEED_PROTECTED_USER_EMAILS] } },
+  });
 }
 
 async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
@@ -1380,7 +1384,134 @@ async function main() {
   });
   console.log('- Seeded erp_receipts (demo)');
 
+  await clearTenantDemoData(babooniTenant.id);
+  await seedBabooniTenantDemo(babooniTenant.id);
+
   console.log('✅ Database seeded successfully!');
+}
+
+/**
+ * Datos demo para el tenant Babooni (listas inventario / clientes / presupuestos con filas).
+ * Idempotente: va después de `clearTenantDemoData(babooniTenant.id)`.
+ */
+async function seedBabooniTenantDemo(tenantId: string) {
+  const [clientA, clientB] = await prisma.$transaction([
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Biosstel Eventos S.L.',
+        taxId: 'B11111111',
+        email: 'hola@biosstel.demo',
+        phone: '+34 900 000 001',
+        address: 'Calle Demo 1',
+        city: 'Madrid',
+        zipCode: '28001',
+        sector: 'Corporate',
+        description: 'Cliente demo (seed Babooni)',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Contacto Demo',
+              email: 'contacto@biosstel.demo',
+              phone: '+34 611 000 001',
+              position: 'Compras',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Producciones Norte',
+        taxId: 'B22222222',
+        email: 'info@pnorte.demo',
+        phone: '+34 900 000 002',
+        sector: 'Production',
+        description: 'Segundo cliente demo Babooni',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'María Pérez',
+              email: 'maria@pnorte.demo',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+    }),
+  ]);
+
+  const productDefs: {
+    name: string;
+    sku: string;
+    stock: number;
+    price: number;
+    dailyRate: number;
+  }[] = [
+    { name: 'Micrófono inalámbrico doble', sku: 'BB-MIC-01', stock: 12, price: 450, dailyRate: 15 },
+    { name: 'Mesa digital 16 canales', sku: 'BB-MIX-01', stock: 4, price: 3200, dailyRate: 95 },
+    { name: 'Truss aluminio 3 m', sku: 'BB-TRS-01', stock: 24, price: 180, dailyRate: 8 },
+  ];
+
+  const inserted: Product[] = [];
+  for (const p of productDefs) {
+    const product = await prisma.product.create({
+      data: {
+        tenantId,
+        name: p.name,
+        sku: p.sku,
+        category: 'AV',
+        type: 'generic',
+        price: p.price,
+        dailyRate: p.dailyRate,
+        description: `Equipo demo Babooni — ${p.name}`,
+        inventory: {
+          create: {
+            totalStock: p.stock,
+            status: 'AVAILABLE',
+          },
+        },
+      },
+    });
+    inserted.push(product);
+  }
+
+  await prisma.budget.create({
+    data: {
+      tenantId,
+      clientId: clientA.id,
+      startDate: new Date('2026-05-01'),
+      endDate: new Date('2026-05-03'),
+      status: 'SENT',
+      total: 1620,
+      items: {
+        create: [
+          { productId: inserted[0].id, quantity: 2, price: 450, tax: 21 },
+          { productId: inserted[2].id, quantity: 4, price: 180, tax: 21 },
+        ],
+      },
+    },
+  });
+
+  await prisma.budget.create({
+    data: {
+      tenantId,
+      clientId: clientB.id,
+      startDate: new Date('2026-06-10'),
+      endDate: new Date('2026-06-12'),
+      status: 'DRAFT',
+      total: 6400,
+      items: {
+        create: [{ productId: inserted[1].id, quantity: 2, price: 3200, tax: 21 }],
+      },
+    },
+  });
+
+  console.log('- Babooni: clientes, productos y presupuestos demo');
 }
 
 main()

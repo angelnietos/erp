@@ -16,7 +16,7 @@ import {
   CreateServiceDto,
   UpdateServiceDto,
 } from '../../application/dtos/create-service.dto';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 
 @Controller('services')
 @UseGuards(JwtAuthGuard)
@@ -25,22 +25,12 @@ export class ServicesController {
 
   @Get()
   async findAll(@Req() req: Request, @Query('type') type?: string) {
-    const r = req as unknown as {
-      tenantId?: string;
-      headers: { [key: string]: string };
-    };
-    const tenantId = r.tenantId || r.headers['x-tenant-id'];
-    return this.servicesService.getServicesList(tenantId, type);
+    return this.servicesService.getServicesList(requireRequestTenantId(req), type);
   }
 
   @Get('active')
   async findActive(@Req() req: Request, @Query('type') type?: string) {
-    const r = req as unknown as {
-      tenantId?: string;
-      headers: { [key: string]: string };
-    };
-    const tenantId = r.tenantId || r.headers['x-tenant-id'];
-    const services = await this.servicesService.findActive(tenantId, type);
+    const services = await this.servicesService.findActive(requireRequestTenantId(req), type);
     return services.map((service) => ({
       id: service.id.value,
       tenantId: service.tenantId.value,

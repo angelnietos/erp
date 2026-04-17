@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 import { InventoryService } from '../../application/services/inventory.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
@@ -12,31 +12,26 @@ export class ProductsController {
 
   @Get()
   async findAll(@Req() req: Request) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.inventoryService.findAll(r.tenantId || r.headers['x-tenant-id'] || 'default');
+    return this.inventoryService.findAll(requireRequestTenantId(req));
   }
 
   @Get(':id')
   async findOne(@Req() req: Request, @Param('id') id: string) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.inventoryService.findOne(r.tenantId || r.headers['x-tenant-id'] || 'default', id);
+    return this.inventoryService.findOne(requireRequestTenantId(req), id);
   }
 
   @Post()
   async create(@Req() req: Request, @Body() data: AnyPayload) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.inventoryService.create(r.tenantId || r.headers['x-tenant-id'] || 'default', data);
+    return this.inventoryService.create(requireRequestTenantId(req), data);
   }
 
   @Put(':id')
   async update(@Req() req: Request, @Param('id') id: string, @Body() data: AnyPayload) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.inventoryService.update(r.tenantId || r.headers['x-tenant-id'] || 'default', id, data);
+    return this.inventoryService.update(requireRequestTenantId(req), id, data);
   }
 
   @Delete(':id')
   async delete(@Req() req: Request, @Param('id') id: string) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.inventoryService.delete(r.tenantId || r.headers['x-tenant-id'] || 'default', id);
+    return this.inventoryService.delete(requireRequestTenantId(req), id);
   }
 }

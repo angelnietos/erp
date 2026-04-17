@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Patch, Delete, UseGuards, Req } fro
 import { Request } from 'express';
 import { BudgetService } from '../../application/services/budget.service';
 import { CreateBudgetDto } from '../../application/dtos/create-budget.dto';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 
 @Controller('budgets')
 @UseGuards(JwtAuthGuard)
@@ -11,8 +11,7 @@ export class BudgetController {
 
   @Get()
   async findAll(@Req() req: Request) {
-    const r = req as unknown as { tenantId?: string, headers: { [key: string]: string } };
-    return this.budgetService.findAll(r.tenantId || r.headers['x-tenant-id']);
+    return this.budgetService.findAll(requireRequestTenantId(req));
   }
 
   @Post()

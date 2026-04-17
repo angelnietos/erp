@@ -97,9 +97,9 @@ export class BudgetService {
     return budget;
   }
 
-  async findAll(tenantId?: string): Promise<any[]> {
+  async findAll(tenantId: string): Promise<any[]> {
     const budgets = await this.prisma.budget.findMany({
-      where: tenantId && tenantId !== 'undefined' ? { tenantId } : {},
+      where: { tenantId },
       include: {
         client: true,
         items: true,

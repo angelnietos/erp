@@ -10,35 +10,26 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 import { ReceiptsService } from '../../application/services/receipts.service';
 import {
   CreateReceiptDto,
   UpdateReceiptDto,
 } from '../../application/dtos/create-receipt.dto';
 
-/** Tenant vía `x-tenant-id` (TenantGuard global). JWT opcional en despliegues con auth completa. */
+/** Tenant: `x-tenant-id` (UUID) o `tenantId` del JWT (`requireRequestTenantId`). */
 @Controller('receipts')
 export class ReceiptsController {
   constructor(private readonly receiptsService: ReceiptsService) {}
 
   @Get()
   async findAll(@Req() req: Request, @Query('status') status?: string) {
-    const r = req as unknown as {
-      tenantId?: string;
-      headers: { [key: string]: string };
-    };
-    const tenantId = r.tenantId || r.headers['x-tenant-id'];
-    return this.receiptsService.getReceiptsList(tenantId, status);
+    return this.receiptsService.getReceiptsList(requireRequestTenantId(req), status);
   }
 
   @Get('active')
   async findActive(@Req() req: Request) {
-    const r = req as unknown as {
-      tenantId?: string;
-      headers: { [key: string]: string };
-    };
-    const tenantId = r.tenantId || r.headers['x-tenant-id'];
-    const receipts = await this.receiptsService.findActive(tenantId);
+    const receipts = await this.receiptsService.findActive(requireRequestTenantId(req));
     return receipts.map(receipt => ({
       id: receipt.id.value,
       tenantId: receipt.tenantId.value,

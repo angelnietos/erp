@@ -1,5 +1,6 @@
 export * from './lib/shared-infrastructure.module';
 export * from './lib/utils/tenant-uuid';
+export * from './lib/utils/request-tenant';
 export * from './lib/middleware/tenant.middleware';
 export * from './lib/decorators/public.decorator';
 export * from './lib/decorators/skip-tenant.decorator';
