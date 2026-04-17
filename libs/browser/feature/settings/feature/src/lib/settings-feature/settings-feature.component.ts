@@ -3132,21 +3132,8 @@ interface PluginDescriptor {
         opacity: 0.8;
       }
 
-      .role-locked-notice {
-        font-size: 0.85rem;
-        color: var(--brand);
-        margin: 0 0 0.75rem;
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .permission-toggle-box.readonly-perm {
-        cursor: not-allowed;
-        pointer-events: none;
-        opacity: 0.88;
-      }
+      .role-locked-notice{font-size:.85rem;color:var(--brand);margin:0 0 .75rem;padding:.75rem 1rem;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.08)}
+      .permission-toggle-box.readonly-perm{cursor:not-allowed;pointer-events:none;opacity:.88}
 
       .permissions-matrix-container {
         padding: 2.5rem;
