@@ -1854,10 +1854,9 @@ export class ThemeService {
   }
 
   /**
-   * Tenant `babooni`: paleta inspirada en Biosstel (front-biosstel `theme.css`).
-   * Se aplica después del tema elegido por el usuario porque los tokens van en `style` inline.
-   * Si el tema activo es `babooni`, no se duplica (ya viene de `THEMES.babooni`).
-   * Con otros temas premium, se mantiene la marca Biosstel y la variante aporta acentos / `bgStyle` / etc.
+   * Tenant `babooni`: base neutra Biosstel (fondos, texto, bordes) + cromas del tema elegido.
+   * Así las variantes premium se distinguen (Aurora vs Blood Moon, etc.) sin perder el “kit” Babooni.
+   * Tema `babooni`: sin esta capa (el kit completo ya está en `THEMES.babooni`).
    */
   private applyBabooniBiosstelTenantSkinIfNeeded(
     root: HTMLElement,
@@ -1872,67 +1871,70 @@ export class ThemeService {
       return;
     }
 
-    const bio: ThemeConfig = {
-      ...baseConfig,
-      name: 'Babooni (Biosstel)',
-      primary: '#004B93',
-      secondary: '#185C80',
+    const kitNeutrals = {
       background: '#F7F7F7',
       surface: '#FFFEFE',
       text: '#080808',
       textMuted: '#646464',
       border: 'rgba(8, 8, 8, 0.1)',
-      brand: '#004B93',
-      brandGlow: 'rgba(0, 75, 147, 0.22)',
       bgSecondary: '#FFFEFE',
       bgTertiary: '#E6E6E6',
       success: '#21B158',
-      warning: '#f59e0b',
-      danger: '#EF4444',
-      info: '#5966F4',
+    } as const;
+
+    const merged: ThemeConfig = {
+      ...baseConfig,
+      ...kitNeutrals,
+      primary: baseConfig.primary,
+      secondary: baseConfig.secondary,
+      brand: baseConfig.brand,
+      brandGlow: baseConfig.brandGlow,
+      warning: baseConfig.warning,
+      danger: baseConfig.danger,
+      info: baseConfig.info,
     };
 
-    const bgTriplet = hexToRgbTriplet(bio.background).split(',').map(Number);
+    const bgTriplet = hexToRgbTriplet(merged.background).split(',').map(Number);
     const brightness =
       (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
     const isLight = brightness > 180;
     const mutedResolved = accessibleMutedColor(
-      bio.textMuted,
-      bio.text,
+      merged.textMuted,
+      merged.text,
       isLight,
     );
 
-    root.style.setProperty('--theme-primary', bio.primary);
-    root.style.setProperty('--theme-primary-rgb', hexToRgbTriplet(bio.primary));
-    root.style.setProperty('--primary', bio.primary);
-    root.style.setProperty('--primary-rgb', hexToRgbTriplet(bio.primary));
-    root.style.setProperty('--accent-rgb', hexToRgbTriplet(bio.secondary));
-    root.style.setProperty('--theme-secondary', bio.secondary);
-    root.style.setProperty('--theme-background', bio.background);
-    root.style.setProperty('--theme-surface', bio.surface);
-    root.style.setProperty('--theme-text', bio.text);
+    root.style.setProperty('--theme-primary', merged.primary);
+    root.style.setProperty('--theme-primary-rgb', hexToRgbTriplet(merged.primary));
+    root.style.setProperty('--primary', merged.primary);
+    root.style.setProperty('--primary-rgb', hexToRgbTriplet(merged.primary));
+    root.style.setProperty('--accent-rgb', hexToRgbTriplet(merged.secondary));
+    root.style.setProperty('--theme-secondary', merged.secondary);
+    root.style.setProperty('--theme-background', merged.background);
+    root.style.setProperty('--theme-surface', merged.surface);
+    root.style.setProperty('--theme-text', merged.text);
     root.style.setProperty('--theme-text-muted', mutedResolved);
-    root.style.setProperty('--theme-border', bio.border);
+    root.style.setProperty('--theme-border', merged.border);
 
-    root.style.setProperty('--brand', bio.brand);
-    root.style.setProperty('--brand-rgb', hexToRgbTriplet(bio.brand));
-    root.style.setProperty('--brand-glow', bio.brandGlow);
-    root.style.setProperty('--bg-primary', bio.background);
-    root.style.setProperty('--bg-secondary', bio.bgSecondary);
-    root.style.setProperty('--bg-tertiary', bio.bgTertiary);
-    root.style.setProperty('--text-primary', bio.text);
+    root.style.setProperty('--brand', merged.brand);
+    root.style.setProperty('--brand-rgb', hexToRgbTriplet(merged.brand));
+    root.style.setProperty('--brand-glow', merged.brandGlow);
+    root.style.setProperty('--bg-primary', merged.background);
+    root.style.setProperty('--bg-secondary', merged.bgSecondary);
+    root.style.setProperty('--bg-tertiary', merged.bgTertiary);
+    root.style.setProperty('--text-primary', merged.text);
     root.style.setProperty('--text-secondary', mutedResolved);
     root.style.setProperty('--text-muted', mutedResolved);
     root.style.setProperty('--accent-muted', mutedResolved);
-    root.style.setProperty('--border-soft', bio.border);
+    root.style.setProperty('--border-soft', merged.border);
 
-    root.style.setProperty('--surface', hexToRgba(bio.surface, 0.94));
-    const brandRgb = hexToRgbTriplet(bio.brand);
+    root.style.setProperty('--surface', hexToRgba(merged.surface, 0.94));
+    const brandRgb = hexToRgbTriplet(merged.brand);
     root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.1)`);
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.18)`);
     root.style.setProperty('--surface-opacity', '0.96');
 
-    this.applyStructuralTokens(root, variant, bio, true);
+    this.applyStructuralTokens(root, variant, merged, isLight);
   }
 
   /**
