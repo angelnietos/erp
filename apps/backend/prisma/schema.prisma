@@ -290,6 +290,7 @@ model Tenant {
   clientContacts               ClientContact[]
   eventReports                 EventReport[]
   roles                        Role[]
+  timeOffRequests              TimeOffRequest[]
 
   @@map("tenants")
 }
@@ -525,6 +526,7 @@ model Technician {
   tenant                Tenant                   @relation(fields: [tenantId], references: [id])
   events                EventTechnician[]
   availability          TechnicianAvailability[]
+  timeOffRequests       TimeOffRequest[]
   createdAt             DateTime                 @default(now()) @map("created_at")
 
   @@map("technicians")
@@ -543,6 +545,32 @@ model TechnicianAvailability {
 
   @@index([technicianId, startDate, endDate], map: "idx_technician_availability_lookup")
   @@map("technician_availability")
+}
+
+/// Solicitud de vacaciones / ausencias (pendiente hasta aprobación RRHH).
+model TimeOffRequest {
+  id               String    @id @default(uuid()) @db.Uuid
+  tenantId         String    @map("tenant_id") @db.Uuid
+  technicianId     String    @map("technician_id") @db.Uuid
+  requesterUserId  String    @map("requester_user_id") @db.Uuid
+  kind             String // VACATION | ABSENCE
+  absenceSubtype   String?   @map("absence_subtype") // sick | permit | legal (solo ABSENCE)
+  startDate        DateTime  @map("start_date") @db.Date
+  endDate          DateTime  @map("end_date") @db.Date
+  notes            String?   @db.Text
+  status           String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  decidedAt        DateTime? @map("decided_at")
+  decidedByUserId  String?   @map("decided_by_user_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+  technician  Technician @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  requester   User       @relation("TimeOffRequester", fields: [requesterUserId], references: [id])
+  decidedBy   User?      @relation("TimeOffDecider", fields: [decidedByUserId], references: [id])
+
+  @@index([tenantId, status], map: "idx_time_off_tenant_status")
+  @@index([technicianId], map: "idx_time_off_technician")
+  @@map("time_off_requests")
 }
 
 model EventTechnician {
@@ -636,6 +664,8 @@ model User {
   driver        Driver?
   damageReports DamageReport[]
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  timeOffRequestsRequested TimeOffRequest[] @relation("TimeOffRequester")
+  timeOffRequestsDecided   TimeOffRequest[] @relation("TimeOffDecider")
 
   @@unique([tenantId, email])
   @@map("users")

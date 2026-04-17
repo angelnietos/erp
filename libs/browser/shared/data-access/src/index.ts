@@ -2,6 +2,7 @@ export { GlobalAuthStore } from './lib/store/auth.store';
 export { rbacAllows } from './lib/utils/rbac';
 export * from './lib/services/theme.service';
 export * from './lib/services/technician-api.service';
+export * from './lib/services/time-off-api.service';
 export * from './lib/services/toast.service';
 export * from './lib/services/master-filter.service';
 export * from './lib/tokens/filter.tokens';

@@ -7,9 +7,12 @@ import {
   Query,
   Req,
   UnauthorizedException,
+  NotFoundException,
+  UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../shared/infrastructure/guards/jwt-auth.guard';
 import { TechniciansService } from './technicians.service';
 import {
   SetAvailabilityBodyDto,
@@ -31,6 +34,24 @@ export class TechniciansController {
   @Get()
   async findAll(@Req() req: Request) {
     return this.techniciansService.findAll(this.getTenantId(req));
+  }
+
+  /** GET /api/technicians/me — técnico vinculado al usuario JWT (requiere Bearer). */
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async findMine(@Req() req: Request) {
+    const tenantId = this.getTenantId(req);
+    const user = req['user'] as { sub?: string } | undefined;
+    if (!user?.sub) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
+    const row = await this.techniciansService.findByUserId(tenantId, user.sub);
+    if (!row) {
+      throw new NotFoundException(
+        'No hay ficha de técnico asociada a tu usuario en este tenant',
+      );
+    }
+    return row;
   }
 
   /** GET /api/technicians/:id/availability — disponibilidad de un técnico */

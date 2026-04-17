@@ -1,6 +1,5 @@
-import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import {
   TechnicianApiService,
@@ -25,6 +24,7 @@ import { Observable, of, firstValueFrom } from 'rxjs';
 
 interface Technician {
   id: string;
+  userId?: string;
   name: string;
   role: string;
   avatar?: string;
@@ -61,9 +61,17 @@ interface CalendarCell {
     <div class="availability-dashboard availability-container animate-fade-in">
       <ui-feature-header
         title="Disponibilidad técnica"
-        subtitle="Cuadrante mensual del equipo: disponible, ocupado, vacaciones o incidencia por día."
+        subtitle="Consulta el cuadrante. Los cambios de estado se gestionan solo mediante «Pedir días» y aprobación de RRHH (no edites celdas manualmente)."
         icon="calendar-days"
       />
+
+      <div class="legal-hint" role="note">
+        <lucide-icon name="shield-check" size="18"></lucide-icon>
+        <span
+          >El calendario es de <strong>solo lectura</strong>. Vacaciones y ausencias deben solicitarse con el botón
+          «Pedir días».</span
+        >
+      </div>
 
       <header class="dashboard-toolbar">
         <div class="header-actions">
@@ -80,8 +88,10 @@ interface CalendarCell {
               </button>
            </div>
 
+           @if (canManageTeam()) {
            <div class="view-toggle">
               <button 
+                type="button"
                 class="toggle-btn" 
                 [class.active]="viewMode() === 'personal'"
                 (click)="viewMode.set('personal')"
@@ -90,6 +100,7 @@ interface CalendarCell {
                 Individual
               </button>
               <button 
+                type="button"
                 class="toggle-btn" 
                 [class.active]="viewMode() === 'team'"
                 (click)="viewMode.set('team')"
@@ -98,14 +109,15 @@ interface CalendarCell {
                 Equipo
               </button>
            </div>
+           }
            
            <div class="header-actions-extra">
               <button
                 type="button"
                 class="request-days-btn"
                 [routerLink]="['/users/availability', 'request']"
-                [queryParams]="{ techId: selectedTechId() }"
-                title="Solicitar vacaciones o ausencias en bloque"
+                [queryParams]="pedirDiasQueryParams()"
+                title="Solicitar vacaciones o ausencias (flujo de aprobación)"
               >
                 <lucide-icon name="calendar-plus" size="18"></lucide-icon>
                 Pedir días
@@ -127,7 +139,7 @@ interface CalendarCell {
         <aside class="team-sidebar animate-slide-right">
           <div class="sidebar-header">
             <h3>Operarios AV</h3>
-            <ui-badge variant="info" class="count-badge">{{ technicians().length }}</ui-badge>
+            <ui-badge variant="info" class="count-badge">{{ displayedTechnicians().length }}</ui-badge>
           </div>
           <div class="sidebar-search">
             <ui-feature-filter-bar
@@ -139,7 +151,7 @@ interface CalendarCell {
             />
           </div>
           <div class="technician-list custom-scrollbar">
-            @for (tech of technicians(); track tech.id) {
+            @for (tech of displayedTechnicians(); track tech.id) {
               <button
                 type="button"
                 class="tech-card"
@@ -193,12 +205,12 @@ interface CalendarCell {
                   
                   <div class="calendar-grid">
                     @for (cell of calendarCells(); track cell.date) {
-                      <button
-                        type="button"
-                        class="calendar-cell"
+                      <div
+                        class="calendar-cell calendar-cell--readonly"
                         [class.other-month]="!cell.isCurrentMonth"
                         [class.today]="cell.isToday"
-                        (click)="toggleAvailability(cell)"
+                        role="gridcell"
+                        [attr.aria-label]="'Día ' + cell.day"
                       >
                         <span class="day-number">{{ cell.day }}</span>
 
@@ -212,7 +224,7 @@ interface CalendarCell {
                         </div>
 
                         @if (cell.isToday) { <div class="today-tag">HOY</div> }
-                      </button>
+                      </div>
                     }
                   </div>
                 </div>
@@ -222,41 +234,91 @@ interface CalendarCell {
             <!-- TEAM BOARD VIEW -->
             <div class="team-board-wrapper animate-slide-up">
               <ui-card shape="auto" class="team-board-card">
-                <div class="board-header">
-                   <div class="header-col persona-col">Equipo Josanz</div>
-                   <div class="days-column-container custom-scrollbar-h">
-                      @for (cell of calendarCells(); track cell.date) {
-                        <div class="day-header-col" [class.is-today]="cell.isToday">
-                          <span class="d-n">{{ cell.day }}</span>
-                          <span class="d-l">{{ getDayOfWeekName(cell.day).substring(0,1) }}</span>
-                        </div>
-                      }
-                   </div>
+                <div class="team-board-toolbar">
+                  <div class="team-board-toolbar__meta">
+                    <span class="label">Vista equipo</span>
+                    <h2 class="team-board-title">
+                      Cuadrante
+                      <span class="team-board-month">{{ getMonthName() }} {{ currentYear() }}</span>
+                    </h2>
+                    <p class="team-board-hint">
+                      <lucide-icon name="users" size="14"></lucide-icon>
+                      {{ displayedTechnicians().length }} operarios · desplaza horizontalmente para ver el mes
+                    </p>
+                  </div>
+                  <div class="calendar-legend team-board-legend">
+                    <div class="legend-item AVAILABLE"><span class="dot"></span><span>Disp.</span></div>
+                    <div class="legend-item UNAVAILABLE"><span class="dot"></span><span>Ocupado</span></div>
+                    <div class="legend-item HOLIDAY"><span class="dot"></span><span>Vacac.</span></div>
+                    <div class="legend-item SICK_LEAVE"><span class="dot"></span><span>Incid.</span></div>
+                  </div>
                 </div>
-                
-                <div class="board-rows custom-scrollbar">
-                   @for (tech of technicians(); track tech.id) {
-                     <div class="board-row" [class.is-selected]="selectedTechId() === tech.id">
-                        <div class="board-tech-info">
-                           <div class="mini-avatar" [style.background]="getAvatarColor(tech.name)">{{ tech.name.substring(0,1) }}</div>
-                           <div class="mini-meta">
+
+                <div class="team-board-scroll custom-scrollbar-h" tabindex="0">
+                  <div class="team-board-matrix">
+                    <div class="board-header">
+                      <div class="header-col persona-col sticky-col">
+                        <lucide-icon name="user-circle" size="18"></lucide-icon>
+                        <span>Persona</span>
+                      </div>
+                      <div class="days-row">
+                        @for (cell of calendarCells(); track cell.date) {
+                          <div
+                            class="day-header-col"
+                            [class.is-today]="cell.isToday"
+                            [class.is-weekend]="isWeekend(cell.day)"
+                          >
+                            <span class="d-n">{{ cell.day }}</span>
+                            <span class="d-l">{{ getDayOfWeekShort(cell.day) }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="board-body">
+                      @for (tech of displayedTechnicians(); track tech.id; let idx = $index) {
+                        <div
+                          class="board-row"
+                          [class.is-selected]="selectedTechId() === tech.id"
+                          [class.is-alt]="idx % 2 === 1"
+                          role="button"
+                          tabindex="0"
+                          (click)="selectedTechId.set(tech.id)"
+                          (keydown.enter)="selectedTechId.set(tech.id)"
+                          (keydown.space)="$event.preventDefault(); selectedTechId.set(tech.id)"
+                        >
+                          <div class="board-tech-info sticky-col">
+                            <div class="mini-avatar" [style.background]="getAvatarColor(tech.name)">
+                              {{ tech.name.substring(0, 1) }}
+                            </div>
+                            <div class="mini-meta">
                               <span class="n">{{ tech.name }}</span>
                               <span class="r">{{ tech.role }}</span>
-                           </div>
-                        </div>
-                        <div class="board-cells-container">
-                           @for (cell of calendarCells(); track cell.date) {
-                              <div class="board-day-cell" [class.is-today]="cell.isToday">
-                                 @if (getTechDayStatus(tech.id, cell.day); as status) {
-                                    <div class="status-marker" [class]="status" [title]="getShortLabel(status)"></div>
-                                 } @else {
-                                    <div class="status-marker default"></div>
-                                 }
+                            </div>
+                          </div>
+                          <div class="days-row board-cells-row">
+                            @for (cell of calendarCells(); track cell.date) {
+                              <div
+                                class="board-day-cell"
+                                [class.is-today]="cell.isToday"
+                                [class.is-weekend]="isWeekend(cell.day)"
+                              >
+                                @if (getTechDayStatus(tech.id, cell.day); as status) {
+                                  <div
+                                    class="status-chip"
+                                    [class]="status"
+                                    [attr.title]="getShortLabel(status) + ' · día ' + cell.day"
+                                  ></div>
+                                } @else {
+                                  <div class="status-chip default" title="Sin dato"></div>
+                                }
                               </div>
-                           }
+                            }
+                          </div>
                         </div>
-                     </div>
-                   }
+                      }
+                    </div>
+                  </div>
                 </div>
               </ui-card>
             </div>
@@ -270,6 +332,24 @@ interface CalendarCell {
     .availability-dashboard {
       display: flex; flex-direction: column; gap: 1.25rem;
       padding: 0 1rem 2rem;
+    }
+
+    .legal-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid color-mix(in srgb, var(--info) 35%, var(--border-soft));
+      background: color-mix(in srgb, var(--info) 12%, var(--bg-secondary));
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .legal-hint lucide-icon {
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      color: var(--info);
     }
 
     .dashboard-toolbar {
@@ -414,14 +494,20 @@ interface CalendarCell {
     .grid-day-label { text-align: center; color: var(--text-muted); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.1em; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; }
-    button.calendar-cell {
+    .calendar-cell {
       aspect-ratio: 1 / 1.1; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
       border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;
-      position: relative; overflow: hidden; cursor: pointer; transition: var(--transition-base);
+      position: relative; overflow: hidden; transition: var(--transition-base);
       width: 100%; font: inherit; color: inherit; text-align: left;
-      appearance: none; -webkit-appearance: none;
     }
-    .calendar-cell:hover { transform: translateY(-4px) scale(1.02); border-color: var(--brand-border-soft); background: var(--brand-ambient); z-index: 5; }
+    .calendar-cell--readonly {
+      cursor: default;
+      user-select: none;
+    }
+    .calendar-cell--readonly:hover {
+      border-color: var(--border-soft);
+      background: var(--bg-tertiary);
+    }
     .calendar-cell.today { border: 2px solid var(--brand); background: var(--brand-ambient); }
     .calendar-cell.other-month { opacity: 0.1; pointer-events: none; }
 
@@ -485,6 +571,32 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   private readonly masterFilter = inject(MasterFilterService);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'users.view', 'users.manage');
+  /** RRHH / admin: ve equipo completo y puede aprobar solicitudes. */
+  readonly canManageTeam = rbacAllows(this.authStore, 'users.manage');
+
+  /** Técnico vinculado al usuario logueado (mismo `userId`). */
+  myTechnicianId = signal<string | null>(null);
+
+  readonly displayedTechnicians = computed(() => {
+    const all = this.technicians();
+    if (this.canManageTeam()) {
+      return all;
+    }
+    const mid = this.myTechnicianId();
+    if (!mid) {
+      return all;
+    }
+    const row = all.filter((t) => t.id === mid);
+    return row.length ? row : all;
+  });
+
+  /** Solo gestores pueden preseleccionar técnico en «Pedir días». */
+  readonly pedirDiasQueryParams = computed(() => {
+    if (this.canManageTeam()) {
+      return { techId: this.selectedTechId() };
+    }
+    return {} as Record<string, string>;
+  });
 
   calendarCells = signal<CalendarCell[]>([]);
   viewMode = signal<'personal' | 'team'>('personal');
@@ -514,6 +626,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       // Cuando cambia mes/año, recargamos datos del servidor
       void this.loadMonth();
     }, { allowSignalWrites: true });
+    effect(
+      () => {
+        if (!this.canManageTeam()) {
+          this.viewMode.set('personal');
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   ngOnInit() {
@@ -527,8 +647,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Technician[]> {
     const term = query.toLowerCase();
-    const matches = this.technicians().filter((t: Technician) => 
-      t.name.toLowerCase().includes(term) || 
+    const pool = this.displayedTechnicians();
+    const matches = pool.filter((t: Technician) =>
+      t.name.toLowerCase().includes(term) ||
       t.role.toLowerCase().includes(term)
     );
     
@@ -542,7 +663,8 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
   onSearch(term: string) {
     this.masterFilter.search(term);
-    const match = this.technicians().find((t: Technician) => t.name.toLowerCase().includes(term.toLowerCase()));
+    const pool = this.displayedTechnicians();
+    const match = pool.find((t: Technician) => t.name.toLowerCase().includes(term.toLowerCase()));
     if (match) {
       this.selectedTechId.set(match.id);
     }
@@ -610,6 +732,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       // Mapear técnicos reales si existen
       const realTechs: Technician[] = (techsResponse ?? []).map((t: ApiTechnician) => ({
         id: t.id,
+        userId: t.user?.id,
         name: `${t.user?.firstName || ''} ${t.user?.lastName || ''}`.trim() || t.user?.email || 'Técnico',
         role: t.skills?.[0] || 'Personal Técnico',
         status: 'online' as const,
@@ -636,6 +759,16 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       });
 
       this.technicians.set(allTechs);
+
+      const uid = this.authStore.user()?.id;
+      let mineTechId: string | null = null;
+      if (uid) {
+        const mine = allTechs.find((x) => x.userId === uid);
+        if (mine) {
+          mineTechId = mine.id;
+        }
+      }
+      this.myTechnicianId.set(mineTechId);
 
       // Cargar disponibilidad
       const year = this.currentYear();
@@ -685,7 +818,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       }));
 
       this.teamAvailability.set(data);
-      if (!this.selectedTechId() || this.selectedTechId() === 'me') {
+      if (!this.canManageTeam() && mineTechId) {
+        this.selectedTechId.set(mineTechId);
+      } else if (!this.selectedTechId() || this.selectedTechId() === 'me') {
         this.selectedTechId.set(allTechs[0]?.id || 't1');
       }
     } catch (error) {
@@ -696,100 +831,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     }
   }
 
-  toggleAvailability(cell: CalendarCell) {
-    const currentTechId = this.selectedTechId();
-
-    const types: string[] = ['AVAILABLE', 'UNAVAILABLE', 'HOLIDAY', 'SICK_LEAVE'];
-    const currentStatus = this.getTechDayStatus(currentTechId, cell.day);
-    const currentIdx = types.indexOf(currentStatus);
-    const nextType = types[(currentIdx + 1) % types.length];
-
-    const applyOptimistic = () => {
-      this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
-        const updated = { ...prev };
-        if (!updated[currentTechId]) updated[currentTechId] = {};
-        updated[currentTechId][cell.day] = nextType;
-        return updated;
-      });
-    };
-
-    if (this.isLocalMockTechnicianId(currentTechId)) {
-      applyOptimistic();
-      this.toast.show(
-        `${this.getShortLabel(nextType)} (solo en esta vista demo; elige un técnico real para sincronizar).`,
-        'success',
-        2800
-      );
-      return;
-    }
-
-    if (!this.isPersistableTechnicianId(currentTechId)) {
-      this.toast.show(
-        'No se puede guardar en el servidor: el técnico seleccionado no tiene un id válido. Recarga o elige un técnico cargado desde el ERP.',
-        'error',
-        4500
-      );
-      return;
-    }
-
-    applyOptimistic();
-
-    this.api.setFullDayAvailability(currentTechId, cell.date, nextType).subscribe({
-      next: () => {
-        this.toast.show(`Disponibilidad guardada: ${this.getShortLabel(nextType)}`, 'success', 2000);
-      },
-      error: (err: unknown) => {
-        console.error('Error guardando disponibilidad:', err);
-        this.teamAvailability.update((prev: Record<string, Record<number, string>>) => {
-          const reverted = { ...prev };
-          if (reverted[currentTechId]) reverted[currentTechId][cell.day] = currentStatus;
-          return reverted;
-        });
-        this.toast.show(this.availabilitySaveErrorMessage(err), 'error', 5000);
-      }
-    });
-  }
-
-  private availabilitySaveErrorMessage(err: unknown): string {
-    if (err instanceof HttpErrorResponse) {
-      const body = err.error;
-      if (typeof body === 'object' && body !== null && 'message' in body) {
-        const m = (body as { message: unknown }).message;
-        if (typeof m === 'string' && m.trim()) {
-          return m;
-        }
-        if (Array.isArray(m) && m.length) {
-          return m.map(String).join(' ');
-        }
-      }
-      if (err.status === 401) {
-        return 'No autorizado: falta tenant o sesión. Cierra sesión y vuelve a entrar.';
-      }
-      if (err.status === 403) {
-        return 'Acceso denegado para este tenant.';
-      }
-      if (err.status === 404) {
-        return 'Técnico no encontrado en este tenant.';
-      }
-      if (err.status === 400) {
-        return 'Datos no válidos para el servidor. Revisa fecha y estado.';
-      }
-    }
-    return 'Error al guardar disponibilidad. Reinténtalo.';
-  }
-
   /** IDs de relleno tipo `t1`… no son UUID de Postgres: no llamar al API. */
   private isLocalMockTechnicianId(id: string): boolean {
     return /^t\d+$/i.test(id.trim());
-  }
-
-  /** `me` lo resuelve el backend; resto deben ser UUID de Postgres. */
-  private isPersistableTechnicianId(id: string): boolean {
-    const v = id.trim();
-    if (v === 'me') {
-      return true;
-    }
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
   }
 
   /** Día del mes (1–31) a partir del registro de disponibilidad del API. */

@@ -46,6 +46,11 @@ export class TechnicianApiService {
     return this.http.get<Technician[]>(this.baseUrl);
   }
 
+  /** Ficha de técnico del usuario autenticado (JWT + x-tenant-id). */
+  getMyTechnician(): Observable<Technician> {
+    return this.http.get<Technician>(`${this.baseUrl}/me`);
+  }
+
   /** Obtiene la disponibilidad de un técnico en un rango de fechas */
   getAvailability(technicianId: string, startDate?: string, endDate?: string): Observable<TechnicianAvailability[]> {
     return this.http.get<TechnicianAvailability[]>(`${this.baseUrl}/${technicianId}/availability`, {

@@ -12,6 +12,23 @@ export type BulkAvailabilityDto = BulkAvailabilityBodyDto;
 export class TechniciansService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Ficha de técnico vinculada al usuario (mismo `userId` en el tenant). */
+  async findByUserId(tenantId: string, userId: string) {
+    return this.prisma.technician.findFirst({
+      where: { tenantId, userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
   /** Devuelve todos los técnicos del tenant */
   async findAll(tenantId: string) {
     return this.prisma.technician.findMany({
