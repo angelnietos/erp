@@ -53,6 +53,19 @@ type PrismaWithPhase4 = PrismaClient & {
       skipDuplicates?: boolean;
     }): Prisma.PrismaPromise<Prisma.BatchPayload>;
   };
+  /** Modelo `PlatformUser` (panel SaaS); el delegate existe en runtime tras `prisma generate`. */
+  platformUser: {
+    upsert(args: {
+      where: { email: string };
+      update: { password: string; isActive: boolean };
+      create: {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+      };
+    }): Prisma.PrismaPromise<{ id: string; email: string }>;
+  };
 };
 
 const prisma = new PrismaClient({
