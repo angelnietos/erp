@@ -23,6 +23,7 @@ import {
 import { User, UpdateUserDto } from '@josanz-erp/identity-api';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 import { forkJoin } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'lib-user-edit',
@@ -376,11 +377,18 @@ export class UserEditComponent implements OnInit {
     this.usersService.update(id, body).subscribe({
       next: () => {
         this.toast.show('Usuario actualizado', 'success');
-        this.router.navigate(['/users', id]);
+        void this.router.navigate(['/users']);
         this.saving.set(false);
       },
-      error: () => {
-        this.toast.show('No se pudo guardar.', 'error');
+      error: (err: HttpErrorResponse) => {
+        const payload = err.error as { message?: string | string[] } | undefined;
+        const m = payload?.message;
+        const detail = Array.isArray(m)
+          ? m.join(' ')
+          : typeof m === 'string'
+            ? m
+            : err.message;
+        this.toast.show(detail || 'No se pudo guardar.', 'error');
         this.saving.set(false);
       },
     });

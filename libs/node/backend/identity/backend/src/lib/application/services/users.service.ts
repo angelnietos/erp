@@ -209,7 +209,7 @@ export class UsersService {
       user.updateEmail(dto.email);
     }
 
-    if (dto.roles) {
+    if (dto.roles !== undefined) {
       const tenantRoles = await this.prisma.role.findMany({
         where: { tenantId },
         select: { name: true },

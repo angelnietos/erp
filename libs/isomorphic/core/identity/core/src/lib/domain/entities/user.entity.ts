@@ -47,10 +47,18 @@ export class User extends AggregateRoot {
     lastName?: string,
     category?: string,
   ): void {
-    this.props.firstName = firstName;
-    this.props.lastName = lastName;
-    this.props.category = category;
-    this.props.updatedAt = new Date();
+    if (firstName !== undefined) {
+      this.props.firstName = firstName;
+    }
+    if (lastName !== undefined) {
+      this.props.lastName = lastName;
+    }
+    if (category !== undefined) {
+      this.props.category = category;
+    }
+    if (firstName !== undefined || lastName !== undefined || category !== undefined) {
+      this.props.updatedAt = new Date();
+    }
   }
 
   updateEmail(email: string): void {
