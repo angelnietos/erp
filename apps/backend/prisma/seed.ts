@@ -1480,13 +1480,13 @@ async function seedBabooniTenantDemo(tenantId: string) {
     inserted.push(product);
   }
 
-  await prisma.budget.create({
+  const budgetApprovedBabooni = await prisma.budget.create({
     data: {
       tenantId,
       clientId: clientA.id,
       startDate: new Date('2026-05-01'),
       endDate: new Date('2026-05-03'),
-      status: 'SENT',
+      status: 'APPROVED',
       total: 1620,
       items: {
         create: [
@@ -1511,7 +1511,130 @@ async function seedBabooniTenantDemo(tenantId: string) {
     },
   });
 
-  console.log('- Babooni: clientes, productos y presupuestos demo');
+  const babooniSignatureDataUrl =
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="100" viewBox="0 0 280 100"><rect fill="#ffffff" width="100%" height="100%" stroke="#94a3b8" stroke-width="1"/><path d="M24 58 Q72 28 120 52 T228 48" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><text x="140" y="86" text-anchor="middle" font-size="10" fill="#64748b" font-family="system-ui,sans-serif">Firma demo Babooni</text></svg>`,
+    );
+
+  await prisma.deliveryNote.create({
+    data: {
+      tenantId,
+      budgetId: budgetApprovedBabooni.id,
+      status: 'signed',
+      signatureBlobUrl: babooniSignatureDataUrl,
+    },
+  });
+  await prisma.deliveryNote.create({
+    data: {
+      tenantId,
+      budgetId: budgetApprovedBabooni.id,
+      status: 'pending',
+    },
+  });
+
+  const babooniDrivers = await prisma.$transaction([
+    prisma.driver.create({
+      data: {
+        tenantId,
+        name: 'Laura Méndez',
+        licenseNumber: 'BB-LIC-DRV-01',
+        licenseType: 'C',
+      },
+    }),
+    prisma.driver.create({
+      data: {
+        tenantId,
+        name: 'Pablo Ortega',
+        licenseNumber: 'BB-LIC-DRV-02',
+        licenseType: 'B',
+      },
+    }),
+  ]);
+
+  await prisma.$transaction([
+    prisma.vehicle.create({
+      data: {
+        tenantId,
+        name: 'Furgón Babooni L2',
+        plate: 'BB900AAA',
+        type: 'van',
+        capacity: 1100,
+        status: 'available',
+        location: 'Nave Babooni — Madrid',
+        nextMaintenance: new Date('2026-10-01'),
+        driverId: babooniDrivers[0].id,
+      },
+    }),
+    prisma.vehicle.create({
+      data: {
+        tenantId,
+        name: 'Camión rigging',
+        plate: 'BB900AAB',
+        type: 'truck',
+        capacity: 3200,
+        status: 'in_use',
+        location: 'En montaje — IFEMA',
+        nextMaintenance: new Date('2026-08-20'),
+        driverId: babooniDrivers[1].id,
+      },
+    }),
+    prisma.vehicle.create({
+      data: {
+        tenantId,
+        name: 'Furgoneta sonido',
+        plate: 'BB900AAC',
+        type: 'van',
+        capacity: 850,
+        status: 'maintenance',
+        location: 'Taller colaborador',
+        nextMaintenance: new Date('2026-04-22'),
+      },
+    }),
+  ]);
+
+  await prisma.rental.create({
+    data: {
+      tenantId,
+      clientId: clientA.id,
+      reference: 'BB-EXP-2026-0001',
+      startDate: new Date('2026-07-08'),
+      endDate: new Date('2026-07-10'),
+      status: 'ACTIVE',
+      pickupLocation: 'Almacén Babooni',
+      dropoffLocation: 'Palacio de Congresos',
+      totalPrice: 1890,
+      notes: 'Alquiler demo — sonido corporativo',
+      rentalItems: {
+        create: [
+          { productId: inserted[0].id, quantity: 4 },
+          { productId: inserted[2].id, quantity: 6 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId,
+      clientId: clientB.id,
+      reference: 'BB-EXP-2026-0002',
+      startDate: new Date('2026-09-01'),
+      endDate: new Date('2026-09-03'),
+      status: 'DRAFT',
+      pickupLocation: 'Almacén Babooni',
+      dropoffLocation: 'Cliente (por confirmar)',
+      totalPrice: 6400,
+      notes: 'Borrador — mesa digital + micrófonos',
+      rentalItems: {
+        create: [{ productId: inserted[1].id, quantity: 1 }],
+      },
+    },
+  });
+
+  console.log(
+    '- Babooni: clientes, productos, presupuestos, albaranes, flota y alquileres demo',
+  );
 }
 
 main()
