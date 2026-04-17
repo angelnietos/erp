@@ -62,6 +62,23 @@ export class UsersService {
     return [...DEFAULT_TENANT_MODULE_IDS];
   }
 
+  private assertStringArrayField(
+    value: unknown,
+    fieldName: string,
+  ): asserts value is string[] | undefined {
+    if (value === undefined) {
+      return;
+    }
+    if (
+      !Array.isArray(value) ||
+      !value.every((p) => typeof p === 'string')
+    ) {
+      throw new BadRequestException(
+        `${fieldName} must be an array of strings`,
+      );
+    }
+  }
+
   private mergePermissionSets(
     filteredRoles: string[],
     rolePermissionsMap: Map<string, string[]>,
@@ -155,6 +172,7 @@ export class UsersService {
 
   async create(dto: CreateUserDto): Promise<UserApi> {
     const tenantId = this.requireTenantId();
+    this.assertStringArrayField(dto.extraPermissions, 'extraPermissions');
     const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
       throw new BadRequestException('Email already exists');
@@ -191,6 +209,7 @@ export class UsersService {
 
   async update(id: string, dto: UpdateUserDto): Promise<UserApi> {
     const tenantId = this.requireTenantId();
+    this.assertStringArrayField(dto.extraPermissions, 'extraPermissions');
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');

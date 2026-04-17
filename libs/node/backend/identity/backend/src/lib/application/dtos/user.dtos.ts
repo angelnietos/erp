@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
+  Allow,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -48,9 +49,8 @@ export class CreateUserDto implements ICreateUserDto {
   @IsString({ each: true })
   roles!: string[];
 
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  /** `@Allow()` asegura whitelist con `forbidNonWhitelisted` (p. ej. metadatos con arrays opcionales). */
+  @Allow()
   extraPermissions?: string[];
 
   @IsOptional()
@@ -90,9 +90,7 @@ export class UpdateUserDto implements IUpdateUserDto {
   @IsString({ each: true })
   roles?: string[];
 
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  @Allow()
   extraPermissions?: string[];
 
   @IsOptional()
