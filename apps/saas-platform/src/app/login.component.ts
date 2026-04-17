@@ -11,20 +11,32 @@ import { setPlatformToken } from './platform-auth.interceptor';
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="login-wrap">
+    <div class="login-shell">
+      <div class="login-glow login-glow--a"></div>
+      <div class="login-glow login-glow--b"></div>
       <div class="login-card">
-        <h1>JOSANZ Platform</h1>
-        <p class="sub">Panel de administración SaaS (dueños del producto)</p>
-        <label for="pf-email">Email</label>
+        <div class="brand">
+          <span class="brand-mark">JOSANZ</span>
+          <span class="brand-sub">PLATFORM</span>
+        </div>
+        <p class="eyebrow">Acceso</p>
+        <h1 class="title">Panel SaaS</h1>
+        <p class="lede">
+          Administración para dueños del producto (tenants y módulos).
+        </p>
+
+        <label class="field-label" for="pf-email">Email</label>
         <input
           id="pf-email"
+          class="field-input"
           type="email"
           [(ngModel)]="email"
           autocomplete="username"
         />
-        <label for="pf-password">Contraseña</label>
+        <label class="field-label" for="pf-password">Contraseña</label>
         <input
           id="pf-password"
+          class="field-input"
           type="password"
           [(ngModel)]="password"
           autocomplete="current-password"
@@ -32,8 +44,8 @@ import { setPlatformToken } from './platform-auth.interceptor';
         @if (error()) {
           <p class="err">{{ error() }}</p>
         }
-        <button type="button" [disabled]="loading()" (click)="submit()">
-          Entrar
+        <button type="button" class="btn-submit" [disabled]="loading()" (click)="submit()">
+          {{ loading() ? 'Entrando…' : 'Entrar' }}
         </button>
         <p class="hint">
           Cuenta en <code>platform_users</code> (seed):
@@ -44,83 +56,208 @@ import { setPlatformToken } from './platform-auth.interceptor';
     </div>
   `,
   styles: `
-    .login-wrap {
+    :host {
+      --bg0: #06070b;
+      --bg1: #0c0e14;
+      --line: rgba(255, 255, 255, 0.08);
+      --muted: rgba(232, 234, 239, 0.55);
+      --text: #e8eaef;
+      --accent: #e60012;
+      --accent-dim: #9a0010;
+      --gold: #c9a227;
+      display: block;
+      min-height: 100vh;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(230, 0, 18, 0.12), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(201, 162, 39, 0.08), transparent 50%),
+        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 40%, #0a0b10 100%);
+    }
+
+    .login-shell {
+      position: relative;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(
-        circle at 20% 20%,
-        #1e293b 0%,
-        #0f172a 45%,
-        #020617 100%
-      );
-      color: #e2e8f0;
-      font-family: system-ui, sans-serif;
+      padding: clamp(1.25rem, 4vw, 2.5rem);
+      overflow: hidden;
     }
+
+    .login-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .login-glow--a {
+      width: min(480px, 80vw);
+      height: min(480px, 80vw);
+      top: -12%;
+      left: -8%;
+      background: rgba(230, 0, 18, 0.35);
+    }
+    .login-glow--b {
+      width: min(360px, 60vw);
+      height: min(360px, 60vw);
+      bottom: -8%;
+      right: -5%;
+      background: rgba(201, 162, 39, 0.22);
+    }
+
     .login-card {
-      width: min(420px, 92vw);
-      padding: 2rem;
-      border-radius: 1rem;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+      position: relative;
+      z-index: 1;
+      width: min(420px, 100%);
+      padding: clamp(1.75rem, 4vw, 2.25rem);
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, #12151e 0%, #0d0f16 100%);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
     }
-    h1 {
-      margin: 0 0 0.35rem;
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 4px;
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
+    }
+
+    .brand {
+      display: inline-flex;
+      flex-direction: column;
+      line-height: 1;
+      padding: 0.35rem 0.75rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), transparent);
+    }
+
+    .brand-mark {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
       font-size: 1.35rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text);
     }
-    .sub {
+
+    .brand-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .title {
+      margin: 0 0 0.5rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.75) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lede {
       margin: 0 0 1.5rem;
-      color: #94a3b8;
       font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--muted);
     }
-    label {
+
+    .field-label {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #94a3b8;
-      margin-bottom: 0.35rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
     }
-    input {
+
+    .field-input {
       width: 100%;
       margin-bottom: 1rem;
-      padding: 0.6rem 0.75rem;
-      border-radius: 0.5rem;
-      border: 1px solid #334155;
-      background: #0f172a;
-      color: #f8fafc;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    button {
+
+    .field-input:focus {
+      border-color: rgba(230, 0, 18, 0.45);
+      box-shadow: 0 0 0 2px rgba(230, 0, 18, 0.12);
+    }
+
+    .btn-submit {
       width: 100%;
-      margin-top: 0.5rem;
-      padding: 0.65rem;
+      margin-top: 0.25rem;
+      padding: 0.75rem 1rem;
       border: none;
-      border-radius: 0.5rem;
-      background: #dc2626;
-      color: #fff;
-      font-weight: 600;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       cursor: pointer;
+      color: #fff;
+      background: linear-gradient(180deg, #ff1a2e 0%, var(--accent-dim) 100%);
+      box-shadow: 0 6px 24px rgba(230, 0, 18, 0.25);
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
     }
-    button:disabled {
-      opacity: 0.6;
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.55;
       cursor: not-allowed;
     }
+
     .err {
-      color: #fca5a5;
+      color: #ffb4b8;
       font-size: 0.85rem;
+      margin: 0 0 0.75rem;
     }
+
     .hint {
       margin-top: 1.25rem;
-      font-size: 0.75rem;
-      color: #64748b;
-      line-height: 1.4;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.45;
     }
+
     code {
-      color: #cbd5e1;
+      font-size: 0.85em;
+      color: rgba(232, 234, 239, 0.85);
     }
   `,
 })
