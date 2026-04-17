@@ -1,4 +1,4 @@
-import { signal, effect, computed, inject, Component, ChangeDetectionStrategy, type Signal } from '@angular/core';
+import { signal, effect, computed, inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -87,14 +87,16 @@ interface PluginDescriptor {
               <lucide-icon name="lock" size="18"></lucide-icon>
               <span>Seguridad</span>
             </button>
-            <button
-              class="nav-item"
-              [class.active]="activeTab() === 'roles'"
-              (click)="activeTab.set('roles')"
-            >
-              <lucide-icon name="shield-check" size="18"></lucide-icon>
-              <span>Roles y Permisos</span>
-            </button>
+            @if (canSeeRolesAdmin()) {
+              <button
+                class="nav-item"
+                [class.active]="activeTab() === 'roles'"
+                (click)="activeTab.set('roles')"
+              >
+                <lucide-icon name="shield-check" size="18"></lucide-icon>
+                <span>Roles y Permisos</span>
+              </button>
+            }
             <button
               class="nav-item buddy-nav-item"
               [class.active]="activeTab() === 'buddy'"
@@ -1433,7 +1435,7 @@ interface PluginDescriptor {
             </section>
           }
 
-          @if (activeTab() === 'roles') {
+          @if (activeTab() === 'roles' && canSeeRolesAdmin()) {
             <section class="content-section roles-management animate-fade-in">
               <div class="roles-header-main">
                 <div class="section-title">
@@ -3257,6 +3259,12 @@ export class SettingsFeatureComponent {
   private readonly _rolesService = inject(RolesService);
   public readonly _authStore = inject(AuthStore);
 
+  /** Solo usuarios con rol SuperAdmin pueden ver y editar la matriz de roles y permisos. */
+  readonly canSeeRolesAdmin = computed(() => {
+    const roles = this._authStore.user()?.roles;
+    return Array.isArray(roles) && roles.includes('SuperAdmin');
+  });
+
   readonly activeTab = signal<
     | 'general'
     | 'ai'
@@ -3311,8 +3319,13 @@ export class SettingsFeatureComponent {
   readonly isLoadingRoles = signal(false);
 
   constructor() {
+    effect(() => {
+      if (this.activeTab() === 'roles' && !this.canSeeRolesAdmin()) {
+        this.activeTab.set('profile');
+      }
+    });
     effect(async () => {
-      if (this.activeTab() === 'roles') {
+      if (this.activeTab() === 'roles' && this.canSeeRolesAdmin()) {
         await this.loadRoles();
       }
     });

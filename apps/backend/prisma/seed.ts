@@ -119,23 +119,22 @@ async function clearTenantDemoData(tenantId: string) {
 }
 
 async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
+  const saExists = await prisma.role.findFirst({ where: { tenantId, name: 'SuperAdmin' } });
+  if (!saExists) {
+    await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'SuperAdmin',
+        type: 'SUPERADMIN',
+        permissions: ['*'],
+        description: 'Super administrador: acceso total y configuración de roles y permisos',
+      },
+    });
+  }
+
   const isAdminTenant = tenantSlug === 'babooni';
 
   if (isAdminTenant) {
-    // SuperAdmin
-    const saExists = await prisma.role.findFirst({ where: { tenantId, name: 'SuperAdmin' } });
-    if (!saExists) {
-      await prisma.role.create({
-        data: {
-          tenantId,
-          name: 'SuperAdmin',
-          type: 'SUPERADMIN',
-          permissions: ['*'],
-          description: 'Acceso total al sistema Babooni',
-        },
-      });
-    }
-
     // Babooni Admin
     const baExists = await prisma.role.findFirst({ where: { tenantId, name: 'Admin Babooni' } });
     if (!baExists) {
@@ -225,7 +224,10 @@ async function main() {
     },
   });
 
-  const josanzAdminRole = await ensureDefaultRoles(tenant.id, 'josanz');
+  await ensureDefaultRoles(tenant.id, 'josanz');
+  const josanzSuperAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: tenant.id, name: 'SuperAdmin' },
+  });
 
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
 
@@ -262,10 +264,9 @@ async function main() {
     },
   });
 
-  await prisma.userRole.upsert({
-    where: { userId_roleId: { userId: admin.id, roleId: josanzAdminRole.id } },
-    update: {},
-    create: { userId: admin.id, roleId: josanzAdminRole.id },
+  await prisma.userRole.deleteMany({ where: { userId: admin.id } });
+  await prisma.userRole.create({
+    data: { userId: admin.id, roleId: josanzSuperAdminRole.id },
   });
 
   const rawApiKey = 'vf_dev_josanz_key';
