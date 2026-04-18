@@ -91,17 +91,17 @@ interface CalendarCell {
         </div>
       }
 
-      <header class="dashboard-toolbar">
+      <header class="dashboard-toolbar" [attr.aria-busy]="isLoading()">
         <div class="header-actions">
            <div class="month-navigator">
-              <button class="nav-btn ripple" (click)="prevMonth()" title="Mes anterior">
+              <button class="nav-btn ripple" type="button" (click)="prevMonth()" title="Mes anterior">
                  <lucide-icon name="chevron-left" size="18"></lucide-icon>
               </button>
               <div class="current-month-display">
                  <span class="m-name">{{ getMonthName() }}</span>
                  <span class="m-year">{{ currentYear() }}</span>
               </div>
-              <button class="nav-btn ripple" (click)="nextMonth()" title="Mes siguiente">
+              <button class="nav-btn ripple" type="button" (click)="nextMonth()" title="Mes siguiente">
                  <lucide-icon name="chevron-right" size="18"></lucide-icon>
               </button>
               <button
@@ -167,19 +167,33 @@ interface CalendarCell {
         <aside class="team-sidebar animate-slide-right">
           <div class="sidebar-header">
             <h3>Operarios AV</h3>
-            <ui-badge variant="info" class="count-badge">{{ displayedTechnicians().length }}</ui-badge>
+            <ui-badge variant="info" class="count-badge">{{ personalSidebarTechnicians().length }}</ui-badge>
           </div>
           <div class="sidebar-search">
-            <ui-feature-filter-bar
-              [framed]="true"
-              [appearance]="'feature'"
-              [searchVariant]="'glass'"
-              placeholder="Buscar técnico…"
-              (searchChange)="onSearch($event)"
-            />
+            <div class="availability-filter-slot">
+              <ui-feature-filter-bar
+                [framed]="true"
+                [appearance]="'feature'"
+                [searchVariant]="'glass'"
+                [value]="availabilitySearchQuery()"
+                placeholder="Nombre, rol; varios: ana, led…"
+                (searchChange)="onSearch($event)"
+              />
+              @if (availabilitySearchQuery().trim()) {
+                <button
+                  type="button"
+                  class="availability-clear-search"
+                  (click)="clearAvailabilitySearch()"
+                  title="Quitar filtro de búsqueda"
+                >
+                  <lucide-icon name="x" size="16"></lucide-icon>
+                  <span class="availability-clear-search__label">Limpiar</span>
+                </button>
+              }
+            </div>
           </div>
-          <div class="technician-list custom-scrollbar">
-            @for (tech of displayedTechnicians(); track tech.id) {
+          <div class="technician-list custom-scrollbar" role="list">
+            @for (tech of personalSidebarTechnicians(); track tech.id) {
               <button
                 type="button"
                 class="tech-card"
@@ -198,6 +212,15 @@ interface CalendarCell {
                 </div>
                 <lucide-icon name="chevron-right" size="14" class="tech-chevron"></lucide-icon>
               </button>
+            } @empty {
+              <div class="availability-empty availability-empty--sidebar" role="status">
+                <lucide-icon name="search-x" size="22"></lucide-icon>
+                <p class="availability-empty__title">Ningún operario coincide</p>
+                <p class="availability-empty__hint">Prueba otros términos o limpia el filtro.</p>
+                <button type="button" class="availability-empty__btn" (click)="clearAvailabilitySearch()">
+                  Limpiar búsqueda
+                </button>
+              </div>
             }
           </div>
         </aside>
@@ -206,7 +229,7 @@ interface CalendarCell {
         <!-- MAIN CALENDAR / TEAM BOARD -->
         <main class="main-content">
           @if (viewMode() === 'personal') {
-            <div class="calendar-wrapper animate-slide-up">
+            <div class="availability-panel animate-slide-up">
               <ui-card shape="auto" class="calendar-card">
                 <div class="calendar-card-header">
                   <div class="header-meta">
@@ -268,10 +291,16 @@ interface CalendarCell {
                   </div>
                 </div>
               </ui-card>
+              @if (isLoading()) {
+                <div class="availability-loading-overlay" aria-live="polite" aria-busy="true">
+                  <lucide-icon name="rotate-cw" size="28" class="animate-spin availability-loading-overlay__icon"></lucide-icon>
+                  <span class="availability-loading-overlay__text">Cargando disponibilidad…</span>
+                </div>
+              }
             </div>
           } @else {
             <!-- TEAM BOARD VIEW -->
-            <div class="team-board-wrapper animate-slide-up">
+            <div class="availability-panel team-board-wrapper animate-slide-up">
               <ui-card shape="auto" class="team-board-card">
                 <div class="team-board-toolbar">
                   <div class="team-board-toolbar__meta">
@@ -305,13 +334,30 @@ interface CalendarCell {
                 </div>
 
                 <div class="team-board-toolbar-search">
-                  <ui-feature-filter-bar
-                    [framed]="true"
-                    [appearance]="'feature'"
-                    [searchVariant]="'glass'"
-                    placeholder="Nombre o rol; varios operarios: ana, carlos o rigging; av…"
-                    (searchChange)="onSearch($event)"
-                  />
+                  <div class="availability-filter-slot">
+                    <ui-feature-filter-bar
+                      [framed]="true"
+                      [appearance]="'feature'"
+                      [searchVariant]="'glass'"
+                      [value]="availabilitySearchQuery()"
+                      placeholder="Nombre o rol; varios operarios: ana, carlos o rigging; av…"
+                      (searchChange)="onSearch($event)"
+                    />
+                    @if (availabilitySearchQuery().trim()) {
+                      <button
+                        type="button"
+                        class="availability-clear-search"
+                        (click)="clearAvailabilitySearch()"
+                        title="Quitar filtro de búsqueda"
+                      >
+                        <lucide-icon name="x" size="16"></lucide-icon>
+                        <span class="availability-clear-search__label">Limpiar</span>
+                      </button>
+                    }
+                  </div>
+                  <p class="team-board-filter-hint">
+                    Separa con comas para ver solo esas personas (p. ej. <span class="team-board-filter-hint__ex">Ana, rigging</span>).
+                  </p>
                 </div>
 
                 @if (isCompactTeamNav()) {
@@ -416,11 +462,35 @@ interface CalendarCell {
                             }
                           </div>
                         </div>
+                      } @empty {
+                        <div class="availability-empty availability-empty--team" role="status">
+                          @if (displayedTechnicians().length === 0) {
+                            <lucide-icon name="users" size="26"></lucide-icon>
+                            <p class="availability-empty__title">No hay operarios en el cuadrante</p>
+                            <p class="availability-empty__hint">Cuando existan técnicos asignados, aparecerán aquí.</p>
+                          } @else if (availabilitySearchQuery().trim()) {
+                            <lucide-icon name="search-x" size="26"></lucide-icon>
+                            <p class="availability-empty__title">Nadie coincide con el filtro</p>
+                            <p class="availability-empty__hint">Revisa la búsqueda o limpia para ver a todo el equipo.</p>
+                            <button type="button" class="availability-empty__btn" (click)="clearAvailabilitySearch()">
+                              Limpiar filtro
+                            </button>
+                          } @else {
+                            <lucide-icon name="calendar-days" size="26"></lucide-icon>
+                            <p class="availability-empty__title">Sin filas que mostrar</p>
+                          }
+                        </div>
                       }
                     </div>
                   </div>
                 </div>
               </ui-card>
+              @if (isLoading()) {
+                <div class="availability-loading-overlay" aria-live="polite" aria-busy="true">
+                  <lucide-icon name="rotate-cw" size="28" class="animate-spin availability-loading-overlay__icon"></lucide-icon>
+                  <span class="availability-loading-overlay__text">Cargando cuadrante…</span>
+                </div>
+              }
             </div>
           }
         </main>
@@ -497,7 +567,12 @@ interface CalendarCell {
        cursor: pointer; display: flex; align-items: center; justify-content: center;
        transition: var(--transition-base);
     }
-    .nav-btn:hover { background: var(--brand-ambient); color: var(--brand); transform: scale(1.1); }
+    .nav-btn:hover:not(:disabled) { background: var(--brand-ambient); color: var(--brand); transform: scale(1.1); }
+    .nav-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+    }
 
     .today-jump-btn {
       width: auto;
@@ -572,6 +647,10 @@ interface CalendarCell {
       box-shadow: 0 4px 15px var(--brand-glow);
     }
     .toggle-btn.active lucide-icon { opacity: 1; }
+    .toggle-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
 
     .dashboard-layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 2rem; margin-top: 1rem; align-items: start; }
 
@@ -600,13 +679,156 @@ interface CalendarCell {
     }
 
     .team-board-toolbar-search {
-      padding: 0 1.25rem 0.9rem;
+      padding: 0 1.25rem 0.85rem;
       border-bottom: 1px solid var(--avail-grid-line);
       background: color-mix(in srgb, var(--bg-tertiary) 40%, var(--bg-secondary));
     }
     .team-board-toolbar-search ::ng-deep .feature-filter-bar {
       margin-bottom: 0;
-      max-width: 520px;
+      max-width: none;
+      flex: 1;
+      min-width: 0;
+    }
+    .team-board-filter-hint {
+      margin: 0.65rem 0 0;
+      font-size: 0.65rem;
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--text-muted);
+      max-width: 52rem;
+    }
+    .team-board-filter-hint__ex {
+      font-weight: 800;
+      color: color-mix(in srgb, var(--brand) 55%, var(--text-muted));
+    }
+
+    .availability-filter-slot {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 640px;
+    }
+    .availability-filter-slot ::ng-deep .feature-filter-bar {
+      margin-bottom: 0;
+      flex: 1;
+      min-width: 0;
+    }
+    .availability-clear-search {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 12px;
+      border: 1px solid var(--avail-grid-line);
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    }
+    .availability-clear-search:hover {
+      border-color: var(--brand-border-soft);
+      color: var(--brand);
+      background: var(--brand-ambient);
+    }
+    .availability-clear-search__label {
+      white-space: nowrap;
+    }
+
+    .availability-panel {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+    .availability-loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      border-radius: 22px;
+      background: color-mix(in srgb, var(--bg-secondary) 78%, transparent);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    .availability-loading-overlay__icon {
+      color: var(--brand);
+      opacity: 0.95;
+    }
+    .availability-loading-overlay__text {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .availability-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .availability-empty lucide-icon {
+      opacity: 0.65;
+      color: var(--text-muted);
+    }
+    .availability-empty__title {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .availability-empty__hint {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      line-height: 1.45;
+      max-width: 22rem;
+    }
+    .availability-empty__btn {
+      margin-top: 0.35rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--brand-border-soft);
+      background: var(--brand);
+      color: var(--text-on-brand, #ffffff);
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    .availability-empty__btn:hover {
+      filter: brightness(1.06);
+    }
+    .availability-empty--sidebar {
+      min-height: 200px;
+      border: 1px dashed var(--avail-grid-line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--bg-tertiary) 50%, transparent);
+    }
+    .availability-empty--team {
+      width: 100%;
+      min-height: 200px;
+      border-top: 1px solid var(--avail-grid-line);
+      background: color-mix(in srgb, var(--bg-secondary) 40%, var(--bg-tertiary));
     }
     button.tech-card {
       display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 16px;
@@ -1384,13 +1606,24 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return row.length ? row : all;
   });
 
-  /** Texto libre del filtro del cuadrante (vista equipo). */
-  teamBoardFilterTerm = signal('');
+  /**
+   * Búsqueda unificada (sidebar vista individual + cuadrante equipo): mismas reglas multi-término.
+   */
+  availabilitySearchQuery = signal('');
+
+  /** Lista lateral en vista individual (filtrada por `availabilitySearchQuery`). */
+  readonly personalSidebarTechnicians = computed(() => {
+    const list = this.displayedTechnicians();
+    const raw = this.availabilitySearchQuery();
+    return list.filter((t) =>
+      TechnicianAvailabilityComponent.matchesTeamBoardFilter(t, raw),
+    );
+  });
 
   /** Filas del cuadrante de equipo (misma lista que Operarios, sin duplicar barra lateral). */
   readonly teamBoardRows = computed(() => {
     const list = this.displayedTechnicians();
-    const raw = this.teamBoardFilterTerm();
+    const raw = this.availabilitySearchQuery();
     return list.filter((t) =>
       TechnicianAvailabilityComponent.matchesTeamBoardFilter(t, raw),
     );
@@ -1399,7 +1632,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   readonly teamBoardHintCounts = computed(() => {
     const total = this.displayedTechnicians().length;
     const shown = this.teamBoardRows().length;
-    const q = this.teamBoardFilterTerm().trim();
+    const q = this.availabilitySearchQuery().trim();
     if (q && shown !== total) {
       const nSeg =
         TechnicianAvailabilityComponent.teamBoardFilterSegmentCount(q);
@@ -1536,6 +1769,19 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         });
       }
     });
+    effect(
+      () => {
+        if (this.viewMode() !== 'personal') {
+          return;
+        }
+        const list = this.personalSidebarTechnicians();
+        const id = this.selectedTechId();
+        if (list.length > 0 && !list.some((t) => t.id === id)) {
+          this.selectedTechId.set(list[0].id);
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   ngOnInit() {
@@ -1566,11 +1812,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   }
 
   onSearch(term: string) {
-    if (this.viewMode() === 'team') {
-      this.teamBoardFilterTerm.set(term);
-    } else {
-      this.teamBoardFilterTerm.set('');
-    }
+    this.availabilitySearchQuery.set(term);
     this.masterFilter.search(term);
     if (this.viewMode() !== 'personal') {
       return;
@@ -1579,13 +1821,18 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     if (!q) {
       return;
     }
-    const pool = this.displayedTechnicians();
+    const pool = this.personalSidebarTechnicians();
     const match = pool.find((t: Technician) =>
       TechnicianAvailabilityComponent.matchesTeamBoardFilter(t, q),
     );
     if (match) {
       this.selectedTechId.set(match.id);
     }
+  }
+
+  /** Reinicia la búsqueda en sidebar y cuadrante (misma señal). */
+  clearAvailabilitySearch(): void {
+    this.onSearch('');
   }
 
   onTeamHorizontalScroll(ev: Event): void {
