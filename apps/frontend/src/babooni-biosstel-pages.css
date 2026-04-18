@@ -84,12 +84,12 @@ html[data-erp-tenant='babooni'] ui-feature-header .icon-box {
 
 /* ── Métricas colapsables (ui-feature-stats) ── */
 html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn {
-  background: var(--bg-secondary, #f7f7f7) !important;
-  border: 1px solid color-mix(in srgb, var(--border-soft) 85%, #e6e6e6) !important;
-  color: var(--text-muted, #646464) !important;
+  background: #f5f5f5 !important;
+  border: 1px solid var(--babooni-border) !important;
+  color: var(--babooni-muted) !important;
   border-radius: 999px !important;
   font-weight: 700 !important;
-  box-shadow: 0 1px 3px rgba(8, 8, 8, 0.05) !important;
+  box-shadow: none !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn:hover {
