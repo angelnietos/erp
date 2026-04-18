@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import {
+  ClsTenantFromJwtInterceptor,
   SharedInfrastructureModule,
   TenantGuard,
 } from '@josanz-erp/shared-infrastructure';
@@ -14,7 +15,7 @@ import { RentalsModule } from '@josanz-erp/rentals-backend';
 import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
 import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
 import { ServicesModule } from './services/services.module';
@@ -69,6 +70,10 @@ import { TimeOffModule } from './time-off/time-off.module';
     {
       provide: APP_GUARD,
       useClass: TenantGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClsTenantFromJwtInterceptor,
     },
   ],
 })

@@ -10,18 +10,22 @@ export type JwtRequestUser = {
 };
 
 /**
- * Tenant efectivo para APIs del ERP: `x-tenant-id` (UUID) o `tenantId` del JWT.
- * No usar `req.tenantId` en crudo: Express no lo rellena; antes se caía en `'default'`
- * y Prisma no devolvía filas del tenant real.
+ * Tenant efectivo para APIs del ERP.
+ *
+ * Si el JWT trae `tenantId` (usuario de tenant), **ese valor manda** frente a `x-tenant-id`:
+ * el header puede quedar desalineado con `localStorage` tras login o cambio de sesión.
+ * Sin JWT (p. ej. rutas públicas) se usa solo la cabecera.
  */
 export function getRequestTenantId(req: Request): string | undefined {
+  const user = req.user as JwtRequestUser | undefined;
+  const jwtTenant =
+    user?.tenantId && isTenantUuid(user.tenantId) ? user.tenantId.trim() : undefined;
+  if (jwtTenant) {
+    return jwtTenant;
+  }
   const raw = req.headers['x-tenant-id'];
   if (typeof raw === 'string' && isTenantUuid(raw)) {
     return raw.trim();
-  }
-  const user = req.user as JwtRequestUser | undefined;
-  if (user?.tenantId && isTenantUuid(user.tenantId)) {
-    return user.tenantId.trim();
   }
   return undefined;
 }
