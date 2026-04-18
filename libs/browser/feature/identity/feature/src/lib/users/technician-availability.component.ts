@@ -138,7 +138,8 @@ interface CalendarCell {
       </header>
 
       <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'">
-        <!-- SIDEBAR: TEAM LIST -->
+        @if (viewMode() === 'personal') {
+        <!-- Lista de operarios: solo vista individual (evita duplicar filas con el cuadrante de equipo) -->
         <aside class="team-sidebar animate-slide-right">
           <div class="sidebar-header">
             <h3>Operarios AV</h3>
@@ -176,6 +177,7 @@ interface CalendarCell {
             }
           </div>
         </aside>
+        }
 
         <!-- MAIN CALENDAR / TEAM BOARD -->
         <main class="main-content">
@@ -246,7 +248,7 @@ interface CalendarCell {
                     </h2>
                     <p class="team-board-hint">
                       <lucide-icon name="users" size="14"></lucide-icon>
-                      {{ displayedTechnicians().length }} operarios · vista mensual completa del equipo
+                      {{ teamBoardHintCounts() }} · vista mensual completa del equipo
                     </p>
                     @if (!isCompactTeamNav()) {
                       <p class="team-board-scroll-hint-desktop" aria-live="polite">
@@ -266,6 +268,16 @@ interface CalendarCell {
                     <div class="legend-item HOLIDAY"><span class="dot"></span><span>Vacac.</span></div>
                     <div class="legend-item SICK_LEAVE"><span class="dot"></span><span>Incid.</span></div>
                   </div>
+                </div>
+
+                <div class="team-board-toolbar-search">
+                  <ui-feature-filter-bar
+                    [framed]="true"
+                    [appearance]="'feature'"
+                    [searchVariant]="'glass'"
+                    placeholder="Filtrar operarios en el cuadrante…"
+                    (searchChange)="onSearch($event)"
+                  />
                 </div>
 
                 @if (isCompactTeamNav()) {
@@ -330,7 +342,7 @@ interface CalendarCell {
                     </div>
 
                     <div class="board-body">
-                      @for (tech of displayedTechnicians(); track tech.id; let idx = $index) {
+                      @for (tech of teamBoardRows(); track tech.id; let idx = $index) {
                         <div
                           class="board-row"
                           [class.is-selected]="selectedTechId() === tech.id"
@@ -492,8 +504,10 @@ interface CalendarCell {
 
     .dashboard-layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 2rem; margin-top: 1rem; align-items: start; }
 
+    /* Vista equipo: una sola columna a ancho completo (sin lista duplicada a la izquierda) */
     .dashboard-layout--team {
-      grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
       align-items: start;
     }
 
@@ -509,28 +523,19 @@ interface CalendarCell {
 
     .technician-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 700px; overflow-y: auto; padding-right: 0.5rem; }
 
-    /* Vista equipo: lista y cuadrante a altura natural (panorámica); scroll de página si hace falta */
-    .dashboard-layout--team .technician-list {
-      max-height: none;
-      overflow-y: visible;
-    }
-
-    @media (max-width: 960px) {
-      .dashboard-layout--team {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .availability-dashboard--team .team-board-wrapper {
       min-height: min-content;
       width: 100%;
     }
 
-    .dashboard-layout--team .tech-card {
-      min-height: 58px;
-      box-sizing: border-box;
-      align-items: center;
-      padding-block: 0.65rem;
+    .team-board-toolbar-search {
+      padding: 0 1.25rem 0.9rem;
+      border-bottom: 1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--bg-tertiary) 40%, var(--bg-secondary));
+    }
+    .team-board-toolbar-search ::ng-deep .feature-filter-bar {
+      margin-bottom: 0;
+      max-width: 520px;
     }
     button.tech-card {
       display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 16px;
@@ -1024,6 +1029,33 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return row.length ? row : all;
   });
 
+  /** Texto libre del filtro del cuadrante (vista equipo). */
+  teamBoardFilterTerm = signal('');
+
+  /** Filas del cuadrante de equipo (misma lista que Operarios, sin duplicar barra lateral). */
+  readonly teamBoardRows = computed(() => {
+    const list = this.displayedTechnicians();
+    const q = this.teamBoardFilterTerm().trim().toLowerCase();
+    if (!q) {
+      return list;
+    }
+    return list.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        t.role.toLowerCase().includes(q),
+    );
+  });
+
+  readonly teamBoardHintCounts = computed(() => {
+    const total = this.displayedTechnicians().length;
+    const shown = this.teamBoardRows().length;
+    const q = this.teamBoardFilterTerm().trim();
+    if (q && shown !== total) {
+      return `${shown} de ${total} operarios (filtrados)`;
+    }
+    return `${total} operarios`;
+  });
+
   /** Solo gestores pueden preseleccionar técnico en «Pedir días». */
   readonly pedirDiasQueryParams = computed(() => {
     if (this.canManageTeam()) {
@@ -1152,9 +1184,21 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   }
 
   onSearch(term: string) {
+    if (this.viewMode() === 'team') {
+      this.teamBoardFilterTerm.set(term);
+    } else {
+      this.teamBoardFilterTerm.set('');
+    }
     this.masterFilter.search(term);
+    const q = term.toLowerCase().trim();
+    if (!q) {
+      return;
+    }
     const pool = this.displayedTechnicians();
-    const match = pool.find((t: Technician) => t.name.toLowerCase().includes(term.toLowerCase()));
+    const match = pool.find(
+      (t: Technician) =>
+        t.name.toLowerCase().includes(q) || t.role.toLowerCase().includes(q),
+    );
     if (match) {
       this.selectedTechId.set(match.id);
     }
