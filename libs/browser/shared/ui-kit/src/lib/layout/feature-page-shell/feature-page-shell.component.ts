@@ -1,10 +1,13 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /**
  * Envuelve el contenido de una vista feature con las clases globales definidas en
  * `apps/frontend/src/styles.css` (`.feature-page-shell` y modificadores).
  * Mantiene un único patrón de ancho, centrado y ritmo vertical.
+ *
+ * Por defecto expone `role="main"` en el host para marcar el contenido principal de la ruta
+ * (WCAG). Desactiva con `mainLandmark` en vistas embebidas o si el layout padre ya define `<main>`.
  */
 export type UiFeaturePageShellVariant =
   | 'default'
@@ -31,6 +34,12 @@ export class UiFeaturePageShellComponent {
   /** Modificador de padding/gap; `default` usa los tokens globales. */
   @Input() variant: UiFeaturePageShellVariant = 'default';
 
+  /**
+   * Si es true (por defecto), el host recibe `role="main"` para lectores de pantalla.
+   * Pon a false si esta vista no es el contenido principal o ya hay un `<main>` envolvente.
+   */
+  @Input() mainLandmark = true;
+
   @Input() fadeIn = false;
 
   /** `height: 100%` cuando la vista vive dentro de un layout con alto definido. */
@@ -38,6 +47,11 @@ export class UiFeaturePageShellComponent {
 
   /** Clases extra (espacio-separadas) en el contenedor interno. */
   @Input() extraClass = '';
+
+  @HostBinding('attr.role')
+  get hostMainRole(): 'main' | null {
+    return this.mainLandmark ? 'main' : null;
+  }
 
   get shellClass(): string {
     const parts = ['feature-page-shell'];

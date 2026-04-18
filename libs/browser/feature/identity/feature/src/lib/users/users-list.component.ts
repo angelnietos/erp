@@ -50,7 +50,7 @@ import {
         permissionHint="users.view o users.manage"
       />
     } @else {
-      <ui-feature-page-shell [fadeIn]="true">
+      <ui-feature-page-shell [fadeIn]="true" [extraClass]="'users-container'">
         <ui-feature-header
           title="Usuarios"
           subtitle="Gestión de identidades y control de acceso"

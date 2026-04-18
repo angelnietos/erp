@@ -68,7 +68,8 @@
 
 /**
  * Shell de página: ancho máximo + centrado + ritmo vertical coherente en todo el ERP.
- * Uso: envolver el contenido de la feature en `<div class="feature-page-shell">` (alias: `app-feature-page`).
+ * Preferido en Angular: `<ui-feature-page-shell>` (`@josanz-erp/shared-ui-kit`), que aplica estas clases.
+ * Equivalente manual: `<div class="feature-page-shell">` (alias: `app-feature-page`).
  * Modificadores:
  * - `--compact`: padding horizontal estrecho (calendarios, sub-vistas).
  * - `--width-only`: solo ancho; el contenido controla padding (p. ej. panel con hero full-bleed).
