@@ -45,7 +45,7 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
     >
       @if (isLoading()) {
         <ui-loader message="Cargando activo para edición..."></ui-loader>
-      } @else if (loadError()) {
+      } @else if (loadError() && !isCreateMode) {
         <div class="error-state">
           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
           <h2>ACTIVO NO ENCONTRADO</h2>
@@ -57,7 +57,9 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
             <ui-button variant="ghost" icon="arrow-left" (clicked)="goBack()">Volver</ui-button>
           </div>
           <div class="header-breadcrumb">
-            <h1 class="page-title text-uppercase glow-text">Editar activo</h1>
+            <h1 class="page-title text-uppercase glow-text">
+              {{ isCreateMode ? 'Nuevo activo' : 'Editar activo' }}
+            </h1>
             <div class="breadcrumb">
               <span class="active" [style.color]="currentTheme().primary">INVENTARIO</span>
               <span class="separator">/</span>
@@ -212,6 +214,8 @@ export class InventoryEditComponent implements OnInit {
   isLoading = signal(true);
   loadError = signal(false);
   private productId = '';
+  /** Alta desde ruta `/inventory/new` (expuesto para la plantilla). */
+  isCreateMode = false;
 
   form: Partial<Product> = {
     name: '',
@@ -237,6 +241,13 @@ export class InventoryEditComponent implements OnInit {
   ];
 
   ngOnInit() {
+    if (this.route.snapshot.routeConfig?.path === 'new') {
+      this.isCreateMode = true;
+      this.productId = '';
+      this.isLoading.set(false);
+      this.loadError.set(false);
+      return;
+    }
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.loadError.set(true);
@@ -291,6 +302,10 @@ export class InventoryEditComponent implements OnInit {
   }
 
   goBack() {
+    if (this.isCreateMode) {
+      this.goToList();
+      return;
+    }
     if (this.productId) {
       this.router.navigate(['/inventory', this.productId]);
       return;
@@ -314,7 +329,7 @@ export class InventoryEditComponent implements OnInit {
     );
     const dailyRate = Math.max(0, Number(this.form.dailyRate ?? 0));
 
-    this.facade.updateProduct(this.productId, {
+    const payload = {
       ...this.form,
       name,
       sku: (this.form.sku ?? '').trim(),
@@ -324,7 +339,27 @@ export class InventoryEditComponent implements OnInit {
       totalStock,
       dailyRate,
       description: (this.form.description ?? '').trim() || undefined,
-    });
+    };
+
+    if (this.isCreateMode) {
+      this.facade
+        .createProduct({
+          ...payload,
+          availableStock: totalStock,
+          reservedStock: 0,
+        })
+        .subscribe({
+        next: (p) => {
+          this.toast.show('Activo creado correctamente', 'success');
+          this.router.navigate(['/inventory', p.id]);
+        },
+        error: () =>
+          this.toast.show('No se pudo crear el activo.', 'error'),
+      });
+      return;
+    }
+
+    this.facade.updateProduct(this.productId, payload);
     this.toast.show('Activo actualizado correctamente', 'success');
     this.router.navigate(['/inventory', this.productId]);
   }

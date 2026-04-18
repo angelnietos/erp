@@ -15,7 +15,6 @@ import {
   UiButtonComponent,
   UiFeatureFilterBarComponent,
   UiLoaderComponent,
-  UiModalComponent,
   UiInputComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
@@ -42,12 +41,6 @@ import {
 import { Observable, of } from 'rxjs';
 import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
-// Extended form type for additional fields
-interface ClientFormData extends Partial<Client> {
-  description?: string;
-  notes?: string;
-}
-
 @Component({
   selector: 'lib-clients-list',
   standalone: true,
@@ -64,7 +57,6 @@ interface ClientFormData extends Partial<Client> {
     UiFeatureFilterBarComponent,
     UiTabsComponent,
     UiStatCardComponent,
-    UiModalComponent,
     UiInputComponent,
     UiSelectComponent,
     LucideAngularModule,
@@ -81,7 +73,7 @@ interface ClientFormData extends Partial<Client> {
         subtitle="Gestión completa de tu cartera de clientes"
         icon="building-2"
         [actionLabel]="canManage() ? 'NUEVO CLIENTE' : ''"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewClient()"
       ></ui-feature-header>
 
       @if (canView()) {
@@ -299,7 +291,7 @@ interface ClientFormData extends Partial<Client> {
           <h3>Sin clientes todavía</h3>
           <p>Añade tu primer cliente para empezar a trabajar la cartera comercial.</p>
           @if (canManage()) {
-            <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
+            <ui-button variant="solid" (clicked)="goToNewClient()" icon="CirclePlus">
               Añadir primer cliente
             </ui-button>
           }
@@ -345,7 +337,7 @@ interface ClientFormData extends Partial<Client> {
               [showDuplicate]="canManage()"
               [showDelete]="canManage()"
               (cardClicked)="goToDetail(client)"
-              (editClicked)="editClient(client)"
+              (editClicked)="goToEditClient(client)"
               (duplicateClicked)="onDuplicate(client)"
               (deleteClicked)="confirmDelete(client)"
               [footerItems]="[
@@ -382,109 +374,6 @@ interface ClientFormData extends Partial<Client> {
           permissionHint="clients.view"
         />
       }
-
-      <!-- Create/Edit Modal -->
-      <ui-modal
-        [isOpen]="isModalOpen()"
-        [title]="editingClient() ? 'EDITAR CLIENTE' : 'NUEVO CLIENTE'"
-        (closed)="closeModal()"
-        variant="glass"
-      >
-        <div class="modal-form">
-          <!-- Form sections as before, but simplified if possible -->
-          <div class="form-section">
-            <h4 class="section-title">Información General</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Nombre completo *"
-                [(ngModel)]="formData.name"
-                icon="user"
-                placeholder="Nombre del cliente"
-                required
-              ></ui-input>
-              <ui-input
-                label="CIF/NIF"
-                [(ngModel)]="formData.taxId"
-                icon="hash"
-                placeholder="B12345678"
-              ></ui-input>
-              <ui-input
-                label="Sector"
-                [(ngModel)]="formData.sector"
-                icon="briefcase"
-                placeholder="Ej: Tecnología"
-              ></ui-input>
-              <ui-input
-                label="Tipo"
-                [(ngModel)]="formData.type"
-                icon="building-2"
-                placeholder="Empresa, Particular..."
-              ></ui-input>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h4 class="section-title">Información de Contacto</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Persona contacto"
-                [(ngModel)]="formData.contact"
-                icon="user-check"
-              ></ui-input>
-              <ui-input
-                label="Email"
-                [(ngModel)]="formData.email"
-                icon="mail"
-                type="email"
-              ></ui-input>
-              <ui-input
-                label="Teléfono"
-                [(ngModel)]="formData.phone"
-                icon="phone"
-              ></ui-input>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h4 class="section-title">Información Adicional</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Descripción"
-                [(ngModel)]="formData.description"
-                icon="file-text"
-                placeholder="Descripción del cliente"
-              ></ui-input>
-            </div>
-            <div class="form-field">
-              <label class="field-label" for="notes-textarea">
-                <lucide-icon name="sticky-note" size="16"></lucide-icon>
-                Notas
-              </label>
-              <textarea
-                id="notes-textarea"
-                class="notes-textarea"
-                [(ngModel)]="formData.notes"
-                placeholder="Notas adicionales..."
-                rows="3"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <ui-button variant="ghost" (clicked)="closeModal()"
-            >Cancelar</ui-button
-          >
-          <ui-button
-            variant="solid"
-            (clicked)="saveClient()"
-            [loading]="isSaving()"
-            icon="save"
-          >
-            {{ editingClient() ? 'Guardar cambios' : 'Crear cliente' }}
-          </ui-button>
-        </div>
-      </ui-modal>
     </ui-feature-page-shell>
   `,
   styles: [
@@ -515,31 +404,6 @@ interface ClientFormData extends Partial<Client> {
         margin-top: 3rem;
         display: flex;
         justify-content: center;
-      }
-
-      /* Modal Form Styles */
-      .modal-form {
-        padding: 1rem 0;
-      }
-      .form-section {
-        margin-bottom: 1.5rem;
-      }
-      .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
       }
 
       /* Advanced Filters */
@@ -636,40 +500,6 @@ interface ClientFormData extends Partial<Client> {
         right: 1rem;
       }
 
-      /* Form Enhancements */
-      .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 1rem;
-      }
-      .field-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .notes-textarea {
-        padding: 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--background);
-        color: var(--text);
-        font-size: 0.875rem;
-        font-family: inherit;
-        resize: vertical;
-        min-height: 80px;
-      }
-      .notes-textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
-      }
-
       /* Active state for filters button */
       :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
@@ -677,9 +507,6 @@ interface ClientFormData extends Partial<Client> {
       }
 
       @media (max-width: 768px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
         .controls-section {
           flex-direction: column;
           align-items: stretch;
@@ -718,26 +545,8 @@ export class ClientsListComponent
   tabs = [{ id: 'all', label: 'Todos', badge: 0 }];
   activeTab = signal('all');
 
-  isModalOpen = signal(false);
-  editingClient = signal<Client | null>(null);
-  isSaving = signal(false);
-  formErrors = signal<string[]>([]);
-
-  formData: ClientFormData = {
-    name: '',
-    description: '',
-    taxId: '',
-    sector: '',
-    contact: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    zipCode: '',
-    country: 'España',
-    type: 'company',
-    notes: '',
-  };
+  /** Proxy vacío: el formulario de alta/edición vive en la ruta dedicada. */
+  private readonly listAiFormProxy: Record<string, unknown> = {};
   memoizedStats = new Map<
     string,
     { projects: number; revenue: number; rating: number }
@@ -870,9 +679,7 @@ export class ClientsListComponent
   });
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('q')?.trim();
@@ -884,9 +691,7 @@ export class ClientsListComponent
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -959,93 +764,12 @@ export class ClientsListComponent
     this.currentPage.set(page);
   }
 
-  openCreateModal() {
-    this.editingClient.set(null);
-    this.formData = {
-      name: '',
-      description: '',
-      taxId: '',
-      sector: '',
-      contact: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      zipCode: '',
-      country: 'España',
-      type: 'company',
-      notes: '',
-    };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
+  goToNewClient(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
-  editClient(client: Client) {
-    this.editingClient.set(client);
-    this.formData = { ...client };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingClient.set(null);
-    this.formErrors.set([]);
-  }
-
-  saveClient() {
-    // Validation
-    const errors: string[] = [];
-    if (!this.formData.name?.trim()) {
-      errors.push('El nombre del cliente es obligatorio');
-    }
-    if (this.formData.email && !this.isValidEmail(this.formData.email)) {
-      errors.push('El email no tiene un formato válido');
-    }
-    if (this.formData.phone && !this.isValidPhone(this.formData.phone)) {
-      errors.push('El teléfono no tiene un formato válido');
-    }
-
-    if (errors.length > 0) {
-      this.formErrors.set(errors);
-      return;
-    }
-
-    this.formErrors.set([]);
-    this.isSaving.set(true);
-
-    // Simulate async operation
-    setTimeout(() => {
-      this.isSaving.set(false);
-      this.closeModal();
-      this.toast.show(
-        this.editingClient()
-          ? 'Cliente actualizado correctamente'
-          : 'Cliente creado correctamente',
-        'success',
-      );
-    }, 1000);
-
-    const clientToEdit = this.editingClient();
-    if (clientToEdit) {
-      this.facade.updateClient(clientToEdit.id, this.formData);
-      this.isSaving.set(false);
-      this.toast.show(
-        `Cliente ${this.formData.name} actualizado correctamente`,
-        'success',
-      );
-      this.closeModal();
-    } else {
-      this.facade.createClient(
-        this.formData as Omit<Client, 'id' | 'createdAt'>,
-      );
-      this.isSaving.set(false);
-      this.toast.show(
-        `Cliente ${this.formData.name} creado correctamente`,
-        'success',
-      );
-      this.closeModal();
-    }
+  goToEditClient(client: Client): void {
+    void this.router.navigate([client.id, 'edit'], { relativeTo: this.route });
   }
 
   onDuplicate(client: Client) {
@@ -1098,12 +822,6 @@ export class ClientsListComponent
     return colors[index];
   }
 
-  onClientClick(client: Client) {
-    // Navegar al detalle del cliente
-    // Por ahora solo abrimos el modal de edición
-    this.editClient(client);
-  }
-
   getClientStats(client: Client) {
     // Estadísticas básicas del cliente
     return {
@@ -1126,13 +844,6 @@ export class ClientsListComponent
       .map((word) => word.charAt(0).toUpperCase())
       .slice(0, 2)
       .join('');
-  }
-
-  openClientMenu(client: Client, event: Event) {
-    // Open context menu for client actions
-    event.stopPropagation();
-    // For now, just show edit option
-    this.editClient(client);
   }
 
   // Advanced filtering methods
@@ -1231,15 +942,5 @@ export class ClientsListComponent
       });
     }
     return this.memoizedStats.get(clientId)!;
-  }
-
-  private isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  private isValidPhone(phone: string): boolean {
-    const phoneRegex = /^[+]?[0-9\s\-()]{9,}$/;
-    return phoneRegex.test(phone);
   }
 }

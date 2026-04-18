@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -16,8 +16,6 @@ import {
   UiFeatureFilterBarComponent,
   UiStatCardComponent,
   UiLoaderComponent,
-  UiModalComponent,
-  UiInputComponent,
   UiPaginationComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -39,13 +37,6 @@ import {
 import { Observable, of } from 'rxjs';
 import { ServicesStore, Service } from '../services.store';
 
-// Extended form type for additional fields
-interface ServiceFormData extends Partial<Service> {
-  description?: string;
-  validUntil?: string;
-  notes?: string;
-}
-
 @Component({
   selector: 'lib-services-list',
   standalone: true,
@@ -57,8 +48,6 @@ interface ServiceFormData extends Partial<Service> {
     UiFeatureFilterBarComponent,
     UiStatCardComponent,
     UiLoaderComponent,
-    UiModalComponent,
-    UiInputComponent,
     UiPaginationComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
@@ -83,7 +72,7 @@ interface ServiceFormData extends Partial<Service> {
         subtitle="Catálogo de operaciones y tarifas vigentes"
         icon="wrench"
         actionLabel="NUEVO SERVICIO"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewService()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -337,7 +326,7 @@ interface ServiceFormData extends Partial<Service> {
               [showDuplicate]="true"
               [showDelete]="true"
               (cardClicked)="onRowClick(service)"
-              (editClicked)="editService(service)"
+              (editClicked)="onEdit(service)"
               (duplicateClicked)="onDuplicate(service)"
               (deleteClicked)="confirmDelete(service)"
               [footerItems]="[
@@ -409,7 +398,7 @@ interface ServiceFormData extends Partial<Service> {
                 </p>
                 <ui-button
                   variant="solid"
-                  (clicked)="openCreateModal()"
+                  (clicked)="goToNewService()"
                   icon="CirclePlus"
                 >
                   Añadir primer servicio
@@ -430,107 +419,6 @@ interface ServiceFormData extends Partial<Service> {
           ></ui-pagination>
         </div>
       }
-
-      <!-- Create/Edit Modal -->
-      <ui-modal
-        [isOpen]="isModalOpen()"
-        [title]="editingService() ? 'EDITAR SERVICIO' : 'NUEVO SERVICIO'"
-        (closed)="closeModal()"
-        variant="glass"
-      >
-        <div class="modal-form">
-          <!-- Form Errors -->
-          @if (formErrors().length > 0) {
-            <div class="form-errors">
-              @for (error of formErrors(); track $index) {
-                <div class="error-message">
-                  <lucide-icon name="alert-circle" size="16"></lucide-icon>
-                  <span>{{ error }}</span>
-                </div>
-              }
-            </div>
-          }
-
-          <div class="form-section">
-            <h4 class="section-title">Información General</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Nombre del servicio *"
-                [(ngModel)]="formData.name"
-                icon="wrench"
-                placeholder="Nombre del servicio"
-                required
-              ></ui-input>
-              <ui-input
-                label="Tipo"
-                [(ngModel)]="formData.type"
-                icon="tag"
-                placeholder="Ej: Servicio, Mantenimiento..."
-              ></ui-input>
-              <ui-input
-                label="Precio base (€)"
-                [(ngModel)]="formData.basePrice"
-                icon="euro"
-                type="number"
-                placeholder="0.00"
-              ></ui-input>
-              <ui-input
-                label="Tarifa hora (€)"
-                [(ngModel)]="formData.hourlyRate"
-                icon="clock"
-                type="number"
-                placeholder="0.00"
-              ></ui-input>
-              <ui-input
-                label="Descripción"
-                [(ngModel)]="formData.description"
-                icon="file-text"
-                placeholder="Descripción del servicio"
-              ></ui-input>
-              <div class="input-wrapper">
-                <label class="input-label" for="valid-until-input">
-                  <lucide-icon name="calendar" size="16"></lucide-icon>
-                  Válido hasta
-                </label>
-                <input
-                  id="valid-until-input"
-                  type="date"
-                  class="form-input"
-                  [(ngModel)]="formData.validUntil"
-                  [min]="getMinDate()"
-                />
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="field-label" for="notes-textarea">
-                <lucide-icon name="sticky-note" size="16"></lucide-icon>
-                Notas
-              </label>
-              <textarea
-                id="notes-textarea"
-                class="notes-textarea"
-                [(ngModel)]="formData.notes"
-                placeholder="Notas adicionales..."
-                rows="3"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <ui-button variant="ghost" (clicked)="closeModal()"
-            >Cancelar</ui-button
-          >
-          <ui-button
-            variant="solid"
-            (clicked)="saveService()"
-            [loading]="isSaving()"
-            icon="save"
-          >
-            {{ editingService() ? 'Guardar cambios' : 'Crear servicio' }}
-          </ui-button>
-        </div>
-      </ui-modal>
       }
     </ui-feature-page-shell>
   `,
@@ -539,56 +427,6 @@ interface ServiceFormData extends Partial<Service> {
       :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);
-      }
-
-      /* Modal Form Styles */
-      .modal-form {
-        padding: 1rem 0;
-      }
-
-      .form-errors {
-        background: var(--danger-light);
-        border: 1px solid var(--danger);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .error-message {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--danger);
-        font-size: 0.875rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .error-message:last-child {
-        margin-bottom: 0;
-      }
-
-      .form-section {
-        margin-bottom: 1.5rem;
-      }
-
-      .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
       }
 
       .pagination-footer {
@@ -727,78 +565,6 @@ interface ServiceFormData extends Partial<Service> {
         top: 1rem;
         right: 1rem;
       }
-
-      .input-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .input-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .form-input {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-family: inherit;
-        font-size: 0.875rem;
-        transition: border-color 0.2s ease;
-      }
-
-      .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-      }
-
-      .form-field {
-        margin-bottom: 1.5rem;
-      }
-
-      .field-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-      }
-
-      .notes-textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-family: inherit;
-        font-size: 0.875rem;
-        resize: vertical;
-        min-height: 80px;
-        transition: border-color 0.2s ease;
-      }
-
-      .notes-textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-      }
-
-      @media (max-width: 768px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
-      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -821,11 +587,9 @@ export class ServicesListComponent
     () => this.hasAnyServices() && this.filteredServices().length === 0,
   );
 
+  private readonly listAiFormProxy: Record<string, unknown> = {};
+
   // Signals for UI state
-  isModalOpen = signal(false);
-  editingService = signal<Service | null>(null);
-  isSaving = signal(false);
-  formErrors = signal<string[]>([]);
   currentPage = signal(1);
   totalPages = computed(() => {
     const pageSize = 12;
@@ -847,18 +611,8 @@ export class ServicesListComponent
   selectedServices = signal<Set<string>>(new Set());
   showBulkActions = signal(false);
 
-  formData: ServiceFormData = {
-    name: '',
-    description: '',
-    type: 'STREAMING',
-    basePrice: 0,
-    hourlyRate: 0,
-    isActive: true,
-    validUntil: '',
-    notes: '',
-  };
-
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly _searchQuery = signal('');
 
   readonly filteredServices = computed(() => {
@@ -964,17 +718,13 @@ export class ServicesListComponent
   hasSelections = computed(() => this.selectedServices().size > 0);
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.store.load();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -1038,7 +788,11 @@ export class ServicesListComponent
   }
 
   onEdit(service: Service) {
-    this.router.navigate(['/services', service.id, 'edit']);
+    void this.router.navigate([service.id, 'edit'], { relativeTo: this.route });
+  }
+
+  goToNewService(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   onDuplicate(service: Service) {
@@ -1107,97 +861,12 @@ export class ServicesListComponent
     }
   }
 
-  openCreateModal() {
-    this.editingService.set(null);
-    this.formData = {
-      name: '',
-      description: '',
-      type: 'STREAMING',
-      basePrice: 0,
-      hourlyRate: 0,
-      isActive: true,
-      validUntil: '',
-      notes: '',
-    };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
-  }
-
-  editService(service: Service) {
-    this.editingService.set(service);
-    this.formData = {
-      ...service,
-      validUntil: '',
-      notes: '',
-    };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingService.set(null);
-    this.formErrors.set([]);
-  }
-
-  saveService() {
-    const errors: string[] = [];
-
-    if (!this.formData.name?.trim()) {
-      errors.push('El nombre del servicio es obligatorio');
-    }
-
-    if (this.formData.basePrice && this.formData.basePrice < 0) {
-      errors.push('El precio base no puede ser negativo');
-    }
-
-    if (this.formData.hourlyRate && this.formData.hourlyRate < 0) {
-      errors.push('La tarifa por hora no puede ser negativa');
-    }
-
-    if (
-      this.formData.validUntil &&
-      new Date(this.formData.validUntil) < new Date()
-    ) {
-      errors.push('La fecha de validez no puede ser anterior a hoy');
-    }
-
-    if (this.formData.description && this.formData.description.length > 500) {
-      errors.push('La descripción no puede exceder 500 caracteres');
-    }
-
-    if (this.formData.notes && this.formData.notes.length > 1000) {
-      errors.push('Las notas no pueden exceder 1000 caracteres');
-    }
-
-    if (errors.length > 0) {
-      this.formErrors.set(errors);
-      return;
-    }
-
-    this.formErrors.set([]);
-    this.isSaving.set(true);
-
-    // Simulate async operation
-    setTimeout(() => {
-      this.isSaving.set(false);
-      this.toast.show(
-        this.editingService()
-          ? 'Servicio actualizado correctamente'
-          : 'Servicio creado correctamente',
-        'success',
-      );
-      this.closeModal();
-    }, 1000);
-  }
-
   onPageChange(page: number) {
     this.currentPage.set(page);
   }
 
   onRowClick(service: Service) {
-    // Navigate to service detail or edit
-    this.editService(service);
+    void this.router.navigate([service.id], { relativeTo: this.route });
   }
 
   toggleAdvancedFilters() {
@@ -1307,9 +976,5 @@ export class ServicesListComponent
     );
     this.clearSelection();
     this.refreshServices();
-  }
-
-  getMinDate(): string {
-    return new Date().toISOString().split('T')[0];
   }
 }

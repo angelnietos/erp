@@ -22,8 +22,6 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiLoaderComponent,
-  UiModalComponent,
-  UiInputComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
@@ -42,18 +40,6 @@ import {
 import { Project, ProjectsFacade } from '@josanz-erp/projects-data-access';
 import { Observable, of } from 'rxjs';
 
-// Extended form type for additional fields
-interface ProjectFormData {
-  name: string;
-  description?: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
-  startDate?: string;
-  endDate?: string;
-  clientName?: string;
-  validUntil?: string;
-  notes?: string;
-}
-
 @Component({
   selector: 'lib-projects-list',
   standalone: true,
@@ -71,8 +57,6 @@ interface ProjectFormData {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     UiLoaderComponent,
-    UiModalComponent,
-    UiInputComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
@@ -93,7 +77,7 @@ interface ProjectFormData {
         subtitle="Gestión operativa y seguimiento de proyectos"
         icon="layout"
         actionLabel="NUEVO PROYECTO"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewProject()"
       ></ui-feature-header>
 
       @if (projectsLoadError() && hasAnyProjects()) {
@@ -285,7 +269,7 @@ interface ProjectFormData {
           <lucide-icon name="layout" size="64" class="feature-empty__icon"></lucide-icon>
           <h3>Sin proyectos</h3>
           <p>Crea tu primer proyecto para organizar la operativa y el seguimiento.</p>
-          <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
+          <ui-button variant="solid" (clicked)="goToNewProject()" icon="CirclePlus">
             Crear primer proyecto
           </ui-button>
         </div>
@@ -355,89 +339,6 @@ interface ProjectFormData {
           }
         </ui-feature-grid>
       }
-
-      <!-- Create/Edit Modal -->
-      <ui-modal
-        [isOpen]="isModalOpen()"
-        [title]="editingProject() ? 'EDITAR PROYECTO' : 'NUEVO PROYECTO'"
-        (closed)="closeModal()"
-        variant="glass"
-      >
-        <div class="modal-form">
-          <div class="form-section">
-            <h4 class="section-title">Información General</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Nombre del proyecto *"
-                [(ngModel)]="formData.name"
-                icon="briefcase"
-                placeholder="Nombre del proyecto"
-                required
-              ></ui-input>
-              <ui-input
-                label="Cliente"
-                [(ngModel)]="formData.clientName"
-                icon="user"
-                placeholder="Nombre del cliente"
-              ></ui-input>
-              <div class="row">
-                <ui-input
-                  label="Fecha de inicio"
-                  type="date"
-                  [(ngModel)]="formData.startDate"
-                  icon="calendar"
-                ></ui-input>
-                <ui-input
-                  label="Fecha de fin"
-                  type="date"
-                  [(ngModel)]="formData.endDate"
-                  icon="calendar"
-                ></ui-input>
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="field-label" for="description-textarea">
-                <lucide-icon name="file-text" size="16"></lucide-icon>
-                Descripción
-              </label>
-              <textarea
-                id="description-textarea"
-                class="notes-textarea"
-                [(ngModel)]="formData.description"
-                placeholder="Descripción detallada del proyecto..."
-                rows="3"
-              ></textarea>
-            </div>
-            <div class="form-field">
-              <label class="field-label" for="notes-textarea">
-                <lucide-icon name="sticky-note" size="16"></lucide-icon>
-                Notas
-              </label>
-              <textarea
-                id="notes-textarea"
-                class="notes-textarea"
-                [(ngModel)]="formData.notes"
-                placeholder="Notas adicionales..."
-                rows="3"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <ui-button variant="ghost" (clicked)="closeModal()"
-            >CANCELAR</ui-button
-          >
-          <ui-button
-            variant="solid"
-            (clicked)="saveProject()"
-            [loading]="isSaving()"
-            icon="save"
-          >
-            {{ editingProject() ? 'GUARDAR CAMBIOS' : 'CREAR PROYECTO' }}
-          </ui-button>
-        </div>
-      </ui-modal>
       }
     </ui-feature-page-shell>
   `,
@@ -552,81 +453,11 @@ interface ProjectFormData {
         justify-content: center;
       }
 
-      /* Modal Form Styles */
-      .modal-form {
-        padding: 1rem 0;
-      }
-      .form-section {
-        margin-bottom: 1.5rem;
-      }
-      .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-      .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 1rem;
-      }
-      .field-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .notes-textarea {
-        padding: 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--background);
-        color: var(--text);
-        font-size: 0.875rem;
-        font-family: inherit;
-        resize: vertical;
-        min-height: 80px;
-      }
-      .notes-textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
-      }
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-      }
-
       :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);
       }
 
-      @media (max-width: 900px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
-        .row {
-          grid-template-columns: 1fr;
-        }
-      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -655,21 +486,7 @@ export class ProjectsListComponent
   statusFilter = signal('all');
   currentPage = signal(1);
 
-  isModalOpen = signal(false);
-  editingProject = signal<Project | null>(null);
-  isSaving = signal(false);
-  formErrors = signal<string[]>([]);
-
-  formData: ProjectFormData = {
-    name: '',
-    description: '',
-    status: 'ACTIVE',
-    startDate: '',
-    endDate: '',
-    clientName: '',
-    validUntil: '',
-    notes: '',
-  };
+  private readonly listAiFormProxy: Record<string, unknown> = {};
 
   sortField = signal<'name' | 'startDate' | 'status'>('name');
   sortDirection = signal<1 | -1>(1);
@@ -801,16 +618,12 @@ export class ProjectsListComponent
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
-    this.aiFormBridge.registerDataProxy(
-      this.formData as unknown as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.facade.loadProjects();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as unknown as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -1023,88 +836,8 @@ export class ProjectsListComponent
     }
   }
 
-  openCreateModal() {
-    this.editingProject.set(null);
-    this.formData = {
-      name: '',
-      description: '',
-      status: 'ACTIVE',
-      clientName: '',
-      notes: '',
-    };
-    this.isModalOpen.set(true);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingProject.set(null);
-    this.formErrors.set([]);
-  }
-
-  saveProject() {
-    const errors: string[] = [];
-
-    if (!this.formData.name?.trim()) {
-      errors.push('El nombre del proyecto es obligatorio');
-    }
-
-    if (this.formData.startDate && this.formData.endDate) {
-      const startDate = new Date(this.formData.startDate);
-      const endDate = new Date(this.formData.endDate);
-      if (endDate <= startDate) {
-        errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
-      }
-    }
-
-    if (
-      this.formData.validUntil &&
-      new Date(this.formData.validUntil) < new Date()
-    ) {
-      errors.push('La fecha de validez no puede ser anterior a hoy');
-    }
-
-    if (this.formData.description && this.formData.description.length > 500) {
-      errors.push('La descripción no puede exceder 500 caracteres');
-    }
-
-    if (this.formData.notes && this.formData.notes.length > 1000) {
-      errors.push('Las notas no pueden exceder 1000 caracteres');
-    }
-
-    if (errors.length > 0) {
-      this.formErrors.set(errors);
-      return;
-    }
-
-    this.formErrors.set([]);
-    this.isSaving.set(true);
-
-    const projectToEdit = this.editingProject();
-    if (projectToEdit) {
-      // Update existing project
-      const { ...updates } = this.formData;
-      this.facade.updateProject(projectToEdit.id, updates);
-      this.toast.show(
-        `Proyecto ${this.formData.name} actualizado correctamente`,
-        'success',
-      );
-      this.isSaving.set(false);
-      this.closeModal();
-    } else {
-      // Create new project
-      const { ...newProjectData } = this.formData;
-      this.facade.createProject(newProjectData);
-      this.toast.show(
-        `Proyecto ${this.formData.name} creado correctamente`,
-        'success',
-      );
-      this.isSaving.set(false);
-      this.closeModal();
-    }
-  }
-
-  getMinDate(): string {
-    return new Date().toISOString().split('T')[0];
+  goToNewProject(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   getInitials(name: string): string {

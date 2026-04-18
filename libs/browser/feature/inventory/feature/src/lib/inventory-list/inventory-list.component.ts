@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -16,9 +16,7 @@ import {
   UiFeatureFilterBarComponent,
   UiPaginationComponent,
   UiLoaderComponent,
-  UiModalComponent,
   UiTabsComponent,
-  UiInputComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -52,9 +50,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
-    UiModalComponent,
     UiTabsComponent,
-    UiInputComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
@@ -79,7 +75,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         subtitle="Monitoreo global de activos y recursos"
         icon="package"
         actionLabel="NUEVO PRODUCTO"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewProduct()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -255,7 +251,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                 </p>
                 <ui-button
                   variant="solid"
-                  (clicked)="openCreateModal()"
+                  (clicked)="goToNewProduct()"
                   icon="CirclePlus"
                   >Registrar equipo</ui-button
                 >
@@ -273,68 +269,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         </footer>
       }
     </ui-feature-page-shell>
-
-    <!-- Modal solo para alta rápida; la edición se hace en /inventory/:id/edit -->
-    <ui-modal
-      [isOpen]="isModalOpen()"
-      title="REGISTRO DE NUEVO RECURSO"
-      (closed)="closeModal()"
-      variant="glass"
-    >
-      <div class="form-grid">
-        <div class="form-section">
-          <h4 class="section-title">IDENTIFICACIÓN TÉCNICA</h4>
-          <ui-input
-            label="Nombre del Producto"
-            [(ngModel)]="formData.name"
-            placeholder="Denominación..."
-            icon="box"
-          ></ui-input>
-          <div class="row">
-            <ui-input
-              label="Referencia SKU"
-              [(ngModel)]="formData.sku"
-              icon="hash"
-            ></ui-input>
-            <ui-input
-              label="Categoría"
-              [(ngModel)]="formData.category"
-              icon="tag"
-            ></ui-input>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h4 class="section-title">STOCK Y TARIFACIÓN</h4>
-          <div class="row">
-            <ui-input
-              label="Unidades"
-              type="number"
-              [(ngModel)]="formData.totalStock"
-              icon="layers"
-            ></ui-input>
-            <ui-input
-              label="Tarifa diaria"
-              type="number"
-              [(ngModel)]="formData.dailyRate"
-              icon="euro"
-            ></ui-input>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button
-          variant="solid"
-          (clicked)="saveProduct()"
-          [disabled]="!formData.name"
-          icon="save"
-        >
-          GUARDAR
-        </ui-button>
-      </div>
-    </ui-modal>
     }
   `,
   styles: [
@@ -357,37 +291,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         justify-content: center;
       }
 
-      /* Modal Styles */
-      .form-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        padding: 1rem 0;
-      }
-      .section-title {
-        font-size: 0.75rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        color: var(--text-muted);
-        opacity: 0.8;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 2rem;
-      }
-
-      @media (max-width: 900px) {
-        .row {
-          grid-template-columns: 1fr;
-        }
-      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -402,6 +305,7 @@ export class InventoryListComponent
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'products.view', 'products.manage');
@@ -440,32 +344,16 @@ export class InventoryListComponent
     return items;
   });
 
-  isModalOpen = signal(false);
-
-  formData: Partial<Product> = {
-    name: '',
-    sku: '',
-    category: '',
-    status: 'available',
-    totalStock: 0,
-    availableStock: 0,
-    reservedStock: 0,
-    dailyRate: 0,
-    type: 'generic',
-  };
+  private readonly listAiFormProxy: Record<string, unknown> = {};
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.loadProducts();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -558,23 +446,12 @@ export class InventoryListComponent
     this.sortDirection.set(this.sortDirection() === 1 ? -1 : 1);
   }
 
-  openCreateModal() {
-    this.formData = {
-      name: '',
-      sku: '',
-      category: '',
-      status: 'available',
-      totalStock: 1,
-      dailyRate: 0,
-      type: 'generic',
-      availableStock: 0,
-      reservedStock: 0,
-    };
-    this.isModalOpen.set(true);
+  goToNewProduct(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   onRowClick(product: Product) {
-    this.router.navigate(['/inventory', product.id]);
+    void this.router.navigate([product.id], { relativeTo: this.route });
   }
 
   getInitials(name: string | undefined): string {
@@ -586,43 +463,7 @@ export class InventoryListComponent
   }
 
   editProduct(product: Product) {
-    this.router.navigate(['/inventory', product.id, 'edit']);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-  }
-
-  saveProduct() {
-    const name = this.formData.name?.trim();
-    if (!name) return;
-
-    const totalStock = Math.max(
-      0,
-      Math.floor(Number(this.formData.totalStock ?? 0)),
-    );
-    const dailyRate = Math.max(0, Number(this.formData.dailyRate ?? 0));
-
-    this.facade
-      .createProduct({
-        name,
-        sku: (this.formData.sku ?? '').trim(),
-        category: (this.formData.category ?? '').trim() || 'Varios',
-        type: this.formData.type ?? 'generic',
-        status: this.formData.status ?? 'available',
-        totalStock,
-        availableStock: totalStock,
-        reservedStock: 0,
-        dailyRate,
-      })
-      .subscribe({
-        next: () => {
-          this.toast.show(`Producto «${name}» registrado`, 'success');
-          this.closeModal();
-        },
-        error: () =>
-          this.toast.show('No se pudo registrar el producto.', 'error'),
-      });
+    void this.router.navigate([product.id, 'edit'], { relativeTo: this.route });
   }
 
   onDuplicate(product: Product) {

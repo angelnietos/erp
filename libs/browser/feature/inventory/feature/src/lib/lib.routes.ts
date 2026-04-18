@@ -5,6 +5,7 @@ import { InventoryEditComponent } from './inventory-edit/inventory-edit.componen
 
 export const inventoryFeatureRoutes: Route[] = [
   { path: '', component: InventoryListComponent },
+  { path: 'new', component: InventoryEditComponent },
   { path: ':id/edit', component: InventoryEditComponent },
   { path: ':id', component: InventoryDetailComponent },
 ];
