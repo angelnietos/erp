@@ -62,7 +62,12 @@ html[data-erp-tenant='babooni'] .billing-container,
 html[data-erp-tenant='babooni'] .receipts-container,
 html[data-erp-tenant='babooni'] .events-container,
 html[data-erp-tenant='babooni'] .users-container,
-html[data-erp-tenant='babooni'] .availability-container {
+html[data-erp-tenant='babooni'] .availability-container,
+html[data-erp-tenant='babooni'] .dashboard-container,
+html[data-erp-tenant='babooni'] .page-container,
+html[data-erp-tenant='babooni'] .edit-container,
+html[data-erp-tenant='babooni'] .placeholder-container,
+html[data-erp-tenant='babooni'] .prefs-container {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 clamp(0.75rem, 2vw, 1.25rem) 2rem !important;
@@ -279,4 +284,20 @@ html[data-erp-tenant='babooni'] .loader-container {
   html[data-erp-tenant='babooni'] .feature-page-shell--fade-in {
     animation: none !important;
   }
+}
+
+/* ── Shell Babooni: contenido bajo topbar + toques de marca en topbar ── */
+html[data-erp-tenant='babooni'] babooni-app-layout .bb-content {
+  max-width: min(1240px, 100%);
+  padding: 16px clamp(0.75rem, 2vw, 1.25rem) 120px;
+  box-sizing: border-box;
+}
+
+html[data-erp-tenant='babooni'] babooni-app-layout .bb-search__box:hover {
+  border-color: color-mix(in srgb, var(--brand, #2563eb) 38%, var(--bb-border, #d1d1d1));
+}
+
+html[data-erp-tenant='babooni'] babooni-app-layout .bb-user-menu__row:hover {
+  background: color-mix(in srgb, var(--brand, var(--bio-primary, #2563eb)) 8%, var(--bio-white, #ffffff));
+  color: var(--text-primary, var(--bio-gray-900));
 }

@@ -103,13 +103,25 @@ interface PersonalGridCell {
         >
       </div>
 
-      @if (syncDegraded()) {
-        <div class="sync-degraded-banner" role="status">
-          <lucide-icon name="cloud-off" size="18"></lucide-icon>
-          <span
-            >No se pudo sincronizar con el servidor. Se muestran datos de demostración; pulsa actualizar para
-            reintentar.</span
-          >
+      @if (availabilityLoadIssue() !== 'none') {
+        <div
+          class="sync-degraded-banner"
+          [class.sync-degraded-banner--partial]="availabilityLoadIssue() === 'partial'"
+          role="status"
+        >
+          @if (availabilityLoadIssue() === 'full') {
+            <lucide-icon name="cloud-off" size="18"></lucide-icon>
+            <span
+              >No se pudo sincronizar con el servidor. No se han cargado operarios; revisa la conexión y pulsa
+              actualizar.</span
+            >
+          } @else {
+            <lucide-icon name="alert-triangle" size="18"></lucide-icon>
+            <span
+              >Parte de la disponibilidad no llegó desde el servidor. Los días sin registro usan valores por
+              defecto (laborable disponible, fin de semana ocupado). Pulsa actualizar para reintentar.</span
+            >
+          }
         </div>
       }
 
@@ -662,6 +674,10 @@ interface PersonalGridCell {
       flex-shrink: 0;
       margin-top: 0.1rem;
       color: var(--warning, #f59e0b);
+    }
+    .sync-degraded-banner--partial {
+      border-color: color-mix(in srgb, var(--warning, #f59e0b) 35%, var(--border-soft));
+      background: color-mix(in srgb, var(--warning, #f59e0b) 10%, var(--bg-secondary));
     }
 
     .dashboard-toolbar {
@@ -2036,20 +2052,15 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return `${a.day} ${sm[a.month]} – ${b.day} ${sm[b.month]} ${b.year}`;
   });
   
-  technicians = signal<Technician[]>([
-    { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' as const },
-    { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' as const },
-    { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' as const },
-    { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' as const },
-    { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' as const },
-    { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' as const },
-    { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' as const },
-    { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' as const },
-  ]);
+  technicians = signal<Technician[]>([]);
 
   readonly isLoading = signal<boolean>(false);
-  /** True cuando falla la carga remota y se usa solo mock / datos locales. */
-  readonly syncDegraded = signal(false);
+  /**
+   * `none`: datos coherentes con el API.
+   * `partial`: algún técnico o rango falló; se rellenó con valores por defecto deterministas.
+   * `full`: falló la lista de técnicos u otra condición crítica; lista vacía hasta reintentar.
+   */
+  readonly availabilityLoadIssue = signal<'none' | 'partial' | 'full'>('none');
 
   /** Barra «día X de Y» y saltos ±7: solo vista compacta (móvil / tablet estrecha). */
   readonly isCompactTeamNav = signal(false);
@@ -2414,31 +2425,13 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     this.monthDays.set(cells);
   }
 
-  initTeamData() {
-    const data: Record<string, Record<number, string>> = {};
-    const monthSeed = this.currentMonth() + this.currentYear();
-    const y = this.currentYear();
-    const m = this.currentMonth();
-    const dim = new Date(y, m + 1, 0).getDate();
-
-    this.technicians().forEach((tech: Technician) => {
-      data[tech.id] = {};
-      for (let day = 1; day <= dim; day++) {
-        data[tech.id][day] = this.getRandomMockAvailability(day, tech.id, monthSeed).type;
-      }
-    });
-    this.teamAvailability.set(data);
-    this.syncIsoMapsFromAvailabilityData(y, m, data);
-  }
-
   async loadMonth() {
     this.isLoading.set(true);
-    this.syncDegraded.set(false);
+    this.availabilityLoadIssue.set('none');
+    let partialFailures = 0;
     try {
-      // Cargar técnicos del servidor
       const techsResponse = await firstValueFrom(this.api.getTechnicians());
 
-      // Mapear técnicos reales si existen
       const realTechs: Technician[] = (techsResponse ?? []).map((t: ApiTechnician) => ({
         id: t.id,
         userId: t.user?.id,
@@ -2447,39 +2440,18 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         status: 'online' as const,
       }));
 
-      // Combinar con los mocks para que NUNCA se vea vacío y la demostración sea rica
-      const allTechs = [...realTechs];
-      // Si el servidor devuelve pocos, rellenamos con los mocks base (evitando duplicados por ID si es necesario)
-      const baseMocks = [
-        { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' as const },
-        { id: 't2', name: 'Carlos Ruíz', role: 'Técnico Senior AV', status: 'away' as const },
-        { id: 't3', name: 'Elena García', role: 'Diseño de Iluminación', status: 'online' as const },
-        { id: 't4', name: 'David López', role: 'Ingeniero de Sonido', status: 'offline' as const },
-        { id: 't5', name: 'Ana Martínez', role: 'Especialista Video/LED', status: 'online' as const },
-        { id: 't6', name: 'Sergio Ramos', role: 'Rigging & Structures', status: 'online' as const },
-        { id: 't7', name: 'Laura Ortiz', role: 'Logística & Transporte', status: 'away' as const },
-        { id: 't8', name: 'Marta Soler', role: 'Gestión de Proyectos', status: 'online' as const },
-      ];
-
-      baseMocks.forEach(mock => {
-        if (!allTechs.find(t => t.id === mock.id)) {
-           allTechs.push(mock);
-        }
-      });
-
-      this.technicians.set(allTechs);
+      this.technicians.set(realTechs);
 
       const uid = this.authStore.user()?.id;
       let mineTechId: string | null = null;
       if (uid) {
-        const mine = allTechs.find((x) => x.userId === uid);
+        const mine = realTechs.find((x) => x.userId === uid);
         if (mine) {
           mineTechId = mine.id;
         }
       }
       this.myTechnicianId.set(mineTechId);
 
-      // Cargar disponibilidad (rango ampliado al lunes previo y domingo posterior para calendario alineado / semana)
       const year = this.currentYear();
       const month = this.currentMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2497,56 +2469,54 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       );
 
       const data: Record<string, Record<number, string>> = {};
-      const monthSeed = month + year;
 
-      await Promise.all(allTechs.map(async (tech) => {
-        try {
-          // Ignorar llamadas al API para los técnicos de relleno (mocks locales)
-          // que usan IDs como 't1', 't2' ya que Postgres lanzará 500 al esperar UUIDs.
-          if (this.isLocalMockTechnicianId(tech.id)) {
-            throw new Error('Local mock tech, skip API');
+      await Promise.all(
+        realTechs.map(async (tech) => {
+          try {
+            const avail = await firstValueFrom(
+              this.api.getAvailability(tech.id, startDate, endDate),
+            );
+
+            data[tech.id] = {};
+            for (let d = 1; d <= daysInMonth; d++) {
+              data[tech.id][d] = this.defaultDayStatus(year, month, d);
+            }
+            (avail ?? []).forEach((a: TechnicianAvailability) => {
+              const dayNum = this.dayNumberFromAvailability(a);
+              if (dayNum < 1 || dayNum > daysInMonth) {
+                return;
+              }
+              data[tech.id][dayNum] = this.normalizeAvailabilityType(a.type);
+            });
+          } catch {
+            partialFailures++;
+            data[tech.id] = {};
+            for (let d = 1; d <= daysInMonth; d++) {
+              data[tech.id][d] = this.defaultDayStatus(year, month, d);
+            }
           }
-
-          // Intentar obtener datos reales del API
-          const avail = await firstValueFrom(
-            this.api.getAvailability(tech.id, startDate, endDate)
-          );
-
-          data[tech.id] = {};
-          // Relleno inicial equilibrado con mock inteligente para que no salga todo "AVAILABLE"
-          // pero respetando los festivos de fin de semana
-          for (let d = 1; d <= daysInMonth; d++) {
-             const date = new Date(year, month, d);
-             const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-             data[tech.id][d] = isWeekend ? 'UNAVAILABLE' : (this.getRandomMockAvailability(d, tech.id, monthSeed).type);
-          }
-
-          // Sobreescribir con datos reales del API si existen (Prisma expone `startDate`; el DTO tipado usa `date`)
-          (avail ?? []).forEach((a: TechnicianAvailability) => {
-            const dayNum = this.dayNumberFromAvailability(a);
-            if (dayNum < 1) return;
-            data[tech.id][dayNum] = a.type;
-          });
-        } catch {
-          // Si falla el API para este técnico o es un mock, fallback total al mock inteligente
-          data[tech.id] = {};
-          for (let d = 1; d <= daysInMonth; d++) {
-             data[tech.id][d] = this.getRandomMockAvailability(d, tech.id, monthSeed).type;
-          }
-        }
-      }));
+        }),
+      );
 
       this.teamAvailability.set(data);
       this.syncIsoMapsFromAvailabilityData(year, month, data);
+
+      if (partialFailures > 0) {
+        this.availabilityLoadIssue.set('partial');
+      }
+
       if (!this.canManageTeam() && mineTechId) {
         this.selectedTechId.set(mineTechId);
       } else if (!this.selectedTechId() || this.selectedTechId() === 'me') {
-        this.selectedTechId.set(allTechs[0]?.id || 't1');
+        this.selectedTechId.set(realTechs[0]?.id ?? 'me');
       }
     } catch (error) {
-      console.warn('Error syncing with backend, falling back to rich mock data:', error);
-      this.syncDegraded.set(true);
-      this.initTeamData();
+      console.warn('Error syncing technicians / availability:', error);
+      this.availabilityLoadIssue.set('full');
+      this.technicians.set([]);
+      this.teamAvailability.set({});
+      this.teamAvailabilityIso.set({});
+      this.selectedTechId.set('me');
     } finally {
       this.isLoading.set(false);
       queueMicrotask(() => this.refreshTeamHorizontalMetrics());
@@ -2561,9 +2531,18 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     }
   }
 
-  /** IDs de relleno tipo `t1`… no son UUID de Postgres: no llamar al API. */
-  private isLocalMockTechnicianId(id: string): boolean {
-    return /^t\d+$/i.test(id.trim());
+  /** Laborable disponible, fin de semana no disponible (sin aleatoriedad). */
+  private defaultDayStatus(year: number, month0: number, day: number): string {
+    const wd = new Date(year, month0, day).getDay();
+    return wd === 0 || wd === 6 ? 'UNAVAILABLE' : 'AVAILABLE';
+  }
+
+  /** Alinea tipos del API con chips del calendario. */
+  private normalizeAvailabilityType(type: string): string {
+    if (type === 'PARTIAL') {
+      return 'UNAVAILABLE';
+    }
+    return type;
   }
 
   /** Día del mes (1–31) a partir del registro de disponibilidad del API. */
@@ -2788,13 +2767,4 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return false;
   }
 
-  private getRandomMockAvailability(day: number, techId: string, monthSeed = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
-     const seed = techId === 'me' ? 7 : techId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-     const finalSeed = seed + monthSeed;
-     
-     if ((day + finalSeed) % 12 === 0) return { type: 'UNAVAILABLE' };
-     if ((day + finalSeed) % 15 === 0) return { type: 'HOLIDAY' };
-     if ((day + finalSeed) % 25 === 0) return { type: 'SICK_LEAVE' };
-     return { type: 'AVAILABLE' };
-  }
 }
