@@ -18,6 +18,7 @@ import {
   UiFeatureFilterBarComponent,
   UiStatCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
@@ -43,6 +44,7 @@ import {
     UiStatCardComponent,
     UiModalComponent,
     UiFeatureAccessDeniedComponent,
+    UiLoaderComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -131,58 +133,132 @@ import {
             placeholder="Buscar por referencia, cliente o NIF..."
             (searchChange)="searchTerm.set($event)"
           />
-          <div class="table-container">
-            <table class="luxe-table">
-              <thead>
-                <tr>
-                  <th>REFERENCIA</th>
-                  <th>EMISIÓN</th>
-                  <th>BASE IMP.</th>
-                  <th>ESTADO AEAT</th>
-                  <th>ACCIONES</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (record of filteredRecords(); track record.id) {
-                  <tr class="luxe-row">
-                    <td class="font-mono">
-                      {{ record.reference || record.invoiceId.slice(0, 8) }}
-                    </td>
-                    <td>{{ formatDate(record.createdAt) }}</td>
-                    <td class="font-mono">
-                      {{ formatCurrency(record.total) }}
-                    </td>
-                    <td>
-                      <ui-badge [variant]="getStatusVariant(record.status)">
-                        {{ record.status }}
-                      </ui-badge>
-                    </td>
-                    <td>
-                      <button
-                        class="icon-btn"
-                        (click)="viewInvoiceDetail(record)"
-                      >
-                        <lucide-icon name="eye" size="14"></lucide-icon>
-                      </button>
-                    </td>
-                  </tr>
-                } @empty {
+
+          @if (store.loading() && !hasAnyRecords()) {
+            <div class="feature-loader-wrap">
+              <ui-loader message="Cargando registros fiscales…"></ui-loader>
+            </div>
+          } @else if (
+            store.error() && !hasAnyRecords() && !store.loading()
+          ) {
+            <div class="feature-error-screen" role="alert">
+              <lucide-icon
+                name="wifi-off"
+                size="56"
+                class="feature-error-screen__icon"
+              ></lucide-icon>
+              <h3>No se pudo cargar el registro</h3>
+              <p>
+                {{
+                  store.error() ||
+                    'Comprueba la conexión, el tenant y vuelve a intentarlo.'
+                }}
+              </p>
+              <ui-button variant="solid" (clicked)="retryLoadRecords()"
+                >Reintentar</ui-button
+              >
+            </div>
+          } @else if (!hasTenant() && !hasAnyRecords()) {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon
+                name="building-2"
+                size="64"
+                class="feature-empty__icon"
+              ></lucide-icon>
+              <h3>Sin tenant</h3>
+              <p>
+                Indica el UUID del tenant arriba o inicia sesión para cargar el
+                registro fiscal.
+              </p>
+            </div>
+          } @else if (
+            hasTenant() &&
+            !hasAnyRecords() &&
+            !store.loading() &&
+            !store.error()
+          ) {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon
+                name="inbox"
+                size="64"
+                class="feature-empty__icon"
+              ></lucide-icon>
+              <h3>Sin registros fiscales</h3>
+              <p>No hay operaciones VeriFactu para este tenant todavía.</p>
+            </div>
+          } @else if (filterProducesNoResults()) {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon
+                name="search-x"
+                size="64"
+                class="feature-empty__icon"
+              ></lucide-icon>
+              <h3>Sin resultados</h3>
+              <p>Ningún registro coincide con la búsqueda actual.</p>
+              <ui-button variant="ghost" size="sm" (clicked)="clearSearch()">
+                Limpiar búsqueda
+              </ui-button>
+            </div>
+          } @else {
+            @if (store.error() && hasAnyRecords()) {
+              <div
+                class="feature-load-error-banner"
+                role="status"
+                aria-live="polite"
+              >
+                <lucide-icon
+                  name="alert-circle"
+                  size="20"
+                  class="feature-load-error-banner__icon"
+                ></lucide-icon>
+                <span class="feature-load-error-banner__text">{{
+                  store.error()
+                }}</span>
+                <ui-button variant="ghost" size="sm" (clicked)="retryLoadRecords()"
+                  >Reintentar</ui-button
+                >
+              </div>
+            }
+            <div class="table-container">
+              <table class="luxe-table">
+                <thead>
                   <tr>
-                    <td colspan="5" class="empty-state">
-                      <lucide-icon
-                        name="inbox"
-                        size="32"
-                        class="text-muted"
-                      ></lucide-icon>
-                      <p>
-                        No se han localizado registros para el Tenant indicado.
-                      </p>
-                    </td>
+                    <th>REFERENCIA</th>
+                    <th>EMISIÓN</th>
+                    <th>BASE IMP.</th>
+                    <th>ESTADO AEAT</th>
+                    <th>ACCIONES</th>
                   </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  @for (record of filteredRecords(); track record.id) {
+                    <tr class="luxe-row">
+                      <td class="font-mono">
+                        {{ record.reference || record.invoiceId.slice(0, 8) }}
+                      </td>
+                      <td>{{ formatDate(record.createdAt) }}</td>
+                      <td class="font-mono">
+                        {{ formatCurrency(record.total) }}
+                      </td>
+                      <td>
+                        <ui-badge [variant]="getStatusVariant(record.status)">
+                          {{ record.status }}
+                        </ui-badge>
+                      </td>
+                      <td>
+                        <button
+                          class="icon-btn"
+                          (click)="viewInvoiceDetail(record)"
+                        >
+                          <lucide-icon name="eye" size="14"></lucide-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
         </ui-card>
 
         <div class="side-panel">
@@ -237,9 +313,23 @@ import {
       (closed)="closeDetailModal()"
     >
       @if (store.loading() && !store.selectedInvoice()) {
-        <p class="detail-loading text-friendly">Cargando detalle…</p>
+        <div class="feature-loader-wrap detail-modal-loader">
+          <ui-loader message="Cargando detalle fiscal…"></ui-loader>
+        </div>
       } @else if (store.error() && !store.selectedInvoice()) {
-        <p class="detail-error text-friendly">{{ store.error() }}</p>
+        <div class="feature-load-error-banner detail-modal-banner" role="alert">
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{
+            store.error()
+          }}</span>
+          <ui-button variant="ghost" size="sm" (clicked)="retryDetailLoad()"
+            >Reintentar</ui-button
+          >
+        </div>
       } @else if (store.selectedInvoice(); as inv) {
         <div class="detail-grid">
           <div class="detail-block">
@@ -437,14 +527,12 @@ import {
         border-color: var(--brand);
       }
 
-      .empty-state {
-        text-align: center;
-        padding: 4rem 1rem;
-        color: var(--text-muted);
+      .detail-modal-loader {
+        padding: 2rem 1rem 3rem;
       }
-      .empty-state p {
-        font-size: 0.75rem;
-        margin-top: 1rem;
+
+      .detail-modal-banner {
+        margin-bottom: 0.5rem;
       }
 
       .side-panel {
@@ -516,15 +604,6 @@ import {
         color: var(--text-muted);
       }
 
-      .detail-loading,
-      .detail-error {
-        font-size: 0.8rem;
-        margin: 0;
-        color: var(--text-secondary);
-      }
-      .detail-error {
-        color: #f87171;
-      }
       .detail-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -609,6 +688,19 @@ export class VerifactuDashboardComponent implements OnInit {
           record.customerNif?.toLowerCase().includes(term),
       );
   });
+
+  readonly hasAnyRecords = computed(() => this.store.records().length > 0);
+
+  readonly hasTenant = computed(() => this.tenantId().trim().length > 0);
+
+  /** Hay datos pero el filtro de búsqueda no devuelve filas. */
+  readonly filterProducesNoResults = computed(() => {
+    if (!this.hasAnyRecords() || this.filteredRecords().length > 0) {
+      return false;
+    }
+    return this.searchTerm().trim().length > 0;
+  });
+
   selectedInvoiceId = signal('');
   isDetailModalOpen = signal(false);
 
@@ -629,10 +721,28 @@ export class VerifactuDashboardComponent implements OnInit {
   }
 
   loadRecords(): void {
-    const tenant = this.tenantId();
+    const tenant = this.tenantId().trim();
     if (tenant) {
       this.store.loadRecords(tenant);
     }
+  }
+
+  retryLoadRecords(): void {
+    this.store.clearError();
+    this.loadRecords();
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
+  }
+
+  retryDetailLoad(): void {
+    const id = this.selectedInvoiceId();
+    if (!id) {
+      return;
+    }
+    this.store.clearError();
+    this.store.loadInvoiceDetailWithQr(id);
   }
 
   submitInvoice(): void {
