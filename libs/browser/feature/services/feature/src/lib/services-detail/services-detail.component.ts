@@ -9,6 +9,7 @@ import {
   UiTextareaComponent,
   UiSelectComponent,
   UiCardComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ToastService } from '@josanz-erp/shared-data-access';
 
@@ -32,9 +33,11 @@ interface ServiceForm {
     UiSelectComponent,
     UiCardComponent,
     LucideAngularModule,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container page-container--skip-horizontal-inset">
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
+    <div class="services-detail__inner">
       <header class="page-header">
         <div class="header-actions">
           <ui-button
@@ -102,13 +105,16 @@ interface ServiceForm {
         </ui-card>
       </div>
     </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
+      .services-detail__inner {
         padding: 1.5rem;
         max-width: 800px;
         margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .page-header {

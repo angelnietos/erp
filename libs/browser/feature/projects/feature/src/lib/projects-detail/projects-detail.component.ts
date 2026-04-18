@@ -11,6 +11,7 @@ import {
   UiCardComponent,
   UiLoaderComponent,
   UiBadgeComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 import { Project, ProjectService, ProjectsFacade } from '@josanz-erp/projects-data-access';
@@ -38,10 +39,16 @@ interface ProjectForm {
     UiLoaderComponent,
     UiBadgeComponent,
     LucideAngularModule,
+    UiFeaturePageShellComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'perf-optimized' : ''"
+    >
+      <div class="projects-detail__stack">
       @if (!isNew && isLoading()) {
         <div class="page-loading">
           <ui-loader message="Cargando proyecto…"></ui-loader>
@@ -188,10 +195,18 @@ interface ProjectForm {
           }
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
+      .projects-detail__stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+      }
+
       .page-loading,
       .page-error {
         display: flex;
@@ -217,12 +232,6 @@ interface ProjectForm {
         gap: 0.5rem;
         justify-content: center;
         margin-top: 0.5rem;
-      }
-
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
       }
 
       .page-header {

@@ -14,6 +14,7 @@ import {
   UiCardComponent, UiButtonComponent, UiBadgeComponent,
     UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent,
     UiTextareaComponent,
+    UiFeaturePageShellComponent,
   } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rentals-data-access';
@@ -26,9 +27,15 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
     UiCardComponent, UiButtonComponent, UiBadgeComponent,
     UiLoaderComponent, UiStatCardComponent, UiModalComponent, UiInputComponent,
     UiTextareaComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
+    >
+      <div class="rentals-detail__stack">
       @if (isLoading()) {
         <ui-loader message="Sincronizando contrato de alquiler..."></ui-loader>
       } @else if (rental()) {
@@ -188,6 +195,7 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
            </div>
         </div>
       }
+      </div>
 
       <ui-modal
         [isOpen]="isSignatureModalOpen()"
@@ -225,11 +233,16 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
           <ui-button variant="app" [disabled]="!annexTitle.trim()" (clicked)="submitAnnex()">GUARDAR ANEXO</ui-button>
         </div>
       </ui-modal>
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    
+    .rentals-detail__stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
     .back-btn {
       background: none; border: none; color: var(--text-muted); 
       display: flex; align-items: center; gap: 8px; font-size: 0.6rem;

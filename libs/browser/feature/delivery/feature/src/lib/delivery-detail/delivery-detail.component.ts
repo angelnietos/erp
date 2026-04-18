@@ -15,6 +15,7 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
   UiTableComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DeliveryNote as ApiDeliveryNote,
@@ -62,9 +63,11 @@ export interface DeliveryDetailView {
     UiBadgeComponent,
     UiLoaderComponent,
     UiTableComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container page-container--skip-horizontal-inset">
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
+      <div class="delivery-detail__stack">
       @if (isLoading()) {
         <ui-loader message="Cargando albarán..."></ui-loader>
       } @else if (delivery(); as d) {
@@ -158,12 +161,18 @@ export interface DeliveryDetailView {
         <p class="not-found text-friendly">No se encontró el albarán.</p>
         <button type="button" class="back-btn" routerLink="/delivery">Volver al listado</button>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
+      .delivery-detail__stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
         padding: 24px;
+        box-sizing: border-box;
       }
       .page-header {
         margin-bottom: 16px;

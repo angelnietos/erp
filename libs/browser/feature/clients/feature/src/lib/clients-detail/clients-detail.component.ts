@@ -12,6 +12,7 @@ import {
   UiLoaderComponent,
   UiButtonComponent,
   UiBadgeComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
@@ -27,8 +28,10 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
     UiLoaderComponent,
     UiButtonComponent,
     UiBadgeComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
     <div class="ns-detail">
       @if (isLoading()) {
         <div class="ns-loading">
@@ -263,6 +266,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         </div>
       }
     </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
@@ -270,6 +274,8 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         padding: 1.5rem;
         max-width: 800px;
         margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .ns-loading {

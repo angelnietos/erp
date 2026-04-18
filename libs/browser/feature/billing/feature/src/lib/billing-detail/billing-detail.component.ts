@@ -8,6 +8,7 @@ import {
   UiStatCardComponent,
   UiCardComponent,
   UiButtonComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
@@ -26,9 +27,15 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
     UiStatCardComponent,
     UiCardComponent,
     UiButtonComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container page-container--skip-horizontal-inset animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="(pluginStore.highPerformanceMode() ? 'high-perf ' : '') + 'billing-detail-root'"
+    >
+      <div class="billing-detail__inner">
       @if (isLoading()) {
         <ui-loader message="Sincronizando registros fiscales con AEAT..."></ui-loader>
       } @else if (invoice(); as inv) {
@@ -148,17 +155,19 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
           <ui-button variant="glass" routerLink="/billing">VOLVER AL LISTADO</ui-button>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [`
-    .page-container {
+    .billing-detail__inner {
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
       padding: clamp(1rem, 2.5vw, 1.75rem) clamp(1rem, 2.5vw, 2rem) 2rem;
       box-sizing: border-box;
+      width: 100%;
     }
-    
+
     .back-btn {
       background: none; border: none; color: var(--text-muted); 
       display: flex; align-items: center; gap: 8px; font-size: 0.6rem;

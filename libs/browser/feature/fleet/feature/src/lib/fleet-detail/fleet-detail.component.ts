@@ -14,6 +14,7 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
   UiStatCardComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
@@ -31,12 +32,15 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
     UiBadgeComponent,
     UiLoaderComponent,
     UiStatCardComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
     >
+      <div class="fleet-detail__stack">
       @if (isLoading()) {
         <ui-loader message="Sincronizando unidad móvil..."></ui-loader>
       } @else if (vehicle()) {
@@ -174,17 +178,16 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
           </div>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
+      .fleet-detail__stack {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        width: 100%;
       }
 
       .back-btn {

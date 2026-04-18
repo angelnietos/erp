@@ -12,6 +12,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
@@ -40,6 +41,7 @@ import {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canViewUsers()) {
@@ -48,7 +50,7 @@ import {
         permissionHint="users.view o users.manage"
       />
     } @else {
-      <div class="feature-page-shell feature-page-shell--fade-in">
+      <ui-feature-page-shell [fadeIn]="true">
         <ui-feature-header
           title="Usuarios"
           subtitle="Gestión de identidades y control de acceso"
@@ -184,7 +186,7 @@ import {
             }
           </ui-feature-grid>
         }
-      </div>
+      </ui-feature-page-shell>
     }
   `,
   styles: [`

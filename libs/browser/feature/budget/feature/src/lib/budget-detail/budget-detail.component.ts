@@ -14,6 +14,7 @@ import {
   UiLoaderComponent,
   UiTableComponent,
   UiStatCardComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -37,12 +38,15 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
     UiLoaderComponent,
     UiTableComponent,
     UiStatCardComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
     >
+      <div class="budget-detail__stack">
       @if (isLoading()) {
         <ui-loader
           message="Sincronizando expediente fiscal..."
@@ -225,17 +229,16 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
           </div>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
+      .budget-detail__stack {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        width: 100%;
       }
 
       .back-btn {
