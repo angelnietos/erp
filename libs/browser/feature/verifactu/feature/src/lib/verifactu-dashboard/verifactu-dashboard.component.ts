@@ -19,6 +19,7 @@ import {
   UiStatCardComponent,
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
@@ -45,6 +46,7 @@ import {
     UiModalComponent,
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -53,9 +55,10 @@ import {
         permissionHint="verifactu.view"
       />
     } @else {
-    <div
-      class="page-container animate-fade-in feature-page-shell feature-page-shell--pad-md"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [variant]="'padMd'"
+      [fadeIn]="true"
+      [extraClass]="'page-container' + (pluginStore.highPerformanceMode() ? ' high-perf' : '')"
     >
       <header
         class="page-header"
@@ -302,7 +305,7 @@ import {
           </ui-card>
         </div>
       </div>
-    </div>
+    </ui-feature-page-shell>
 
     <ui-modal
       class="verifactu-detail-modal"

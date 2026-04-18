@@ -25,6 +25,7 @@ import {
   UiModalComponent,
   UiInputComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -74,10 +75,11 @@ interface ProjectFormData {
     UiInputComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
   template: `
-    <div class="projects-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'projects-container'">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver proyectos."
@@ -435,7 +437,7 @@ interface ProjectFormData {
         </div>
       </ui-modal>
       }
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `

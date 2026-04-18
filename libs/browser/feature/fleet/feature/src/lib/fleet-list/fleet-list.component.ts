@@ -24,6 +24,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -64,6 +65,7 @@ interface VehicleFormData extends Partial<Vehicle> {
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -72,7 +74,7 @@ interface VehicleFormData extends Partial<Vehicle> {
         permissionHint="fleet.view"
       />
     } @else {
-    <div class="fleet-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'fleet-container'">
       <ui-feature-header
         title="Flota Logística"
         subtitle="Monitoreo de movilidad y mantenimiento preventivo"
@@ -409,7 +411,7 @@ interface VehicleFormData extends Partial<Vehicle> {
           }
         </ui-feature-grid>
       }
-    </div>
+    </ui-feature-page-shell>
 
     <!-- Modal solo para alta; la edición completa está en /fleet/:id/edit -->
     <ui-modal

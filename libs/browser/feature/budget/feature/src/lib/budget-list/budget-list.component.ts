@@ -23,6 +23,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -67,9 +68,10 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="budgets-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'budgets-container'">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver presupuestos."
@@ -553,7 +555,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         </div>
       </ui-modal>
       }
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `

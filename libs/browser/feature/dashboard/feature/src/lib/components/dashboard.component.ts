@@ -21,6 +21,7 @@ import {
   UiFeatureStatsComponent,
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
@@ -69,6 +70,7 @@ interface QuickAction {
     UiFeatureStatsComponent,
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -87,7 +89,11 @@ interface QuickAction {
         <ui-button variant="solid" (clicked)="refreshData()">Reintentar</ui-button>
       </div>
     } @else {
-    <div class="dashboard-wrapper animate-fade-in feature-page-shell feature-page-shell--width-only">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="'dashboard-wrapper'"
+    >
       <!-- Premium Hero Header -->
       <section class="dashboard-hero">
         <div class="hero-content">
@@ -250,7 +256,7 @@ interface QuickAction {
           </div>
         </aside>
       </div>
-    </div>
+    </ui-feature-page-shell>
     }
   `,
   styles: [`

@@ -32,6 +32,7 @@ import {
   UiSelectComponent,
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { EventItem, EventsStateService } from '../services/events-state.service';
 
@@ -62,9 +63,10 @@ interface EventFilter {
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="events-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'events-container'">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver eventos."
@@ -204,7 +206,7 @@ interface EventFilter {
           </ui-feature-grid>
         }
       }
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `

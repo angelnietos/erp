@@ -20,6 +20,7 @@ import {
   UiCardComponent,
   UiButtonComponent,
   type TabItem,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
@@ -51,6 +52,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
     UiTabsComponent,
     UiCardComponent,
     UiButtonComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -59,7 +61,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
         permissionHint="users.view"
       />
     } @else {
-      <div class="availability-container feature-page-shell feature-page-shell--compact">
+      <ui-feature-page-shell [variant]="'compact'" [extraClass]="'availability-container'">
         <nav class="back-row">
           <a routerLink="/users/availability" class="back-link">
             <lucide-icon name="chevron-left" size="18"></lucide-icon>
@@ -244,7 +246,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
             </p>
           }
         </ui-card>
-      </div>
+      </ui-feature-page-shell>
     }
   `,
   styles: [

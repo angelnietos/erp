@@ -29,6 +29,7 @@ import {
   UiSelectComponent,
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -59,6 +60,7 @@ interface Receipt {
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -67,7 +69,7 @@ interface Receipt {
         permissionHint="receipts.view"
       />
     } @else {
-    <div class="receipts-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'receipts-container'">
       <ui-feature-header
         title="Recibos"
         subtitle="Gestión de cobros y conciliación de pagos"
@@ -218,7 +220,7 @@ interface Receipt {
         }
       </ui-feature-grid>
       }
-    </div>
+    </ui-feature-page-shell>
     }
   `,
   styles: [`

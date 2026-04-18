@@ -25,6 +25,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import {
@@ -61,6 +62,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -69,7 +71,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         permissionHint="products.view"
       />
     } @else {
-    <div class="inventory-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'inventory-container'">
       <ui-feature-header
         title="Inventario"
         subtitle="Monitoreo global de activos y recursos"
@@ -268,7 +270,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
           ></ui-pagination>
         </footer>
       }
-    </div>
+    </ui-feature-page-shell>
 
     <!-- Modal solo para alta rápida; la edición se hace en /inventory/:id/edit -->
     <ui-modal

@@ -30,6 +30,7 @@ import {
   UiPaginationComponent,
   UiLoaderComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DomainEventsApiService,
@@ -102,12 +103,13 @@ interface DomainEventPayload {
     UiFeatureStatsComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      class="page-container animate-fade-in feature-page-shell"
-      [class.perf-optimized]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [fadeIn]="true"
+      [extraClass]="'page-container' + (pluginStore.highPerformanceMode() ? ' perf-optimized' : '')"
     >
       @if (!canAccess()) {
         <ui-feature-access-denied
@@ -264,7 +266,7 @@ interface DomainEventPayload {
         }
       </div>
       }
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [`
     .audit-content {

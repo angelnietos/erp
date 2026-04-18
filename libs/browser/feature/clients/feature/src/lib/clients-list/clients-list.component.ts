@@ -25,6 +25,7 @@ import {
   UiTabsComponent,
   UiSelectComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { take } from 'rxjs/operators';
 import { Client, ClientsFacade } from '@josanz-erp/clients-data-access';
@@ -68,9 +69,10 @@ interface ClientFormData extends Partial<Client> {
     UiSelectComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="clients-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'clients-container'">
       <!-- Standard Header -->
       <ui-feature-header
         title="Clientes"
@@ -481,7 +483,7 @@ interface ClientFormData extends Partial<Client> {
           </ui-button>
         </div>
       </ui-modal>
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `

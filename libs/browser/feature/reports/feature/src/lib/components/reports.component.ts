@@ -27,6 +27,7 @@ import {
   UiFeatureFilterBarComponent,
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -83,11 +84,13 @@ interface Report {
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in feature-page-shell feature-page-shell--pad-md"
-      [class.perf-optimized]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [variant]="'padMd'"
+      [fadeIn]="true"
+      [extraClass]="'page-container' + (pluginStore.highPerformanceMode() ? ' perf-optimized' : '')"
     >
       @if (!canAccess()) {
         <ui-feature-access-denied
@@ -367,7 +370,7 @@ interface Report {
         }
       </div>
       }
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `

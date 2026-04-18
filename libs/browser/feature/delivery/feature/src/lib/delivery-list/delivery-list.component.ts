@@ -24,6 +24,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { DeliveryFacade, DeliveryNote } from '@josanz-erp/delivery-data-access';
 import {
@@ -59,6 +60,7 @@ import { Observable, of } from 'rxjs';
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -67,7 +69,7 @@ import { Observable, of } from 'rxjs';
         permissionHint="delivery.view"
       />
     } @else {
-    <div class="delivery-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'delivery-container'">
       <ui-feature-header
         title="Albaranes"
         subtitle="Gestión de manifiestos logísticos y manifiestos de carga"
@@ -271,7 +273,7 @@ import { Observable, of } from 'rxjs';
           }
         </ui-feature-grid>
       }
-    </div>
+    </ui-feature-page-shell>
 
     <!-- Modal solo para alta; la edición está en /delivery/:id/edit -->
     <ui-modal

@@ -24,6 +24,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -65,9 +66,10 @@ interface ServiceFormData extends Partial<Service> {
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="services-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'services-container'">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver el catálogo de servicios."
@@ -528,7 +530,7 @@ interface ServiceFormData extends Partial<Service> {
         </div>
       </ui-modal>
       }
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `

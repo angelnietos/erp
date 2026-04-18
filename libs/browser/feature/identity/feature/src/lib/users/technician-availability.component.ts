@@ -18,6 +18,7 @@ import {
   UiFeatureFilterBarComponent,
   UiFeatureAccessDeniedComponent,
   UiFeatureHeaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Observable, of, firstValueFrom } from 'rxjs';
 
@@ -50,6 +51,7 @@ interface CalendarCell {
     UiFeatureFilterBarComponent,
     UiFeatureAccessDeniedComponent,
     UiFeatureHeaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -58,9 +60,10 @@ interface CalendarCell {
         permissionHint="users.view"
       />
     } @else {
-    <div
-      class="availability-dashboard availability-container feature-page-shell feature-page-shell--compact animate-fade-in"
-      [class.availability-dashboard--team]="viewMode() === 'team'"
+    <ui-feature-page-shell
+      [variant]="'compact'"
+      [fadeIn]="true"
+      [extraClass]="'availability-dashboard availability-container' + (viewMode() === 'team' ? ' availability-dashboard--team' : '')"
     >
       <ui-feature-header
         title="Disponibilidad técnica"
@@ -401,7 +404,7 @@ interface CalendarCell {
           }
         </main>
       </div>
-    </div>
+    </ui-feature-page-shell>
     }
   `,
   styles: [`

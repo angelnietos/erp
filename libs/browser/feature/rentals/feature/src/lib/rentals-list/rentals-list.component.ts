@@ -25,6 +25,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -71,6 +72,7 @@ interface RentalFormData extends Partial<Rental> {
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -79,7 +81,7 @@ interface RentalFormData extends Partial<Rental> {
         permissionHint="rentals.view"
       />
     } @else {
-    <div class="rentals-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'rentals-container'">
       <ui-feature-header
         title="Alquileres"
         subtitle="Gestión operativa y monitoreo de expedientes"
@@ -473,7 +475,7 @@ interface RentalFormData extends Partial<Rental> {
           ></ui-pagination>
         </footer>
       }
-    </div>
+    </ui-feature-page-shell>
 
     <!-- Create/Edit Modal -->
     <ui-modal

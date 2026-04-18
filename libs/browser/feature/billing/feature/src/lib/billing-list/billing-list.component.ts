@@ -24,6 +24,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -69,6 +70,7 @@ interface InvoiceFormData extends Partial<Invoice> {
     UiFeatureCardComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -77,7 +79,7 @@ interface InvoiceFormData extends Partial<Invoice> {
         permissionHint="invoices.view"
       />
     } @else {
-    <div class="billing-container feature-page-shell">
+    <ui-feature-page-shell [extraClass]="'billing-container'">
       <ui-feature-header
         title="Facturación"
         subtitle="Gestión fiscal e integridad Verifactu (AEAT)"
@@ -495,7 +497,7 @@ interface InvoiceFormData extends Partial<Invoice> {
           ></ui-pagination>
         </footer>
       }
-    </div>
+    </ui-feature-page-shell>
 
     <!-- Modals -->
     <ui-modal
