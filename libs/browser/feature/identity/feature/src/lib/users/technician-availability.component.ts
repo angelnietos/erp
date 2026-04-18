@@ -67,6 +67,8 @@ interface CalendarCell {
     >
       <ui-feature-header
         title="Disponibilidad técnica"
+        breadcrumbLead="PLANIFICACIÓN"
+        breadcrumbTail="CUADRANTE TÉCNICO"
         subtitle="Consulta el cuadrante. Los cambios de estado se gestionan solo mediante «Pedir días» y aprobación de RRHH (no edites celdas manualmente)."
         icon="calendar-days"
       />

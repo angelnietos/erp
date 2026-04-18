@@ -72,6 +72,8 @@ import { Observable, of } from 'rxjs';
     <ui-feature-page-shell [extraClass]="'delivery-container'">
       <ui-feature-header
         title="Albaranes"
+        breadcrumbLead="LOGÍSTICA"
+        breadcrumbTail="ALBARANES Y ENTREGAS"
         subtitle="Gestión de manifiestos logísticos y manifiestos de carga"
         icon="truck"
         actionLabel="NUEVO ALBARÁN"

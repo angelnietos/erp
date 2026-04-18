@@ -75,10 +75,12 @@ interface EventFilter {
       } @else {
         <ui-feature-header
           title="Eventos"
+          breadcrumbLead="AGENDA CORPORATIVA"
+          breadcrumbTail="EVENTOS Y ACTIVIDADES"
           subtitle="Planificación y gestión de eventos corporativos"
           icon="calendar"
           actionLabel="NUEVO EVENTO"
-          routerLink="/events/new"
+          (actionClicked)="goToNewEvent()"
         ></ui-feature-header>
 
         <ui-feature-stats>
@@ -328,6 +330,10 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
       this.eventsState.events();
       this.applyFilters();
     });
+  }
+
+  goToNewEvent(): void {
+    void this.router.navigate(['/events', 'new']);
   }
 
   onRowClick(event: EventItem) {

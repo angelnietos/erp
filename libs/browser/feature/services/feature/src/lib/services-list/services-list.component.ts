@@ -78,6 +78,8 @@ interface ServiceFormData extends Partial<Service> {
       } @else {
       <ui-feature-header
         title="Servicios"
+        breadcrumbLead="CATÁLOGO"
+        breadcrumbTail="SERVICIOS Y TARIFAS"
         subtitle="Catálogo de operaciones y tarifas vigentes"
         icon="wrench"
         actionLabel="Nuevo Servicio"

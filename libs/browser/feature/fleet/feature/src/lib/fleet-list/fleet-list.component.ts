@@ -77,6 +77,8 @@ interface VehicleFormData extends Partial<Vehicle> {
     <ui-feature-page-shell [extraClass]="'fleet-container'">
       <ui-feature-header
         title="Flota Logística"
+        breadcrumbLead="OPERACIONES"
+        breadcrumbTail="FLOTA Y MANTENIMIENTO"
         subtitle="Monitoreo de movilidad y mantenimiento preventivo"
         icon="truck"
         actionLabel="NUEVA UNIDAD"

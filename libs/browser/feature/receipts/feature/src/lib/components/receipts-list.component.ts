@@ -72,9 +72,11 @@ interface Receipt {
     <ui-feature-page-shell [extraClass]="'receipts-container'">
       <ui-feature-header
         title="Recibos"
+        breadcrumbLead="TESORERÍA"
+        breadcrumbTail="COBROS Y RECIBOS"
         subtitle="Gestión de cobros y conciliación de pagos"
         icon="wallet"
-        actionLabel="NUECO RECIBO"
+        actionLabel="NUEVO RECIBO"
         (actionClicked)="newReceipt()"
       ></ui-feature-header>
 

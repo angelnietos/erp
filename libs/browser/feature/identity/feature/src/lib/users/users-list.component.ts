@@ -53,6 +53,8 @@ import {
       <ui-feature-page-shell [fadeIn]="true" [extraClass]="'users-container'">
         <ui-feature-header
           title="Usuarios"
+          breadcrumbLead="IDENTIDAD Y ACCESO"
+          breadcrumbTail="USUARIOS DEL ERP"
           subtitle="Gestión de identidades y control de acceso"
           icon="users"
           [actionLabel]="canManageUsers() ? 'Nuevo usuario' : ''"

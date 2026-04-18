@@ -80,6 +80,8 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       } @else {
       <ui-feature-header
         title="Presupuestos"
+        breadcrumbLead="COMERCIAL"
+        breadcrumbTail="PIPELINE DE PRESUPUESTOS"
         subtitle="Gestión comercial y pipeline de ventas"
         icon="file-text"
         actionLabel="Nuevo Presupuesto"

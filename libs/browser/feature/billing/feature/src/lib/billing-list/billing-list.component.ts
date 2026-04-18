@@ -82,6 +82,8 @@ interface InvoiceFormData extends Partial<Invoice> {
     <ui-feature-page-shell [extraClass]="'billing-container'">
       <ui-feature-header
         title="Facturación"
+        breadcrumbLead="FACTURACIÓN Y FISCALIDAD"
+        breadcrumbTail="CONTROL DE INGRESOS"
         subtitle="Gestión fiscal e integridad Verifactu (AEAT)"
         icon="banknote"
         actionLabel="EMITIR FACTURA"

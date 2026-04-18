@@ -76,6 +76,8 @@ interface ClientFormData extends Partial<Client> {
       <!-- Standard Header -->
       <ui-feature-header
         title="Clientes"
+        breadcrumbLead="CRM Y VENTAS"
+        breadcrumbTail="CARTERA DE CLIENTES"
         subtitle="Gestión completa de tu cartera de clientes"
         icon="building-2"
         [actionLabel]="canManage() ? 'Nuevo Cliente' : ''"

@@ -71,6 +71,8 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
 
         <ui-feature-header
           title="Solicitar días"
+          breadcrumbLead="RECURSOS HUMANOS"
+          breadcrumbTail="AUSENCIAS Y PERMISOS"
           [subtitle]="headerSubtitle"
           icon="calendar-plus"
         />

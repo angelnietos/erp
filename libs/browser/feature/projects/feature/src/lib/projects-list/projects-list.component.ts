@@ -88,6 +88,8 @@ interface ProjectFormData {
       } @else {
       <ui-feature-header
         title="Proyectos"
+        breadcrumbLead="OPERACIONES"
+        breadcrumbTail="PROYECTOS Y SEGUIMIENTO"
         subtitle="Gestión operativa y seguimiento de proyectos"
         icon="layout"
         actionLabel="Nuevo Proyecto"

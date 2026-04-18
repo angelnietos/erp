@@ -119,6 +119,8 @@ interface DomainEventPayload {
       } @else {
       <ui-feature-header
         title="Auditoría de Sistema"
+        breadcrumbLead="SEGURIDAD Y CUMPLIMIENTO"
+        breadcrumbTail="TRAZA DE AUDITORÍA"
         subtitle="Trazabilidad completa de operaciones y seguridad"
         icon="shield-check"
       ></ui-feature-header>

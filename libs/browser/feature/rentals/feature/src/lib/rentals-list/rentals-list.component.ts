@@ -84,6 +84,8 @@ interface RentalFormData extends Partial<Rental> {
     <ui-feature-page-shell [extraClass]="'rentals-container'">
       <ui-feature-header
         title="Alquileres"
+        breadcrumbLead="OPERACIONES"
+        breadcrumbTail="ALQUILERES Y EXPEDIENTES"
         subtitle="Gestión operativa y monitoreo de expedientes"
         icon="key"
         actionLabel="NUEVO EXPEDIENTE"

@@ -74,6 +74,8 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     <ui-feature-page-shell [extraClass]="'inventory-container'">
       <ui-feature-header
         title="Inventario"
+        breadcrumbLead="ACTIVOS"
+        breadcrumbTail="STOCK E INVENTARIO"
         subtitle="Monitoreo global de activos y recursos"
         icon="package"
         actionLabel="NUEVO PRODUCTO"

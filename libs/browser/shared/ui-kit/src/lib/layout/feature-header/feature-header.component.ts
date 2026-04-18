@@ -32,6 +32,9 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
               <span class="separator">/</span>
               <span>{{ breadcrumbTail }}</span>
             </div>
+            @if (subtitle) {
+              <p class="hero-subtitle">{{ subtitle }}</p>
+            }
           } @else if (subtitle) {
             <div class="breadcrumb breadcrumb-single">
               <span>{{ subtitle }}</span>
@@ -128,6 +131,20 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       text-transform: none;
       color: var(--text-secondary);
       font-size: 0.875rem;
+    }
+
+    .page-hero-header .hero-subtitle {
+      margin: 0.45rem 0 0 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+      line-height: 1.45;
+      max-width: 52rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .hero-subtitle {
+      font-size: 0.8125rem;
     }
 
     .page-hero-header .separator {
