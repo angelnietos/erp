@@ -1,8 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import {
+  catchHttpDetailNotFound,
+  GlobalAuthStore,
+  httpErrorMessage,
+} from '@josanz-erp/shared-data-access';
 
 export interface Project {
   id: string;
@@ -42,17 +46,6 @@ interface ProjectDetailRow {
   endDate?: string | null;
   clientId?: string | null;
   createdAt: string;
-}
-
-function httpErrorMessage(err: HttpErrorResponse): string {
-  const body = err.error as { message?: string | string[] } | undefined;
-  if (body && typeof body.message === 'string') {
-    return body.message;
-  }
-  if (Array.isArray(body?.message)) {
-    return body.message.join(', ');
-  }
-  return err.message || 'Error de red';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -111,14 +104,9 @@ export class ProjectService {
   }
 
   getProject(id: string): Observable<Project | undefined> {
-    return this.http.get<ProjectDetailRow | null>(`${this.baseUrl}/${id}`).pipe(
-      map((p) => (p ? this.mapDetailRow(p) : undefined)),
-      catchError((err: HttpErrorResponse) => {
-        if (err.status === 404 || err.status === 400) {
-          return of(undefined);
-        }
-        return throwError(() => new Error(httpErrorMessage(err)));
-      }),
+    return this.http.get<ProjectDetailRow>(`${this.baseUrl}/${id}`).pipe(
+      map((p) => this.mapDetailRow(p)),
+      catchHttpDetailNotFound<Project>(),
     );
   }
 

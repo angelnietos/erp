@@ -41,7 +41,7 @@ export class BudgetService {
 
   async send(id: string): Promise<void> {
     const budget = await this.budgetRepository.findById(new EntityId(id));
-    if (!budget) throw new NotFoundException('Budget not found');
+    if (!budget) throw new NotFoundException('Presupuesto no encontrado');
 
     budget.send();
 
@@ -53,7 +53,7 @@ export class BudgetService {
 
   async accept(id: string): Promise<void> {
     const budget = await this.budgetRepository.findById(new EntityId(id));
-    if (!budget) throw new NotFoundException('Budget not found');
+    if (!budget) throw new NotFoundException('Presupuesto no encontrado');
 
     budget.accept();
 
@@ -70,7 +70,7 @@ export class BudgetService {
   async updateDraft(id: string, dto: CreateBudgetDto): Promise<Budget> {
     const budget = await this.budgetRepository.findById(new EntityId(id));
     if (!budget) {
-      throw new NotFoundException('Budget not found');
+      throw new NotFoundException('Presupuesto no encontrado');
     }
     try {
       budget.replaceDraftContent(

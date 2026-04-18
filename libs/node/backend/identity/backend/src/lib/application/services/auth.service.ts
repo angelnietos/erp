@@ -166,7 +166,7 @@ export class AuthService {
       where: { id: userId },
     });
     if (!row || !row.isActive) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Usuario no encontrado');
     }
 
     const userView: AuthenticatedUserView = {
@@ -200,7 +200,7 @@ export class AuthService {
   }> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Usuario no encontrado');
     }
 
     const userRow = await this.prisma.user.findUnique({
@@ -209,7 +209,7 @@ export class AuthService {
     });
     const effectiveTenantId = userRow?.tenantId ?? tenantId;
     if (!effectiveTenantId) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Usuario no encontrado');
     }
 
     const permissions = await this.mergeEffectivePermissions(

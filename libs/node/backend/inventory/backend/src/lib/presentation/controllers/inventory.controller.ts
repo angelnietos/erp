@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 import { InventoryService } from '../../application/services/inventory.service';
@@ -16,7 +27,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async findOne(@Req() req: Request, @Param('id') id: string) {
+  async findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.inventoryService.findOne(requireRequestTenantId(req), id);
   }
 
@@ -26,12 +37,16 @@ export class ProductsController {
   }
 
   @Put(':id')
-  async update(@Req() req: Request, @Param('id') id: string, @Body() data: AnyPayload) {
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: AnyPayload,
+  ) {
     return this.inventoryService.update(requireRequestTenantId(req), id, data);
   }
 
   @Delete(':id')
-  async delete(@Req() req: Request, @Param('id') id: string) {
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.inventoryService.delete(requireRequestTenantId(req), id);
   }
 }

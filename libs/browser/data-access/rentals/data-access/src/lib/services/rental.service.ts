@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export type RentalSignatureStatus = 'NONE' | 'PENDING' | 'SIGNED';
 
@@ -64,8 +65,10 @@ export class RentalService {
     return this.http.get<Rental[]>(this.apiUrl);
   }
 
-  getRental(id: string): Observable<Rental> {
-    return this.http.get<Rental>(`${this.apiUrl}/${id}`);
+  getRental(id: string): Observable<Rental | undefined> {
+    return this.http
+      .get<Rental>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Rental>());
   }
 
   addRentalAnnex(

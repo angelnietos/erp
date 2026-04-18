@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Budget, CreateBudgetDTO } from '@josanz-erp/budget-api';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
@@ -14,8 +15,10 @@ export class BudgetService {
     return this.http.get<Budget[]>(this.apiUrl);
   }
 
-  getBudget(id: string): Observable<Budget | null> {
-    return this.http.get<Budget | null>(`${this.apiUrl}/${id}`);
+  getBudget(id: string): Observable<Budget | undefined> {
+    return this.http
+      .get<Budget>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Budget>());
   }
 
   createBudget(dto: CreateBudgetDTO): Observable<Budget> {

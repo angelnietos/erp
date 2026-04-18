@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
@@ -33,7 +34,7 @@ export class RentalsController {
   @Post(':id/annexes')
   async addAnnex(
     @Req() req: Request,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() body: { title?: string; description?: string },
   ) {
     return this.rentalsService.addAnnex(requireRequestTenantId(req), id, {
@@ -43,7 +44,7 @@ export class RentalsController {
   }
 
   @Get(':id')
-  async findOne(@Req() req: Request, @Param('id') id: string) {
+  async findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.rentalsService.findOne(requireRequestTenantId(req), id);
   }
 
@@ -53,12 +54,16 @@ export class RentalsController {
   }
 
   @Put(':id')
-  async update(@Req() req: Request, @Param('id') id: string, @Body() data: AnyPayload) {
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: AnyPayload,
+  ) {
     return this.rentalsService.update(requireRequestTenantId(req), id, data);
   }
 
   @Delete(':id')
-  async delete(@Req() req: Request, @Param('id') id: string) {
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.rentalsService.delete(requireRequestTenantId(req), id);
   }
 }

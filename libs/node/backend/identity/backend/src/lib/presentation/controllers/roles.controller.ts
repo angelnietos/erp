@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RolesService } from '../../application/services/roles.service';
 import { JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
@@ -37,7 +38,7 @@ export class RolesController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.rolesService.findById(id, this.tenantId);
   }
 
@@ -47,12 +48,15 @@ export class RolesController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: { name?: string; description?: string; permissions?: string[] }) {
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: { name?: string; description?: string; permissions?: string[] },
+  ) {
     return this.rolesService.update(id, this.tenantId, dto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     await this.rolesService.delete(id, this.tenantId);
     return { message: 'Role deleted successfully' };
   }

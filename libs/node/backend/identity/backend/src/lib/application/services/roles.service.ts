@@ -48,7 +48,7 @@ export class RolesService {
     const role = await this.prisma.role.findFirst({
       where: { id, tenantId },
     });
-    if (!role) throw new NotFoundException('Role not found');
+    if (!role) throw new NotFoundException('Rol no encontrado');
     return role;
   }
 

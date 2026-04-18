@@ -52,7 +52,7 @@ export class ProjectsService {
   async update(id: string, dto: UpdateProjectDto): Promise<Project> {
     const project = await this.projectsRepository.findById(new EntityId(id));
     if (!project) {
-      throw new NotFoundException('Project not found');
+      throw new NotFoundException('Proyecto no encontrado');
     }
 
     if (dto.name !== undefined || dto.description !== undefined) {
@@ -84,7 +84,7 @@ export class ProjectsService {
   async complete(id: string): Promise<Project> {
     const project = await this.projectsRepository.findById(new EntityId(id));
     if (!project) {
-      throw new NotFoundException('Project not found');
+      throw new NotFoundException('Proyecto no encontrado');
     }
 
     project.complete();
@@ -100,7 +100,7 @@ export class ProjectsService {
   async cancel(id: string): Promise<Project> {
     const project = await this.projectsRepository.findById(new EntityId(id));
     if (!project) {
-      throw new NotFoundException('Project not found');
+      throw new NotFoundException('Proyecto no encontrado');
     }
 
     project.cancel();
@@ -118,7 +118,7 @@ export class ProjectsService {
       new EntityId(id),
     );
     if (!originalProject) {
-      throw new NotFoundException('Project not found');
+      throw new NotFoundException('Proyecto no encontrado');
     }
 
     const duplicatedProject = originalProject.duplicate();

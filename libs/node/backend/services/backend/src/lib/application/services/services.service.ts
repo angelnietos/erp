@@ -60,7 +60,7 @@ export class ServicesService {
   async update(id: string, dto: UpdateServiceDto): Promise<Service> {
     const service = await this.servicesRepository.findById(new EntityId(id));
     if (!service) {
-      throw new NotFoundException('Service not found');
+      throw new NotFoundException('Servicio no encontrado');
     }
 
     if (dto.name !== undefined || dto.description !== undefined) {
@@ -90,7 +90,7 @@ export class ServicesService {
   async deactivate(id: string): Promise<Service> {
     const service = await this.servicesRepository.findById(new EntityId(id));
     if (!service) {
-      throw new NotFoundException('Service not found');
+      throw new NotFoundException('Servicio no encontrado');
     }
 
     service.deactivate();
@@ -106,7 +106,7 @@ export class ServicesService {
   async activate(id: string): Promise<Service> {
     const service = await this.servicesRepository.findById(new EntityId(id));
     if (!service) {
-      throw new NotFoundException('Service not found');
+      throw new NotFoundException('Servicio no encontrado');
     }
 
     service.activate();

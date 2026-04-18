@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { catchHttpDetailNotFound, httpErrorMessage } from '@josanz-erp/shared-data-access';
 
 export interface ClientContact {
   id: string;
@@ -89,17 +90,6 @@ export interface Client {
   avatarUrl?: string;
 }
 
-function httpErrorMessage(err: HttpErrorResponse): string {
-  const body = err.error as { message?: string | string[] } | undefined;
-  if (body && typeof body.message === 'string') {
-    return body.message;
-  }
-  if (Array.isArray(body?.message)) {
-    return body.message.join(', ');
-  }
-  return err.message || 'Error de red';
-}
-
 @Injectable({ providedIn: 'root' })
 export class ClientService {
   private http = inject(HttpClient);
@@ -110,14 +100,9 @@ export class ClientService {
   }
 
   getClient(id: string): Observable<Client | undefined> {
-    return this.http.get<Client>(`${this.apiUrl}/${id}`).pipe(
-      catchError((err: HttpErrorResponse) => {
-        if (err.status === 404 || err.status === 400) {
-          return of(undefined);
-        }
-        return throwError(() => new Error(httpErrorMessage(err)));
-      }),
-    );
+    return this.http
+      .get<Client>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Client>());
   }
 
   createClient(client: Omit<Client, 'id'>): Observable<Client> {

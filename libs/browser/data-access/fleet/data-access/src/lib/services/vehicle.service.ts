@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface Vehicle {
   id: string;
@@ -48,7 +49,9 @@ export class VehicleService {
   }
 
   getVehicle(id: string): Observable<Vehicle | undefined> {
-    return this.http.get<Vehicle>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<Vehicle>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Vehicle>());
   }
 
   getVehiclesByStatus(status: string): Observable<Vehicle[]> {

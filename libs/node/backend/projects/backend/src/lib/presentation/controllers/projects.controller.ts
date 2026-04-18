@@ -45,7 +45,7 @@ export class ProjectsController {
   async findById(@Param('id', ParseUUIDPipe) id: string) {
     const project = await this.projectsService.findById(id);
     if (!project) {
-      throw new NotFoundException('Project not found');
+      throw new NotFoundException('Proyecto no encontrado');
     }
     return {
       id: project.id.value,

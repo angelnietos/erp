@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UsersService } from '../../application/services/users.service';
 import {
@@ -26,7 +27,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findById(id);
   }
 
@@ -36,12 +37,12 @@ export class UsersController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     await this.usersService.delete(id);
     return { message: 'User deleted successfully' };
   }

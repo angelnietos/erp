@@ -8,6 +8,7 @@ import {
   Body,
   UseGuards,
   Req,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DeliveryService } from '../../application/delivery.service';
@@ -26,7 +27,7 @@ export class DeliveryController {
   }
 
   @Get(':id')
-  async findOne(@Req() req: Request, @Param('id') id: string) {
+  async findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.deliveryService.findOne(requireRequestTenantId(req), id);
   }
 
@@ -35,31 +36,31 @@ export class DeliveryController {
     return this.deliveryService.create(requireRequestTenantId(req), data);
   }
 
-  @Put(':id')
-  async update(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() data: DeliveryRequestPayload
-  ) {
-    return this.deliveryService.update(requireRequestTenantId(req), id, data);
-  }
-
-  @Delete(':id')
-  async delete(@Req() req: Request, @Param('id') id: string) {
-    return this.deliveryService.delete(requireRequestTenantId(req), id);
-  }
-
   @Put(':id/sign')
   async sign(
     @Req() req: Request,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body('signature') signature: string
   ) {
     return this.deliveryService.sign(requireRequestTenantId(req), id, signature);
   }
 
   @Put(':id/complete')
-  async complete(@Req() req: Request, @Param('id') id: string) {
+  async complete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.deliveryService.complete(requireRequestTenantId(req), id);
+  }
+
+  @Put(':id')
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: DeliveryRequestPayload
+  ) {
+    return this.deliveryService.update(requireRequestTenantId(req), id, data);
+  }
+
+  @Delete(':id')
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.deliveryService.delete(requireRequestTenantId(req), id);
   }
 }

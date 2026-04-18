@@ -1,3 +1,7 @@
+export {
+  catchHttpDetailNotFound,
+  httpErrorMessage,
+} from './lib/http/http-not-found';
 export { GlobalAuthStore } from './lib/store/auth.store';
 export { rbacAllows } from './lib/utils/rbac';
 export * from './lib/services/theme.service';

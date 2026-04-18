@@ -448,7 +448,11 @@ export class DeliveryDetailComponent implements OnInit {
     }
     this.deliveryNoteService.getDeliveryNote(id).subscribe({
       next: (api) => {
-        this.delivery.set(this.toView(api));
+        if (api) {
+          this.delivery.set(this.toView(api));
+        } else if (!fromList) {
+          this.delivery.set(null);
+        }
         this.isLoading.set(false);
       },
       error: () => {

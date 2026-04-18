@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Budget } from '@josanz-erp/budget-api';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface Invoice {
   id: string;
@@ -43,7 +44,9 @@ export class InvoiceService {
   }
 
   getInvoice(id: string): Observable<Invoice | undefined> {
-    return this.http.get<Invoice>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<Invoice>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Invoice>());
   }
 
   createInvoice(invoice: Omit<Invoice, 'id'>): Observable<Invoice> {

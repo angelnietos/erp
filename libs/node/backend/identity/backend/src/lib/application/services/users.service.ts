@@ -136,7 +136,7 @@ export class UsersService {
     const tenantId = this.requireTenantId();
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Usuario no encontrado');
     }
 
     const rolesData = await this.prisma.role.findMany({
@@ -212,7 +212,7 @@ export class UsersService {
     this.assertStringArrayField(dto.extraPermissions, 'extraPermissions');
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Usuario no encontrado');
     }
 
     if (dto.email && dto.email !== user.email) {
@@ -258,7 +258,7 @@ export class UsersService {
     const tenantId = this.requireTenantId();
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Usuario no encontrado');
     }
 
     await this.userRepository.delete(id);

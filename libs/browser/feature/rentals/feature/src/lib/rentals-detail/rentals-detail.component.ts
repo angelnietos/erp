@@ -350,7 +350,12 @@ export class RentalsDetailComponent implements OnInit {
     }
     this.service.getRental(id).subscribe({
       next: (r) => {
-        this.rental.set(r);
+        if (r) {
+          this.service.upsertListCache(r);
+          this.rental.set(r);
+        } else if (!cached) {
+          this.rental.set(null);
+        }
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },

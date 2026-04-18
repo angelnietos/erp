@@ -492,6 +492,8 @@ export class BudgetDetailComponent implements OnInit {
       next: (budget) => {
         if (budget) {
           this.budget.set(budget);
+        } else if (!fromStore) {
+          this.budget.set(null);
         }
         this.isLoading.set(false);
       },

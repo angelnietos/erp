@@ -167,6 +167,9 @@
       "@josanz-erp/services-core": [
         "libs/isomorphic/core/services/core/src/index.ts"
       ],
+      "@josanz-erp/services-api": [
+        "libs/isomorphic/api/services/api/src/index.ts"
+      ],
       "@josanz-erp/receipts-core": [
         "libs/isomorphic/core/receipts/core/src/index.ts"
       ],

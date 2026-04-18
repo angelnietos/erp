@@ -251,6 +251,10 @@ export class DeliveryEditComponent implements OnInit {
     this.noteId = id;
     this.api.getDeliveryNote(id).subscribe({
       next: (n) => {
+        if (!n) {
+          this.loadFromList(id);
+          return;
+        }
         this.applyNote(n);
         this.isLoading.set(false);
       },
