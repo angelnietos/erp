@@ -112,9 +112,9 @@
 }
 
 .bb-sidebar__toggle:hover {
-  border-color: #080808;
-  color: #080808;
-  background: rgba(0, 0, 0, 0.04);
+  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 45%, var(--bb-border));
+  color: var(--brand, var(--bio-primary));
+  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 7%, var(--bio-white));
 }
 
 .bb-sidebar__nav {
@@ -158,16 +158,16 @@
 
 .bb-nav-link:hover {
   background: var(--bio-white);
-  color: #080808;
-  border-color: var(--bio-gray-200);
+  color: var(--text-primary, var(--bio-gray-900));
+  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 18%, var(--bio-gray-200));
 }
 
 .bb-nav-link.is-active {
-  background: rgba(0, 0, 0, 0.05);
-  color: #080808;
+  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 6%, transparent);
+  color: var(--text-primary, var(--bio-gray-900));
   font-weight: 600;
-  border-color: #d1d1d1;
-  box-shadow: inset 3px 0 0 0 #080808;
+  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 22%, var(--bio-gray-200));
+  box-shadow: inset 3px 0 0 0 var(--brand, var(--bio-primary));
 }
 
 .bb-nav-link--btn {

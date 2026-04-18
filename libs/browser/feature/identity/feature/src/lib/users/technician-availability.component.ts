@@ -1639,6 +1639,48 @@ interface PersonalGridCell {
       opacity: 0.35;
     }
 
+    /* Cuadrante equipo — pantallas estrechas (misma ruptura que isCompactTeamNav, max 900px) */
+    @media (max-width: 899px) {
+      .availability-dashboard--team .legal-hint {
+        padding: 0.65rem 0.75rem;
+        font-size: 0.78rem;
+      }
+      .availability-dashboard--team .dashboard-toolbar {
+        padding-bottom: 0.55rem;
+        gap: 0.65rem 0.85rem;
+      }
+      .availability-dashboard--team .team-board-toolbar {
+        padding: 1rem 0.75rem 0.75rem;
+        gap: 0.85rem;
+      }
+      .availability-dashboard--team .team-board-toolbar-search {
+        padding: 0 0.75rem 0.65rem;
+      }
+      .availability-dashboard--team .team-board-hint,
+      .availability-dashboard--team .team-board-scroll-hint-desktop {
+        font-size: 0.65rem;
+      }
+      .availability-dashboard--team .team-mobile-day-bar {
+        padding-bottom: calc(0.55rem + env(safe-area-inset-bottom, 0px));
+        padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+      }
+      .availability-dashboard--team .team-mobile-day-bar__btn:not(.team-mobile-day-bar__btn--accent) {
+        min-width: 44px;
+        min-height: 44px;
+        width: 44px;
+        height: 44px;
+      }
+      .availability-dashboard--team .team-mobile-day-bar__btn--accent {
+        min-height: 44px;
+        width: auto;
+        padding: 0 0.85rem;
+      }
+      .availability-dashboard--team .team-board-card {
+        border-radius: 14px !important;
+      }
+    }
+
     /* UTILS */
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 10px; }

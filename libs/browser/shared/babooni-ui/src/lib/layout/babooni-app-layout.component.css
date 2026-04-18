@@ -146,9 +146,9 @@
 }
 
 .bb-icon-btn:hover {
-  border-color: #080808;
-  color: #080808;
-  background: rgba(0, 0, 0, 0.04);
+  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 45%, var(--bb-border));
+  color: var(--brand, var(--bio-primary));
+  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 7%, var(--bio-white));
 }
 
 .bb-dot {
