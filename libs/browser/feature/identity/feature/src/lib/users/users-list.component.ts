@@ -57,7 +57,7 @@ import {
           breadcrumbTail="USUARIOS DEL ERP"
           subtitle="Gestión de identidades y control de acceso"
           icon="users"
-          [actionLabel]="canManageUsers() ? 'Nuevo usuario' : ''"
+          [actionLabel]="canManageUsers() ? 'NUEVO USUARIO' : ''"
           (actionClicked)="onHeaderPrimaryAction()"
         ></ui-feature-header>
 

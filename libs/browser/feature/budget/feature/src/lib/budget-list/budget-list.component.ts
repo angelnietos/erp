@@ -84,7 +84,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         breadcrumbTail="PIPELINE DE PRESUPUESTOS"
         subtitle="Gestión comercial y pipeline de ventas"
         icon="file-text"
-        actionLabel="Nuevo Presupuesto"
+        actionLabel="NUEVO PRESUPUESTO"
         (actionClicked)="openCreateModal()"
       ></ui-feature-header>
 

@@ -92,7 +92,7 @@ interface ProjectFormData {
         breadcrumbTail="PROYECTOS Y SEGUIMIENTO"
         subtitle="Gestión operativa y seguimiento de proyectos"
         icon="layout"
-        actionLabel="Nuevo Proyecto"
+        actionLabel="NUEVO PROYECTO"
         (actionClicked)="openCreateModal()"
       ></ui-feature-header>
 

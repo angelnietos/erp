@@ -158,6 +158,13 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       flex-wrap: wrap;
     }
 
+    /* CTA principal: mismo criterio que el resto de acciones tipo “NUEVO …” del ERP */
+    .page-hero-header ::ng-deep ui-button.primary-action .btn {
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .page-title {
       font-size: clamp(1.2rem, 1.1vw + 0.85rem, 1.5rem);
       font-weight: 700;

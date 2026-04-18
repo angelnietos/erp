@@ -82,7 +82,7 @@ interface ServiceFormData extends Partial<Service> {
         breadcrumbTail="SERVICIOS Y TARIFAS"
         subtitle="Catálogo de operaciones y tarifas vigentes"
         icon="wrench"
-        actionLabel="Nuevo Servicio"
+        actionLabel="NUEVO SERVICIO"
         (actionClicked)="openCreateModal()"
       ></ui-feature-header>
 

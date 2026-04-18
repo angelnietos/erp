@@ -80,7 +80,7 @@ interface ClientFormData extends Partial<Client> {
         breadcrumbTail="CARTERA DE CLIENTES"
         subtitle="Gestión completa de tu cartera de clientes"
         icon="building-2"
-        [actionLabel]="canManage() ? 'Nuevo Cliente' : ''"
+        [actionLabel]="canManage() ? 'NUEVO CLIENTE' : ''"
         (actionClicked)="openCreateModal()"
       ></ui-feature-header>
 
