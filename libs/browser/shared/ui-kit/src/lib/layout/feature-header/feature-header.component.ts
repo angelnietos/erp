@@ -45,6 +45,7 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
           <ng-content select="[actions]"></ng-content>
           @if (actionLabel) {
             <ui-button
+              color="app"
               variant="solid"
               size="md"
               [icon]="actionIcon"
@@ -74,6 +75,7 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
             <ng-content select="[actions]"></ng-content>
             @if (actionLabel) {
               <ui-button
+                color="app"
                 variant="solid"
                 size="md"
                 [icon]="actionIcon"
@@ -281,20 +283,19 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       border-radius: 12px;
     }
 
+    /**
+     * Babooni: el CTA “NUEVO …” usa el color de marca (--brand vía .btn-color-app),
+     * sin forzar negro; solo tipografía y radio acordes al tema.
+     */
     :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn {
-      background: #0a0a0a;
-      border-color: #0a0a0a;
-      color: #ffffff;
       text-transform: none;
       letter-spacing: 0.03em;
       font-weight: 600;
-      border-radius: 10px;
-      box-shadow: none;
+      border-radius: var(--btn-radius, var(--radius-md, 8px));
     }
 
     :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn:hover {
-      transform: none;
-      filter: brightness(1.08);
+      filter: brightness(1.06);
     }
 
     @media (max-width: 768px) {
