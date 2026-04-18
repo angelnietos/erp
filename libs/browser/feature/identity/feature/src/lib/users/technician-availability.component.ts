@@ -507,7 +507,7 @@ interface PersonalGridCell {
                 <div class="team-board-scroll-wrap">
                   <div
                     class="team-board-scroll custom-scrollbar-h"
-                    tabindex="0"
+                    tabindex="-1"
                     (scroll)="onTeamHorizontalScroll($event)"
                   >
                   <div class="team-board-matrix" [style.--team-day-cols]="monthDays().length">
@@ -1695,14 +1695,6 @@ interface PersonalGridCell {
         justify-content: center;
         width: 100%;
       }
-      .availability-dashboard--team .team-board-scroll {
-        scroll-snap-type: x proximity;
-        scroll-padding-left: var(--avail-persona-width);
-      }
-      .availability-dashboard--team .day-header-col,
-      .availability-dashboard--team .board-day-cell {
-        scroll-snap-align: start;
-      }
       .availability-dashboard--team .team-board-toolbar {
         padding: 1rem 0.75rem 0.75rem;
         gap: 0.85rem;
@@ -1734,12 +1726,6 @@ interface PersonalGridCell {
         border-radius: 14px !important;
       }
     }
-    @media (max-width: 899px) and (prefers-reduced-motion: reduce) {
-      .availability-dashboard--team .team-board-scroll {
-        scroll-snap-type: none;
-      }
-    }
-
     /* UTILS */
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 10px; }
@@ -2699,8 +2685,11 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     if (!this.canAccess()) {
       return;
     }
+    if (ev.defaultPrevented) {
+      return;
+    }
     const el = ev.target as HTMLElement | null;
-    if (el?.closest('input, textarea, select, [contenteditable="true"]')) {
+    if (TechnicianAvailabilityComponent.shouldIgnoreAvailabilityHotkeys(el)) {
       return;
     }
     if (ev.ctrlKey || ev.metaKey || ev.altKey) {
@@ -2726,6 +2715,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
           ev.preventDefault();
           this.shortcutsHelpOpen.set(false);
         } else if (this.availabilitySearchQuery().trim()) {
+          ev.preventDefault();
           this.clearAvailabilitySearch();
         }
         break;
@@ -2770,6 +2760,32 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       default:
         break;
     }
+  }
+
+  /**
+   * No capturar atajos cuando el foco está en campos de texto, overlays (CDK/Material) o
+   * diálogos ajenos a esta pantalla — evita cerrar menús / modales o interferir con Escape.
+   * El popover de atajos (`.shortcuts-popover`) sí se gestiona aquí.
+   */
+  private static shouldIgnoreAvailabilityHotkeys(el: HTMLElement | null): boolean {
+    if (!el) {
+      return true;
+    }
+    if (
+      el.closest(
+        'input, textarea, select, [contenteditable="true"], [role="combobox"], [role="searchbox"], [role="menu"], [role="menubar"], [role="listbox"], [role="option"], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"]',
+      )
+    ) {
+      return true;
+    }
+    if (el.closest('.cdk-overlay-container, .cdk-overlay-pane, .cdk-global-overlay-wrapper')) {
+      return true;
+    }
+    const dlg = el.closest('[role="dialog"], [role="alertdialog"]');
+    if (dlg instanceof HTMLElement && !dlg.classList.contains('shortcuts-popover')) {
+      return true;
+    }
+    return false;
   }
 
   private getRandomMockAvailability(day: number, techId: string, monthSeed = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
