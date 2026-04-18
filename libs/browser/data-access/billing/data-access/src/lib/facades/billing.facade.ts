@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { Invoice, InvoiceService } from '../services/invoice.service';
 import { BudgetService } from '@josanz-erp/budget-data-access';
 import { Budget } from '@josanz-erp/budget-api';
@@ -120,13 +121,22 @@ export class BillingFacade {
     });
   }
 
-  updateInvoice(id: string, updates: Partial<Invoice>): void {
-    this.service.updateInvoice(id, updates).subscribe({
-      next: (updatedItem) =>
+  /**
+   * Actualiza en API y sincroniza `_allInvoices`. Reutilizable desde formulario,
+   * listado o detalle cuando hace falta encadenar (p. ej. navegar tras guardar).
+   */
+  updateInvoice$(id: string, updates: Partial<Invoice>): Observable<Invoice> {
+    return this.service.updateInvoice(id, updates).pipe(
+      tap((updatedItem) =>
         this._allInvoices.update((items) =>
           items.map((i) => (i.id === id ? updatedItem : i)),
         ),
-    });
+      ),
+    );
+  }
+
+  updateInvoice(id: string, updates: Partial<Invoice>): void {
+    this.updateInvoice$(id, updates).subscribe();
   }
 
   deleteInvoice(id: string): void {

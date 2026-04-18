@@ -377,16 +377,15 @@ export class BillingEditComponent implements OnInit {
   save(): void {
     const invToEdit = this.editingInvoice();
     if (invToEdit) {
-      this.invoiceService
-        .updateInvoice(invToEdit.id, {
+      this.facade
+        .updateInvoice$(invToEdit.id, {
           invoiceNumber: this.formData.invoiceNumber,
           issueDate: this.formData.issueDate,
           dueDate: this.formData.dueDate,
           notes: this.formData.notes,
         })
         .subscribe({
-          next: (updated) => {
-            this.facade.upsertInvoice(updated);
+          next: () => {
             this.toast.show('Factura actualizada', 'success');
             void this.router.navigate(['/billing', invToEdit.id]);
           },
