@@ -1,16 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, ArrowLeft, Save, X } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiInputComponent,
   UiTextareaComponent,
   UiSelectComponent,
   UiCardComponent,
+  UiLoaderComponent,
+  UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
+import { Project, ProjectService, ProjectsFacade } from '@josanz-erp/projects-data-access';
 
 interface ProjectForm {
   name: string;
@@ -18,6 +21,7 @@ interface ProjectForm {
   startDate: string;
   endDate: string;
   clientId: string;
+  status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 }
 
 @Component({
@@ -31,106 +35,190 @@ interface ProjectForm {
     UiTextareaComponent,
     UiSelectComponent,
     UiCardComponent,
+    UiLoaderComponent,
+    UiBadgeComponent,
     LucideAngularModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-actions">
-          <ui-button
-            variant="ghost"
-            icon="arrow-left"
-            (click)="goBack()"
-          >
-            Volver
-          </ui-button>
+      @if (!isNew && isLoading()) {
+        <div class="page-loading">
+          <ui-loader message="Cargando proyecto…"></ui-loader>
         </div>
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text">
-            {{ isNew ? 'Nuevo Proyecto' : 'Editar Proyecto' }}
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">GESTIÓN OPERATIVA</span>
-            <span class="separator">/</span>
-            <span>PROYECTOS</span>
+      } @else if (!isNew && loadError()) {
+        <div class="page-error">
+          <lucide-icon name="alert-circle" size="48" class="page-error-icon"></lucide-icon>
+          <p>{{ loadError() }}</p>
+          <div class="page-error-actions">
+            <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
+            <ui-button variant="ghost" (clicked)="goBack()">Volver al listado</ui-button>
           </div>
         </div>
-        <div class="header-actions">
-          <ui-button variant="secondary" icon="x" (click)="goBack()">
-            Cancelar
-          </ui-button>
-          <ui-button variant="primary" icon="save" (click)="save()">
-            Guardar
-          </ui-button>
+      } @else {
+        <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+          <div class="header-actions">
+            <ui-button variant="ghost" icon="arrow-left" (clicked)="goBack()"> Volver </ui-button>
+          </div>
+          <div class="header-breadcrumb">
+            <h1 class="page-title text-uppercase glow-text">{{ pageTitle() }}</h1>
+            <div class="breadcrumb">
+              <span class="active" [style.color]="currentTheme().primary">GESTIÓN OPERATIVA</span>
+              <span class="separator">/</span>
+              <span>PROYECTOS</span>
+            </div>
+          </div>
+          <div class="header-actions">
+            @if (isViewMode()) {
+              <ui-button variant="primary" icon="pencil" (clicked)="goEdit()">Editar</ui-button>
+            } @else {
+              <ui-button variant="secondary" icon="x" (clicked)="goBack()">Cancelar</ui-button>
+              <ui-button variant="primary" icon="save" [disabled]="saving()" (clicked)="save()">
+                {{ saving() ? 'Guardando…' : 'Guardar' }}
+              </ui-button>
+            }
+          </div>
+        </header>
+
+        <div class="content-section">
+          @if (isViewMode() && loadedProject(); as p) {
+            <ui-card shape="auto" class="form-card">
+              <div class="view-grid">
+                <div class="view-block">
+                  <span class="view-label">Nombre</span>
+                  <p class="view-value">{{ p.name }}</p>
+                </div>
+                <div class="view-block span-2">
+                  <span class="view-label">Descripción</span>
+                  <p class="view-value">{{ p.description || '—' }}</p>
+                </div>
+                <div class="view-block">
+                  <span class="view-label">Estado</span>
+                  <ui-badge [variant]="statusVariant(p.status)">{{ p.status }}</ui-badge>
+                </div>
+                <div class="view-block">
+                  <span class="view-label">Cliente</span>
+                  <p class="view-value">{{ p.clientName || '—' }}</p>
+                </div>
+                <div class="view-block">
+                  <span class="view-label">Inicio</span>
+                  <p class="view-value">{{ p.startDate || '—' }}</p>
+                </div>
+                <div class="view-block">
+                  <span class="view-label">Fin</span>
+                  <p class="view-value">{{ p.endDate || '—' }}</p>
+                </div>
+              </div>
+            </ui-card>
+          } @else {
+            <ui-card shape="auto" class="form-card">
+              <div class="card-section">
+                <div class="section-info">
+                  <h3 class="section-title">Información General</h3>
+                  <p class="section-desc">Detalles básicos para identificar y describir el proyecto.</p>
+                </div>
+                <div class="form-grid">
+                  <ui-input
+                    label="Nombre del Proyecto"
+                    [(ngModel)]="form.name"
+                    name="projName"
+                    placeholder="Ej: Revestimiento Fachada Josanz"
+                    icon="briefcase"
+                    [attr.readonly]="isViewMode() ? true : null"
+                  >
+                  </ui-input>
+
+                  <ui-textarea
+                    label="Descripción Detallada"
+                    [(ngModel)]="form.description"
+                    name="projDesc"
+                    placeholder="Describe los objetivos y alcance del proyecto..."
+                    [rows]="4"
+                  >
+                  </ui-textarea>
+                </div>
+              </div>
+
+              <div class="section-divider"></div>
+
+              <div class="card-section">
+                <div class="section-info">
+                  <h3 class="section-title">Planificación y Cliente</h3>
+                  <p class="section-desc">Define los plazos temporales y el cliente asignado.</p>
+                </div>
+                <div class="form-grid grid-2">
+                  <ui-input
+                    label="Fecha de Inicio"
+                    type="date"
+                    icon="calendar"
+                    [(ngModel)]="form.startDate"
+                    name="startDate"
+                  >
+                  </ui-input>
+
+                  <ui-input
+                    label="Fecha de Fin Estimada"
+                    type="date"
+                    icon="calendar"
+                    [(ngModel)]="form.endDate"
+                    name="endDate"
+                  >
+                  </ui-input>
+
+                  <ui-select
+                    label="Estado"
+                    icon="activity"
+                    [(ngModel)]="form.status"
+                    name="status"
+                    [options]="statusOptions"
+                  >
+                  </ui-select>
+
+                  <ui-select
+                    label="Cliente Asociado"
+                    icon="users"
+                    [(ngModel)]="form.clientId"
+                    name="clientId"
+                    [options]="clientOptions"
+                  >
+                  </ui-select>
+                </div>
+              </div>
+            </ui-card>
+          }
         </div>
-      </header>
-
-      <div class="content-section">
-        <ui-card shape="auto" class="form-card">
-          <div class="card-section">
-            <div class="section-info">
-              <h3 class="section-title">Información General</h3>
-              <p class="section-desc">Detalles básicos para identificar y describir el proyecto.</p>
-            </div>
-            <div class="form-grid">
-              <ui-input
-                label="Nombre del Proyecto"
-                [(ngModel)]="form.name"
-                placeholder="Ej: Revestimiento Fachada Josanz"
-                icon="briefcase"
-                required
-              >
-              </ui-input>
-  
-              <ui-textarea
-                label="Descripción Detallada"
-                [(ngModel)]="form.description"
-                placeholder="Describe los objetivos y alcance del proyecto..."
-                [rows]="4"
-              >
-              </ui-textarea>
-            </div>
-          </div>
-
-          <div class="section-divider"></div>
-
-          <div class="card-section">
-            <div class="section-info">
-              <h3 class="section-title">Planificación y Cliente</h3>
-              <p class="section-desc">Define los plazos temporales y el cliente asignado.</p>
-            </div>
-            <div class="form-grid grid-2">
-              <ui-input
-                label="Fecha de Inicio"
-                type="date"
-                icon="calendar"
-                [(ngModel)]="form.startDate"
-              >
-              </ui-input>
-  
-              <ui-input
-                label="Fecha de Fin Estimada"
-                type="date"
-                icon="calendar"
-                [(ngModel)]="form.endDate"
-              >
-              </ui-input>
-  
-              <ui-select
-                label="Cliente Asociado"
-                icon="users"
-                [(ngModel)]="form.clientId"
-                [options]="clientOptions"
-              >
-              </ui-select>
-            </div>
-          </div>
-        </ui-card>
-      </div>
+      }
     </div>
   `,
   styles: [
     `
+      .page-loading,
+      .page-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1.5rem;
+        text-align: center;
+        gap: 0.75rem;
+      }
+      .page-error-icon {
+        color: var(--error);
+        opacity: 0.9;
+      }
+      .page-error p {
+        margin: 0;
+        color: var(--text-muted);
+        max-width: 28ch;
+      }
+      .page-error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+
       .page-container {
         padding: 0;
         max-width: 100%;
@@ -186,6 +274,31 @@ interface ProjectForm {
         padding: 0;
       }
 
+      .view-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem 2rem;
+        padding: 2rem;
+      }
+      .view-grid .span-2 {
+        grid-column: 1 / -1;
+      }
+      .view-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+      .view-value {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        line-height: 1.45;
+      }
+
       .card-section {
         padding: 2rem;
         display: grid;
@@ -238,27 +351,48 @@ interface ProjectForm {
           grid-template-columns: 1fr;
           gap: 1.5rem;
         }
+        .view-grid {
+          grid-template-columns: 1fr;
+        }
       }
     `,
   ],
 })
 export class ProjectsDetailComponent implements OnInit {
-  readonly ArrowLeft = ArrowLeft;
-  readonly Save = Save;
-  readonly X = X;
-
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly toast = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly projectService = inject(ProjectService);
+  private readonly projectsFacade = inject(ProjectsFacade);
 
   currentTheme = this.themeService.currentThemeData;
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-
-
   isNew = false;
   projectId: string | null = null;
+  isLoading = signal(false);
+  loadError = signal<string | null>(null);
+  saving = signal(false);
+  loadedProject = signal<Project | null>(null);
+
+  /** Ruta /projects/:id sin /edit → solo lectura. */
+  isViewMode = computed(() => {
+    if (this.isNew || !this.projectId) {
+      return false;
+    }
+    return !this.router.url.includes('/edit');
+  });
+
+  pageTitle = computed(() => {
+    if (this.isNew) {
+      return 'Nuevo Proyecto';
+    }
+    if (this.isViewMode()) {
+      return 'Proyecto';
+    }
+    return 'Editar Proyecto';
+  });
 
   form: ProjectForm = {
     name: '',
@@ -266,7 +400,14 @@ export class ProjectsDetailComponent implements OnInit {
     startDate: '',
     endDate: '',
     clientId: '',
+    status: 'ACTIVE',
   };
+
+  statusOptions = [
+    { value: 'ACTIVE', label: 'Activo' },
+    { value: 'COMPLETED', label: 'Completado' },
+    { value: 'CANCELLED', label: 'Cancelado' },
+  ];
 
   clientOptions = [
     { value: '', label: 'Seleccionar cliente' },
@@ -283,31 +424,113 @@ export class ProjectsDetailComponent implements OnInit {
     }
   }
 
-  goBack() {
-    this.router.navigate(['/projects']);
+  reload(): void {
+    if (this.projectId) {
+      this.loadProject(this.projectId);
+    }
   }
 
-  save() {
+  goBack(): void {
+    void this.router.navigate(['/projects']);
+  }
+
+  goEdit(): void {
+    if (this.projectId) {
+      void this.router.navigate(['/projects', this.projectId, 'edit']);
+    }
+  }
+
+  statusVariant(s: Project['status']): 'success' | 'warning' | 'info' | 'danger' | 'secondary' {
+    switch (s) {
+      case 'ACTIVE':
+        return 'success';
+      case 'COMPLETED':
+        return 'info';
+      case 'CANCELLED':
+        return 'danger';
+      default:
+        return 'secondary';
+    }
+  }
+
+  save(): void {
     if (!this.form.name?.trim()) {
       this.toast.show('El nombre del proyecto es obligatorio', 'error');
       return;
     }
-    // In-memory update — when a real ProjectService is available, call it here
-    this.toast.show(
-      this.isNew ? '✅ Proyecto creado correctamente' : '✅ Proyecto actualizado correctamente',
-      'success'
-    );
-    this.router.navigate(['/projects']);
+
+    this.saving.set(true);
+
+    const body: Omit<Project, 'id' | 'createdAt'> = {
+      name: this.form.name.trim(),
+      description: this.form.description?.trim() || undefined,
+      status: this.form.status,
+      startDate: this.form.startDate || undefined,
+      endDate: this.form.endDate || undefined,
+      clientId: this.form.clientId || undefined,
+      clientName: undefined,
+      notes: undefined,
+    };
+
+    if (this.isNew) {
+      this.projectService.createProject(body).subscribe({
+        next: (created) => {
+          this.projectsFacade.loadProjects(true);
+          this.toast.show('Proyecto creado correctamente', 'success');
+          this.saving.set(false);
+          void this.router.navigate(['/projects', created.id]);
+        },
+        error: () => {
+          this.toast.show('No se pudo crear el proyecto', 'error');
+          this.saving.set(false);
+        },
+      });
+      return;
+    }
+
+    if (!this.projectId) {
+      this.saving.set(false);
+      return;
+    }
+
+    this.projectService.updateProject(this.projectId, body).subscribe({
+      next: () => {
+        this.projectsFacade.loadProjects(true);
+        this.toast.show('Proyecto actualizado correctamente', 'success');
+        this.saving.set(false);
+        void this.router.navigate(['/projects', this.projectId!]);
+      },
+      error: () => {
+        this.toast.show('No se pudo guardar el proyecto', 'error');
+        this.saving.set(false);
+      },
+    });
   }
 
-  private loadProject(id: string) {
-    // Placeholder — populate mock data by id until real API is wired
-    this.form = {
-      name: `Proyecto ${id}`,
-      description: 'Descripción del proyecto cargado desde el sistema.',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      clientId: 'client-1',
-    };
+  private loadProject(id: string): void {
+    this.isLoading.set(true);
+    this.loadError.set(null);
+    this.projectService.getProject(id).subscribe({
+      next: (c) => {
+        if (c) {
+          this.loadedProject.set(c);
+          this.form = {
+            name: c.name || '',
+            description: c.description || '',
+            startDate: c.startDate || '',
+            endDate: c.endDate || '',
+            clientId: c.clientId || '',
+            status: c.status,
+          };
+        } else {
+          this.loadError.set('No se encontró el proyecto.');
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.loadError.set('No se pudo cargar el proyecto.');
+        this.isLoading.set(false);
+      },
+    });
   }
 }

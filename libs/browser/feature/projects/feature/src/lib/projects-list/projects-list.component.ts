@@ -92,6 +92,16 @@ interface ProjectFormData {
         (actionClicked)="openCreateModal()"
       ></ui-feature-header>
 
+      @if (projectsLoadError() && hasAnyProjects()) {
+        <div class="load-error-banner" role="alert">
+          <lucide-icon name="alert-circle" size="18" class="banner-icon"></lucide-icon>
+          <span class="banner-text">{{
+            projectsLoadError() || 'No se pudo completar la operación con proyectos.'
+          }}</span>
+          <ui-button variant="ghost" size="sm" (clicked)="refreshProjects(true)">Reintentar</ui-button>
+        </div>
+      }
+
       <ui-feature-stats>
         <ui-stat-card
           label="Proyectos Activos"
@@ -176,7 +186,7 @@ interface ProjectFormData {
               <select
                 id="status-filter"
                 class="filter-select"
-                [(ngModel)]="statusFilter"
+                [ngModel]="statusFilter()"
                 (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
               >
                 <option value="all">Todos los estados</option>
@@ -193,7 +203,7 @@ interface ProjectFormData {
                 id="date-from-filter"
                 type="date"
                 class="filter-input"
-                [(ngModel)]="dateFromFilter"
+                [ngModel]="dateFromFilter()"
                 (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
               />
             </div>
@@ -205,7 +215,7 @@ interface ProjectFormData {
                 id="date-to-filter"
                 type="date"
                 class="filter-input"
-                [(ngModel)]="dateToFilter"
+                [ngModel]="dateToFilter()"
                 (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
               />
             </div>
@@ -249,6 +259,36 @@ interface ProjectFormData {
       @if (isLoading()) {
         <div class="loader-container">
           <ui-loader message="Cargando proyectos..."></ui-loader>
+        </div>
+      } @else if (projectsLoadError() && !hasAnyProjects()) {
+        <div class="error-state">
+          <lucide-icon name="wifi-off" size="56" class="error-icon"></lucide-icon>
+          <h3>No se pudo cargar el listado</h3>
+          <p>
+            {{
+              projectsLoadError() ||
+                'Comprueba la conexión o inténtalo de nuevo en unos segundos.'
+            }}
+          </p>
+          <ui-button variant="solid" (clicked)="refreshProjects(true)">Reintentar</ui-button>
+        </div>
+      } @else if (!hasAnyProjects()) {
+        <div class="empty-state empty-state--wide">
+          <lucide-icon name="layout" size="64" class="empty-icon"></lucide-icon>
+          <h3>Sin proyectos</h3>
+          <p>Crea tu primer proyecto para organizar la operativa y el seguimiento.</p>
+          <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
+            Crear primer proyecto
+          </ui-button>
+        </div>
+      } @else if (filterProducesNoResults()) {
+        <div class="empty-state empty-state--wide">
+          <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
+          <h3>Sin resultados</h3>
+          <p>Ningún proyecto coincide con la búsqueda, pestaña o filtros actuales.</p>
+          <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
+            Limpiar búsqueda y filtros
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -304,26 +344,6 @@ interface ProjectFormData {
                 />
               </div>
             </ui-feature-card>
-          } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="briefcase"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay proyectos</h3>
-              <p>
-                Comienza creando tu primer proyecto para gestionar tu cartera de
-                trabajo.
-              </p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-              >
-                Crear primer proyecto
-              </ui-button>
-            </div>
           }
         </ui-feature-grid>
       }
@@ -546,6 +566,60 @@ interface ProjectFormData {
         opacity: 0.3;
         margin-bottom: 1.5rem;
       }
+      .empty-state--wide {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      .load-error-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 0.85rem 1.1rem;
+        border-radius: 12px;
+        border: 1px solid color-mix(in srgb, var(--error) 35%, transparent);
+        background: color-mix(in srgb, var(--error) 12%, transparent);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+      .load-error-banner .banner-text {
+        flex: 1;
+        min-width: 12rem;
+        color: var(--text-primary);
+      }
+      .load-error-banner .banner-icon {
+        color: var(--error);
+        flex-shrink: 0;
+      }
+
+      .error-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4rem 2rem;
+        text-align: center;
+        gap: 0.75rem;
+        background: var(--surface);
+        border-radius: 20px;
+        border: 1px dashed var(--border-soft);
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      .error-state h3 {
+        margin: 0;
+        font-size: 1.15rem;
+      }
+      .error-state p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 32ch;
+      }
+      .error-icon {
+        color: var(--error);
+        opacity: 0.85;
+      }
 
       .pagination-footer {
         margin-top: 3rem;
@@ -651,8 +725,9 @@ export class ProjectsListComponent
   projects = this.facade.projects;
   tabs = this.facade.tabs;
   isLoading = this.facade.isLoading;
+  projectsLoadError = this.facade.error;
   activeTab = signal('all');
-  statusFilter = signal('');
+  statusFilter = signal('all');
   currentPage = signal(1);
 
   isModalOpen = signal(false);
@@ -684,10 +759,29 @@ export class ProjectsListComponent
 
   filteredProjects = computed(() => {
     let list = [...this.projects()];
+
+    const q = this.masterFilter.query().trim().toLowerCase();
+    if (q) {
+      list = list.filter((p) => {
+        const blob = [
+          p.name,
+          p.description ?? '',
+          p.clientName ?? '',
+          p.status,
+          p.clientId ?? '',
+        ]
+          .join(' ')
+          .toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
     const tab = this.activeTab();
-    if (tab !== 'all') list = list.filter((p) => p.status === tab);
+    if (tab !== 'all') {
+      list = list.filter((p) => p.status === tab);
+    }
     const st = this.statusFilter();
-    if (st) {
+    if (st && st !== 'all') {
       list = list.filter((p) => p.status === st);
     }
 
@@ -734,6 +828,11 @@ export class ProjectsListComponent
     return list;
   });
 
+  readonly hasAnyProjects = computed(() => this.projects().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyProjects() && this.filteredProjects().length === 0,
+  );
+
   paginatedProjects = computed(() => {
     const filtered = this.filteredProjects();
     const pageSize = 12;
@@ -777,6 +876,9 @@ export class ProjectsListComponent
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
+    this.aiFormBridge.registerDataProxy(
+      this.formData as unknown as Record<string, unknown>,
+    );
     this.facade.loadProjects();
   }
 
@@ -801,9 +903,19 @@ export class ProjectsListComponent
     this.showAdvancedFilters.set(!this.showAdvancedFilters());
   }
 
-  refreshProjects() {
-    this.facade.loadProjects(true); // force reload
-    this.toast.show('Proyectos actualizados', 'info');
+  /** @param force Fuerza petición aunque ya haya proyectos en memoria. */
+  refreshProjects(force = false) {
+    this.facade.loadProjects(force);
+  }
+
+  clearFiltersAndSearch() {
+    this.masterFilter.search('');
+    this.activeTab.set('all');
+    this.statusFilter.set('all');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.showAdvancedFilters.set(false);
+    this.currentPage.set(1);
   }
 
   // Bulk actions methods

@@ -43,8 +43,8 @@ export class ProjectsFacade {
         this._projects.set(data);
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error loading projects');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudieron cargar los proyectos.');
         this._isLoading.set(false);
       },
     });
@@ -57,8 +57,8 @@ export class ProjectsFacade {
         this._projects.set(data);
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error searching projects');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'Error al buscar proyectos.');
         this._isLoading.set(false);
       },
     });
@@ -71,8 +71,8 @@ export class ProjectsFacade {
         this._projects.update((projects) => [...projects, newProject]);
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error creating project');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudo crear el proyecto.');
         this._isLoading.set(false);
       },
     });
@@ -87,8 +87,8 @@ export class ProjectsFacade {
         );
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error updating project');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudo actualizar el proyecto.');
         this._isLoading.set(false);
       },
     });
@@ -105,8 +105,8 @@ export class ProjectsFacade {
         }
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error deleting project');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudo eliminar el proyecto.');
         this._isLoading.set(false);
       },
     });
