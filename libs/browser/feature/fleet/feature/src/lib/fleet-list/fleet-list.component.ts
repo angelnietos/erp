@@ -8,16 +8,14 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiFeatureFilterBarComponent,
   UiLoaderComponent,
-  UiModalComponent,
   UiTabsComponent,
-  UiInputComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -31,19 +29,12 @@ import {
   PluginStore,
   MasterFilterService,
   FilterableService,
-  AIFormBridgeService,
   ToastService,
   GlobalAuthStore,
   rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
-
-// Extended form type for additional fields
-interface VehicleFormData extends Partial<Vehicle> {
-  description?: string;
-  notes?: string;
-}
 
 @Component({
   selector: 'lib-fleet-list',
@@ -55,9 +46,7 @@ interface VehicleFormData extends Partial<Vehicle> {
     UiButtonComponent,
     UiFeatureFilterBarComponent,
     UiLoaderComponent,
-    UiModalComponent,
     UiTabsComponent,
-    UiInputComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
@@ -82,7 +71,7 @@ interface VehicleFormData extends Partial<Vehicle> {
         subtitle="Monitoreo de movilidad y mantenimiento preventivo"
         icon="truck"
         actionLabel="NUEVA UNIDAD"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewVehicle()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -404,7 +393,7 @@ interface VehicleFormData extends Partial<Vehicle> {
                 <p>Comienza registrando tu primer vehículo en la flota.</p>
                 <ui-button
                   variant="solid"
-                  (clicked)="openCreateModal()"
+                  (clicked)="goToNewVehicle()"
                   icon="CirclePlus"
                   >Registrar unidad</ui-button
                 >
@@ -414,96 +403,6 @@ interface VehicleFormData extends Partial<Vehicle> {
         </ui-feature-grid>
       }
     </ui-feature-page-shell>
-
-    <!-- Modal solo para alta; la edición completa está en /fleet/:id/edit -->
-    <ui-modal
-      [isOpen]="isModalOpen()"
-      title="REGISTRO DE NUEVA UNIDAD"
-      (closed)="closeModal()"
-      variant="glass"
-    >
-      <div class="form-grid">
-        <ui-input
-          label="Matrícula"
-          [(ngModel)]="formData.plate"
-          icon="hash"
-        ></ui-input>
-        <div class="row">
-          <ui-input
-            label="Marca"
-            [(ngModel)]="formData.brand"
-            icon="car"
-          ></ui-input>
-          <ui-input
-            label="Modelo"
-            [(ngModel)]="formData.model"
-            icon="box"
-          ></ui-input>
-        </div>
-        <div class="row">
-          <ui-input
-            label="Año"
-            type="number"
-            [(ngModel)]="formData.year"
-            icon="calendar"
-          ></ui-input>
-          <ui-input
-            label="Tipo"
-            [(ngModel)]="formData.type"
-            icon="truck"
-          ></ui-input>
-        </div>
-        <div class="row">
-          <ui-input
-            label="Seguro hasta"
-            type="date"
-            [(ngModel)]="formData.insuranceExpiry"
-            icon="shield"
-          ></ui-input>
-          <ui-input
-            label="ITV hasta"
-            type="date"
-            [(ngModel)]="formData.itvExpiry"
-            icon="check-square"
-          ></ui-input>
-        </div>
-
-        <div class="form-section">
-          <h4 class="section-title">Información Adicional</h4>
-          <div class="form-grid">
-            <ui-input
-              label="Descripción"
-              [(ngModel)]="formData.description"
-              icon="file-text"
-              placeholder="Descripción del vehículo"
-            ></ui-input>
-          </div>
-          <div class="form-field">
-            <label class="field-label" for="notes-textarea">
-              <lucide-icon name="sticky-note" size="16"></lucide-icon>
-              Notas
-            </label>
-            <textarea
-              id="notes-textarea"
-              class="notes-textarea"
-              [(ngModel)]="formData.notes"
-              placeholder="Notas adicionales..."
-              rows="3"
-            ></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button
-          variant="solid"
-          (clicked)="saveVehicle()"
-          [disabled]="!formData.plate"
-          icon="save"
-          >GUARDAR</ui-button
-        >
-      </div>
-    </ui-modal>
     }
   `,
   styles: [
@@ -534,25 +433,6 @@ interface VehicleFormData extends Partial<Vehicle> {
         margin-top: 3rem;
         display: flex;
         justify-content: center;
-      }
-
-      /* Modal Form Styles */
-      .form-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        padding: 1rem 0;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 2rem;
       }
 
       /* Advanced Filters */
@@ -703,6 +583,7 @@ export class FleetListComponent
   private readonly vehicleService = inject(VehicleService);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'fleet.view', 'fleet.manage');
@@ -759,19 +640,6 @@ export class FleetListComponent
 
   // Bulk actions
   selectedVehicles = signal<Set<string>>(new Set());
-
-  isModalOpen = signal(false);
-
-  formData: VehicleFormData = {
-    plate: '',
-    brand: '',
-    model: '',
-    year: new Date().getFullYear(),
-    type: 'van',
-    status: 'available',
-    insuranceExpiry: '',
-    itvExpiry: '',
-  };
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
@@ -941,24 +809,12 @@ export class FleetListComponent
     this.currentPage.set(page);
   }
 
-  openCreateModal() {
-    this.formData = {
-      plate: '',
-      brand: '',
-      model: '',
-      year: new Date().getFullYear(),
-      type: 'van',
-      status: 'available',
-      insuranceExpiry: '',
-      itvExpiry: '',
-      mileage: 0,
-      capacity: 0,
-    };
-    this.isModalOpen.set(true);
+  goToNewVehicle(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   onRowClick(vehicle: Vehicle) {
-    this.router.navigate(['/fleet', vehicle.id]);
+    void this.router.navigate([vehicle.id], { relativeTo: this.route });
   }
 
   getInitials(plate: string): string {
@@ -977,7 +833,7 @@ export class FleetListComponent
   }
 
   editVehicle(vehicle: Vehicle) {
-    this.router.navigate(['/fleet', vehicle.id, 'edit']);
+    void this.router.navigate([vehicle.id, 'edit'], { relativeTo: this.route });
   }
 
   onDuplicate(vehicle: Vehicle) {
@@ -1019,28 +875,6 @@ export class FleetListComponent
         );
       },
     });
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-  }
-
-  saveVehicle() {
-    if (!this.formData.plate?.trim()) {
-      this.toast.show('Indica una matrícula válida', 'error');
-      return;
-    }
-    this.vehicleService
-      .createVehicle(this.formData as Omit<Vehicle, 'id'>)
-      .subscribe({
-        next: (newV: Vehicle) => {
-          this.vehicles.update((list) => [...list, newV]);
-          this.toast.show(`Unidad ${newV.plate} registrada`, 'success');
-          this.closeModal();
-        },
-        error: () =>
-          this.toast.show('No se pudo registrar la unidad.', 'error'),
-      });
   }
 
   getTypeLabel(type: string): string {

@@ -5,6 +5,7 @@ import { FleetEditComponent } from './fleet-edit/fleet-edit.component';
 
 export const fleetFeatureRoutes: Route[] = [
   { path: '', component: FleetListComponent },
+  { path: 'new', component: FleetEditComponent },
   { path: ':id/edit', component: FleetEditComponent },
   { path: ':id', component: FleetDetailComponent },
 ];

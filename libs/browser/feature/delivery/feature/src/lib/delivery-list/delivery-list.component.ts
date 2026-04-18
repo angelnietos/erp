@@ -8,16 +8,12 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiFeatureFilterBarComponent,
   UiLoaderComponent,
-  UiModalComponent,
-  UiInputComponent,
-  UiTextareaComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -46,13 +42,9 @@ import { Observable, of } from 'rxjs';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule,
     UiButtonComponent,
     UiFeatureFilterBarComponent,
     UiLoaderComponent,
-    UiModalComponent,
-    UiInputComponent,
-    UiTextareaComponent,
     UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
@@ -77,7 +69,7 @@ import { Observable, of } from 'rxjs';
         subtitle="Gestión de manifiestos logísticos y manifiestos de carga"
         icon="truck"
         actionLabel="NUEVO ALBARÁN"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewDelivery()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -266,7 +258,7 @@ import { Observable, of } from 'rxjs';
                 </p>
                 <ui-button
                   variant="solid"
-                  (clicked)="openCreateModal()"
+                  (clicked)="goToNewDelivery()"
                   icon="CirclePlus"
                   >Crear albarán</ui-button
                 >
@@ -276,67 +268,6 @@ import { Observable, of } from 'rxjs';
         </ui-feature-grid>
       }
     </ui-feature-page-shell>
-
-    <!-- Modal solo para alta; la edición está en /delivery/:id/edit -->
-    <ui-modal
-      [isOpen]="isModalOpen()"
-      title="NUEVO ALBARÁN"
-      (closed)="closeModal()"
-      variant="dark"
-    >
-      <div class="form-grid">
-        <ui-input
-          label="Referencia Presupuesto"
-          [(ngModel)]="formData.budgetId"
-          placeholder="#PR-0000"
-          icon="file-text"
-        ></ui-input>
-        <ui-input
-          label="Cliente Receptor"
-          [(ngModel)]="formData.clientName"
-          placeholder="RAZÓN SOCIAL..."
-          icon="user"
-        ></ui-input>
-        <ui-input
-          label="Fecha de Salida"
-          type="date"
-          [(ngModel)]="formData.deliveryDate"
-          icon="calendar"
-        ></ui-input>
-        <ui-input
-          label="Retorno Previsto"
-          type="date"
-          [(ngModel)]="formData.returnDate"
-          icon="rotate-ccw"
-        ></ui-input>
-        <ui-input
-          label="Unidades Consignadas"
-          type="number"
-          [(ngModel)]="formData.itemsCount"
-          icon="box"
-          class="full-width"
-        ></ui-input>
-        <ui-textarea
-          label="Notas de Operación"
-          [(ngModel)]="formData.notes"
-          [rows]="3"
-          placeholder="OBSERVACIONES..."
-          variant="filled"
-          class="full-width"
-        ></ui-textarea>
-      </div>
-
-      <div modal-footer class="modal-footer-box">
-        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button
-          variant="glass"
-          (clicked)="saveDelivery()"
-          [disabled]="!formData.budgetId || !formData.clientName"
-        >
-          CONFIRMAR
-        </ui-button>
-      </div>
-    </ui-modal>
     }
   `,
   styles: [
@@ -378,28 +309,9 @@ import { Observable, of } from 'rxjs';
         color: var(--success) !important;
       }
 
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        padding: 1rem 0;
-      }
-      .full-width {
-        grid-column: 1 / -1;
-      }
-      .modal-footer-box {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        padding-top: 1rem;
-      }
-
       @media (max-width: 900px) {
         .navigation-bar {
           padding: 1rem;
-        }
-        .form-grid {
-          grid-template-columns: 1fr;
         }
       }
     `,
@@ -422,9 +334,10 @@ export class DeliveryListComponent
   currentTheme = this.themeService.currentThemeData;
 
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   onRowClick(delivery: DeliveryNote) {
-    this.router.navigate(['/delivery', delivery.id]);
+    void this.router.navigate([delivery.id], { relativeTo: this.route });
   }
 
   onDuplicate(delivery: DeliveryNote) {
@@ -499,20 +412,10 @@ export class DeliveryListComponent
   currentPage = signal(1);
   totalPages = signal(1);
 
-  isModalOpen = signal(false);
+  private readonly listAiFormProxy: Record<string, unknown> = {};
 
   sortField = signal<'deliveryDate' | 'clientName' | 'status'>('deliveryDate');
   sortDirection = signal<1 | -1>(-1);
-
-  formData: Partial<DeliveryNote> = {
-    budgetId: '',
-    clientName: '',
-    status: 'draft',
-    deliveryDate: '',
-    returnDate: '',
-    itemsCount: 0,
-    notes: '',
-  };
 
   filteredDeliveryNotes = computed(() => {
     let list = [...this.deliveryNotes()];
@@ -548,17 +451,13 @@ export class DeliveryListComponent
   });
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.loadDeliveryNotes();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -645,41 +544,12 @@ export class DeliveryListComponent
     this.currentPage.set(page);
   }
 
-  openCreateModal() {
-    this.formData = {
-      budgetId: '',
-      clientName: '',
-      status: 'draft',
-      deliveryDate: new Date().toISOString().split('T')[0],
-      returnDate: '',
-      itemsCount: 0,
-      notes: '',
-    };
-    this.isModalOpen.set(true);
+  goToNewDelivery(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   editDelivery(delivery: DeliveryNote) {
-    this.router.navigate(['/delivery', delivery.id, 'edit']);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-  }
-
-  saveDelivery() {
-    if (!this.formData.budgetId?.trim() || !this.formData.clientName?.trim()) {
-      this.toast.show('Indica presupuesto y cliente', 'error');
-      return;
-    }
-    this.facade
-      .createDeliveryNote(this.formData as Omit<DeliveryNote, 'id'>)
-      .subscribe({
-        next: () => {
-          this.toast.show('Albarán registrado', 'success');
-          this.closeModal();
-        },
-        error: () => this.toast.show('No se pudo crear el albarán.', 'error'),
-      });
+    void this.router.navigate([delivery.id, 'edit'], { relativeTo: this.route });
   }
 
   signDelivery(ev: Event, delivery: DeliveryNote) {

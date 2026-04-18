@@ -45,7 +45,7 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
     >
       @if (isLoading()) {
         <ui-loader message="Cargando albarán..."></ui-loader>
-      } @else if (loadError()) {
+      } @else if (loadError() && !isCreateMode) {
         <div class="error-state">
           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
           <h2>ALBARÁN NO ENCONTRADO</h2>
@@ -57,7 +57,9 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
             <ui-button variant="ghost" icon="arrow-left" (clicked)="goBack()">Volver</ui-button>
           </div>
           <div class="header-breadcrumb">
-            <h1 class="page-title text-uppercase glow-text">Editar albarán</h1>
+            <h1 class="page-title text-uppercase glow-text">
+              {{ isCreateMode ? 'Nuevo albarán' : 'Editar albarán' }}
+            </h1>
             <div class="breadcrumb">
               <span class="active" [style.color]="currentTheme().primary">ALBARANES</span>
               <span class="separator">/</span>
@@ -212,6 +214,8 @@ export class DeliveryEditComponent implements OnInit {
   isLoading = signal(true);
   loadError = signal(false);
   private noteId = '';
+  /** Ruta `/delivery/new`. */
+  isCreateMode = false;
 
   form: Partial<DeliveryNote> = {
     budgetId: '',
@@ -231,6 +235,13 @@ export class DeliveryEditComponent implements OnInit {
   ];
 
   ngOnInit() {
+    if (this.route.snapshot.routeConfig?.path === 'new') {
+      this.isCreateMode = true;
+      this.noteId = '';
+      this.isLoading.set(false);
+      this.loadError.set(false);
+      return;
+    }
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.loadError.set(true);
@@ -279,6 +290,10 @@ export class DeliveryEditComponent implements OnInit {
   }
 
   goBack() {
+    if (this.isCreateMode) {
+      this.goToList();
+      return;
+    }
     if (this.noteId) {
       this.router.navigate(['/delivery', this.noteId]);
       return;
@@ -298,6 +313,28 @@ export class DeliveryEditComponent implements OnInit {
       return;
     }
     const itemsCount = Math.max(0, Math.floor(Number(this.form.itemsCount ?? 0)));
+
+    const body: Omit<DeliveryNote, 'id'> = {
+      budgetId,
+      clientName,
+      status: (this.form.status ?? 'draft') as DeliveryNote['status'],
+      deliveryDate: this.form.deliveryDate ?? '',
+      returnDate: this.form.returnDate ?? '',
+      itemsCount,
+      notes: (this.form.notes ?? '').trim() || undefined,
+    };
+
+    if (this.isCreateMode) {
+      this.facade.createDeliveryNote(body).subscribe({
+        next: (n) => {
+          this.toast.show('Albarán creado', 'success');
+          this.router.navigate(['/delivery', n.id]);
+        },
+        error: () =>
+          this.toast.show('No se pudo crear el albarán.', 'error'),
+      });
+      return;
+    }
 
     this.facade
       .updateDeliveryNote(this.noteId, {

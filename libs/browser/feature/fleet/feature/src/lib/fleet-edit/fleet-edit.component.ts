@@ -39,7 +39,7 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
     >
       @if (isLoading()) {
         <ui-loader message="Cargando ficha de unidad..."></ui-loader>
-      } @else if (loadError()) {
+      } @else if (loadError() && !isCreateMode) {
         <div class="error-state">
           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
           <h2>UNIDAD NO ENCONTRADA</h2>
@@ -51,7 +51,9 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
             <ui-button variant="ghost" icon="arrow-left" (clicked)="goBack()">Volver</ui-button>
           </div>
           <div class="header-breadcrumb">
-            <h1 class="page-title text-uppercase glow-text">Editar unidad</h1>
+            <h1 class="page-title text-uppercase glow-text">
+              {{ isCreateMode ? 'Nueva unidad' : 'Editar unidad' }}
+            </h1>
             <div class="breadcrumb">
               <span class="active" [style.color]="currentTheme().primary">FLOTA</span>
               <span class="separator">/</span>
@@ -197,6 +199,8 @@ export class FleetEditComponent implements OnInit {
   isLoading = signal(true);
   loadError = signal(false);
   private vehicleId = '';
+  /** Ruta `/fleet/new`. */
+  isCreateMode = false;
 
   form: Partial<Vehicle> = {
     plate: '',
@@ -225,6 +229,13 @@ export class FleetEditComponent implements OnInit {
   ];
 
   ngOnInit() {
+    if (this.route.snapshot.routeConfig?.path === 'new') {
+      this.isCreateMode = true;
+      this.vehicleId = '';
+      this.isLoading.set(false);
+      this.loadError.set(false);
+      return;
+    }
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.loadError.set(true);
@@ -282,6 +293,10 @@ export class FleetEditComponent implements OnInit {
   }
 
   goBack() {
+    if (this.isCreateMode) {
+      this.goToList();
+      return;
+    }
     if (this.vehicleId) {
       this.router.navigate(['/fleet', this.vehicleId]);
       return;
@@ -299,20 +314,31 @@ export class FleetEditComponent implements OnInit {
       this.toast.show('La matrícula es obligatoria', 'error');
       return;
     }
-    const payload: Partial<Vehicle> = {
-      ...this.form,
+    const payload: Omit<Vehicle, 'id'> = {
       plate,
       brand: (this.form.brand ?? '').trim(),
       model: (this.form.model ?? '').trim(),
       year: Math.floor(Number(this.form.year ?? 0)) || new Date().getFullYear(),
-      type: this.form.type ?? 'van',
-      status: this.form.status ?? 'available',
+      type: (this.form.type ?? 'van') as Vehicle['type'],
+      status: (this.form.status ?? 'available') as Vehicle['status'],
       mileage: Math.max(0, Number(this.form.mileage ?? 0)),
       capacity: Math.max(0, Number(this.form.capacity ?? 0)),
       currentDriver: (this.form.currentDriver ?? '').trim() || undefined,
       insuranceExpiry: this.form.insuranceExpiry ?? '',
       itvExpiry: this.form.itvExpiry ?? '',
     };
+
+    if (this.isCreateMode) {
+      this.vehicleService.createVehicle(payload).subscribe({
+        next: (v) => {
+          this.toast.show('Unidad creada correctamente', 'success');
+          this.router.navigate(['/fleet', v.id]);
+        },
+        error: () =>
+          this.toast.show('No se pudo crear la unidad.', 'error'),
+      });
+      return;
+    }
 
     this.vehicleService.updateVehicle(this.vehicleId, payload).subscribe({
       next: () => {

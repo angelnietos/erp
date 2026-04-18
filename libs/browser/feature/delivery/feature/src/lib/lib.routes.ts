@@ -5,6 +5,7 @@ import { DeliveryEditComponent } from './delivery-edit/delivery-edit.component';
 
 export const deliveryFeatureRoutes: Route[] = [
   { path: '', component: DeliveryListComponent },
+  { path: 'new', component: DeliveryEditComponent },
   { path: ':id/edit', component: DeliveryEditComponent },
   { path: ':id', component: DeliveryDetailComponent },
 ];
