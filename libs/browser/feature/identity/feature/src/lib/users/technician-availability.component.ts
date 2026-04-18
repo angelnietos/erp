@@ -94,15 +94,24 @@ interface CalendarCell {
       <header class="dashboard-toolbar">
         <div class="header-actions">
            <div class="month-navigator">
-              <button class="nav-btn ripple" (click)="prevMonth()" title="Anterior">
+              <button class="nav-btn ripple" (click)="prevMonth()" title="Mes anterior">
                  <lucide-icon name="chevron-left" size="18"></lucide-icon>
               </button>
               <div class="current-month-display">
                  <span class="m-name">{{ getMonthName() }}</span>
                  <span class="m-year">{{ currentYear() }}</span>
               </div>
-              <button class="nav-btn ripple" (click)="nextMonth()" title="Siguiente">
+              <button class="nav-btn ripple" (click)="nextMonth()" title="Mes siguiente">
                  <lucide-icon name="chevron-right" size="18"></lucide-icon>
+              </button>
+              <button
+                type="button"
+                class="nav-btn ripple today-jump-btn"
+                (click)="goToToday()"
+                title="Ir al mes actual y centrar el día de hoy"
+              >
+                <lucide-icon name="calendar-check" size="18"></lucide-icon>
+                <span class="today-jump-label">Hoy</span>
               </button>
            </div>
 
@@ -205,6 +214,14 @@ interface CalendarCell {
                       <div class="tech-selector-info">
                         <span class="label">Calendario</span>
                         <h2 class="tech-display-name">{{ name }}</h2>
+                        @if (personalMonthSummary(); as pm) {
+                          <ul class="personal-month-summary" aria-label="Resumen del mes visible">
+                            <li><span class="dot AVAILABLE"></span> Disp. {{ pm.available }}</li>
+                            <li><span class="dot UNAVAILABLE"></span> Ocup. {{ pm.unavailable }}</li>
+                            <li><span class="dot HOLIDAY"></span> Vac. {{ pm.holiday }}</li>
+                            <li><span class="dot SICK_LEAVE"></span> Incid. {{ pm.incident }}</li>
+                          </ul>
+                        }
                       </div>
                     }
                   </div>
@@ -477,6 +494,19 @@ interface CalendarCell {
        transition: var(--transition-base);
     }
     .nav-btn:hover { background: var(--brand-ambient); color: var(--brand); transform: scale(1.1); }
+
+    .today-jump-btn {
+      width: auto;
+      min-height: 36px;
+      padding: 0 0.65rem;
+      gap: 0.35rem;
+    }
+    .today-jump-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
     
     .header-actions-extra {
       display: flex;
@@ -595,7 +625,16 @@ interface CalendarCell {
 
     /* CALENDAR PERSONAL */
     .calendar-card { border-radius: 24px !important; overflow: hidden; border: 1px solid var(--border-soft); }
-    .calendar-card-header { display: flex; justify-content: space-between; align-items: center; padding: 2.5rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-soft); }
+    .calendar-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      padding: 2.5rem 3rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-soft);
+    }
     .label { font-size: 0.6rem; font-weight: 800; color: var(--brand); letter-spacing: 0.2em; }
     .tech-display-name {
       margin: 0.2rem 0 0;
@@ -606,7 +645,34 @@ interface CalendarCell {
       font-family: inherit;
     }
 
-    .calendar-legend { display: flex; gap: 1rem; }
+    .personal-month-summary {
+      list-style: none;
+      margin: 0.75rem 0 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 1.1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .personal-month-summary li {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .personal-month-summary .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .personal-month-summary .dot.AVAILABLE { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .personal-month-summary .dot.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+    .personal-month-summary .dot.HOLIDAY { background: var(--info); box-shadow: 0 0 6px var(--info); }
+    .personal-month-summary .dot.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+
+    .calendar-legend { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
     .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
     .legend-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
     .legend-item.AVAILABLE .dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
@@ -802,7 +868,8 @@ interface CalendarCell {
     .team-board-matrix {
       --team-day-cols: 31;
       width: 100%;
-      min-width: 0;
+      /* Fuerza scroll horizontal en lugar de aplastar columnas: columna persona + días con ancho mínimo */
+      min-width: max(100%, calc(var(--avail-persona-width) + var(--team-day-cols, 31) * 44px));
     }
 
     .board-header {
@@ -862,6 +929,7 @@ interface CalendarCell {
       grid-template-columns: repeat(var(--team-day-cols, 31), minmax(0, 1fr));
       min-width: 0;
       width: 100%;
+      align-self: stretch;
     }
 
     .day-header-col {
@@ -904,6 +972,7 @@ interface CalendarCell {
     .board-row {
       display: grid;
       grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
+      align-items: stretch;
       border-bottom: 1px solid var(--border-soft);
       min-height: 58px;
       transition: background 0.15s ease, box-shadow 0.15s ease;
@@ -928,7 +997,8 @@ interface CalendarCell {
       min-width: var(--avail-persona-width);
       max-width: var(--avail-persona-width);
       flex-shrink: 0;
-      padding: 0 1rem;
+      align-self: stretch;
+      padding: 0.5rem 1rem;
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -1029,6 +1099,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   private static readonly TEAM_PERSONA_PX = 280;
   private static readonly TEAM_DAY_PX = 52;
 
+  /** Tras «Ir a hoy», centrar el día actual en el cuadrante de equipo cuando termine la carga. */
+  private scrollTeamToTodayAfterLoad = false;
+
   private readonly api = inject(TechnicianApiService);
   private readonly toast = inject(ToastService);
   private readonly masterFilter = inject(MasterFilterService);
@@ -1095,6 +1168,38 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       return { techId: this.selectedTechId() };
     }
     return {} as Record<string, string>;
+  });
+
+  /** Conteos por estado para el técnico seleccionado en el mes visible (vista individual). */
+  readonly personalMonthSummary = computed(() => {
+    const id = this.selectedTechId();
+    const cells = this.calendarCells();
+    const map = this.teamAvailability()[id] ?? {};
+    let available = 0;
+    let unavailable = 0;
+    let holiday = 0;
+    let incident = 0;
+    for (const c of cells) {
+      if (!c.isCurrentMonth) {
+        continue;
+      }
+      const st = map[c.day] ?? 'AVAILABLE';
+      switch (st) {
+        case 'UNAVAILABLE':
+          unavailable++;
+          break;
+        case 'HOLIDAY':
+          holiday++;
+          break;
+        case 'SICK_LEAVE':
+          incident++;
+          break;
+        default:
+          available++;
+          break;
+      }
+    }
+    return { available, unavailable, holiday, incident, days: cells.filter((x) => x.isCurrentMonth).length };
   });
 
   calendarCells = signal<CalendarCell[]>([]);
@@ -1324,6 +1429,25 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     }
   }
 
+  /** Salta al mes y año actuales; en vista equipo desplaza el scroll al día de hoy tras cargar. */
+  goToToday(): void {
+    const n = new Date();
+    const alreadyThisMonth =
+      this.currentMonth() === n.getMonth() && this.currentYear() === n.getFullYear();
+    this.currentMonth.set(n.getMonth());
+    this.currentYear.set(n.getFullYear());
+    if (this.viewMode() !== 'team') {
+      return;
+    }
+    if (alreadyThisMonth) {
+      queueMicrotask(() =>
+        requestAnimationFrame(() => this.scrollTeamHorizontalToToday()),
+      );
+    } else {
+      this.scrollTeamToTodayAfterLoad = true;
+    }
+  }
+
   initCalendarCells() {
     const cells: CalendarCell[] = [];
     const daysInMonth = new Date(this.currentYear(), this.currentMonth() + 1, 0).getDate();
@@ -1462,6 +1586,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     } finally {
       this.isLoading.set(false);
       queueMicrotask(() => this.refreshTeamHorizontalMetrics());
+      if (this.scrollTeamToTodayAfterLoad) {
+        this.scrollTeamToTodayAfterLoad = false;
+        queueMicrotask(() =>
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => this.scrollTeamHorizontalToToday()),
+          ),
+        );
+      }
     }
   }
 
