@@ -1455,6 +1455,72 @@ async function main() {
  * Idempotente: va después de `clearTenantDemoData(babooniTenant.id)`.
  */
 async function seedBabooniTenantDemo(tenantId: string) {
+  /** El cuadrante de disponibilidad lista `Technician`, no solo `User`. Tras `clearTenantDemoData` hay que recrearlos. */
+  const babooniOpsUsers = await prisma.user.findMany({
+    where: {
+      tenantId,
+      email: {
+        in: [
+          'root@babooni.com',
+          'florina.mahalean@babooni.com',
+          'alvaro.ballesteros@babooni.com',
+          'alejandro.ballesteros@babooni.com',
+          'angel.nieto@babooni.com',
+        ],
+      },
+    },
+  });
+  const userByEmail = new Map(babooniOpsUsers.map((u) => [u.email, u]));
+
+  const technicianSeeds: { email: string; hourlyRate: number; skills: string[] }[] = [
+    { email: 'root@babooni.com', hourlyRate: 55, skills: ['DIRECTOR', 'SISTEMAS'] },
+    {
+      email: 'florina.mahalean@babooni.com',
+      hourlyRate: 48,
+      skills: ['PROJECT_MANAGEMENT', 'COORDINACIÓN'],
+    },
+    {
+      email: 'alvaro.ballesteros@babooni.com',
+      hourlyRate: 60,
+      skills: ['MANAGEMENT', 'ESTRATEGIA'],
+    },
+    {
+      email: 'alejandro.ballesteros@babooni.com',
+      hourlyRate: 58,
+      skills: ['ARQUITECTURA', 'TECNOLOGÍA'],
+    },
+    {
+      email: 'angel.nieto@babooni.com',
+      hourlyRate: 52,
+      skills: ['DESARROLLO', 'AV'],
+    },
+  ];
+
+  for (const row of technicianSeeds) {
+    const u = userByEmail.get(row.email);
+    if (!u) {
+      console.warn(`- Babooni seed: usuario no encontrado para técnico ${row.email}`);
+      continue;
+    }
+    await prisma.technician.upsert({
+      where: { userId: u.id },
+      update: {
+        tenantId,
+        hourlyRate: row.hourlyRate,
+        skills: row.skills,
+        status: 'ACTIVE',
+      },
+      create: {
+        tenantId,
+        userId: u.id,
+        hourlyRate: row.hourlyRate,
+        skills: row.skills,
+        status: 'ACTIVE',
+      },
+    });
+  }
+  console.log('- Babooni: técnicos / operarios AV (usuarios semilla vinculados)');
+
   const [clientA, clientB] = await prisma.$transaction([
     prisma.client.create({
       data: {
