@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { interval, switchMap, startWith, Observable, of } from 'rxjs';
+import { interval, of, catchError, finalize, take } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -20,6 +20,7 @@ import {
   UiStatCardComponent,
   UiFeatureStatsComponent,
   UiFeatureAccessDeniedComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DashboardAnalyticsService,
@@ -67,6 +68,7 @@ interface QuickAction {
     LucideAngularModule,
     UiFeatureStatsComponent,
     UiFeatureAccessDeniedComponent,
+    UiLoaderComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -74,6 +76,16 @@ interface QuickAction {
         message="No tienes permiso para ver el panel principal."
         permissionHint="dashboard.view"
       />
+    } @else if (isDashboardLoading()) {
+      <div class="dashboard-loading" role="status" aria-live="polite">
+        <ui-loader message="Cargando panel ejecutivo…"></ui-loader>
+      </div>
+    } @else if (dashboardLoadError() && !summary()) {
+      <div class="dashboard-error-state animate-fade-in">
+        <lucide-icon name="cloud-off" size="40" class="dashboard-error-state__icon"></lucide-icon>
+        <p class="dashboard-error-state__msg">{{ dashboardLoadError() }}</p>
+        <ui-button variant="solid" (clicked)="refreshData()">Reintentar</ui-button>
+      </div>
     } @else {
     <div class="dashboard-wrapper animate-fade-in">
       <!-- Premium Hero Header -->
@@ -119,6 +131,15 @@ interface QuickAction {
             </div>
             
             <div class="analytics-content">
+              @if (
+                charts().revenueByClient.length === 0 && charts().revenueByProject.length === 0
+              ) {
+                <div class="panel-empty">
+                  <lucide-icon name="bar-chart-2" size="28"></lucide-icon>
+                  <p>Aún no hay datos de ingresos para mostrar gráficos.</p>
+                  <span class="panel-empty__hint">Cuando haya facturación por cliente o proyecto, aparecerá aquí.</span>
+                </div>
+              }
               @if (charts().revenueByClient.length > 0) {
                 <div class="chart-group">
                   <span class="chart-label">Principales Clientes</span>
@@ -160,8 +181,22 @@ interface QuickAction {
             </div>
             
             <div class="activity-feed">
+              @if (recentActivities().length === 0) {
+                <div class="panel-empty panel-empty--compact">
+                  <lucide-icon name="inbox" size="24"></lucide-icon>
+                  <p>No hay actividad reciente.</p>
+                </div>
+              }
               @for (activity of recentActivities(); track activity.id) {
-                <div class="feed-item" (click)="goToActivity(activity.type)">
+                <div
+                  class="feed-item"
+                  role="button"
+                  tabindex="0"
+                  [attr.aria-label]="'Abrir: ' + activity.title"
+                  (click)="goToActivity(activity.type)"
+                  (keydown.enter)="goToActivity(activity.type)"
+                  (keydown.space)="$event.preventDefault(); goToActivity(activity.type)"
+                >
                   <div class="item-icon" [attr.data-type]="activity.type">
                      <lucide-icon name="{{ getActivityIconName(activity.type) }}" size="14"></lucide-icon>
                   </div>
@@ -219,6 +254,68 @@ interface QuickAction {
     }
   `,
   styles: [`
+    .dashboard-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 42vh;
+      padding: 3rem 1.5rem;
+    }
+
+    .dashboard-error-state {
+      max-width: 440px;
+      margin: 4rem auto;
+      padding: 2.25rem 1.75rem;
+      text-align: center;
+      border-radius: 20px;
+      border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+      background: color-mix(in srgb, var(--bg-secondary, #14151c) 92%, transparent);
+      box-shadow: 0 12px 40px -20px rgba(0, 0, 0, 0.35);
+    }
+    .dashboard-error-state__icon {
+      color: var(--text-muted);
+      opacity: 0.75;
+      margin-bottom: 1rem;
+    }
+    .dashboard-error-state__msg {
+      margin: 0 0 1.25rem;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--text-secondary, #a1a1aa);
+    }
+
+    .panel-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 1.25rem;
+      color: var(--text-muted);
+      gap: 0.35rem;
+    }
+    .panel-empty lucide-icon {
+      opacity: 0.45;
+      color: var(--text-muted);
+    }
+    .panel-empty p {
+      margin: 0.35rem 0 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      max-width: 280px;
+    }
+    .panel-empty__hint {
+      font-size: 0.72rem;
+      font-weight: 500;
+      opacity: 0.85;
+      max-width: 300px;
+      line-height: 1.4;
+    }
+    .panel-empty--compact {
+      padding: 1.5rem 1rem;
+    }
+
     .dashboard-wrapper {
       padding: 0 0 4rem 0;
       max-width: 1400px;
@@ -324,6 +421,10 @@ interface QuickAction {
       cursor: pointer; transition: all 0.3s;
     }
     .feed-item:hover { background: rgba(255,255,255,0.03); transform: translateX(5px); }
+    .feed-item:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
+      outline-offset: 2px;
+    }
     .feed-item:last-child { border: none; }
 
     .item-icon {
@@ -367,6 +468,21 @@ interface QuickAction {
       .hero-content { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .hero-meta { text-align: left; }
     }
+
+    :host-context(html[data-theme-is-light='true']) .glass-panel {
+      background: color-mix(in srgb, var(--theme-surface, #fff) 94%, var(--brand) 4%) !important;
+      border-color: var(--border-soft, rgba(8, 8, 8, 0.08)) !important;
+      backdrop-filter: blur(12px);
+    }
+    :host-context(html[data-theme-is-light='true']) .panel-header {
+      border-bottom-color: var(--border-soft, rgba(8, 8, 8, 0.08));
+    }
+    :host-context(html[data-theme-is-light='true']) .row-value {
+      color: var(--text-primary);
+    }
+    :host-context(html[data-theme-is-light='true']) .item-title {
+      color: var(--text-primary);
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -378,6 +494,11 @@ export class DashboardComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'dashboard.view');
+
+  /** Primer fetch o refresco del resumen analítico. */
+  isDashboardLoading = signal(true);
+  /** Error de API cuando aún no hay resumen en caché. */
+  dashboardLoadError = signal<string | null>(null);
 
   currentTheme = this.themeService.currentThemeData;
   currentDate = signal(
@@ -507,8 +628,27 @@ export class DashboardComponent implements OnInit {
       .subscribe(() => this.refreshData());
   }
 
-  refreshData() {
-    this.summaryStore.getSummary().subscribe((data) => this.summary.set(data));
+  refreshData(): void {
+    this.isDashboardLoading.set(true);
+    this.dashboardLoadError.set(null);
+    this.summaryStore
+      .getSummary()
+      .pipe(
+        take(1),
+        catchError(() => {
+          this.dashboardLoadError.set(
+            'No se pudo cargar el resumen. Comprueba la conexión e inténtalo de nuevo.',
+          );
+          return of(null);
+        }),
+        finalize(() => this.isDashboardLoading.set(false)),
+      )
+      .subscribe((data) => {
+        if (data) {
+          this.summary.set(data);
+          this.dashboardLoadError.set(null);
+        }
+      });
   }
 
   formatEuro(val: number) {

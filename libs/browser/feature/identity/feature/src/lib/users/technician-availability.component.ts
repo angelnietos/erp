@@ -76,6 +76,16 @@ interface CalendarCell {
         >
       </div>
 
+      @if (syncDegraded()) {
+        <div class="sync-degraded-banner" role="status">
+          <lucide-icon name="cloud-off" size="18"></lucide-icon>
+          <span
+            >No se pudo sincronizar con el servidor. Se muestran datos de demostración; pulsa actualizar para
+            reintentar.</span
+          >
+        </div>
+      }
+
       <header class="dashboard-toolbar">
         <div class="header-actions">
            <div class="month-navigator">
@@ -418,6 +428,24 @@ interface CalendarCell {
       flex-shrink: 0;
       margin-top: 0.1rem;
       color: var(--info);
+    }
+
+    .sync-degraded-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 40%, var(--border-soft));
+      background: color-mix(in srgb, var(--warning, #f59e0b) 14%, var(--bg-secondary));
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .sync-degraded-banner lucide-icon {
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      color: var(--warning, #f59e0b);
     }
 
     .dashboard-toolbar {
@@ -1082,6 +1110,8 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   ]);
 
   readonly isLoading = signal<boolean>(false);
+  /** True cuando falla la carga remota y se usa solo mock / datos locales. */
+  readonly syncDegraded = signal(false);
 
   /** Barra «día X de Y» y saltos ±7: solo vista compacta (móvil / tablet estrecha). */
   readonly isCompactTeamNav = signal(false);
@@ -1321,6 +1351,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
   async loadMonth() {
     this.isLoading.set(true);
+    this.syncDegraded.set(false);
     try {
       // Cargar técnicos del servidor
       const techsResponse = await firstValueFrom(this.api.getTechnicians());
@@ -1421,6 +1452,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       }
     } catch (error) {
       console.warn('Error syncing with backend, falling back to rich mock data:', error);
+      this.syncDegraded.set(true);
       this.initTeamData();
     } finally {
       this.isLoading.set(false);

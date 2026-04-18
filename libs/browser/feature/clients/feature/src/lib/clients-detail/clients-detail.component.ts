@@ -34,6 +34,15 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         <div class="ns-loading">
           <ui-loader message="Cargando..."></ui-loader>
         </div>
+      } @else if (loadError()) {
+        <div class="ns-error">
+          <lucide-icon name="alert-circle" size="48" class="ns-error-icon"></lucide-icon>
+          <p>{{ loadError() }}</p>
+          <div class="ns-error-actions">
+            <ui-button variant="solid" size="sm" (clicked)="reload()">Reintentar</ui-button>
+            <ui-button variant="ghost" size="sm" routerLink="/clients">Volver</ui-button>
+          </div>
+        </div>
       } @else if (client()) {
         <div class="ns-header-bar">
           <button class="ns-back" routerLink="/clients">
@@ -267,6 +276,32 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         display: flex;
         justify-content: center;
         padding: 3rem;
+      }
+
+      .ns-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+        text-align: center;
+        gap: 0.75rem;
+      }
+      .ns-error-icon {
+        color: var(--error);
+        opacity: 0.9;
+      }
+      .ns-error p {
+        margin: 0;
+        color: var(--text-muted);
+        max-width: 28ch;
+      }
+      .ns-error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
       }
 
       .ns-header-bar {
@@ -521,10 +556,21 @@ export class ClientsDetailComponent implements OnInit {
   currentTheme = this.themeService.currentThemeData;
   client = signal<Client | null>(null);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
   activeTab = signal('general');
   tabs = signal<{ id: string; label: string; badge?: number }[]>([]);
 
   ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadClient(id);
+    } else {
+      this.loadError.set('Cliente no especificado');
+      this.isLoading.set(false);
+    }
+  }
+
+  reload(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadClient(id);
@@ -538,6 +584,7 @@ export class ClientsDetailComponent implements OnInit {
 
   loadClient(id: string) {
     this.isLoading.set(true);
+    this.loadError.set(null);
     this.clientService.getClient(id).subscribe({
       next: (c) => {
         if (c) {
@@ -573,10 +620,15 @@ export class ClientsDetailComponent implements OnInit {
               badge: c.rentals?.length || 0,
             },
           ]);
+        } else {
+          this.loadError.set('No se encontró el cliente.');
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false),
+      error: () => {
+        this.loadError.set('No se pudo cargar el cliente.');
+        this.isLoading.set(false);
+      },
     });
   }
 

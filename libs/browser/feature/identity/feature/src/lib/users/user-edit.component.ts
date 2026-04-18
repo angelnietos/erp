@@ -46,8 +46,12 @@ import { HttpErrorResponse } from '@angular/common/http';
         </div>
       } @else if (error()) {
         <div class="error-state">
+          <lucide-icon name="alert-circle" size="48" class="error-icon"></lucide-icon>
           <p>{{ error() }}</p>
-          <ui-button variant="ghost" routerLink="/users">Volver</ui-button>
+          <div class="error-actions">
+            <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
+            <ui-button variant="ghost" routerLink="/users">Volver</ui-button>
+          </div>
         </div>
       } @else {
         <div class="header-bar">
@@ -150,6 +154,18 @@ import { HttpErrorResponse } from '@angular/common/http';
         align-items: center;
         padding: 4rem;
         gap: 1rem;
+        text-align: center;
+      }
+      .error-icon {
+        color: var(--error);
+        opacity: 0.9;
+      }
+      .error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
       }
       .header-bar {
         display: flex;
@@ -302,6 +318,10 @@ export class UserEditComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.reload();
+  }
+
+  reload(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.error.set('Usuario no especificado');
@@ -309,6 +329,8 @@ export class UserEditComponent implements OnInit {
       return;
     }
     this.userId.set(id);
+    this.error.set(null);
+    this.isLoading.set(true);
     forkJoin({
       user: this.usersService.findById(id),
       roles: this.rolesApi.findAll(),
@@ -321,7 +343,7 @@ export class UserEditComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar el usuario.');
+        this.error.set('No se pudo cargar el usuario o los roles.');
         this.isLoading.set(false);
       },
     });

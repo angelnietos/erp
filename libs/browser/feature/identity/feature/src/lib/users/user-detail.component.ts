@@ -37,8 +37,12 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         </div>
       } @else if (error()) {
         <div class="error-state">
+          <lucide-icon name="alert-circle" size="48" class="error-icon"></lucide-icon>
           <p>{{ error() }}</p>
-          <ui-button variant="ghost" routerLink="/users">Volver a usuarios</ui-button>
+          <div class="error-actions">
+            <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
+            <ui-button variant="ghost" routerLink="/users">Volver a usuarios</ui-button>
+          </div>
         </div>
       } @else if (user(); as u) {
         <div class="header-bar">
@@ -96,6 +100,18 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         justify-content: center;
         padding: 4rem;
         gap: 1rem;
+        text-align: center;
+      }
+      .error-icon {
+        color: var(--error);
+        opacity: 0.9;
+      }
+      .error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
       }
       .header-bar {
         display: flex;
@@ -121,6 +137,10 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       .back-btn:hover {
         border-color: var(--brand-border-soft);
         background: var(--brand-ambient);
+      }
+      .back-btn:focus-visible {
+        outline: 2px solid var(--brand, #6366f1);
+        outline-offset: 2px;
       }
       .header-text {
         flex: 1;
@@ -180,12 +200,18 @@ export class UserDetailComponent implements OnInit {
   error = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.reload();
+  }
+
+  reload(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.error.set('Usuario no especificado');
       this.isLoading.set(false);
       return;
     }
+    this.error.set(null);
+    this.isLoading.set(true);
     this.usersService.findById(id).subscribe({
       next: (u) => {
         this.user.set(u);

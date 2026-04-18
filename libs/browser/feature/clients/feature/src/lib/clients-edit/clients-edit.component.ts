@@ -45,6 +45,15 @@ interface ClientForm {
         <div class="edit-loading">
           <ui-loader message="Cargando cliente..."></ui-loader>
         </div>
+      } @else if (loadError()) {
+        <div class="edit-error">
+          <lucide-icon name="alert-circle" size="48" class="edit-error-icon"></lucide-icon>
+          <p>{{ loadError() }}</p>
+          <div class="edit-error-actions">
+            <ui-button variant="solid" (clicked)="reloadClient()">Reintentar</ui-button>
+            <ui-button variant="ghost" (clicked)="goBack()">Volver</ui-button>
+          </div>
+        </div>
       } @else {
         <!-- HEADER -->
         <header class="edit-header">
@@ -136,6 +145,31 @@ interface ClientForm {
       padding: 4rem;
     }
 
+    .edit-error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem 1.5rem;
+      text-align: center;
+      gap: 0.75rem;
+    }
+    .edit-error-icon {
+      color: var(--error);
+      opacity: 0.9;
+    }
+    .edit-error p {
+      margin: 0;
+      color: var(--text-muted);
+      max-width: 28ch;
+    }
+    .edit-error-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
     .edit-header {
       display: flex;
       align-items: center;
@@ -163,6 +197,10 @@ interface ClientForm {
       background: var(--brand-ambient);
       color: var(--brand);
       border-color: var(--brand-border-soft);
+    }
+    .back-btn:focus-visible {
+      outline: 2px solid var(--brand, #6366f1);
+      outline-offset: 2px;
     }
 
     .edit-header-info {
@@ -224,6 +262,7 @@ export class ClientsEditComponent implements OnInit {
   private readonly toast = inject(ToastService);
 
   isLoading = signal(false);
+  loadError = signal<string | null>(null);
   isSaving = signal(false);
   isNew = false;
   clientId = '';
@@ -259,8 +298,16 @@ export class ClientsEditComponent implements OnInit {
     }
   }
 
+  reloadClient(): void {
+    if (!this.clientId) {
+      return;
+    }
+    this.loadClient(this.clientId);
+  }
+
   private loadClient(id: string) {
     this.isLoading.set(true);
+    this.loadError.set(null);
     this.clientService.getClient(id).subscribe({
       next: (c) => {
         if (c) {
@@ -273,11 +320,13 @@ export class ClientsEditComponent implements OnInit {
             address: (c as any).address || '',
             notes: (c as any).notes || '',
           };
+        } else {
+          this.loadError.set('No se encontró el cliente.');
         }
         this.isLoading.set(false);
       },
       error: () => {
-        this.toast.show('No se pudo cargar el cliente', 'error');
+        this.loadError.set('No se pudo cargar el cliente.');
         this.isLoading.set(false);
       },
     });

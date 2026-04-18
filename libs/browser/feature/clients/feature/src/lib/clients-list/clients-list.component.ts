@@ -82,6 +82,16 @@ interface ClientFormData extends Partial<Client> {
 
       @if (canView()) {
 
+      @if (clientsLoadError() && hasAnyClients()) {
+        <div class="load-error-banner" role="alert">
+          <lucide-icon name="alert-circle" size="18" class="banner-icon"></lucide-icon>
+          <span class="banner-text">{{
+            clientsLoadError() || 'No se pudo completar la operación con clientes.'
+          }}</span>
+          <ui-button variant="ghost" size="sm" (clicked)="refreshClients(true)">Reintentar</ui-button>
+        </div>
+      }
+
       <!-- Standard Stats -->
       <ui-feature-stats>
         <ui-stat-card
@@ -263,6 +273,38 @@ interface ClientFormData extends Partial<Client> {
         <div class="loading-container">
           <ui-loader message="Cargando clientes..."></ui-loader>
         </div>
+      } @else if (clientsLoadError() && !hasAnyClients()) {
+        <div class="error-state">
+          <lucide-icon name="wifi-off" size="56" class="error-icon"></lucide-icon>
+          <h3>No se pudo cargar la cartera</h3>
+          <p>
+            {{
+              clientsLoadError() ||
+                'Comprueba la conexión o inténtalo de nuevo en unos segundos.'
+            }}
+          </p>
+          <ui-button variant="solid" (clicked)="refreshClients(true)">Reintentar</ui-button>
+        </div>
+      } @else if (!hasAnyClients()) {
+        <div class="empty-state empty-state--wide">
+          <lucide-icon name="building-2" size="64" class="empty-icon"></lucide-icon>
+          <h3>Sin clientes todavía</h3>
+          <p>Añade tu primer cliente para empezar a trabajar la cartera comercial.</p>
+          @if (canManage()) {
+            <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
+              Añadir primer cliente
+            </ui-button>
+          }
+        </div>
+      } @else if (filterProducesNoResults()) {
+        <div class="empty-state empty-state--wide">
+          <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
+          <h3>Sin resultados</h3>
+          <p>Ningún cliente coincide con la búsqueda o los filtros actuales.</p>
+          <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
+            Limpiar filtros
+          </ui-button>
+        </div>
       } @else {
         <ui-feature-grid>
           <!-- Selection Header -->
@@ -323,28 +365,6 @@ interface ClientFormData extends Partial<Client> {
                 <span>{{ getClientRating(client) }}/5</span>
               </div>
             </ui-feature-card>
-          } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="users"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay clientes</h3>
-              <p>
-                Comienza añadiendo tu primer cliente para gestionar tu cartera
-                comercial.
-              </p>
-              @if (canManage()) {
-                <ui-button
-                  variant="solid"
-                  (clicked)="openCreateModal()"
-                  icon="CirclePlus"
-                >
-                  Añadir primer cliente
-                </ui-button>
-              }
-            </div>
           }
         </ui-feature-grid>
       }
@@ -494,6 +514,60 @@ interface ClientFormData extends Partial<Client> {
         color: var(--text-muted);
         margin-bottom: 1rem;
         opacity: 0.5;
+      }
+      .empty-state--wide {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      .load-error-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 0.85rem 1.1rem;
+        border-radius: 12px;
+        border: 1px solid color-mix(in srgb, var(--error) 35%, transparent);
+        background: color-mix(in srgb, var(--error) 12%, transparent);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+      .load-error-banner .banner-text {
+        flex: 1;
+        min-width: 12rem;
+        color: var(--text-primary);
+      }
+      .load-error-banner .banner-icon {
+        color: var(--error);
+        flex-shrink: 0;
+      }
+
+      .error-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4rem 2rem;
+        text-align: center;
+        gap: 0.75rem;
+        background: var(--surface);
+        border-radius: 20px;
+        border: 1px dashed var(--border-soft);
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      .error-state h3 {
+        margin: 0;
+        font-size: 1.15rem;
+      }
+      .error-state p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 32ch;
+      }
+      .error-icon {
+        color: var(--error);
+        opacity: 0.85;
       }
 
       .client-rating {
@@ -714,6 +788,8 @@ export class ClientsListComponent
 
   clients = this.facade.clients;
   isLoading = this.facade.isLoading;
+  /** Error de carga/búsqueda desde el facade (mensaje técnico o vacío). */
+  clientsLoadError = this.facade.error;
   currentPage = signal(1);
 
   tabs = [{ id: 'all', label: 'Todos', badge: 0 }];
@@ -814,6 +890,12 @@ export class ClientsListComponent
       return 0;
     });
   });
+
+  readonly hasAnyClients = computed(() => this.clients().length > 0);
+  /** Hay clientes pero filtros/búsqueda dejan la lista vacía. */
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyClients() && this.filteredClients().length === 0,
+  );
 
   paginatedClients = computed(() => {
     const filtered = this.filteredClients();
@@ -1135,9 +1217,19 @@ export class ClientsListComponent
     this.showAdvancedFilters.set(!this.showAdvancedFilters());
   }
 
-  refreshClients() {
-    this.facade.loadClients();
-    this.toast.show('Clientes actualizados', 'info');
+  /** @param force Si true, vuelve a pedir datos aunque ya haya clientes en memoria. */
+  refreshClients(force = false) {
+    this.facade.loadClients(force);
+  }
+
+  clearFiltersAndSearch() {
+    this.masterFilter.search('');
+    this.sectorFilter.set('all');
+    this.typeFilter.set('all');
+    this.revenueMinFilter.set(null);
+    this.revenueMaxFilter.set(null);
+    this.showAdvancedFilters.set(false);
+    this.currentPage.set(1);
   }
 
   // Bulk actions methods

@@ -15,7 +15,7 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
-import { map, Observable, of } from 'rxjs';
+import { catchError, finalize, map, Observable, of, take } from 'rxjs';
 import {
   ThemeService,
   MasterFilterService,
@@ -54,6 +54,14 @@ import {
           icon="users"
           actionLabel="NUEVO USUARIO"
         ></ui-feature-header>
+
+        @if (loadError() && hasAnyUsers()) {
+          <div class="load-error-banner" role="alert">
+            <lucide-icon name="alert-circle" size="18" class="banner-icon"></lucide-icon>
+            <span class="banner-text">{{ loadError() }}</span>
+            <ui-button variant="ghost" size="sm" (clicked)="loadUsers()">Reintentar</ui-button>
+          </div>
+        }
 
         <ui-feature-stats>
           <ui-stat-card 
@@ -98,9 +106,22 @@ import {
           </ui-button>
         </ui-feature-filter-bar>
 
-        @if (isLoading()) {
+        @if (loadError() && !hasAnyUsers()) {
+          <div class="error-state">
+            <lucide-icon name="wifi-off" size="56" class="error-icon"></lucide-icon>
+            <h3>No se pudo cargar la lista</h3>
+            <p>{{ loadError() }}</p>
+            <ui-button variant="solid" (clicked)="loadUsers()">Reintentar</ui-button>
+          </div>
+        } @else if (isLoading()) {
           <div class="loader-container">
             <ui-loader message="Sincronizando identidades..."></ui-loader>
+          </div>
+        } @else if (!hasAnyUsers()) {
+          <div class="empty-state empty-state--wide">
+            <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+            <h3>Sin usuarios</h3>
+            <p>Aún no hay usuarios en este tenant. Crea uno con «Nuevo usuario».</p>
           </div>
         } @else {
           <ui-feature-grid>
@@ -134,9 +155,9 @@ import {
               </ui-feature-card>
             } @empty {
               <div class="empty-state">
-                <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+                <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
                 <h3>Sin resultados</h3>
-                <p>No se encontraron usuarios que coincidan con la búsqueda.</p>
+                <p>No hay usuarios que coincidan con la búsqueda o el filtro.</p>
               </div>
             }
           </ui-feature-grid>
@@ -231,6 +252,38 @@ import {
       border: 2px dashed var(--border-soft);
     }
     .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+    .empty-state--wide { max-width: 560px; margin: 0 auto; }
+
+    .load-error-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--error) 35%, transparent);
+      background: color-mix(in srgb, var(--error) 12%, transparent);
+      font-size: 0.9rem;
+    }
+    .load-error-banner .banner-text { flex: 1; min-width: 12rem; color: var(--text-primary); }
+    .load-error-banner .banner-icon { color: var(--error); flex-shrink: 0; }
+
+    .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem 2rem;
+      text-align: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border-radius: 20px;
+      border: 1px dashed var(--border-soft);
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .error-state h3 { margin: 0; font-size: 1.15rem; }
+    .error-state p { margin: 0; color: var(--text-muted); font-size: 0.95rem; max-width: 28ch; }
+    .error-icon { color: var(--error); opacity: 0.85; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -251,6 +304,8 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
+  readonly hasAnyUsers = computed(() => this.users().length > 0);
 
   sortField = signal<'name' | 'email'>('name');
   sortDirection = signal<1 | -1>(1);
@@ -295,12 +350,24 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
     this.masterFilter.unregisterProvider();
   }
 
-  private loadUsers() {
+  loadUsers() {
     this.isLoading.set(true);
-    this.usersService.findAll().subscribe((users) => {
-      this.users.set(users);
-      this.isLoading.set(false);
-    });
+    this.usersService
+      .findAll()
+      .pipe(
+        take(1),
+        catchError(() => {
+          this.loadError.set('No se pudo cargar la lista. Comprueba la conexión o vuelve a intentarlo.');
+          return of(null);
+        }),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe((users) => {
+        if (users !== null) {
+          this.users.set(users);
+          this.loadError.set(null);
+        }
+      });
   }
 
   // Implementation of FilterableService<User>
