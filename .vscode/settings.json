@@ -1,3 +1,5 @@
 {
-    "nxConsole.nxWorkspacePath": "C:\\Users\\amuni\\Desktop\\josanz-proyect\\josanz-erp"
+  "terminal.integrated.env.windows": {
+    "NX_ISOLATE_PLUGINS": "false"
+  }
 }
