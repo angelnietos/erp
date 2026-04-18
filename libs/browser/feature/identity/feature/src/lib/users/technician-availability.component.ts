@@ -1,4 +1,14 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, effect, ElementRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  OnInit,
+  OnDestroy,
+  effect,
+  ElementRef,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -32,9 +42,21 @@ interface Technician {
   status: 'online' | 'offline' | 'away';
 }
 
-interface CalendarCell {
+/** Días del mes cargado (cuadrante equipo + datos por día de mes). */
+interface MonthDayCell {
   day: number;
-  isCurrentMonth: boolean;
+  isToday: boolean;
+  date: string;
+}
+
+/** Celda del calendario individual (mes alineado a lunes o vista semanal). */
+interface PersonalGridCell {
+  kind: 'day';
+  day: number;
+  year: number;
+  month: number;
+  /** Coincide con el mes/año seleccionado en el navegador (el resto son días colindantes). */
+  isInFocusMonth: boolean;
   isToday: boolean;
   date: string;
 }
@@ -94,26 +116,62 @@ interface CalendarCell {
       <header class="dashboard-toolbar" [attr.aria-busy]="isLoading()">
         <div class="header-actions">
            <div class="month-navigator">
-              <button class="nav-btn ripple" type="button" (click)="prevMonth()" title="Mes anterior">
+              <button
+                class="nav-btn ripple"
+                type="button"
+                (click)="viewMode() === 'personal' ? calendarNavPrev() : prevMonth()"
+                [title]="viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana anterior (←)' : 'Mes anterior (←)'"
+              >
                  <lucide-icon name="chevron-left" size="18"></lucide-icon>
               </button>
               <div class="current-month-display">
-                 <span class="m-name">{{ getMonthName() }}</span>
-                 <span class="m-year">{{ currentYear() }}</span>
+                @if (viewMode() === 'personal' && personalCalendarScope() === 'week') {
+                  <span class="m-name">Semana</span>
+                  <span class="m-year">{{ weekRangeLabel() }}</span>
+                } @else {
+                  <span class="m-name">{{ getMonthName() }}</span>
+                  <span class="m-year">{{ currentYear() }}</span>
+                }
               </div>
-              <button class="nav-btn ripple" type="button" (click)="nextMonth()" title="Mes siguiente">
+              <button
+                class="nav-btn ripple"
+                type="button"
+                (click)="viewMode() === 'personal' ? calendarNavNext() : nextMonth()"
+                [title]="viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana siguiente (→)' : 'Mes siguiente (→)'"
+              >
                  <lucide-icon name="chevron-right" size="18"></lucide-icon>
               </button>
               <button
                 type="button"
                 class="nav-btn ripple today-jump-btn"
                 (click)="goToToday()"
-                title="Ir al mes actual y centrar el día de hoy"
+                title="Ir a hoy (T)"
               >
                 <lucide-icon name="calendar-check" size="18"></lucide-icon>
                 <span class="today-jump-label">Hoy</span>
               </button>
            </div>
+
+           @if (viewMode() === 'personal') {
+             <div class="personal-scope-toggle" role="group" aria-label="Vista del calendario">
+               <button
+                 type="button"
+                 class="scope-btn"
+                 [class.active]="personalCalendarScope() === 'month'"
+                 (click)="setPersonalCalendarScope('month')"
+               >
+                 Mes
+               </button>
+               <button
+                 type="button"
+                 class="scope-btn"
+                 [class.active]="personalCalendarScope() === 'week'"
+                 (click)="setPersonalCalendarScope('week')"
+               >
+                 Semana
+               </button>
+             </div>
+           }
 
            @if (canManageTeam()) {
            <div class="view-toggle">
@@ -141,6 +199,23 @@ interface CalendarCell {
            <div class="header-actions-extra">
               <button
                 type="button"
+                class="nav-btn ripple export-btn"
+                (click)="exportAvailabilityCsv()"
+                title="Exportar CSV (E)"
+              >
+                <lucide-icon name="download" size="18"></lucide-icon>
+                <span class="export-btn__label">CSV</span>
+              </button>
+              <button
+                type="button"
+                class="nav-btn ripple shortcuts-help-btn"
+                (click)="toggleShortcutsHelp()"
+                title="Atajos de teclado (?)"
+              >
+                <lucide-icon name="keyboard" size="18"></lucide-icon>
+              </button>
+              <button
+                type="button"
                 class="request-days-btn"
                 [routerLink]="['/users/availability', 'request']"
                 [queryParams]="pedirDiasQueryParams()"
@@ -160,6 +235,28 @@ interface CalendarCell {
            </div>
         </div>
       </header>
+
+      @if (shortcutsHelpOpen()) {
+        <div class="shortcuts-popover" role="dialog" aria-modal="true" aria-labelledby="avail-shortcuts-title">
+          <div class="shortcuts-popover__card">
+            <div class="shortcuts-popover__head">
+              <h2 id="avail-shortcuts-title" class="shortcuts-popover__title">Atajos</h2>
+              <button type="button" class="shortcuts-popover__close" (click)="shortcutsHelpOpen.set(false)" aria-label="Cerrar">
+                <lucide-icon name="x" size="18"></lucide-icon>
+              </button>
+            </div>
+            <ul class="shortcuts-popover__list">
+              <li><kbd>T</kbd> Ir a hoy</li>
+              <li><kbd>←</kbd> / <kbd>→</kbd> Mes o semana anterior/siguiente (vista individual)</li>
+              <li><kbd>E</kbd> Exportar CSV</li>
+              <li><kbd>?</kbd> Esta ayuda · <kbd>Esc</kbd> Cerrar o limpiar búsqueda</li>
+              @if (canManageTeam()) {
+                <li><kbd>1</kbd> Vista individual · <kbd>2</kbd> Vista equipo</li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
 
       <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'">
         @if (viewMode() === 'personal') {
@@ -263,16 +360,20 @@ interface CalendarCell {
                     }
                   </div>
                   
-                  <div class="calendar-grid" role="grid">
-                    @for (cell of calendarCells(); track cell.date) {
+                  <div
+                    class="calendar-grid"
+                    [class.calendar-grid--week]="personalCalendarScope() === 'week'"
+                    role="grid"
+                  >
+                    @for (cell of personalCalendarCells(); track cell.date) {
                       <div
                         class="calendar-cell calendar-cell--readonly"
-                        [class.other-month]="!cell.isCurrentMonth"
+                        [class.calendar-cell--outside-focus]="!cell.isInFocusMonth"
                         [class.today]="cell.isToday"
-                        [class.is-weekend]="isWeekend(cell.day)"
+                        [class.is-weekend]="isWeekendYmd(cell.year, cell.month, cell.day)"
                         role="gridcell"
                         [attr.aria-label]="
-                          'Día ' + cell.day + ', ' + getCellStatusAbbrev(getTechDayStatus(selectedTechId(), cell.day))
+                          'Día ' + cell.day + ', ' + getCellStatusAbbrev(getTechStatusByIso(selectedTechId(), cell.date))
                         "
                       >
                         <div class="calendar-cell__top">
@@ -281,7 +382,7 @@ interface CalendarCell {
                             <span class="today-badge">Hoy</span>
                           }
                         </div>
-                        @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
+                        @if (getTechStatusByIso(selectedTechId(), cell.date); as status) {
                           <div class="calendar-cell__status" [class]="status">
                             <span class="status-pill">{{ getCellStatusAbbrev(status) }}</span>
                           </div>
@@ -400,14 +501,14 @@ interface CalendarCell {
                 }
 
                 <div class="team-board-scroll custom-scrollbar-h" tabindex="0" (scroll)="onTeamHorizontalScroll($event)">
-                  <div class="team-board-matrix" [style.--team-day-cols]="calendarCells().length">
+                  <div class="team-board-matrix" [style.--team-day-cols]="monthDays().length">
                     <div class="board-header">
                       <div class="header-col persona-col sticky-col">
                         <lucide-icon name="circle-user" size="18"></lucide-icon>
                         <span>Persona</span>
                       </div>
                       <div class="days-row">
-                        @for (cell of calendarCells(); track cell.date) {
+                        @for (cell of monthDays(); track cell.date) {
                           <div
                             class="day-header-col"
                             [attr.data-team-day]="cell.day"
@@ -443,7 +544,7 @@ interface CalendarCell {
                             </div>
                           </div>
                           <div class="days-row board-cells-row">
-                            @for (cell of calendarCells(); track cell.date) {
+                            @for (cell of monthDays(); track cell.date) {
                               <div
                                 class="board-day-cell"
                                 [class.is-today]="cell.isToday"
@@ -1054,7 +1155,19 @@ interface CalendarCell {
         color-mix(in srgb, var(--brand) 8%, var(--bg-secondary)) 100%
       );
     }
-    .calendar-cell.other-month { opacity: 0.12; pointer-events: none; }
+    .calendar-cell--outside-focus {
+      opacity: 0.42;
+    }
+    .calendar-cell--outside-focus .status-pill {
+      opacity: 0.85;
+    }
+
+    .calendar-grid--week {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+    .calendar-grid--week .calendar-cell {
+      min-height: 6.5rem;
+    }
 
     .calendar-cell__top {
       display: flex;
@@ -1570,6 +1683,84 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     });
   }
 
+  private static pad2(n: number): string {
+    return n.toString().padStart(2, '0');
+  }
+
+  private static toIso(y: number, month0: number, d: number): string {
+    return `${y}-${TechnicianAvailabilityComponent.pad2(month0 + 1)}-${TechnicianAvailabilityComponent.pad2(d)}`;
+  }
+
+  /** Lunes de la semana local que contiene `ref` (solo fecha). */
+  private static mondayOfWeekContaining(ref: Date): Date {
+    const d = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
+    const sinceMon = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - sinceMon);
+    return d;
+  }
+
+  /** Domingo de la semana que contiene `ref`. */
+  private static sundayOfWeekContaining(ref: Date): Date {
+    const m = TechnicianAvailabilityComponent.mondayOfWeekContaining(ref);
+    const s = new Date(m.getFullYear(), m.getMonth(), m.getDate());
+    s.setDate(s.getDate() + 6);
+    return s;
+  }
+
+  private static buildMonthAlignedPersonalCells(
+    focusY: number,
+    focusM: number,
+    now: Date,
+  ): PersonalGridCell[] {
+    const dim = new Date(focusY, focusM + 1, 0).getDate();
+    const start = TechnicianAvailabilityComponent.mondayOfWeekContaining(new Date(focusY, focusM, 1));
+    const end = TechnicianAvailabilityComponent.sundayOfWeekContaining(new Date(focusY, focusM, dim));
+    const out: PersonalGridCell[] = [];
+    const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const endT = end.getTime();
+    while (cur.getTime() <= endT) {
+      const yy = cur.getFullYear();
+      const mm = cur.getMonth();
+      const dd = cur.getDate();
+      const iso = TechnicianAvailabilityComponent.toIso(yy, mm, dd);
+      const isTo = now.getFullYear() === yy && now.getMonth() === mm && now.getDate() === dd;
+      out.push({
+        kind: 'day',
+        day: dd,
+        year: yy,
+        month: mm,
+        isInFocusMonth: yy === focusY && mm === focusM,
+        isToday: isTo,
+        date: iso,
+      });
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }
+
+  private static buildWeekPersonalCells(monday: Date, focusY: number, focusM: number, now: Date): PersonalGridCell[] {
+    const out: PersonalGridCell[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate());
+      d.setDate(d.getDate() + i);
+      const yy = d.getFullYear();
+      const mm = d.getMonth();
+      const dd = d.getDate();
+      const iso = TechnicianAvailabilityComponent.toIso(yy, mm, dd);
+      const isTo = now.getFullYear() === yy && now.getMonth() === mm && now.getDate() === dd;
+      out.push({
+        kind: 'day',
+        day: dd,
+        year: yy,
+        month: mm,
+        isInFocusMonth: yy === focusY && mm === focusM,
+        isToday: isTo,
+        date: iso,
+      });
+    }
+    return out;
+  }
+
   /** Tras «Ir a hoy», centrar el día actual en el cuadrante de equipo cuando termine la carga. */
   private scrollTeamToTodayAfterLoad = false;
 
@@ -1653,19 +1844,41 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return {} as Record<string, string>;
   });
 
-  /** Conteos por estado para el técnico seleccionado en el mes visible (vista individual). */
+  /** Conteos por estado para el técnico seleccionado (mes completo o semana visible según alcance). */
   readonly personalMonthSummary = computed(() => {
     const id = this.selectedTechId();
-    const cells = this.calendarCells();
-    const map = this.teamAvailability()[id] ?? {};
     let available = 0;
     let unavailable = 0;
     let holiday = 0;
     let incident = 0;
-    for (const c of cells) {
-      if (!c.isCurrentMonth) {
-        continue;
+    if (this.personalCalendarScope() === 'week') {
+      for (const c of this.personalCalendarCells()) {
+        const st = this.getTechStatusByIso(id, c.date);
+        switch (st) {
+          case 'UNAVAILABLE':
+            unavailable++;
+            break;
+          case 'HOLIDAY':
+            holiday++;
+            break;
+          case 'SICK_LEAVE':
+            incident++;
+            break;
+          default:
+            available++;
+            break;
+        }
       }
+      return {
+        available,
+        unavailable,
+        holiday,
+        incident,
+        days: this.personalCalendarCells().length,
+      };
+    }
+    const map = this.teamAvailability()[id] ?? {};
+    for (const c of this.monthDays()) {
       const st = map[c.day] ?? 'AVAILABLE';
       switch (st) {
         case 'UNAVAILABLE':
@@ -1682,14 +1895,56 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
           break;
       }
     }
-    return { available, unavailable, holiday, incident, days: cells.filter((x) => x.isCurrentMonth).length };
+    return {
+      available,
+      unavailable,
+      holiday,
+      incident,
+      days: this.monthDays().length,
+    };
   });
 
-  calendarCells = signal<CalendarCell[]>([]);
+  monthDays = signal<MonthDayCell[]>([]);
+  /** Mes completo alineado a semanas ISO (lunes) o 7 días en vista semanal. */
+  personalCalendarScope = signal<'month' | 'week'>('month');
+  /** Lunes de la semana en vista semanal (null → semana actual al entrar). */
+  weekViewMonday = signal<{ y: number; m: number; d: number } | null>(null);
+  shortcutsHelpOpen = signal(false);
+
   viewMode = signal<'personal' | 'team'>('personal');
   selectedTechId = signal<string>('me');
-  
+
   teamAvailability = signal<Record<string, Record<number, string>>>({});
+  /** Cobertura por fecha ISO (YYYY-MM-DD) para celdas fuera del mes o vista semanal. */
+  teamAvailabilityIso = signal<Record<string, Record<string, string>>>({});
+
+  readonly personalCalendarCells = computed(() => {
+    const focusY = this.currentYear();
+    const focusM = this.currentMonth();
+    const now = new Date();
+    if (this.personalCalendarScope() === 'week') {
+      const wa = this.weekViewMonday();
+      const mon = wa
+        ? new Date(wa.y, wa.m, wa.d)
+        : TechnicianAvailabilityComponent.mondayOfWeekContaining(now);
+      return TechnicianAvailabilityComponent.buildWeekPersonalCells(mon, focusY, focusM, now);
+    }
+    return TechnicianAvailabilityComponent.buildMonthAlignedPersonalCells(focusY, focusM, now);
+  });
+
+  readonly weekRangeLabel = computed(() => {
+    if (this.personalCalendarScope() !== 'week') {
+      return '';
+    }
+    const cells = this.personalCalendarCells();
+    if (cells.length < 1) {
+      return '';
+    }
+    const a = cells[0];
+    const b = cells[cells.length - 1];
+    const sm = ['ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.', 'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.'];
+    return `${a.day} ${sm[a.month]} – ${b.day} ${sm[b.month]} ${b.year}`;
+  });
   
   technicians = signal<Technician[]>([
     { id: 't1', name: 'Antonio Munias', role: 'Administrador ERP', status: 'online' as const },
@@ -1713,7 +1968,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   private readonly teamHScrollState = signal({ scrollLeft: 0, clientWidth: 720, scrollWidth: 720 });
 
   readonly teamScrollLabel = computed(() => {
-    const total = this.calendarCells().length;
+    const total = this.monthDays().length;
     const { scrollLeft, clientWidth, scrollWidth } = this.teamHScrollState();
     const pw = TechnicianAvailabilityComponent.TEAM_PERSONA_PX;
     if (total < 1) {
@@ -1722,7 +1977,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     /** Mes completo visible (columnas fluidas): sin scroll horizontal útil. */
     if (scrollWidth <= clientWidth + 2 || clientWidth < 24) {
       const today =
-        this.calendarCells().find((c) => c.isToday)?.day ??
+        this.monthDays().find((c) => c.isToday)?.day ??
         Math.min(total, Math.max(1, Math.ceil(total / 2)));
       return { from: 1, to: total, center: today, total };
     }
@@ -1849,7 +2104,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     if (!el) {
       return;
     }
-    const total = this.calendarCells().length;
+    const total = this.monthDays().length;
     const pw = TechnicianAvailabilityComponent.TEAM_PERSONA_PX;
     const dayW = total > 0 ? Math.max(1, (el.scrollWidth - pw) / total) : TechnicianAvailabilityComponent.TEAM_DAY_PX;
     el.scrollBy({ left: deltaDays * dayW, behavior: 'smooth' });
@@ -1857,14 +2112,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   }
 
   scrollTeamHorizontalToToday(): void {
-    const cells = this.calendarCells();
+    const cells = this.monthDays();
     const todayCell = cells.find((c) => c.isToday);
     const day = todayCell?.day ?? cells[0]?.day ?? 1;
     this.scrollTeamHorizontalToDay(day);
   }
 
   scrollTeamHorizontalToDay(day: number): void {
-    const total = this.calendarCells().length;
+    const total = this.monthDays().length;
     const d = Math.max(1, Math.min(total, day));
     const header = this.hostEl.nativeElement.querySelector(
       `.board-header .day-header-col[data-team-day="${d}"]`,
@@ -1923,6 +2178,13 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   /** Salta al mes y año actuales; en vista equipo desplaza el scroll al día de hoy tras cargar. */
   goToToday(): void {
     const n = new Date();
+    if (this.viewMode() === 'personal' && this.personalCalendarScope() === 'week') {
+      const mon = TechnicianAvailabilityComponent.mondayOfWeekContaining(n);
+      this.weekViewMonday.set({ y: mon.getFullYear(), m: mon.getMonth(), d: mon.getDate() });
+      this.currentYear.set(mon.getFullYear());
+      this.currentMonth.set(mon.getMonth());
+      return;
+    }
     const alreadyThisMonth =
       this.currentMonth() === n.getMonth() && this.currentYear() === n.getFullYear();
     this.currentMonth.set(n.getMonth());
@@ -1939,34 +2201,132 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     }
   }
 
-  initCalendarCells() {
-    const cells: CalendarCell[] = [];
-    const daysInMonth = new Date(this.currentYear(), this.currentMonth() + 1, 0).getDate();
-    const now = new Date();
-    const isCurrentMonth = now.getMonth() === this.currentMonth() && now.getFullYear() === this.currentYear();
-    
-    for (let i = 1; i <= daysInMonth; i++) {
-        cells.push({
-            day: i,
-            isCurrentMonth: true,
-            isToday: isCurrentMonth && i === now.getDate(),
-            date: `${this.currentYear()}-${(this.currentMonth()+1).toString().padStart(2,'0')}-${i.toString().padStart(2,'0')}`
-        });
+  calendarNavPrev(): void {
+    if (this.viewMode() === 'personal' && this.personalCalendarScope() === 'week') {
+      this.shiftWeek(-1);
+      return;
     }
-    this.calendarCells.set(cells);
+    this.prevMonth();
+  }
+
+  calendarNavNext(): void {
+    if (this.viewMode() === 'personal' && this.personalCalendarScope() === 'week') {
+      this.shiftWeek(1);
+      return;
+    }
+    this.nextMonth();
+  }
+
+  private shiftWeek(deltaWeeks: number): void {
+    const wa = this.weekViewMonday();
+    const mon = wa
+      ? new Date(wa.y, wa.m, wa.d)
+      : TechnicianAvailabilityComponent.mondayOfWeekContaining(new Date());
+    mon.setDate(mon.getDate() + deltaWeeks * 7);
+    this.weekViewMonday.set({ y: mon.getFullYear(), m: mon.getMonth(), d: mon.getDate() });
+    this.currentYear.set(mon.getFullYear());
+    this.currentMonth.set(mon.getMonth());
+  }
+
+  setPersonalCalendarScope(scope: 'month' | 'week'): void {
+    this.personalCalendarScope.set(scope);
+    if (scope === 'week' && !this.weekViewMonday()) {
+      const n = new Date();
+      const mon = TechnicianAvailabilityComponent.mondayOfWeekContaining(n);
+      this.weekViewMonday.set({ y: mon.getFullYear(), m: mon.getMonth(), d: mon.getDate() });
+      this.currentYear.set(mon.getFullYear());
+      this.currentMonth.set(mon.getMonth());
+    }
+  }
+
+  exportAvailabilityCsv(): void {
+    const sep = ';';
+    const nl = '\r\n';
+    const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
+    const rows: string[][] = [];
+    const monthLabel = `${this.getMonthName()} ${this.currentYear()}`;
+    let fileSuffix = '';
+    if (this.viewMode() === 'team') {
+      rows.push(['Cuadrante equipo', monthLabel, '', ...this.monthDays().map((c) => String(c.day))]);
+      for (const tech of this.teamBoardRows()) {
+        rows.push([
+          tech.name,
+          tech.role,
+          '',
+          ...this.monthDays().map((d) => this.getShortLabel(this.getTechDayStatus(tech.id, d.day))),
+        ]);
+      }
+    } else {
+      const tech = this.technicians().find((t) => t.id === this.selectedTechId());
+      const name = tech?.name ?? 'Técnico';
+      const cells = this.personalCalendarCells();
+      const scopeLine =
+        this.personalCalendarScope() === 'week'
+          ? `Semana (${this.weekRangeLabel()})`
+          : `Mes (${monthLabel})`;
+      rows.push([`Disponibilidad`, name, scopeLine]);
+      rows.push(['Día', 'Fecha', 'Estado']);
+      const sid = this.selectedTechId();
+      for (const c of cells) {
+        rows.push([
+          String(c.day),
+          c.date,
+          this.getShortLabel(this.getTechStatusByIso(sid, c.date)),
+        ]);
+      }
+      if (this.personalCalendarScope() === 'week' && cells.length > 0) {
+        fileSuffix = `-sem-${cells[0].date}`;
+      }
+    }
+    const body = rows.map((r) => r.map(escape).join(sep)).join(nl);
+    const bom = '\ufeff';
+    const blob = new Blob([bom + body], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `disponibilidad-${this.currentYear()}-${TechnicianAvailabilityComponent.pad2(this.currentMonth() + 1)}${fileSuffix}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toast.show('CSV descargado', 'success');
+  }
+
+  toggleShortcutsHelp(): void {
+    this.shortcutsHelpOpen.update((v) => !v);
+  }
+
+  initCalendarCells() {
+    const cells: MonthDayCell[] = [];
+    const y = this.currentYear();
+    const m0 = this.currentMonth();
+    const daysInMonth = new Date(y, m0 + 1, 0).getDate();
+    const now = new Date();
+    const isCurMonth = now.getMonth() === m0 && now.getFullYear() === y;
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      cells.push({
+        day: i,
+        isToday: isCurMonth && i === now.getDate(),
+        date: TechnicianAvailabilityComponent.toIso(y, m0, i),
+      });
+    }
+    this.monthDays.set(cells);
   }
 
   initTeamData() {
     const data: Record<string, Record<number, string>> = {};
     const monthSeed = this.currentMonth() + this.currentYear();
+    const y = this.currentYear();
+    const m = this.currentMonth();
+    const dim = new Date(y, m + 1, 0).getDate();
 
     this.technicians().forEach((tech: Technician) => {
       data[tech.id] = {};
-      for (let day = 1; day <= 31; day++) {
+      for (let day = 1; day <= dim; day++) {
         data[tech.id][day] = this.getRandomMockAvailability(day, tech.id, monthSeed).type;
       }
     });
     this.teamAvailability.set(data);
+    this.syncIsoMapsFromAvailabilityData(y, m, data);
   }
 
   async loadMonth() {
@@ -2017,12 +2377,22 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       }
       this.myTechnicianId.set(mineTechId);
 
-      // Cargar disponibilidad
+      // Cargar disponibilidad (rango ampliado al lunes previo y domingo posterior para calendario alineado / semana)
       const year = this.currentYear();
       const month = this.currentMonth();
-      const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${daysInMonth}`;
+      const rangeStart = TechnicianAvailabilityComponent.mondayOfWeekContaining(new Date(year, month, 1));
+      const rangeEnd = TechnicianAvailabilityComponent.sundayOfWeekContaining(new Date(year, month, daysInMonth));
+      const startDate = TechnicianAvailabilityComponent.toIso(
+        rangeStart.getFullYear(),
+        rangeStart.getMonth(),
+        rangeStart.getDate(),
+      );
+      const endDate = TechnicianAvailabilityComponent.toIso(
+        rangeEnd.getFullYear(),
+        rangeEnd.getMonth(),
+        rangeEnd.getDate(),
+      );
 
       const data: Record<string, Record<number, string>> = {};
       const monthSeed = month + year;
@@ -2058,13 +2428,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         } catch {
           // Si falla el API para este técnico o es un mock, fallback total al mock inteligente
           data[tech.id] = {};
-          for (let d = 1; d <= 31; d++) {
+          for (let d = 1; d <= daysInMonth; d++) {
              data[tech.id][d] = this.getRandomMockAvailability(d, tech.id, monthSeed).type;
           }
         }
       }));
 
       this.teamAvailability.set(data);
+      this.syncIsoMapsFromAvailabilityData(year, month, data);
       if (!this.canManageTeam() && mineTechId) {
         this.selectedTechId.set(mineTechId);
       } else if (!this.selectedTechId() || this.selectedTechId() === 'me') {
@@ -2102,6 +2473,60 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
   getTechDayStatus(techId: string, day: number): string {
     return this.teamAvailability()[techId]?.[day] || 'AVAILABLE';
+  }
+
+  /** Estado por fecha ISO (vista calendario alineada o semanal). */
+  getTechStatusByIso(techId: string, iso: string): string {
+    const by = this.teamAvailabilityIso()[techId];
+    if (by?.[iso]) {
+      return by[iso];
+    }
+    const parts = iso.split('-');
+    if (parts.length !== 3) {
+      return 'AVAILABLE';
+    }
+    const y = +parts[0];
+    const m0 = +parts[1] - 1;
+    const d = +parts[2];
+    if (y === this.currentYear() && m0 === this.currentMonth()) {
+      return this.getTechDayStatus(techId, d);
+    }
+    return 'AVAILABLE';
+  }
+
+  isWeekendYmd(y: number, m: number, d: number): boolean {
+    const wd = new Date(y, m, d).getDay();
+    return wd === 0 || wd === 6;
+  }
+
+  private syncIsoMapsFromAvailabilityData(
+    year: number,
+    month: number,
+    data: Record<string, Record<number, string>>,
+  ): void {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const start = TechnicianAvailabilityComponent.mondayOfWeekContaining(new Date(year, month, 1));
+    const end = TechnicianAvailabilityComponent.sundayOfWeekContaining(new Date(year, month, daysInMonth));
+    const endT = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
+    const out: Record<string, Record<string, string>> = {};
+    for (const techId of Object.keys(data)) {
+      out[techId] = {};
+      const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      while (cur.getTime() <= endT) {
+        const yy = cur.getFullYear();
+        const mm = cur.getMonth();
+        const dd = cur.getDate();
+        const iso = TechnicianAvailabilityComponent.toIso(yy, mm, dd);
+        if (yy === year && mm === month) {
+          out[techId][iso] = data[techId][dd] ?? 'AVAILABLE';
+        } else {
+          const wd = cur.getDay();
+          out[techId][iso] = wd === 0 || wd === 6 ? 'UNAVAILABLE' : 'AVAILABLE';
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+    this.teamAvailabilityIso.set(out);
   }
 
   getSelectedTechName(): string {
@@ -2151,6 +2576,70 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     const d = new Date(this.currentYear(), this.currentMonth(), day);
     const wd = d.getDay();
     return wd === 0 || wd === 6;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleAvailabilityHotkeys(ev: KeyboardEvent): void {
+    if (!this.canAccess()) {
+      return;
+    }
+    const el = ev.target as HTMLElement | null;
+    if (el?.closest('input, textarea, select, [contenteditable="true"]')) {
+      return;
+    }
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) {
+      return;
+    }
+    switch (ev.key) {
+      case 't':
+      case 'T':
+        ev.preventDefault();
+        this.goToToday();
+        break;
+      case 'e':
+      case 'E':
+        ev.preventDefault();
+        this.exportAvailabilityCsv();
+        break;
+      case '?':
+        ev.preventDefault();
+        this.toggleShortcutsHelp();
+        break;
+      case 'Escape':
+        if (this.shortcutsHelpOpen()) {
+          ev.preventDefault();
+          this.shortcutsHelpOpen.set(false);
+        } else if (this.availabilitySearchQuery().trim()) {
+          this.clearAvailabilitySearch();
+        }
+        break;
+      case 'ArrowLeft':
+        if (this.viewMode() === 'personal') {
+          ev.preventDefault();
+          this.calendarNavPrev();
+        }
+        break;
+      case 'ArrowRight':
+        if (this.viewMode() === 'personal') {
+          ev.preventDefault();
+          this.calendarNavNext();
+        }
+        break;
+      case '1':
+        if (this.canManageTeam()) {
+          ev.preventDefault();
+          this.viewMode.set('personal');
+        }
+        break;
+      case '2':
+        if (this.canManageTeam()) {
+          ev.preventDefault();
+          this.viewMode.set('team');
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   private getRandomMockAvailability(day: number, techId: string, monthSeed = 0): { type: 'AVAILABLE' | 'UNAVAILABLE' | 'HOLIDAY' | 'SICK_LEAVE' } {
