@@ -235,8 +235,8 @@ interface CalendarCell {
                 
                 <div class="calendar-container">
                   <div class="calendar-grid-header">
-                    @for (day of ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']; track day) {
-                      <div class="grid-day-label">{{ day }}</div>
+                    @for (day of ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']; track day; let idx = $index) {
+                      <div class="grid-day-label" [class.is-weekend]="idx >= 5">{{ day }}</div>
                     }
                   </div>
                   
@@ -246,6 +246,7 @@ interface CalendarCell {
                         class="calendar-cell calendar-cell--readonly"
                         [class.other-month]="!cell.isCurrentMonth"
                         [class.today]="cell.isToday"
+                        [class.is-weekend]="isWeekend(cell.day)"
                         role="gridcell"
                         [attr.aria-label]="
                           'Día ' + cell.day + ', ' + getCellStatusAbbrev(getTechDayStatus(selectedTechId(), cell.day))
@@ -526,7 +527,7 @@ interface CalendarCell {
       border-radius: 12px;
       border: 1px solid var(--brand-border-soft, color-mix(in srgb, var(--brand) 35%, transparent));
       background: var(--brand);
-      color: #0a0a0a;
+      color: var(--text-on-brand, #ffffff);
       font-size: 0.68rem;
       font-weight: 800;
       letter-spacing: 0.06em;
@@ -565,7 +566,11 @@ interface CalendarCell {
       cursor: pointer; transition: var(--transition-base); display: flex; align-items: center; gap: 0.5rem;
     }
     .toggle-btn lucide-icon { opacity: 0.5; }
-    .toggle-btn.active { background: var(--brand); color: #000; box-shadow: 0 4px 15px var(--brand-glow); }
+    .toggle-btn.active {
+      background: var(--brand);
+      color: var(--text-on-brand, #ffffff);
+      box-shadow: 0 4px 15px var(--brand-glow);
+    }
     .toggle-btn.active lucide-icon { opacity: 1; }
 
     .dashboard-layout { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 2rem; margin-top: 1rem; align-items: start; }
@@ -751,6 +756,12 @@ interface CalendarCell {
       font-weight: 900;
       letter-spacing: 0.12em;
       padding: 0.35rem 0;
+      border-radius: 8px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .grid-day-label.is-weekend {
+      color: color-mix(in srgb, var(--text-muted) 55%, var(--text-primary));
+      background: color-mix(in srgb, var(--text-muted) 9%, transparent);
     }
 
     .calendar-grid {
@@ -806,6 +817,21 @@ interface CalendarCell {
         0 0 0 1px color-mix(in srgb, var(--brand) 25%, transparent),
         0 12px 28px -16px color-mix(in srgb, var(--brand) 45%, transparent);
     }
+    /* Fin de semana: mismo criterio que el cuadrante de equipo (sáb/dom reales del mes). */
+    .calendar-cell.is-weekend:not(.today) {
+      background: color-mix(in srgb, var(--text-muted) 10%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--text-muted) 22%, var(--avail-grid-line));
+    }
+    .calendar-cell.is-weekend:not(.today) .day-number {
+      opacity: 0.55;
+    }
+    .calendar-cell.is-weekend.today {
+      background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--brand) 14%, color-mix(in srgb, var(--text-muted) 8%, var(--bg-tertiary))) 0%,
+        color-mix(in srgb, var(--brand) 8%, var(--bg-secondary)) 100%
+      );
+    }
     .calendar-cell.other-month { opacity: 0.12; pointer-events: none; }
 
     .calendar-cell__top {
@@ -837,7 +863,7 @@ interface CalendarCell {
       padding: 0.2rem 0.4rem;
       border-radius: 6px;
       background: var(--brand);
-      color: #0a0a0a;
+      color: var(--text-on-brand, #ffffff);
       box-shadow: 0 2px 10px color-mix(in srgb, var(--brand) 55%, transparent);
     }
 
@@ -862,25 +888,25 @@ interface CalendarCell {
       border: 1px solid transparent;
     }
     .calendar-cell__status.AVAILABLE .status-pill {
-      color: color-mix(in srgb, var(--success) 15%, #052e16);
+      color: color-mix(in srgb, var(--text-primary) 72%, var(--success));
       background: color-mix(in srgb, var(--success) 22%, var(--bg-tertiary));
       border-color: color-mix(in srgb, var(--success) 38%, transparent);
       box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--success) 55%, transparent);
     }
     .calendar-cell__status.UNAVAILABLE .status-pill {
-      color: color-mix(in srgb, var(--danger) 8%, #3f0a0a);
+      color: color-mix(in srgb, var(--text-primary) 70%, var(--danger));
       background: color-mix(in srgb, var(--danger) 20%, var(--bg-tertiary));
       border-color: color-mix(in srgb, var(--danger) 35%, transparent);
       box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--danger) 50%, transparent);
     }
     .calendar-cell__status.HOLIDAY .status-pill {
-      color: color-mix(in srgb, var(--info) 5%, #0c2a3d);
+      color: color-mix(in srgb, var(--text-primary) 72%, var(--info));
       background: color-mix(in srgb, var(--info) 22%, var(--bg-tertiary));
       border-color: color-mix(in srgb, var(--info) 38%, transparent);
       box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--info) 45%, transparent);
     }
     .calendar-cell__status.SICK_LEAVE .status-pill {
-      color: color-mix(in srgb, var(--warning) 12%, #3d2a06);
+      color: color-mix(in srgb, var(--text-primary) 70%, var(--warning));
       background: color-mix(in srgb, var(--warning) 22%, var(--bg-tertiary));
       border-color: color-mix(in srgb, var(--warning) 40%, transparent);
       box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--warning) 45%, transparent);
@@ -1018,12 +1044,12 @@ interface CalendarCell {
       letter-spacing: 0.06em;
       text-transform: uppercase;
       background: var(--brand);
-      color: #0a0a0a;
+      color: var(--text-on-brand, #ffffff);
       border-color: transparent;
     }
     .team-mobile-day-bar__btn--accent:hover {
       filter: brightness(1.06);
-      color: #0a0a0a;
+      color: var(--text-on-brand, #ffffff);
     }
 
     .team-board-scroll {
