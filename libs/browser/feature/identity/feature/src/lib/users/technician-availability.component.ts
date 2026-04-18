@@ -503,7 +503,13 @@ interface PersonalGridCell {
                   </div>
                 }
 
-                <div class="team-board-scroll custom-scrollbar-h" tabindex="0" (scroll)="onTeamHorizontalScroll($event)">
+                @let hScroll = teamHScrollUi();
+                <div class="team-board-scroll-wrap">
+                  <div
+                    class="team-board-scroll custom-scrollbar-h"
+                    tabindex="0"
+                    (scroll)="onTeamHorizontalScroll($event)"
+                  >
                   <div class="team-board-matrix" [style.--team-day-cols]="monthDays().length">
                     <div class="board-header">
                       <div class="header-col persona-col sticky-col">
@@ -587,6 +593,16 @@ interface PersonalGridCell {
                       }
                     </div>
                   </div>
+                  </div>
+                  @if (hScroll.overflow) {
+                    <div class="team-board-hscroll-indicator" role="presentation" aria-hidden="true">
+                      <div
+                        class="team-board-hscroll-indicator__thumb"
+                        [style.width.%]="hScroll.thumbW"
+                        [style.margin-inline-start.%]="hScroll.thumbLeft"
+                      ></div>
+                    </div>
+                  }
                 </div>
               </ui-card>
               @if (isLoading()) {
@@ -1390,6 +1406,11 @@ interface PersonalGridCell {
       color: var(--text-on-brand, #ffffff);
     }
 
+    .team-board-scroll-wrap {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
     .team-board-scroll {
       overflow-x: auto;
       overflow-y: visible;
@@ -1400,6 +1421,26 @@ interface PersonalGridCell {
     .team-board-scroll:focus-visible {
       outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
       outline-offset: 2px;
+    }
+    .team-board-hscroll-indicator {
+      height: 4px;
+      margin: 0.35rem 0.35rem 0.15rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .team-board-hscroll-indicator__thumb {
+      height: 100%;
+      min-width: 6%;
+      border-radius: inherit;
+      background: color-mix(in srgb, var(--brand) 50%, var(--text-muted));
+      transition: margin-inline-start 0.14s ease, width 0.14s ease;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .team-board-hscroll-indicator__thumb {
+        transition: none;
+      }
     }
 
     .team-board-matrix {
@@ -1646,8 +1687,21 @@ interface PersonalGridCell {
         font-size: 0.78rem;
       }
       .availability-dashboard--team .dashboard-toolbar {
+        justify-content: center;
         padding-bottom: 0.55rem;
         gap: 0.65rem 0.85rem;
+      }
+      .availability-dashboard--team .header-actions {
+        justify-content: center;
+        width: 100%;
+      }
+      .availability-dashboard--team .team-board-scroll {
+        scroll-snap-type: x proximity;
+        scroll-padding-left: var(--avail-persona-width);
+      }
+      .availability-dashboard--team .day-header-col,
+      .availability-dashboard--team .board-day-cell {
+        scroll-snap-align: start;
       }
       .availability-dashboard--team .team-board-toolbar {
         padding: 1rem 0.75rem 0.75rem;
@@ -1678,6 +1732,11 @@ interface PersonalGridCell {
       }
       .availability-dashboard--team .team-board-card {
         border-radius: 14px !important;
+      }
+    }
+    @media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+      .availability-dashboard--team .team-board-scroll {
+        scroll-snap-type: none;
       }
     }
 
@@ -2041,6 +2100,18 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     }
     center = Math.max(1, Math.min(total, center));
     return { from: Math.min(from, to), to, center, total };
+  });
+
+  /** Mini barra proporcional bajo el scroll horizontal cuando hay overflow (viewport vs contenido). */
+  readonly teamHScrollUi = computed(() => {
+    const { scrollLeft, clientWidth, scrollWidth } = this.teamHScrollState();
+    if (scrollWidth <= clientWidth + 2 || scrollWidth < 24) {
+      return { overflow: false as const, thumbW: 0, thumbLeft: 0 };
+    }
+    const max = scrollWidth - clientWidth;
+    const thumbW = (clientWidth / scrollWidth) * 100;
+    const thumbLeft = max > 1e-6 ? (scrollLeft / max) * (100 - thumbW) : 0;
+    return { overflow: true as const, thumbW, thumbLeft };
   });
 
   currentMonth = signal<number>(new Date().getMonth());
