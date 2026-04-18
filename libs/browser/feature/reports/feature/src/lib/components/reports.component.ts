@@ -28,9 +28,9 @@ import {
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
   UiFeaturePageShellComponent,
+  UiFeatureHeaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
-  ThemeService,
   PluginStore,
   ToastService,
   GlobalAuthStore,
@@ -85,6 +85,7 @@ interface Report {
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
     UiFeaturePageShellComponent,
+    UiFeatureHeaderComponent,
   ],
   template: `
     <ui-feature-page-shell
@@ -98,26 +99,11 @@ interface Report {
           permissionHint="reports.view"
         />
       } @else {
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
-      >
-        <div class="header-breadcrumb">
-          <h1
-            class="page-title text-uppercase glow-text"
-            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
-          >
-            Sistema de Reportes
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >ANÁLISIS Y REPORTING</span
-            >
-            <span class="separator">/</span>
-            <span>INFORMES EJECUTIVOS</span>
-          </div>
-        </div>
-      </header>
+      <ui-feature-header
+        title="Sistema de Reportes"
+        breadcrumbLead="ANÁLISIS Y REPORTING"
+        breadcrumbTail="INFORMES EJECUTIVOS"
+      />
 
       <div class="reports-content">
         @if (serverExportError()) {
@@ -374,42 +360,6 @@ interface Report {
   `,
   styles: [
     `
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .header-breadcrumb {
-        flex: 1;
-      }
-
-      .page-title {
-        margin: 0 0 0.5rem 0;
-        font-size: clamp(1.5rem, 2vw, 2rem);
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        font-family: var(--font-display);
-      }
-
-      .breadcrumb {
-        display: flex;
-        gap: 8px;
-        font-size: 0.75rem;
-        font-weight: 800;
-        letter-spacing: 0.15em;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-        text-transform: uppercase;
-      }
-
-      .separator {
-        opacity: 0.5;
-      }
-
       .reports-content {
         display: flex;
         flex-direction: column;
@@ -591,19 +541,6 @@ interface Report {
         flex-shrink: 0;
       }
 
-      .text-uppercase {
-        text-transform: uppercase;
-      }
-
-      .glow-text {
-        font-size: clamp(1.5rem, 2vw, 2rem);
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.04em;
-        font-family: var(--font-display);
-      }
-
       @media (max-width: 768px) {
         .report-types-grid {
           grid-template-columns: 1fr;
@@ -628,7 +565,6 @@ interface Report {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsComponent implements OnInit {
-  public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'reports.view');
@@ -636,7 +572,6 @@ export class ReportsComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly ngZone = inject(NgZone);
 
-  currentTheme = this.themeService.currentThemeData;
   private readonly FileText = FileText;
   private readonly Calendar = Calendar;
   private readonly Users = Users;

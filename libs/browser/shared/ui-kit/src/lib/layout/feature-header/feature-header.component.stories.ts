@@ -16,18 +16,20 @@ type Story = StoryObj<UiFeatureHeaderComponent>;
 
 export const Default: Story = {
   args: {
+    layout: 'card',
     title: 'Dashboard',
     subtitle: 'Overview of your system',
     icon: 'layout',
   },
   render: (args) => ({
     props: bindStoryProps(args),
-    template: `<ui-feature-header [title]="title" [subtitle]="subtitle" [icon]="icon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
+    template: `<ui-feature-header [layout]="layout" [title]="title" [subtitle]="subtitle" [icon]="icon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
   }),
 };
 
 export const WithAction: Story = {
   args: {
+    layout: 'card',
     title: 'Projects',
     subtitle: 'Manage your projects',
     icon: 'folder',
@@ -36,12 +38,13 @@ export const WithAction: Story = {
   },
   render: (args) => ({
     props: bindStoryProps(args),
-    template: `<ui-feature-header [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
+    template: `<ui-feature-header [layout]="layout" [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
   }),
 };
 
 export const Clients: Story = {
   args: {
+    layout: 'card',
     title: 'Clients',
     subtitle: 'Client management',
     icon: 'users',
@@ -50,6 +53,24 @@ export const Clients: Story = {
   },
   render: (args) => ({
     props: bindStoryProps(args),
-    template: `<ui-feature-header [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
+    template: `<ui-feature-header [layout]="layout" [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
+  }),
+};
+
+export const PageHero: Story = {
+  args: {
+    layout: 'pageHero',
+    title: 'Sistema de Reportes',
+    breadcrumbLead: 'ANÁLISIS Y REPORTING',
+    breadcrumbTail: 'INFORMES EJECUTIVOS',
+  },
+  render: (args) => ({
+    props: bindStoryProps(args),
+    template: `<ui-feature-header
+      [layout]="layout"
+      [title]="title"
+      [breadcrumbLead]="breadcrumbLead"
+      [breadcrumbTail]="breadcrumbTail"
+    ></ui-feature-header>`,
   }),
 };

@@ -1,29 +1,46 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiButtonComponent } from '../../button/button.component';
+import { ThemeService } from '@josanz-erp/shared-data-access';
+
+/** Cabecera de módulo: tarjeta con icono o banda tipo “reportes” (migas + glow de marca). */
+export type UiFeatureHeaderLayout = 'card' | 'pageHero';
 
 @Component({
   selector: 'ui-feature-header',
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UiButtonComponent],
   template: `
-    <div class="feature-header">
-      <div class="header-content">
-        <div class="title-section">
-          <div class="icon-box" [style.background]="iconBackground">
-            <lucide-icon [name]="icon" size="32"></lucide-icon>
-          </div>
-          <div class="text-box">
-            <h1 class="main-title">{{ title }}</h1>
-            @if (subtitle) {
-              <p class="subtitle">{{ subtitle }}</p>
-            }
-          </div>
+    @if (layout === 'pageHero') {
+      <header
+        class="page-header page-hero-header"
+        [style.border-bottom-color]="theme().primary + '33'"
+      >
+        <div class="header-breadcrumb">
+          <h1
+            class="page-title text-uppercase glow-text"
+            [style.text-shadow]="'0 0 20px ' + theme().primary + '44'"
+          >
+            {{ title }}
+          </h1>
+          @if (breadcrumbLead && breadcrumbTail) {
+            <div class="breadcrumb">
+              <span class="active" [style.color]="theme().primary">{{
+                breadcrumbLead
+              }}</span>
+              <span class="separator">/</span>
+              <span>{{ breadcrumbTail }}</span>
+            </div>
+          } @else if (subtitle) {
+            <div class="breadcrumb breadcrumb-single">
+              <span>{{ subtitle }}</span>
+            </div>
+          }
         </div>
-        <div class="actions-section">
-          <ng-content select="[actions]">
-            @if (actionLabel) {
+        <div class="header-actions">
+          <ng-content select="[actions]"></ng-content>
+          @if (actionLabel) {
             <ui-button
               variant="solid"
               size="md"
@@ -33,13 +50,109 @@ import { UiButtonComponent } from '../../button/button.component';
             >
               {{ actionLabel }}
             </ui-button>
+          }
+        </div>
+      </header>
+    } @else {
+      <div class="feature-header">
+        <div class="header-content">
+          <div class="title-section">
+            <div class="icon-box" [style.background]="iconBackground">
+              <lucide-icon [name]="icon" size="32"></lucide-icon>
+            </div>
+            <div class="text-box">
+              <h1 class="main-title">{{ title }}</h1>
+              @if (subtitle) {
+                <p class="subtitle">{{ subtitle }}</p>
+              }
+            </div>
+          </div>
+          <div class="actions-section">
+            <ng-content select="[actions]"></ng-content>
+            @if (actionLabel) {
+              <ui-button
+                variant="solid"
+                size="md"
+                [icon]="actionIcon"
+                (clicked)="actionClicked.emit()"
+                class="primary-action"
+              >
+                {{ actionLabel }}
+              </ui-button>
             }
-          </ng-content>
+          </div>
         </div>
       </div>
-    </div>
+    }
   `,
   styles: [`
+    /* —— pageHero: alineado con reportes / dashboard —— */
+    .page-hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-hero-header .header-breadcrumb {
+      flex: 1;
+      min-width: min(100%, 280px);
+    }
+
+    .page-hero-header .page-title {
+      margin: 0 0 0.35rem 0;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      font-family: var(--font-display, var(--font-main));
+    }
+
+    .page-hero-header .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      text-transform: uppercase;
+    }
+
+    .page-hero-header .breadcrumb-single span {
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: none;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .page-hero-header .separator {
+      opacity: 0.5;
+    }
+
+    .page-hero-header .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .page-title {
+      font-size: clamp(1.2rem, 1.1vw + 0.85rem, 1.5rem);
+      font-weight: 700;
+      text-shadow: none !important;
+      -webkit-text-fill-color: var(--brand, #004b93);
+      color: var(--brand, #004b93);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb-single span {
+      font-size: 0.8125rem;
+    }
+
     .feature-header {
       margin-bottom: 2rem;
     }
@@ -175,12 +288,26 @@ import { UiButtonComponent } from '../../button/button.component';
   `]
 })
 export class UiFeatureHeaderComponent {
+  private readonly themeService = inject(ThemeService);
+
+  /** `pageHero`: banda con título en mayúsculas + migas (estilo reportes). `card`: tarjeta con icono. */
+  @Input() layout: UiFeatureHeaderLayout = 'pageHero';
+
+  /** Primera parte de la miga (color marca). Requiere `breadcrumbTail`. */
+  @Input() breadcrumbLead = '';
+
+  /** Segunda parte de la miga (texto secundario). */
+  @Input() breadcrumbTail = '';
+
   @Input() title = '';
   @Input() subtitle = '';
   @Input() icon = 'layout';
   @Input() iconBackground = 'linear-gradient(135deg, var(--brand), var(--brand-secondary))';
   @Input() actionLabel = '';
   @Input() actionIcon = 'CirclePlus';
-  
+
   @Output() actionClicked = new EventEmitter<void>();
+
+  /** Datos del tema actual (color primario para bordes y glow). */
+  protected readonly theme = this.themeService.currentThemeData;
 }

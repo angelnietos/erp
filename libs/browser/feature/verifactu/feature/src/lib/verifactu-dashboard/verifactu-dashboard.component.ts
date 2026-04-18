@@ -20,6 +20,7 @@ import {
   UiFeatureAccessDeniedComponent,
   UiLoaderComponent,
   UiFeaturePageShellComponent,
+  UiFeatureHeaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 import type { VerifactuRecord } from '@josanz-erp/verifactu-api';
@@ -47,6 +48,7 @@ import {
     UiFeatureAccessDeniedComponent,
     UiLoaderComponent,
     UiFeaturePageShellComponent,
+    UiFeatureHeaderComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -60,26 +62,12 @@ import {
       [fadeIn]="true"
       [extraClass]="'page-container' + (pluginStore.highPerformanceMode() ? ' high-perf' : '')"
     >
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
+      <ui-feature-header
+        title="Panel Veri*Factu"
+        breadcrumbLead="CUMPLIMIENTO FISCAL"
+        breadcrumbTail="MONITOR SIANE"
       >
-        <div class="header-breadcrumb">
-          <h1
-            class="page-title text-uppercase glow-text"
-            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
-          >
-            Panel Veri*Factu
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >CUMPLIMIENTO FISCAL</span
-            >
-            <span class="separator">/</span>
-            <span>MONITOR SIANE</span>
-          </div>
-        </div>
-        <div class="header-actions">
+        <div actions class="verifactu-top-actions">
           <div class="tenant-selector ui-glass-panel">
             <lucide-icon name="building-2" size="14"></lucide-icon>
             <input
@@ -106,7 +94,7 @@ import {
             >REPORTE DIRECTO</ui-button
           >
         </div>
-      </header>
+      </ui-feature-header>
 
       <div class="stats-row">
         <ui-stat-card
@@ -392,34 +380,7 @@ import {
   styles: [
     `
 
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 900;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
-      }
-
-      .breadcrumb {
-        display: flex;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-      }
-
-      .header-actions {
+      .verifactu-top-actions {
         display: flex;
         gap: 1rem;
         align-items: center;

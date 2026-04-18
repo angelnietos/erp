@@ -70,6 +70,7 @@ export { DynamicCanvasComponent } from './lib/dynamic-canvas/dynamic-canvas.comp
 export { UiFeaturePageShellComponent } from './lib/layout/feature-page-shell/feature-page-shell.component';
 export type { UiFeaturePageShellVariant } from './lib/layout/feature-page-shell/feature-page-shell.component';
 export { UiFeatureHeaderComponent } from './lib/layout/feature-header/feature-header.component';
+export type { UiFeatureHeaderLayout } from './lib/layout/feature-header/feature-header.component';
 export { UiFeatureStatsComponent } from './lib/layout/feature-stats/feature-stats.component';
 export { UiFeatureGridComponent } from './lib/layout/feature-grid/feature-grid.component';
 export { UiFeatureCardComponent } from './lib/layout/feature-card/feature-card.component';
