@@ -16,7 +16,7 @@ import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
 import { APP_GUARD } from '@nestjs/core';
 import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
-import { ProjectsModule } from './projects/projects.module';
+import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
 import { ServicesModule } from './services/services.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { Phase3Module } from './phase3/phase3.module';
@@ -54,7 +54,7 @@ import { TimeOffModule } from './time-off/time-off.module';
     DeliveryModule.forRoot(),
     BillingModule.forRoot(),
     FleetModule.forRoot(),
-    ProjectsModule,
+    ProjectsBackendModule,
     ServicesModule,
     ReceiptsBackendModule,
     AnalyticsModule,
