@@ -56,9 +56,13 @@ import {
         ></ui-feature-header>
 
         @if (loadError() && hasAnyUsers()) {
-          <div class="load-error-banner" role="alert">
-            <lucide-icon name="alert-circle" size="18" class="banner-icon"></lucide-icon>
-            <span class="banner-text">{{ loadError() }}</span>
+          <div class="feature-load-error-banner" role="status" aria-live="polite">
+            <lucide-icon
+              name="alert-circle"
+              size="18"
+              class="feature-load-error-banner__icon"
+            ></lucide-icon>
+            <span class="feature-load-error-banner__text">{{ loadError() }}</span>
             <ui-button variant="ghost" size="sm" (clicked)="loadUsers()">Reintentar</ui-button>
           </div>
         }
@@ -106,22 +110,36 @@ import {
           </ui-button>
         </ui-feature-filter-bar>
 
-        @if (loadError() && !hasAnyUsers()) {
-          <div class="error-state">
-            <lucide-icon name="wifi-off" size="56" class="error-icon"></lucide-icon>
+        @if (isLoading()) {
+          <div class="feature-loader-wrap">
+            <ui-loader message="Sincronizando identidades…"></ui-loader>
+          </div>
+        } @else if (loadError() && !hasAnyUsers()) {
+          <div class="feature-error-screen" role="alert">
+            <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon"></lucide-icon>
             <h3>No se pudo cargar la lista</h3>
-            <p>{{ loadError() }}</p>
+            <p>
+              {{
+                loadError() ||
+                  'Comprueba la conexión o inténtalo de nuevo en unos segundos.'
+              }}
+            </p>
             <ui-button variant="solid" (clicked)="loadUsers()">Reintentar</ui-button>
           </div>
-        } @else if (isLoading()) {
-          <div class="loader-container">
-            <ui-loader message="Sincronizando identidades..."></ui-loader>
-          </div>
         } @else if (!hasAnyUsers()) {
-          <div class="empty-state empty-state--wide">
-            <lucide-icon name="users" size="64" class="empty-icon"></lucide-icon>
+          <div class="feature-empty feature-empty--wide">
+            <lucide-icon name="users" size="64" class="feature-empty__icon"></lucide-icon>
             <h3>Sin usuarios</h3>
             <p>Aún no hay usuarios en este tenant. Crea uno con «Nuevo usuario».</p>
+          </div>
+        } @else if (filterProducesNoResults()) {
+          <div class="feature-empty feature-empty--wide">
+            <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
+            <h3>Sin resultados</h3>
+            <p>Ningún usuario coincide con la búsqueda actual.</p>
+            <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
+              Limpiar búsqueda
+            </ui-button>
           </div>
         } @else {
           <ui-feature-grid>
@@ -153,12 +171,6 @@ import {
                    </button>
                  </div>
               </ui-feature-card>
-            } @empty {
-              <div class="empty-state">
-                <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
-                <h3>Sin resultados</h3>
-                <p>No hay usuarios que coincidan con la búsqueda o el filtro.</p>
-              </div>
             }
           </ui-feature-grid>
         }
@@ -172,48 +184,6 @@ import {
       gap: 2rem;
       padding: 2rem;
       animation: fadeIn 0.4s ease-out;
-    }
-
-    .loader-container {
-      display: flex;
-      justify-content: center;
-      padding: 5rem;
-    }
-
-    .access-denied-container {
-      height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    .denied-card {
-      max-width: 400px;
-      padding: 3rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-soft);
-      border-radius: 24px;
-      backdrop-filter: blur(20px);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .denied-icon {
-      width: 64px;
-      height: 64px;
-      color: var(--error);
-      opacity: 0.8;
-      margin-bottom: 1rem;
-    }
-
-    .hint {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      font-style: italic;
     }
 
     .users-extra-actions {
@@ -239,51 +209,6 @@ import {
     .action-btn.warning:hover {
       color: var(--warning);
     }
-
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
-    .empty-state--wide { max-width: 560px; margin: 0 auto; }
-
-    .load-error-banner {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      padding: 0.85rem 1.1rem;
-      border-radius: 12px;
-      border: 1px solid color-mix(in srgb, var(--error) 35%, transparent);
-      background: color-mix(in srgb, var(--error) 12%, transparent);
-      font-size: 0.9rem;
-    }
-    .load-error-banner .banner-text { flex: 1; min-width: 12rem; color: var(--text-primary); }
-    .load-error-banner .banner-icon { color: var(--error); flex-shrink: 0; }
-
-    .error-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4rem 2rem;
-      text-align: center;
-      gap: 0.75rem;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 1px dashed var(--border-soft);
-      max-width: 420px;
-      margin: 0 auto;
-    }
-    .error-state h3 { margin: 0; font-size: 1.15rem; }
-    .error-state p { margin: 0; color: var(--text-muted); font-size: 0.95rem; max-width: 28ch; }
-    .error-icon { color: var(--error); opacity: 0.85; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -341,6 +266,14 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
     return list;
   });
 
+  /** Hay datos cargados pero la búsqueda actual no devuelve filas. */
+  readonly filterProducesNoResults = computed(() => {
+    if (!this.hasAnyUsers() || this.filteredUsers().length > 0) {
+      return false;
+    }
+    return this.masterFilter.query().trim().length > 0;
+  });
+
   ngOnInit() {
     this.masterFilter.registerProvider(this);
     this.loadUsers();
@@ -351,6 +284,7 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   }
 
   loadUsers() {
+    this.loadError.set(null);
     this.isLoading.set(true);
     this.usersService
       .findAll()
@@ -385,6 +319,10 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
 
   onSearch(term: string) {
     this.masterFilter.search(term);
+  }
+
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
   }
 
   toggleSort() {

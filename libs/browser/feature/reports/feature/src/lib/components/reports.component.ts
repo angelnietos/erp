@@ -26,6 +26,7 @@ import {
   UiInputComponent,
   UiFeatureFilterBarComponent,
   UiFeatureAccessDeniedComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -81,6 +82,7 @@ interface Report {
     UiFeatureFilterBarComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiLoaderComponent,
   ],
   template: `
     <div
@@ -115,6 +117,30 @@ interface Report {
       </header>
 
       <div class="reports-content">
+        @if (serverExportError()) {
+          <div
+            class="feature-load-error-banner"
+            role="alert"
+            aria-live="assertive"
+          >
+            <lucide-icon
+              name="alert-circle"
+              size="20"
+              class="feature-load-error-banner__icon"
+            ></lucide-icon>
+            <span class="feature-load-error-banner__text">{{
+              serverExportError()
+            }}</span>
+            <ui-button
+              variant="ghost"
+              size="sm"
+              icon="x"
+              (clicked)="clearServerExportError()"
+            >
+              Cerrar
+            </ui-button>
+          </div>
+        }
         <!-- Report Types Grid -->
         <div class="report-types-grid">
           @for (reportType of reportTypes(); track reportType.id) {
@@ -151,65 +177,109 @@ interface Report {
                 </p>
               </div>
 
-              <form class="report-form" (ngSubmit)="generateReport()">
-                <div class="form-grid">
-                  <ui-input
-                    label="Fecha Desde"
-                    type="date"
-                    [(ngModel)]="filters.dateFrom"
-                    name="dateFrom"
-                    required
-                  />
+              @if (generationError()) {
+                <div
+                  class="feature-load-error-banner"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <lucide-icon
+                    name="alert-circle"
+                    size="20"
+                    class="feature-load-error-banner__icon"
+                  ></lucide-icon>
+                  <span class="feature-load-error-banner__text">{{
+                    generationError()
+                  }}</span>
+                  <ui-button
+                    variant="ghost"
+                    size="sm"
+                    icon="rotate-cw"
+                    (clicked)="generateReport()"
+                  >
+                    Reintentar
+                  </ui-button>
+                </div>
+              }
 
-                  <ui-input
-                    label="Fecha Hasta"
-                    type="date"
-                    [(ngModel)]="filters.dateTo"
-                    name="dateTo"
-                    required
-                  />
-
-                  @if (
-                    selectedReportType()?.category === 'events' ||
-                    selectedReportType()?.category === 'projects'
-                  ) {
-                    <ui-select
-                      label="Estado"
-                      [(ngModel)]="filters.status"
-                      name="status"
-                      [options]="statusOptions"
-                    />
-                  }
-
-                  @if (selectedReportType()?.category === 'events') {
+              <div
+                class="report-form-shell"
+                [attr.aria-busy]="generating()"
+              >
+                @if (generating()) {
+                  <div
+                    class="report-form-shell__overlay"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <ui-loader message="Generando informe…"></ui-loader>
+                  </div>
+                }
+                <form
+                  class="report-form"
+                  [class.report-form--blocked]="generating()"
+                  (ngSubmit)="generateReport()"
+                >
+                  <div class="form-grid">
                     <ui-input
-                      label="ID Cliente (opcional)"
-                      [(ngModel)]="filters.clientId"
-                      name="clientId"
-                      placeholder="Buscar por cliente específico"
+                      label="Fecha Desde"
+                      type="date"
+                      [(ngModel)]="filters.dateFrom"
+                      name="dateFrom"
+                      required
                     />
-                  }
-                </div>
 
-                <div class="form-actions">
-                  <ui-button
-                    type="button"
-                    variant="secondary"
-                    icon="sliders-horizontal"
-                    (click)="clearFilters()"
-                  >
-                    Limpiar Filtros
-                  </ui-button>
-                  <ui-button
-                    type="submit"
-                    variant="primary"
-                    icon="download"
-                    [disabled]="generating()"
-                  >
-                    {{ generating() ? 'Generando...' : 'Generar Reporte' }}
-                  </ui-button>
-                </div>
-              </form>
+                    <ui-input
+                      label="Fecha Hasta"
+                      type="date"
+                      [(ngModel)]="filters.dateTo"
+                      name="dateTo"
+                      required
+                    />
+
+                    @if (
+                      selectedReportType()?.category === 'events' ||
+                      selectedReportType()?.category === 'projects'
+                    ) {
+                      <ui-select
+                        label="Estado"
+                        [(ngModel)]="filters.status"
+                        name="status"
+                        [options]="statusOptions"
+                      />
+                    }
+
+                    @if (selectedReportType()?.category === 'events') {
+                      <ui-input
+                        label="ID Cliente (opcional)"
+                        [(ngModel)]="filters.clientId"
+                        name="clientId"
+                        placeholder="Buscar por cliente específico"
+                      />
+                    }
+                  </div>
+
+                  <div class="form-actions">
+                    <ui-button
+                      type="button"
+                      variant="secondary"
+                      icon="sliders-horizontal"
+                      [disabled]="generating()"
+                      (click)="clearFilters()"
+                    >
+                      Limpiar Filtros
+                    </ui-button>
+                    <ui-button
+                      type="submit"
+                      variant="primary"
+                      icon="download"
+                      [disabled]="generating()"
+                    >
+                      Generar Reporte
+                    </ui-button>
+                  </div>
+                </form>
+              </div>
             </ui-card>
           </div>
         }
@@ -434,6 +504,33 @@ interface Report {
         gap: 1.5rem;
       }
 
+      .report-form-shell {
+        position: relative;
+        min-height: 6rem;
+      }
+
+      .report-form-shell__overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-md, 0.5rem);
+        background: color-mix(
+          in srgb,
+          var(--surface, #0c1016) 58%,
+          transparent
+        );
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      .report-form--blocked {
+        pointer-events: none;
+        user-select: none;
+      }
+
       .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -551,6 +648,10 @@ export class ReportsComponent implements OnInit {
 
   selectedReportType = signal<ReportType | null>(null);
   generating = signal(false);
+  /** Error al generar el informe (además del toast). */
+  generationError = signal<string | null>(null);
+  /** Fallo de exportación Excel/PDF por API (además del toast). */
+  serverExportError = signal<string | null>(null);
 
   filters: ReportFilter = {
     dateFrom: '',
@@ -687,9 +788,14 @@ export class ReportsComponent implements OnInit {
     this.searchTerm.set(event);
   }
 
+  clearServerExportError(): void {
+    this.serverExportError.set(null);
+  }
+
   async generateReport() {
     if (!this.selectedReportType()) return;
 
+    this.generationError.set(null);
     this.generating.set(true);
 
     try {
@@ -708,10 +814,10 @@ export class ReportsComponent implements OnInit {
       this.generatedReports.update((reports) => [newReport, ...reports]);
       this.toast.show('Informe generado correctamente.', 'success');
     } catch {
-      this.toast.show(
-        'No se pudo generar el informe. Revisa la consola o inténtalo de nuevo.',
-        'error',
-      );
+      const msg =
+        'No se pudo generar el informe. Comprueba la conexión e inténtalo de nuevo.';
+      this.generationError.set(msg);
+      this.toast.show(msg, 'error');
     } finally {
       this.generating.set(false);
     }
@@ -825,12 +931,13 @@ export class ReportsComponent implements OnInit {
         ),
       );
       this.triggerBlobDownload(blob, `josanz-informe-${report.id}.xlsx`);
+      this.serverExportError.set(null);
       this.toast.show('Excel descargado.', 'success');
     } catch {
-      this.toast.show(
-        'No se pudo generar el Excel en el servidor. Comprueba sesión, tenant y API.',
-        'error',
-      );
+      const msg =
+        'No se pudo generar el Excel en el servidor (red o API). Comprueba sesión e inténtalo de nuevo.';
+      this.serverExportError.set(msg);
+      this.toast.show(msg, 'error');
     } finally {
       this.serverExportBusy.set(false);
     }
@@ -891,12 +998,13 @@ export class ReportsComponent implements OnInit {
         ),
       );
       this.triggerBlobDownload(blob, `josanz-informe-${report.id}.pdf`);
+      this.serverExportError.set(null);
       this.toast.show('PDF descargado.', 'success');
     } catch {
-      this.toast.show(
-        'No se pudo generar el PDF en el servidor. Comprueba sesión, tenant y API.',
-        'error',
-      );
+      const msg =
+        'No se pudo generar el PDF en el servidor (red o API). Comprueba sesión e inténtalo de nuevo.';
+      this.serverExportError.set(msg);
+      this.toast.show(msg, 'error');
     } finally {
       this.serverExportBusy.set(false);
     }

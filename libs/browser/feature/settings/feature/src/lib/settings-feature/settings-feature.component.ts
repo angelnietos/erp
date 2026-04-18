@@ -9,8 +9,15 @@ import {
   UiInputComponent,
   UiSelectComponent,
   UiModalComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { PluginStore, AIBotStore, type AIBot, ThemeService } from '@josanz-erp/shared-data-access';
+import {
+  PluginStore,
+  AIBotStore,
+  type AIBot,
+  ThemeService,
+  ToastService,
+} from '@josanz-erp/shared-data-access';
 import {
   RolesService,
   type Role,
@@ -45,6 +52,7 @@ interface PluginDescriptor {
     UiInputComponent,
     UiSelectComponent,
     UiModalComponent,
+    UiLoaderComponent,
   ],
   template: `
     <div class="page-container animate-fade-in">
@@ -181,7 +189,12 @@ interface PluginDescriptor {
                     </div>
                     
                     <div class="card-actions mt-4">
-                      <ui-button variant="filled">Guardar Cambios</ui-button>
+                      <ui-button
+                        variant="filled"
+                        (clicked)="onSaveProfileClick()"
+                      >
+                        Guardar Cambios
+                      </ui-button>
                     </div>
                   </ui-card>
                 </div>
@@ -298,6 +311,31 @@ interface PluginDescriptor {
                 <h2>Gestión de Módulos</h2>
                 <p>Activa funcionalidades adicionales para tu organización</p>
               </div>
+
+              @if (pluginsTabError()) {
+                <div
+                  class="feature-load-error-banner"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <lucide-icon
+                    name="alert-circle"
+                    size="20"
+                    class="feature-load-error-banner__icon"
+                  ></lucide-icon>
+                  <span class="feature-load-error-banner__text">{{
+                    pluginsTabError()
+                  }}</span>
+                  <ui-button
+                    variant="ghost"
+                    size="sm"
+                    icon="rotate-cw"
+                    (clicked)="reloadTenantModulesFromApi()"
+                  >
+                    Reintentar
+                  </ui-button>
+                </div>
+              }
 
               <div class="plugin-grid">
                 @for (plugin of plugins; track plugin.id) {
@@ -1473,6 +1511,37 @@ interface PluginDescriptor {
                   <lucide-icon name="plus" size="16"></lucide-icon> Nuevo Rol
                 </ui-button>
               </div>
+
+              @if (rolesLoadError()) {
+                <div
+                  class="feature-load-error-banner"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <lucide-icon
+                    name="alert-circle"
+                    size="20"
+                    class="feature-load-error-banner__icon"
+                  ></lucide-icon>
+                  <span class="feature-load-error-banner__text">{{
+                    rolesLoadError()
+                  }}</span>
+                  <ui-button
+                    variant="ghost"
+                    size="sm"
+                    icon="rotate-cw"
+                    (clicked)="loadRoles()"
+                  >
+                    Reintentar
+                  </ui-button>
+                </div>
+              }
+
+              @if (isLoadingRoles() && roles().length === 0 && !rolesLoadError()) {
+                <div class="feature-loader-wrap">
+                  <ui-loader message="Cargando roles…"></ui-loader>
+                </div>
+              }
 
               <div class="roles-layout-grid">
                 <!-- Roles List (Sidebar-like) -->
@@ -3365,6 +3434,7 @@ interface PluginDescriptor {
 export class SettingsFeatureComponent {
   private readonly _pluginStore = inject(PluginStore);
   private readonly _tenantModulesApi = inject(TenantModulesApiService);
+  private readonly _toast = inject(ToastService);
   private _pluginsTabModulesSub?: Subscription;
   public readonly aiBotStore = inject(AIBotStore);
   public readonly themeService = inject(ThemeService);
@@ -3456,6 +3526,10 @@ export class SettingsFeatureComponent {
   });
 
   readonly isLoadingRoles = signal(false);
+  /** Error al cargar roles (red / API). */
+  readonly rolesLoadError = signal<string | null>(null);
+  /** Error al sincronizar o guardar módulos del tenant. */
+  readonly pluginsTabError = signal<string | null>(null);
 
   categoryHasVisiblePerms(category: string): boolean {
     return this.permissionsCatalogForUi().some((p) => p.category === category);
@@ -3467,9 +3541,9 @@ export class SettingsFeatureComponent {
         this.activeTab.set('profile');
       }
     });
-    effect(async () => {
+    effect(() => {
       if (this.activeTab() === 'roles' && this.canSeeRolesAdmin()) {
-        await this.loadRoles();
+        this.loadRoles();
       }
     });
     /** Al abrir Módulos & Plugins, alinear PluginStore con el backend (p. ej. cambios desde panel SaaS). */
@@ -3481,9 +3555,14 @@ export class SettingsFeatureComponent {
       this._pluginsTabModulesSub = this._tenantModulesApi
         .fetchEnabledModules()
         .subscribe({
-          next: (r) => this._pluginStore.setPlugins(r.enabledModuleIds),
+          next: (r) => {
+            this.pluginsTabError.set(null);
+            this._pluginStore.setPlugins(r.enabledModuleIds);
+          },
           error: () => {
-            /* mantener estado en memoria / caché local */
+            this.pluginsTabError.set(
+              'No se pudo sincronizar los módulos con el servidor. Se muestran los últimos datos conocidos.',
+            );
           },
         });
     });
@@ -3497,20 +3576,48 @@ export class SettingsFeatureComponent {
     });
   }
 
-  async loadRoles() {
+  loadRoles(): void {
+    this.rolesLoadError.set(null);
     this.isLoadingRoles.set(true);
-    try {
-      this._rolesService.findAll().subscribe((roles: Role[]) => {
+    this._rolesService.findAll().subscribe({
+      next: (roles: Role[]) => {
         this.roles.set(roles);
         if (roles.length > 0 && !this.selectedRoleId()) {
           this.selectedRoleId.set(roles[0].id);
         }
         this.isLoadingRoles.set(false);
-      });
-    } catch (err: unknown) {
-      this.isLoadingRoles.set(false);
-      console.error('Error loading roles:', err);
-    }
+      },
+      error: () => {
+        this.isLoadingRoles.set(false);
+        this.rolesLoadError.set(
+          'No se pudieron cargar los roles. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
+    });
+  }
+
+  /** Reintento manual desde el banner de módulos (misma petición que al abrir la pestaña). */
+  reloadTenantModulesFromApi(): void {
+    this.pluginsTabError.set(null);
+    this._tenantModulesApi.fetchEnabledModules().subscribe({
+      next: (r) => {
+        this.pluginsTabError.set(null);
+        this._pluginStore.setPlugins(r.enabledModuleIds);
+      },
+      error: () => {
+        this.pluginsTabError.set(
+          'No se pudo sincronizar los módulos con el servidor. Se muestran los últimos datos conocidos.',
+        );
+        this._toast.show('No se pudieron cargar los módulos.', 'error');
+      },
+    });
+  }
+
+  onSaveProfileClick(): void {
+    this._toast.show(
+      'El guardado del perfil en el servidor estará disponible próximamente.',
+      'info',
+    );
   }
 
   togglePermission(roleId: string, permissionId: string) {
@@ -3543,10 +3650,19 @@ export class SettingsFeatureComponent {
       }
     }
 
-    this._rolesService.update(roleId, { permissions }).subscribe((updated: Role) => {
-      this.roles.update(list => list.map(r => r.id === roleId ? updated : r));
-      // Sincronizar permisos localmente si el rol actualizado afecta al usuario actual
-      this._authStore.refreshSession();
+    this._rolesService.update(roleId, { permissions }).subscribe({
+      next: (updated: Role) => {
+        this.roles.update((list) =>
+          list.map((r) => (r.id === roleId ? updated : r)),
+        );
+        this._authStore.refreshSession();
+      },
+      error: () => {
+        this._toast.show(
+          'No se pudieron guardar los permisos. Inténtalo de nuevo.',
+          'error',
+        );
+      },
     });
   }
 
@@ -3560,14 +3676,22 @@ export class SettingsFeatureComponent {
     const name = prompt('Nombre del nuevo rol:');
     if (!name) return;
     
-    this._rolesService.create({ 
-      name, 
-      type: RoleType.USER, 
-      permissions: [] 
-    }).subscribe((newRole: Role) => {
-      this.roles.update(list => [...list, newRole]);
-      this.selectedRoleId.set(newRole.id);
-    });
+    this._rolesService
+      .create({
+        name,
+        type: RoleType.USER,
+        permissions: [],
+      })
+      .subscribe({
+        next: (newRole: Role) => {
+          this.roles.update((list) => [...list, newRole]);
+          this.selectedRoleId.set(newRole.id);
+          this._toast.show('Rol creado correctamente.', 'success');
+        },
+        error: () => {
+          this._toast.show('No se pudo crear el rol. Inténtalo de nuevo.', 'error');
+        },
+      });
   }
 
   async deleteRole(id: string) {
@@ -3575,11 +3699,17 @@ export class SettingsFeatureComponent {
     if (r?.type === RoleType.SUPERADMIN) return;
     if (!confirm('¿Estás seguro de que deseas eliminar este rol?')) return;
 
-    this._rolesService.delete(id).subscribe(() => {
-      this.roles.update(list => list.filter(r => r.id !== id));
-      if (this.selectedRoleId() === id) {
-        this.selectedRoleId.set(this.roles()[0]?.id || null);
-      }
+    this._rolesService.delete(id).subscribe({
+      next: () => {
+        this.roles.update((list) => list.filter((r) => r.id !== id));
+        if (this.selectedRoleId() === id) {
+          this.selectedRoleId.set(this.roles()[0]?.id || null);
+        }
+        this._toast.show('Rol eliminado.', 'success');
+      },
+      error: () => {
+        this._toast.show('No se pudo eliminar el rol. Inténtalo de nuevo.', 'error');
+      },
     });
   }
 
@@ -3863,8 +3993,20 @@ export class SettingsFeatureComponent {
       : [...current, pluginId];
     const ensured = next.includes('dashboard') ? next : ['dashboard', ...next];
     this._tenantModulesApi.updateEnabledModules(ensured).subscribe({
-      next: (r) => this._pluginStore.setPlugins(r.enabledModuleIds),
-      error: (err) => console.error('[tenant modules]', err),
+      next: (r) => {
+        this.pluginsTabError.set(null);
+        this._pluginStore.setPlugins(r.enabledModuleIds);
+        this._toast.show('Módulos actualizados correctamente.', 'success');
+      },
+      error: () => {
+        this.pluginsTabError.set(
+          'No se pudieron guardar los cambios. Comprueba la conexión e inténtalo de nuevo.',
+        );
+        this._toast.show(
+          'No se pudieron guardar los cambios de módulos.',
+          'error',
+        );
+      },
     });
   }
 
