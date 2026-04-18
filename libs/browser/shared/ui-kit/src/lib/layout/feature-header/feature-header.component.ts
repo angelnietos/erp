@@ -171,8 +171,8 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       font-size: clamp(1.2rem, 1.1vw + 0.85rem, 1.5rem);
       font-weight: 700;
       text-shadow: none !important;
-      -webkit-text-fill-color: #080808;
-      color: #080808;
+      -webkit-text-fill-color: var(--text-primary);
+      color: var(--text-primary);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb-single span {
@@ -266,9 +266,9 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     :host-context(html[data-erp-tenant='babooni']) .main-title {
       font-size: clamp(1.25rem, 1.2vw + 0.85rem, 1.625rem);
       font-weight: 700;
-      color: #080808;
+      color: var(--text-primary);
       background: none;
-      -webkit-text-fill-color: #080808;
+      -webkit-text-fill-color: var(--text-primary);
       background-clip: unset;
     }
 

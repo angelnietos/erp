@@ -284,8 +284,8 @@ export type TabsVariant =
       }
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-default .tab-item.active {
-        color: #fff;
-        background: #0a0a0a;
+        color: var(--text-on-brand, #fff);
+        background: var(--brand);
         box-shadow: none;
         transform: none;
       }

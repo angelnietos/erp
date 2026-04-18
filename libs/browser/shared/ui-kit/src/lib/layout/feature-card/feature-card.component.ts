@@ -324,8 +324,8 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost:hover {
-      color: #080808 !important;
-      background: rgba(0, 0, 0, 0.05) !important;
+      color: var(--text-primary) !important;
+      background: color-mix(in srgb, var(--brand) 8%, transparent) !important;
     }
   `]
 })

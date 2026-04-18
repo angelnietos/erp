@@ -167,12 +167,12 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-item:hover {
-  color: var(--text-primary, #080808) !important;
+  color: var(--text-primary) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-item.active {
-  color: #ffffff !important;
-  background: var(--babooni-ink-soft) !important;
+  color: var(--text-on-brand, #ffffff) !important;
+  background: var(--brand) !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -192,11 +192,11 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item {
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active {
-  color: var(--babooni-ink-soft) !important;
+  color: var(--brand) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active-indicator {
-  background: var(--babooni-ink-soft) !important;
+  background: var(--brand) !important;
   height: 3px !important;
   border-radius: 2px 2px 0 0;
 }
@@ -212,7 +212,7 @@ html[data-erp-tenant='babooni'] ui-feature-grid .empty-state {
 }
 
 html[data-erp-tenant='babooni'] ui-feature-grid .empty-state h3 {
-  color: var(--text-primary, #080808) !important;
+  color: var(--text-primary) !important;
   font-weight: 600 !important;
   font-size: 1.2rem !important;
   letter-spacing: -0.02em !important;
@@ -262,7 +262,7 @@ html[data-erp-tenant='babooni'] .filter-input {
   border: 1px solid var(--babooni-border) !important;
   border-radius: 10px !important;
   background: var(--babooni-surface) !important;
-  color: var(--babooni-ink-soft) !important;
+  color: var(--text-primary) !important;
 }
 
 html[data-erp-tenant='babooni'] .filter-input::placeholder {
@@ -273,4 +273,10 @@ html[data-erp-tenant='babooni'] .filter-input::placeholder {
 /* Loader centrado */
 html[data-erp-tenant='babooni'] .loader-container {
   padding: 4rem !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-erp-tenant='babooni'] .feature-page-shell--fade-in {
+    animation: none !important;
+  }
 }

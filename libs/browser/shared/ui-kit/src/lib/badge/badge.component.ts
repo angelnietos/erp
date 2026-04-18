@@ -123,13 +123,13 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     /* Babooni: badges con contraste sobre superficie clara + tokens de tema */
     :host-context(html[data-erp-tenant='babooni']) .badge-color-primary {
       --badge-bg: color-mix(in srgb, var(--brand) 14%, var(--theme-surface, #fffefe));
-      --badge-color: color-mix(in srgb, var(--brand) 68%, #0a0a0a);
+      --badge-color: color-mix(in srgb, var(--brand) 72%, var(--text-primary, #111) 28%);
       --badge-border: color-mix(in srgb, var(--brand) 32%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .badge-color-success {
       --badge-bg: color-mix(in srgb, var(--success, #21b158) 16%, var(--theme-surface, #fffefe));
-      --badge-color: color-mix(in srgb, var(--success, #21b158) 55%, #0a0a0a);
+      --badge-color: color-mix(in srgb, var(--success, #21b158) 62%, var(--text-primary, #111) 38%);
       --badge-border: color-mix(in srgb, var(--success, #21b158) 38%, transparent);
     }
 
