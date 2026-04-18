@@ -359,8 +359,13 @@ export class InventoryEditComponent implements OnInit {
       return;
     }
 
-    this.facade.updateProduct(this.productId, payload);
-    this.toast.show('Activo actualizado correctamente', 'success');
-    this.router.navigate(['/inventory', this.productId]);
+    this.facade.updateProduct(this.productId, payload).subscribe({
+      next: () => {
+        this.toast.show('Activo actualizado correctamente', 'success');
+        this.router.navigate(['/inventory', this.productId]);
+      },
+      error: () =>
+        this.toast.show('No se pudo guardar el activo.', 'error'),
+    });
   }
 }

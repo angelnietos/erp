@@ -331,6 +331,7 @@ export class FleetEditComponent implements OnInit {
     if (this.isCreateMode) {
       this.vehicleService.createVehicle(payload).subscribe({
         next: (v) => {
+          this.vehicleService.upsertListCache(v);
           this.toast.show('Unidad creada correctamente', 'success');
           this.router.navigate(['/fleet', v.id]);
         },
@@ -341,7 +342,8 @@ export class FleetEditComponent implements OnInit {
     }
 
     this.vehicleService.updateVehicle(this.vehicleId, payload).subscribe({
-      next: () => {
+      next: (v) => {
+        this.vehicleService.upsertListCache(v);
         this.toast.show('Unidad actualizada correctamente', 'success');
         this.router.navigate(['/fleet', this.vehicleId]);
       },

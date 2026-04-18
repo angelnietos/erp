@@ -72,6 +72,19 @@ export class BillingFacade {
     ];
   });
 
+  /** Inserta o sustituye una factura en memoria (p. ej. tras crear/editar en formulario). */
+  upsertInvoice(invoice: Invoice): void {
+    this._allInvoices.update((items) => {
+      const idx = items.findIndex((i) => i.id === invoice.id);
+      if (idx >= 0) {
+        const next = [...items];
+        next[idx] = invoice;
+        return next;
+      }
+      return [...items, invoice];
+    });
+  }
+
   loadInvoices(force = false): void {
     if (!force && this._allInvoices().length > 0) return;
     this._error.set(null);

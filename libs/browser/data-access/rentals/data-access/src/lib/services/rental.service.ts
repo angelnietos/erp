@@ -51,6 +51,11 @@ export class RentalService {
     }
   }
 
+  /** Tras crear o actualizar desde formulario: el detalle puede hidratar al instante. */
+  upsertListCache(rental: Rental): void {
+    this.listCache.set(rental.id, rental);
+  }
+
   getListCached(id: string): Rental | undefined {
     return this.listCache.get(id);
   }

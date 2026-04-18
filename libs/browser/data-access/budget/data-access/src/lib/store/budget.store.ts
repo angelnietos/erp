@@ -55,8 +55,12 @@ export const BudgetStore = signalStore(
         switchMap((dto) =>
           budgetService.createBudget(dto).pipe(
             tapResponse({
-              next: () => {
-                patchState(store, { loading: false });
+              next: (budget: Budget) => {
+                const current = store.budgets();
+                patchState(store, {
+                  budgets: [...current, budget],
+                  loading: false,
+                });
                 router.navigate(['/budgets']);
               },
               error: (error: Error) => patchState(store, { error: error.message, loading: false }),
@@ -71,8 +75,12 @@ export const BudgetStore = signalStore(
         switchMap(({ id, dto }) =>
           budgetService.updateBudget(id, dto).pipe(
             tapResponse({
-              next: () => {
-                patchState(store, { loading: false });
+              next: (budget: Budget) => {
+                const current = store.budgets();
+                const budgets = current.some((b) => b.id === budget.id)
+                  ? current.map((b) => (b.id === budget.id ? budget : b))
+                  : [...current, budget];
+                patchState(store, { budgets, loading: false });
                 router.navigate(['/budgets', id]);
               },
               error: (error: Error) => patchState(store, { error: error.message, loading: false }),

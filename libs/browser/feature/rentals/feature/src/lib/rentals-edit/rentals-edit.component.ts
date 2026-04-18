@@ -431,6 +431,7 @@ export class RentalsEditComponent implements OnInit {
     if (editId) {
       this.rentalService.updateRental(editId, this.formData).subscribe({
         next: (upd) => {
+          this.rentalService.upsertListCache(upd);
           this.isSaving.set(false);
           this.toast.show('Expediente actualizado correctamente', 'success');
           void this.router.navigate(['/rentals', upd.id]);
@@ -445,6 +446,7 @@ export class RentalsEditComponent implements OnInit {
         .createRental(this.formData as Omit<Rental, 'id' | 'createdAt'>)
         .subscribe({
           next: (newR) => {
+            this.rentalService.upsertListCache(newR);
             this.isSaving.set(false);
             this.toast.show('Expediente creado correctamente', 'success');
             void this.router.navigate(['/rentals', newR.id]);

@@ -93,11 +93,14 @@ export class InventoryFacade {
     );
   }
 
-  updateProduct(id: string, updates: Partial<Product>): void {
-    this.service.updateProduct(id, updates).subscribe({
-      next: (updatedItem) =>
-        this._allProducts.update((items) => items.map((i) => (i.id === id ? updatedItem : i))),
-    });
+  updateProduct(id: string, updates: Partial<Product>): Observable<Product> {
+    return this.service.updateProduct(id, updates).pipe(
+      tap((updatedItem) =>
+        this._allProducts.update((items) =>
+          items.map((i) => (i.id === id ? updatedItem : i)),
+        ),
+      ),
+    );
   }
 
   deleteProduct(id: string): Observable<boolean> {

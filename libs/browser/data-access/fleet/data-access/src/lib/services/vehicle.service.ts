@@ -34,6 +34,11 @@ export class VehicleService {
     }
   }
 
+  /** Tras crear o actualizar desde formulario: el detalle puede hidratar al instante. */
+  upsertListCache(vehicle: Vehicle): void {
+    this.listCache.set(vehicle.id, vehicle);
+  }
+
   getListCached(id: string): Vehicle | undefined {
     return this.listCache.get(id);
   }

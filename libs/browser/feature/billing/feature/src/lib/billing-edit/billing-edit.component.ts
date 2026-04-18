@@ -377,14 +377,22 @@ export class BillingEditComponent implements OnInit {
   save(): void {
     const invToEdit = this.editingInvoice();
     if (invToEdit) {
-      this.facade.updateInvoice(invToEdit.id, {
-        invoiceNumber: this.formData.invoiceNumber,
-        issueDate: this.formData.issueDate,
-        dueDate: this.formData.dueDate,
-        notes: this.formData.notes,
-      });
-      this.toast.show('Factura actualizada', 'success');
-      void this.router.navigate(['/billing', invToEdit.id]);
+      this.invoiceService
+        .updateInvoice(invToEdit.id, {
+          invoiceNumber: this.formData.invoiceNumber,
+          issueDate: this.formData.issueDate,
+          dueDate: this.formData.dueDate,
+          notes: this.formData.notes,
+        })
+        .subscribe({
+          next: (updated) => {
+            this.facade.upsertInvoice(updated);
+            this.toast.show('Factura actualizada', 'success');
+            void this.router.navigate(['/billing', invToEdit.id]);
+          },
+          error: () =>
+            this.toast.show('No se pudo actualizar la factura', 'error'),
+        });
       return;
     }
 
@@ -410,7 +418,7 @@ export class BillingEditComponent implements OnInit {
 
     this.invoiceService.createInvoice(payload).subscribe({
       next: (created) => {
-        this.facade.loadInvoices(true);
+        this.facade.upsertInvoice(created);
         this.toast.show('Borrador generado', 'success');
         void this.router.navigate(['/billing', created.id]);
       },
