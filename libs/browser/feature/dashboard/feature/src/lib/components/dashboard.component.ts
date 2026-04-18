@@ -591,7 +591,7 @@ export class DashboardComponent implements OnInit {
       title: 'Emitir Factura',
       description: 'Generar comprobante AEAT',
       icon: 'file-plus',
-      route: '/billing/create',
+      route: '/billing/new',
       color: 'primary',
     },
     {

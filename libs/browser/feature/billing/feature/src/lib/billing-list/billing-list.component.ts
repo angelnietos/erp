@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   UiButtonComponent,
@@ -17,7 +17,6 @@ import {
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
-  UiInputComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
@@ -32,7 +31,6 @@ import {
   PluginStore,
   MasterFilterService,
   FilterableService,
-  AIFormBridgeService,
   ToastService,
   GlobalAuthStore,
   rbacAllows,
@@ -40,14 +38,7 @@ import {
 import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
-import { Budget } from '@josanz-erp/budget-api';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
-
-// Extended form type for additional fields
-interface InvoiceFormData extends Partial<Invoice> {
-  description?: string;
-  notes?: string;
-}
 
 @Component({
   selector: 'lib-billing-list',
@@ -60,10 +51,9 @@ interface InvoiceFormData extends Partial<Invoice> {
     UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
-    UiModalComponent,
-    UiTabsComponent,
-    UiStatCardComponent,
-    UiInputComponent,
+  UiModalComponent,
+  UiTabsComponent,
+  UiStatCardComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
@@ -87,7 +77,7 @@ interface InvoiceFormData extends Partial<Invoice> {
         subtitle="Gestión fiscal e integridad Verifactu (AEAT)"
         icon="banknote"
         actionLabel="EMITIR FACTURA"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewInvoice()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -355,7 +345,7 @@ interface InvoiceFormData extends Partial<Invoice> {
               [showDuplicate]="true"
               [showDelete]="inv.status === 'draft'"
               (cardClicked)="onRowClick(inv)"
-              (editClicked)="editInvoice(inv)"
+              (editClicked)="goToEditInvoice(inv)"
               (duplicateClicked)="onDuplicate(inv)"
               (deleteClicked)="confirmDelete(inv)"
               [footerItems]="[
@@ -482,7 +472,7 @@ interface InvoiceFormData extends Partial<Invoice> {
                 </p>
                 <ui-button
                   variant="solid"
-                  (clicked)="openCreateModal()"
+                  (clicked)="goToNewInvoice()"
                   icon="CirclePlus"
                   >Emitir factura</ui-button
                 >
@@ -500,98 +490,6 @@ interface InvoiceFormData extends Partial<Invoice> {
         </footer>
       }
     </ui-feature-page-shell>
-
-    <!-- Modals -->
-    <ui-modal
-      [isOpen]="isModalOpen()"
-      [title]="editingInvoice() ? 'EDITAR FACTURA' : 'EMITIR FACTURA'"
-      variant="glass"
-      (closed)="closeModal()"
-    >
-      <div class="form-grid">
-        @if (!editingInvoice()) {
-          <p class="form-hint">
-            Selecciona un presupuesto origen para importar datos comerciales de
-            forma automática.
-          </p>
-          <div class="input-wrapper">
-            <label class="input-label" for="budget-select">
-              <lucide-icon name="file-text" size="16"></lucide-icon>
-              PRESUPUESTO ORIGEN
-            </label>
-            <select
-              id="budget-select"
-              class="form-input"
-              [(ngModel)]="formData.budgetId"
-            >
-              <option value="">Seleccionar presupuesto...</option>
-              @for (option of budgetSelectOptions(); track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
-          </div>
-        } @else {
-          <div class="read-only-section">
-            <span class="label">CLIENTE</span>
-            <span class="value">{{ editingInvoice()?.clientName }}</span>
-          </div>
-        }
-
-        <ui-input
-          label="NÚMERO DE FACTURA"
-          [(ngModel)]="formData.invoiceNumber"
-          placeholder="F/2026/XXXX"
-          icon="hash"
-        ></ui-input>
-
-        <div class="row">
-          <ui-input
-            label="EMISIÓN"
-            type="date"
-            [(ngModel)]="formData.issueDate"
-            icon="calendar"
-          ></ui-input>
-          <ui-input
-            label="VENCIMIENTO"
-            type="date"
-            [(ngModel)]="formData.dueDate"
-            icon="calendar-clock"
-          ></ui-input>
-        </div>
-
-        <ui-input
-          label="DESCRIPCIÓN"
-          [(ngModel)]="formData.description"
-          placeholder="Descripción de la factura"
-          icon="file-text"
-        ></ui-input>
-
-        <div class="form-field">
-          <label class="field-label" for="notes-textarea">
-            <lucide-icon name="sticky-note" size="16"></lucide-icon>
-            NOTAS
-          </label>
-          <textarea
-            id="notes-textarea"
-            class="notes-textarea"
-            [(ngModel)]="formData.notes"
-            placeholder="Notas adicionales..."
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <ui-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-button>
-        <ui-button
-          variant="solid"
-          (clicked)="saveInvoice()"
-          [disabled]="!editingInvoice() && !formData.budgetId"
-          icon="save"
-        >
-          {{ editingInvoice() ? 'GUARDAR CAMBIOS' : 'GENERAR BORRADOR' }}
-        </ui-button>
-      </div>
-    </ui-modal>
 
     <ui-modal
       [isOpen]="isVerifactuQrModalOpen()"
@@ -934,7 +832,6 @@ export class BillingListComponent
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(BillingFacade);
   private readonly masterFilter = inject(MasterFilterService);
-  private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
   readonly verifactuStore = inject<VerifactuStore>(VerifactuStore);
   private readonly authStore = inject(GlobalAuthStore);
@@ -952,7 +849,6 @@ export class BillingListComponent
   isLoading = this.facade.isLoading;
   error = this.facade.error;
   activeTab = this.facade.activeTab;
-  budgets = this.facade.budgets;
   currentPage = signal(1);
   sortField = signal<'issueDate' | 'total' | 'status'>('issueDate');
   sortDirection = signal<1 | -1>(-1);
@@ -969,18 +865,26 @@ export class BillingListComponent
   // Bulk actions
   selectedInvoices = signal<Set<string>>(new Set());
 
-  isModalOpen = signal(false);
   isVerifactuQrModalOpen = signal(false);
-  editingInvoice = signal<Invoice | null>(null);
 
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   onRowClick(inv: Invoice) {
     this.router.navigate(['/billing', inv.id]);
   }
 
+  goToNewInvoice(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
+  goToEditInvoice(inv: Invoice): void {
+    void this.router.navigate([inv.id, 'edit'], { relativeTo: this.route });
+  }
+
   onDuplicate(inv: Invoice) {
     const { id, ...rest } = inv;
+    void id;
     this.facade.createInvoice({
       ...rest,
       invoiceNumber: `${inv.invoiceNumber} (COPIA)`,
@@ -1013,27 +917,6 @@ export class BillingListComponent
         return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
     }
   }
-
-  formData: InvoiceFormData = {
-    budgetId: '',
-    invoiceNumber: '',
-    clientName: '',
-    type: 'normal',
-    status: 'draft',
-    total: 0,
-    issueDate: new Date().toISOString().split('T')[0],
-    dueDate: new Date().toISOString().split('T')[0],
-  };
-
-  budgetSelectOptions = computed(() => {
-    const eligible = this.budgets().filter(
-      (b: Budget) => b.status === 'ACCEPTED' || b.status === 'SENT',
-    );
-    return eligible.map((b: Budget) => ({
-      label: `#${b.id.slice(0, 8).toUpperCase()} · ${(b.total || 0).toFixed(2)} € · ${b.status}`,
-      value: b.id,
-    }));
-  });
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
@@ -1121,57 +1004,6 @@ export class BillingListComponent
     this.amountMinFilter.set(null);
     this.amountMaxFilter.set(null);
     this.currentPage.set(1);
-  }
-
-  openCreateModal() {
-    this.editingInvoice.set(null);
-    const today = new Date().toISOString().split('T')[0];
-    this.formData = {
-      budgetId: '',
-      invoiceNumber: '',
-      clientName: '',
-      type: 'normal',
-      status: 'draft',
-      total: 0,
-      issueDate: today,
-      dueDate: today,
-    };
-    this.facade.loadBudgets();
-    this.isModalOpen.set(true);
-  }
-
-  editInvoice(invoice: Invoice) {
-    this.editingInvoice.set(invoice);
-    this.formData = { ...invoice };
-    this.isModalOpen.set(true);
-  }
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingInvoice.set(null);
-  }
-
-  saveInvoice() {
-    const invToEdit = this.editingInvoice();
-    if (invToEdit) {
-      this.facade.updateInvoice(invToEdit.id, this.formData);
-    } else {
-      if (!this.formData.budgetId) return;
-      this.facade.createInvoice({
-        budgetId: this.formData.budgetId,
-        invoiceNumber:
-          this.formData.invoiceNumber?.trim() ||
-          `F/${new Date().getFullYear()}/${String(Date.now()).slice(-4)}`,
-        clientName: '—',
-        type: 'normal',
-        status: 'draft',
-        total: 0,
-        issueDate:
-          this.formData.issueDate || new Date().toISOString().split('T')[0],
-        dueDate:
-          this.formData.dueDate || new Date().toISOString().split('T')[0],
-      });
-    }
-    this.closeModal();
   }
 
   issueInvoice(inv: Invoice) {
@@ -1310,15 +1142,13 @@ export class BillingListComponent
       filtered = filtered.filter((inv) => new Date(inv.issueDate) <= toDate);
     }
 
-    if (this.amountMinFilter() !== null) {
-      filtered = filtered.filter(
-        (inv) => (inv.total || 0) >= this.amountMinFilter()!,
-      );
+    const amountMin = this.amountMinFilter();
+    if (amountMin !== null) {
+      filtered = filtered.filter((inv) => (inv.total || 0) >= amountMin);
     }
-    if (this.amountMaxFilter() !== null) {
-      filtered = filtered.filter(
-        (inv) => (inv.total || 0) <= this.amountMaxFilter()!,
-      );
+    const amountMax = this.amountMaxFilter();
+    if (amountMax !== null) {
+      filtered = filtered.filter((inv) => (inv.total || 0) <= amountMax);
     }
 
     const field = this.sortField();

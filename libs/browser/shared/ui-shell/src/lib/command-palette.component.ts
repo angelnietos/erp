@@ -176,7 +176,7 @@ export class CommandPaletteComponent {
   private router = inject(Router);
 
   allItems: CommandItem[] = [
-    { id: '1', label: 'Crear Presupuesto', description: 'Generar nuevo documento fiscal de cotización', icon: 'file-plus', category: 'Acciones Rápidas', route: '/budgets/create' },
+    { id: '1', label: 'Crear Presupuesto', description: 'Generar nuevo documento fiscal de cotización', icon: 'file-plus', category: 'Acciones Rápidas', route: '/budgets/new' },
     { id: '2', label: 'Ver Inventario', description: 'Consultar stock y disponibilidad técnica', icon: 'package', category: 'Navegación', route: '/inventory' },
     { id: '3', label: 'Estado VeriFactu', description: 'Monitoreo de comunicaciones con AEAT', icon: 'shield-check', category: 'Fiscalidad', route: '/verifactu' },
     { id: '4', label: 'Gestionar Flota', description: 'Control de vehículos y logística', icon: 'truck', category: 'Logística', route: '/fleet' },

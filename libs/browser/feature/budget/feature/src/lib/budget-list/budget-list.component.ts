@@ -8,14 +8,12 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   UiButtonComponent,
   UiFeatureFilterBarComponent,
   UiStatCardComponent,
-  UiModalComponent,
-  UiInputComponent,
   UiPaginationComponent,
   UiLoaderComponent,
   UiFeatureHeaderComponent,
@@ -39,13 +37,6 @@ import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { BudgetStore } from '@josanz-erp/budget-data-access';
 import { Budget } from '@josanz-erp/budget-api';
-
-// Extended form type for additional fields
-interface BudgetFormData extends Partial<Budget> {
-  description?: string;
-  validUntil?: string;
-  notes?: string;
-}
 import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
 @Component({
@@ -58,8 +49,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiButtonComponent,
     UiStatCardComponent,
     UiFeatureFilterBarComponent,
-    UiModalComponent,
-    UiInputComponent,
     UiPaginationComponent,
     UiLoaderComponent,
     UiFeatureHeaderComponent,
@@ -85,7 +74,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         subtitle="Gestión comercial y pipeline de ventas"
         icon="file-text"
         actionLabel="NUEVO PRESUPUESTO"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewBudget()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -445,7 +434,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
               </p>
               <ui-button
                 variant="solid"
-                (clicked)="openCreateModal()"
+                (clicked)="goToNewBudget()"
                 icon="CirclePlus"
               >
                 Añadir primer presupuesto
@@ -466,96 +455,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         </div>
       }
       }
-
-      <!-- Create/Edit Modal -->
-      <ui-modal
-        [isOpen]="isModalOpen()"
-        [title]="editingBudget() ? 'EDITAR PRESUPUESTO' : 'NUEVO PRESUPUESTO'"
-        (closed)="closeModal()"
-        variant="glass"
-      >
-        <div class="modal-form">
-          <!-- Form Errors -->
-          @if (formErrors().length > 0) {
-            <div class="form-errors">
-              @for (error of formErrors(); track $index) {
-                <div class="error-message">
-                  <lucide-icon name="alert-circle" size="16"></lucide-icon>
-                  <span>{{ error }}</span>
-                </div>
-              }
-            </div>
-          }
-
-          <div class="form-section">
-            <h4 class="section-title">Información General</h4>
-            <div class="form-grid">
-              <ui-input
-                label="Cliente"
-                [(ngModel)]="formData.clientId"
-                icon="user"
-                placeholder="ID del cliente"
-                required
-              ></ui-input>
-              <ui-input
-                label="Total (€)"
-                [(ngModel)]="formData.total"
-                icon="euro"
-                type="number"
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-              ></ui-input>
-              <ui-input
-                label="Descripción"
-                [(ngModel)]="formData.description"
-                icon="file-text"
-                placeholder="Descripción del presupuesto"
-              ></ui-input>
-              <div class="input-wrapper">
-                <label class="input-label" for="valid-until-input">
-                  <lucide-icon name="calendar" size="16"></lucide-icon>
-                  Válido hasta
-                </label>
-                <input
-                  id="valid-until-input"
-                  type="date"
-                  class="form-input"
-                  [(ngModel)]="formData.validUntil"
-                  [min]="getMinDate()"
-                />
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="field-label" for="notes-textarea">
-                <lucide-icon name="sticky-note" size="16"></lucide-icon>
-                Notas
-              </label>
-              <textarea
-                id="notes-textarea"
-                class="notes-textarea"
-                [(ngModel)]="formData.notes"
-                placeholder="Notas adicionales..."
-                rows="3"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <ui-button variant="ghost" (clicked)="closeModal()"
-            >Cancelar</ui-button
-          >
-          <ui-button
-            variant="solid"
-            (clicked)="saveBudget()"
-            [loading]="isSaving()"
-            icon="save"
-          >
-            {{ editingBudget() ? 'Guardar cambios' : 'Crear presupuesto' }}
-          </ui-button>
-        </div>
-      </ui-modal>
       }
     </ui-feature-page-shell>
   `,
@@ -706,132 +605,10 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         color: var(--success) !important;
       }
 
-      /* Modal Form Styles */
-      .modal-form {
-        padding: 1rem 0;
-      }
-
-      .form-errors {
-        background: var(--danger-light);
-        border: 1px solid var(--danger);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .error-message {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--danger);
-        font-size: 0.875rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .error-message:last-child {
-        margin-bottom: 0;
-      }
-
-      .form-section {
-        margin-bottom: 1.5rem;
-      }
-
-      .section-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-
-      .form-field {
-        margin-bottom: 1.5rem;
-      }
-
-      .field-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-      }
-
-      .notes-textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-family: inherit;
-        font-size: 0.875rem;
-        resize: vertical;
-        min-height: 80px;
-        transition: border-color 0.2s ease;
-      }
-
-      .notes-textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-      }
-
-      .input-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .input-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .form-input {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text-primary);
-        font-family: inherit;
-        font-size: 0.875rem;
-        transition: border-color 0.2s ease;
-      }
-
-      .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-      }
-
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-      }
-
       .pagination-footer {
         margin-top: 3rem;
         display: flex;
         justify-content: center;
-      }
-
-      @media (max-width: 768px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
       }
     `,
   ],
@@ -848,6 +625,7 @@ export class BudgetListComponent
   private readonly aiFormBridge = inject(AIFormBridgeService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(
     this.authStore,
@@ -856,11 +634,9 @@ export class BudgetListComponent
     'budgets.approve',
   );
 
+  private readonly listAiFormProxy: Record<string, unknown> = {};
+
   // Signals for UI state
-  isModalOpen = signal(false);
-  editingBudget = signal<Budget | null>(null);
-  isSaving = signal(false);
-  formErrors = signal<string[]>([]);
   currentPage = signal(1);
   totalPages = computed(() => {
     const pageSize = 12;
@@ -880,18 +656,6 @@ export class BudgetListComponent
   // Bulk actions signals
   selectedBudgets = signal<Set<string>>(new Set());
   showBulkActions = signal(false);
-
-  formData: BudgetFormData = {
-    clientId: '',
-    startDate: '',
-    endDate: '',
-    total: 0,
-    status: 'DRAFT',
-    items: [],
-    description: '',
-    validUntil: '',
-    notes: '',
-  };
 
   currentTheme = this.themeService.currentThemeData;
   columns = this.config.defaultColumns;
@@ -957,11 +721,11 @@ export class BudgetListComponent
     }
 
     if (amountMin !== null) {
-      list = list.filter((b) => (b.total || 0) >= amountMin!);
+      list = list.filter((b) => (b.total || 0) >= amountMin);
     }
 
     if (amountMax !== null) {
-      list = list.filter((b) => (b.total || 0) <= amountMax!);
+      list = list.filter((b) => (b.total || 0) <= amountMax);
     }
 
     // 3. Sort
@@ -969,8 +733,8 @@ export class BudgetListComponent
     const dir = this.sortDirection();
 
     return list.sort((a, b) => {
-      let valA: any = '';
-      let valB: any = '';
+      let valA: string | number = '';
+      let valB: string | number = '';
 
       if (field === 'name') {
         valA = a.id.toLowerCase();
@@ -1017,17 +781,13 @@ export class BudgetListComponent
   );
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.store.loadBudgets();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -1045,6 +805,7 @@ export class BudgetListComponent
 
   onDuplicate(item: Budget) {
     const { id, ...rest } = item;
+    void id;
     try {
       if ((this.store as any).createBudget) {
         (this.store as any).createBudget({
@@ -1168,94 +929,12 @@ export class BudgetListComponent
     }
   }
 
-  openCreateModal() {
-    this.editingBudget.set(null);
-    this.formData = {
-      clientId: '',
-      startDate: '',
-      endDate: '',
-      total: 0,
-      status: 'DRAFT',
-      items: [],
-      description: '',
-      validUntil: '',
-      notes: '',
-    };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
-  }
-
-  editBudget(budget: Budget) {
-    this.editingBudget.set(budget);
-    this.formData = {
-      ...budget,
-      description: '',
-      validUntil: '',
-      notes: '',
-    };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
-  }
-
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingBudget.set(null);
-    this.formErrors.set([]);
-  }
-
-  saveBudget() {
-    const errors: string[] = [];
-
-    if (!this.formData.clientId?.trim()) {
-      errors.push('El cliente es obligatorio');
-    }
-
-    if (this.formData.total !== undefined && this.formData.total < 0) {
-      errors.push('El total no puede ser negativo');
-    }
-
-    if (
-      this.formData.validUntil &&
-      new Date(this.formData.validUntil) < new Date()
-    ) {
-      errors.push('La fecha de validez no puede ser anterior a hoy');
-    }
-
-    if (this.formData.description && this.formData.description.length > 500) {
-      errors.push('La descripción no puede exceder 500 caracteres');
-    }
-
-    if (this.formData.notes && this.formData.notes.length > 1000) {
-      errors.push('Las notas no pueden exceder 1000 caracteres');
-    }
-
-    if (errors.length > 0) {
-      this.formErrors.set(errors);
-      return;
-    }
-
-    this.formErrors.set([]);
-    this.isSaving.set(true);
-
-    // Simulate async operation
-    setTimeout(() => {
-      this.isSaving.set(false);
-      this.toast.show(
-        this.editingBudget()
-          ? 'Presupuesto actualizado correctamente'
-          : 'Presupuesto creado correctamente',
-        'success',
-      );
-      this.closeModal();
-    }, 1000);
+  goToNewBudget(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   onPageChange(page: number) {
     this.currentPage.set(page);
-  }
-
-  getMinDate(): string {
-    return new Date().toISOString().split('T')[0];
   }
 
   toggleAdvancedFilters() {

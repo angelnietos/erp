@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Building } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   UiButtonComponent,
   UiFeatureFilterBarComponent,
@@ -43,13 +43,6 @@ import {
   RentalService,
   RentalSignatureStatus,
 } from '@josanz-erp/rentals-data-access';
-
-// Extended form type for additional fields
-interface RentalFormData extends Partial<Rental> {
-  description?: string;
-  validUntil?: string;
-  notes?: string;
-}
 
 @Component({
   selector: 'lib-rentals-list',
@@ -89,7 +82,7 @@ interface RentalFormData extends Partial<Rental> {
         subtitle="Gestión operativa y monitoreo de expedientes"
         icon="key"
         actionLabel="NUEVO EXPEDIENTE"
-        (actionClicked)="openCreateModal()"
+        (actionClicked)="goToNewRental()"
       ></ui-feature-header>
 
       <ui-feature-stats>
@@ -364,7 +357,7 @@ interface RentalFormData extends Partial<Rental> {
               [showDuplicate]="true"
               [showDelete]="true"
               (cardClicked)="onRowClick(rental)"
-              (editClicked)="editRental(rental)"
+              (editClicked)="goToEditRental(rental)"
               (duplicateClicked)="onDuplicate(rental)"
               (deleteClicked)="confirmDelete(rental)"
               [footerItems]="[
@@ -459,7 +452,7 @@ interface RentalFormData extends Partial<Rental> {
                 </p>
                 <ui-button
                   variant="solid"
-                  (clicked)="openCreateModal()"
+                  (clicked)="goToNewRental()"
                   icon="CirclePlus"
                 >
                   Añadir primer expediente
@@ -478,123 +471,6 @@ interface RentalFormData extends Partial<Rental> {
         </footer>
       }
     </ui-feature-page-shell>
-
-    <!-- Create/Edit Modal -->
-    <ui-modal
-      [isOpen]="isModalOpen()"
-      [title]="editingRental() ? 'EDITAR EXPEDIENTE' : 'NUEVO EXPEDIENTE'"
-      (closed)="closeModal()"
-      variant="glass"
-    >
-      <div class="modal-form">
-        <!-- Form Errors -->
-        @if (formErrors().length > 0) {
-          <div class="form-errors">
-            @for (error of formErrors(); track $index) {
-              <div class="error-message">
-                <lucide-icon name="alert-circle" size="16"></lucide-icon>
-                <span>{{ error }}</span>
-              </div>
-            }
-          </div>
-        }
-
-        <div class="form-section">
-          <h4 class="section-title">Información General</h4>
-          <div class="form-grid">
-            <ui-input
-              label="Cliente *"
-              [(ngModel)]="formData.clientName"
-              icon="building"
-              placeholder="Nombre del cliente"
-              required
-            ></ui-input>
-            <ui-input
-              label="ID Cliente"
-              [(ngModel)]="formData.clientId"
-              icon="hash"
-              placeholder="ID del cliente"
-            ></ui-input>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h4 class="section-title">Condiciones del Alquiler</h4>
-          <div class="form-grid">
-            <ui-input
-              label="Fecha inicio"
-              [(ngModel)]="formData.startDate"
-              icon="calendar"
-              type="date"
-            ></ui-input>
-            <ui-input
-              label="Fecha fin"
-              [(ngModel)]="formData.endDate"
-              icon="calendar"
-              type="date"
-            ></ui-input>
-            <ui-input
-              label="Número de items"
-              [(ngModel)]="formData.itemsCount"
-              icon="package"
-              type="number"
-              placeholder="0"
-            ></ui-input>
-            <ui-input
-              label="Importe total (€)"
-              [(ngModel)]="formData.totalAmount"
-              icon="euro"
-              type="number"
-              placeholder="0.00"
-            ></ui-input>
-            <ui-input
-              label="Descripción"
-              [(ngModel)]="formData.description"
-              icon="file-text"
-              placeholder="Descripción del alquiler"
-            ></ui-input>
-            <div class="input-wrapper">
-              <label class="input-label" for="valid-until-input">
-                <lucide-icon name="calendar" size="16"></lucide-icon>
-                Válido hasta
-              </label>
-              <input
-                id="valid-until-input"
-                type="date"
-                class="form-input"
-                [(ngModel)]="formData.validUntil"
-                [min]="getMinDate()"
-              />
-            </div>
-          </div>
-          <div class="form-field">
-            <label class="field-label" for="notes-textarea">
-              <lucide-icon name="sticky-note" size="16"></lucide-icon>
-              Notas
-            </label>
-            <textarea
-              id="notes-textarea"
-              class="notes-textarea"
-              [(ngModel)]="formData.notes"
-              placeholder="Notas adicionales..."
-              rows="3"
-            ></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <ui-button variant="ghost" (clicked)="closeModal()">Cancelar</ui-button>
-        <ui-button
-          variant="solid"
-          (clicked)="saveRental()"
-          [loading]="isSaving()"
-          icon="save"
-        >
-          {{ editingRental() ? 'Guardar cambios' : 'Crear expediente' }}
-        </ui-button>
-      </div>
-    </ui-modal>
 
     <ui-modal
       [isOpen]="isSignatureModalOpen()"
@@ -986,10 +862,6 @@ export class RentalsListComponent
   );
 
   // Signals for UI state
-  isModalOpen = signal(false);
-  editingRental = signal<Rental | null>(null);
-  isSaving = signal(false);
-  formErrors = signal<string[]>([]);
   currentPage = signal(1);
   totalPages = computed(() => {
     const pageSize = 12;
@@ -1019,19 +891,6 @@ export class RentalsListComponent
   // Bulk actions signals
   selectedRentals = signal<Set<string>>(new Set());
 
-  formData: RentalFormData = {
-    clientId: '',
-    clientName: '',
-    startDate: '',
-    endDate: '',
-    itemsCount: 0,
-    totalAmount: 0,
-    status: 'DRAFT',
-    description: '',
-    validUntil: '',
-    notes: '',
-  };
-
   currentTheme = this.themeService.currentThemeData;
 
   tabs = [
@@ -1053,21 +912,21 @@ export class RentalsListComponent
     { key: 'actions', header: '', width: '150px' },
   ];
 
+  private readonly listAiFormProxy: Record<string, unknown> = {};
+
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.loadRentals();
     if (this.route.snapshot.queryParamMap.get('openCreate')) {
-      queueMicrotask(() => this.openCreateModal());
+      queueMicrotask(() =>
+        this.router.navigate(['new'], { relativeTo: this.route, replaceUrl: true }),
+      );
     }
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(
-      this.formData as Record<string, unknown>,
-    );
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -1152,23 +1011,16 @@ export class RentalsListComponent
     );
   }
 
-  openCreateModal() {
-    this.editingRental.set(null);
-    this.formData = {
-      clientName: '',
-      status: 'DRAFT',
-      startDate: new Date().toISOString().split('T')[0],
-      itemsCount: 0,
-      totalAmount: 0,
-      description: '',
-      validUntil: '',
-      notes: '',
-    };
-    this.isModalOpen.set(true);
-  }
-
   onRowClick(rental: Rental) {
     this.router.navigate(['/rentals', rental.id]);
+  }
+
+  goToNewRental(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
+  goToEditRental(rental: Rental): void {
+    void this.router.navigate([rental.id, 'edit'], { relativeTo: this.route });
   }
 
   toggleAdvancedFilters() {
@@ -1277,10 +1129,6 @@ export class RentalsListComponent
     this.refreshRentals();
   }
 
-  getMinDate(): string {
-    return new Date().toISOString().split('T')[0];
-  }
-
   getInitials(name: string): string {
     return (name || '??')
       .split(' ')
@@ -1304,87 +1152,6 @@ export class RentalsListComponent
     }
   }
 
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingRental.set(null);
-  }
-
-  saveRental() {
-    const errors: string[] = [];
-
-    if (!this.formData.clientName?.trim()) {
-      errors.push('El cliente es obligatorio');
-    }
-
-    if (this.formData.startDate && this.formData.endDate) {
-      const startDate = new Date(this.formData.startDate);
-      const endDate = new Date(this.formData.endDate);
-      if (endDate <= startDate) {
-        errors.push('La fecha de fin debe ser posterior a la fecha de inicio');
-      }
-    }
-
-    if (this.formData.totalAmount && this.formData.totalAmount < 0) {
-      errors.push('El importe total no puede ser negativo');
-    }
-
-    if (
-      this.formData.validUntil &&
-      new Date(this.formData.validUntil) < new Date()
-    ) {
-      errors.push('La fecha de validez no puede ser anterior a hoy');
-    }
-
-    if (this.formData.description && this.formData.description.length > 500) {
-      errors.push('La descripción no puede exceder 500 caracteres');
-    }
-
-    if (this.formData.notes && this.formData.notes.length > 1000) {
-      errors.push('Las notas no pueden exceder 1000 caracteres');
-    }
-
-    if (errors.length > 0) {
-      this.formErrors.set(errors);
-      return;
-    }
-
-    this.formErrors.set([]);
-    this.isSaving.set(true);
-
-    const toEdit = this.editingRental();
-    if (toEdit) {
-      this.rentalService.updateRental(toEdit.id, this.formData).subscribe({
-        next: (upd) => {
-          this.rentals.update((list) =>
-            list.map((r) => (r.id === upd.id ? upd : r)),
-          );
-          this.isSaving.set(false);
-          this.toast.show('Expediente actualizado correctamente', 'success');
-          this.closeModal();
-        },
-        error: () => {
-          this.isSaving.set(false);
-          this.toast.show('Error al actualizar el expediente', 'error');
-        },
-      });
-    } else {
-      this.rentalService
-        .createRental(this.formData as Omit<Rental, 'id' | 'createdAt'>)
-        .subscribe({
-          next: (newR) => {
-            this.rentals.update((list) => [...list, newR]);
-            this.isSaving.set(false);
-            this.toast.show('Expediente creado correctamente', 'success');
-            this.closeModal();
-          },
-          error: () => {
-            this.isSaving.set(false);
-            this.toast.show('Error al crear el expediente', 'error');
-          },
-        });
-    }
-  }
-
   activateRental(rental: Rental) {
     this.rentalService.activateRental(rental.id).subscribe({
       next: (upd) =>
@@ -1396,6 +1163,8 @@ export class RentalsListComponent
 
   onDuplicate(rental: Rental) {
     const { id, createdAt, ...rest } = rental;
+    void id;
+    void createdAt;
     this.rentalService
       .createRental({
         ...rest,
@@ -1555,11 +1324,11 @@ export class RentalsListComponent
     }
 
     if (amountMin !== null) {
-      list = list.filter((r) => (r.totalAmount || 0) >= amountMin!);
+      list = list.filter((r) => (r.totalAmount || 0) >= amountMin);
     }
 
     if (amountMax !== null) {
-      list = list.filter((r) => (r.totalAmount || 0) <= amountMax!);
+      list = list.filter((r) => (r.totalAmount || 0) <= amountMax);
     }
 
     const t = this.masterFilter.query().trim().toLowerCase();
@@ -1578,8 +1347,8 @@ export class RentalsListComponent
     const dir = this.sortDirection();
 
     return list.sort((a, b) => {
-      let valA: any = '';
-      let valB: any = '';
+      let valA: string | number = '';
+      let valB: string | number = '';
 
       if (field === 'clientName') {
         valA = (a.clientName || '').toLowerCase();
@@ -1639,17 +1408,5 @@ export class RentalsListComponent
       this.sortField.set('clientName');
       this.sortDirection.set(1);
     }
-  }
-
-  editRental(rental: Rental) {
-    this.editingRental.set(rental);
-    this.formData = {
-      ...rental,
-      description: '',
-      validUntil: '',
-      notes: '',
-    };
-    this.formErrors.set([]);
-    this.isModalOpen.set(true);
   }
 }

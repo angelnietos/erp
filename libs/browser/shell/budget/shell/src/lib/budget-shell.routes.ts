@@ -6,7 +6,7 @@ export const budgetRoutes: Route[] = [
     loadComponent: () => import('@josanz-erp/budget-feature').then(m => m.BudgetListComponent),
   },
   {
-    path: 'create',
+    path: 'new',
     loadComponent: () => import('@josanz-erp/budget-feature').then(m => m.BudgetCreateComponent),
   },
   {
