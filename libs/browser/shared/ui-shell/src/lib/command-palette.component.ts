@@ -23,7 +23,8 @@ export interface CommandItem {
   template: `
     <div 
       class="overlay animate-fade-in" 
-      (click)="closePalette.emit()" 
+      (click)="closePalette.emit()"
+      (keydown.escape)="closePalette.emit()"
       tabindex="-1"
       role="dialog"
       aria-modal="true"
@@ -50,7 +51,11 @@ export interface CommandItem {
                  @for (item of contextResults(); track $any(item).id) {
                     <div 
                       class="command-item context-hit" 
+                      role="button"
+                      tabindex="0"
                       (click)="executeContextItem(item)"
+                      (keydown.enter)="executeContextItem(item)"
+                      (keydown.space)="$event.preventDefault(); executeContextItem(item)"
                       [class.active]="selectedId() === 'ctx-' + $any(item).id"
                     >
                       <div class="item-icon ctx">
@@ -73,6 +78,7 @@ export interface CommandItem {
                     class="command-item" 
                     (click)="executeCommand(item)"
                     (keydown.enter)="executeCommand(item)"
+                    (keydown.space)="$event.preventDefault(); executeCommand(item)"
                     [class.active]="selectedId() === item.id"
                     tabindex="0"
                     role="button"
@@ -232,7 +238,8 @@ export class CommandPaletteComponent {
     }
   }
 
-  executeContextItem(item: any) {
+  executeContextItem(item: unknown) {
+    void item;
     // Si tiene ruta específica en el objeto de negocio, la usamos, sino lógica dummy para el demo
     this.closePalette.emit();
   }

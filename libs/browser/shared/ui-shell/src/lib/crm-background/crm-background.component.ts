@@ -8,7 +8,7 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ThemeService } from '@josanz-erp/shared-data-access';
+import { ThemeService, type ThemeConfig } from '@josanz-erp/shared-data-access';
 
 interface MatrixCode {
   x: number;
@@ -257,7 +257,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.animationId = requestAnimationFrame(this.animate);
   };
 
-  private drawParticles(w: number, h: number, cfg: any) {
+  private drawParticles(w: number, h: number, cfg: ThemeConfig) {
     this.ctx.globalCompositeOperation = 'screen';
     const brandHue = this.getHue(cfg.brand);
     
@@ -276,7 +276,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  private drawMatrixStyle(w: number, h: number, cfg: any) {
+  private drawMatrixStyle(w: number, h: number, cfg: ThemeConfig) {
     const brandHue = this.getHue(cfg.brand);
     this.ctx.textAlign = 'center';
     this.ctx.font = '14px monospace';
@@ -301,11 +301,11 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private drawNebulaStyle(w: number, h: number, cfg: any) {
+  private drawNebulaStyle(w: number, h: number, cfg: ThemeConfig) {
     this.ctx.globalCompositeOperation = 'screen';
     const brandHue = this.getHue(cfg.brand);
     
-    this.spirits.forEach((s, i) => {
+    this.spirits.forEach((s) => {
       s.x += s.vx;
       s.y += s.vy;
       if (s.x < -s.radius) s.x = w + s.radius;
@@ -329,7 +329,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  private drawAuroraStyle(w: number, h: number, cfg: any) {
+  private drawAuroraStyle(w: number, h: number, cfg: ThemeConfig) {
     this.ctx.globalCompositeOperation = 'screen';
     const brandHue = this.getHue(cfg.brand);
     
@@ -354,7 +354,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  private drawBokehStyle(w: number, h: number, cfg: any) {
+  private drawBokehStyle(w: number, h: number, cfg: ThemeConfig) {
     const brandHue = this.getHue(cfg.brand);
     this.ctx.globalCompositeOperation = 'screen';
     this.bokehCircles.forEach(c => {
@@ -373,7 +373,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  private drawSpotStyle(w: number, h: number, cfg: any) {
+  private drawSpotStyle(w: number, h: number, cfg: ThemeConfig) {
     this.ctx.globalCompositeOperation = 'screen';
     const brandHue = this.getHue(cfg.brand);
     
@@ -401,7 +401,7 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
-  private drawGridStyle(w: number, h: number, cfg: any) {
+  private drawGridStyle(w: number, h: number, cfg: ThemeConfig) {
     const brandHue = this.getHue(cfg.brand);
     this.ctx.strokeStyle = `hsla(${brandHue}, 60%, 50%, 0.08)`;
     this.ctx.lineWidth = 1;

@@ -416,8 +416,8 @@ export class UiSelectComponent implements ControlValueAccessor {
 
   value: unknown = '';
   disabled = false;
-  onChange = (_: unknown) => {
-    // Standard Angular ControlValueAccessor placeholder
+  onChange: (value: unknown) => void = () => {
+    /* CVA stub; registerOnChange replaces this */
   };
   onTouched = () => {
     // Standard Angular ControlValueAccessor placeholder

@@ -9,24 +9,43 @@ import { UiBadgeComponent } from '../../badge/badge.component';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UiButtonComponent, UiBadgeComponent],
   template: `
-    <div class="feature-card" (click)="cardClicked.emit()">
+    <div
+      class="feature-card"
+      role="button"
+      tabindex="0"
+      (click)="cardClicked.emit()"
+      (keydown.enter)="cardClicked.emit()"
+      (keydown.space)="$event.preventDefault(); cardClicked.emit()"
+    >
       <div class="card-header">
         <div class="header-main">
-          <div class="item-avatar" *ngIf="avatarInitials">
+          @if (avatarInitials) {
+          <div class="item-avatar">
             <div class="avatar-bg" [style.background]="avatarBackground">
               {{ avatarInitials }}
             </div>
-            <div class="avatar-status" *ngIf="status" [class]="status"></div>
+            @if (status) {
+            <div class="avatar-status" [class]="status"></div>
+            }
           </div>
+          }
           <div class="header-info">
              <div class="title-row">
                 <h3 class="item-name">{{ name }}</h3>
-                <lucide-icon *ngIf="isFavorite" name="star" size="14" class="favorite-icon"></lucide-icon>
+                @if (isFavorite) {
+                <lucide-icon name="star" size="14" class="favorite-icon"></lucide-icon>
+                }
              </div>
-             <div class="badges-row" *ngIf="badgeLabel || subtitle">
-                <ui-badge *ngIf="badgeLabel" [variant]="badgeVariant" size="sm">{{ badgeLabel }}</ui-badge>
-                <span class="subtitle" *ngIf="subtitle">{{ subtitle }}</span>
+             @if (badgeLabel || subtitle) {
+             <div class="badges-row">
+                @if (badgeLabel) {
+                <ui-badge [variant]="badgeVariant" size="sm">{{ badgeLabel }}</ui-badge>
+                }
+                @if (subtitle) {
+                <span class="subtitle">{{ subtitle }}</span>
+                }
              </div>
+             }
           </div>
         </div>
       </div>
@@ -35,28 +54,32 @@ import { UiBadgeComponent } from '../../badge/badge.component';
          <ng-content></ng-content>
       </div>
 
-      <div class="card-footer" *ngIf="(footerItems && footerItems.length > 0) || showEdit || showDelete || showDuplicate">
+      @if ((footerItems && footerItems.length > 0) || showEdit || showDelete || showDuplicate) {
+      <div class="card-footer">
          <div class="footer-main">
-            <div class="footer-item" *ngFor="let item of footerItems">
+            @for (item of footerItems; track $index) {
+            <div class="footer-item">
                <lucide-icon [name]="item.icon" size="14"></lucide-icon>
                <span>{{ item.label }}</span>
             </div>
+            }
             <div class="footer-extra">
                <ng-content select="[footer-extra]"></ng-content>
             </div>
          </div>
 
          <div class="footer-actions">
+            @if (showDuplicate) {
             <ui-button
-              *ngIf="showDuplicate"
               variant="ghost"
               size="sm"
               icon="Copy"
               (click)="$event.stopPropagation(); duplicateClicked.emit()"
               title="Duplicar"
             ></ui-button>
+            }
+            @if (showEdit) {
             <ui-button
-              *ngIf="showEdit"
               variant="ghost"
               size="sm"
               icon="Pencil"
@@ -64,8 +87,9 @@ import { UiBadgeComponent } from '../../badge/badge.component';
               class="edit-btn"
               title="Editar"
             ></ui-button>
+            }
+            @if (showDelete) {
             <ui-button
-              *ngIf="showDelete"
               variant="ghost"
               size="sm"
               icon="Trash2"
@@ -73,8 +97,10 @@ import { UiBadgeComponent } from '../../badge/badge.component';
               class="delete-btn"
               title="Eliminar"
             ></ui-button>
+            }
          </div>
       </div>
+      }
     </div>
   `,
   styles: [`

@@ -165,7 +165,7 @@ export const parameters = {
 
 export const decorators = [
   storybookRouterDecorator,
-  (storyFn: any) => {
+  (storyFn: () => unknown) => {
     // Inject CSS variables
     const style = document.createElement('style');
     style.textContent = cssVariables;

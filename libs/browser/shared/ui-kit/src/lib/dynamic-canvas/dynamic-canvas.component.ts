@@ -24,11 +24,11 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   encapsulation: ViewEncapsulation.None, // Allow injected styles to affect the innerHTML
 })
 export class DynamicCanvasComponent implements OnChanges {
-  @Input() htmlRef: string = '';
+  @Input() htmlRef = '';
   
   private sanitizer = inject(DomSanitizer);
   safeHtml: SafeHtml = '';
-  private timeoutId: any;
+  private timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['htmlRef']) {

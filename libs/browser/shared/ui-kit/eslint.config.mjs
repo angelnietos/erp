@@ -32,4 +32,11 @@ export default [
     // Override or add rules here
     rules: {},
   },
+  /** Storybook colocal helpers bajo `.storybook/` (imports relativos profundos). */
+  {
+    files: ['**/*.stories.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
 ];

@@ -13,19 +13,19 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import {
   AIBotStore,
   DashboardAnalyticsService,
   ThemeService,
   Theme,
-  THEMES,
   MasterFilterService,
   InterBotMessage,
   OrchestrationBus,
   TechnicianApiService,
   getAiFeatureFromUrl,
+  AIProvider,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -33,6 +33,38 @@ import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+
+type ChatMessageItem = {
+  id: string;
+  text: string;
+  role: 'user' | 'bot';
+  reasoning?: string;
+  feedbackSubmitted?: boolean;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+interface SpeechRecognitionLike {
+  continuous: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+}
+
+interface SpeechRecognitionResultEvent {
+  results: {
+    [index: number]: { [index: number]: { transcript: string } };
+  };
+}
+
+type WindowWithSpeechRecognition = Window &
+  typeof globalThis & {
+    SpeechRecognition?: SpeechRecognitionCtor;
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+  };
 
 @Component({
   selector: 'ui-ai-assistant',
@@ -118,15 +150,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     return { x, y };
   });
   readonly isOpen = signal(false);
-  readonly messages = signal<
-    {
-      id: string;
-      text: string;
-      role: 'user' | 'bot';
-      reasoning?: string;
-      feedbackSubmitted?: boolean;
-    }[]
-  >([]);
+  readonly messages = signal<ChatMessageItem[]>([]);
   readonly currentReasoning = signal<string>('');
   hfToken = signal<string>(localStorage.getItem('hf_token') || '');
   currentInput = '';
@@ -140,7 +164,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.messages.set([]);
   }
 
-  submitFeedback(msg: any, type: 'positive' | 'negative') {
+  submitFeedback(msg: ChatMessageItem, type: 'positive' | 'negative') {
     msg.feedbackSubmitted = true;
     this.messages.update((m) => [...m]);
     const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...".`;
@@ -152,7 +176,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   isListening = signal(false);
-  private recognition: any;
+  private recognition: SpeechRecognitionLike | null = null;
   private textBeforeDictation = '';
   private el = inject(ElementRef);
 
@@ -235,8 +259,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               task.id,
               `Bot ${targetDomain} procesó la tarea`,
             );
-          } catch (e: any) {
-            this.orchestrationBus.fail(task.id, e?.message ?? String(e));
+          } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : String(e);
+            this.orchestrationBus.fail(task.id, message);
           }
         });
       });
@@ -318,15 +343,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   private initSpeechRecognition() {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      this.recognition = new SpeechRecognition();
+    const w = window as WindowWithSpeechRecognition;
+    const SpeechRecognitionCtor =
+      w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (SpeechRecognitionCtor) {
+      this.recognition = new SpeechRecognitionCtor();
       this.recognition.continuous = false;
       this.recognition.lang = 'es-ES';
       this.recognition.onstart = () => this.isListening.set(true);
-      this.recognition.onresult = (event: any) => {
+      this.recognition.onresult = (event: SpeechRecognitionResultEvent) => {
         this.ngZone.run(() => {
           const speech = event.results[0][0].transcript;
           this.currentInput = speech;
@@ -492,7 +517,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         this.assistantRole === 'buddy'
           ? ` El usuario está ahora en el módulo **${this.domainFeature()}** del ERP; prioriza ese contexto en ejemplos y acciones.`
           : '';
-      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${this.bot()!.feature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
+      const botFeature = this.bot()?.feature ?? this.feature;
+      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${botFeature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
 
       const context =
         `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +
@@ -550,8 +576,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         'chat_response',
         Date.now(),
       );
-    } catch (e) {
-      // Manejar errores
+    } catch {
       this.messages.update((m) =>
         m.map((msg) =>
           msg.id === typingId
@@ -569,7 +594,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   async executeFunction(
     funcName: string,
-    args: Record<string, any>,
+    args: Record<string, unknown>,
   ): Promise<void> {
     try {
       switch (funcName) {
@@ -593,7 +618,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         case 'switch_to_free_provider': {
           const preferred = String(args['preferred'] ?? '');
           if (preferred) {
-            this.aiBotStore.selectedProvider.set(preferred as any);
+            this.aiBotStore.selectedProvider.set(preferred as AIProvider);
             await this.triggerAIResponse(
               `(SISTEMA: Cambiado a proveedor gratuito: ${preferred})`,
             );
@@ -829,7 +854,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   private detectGeneralCommand(
     text: string,
-  ): { type: string; args: Record<string, any> } | null {
+  ): { type: string; args: Record<string, unknown> } | null {
     const lowerText = text.toLowerCase();
 
     // Detección de cálculos matemáticos
@@ -838,7 +863,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       /cuánto\s+es\s+(.+)/i,
       /what\s+is\s+(.+)/i,
       /calculate\s+(.+)/i,
-      /(\d+[\+\-\*\/\(\)\.\s]*\d+)/, // Expresiones con números y operadores
+      /(\d+[-+*/().\s]*\d+)/, // Expresiones con números y operadores
     ];
 
     for (const pattern of calcPatterns) {
@@ -846,7 +871,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       if (match && match[1]) {
         const expression = match[1].trim();
         // Verificar que contenga operadores matemáticos
-        if (/[\+\-\*\/]/.test(expression)) {
+        if (/[-+*/]/.test(expression)) {
           return { type: 'calculate', args: { expression } };
         }
       }
@@ -911,7 +936,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   private async executeGeneralCommand(
     type: string,
-    args: Record<string, any>,
+    args: Record<string, unknown>,
     userInput: string,
   ) {
     // Agregar mensaje del usuario
@@ -927,28 +952,35 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     try {
       switch (type) {
-        case 'calculate':
-          reasoning = `Calculando la expresión matemática: ${args['expression']}`;
-          const result = this.safeEvaluateMath(args['expression']);
-          botResponse = `El resultado de ${args['expression']} es: **${result}**`;
+        case 'calculate': {
+          const expression = String(args['expression'] ?? '');
+          reasoning = `Calculando la expresión matemática: ${expression}`;
+          const result = this.safeEvaluateMath(expression);
+          botResponse = `El resultado de ${expression} es: **${result}**`;
           break;
+        }
 
-        case 'web_search':
-          reasoning = `Realizando búsqueda web para: ${args['query']}`;
-          botResponse = `Buscando información sobre "${args['query']}"... Para búsquedas avanzadas, considera usar Gemini como proveedor de IA.`;
+        case 'web_search': {
+          const query = String(args['query'] ?? '');
+          reasoning = `Realizando búsqueda web para: ${query}`;
+          botResponse = `Buscando información sobre "${query}"... Para búsquedas avanzadas, considera usar Gemini como proveedor de IA.`;
           // Aquí podrías integrar una API de búsqueda si tienes acceso
           break;
+        }
 
-        case 'generate_image':
-          reasoning = `Generando imagen con el prompt: ${args['prompt']}`;
-          botResponse = `Generando imagen de "${args['prompt']}"... Esta función requiere integración con servicios de IA como DALL-E o Stable Diffusion.`;
+        case 'generate_image': {
+          const prompt = String(args['prompt'] ?? '');
+          reasoning = `Generando imagen con el prompt: ${prompt}`;
+          botResponse = `Generando imagen de "${prompt}"... Esta función requiere integración con servicios de IA como DALL-E o Stable Diffusion.`;
           break;
+        }
 
-        case 'summarize':
+        case 'summarize': {
           reasoning = `Resumiendo el texto proporcionado`;
-          const summary = this.generateSummary(args['text']);
+          const summary = this.generateSummary(String(args['text'] ?? ''));
           botResponse = `Resumen: ${summary}`;
           break;
+        }
 
         case 'current_time':
           reasoning = `Consultando la hora actual`;
@@ -1044,13 +1076,5 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         .join('\n\n'),
       promptPresets: [...b.promptPresets, ...d.promptPresets],
     };
-  }
-
-  trackBySkill(index: number, skill: string) {
-    return skill;
-  }
-
-  trackByMsg(index: number, msg: any) {
-    return msg.id;
   }
 }

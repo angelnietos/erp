@@ -16,13 +16,15 @@ import { UiButtonComponent } from '../../button/button.component';
           </div>
           <div class="text-box">
             <h1 class="main-title">{{ title }}</h1>
-            <p class="subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+            @if (subtitle) {
+              <p class="subtitle">{{ subtitle }}</p>
+            }
           </div>
         </div>
         <div class="actions-section">
           <ng-content select="[actions]">
+            @if (actionLabel) {
             <ui-button
-              *ngIf="actionLabel"
               variant="solid"
               size="md"
               [icon]="actionIcon"
@@ -31,6 +33,7 @@ import { UiButtonComponent } from '../../button/button.component';
             >
               {{ actionLabel }}
             </ui-button>
+            }
           </ng-content>
         </div>
       </div>

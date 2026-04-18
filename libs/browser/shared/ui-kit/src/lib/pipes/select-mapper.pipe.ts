@@ -9,7 +9,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true
 })
 export class SelectMapperPipe implements PipeTransform {
-  transform<T extends object>(items: T[] | null, labelKey: keyof T, valueKey: keyof T): { label: string; value: any }[] {
+  transform<T extends object>(items: T[] | null, labelKey: keyof T, valueKey: keyof T): { label: string; value: T[keyof T] }[] {
     if (!items) return [];
     return items.map((item) => ({
       label: String(item[labelKey] ?? ''),

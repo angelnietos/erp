@@ -1,4 +1,4 @@
-import { Component, signal, effect, inject, Input } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -8,9 +8,14 @@ import { LucideAngularModule } from 'lucide-angular';
   imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="stats-wrapper" [class.is-collapsed]="isCollapsed()">
-      <div class="stats-header" (click)="toggleCollapse()">
+      <div class="stats-header">
         <div class="header-line"></div>
-        <button class="collapse-btn" [attr.aria-expanded]="!isCollapsed()">
+        <button
+          type="button"
+          class="collapse-btn"
+          [attr.aria-expanded]="!isCollapsed()"
+          (click)="toggleCollapse()"
+        >
           <lucide-icon [name]="isCollapsed() ? 'chevron-down' : 'chevron-up'" size="14"></lucide-icon>
           <span>{{ isCollapsed() ? 'Mostrar métricas' : 'Ocultar métricas' }}</span>
         </button>

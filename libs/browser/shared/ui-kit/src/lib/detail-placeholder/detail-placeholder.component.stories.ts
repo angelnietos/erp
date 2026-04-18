@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { DetailPlaceholderComponent } from './detail-placeholder.component';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
 
 const meta: Meta<DetailPlaceholderComponent> = {
   component: DetailPlaceholderComponent,

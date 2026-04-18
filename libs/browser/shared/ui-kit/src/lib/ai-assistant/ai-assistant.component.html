@@ -1,10 +1,10 @@
+@if (bot() && bot()!.status === 'active') {
 <div
   class="ai-assistant-wrapper"
   [class]="'feature-' + feature"
   [class.is-open]="isOpen()"
   [class.secondary]="assistantRole === 'buddy'"
   [attr.data-assistant-role]="assistantRole"
-  *ngIf="bot() && bot()!.status === 'active'"
 >
   <!-- Floating Mascot Bubble -->
   <div
@@ -15,7 +15,11 @@
     [style.transform]="
       'translate3d(' + botPosition().x + 'px, ' + botPosition().y + 'px, 0)'
     "
+    role="button"
+    tabindex="0"
     (click)="toggleChat()"
+    (keydown.enter)="toggleChat()"
+    (keydown.space)="$event.preventDefault(); toggleChat()"
     (cdkDragEnded)="onMascotDragEnd($event)"
   >
     <ui-mascot
@@ -33,14 +37,18 @@
   </div>
 
   <!-- Chat Window -->
+  @if (isOpen()) {
   <div
     class="chat-window-container"
-    *ngIf="isOpen()"
     cdkDrag
     cdkDragBoundary="body"
     [style.left.px]="chatWindowPosition().x"
     [style.top.px]="chatWindowPosition().y"
+    tabindex="-1"
+    role="dialog"
+    [attr.aria-label]="'Chat con ' + bot()!.name"
     (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
     (cdkDragEnded)="onChatWindowDragEnd($event)"
   >
     <div class="chat-window animate-slide-up">
@@ -98,16 +106,18 @@
             }
           </p>
           <div class="bot-skills-badges">
-            <span
-              *ngFor="let skill of bot()!.activeSkills; trackBy: trackBySkill"
-              class="skill-badge"
-              [style.background]="bot()!.color + '22'"
-              [style.color]="bot()!.color"
-            >
-              {{ skill }}
-            </span>
+            @for (skill of bot()!.activeSkills; track skill) {
+              <span
+                class="skill-badge"
+                [style.background]="bot()!.color + '22'"
+                [style.color]="bot()!.color"
+              >
+                {{ skill }}
+              </span>
+            }
           </div>
-          <div class="commands-help" *ngIf="assistantRole === 'buddy'">
+          @if (assistantRole === 'buddy') {
+          <div class="commands-help">
             <p><strong>Comandos disponibles:</strong></p>
             <ul>
               <li><code>calcula [expresión]</code> - Cálculos matemáticos</li>
@@ -122,18 +132,19 @@
               <li><code>cambiar tema</code> - Cambiar apariencia</li>
             </ul>
           </div>
+          }
         </div>
 
+        @for (msg of messages(); track msg.id) {
         <div
-          *ngFor="let msg of messages(); trackBy: trackByMsg"
           class="message"
           [class.user-msg]="msg.role === 'user'"
           [class.bot-msg]="msg.role === 'bot'"
         >
           <!-- Reasoning Block -->
+          @if (msg.reasoning) {
           <div
             class="msg-reasoning"
-            *ngIf="msg.reasoning"
             [style.border-left-color]="bot()!.color"
           >
             <div class="reasoning-header">
@@ -142,29 +153,29 @@
             </div>
             <p class="reasoning-text">{{ msg.reasoning }}</p>
           </div>
+          }
 
           <!-- Main Content -->
+          @if (msg.text) {
           <p
             class="msg-content"
-            *ngIf="msg.text"
             [innerHTML]="msg.text"
           ></p>
+          }
 
           <!-- Typing Indicator -->
-          <div
-            class="typing-indicator"
-            *ngIf="!msg.text && msg.id.toString().startsWith('typing')"
-          >
+          @if (!msg.text && msg.id.toString().startsWith('typing')) {
+          <div class="typing-indicator">
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
           </div>
+          }
 
-          <div
-            class="msg-feedback"
-            *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text"
-          >
-            <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
+          @if (msg.role === 'bot' && msg.id !== 'err' && msg.text) {
+          <div class="msg-feedback">
+            @if (!msg.feedbackSubmitted) {
+            <div class="feedback-actions">
               <button
                 class="feedback-btn"
                 (click)="submitFeedback(msg, 'positive')"
@@ -180,15 +191,17 @@
                 👎
               </button>
             </div>
-            <div
-              class="feedback-submitted text-friendly"
-              *ngIf="msg.feedbackSubmitted"
-            >
+            }
+            @if (msg.feedbackSubmitted) {
+            <div class="feedback-submitted text-friendly">
               <lucide-icon name="check" size="12"></lucide-icon> Guardado en
               Memoria
             </div>
+            }
           </div>
+          }
         </div>
+        }
       </div>
 
       <!-- Input Area -->
@@ -221,4 +234,6 @@
       </div>
     </div>
   </div>
+  }
 </div>
+}

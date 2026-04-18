@@ -39,26 +39,31 @@ export type MascotPersonality =
         <div class="mascot-glow"></div>
 
         <!-- Bioluminescent Spores -->
-        <div class="spores-container" *ngIf="bodyShape.includes('mushroom')">
+        @if (bodyShape.includes('mushroom')) {
+        <div class="spores-container">
            <div class="spore p1"></div>
            <div class="spore p2"></div>
            <div class="spore p3"></div>
         </div>
+        }
 
         <!-- Accessories behind the body (Wings, Capes) -->
-        <div class="ears-container" *ngIf="personality !== 'tech'">
+        @if (personality !== 'tech') {
+        <div class="ears-container">
           <div class="ear left"></div>
           <div class="ear right"></div>
         </div>
+        }
 
         <!-- Tech/Robot Antenna -->
+        @if (personality === 'tech' || personality === 'worker') {
         <div
           class="antenna"
-          *ngIf="personality === 'tech' || personality === 'worker'"
         >
           <div class="antenna-pole"></div>
           <div class="antenna-tip"></div>
         </div>
+        }
 
         <!-- Main Body -->
         <div class="mascot-body" [class]="bodyShape" 
@@ -68,19 +73,25 @@ export type MascotPersonality =
           <div class="glass-highlight"></div>
 
           <!-- Mushroom Texture / Spots -->
-          <div class="mushroom-texture" *ngIf="bodyShape.includes('mushroom')">
+          @if (bodyShape.includes('mushroom')) {
+          <div class="mushroom-texture">
             <div class="mush-spot s1"></div>
             <div class="mush-spot s2"></div>
             <div class="mush-spot s3"></div>
             <div class="mush-spot s4"></div>
-            <div class="mush-gills" *ngIf="personality === 'tech'"></div>
+            @if (personality === 'tech') {
+            <div class="mush-gills"></div>
+            }
           </div>
+          }
 
           <!-- Bonsai Structure -->
-          <div class="bonsai-decoration" *ngIf="bodyShape.includes('bonsai')">
+          @if (bodyShape.includes('bonsai')) {
+          <div class="bonsai-decoration">
              <div class="bonsai-trunk"></div>
              <div class="bonsai-pot"></div>
           </div>
+          }
 
           <!-- Kawaii Anatomy -->
           <div class="face-container">
@@ -104,16 +115,18 @@ export type MascotPersonality =
         <div class="limbs-container">
           <div class="limb left"></div>
           <div class="limb right">
-            <div class="accessory-hand" [ngSwitch]="type">
-              <span *ngSwitchCase="'inventory'" class="acc-symbol">🍄</span>
-              <span *ngSwitchCase="'budget'" class="acc-symbol">🪙</span>
-              <span *ngSwitchCase="'clients'" class="acc-symbol">💖</span>
-              <span *ngSwitchCase="'projects'" class="acc-symbol">⭐</span>
-              <span *ngSwitchCase="'fleet'" class="acc-symbol">🛵</span>
-              <span *ngSwitchCase="'rentals'" class="acc-symbol">🗝️</span>
-              <span *ngSwitchCase="'audit'" class="acc-symbol">🛡️</span>
-              <span *ngSwitchCase="'dashboard'" class="acc-symbol">🦆</span>
-              <span *ngSwitchDefault class="acc-symbol">✨</span>
+            <div class="accessory-hand">
+              @switch (type) {
+                @case ('inventory') { <span class="acc-symbol">🍄</span> }
+                @case ('budget') { <span class="acc-symbol">🪙</span> }
+                @case ('clients') { <span class="acc-symbol">💖</span> }
+                @case ('projects') { <span class="acc-symbol">⭐</span> }
+                @case ('fleet') { <span class="acc-symbol">🛵</span> }
+                @case ('rentals') { <span class="acc-symbol">🗝️</span> }
+                @case ('audit') { <span class="acc-symbol">🛡️</span> }
+                @case ('dashboard') { <span class="acc-symbol">🦆</span> }
+                @default { <span class="acc-symbol">✨</span> }
+              }
             </div>
           </div>
         </div>
@@ -851,8 +864,8 @@ export type MascotPersonality =
 })
 export class UIMascotComponent {
   @Input() type: MascotType = 'universal';
-  @Input() color: string = '#10b981';
-  @Input() secondaryColor: string = '#065f46';
+  @Input() color = '#10b981';
+  @Input() secondaryColor = '#065f46';
   @Input() personality: MascotPersonality = 'happy';
   @Input() bodyShape:
     | 'round'
@@ -870,7 +883,7 @@ export class UIMascotComponent {
   @Input() mouthType: 'smile' | 'line' | 'o' | 'mean' = 'line';
 
   // Toxic / Rage configuration
-  @Input() rageMode: boolean = false;
+  @Input() rageMode = false;
   @Input() rageStyle: 'terror' | 'angry' | 'dark' = 'angry';
 
   get effectiveColor(): string {
