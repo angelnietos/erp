@@ -10,26 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import {
-  LucideAngularModule,
-  Calendar,
-  Plus,
-  Search,
-  Filter,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Users,
-  MapPin,
-  Eye,
-  History,
-  TrendingUp,
-  Activity,
-  Clock,
-  Layout,
-  Zap,
-  CirclePlus
-} from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 import { take } from 'rxjs/operators';
 import {
   ThemeService,
@@ -50,29 +31,9 @@ import {
   UiFeatureFilterBarComponent,
   UiSelectComponent,
   UiFeatureAccessDeniedComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  location: string;
-  status: 'active' | 'completed' | 'cancelled' | 'draft';
-  attendees: number;
-  capacity: number;
-  type:
-    | 'conference'
-    | 'workshop'
-    | 'meeting'
-    | 'social'
-    | 'presentation'
-    | 'other';
-  organizer: string;
-  cost: number;
-  createdAt: string;
-}
+import { EventItem, EventsStateService } from '../services/events-state.service';
 
 interface EventFilter {
   search: string;
@@ -100,6 +61,7 @@ interface EventFilter {
     UiSelectComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiLoaderComponent,
   ],
   template: `
     <div class="events-container">
@@ -109,156 +71,205 @@ interface EventFilter {
           permissionHint="events.view"
         />
       } @else {
-      <ui-feature-header
-        title="Eventos"
-        subtitle="Planificación y gestión de eventos corporativos"
-        icon="calendar"
-        actionLabel="NUEVO EVENTO"
-        routerLink="/events/new"
-      ></ui-feature-header>
+        <ui-feature-header
+          title="Eventos"
+          subtitle="Planificación y gestión de eventos corporativos"
+          icon="calendar"
+          actionLabel="NUEVO EVENTO"
+          routerLink="/events/new"
+        ></ui-feature-header>
 
-      <ui-feature-stats>
-        <ui-stat-card 
-          label="Total Eventos" 
-          [value]="events().length.toString()" 
-          icon="layout" 
-          [accent]="true">
-        </ui-stat-card>
-        <ui-stat-card 
-          label="Activos" 
-          [value]="activeEventsCount().toString()" 
-          icon="zap" 
-          [trend]="15">
-        </ui-stat-card>
-        <ui-stat-card 
-          label="Próximo" 
-          [value]="nextEventDays().toString() + ' días'" 
-          icon="clock">
-        </ui-stat-card>
-        <ui-stat-card
-          label="Asistentes"
-          [value]="totalAttendees().toString()"
-          icon="users"
-          [trend]="8"
-        ></ui-stat-card>
-      </ui-feature-stats>
-
-      <ui-feature-filter-bar
-        [appearance]="'feature'"
-        [searchVariant]="'glass'"
-        placeholder="Buscar eventos…"
-        (searchChange)="onSearchChange($event)"
-      >
-        <div uiFeatureFilterStates class="events-filter-states">
-          <ui-select
-            label="ESTADO"
-            [(ngModel)]="filters.status"
-            name="status"
-            [options]="statusOptions"
-          />
-          <ui-select
-            label="TIPO"
-            [(ngModel)]="filters.type"
-            name="type"
-            [options]="typeOptions"
-          />
-        </div>
-        <ui-button
-          variant="ghost"
-          size="sm"
-          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-          (clicked)="toggleSort()"
-        >
-          Ordenar:
-          {{
-            sortField() === 'date'
-              ? 'fecha'
-              : sortField() === 'title'
-                ? 'título'
-                : 'estado'
-          }}
-        </ui-button>
-      </ui-feature-filter-bar>
-
-      <ui-feature-grid>
-        @for (event of filteredEvents(); track event.id) {
-          <ui-feature-card
-            [name]="event.title"
-            [subtitle]="event.location || 'Sin ubicación'"
-            [avatarInitials]="getInitials(event.title)"
-            [avatarBackground]="getEventGradient(event.type)"
-            [status]="event.status === 'active' ? 'active' : 'offline'"
-            [badgeLabel]="getStatusText(event.status) | uppercase"
-            [badgeVariant]="getStatusVariant(event.status)"
-            [showEdit]="true"
-            [showDuplicate]="true"
-            [showDelete]="true"
-            (cardClicked)="onRowClick(event)"
-            (editClicked)="onEdit(event)"
-            (duplicateClicked)="onDuplicate(event)"
-            (deleteClicked)="onDelete(event)"
-            [footerItems]="[
-              { icon: 'calendar', label: formatDate(event.date) },
-              { icon: 'users', label: event.attendees + '/' + event.capacity }
-            ]"
+        <ui-feature-stats>
+          <ui-stat-card
+            label="Total Eventos"
+            [value]="eventsState.events().length.toString()"
+            icon="layout"
+            [accent]="true"
           >
-             <div footer-extra class="event-actions">
-                <ui-button variant="ghost" size="sm" icon="eye" [routerLink]="['/events', event.id]" title="Ver detalles"></ui-button>
-             </div>
-          </ui-feature-card>
-        } @empty {
-          <div class="empty-state">
+          </ui-stat-card>
+          <ui-stat-card
+            label="Activos"
+            [value]="activeEventsCount().toString()"
+            icon="zap"
+            [trend]="15"
+          >
+          </ui-stat-card>
+          <ui-stat-card
+            label="Próximo"
+            [value]="nextEventDays().toString() + ' días'"
+            icon="clock"
+          >
+          </ui-stat-card>
+          <ui-stat-card
+            label="Asistentes"
+            [value]="totalAttendees().toString()"
+            icon="users"
+            [trend]="8"
+          ></ui-stat-card>
+        </ui-feature-stats>
+
+        <ui-feature-filter-bar
+          [appearance]="'feature'"
+          [searchVariant]="'glass'"
+          placeholder="Buscar eventos…"
+          (searchChange)="onSearchChange($event)"
+        >
+          <div uiFeatureFilterStates class="events-filter-states">
+            <ui-select
+              label="ESTADO"
+              [(ngModel)]="filters.status"
+              name="status"
+              [options]="statusOptions"
+              (ngModelChange)="applyFilters()"
+            />
+            <ui-select
+              label="TIPO"
+              [(ngModel)]="filters.type"
+              name="type"
+              [options]="typeOptions"
+              (ngModelChange)="applyFilters()"
+            />
+          </div>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+          >
+            Ordenar:
+            {{
+              sortField() === 'date'
+                ? 'fecha'
+                : sortField() === 'title'
+                  ? 'título'
+                  : 'estado'
+            }}
+          </ui-button>
+        </ui-feature-filter-bar>
+
+        @if (isLoading()) {
+          <div class="loader-container">
+            <ui-loader message="Cargando eventos…"></ui-loader>
+          </div>
+        } @else if (!hasAnyEvents()) {
+          <div class="empty-state empty-state--wide">
             <lucide-icon name="calendar" size="64" class="empty-icon"></lucide-icon>
-            <h3>No hay eventos</h3>
-            <p>Parece que no hay nada programado para los filtros seleccionados.</p>
+            <h3>Sin eventos</h3>
+            <p>Aún no hay eventos. Crea el primero para empezar a planificar.</p>
             <ui-button variant="solid" routerLink="/events/new" icon="CirclePlus">Crear evento</ui-button>
           </div>
+        } @else if (filterProducesNoResults()) {
+          <div class="empty-state empty-state--wide">
+            <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
+            <h3>Sin resultados</h3>
+            <p>Ningún evento coincide con la búsqueda o los filtros actuales.</p>
+            <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
+              Limpiar búsqueda y filtros
+            </ui-button>
+          </div>
+        } @else {
+          <ui-feature-grid>
+            @for (event of filteredEvents(); track event.id) {
+              <ui-feature-card
+                [name]="event.title"
+                [subtitle]="event.location || 'Sin ubicación'"
+                [avatarInitials]="getInitials(event.title)"
+                [avatarBackground]="getEventGradient(event.type)"
+                [status]="event.status === 'active' ? 'active' : 'offline'"
+                [badgeLabel]="getStatusText(event.status) | uppercase"
+                [badgeVariant]="getStatusVariant(event.status)"
+                [showEdit]="true"
+                [showDuplicate]="true"
+                [showDelete]="true"
+                (cardClicked)="onRowClick(event)"
+                (editClicked)="onEdit(event)"
+                (duplicateClicked)="onDuplicate(event)"
+                (deleteClicked)="onDelete(event)"
+                [footerItems]="[
+                  { icon: 'calendar', label: formatDate(event.date) },
+                  { icon: 'users', label: event.attendees + '/' + event.capacity },
+                ]"
+              >
+                <div footer-extra class="event-actions">
+                  <ui-button
+                    variant="ghost"
+                    size="sm"
+                    icon="eye"
+                    [routerLink]="['/events', event.id]"
+                    title="Ver detalles"
+                  ></ui-button>
+                </div>
+              </ui-feature-card>
+            }
+          </ui-feature-grid>
         }
-      </ui-feature-grid>
       }
     </div>
   `,
-  styles: [`
-    .events-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+  styles: [
+    `
+      .events-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-    .event-actions { display: flex; gap: 0.25rem; }
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        padding: 5rem;
+      }
 
-    .events-filter-states {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem 1.25rem;
-      align-items: flex-end;
-    }
+      .event-actions {
+        display: flex;
+        gap: 0.25rem;
+      }
 
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
+      .events-filter-states {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem 1.25rem;
+        align-items: flex-end;
+      }
 
-    @media (max-width: 900px) {
-       .quick-filters { width: 100%; flex-direction: column; }
-    }
-  `],
+      .empty-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 5rem;
+        text-align: center;
+        background: var(--surface);
+        border-radius: 20px;
+        border: 2px dashed var(--border-soft);
+      }
+      .empty-state--wide {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+      .empty-icon {
+        color: var(--text-muted);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+      }
+
+      @media (max-width: 900px) {
+        .quick-filters {
+          width: 100%;
+          flex-direction: column;
+        }
+      }
+    `,
+  ],
 })
-export class EventsListComponent implements OnInit, OnDestroy, FilterableService<Event> {
+export class EventsListComponent implements OnInit, OnDestroy, FilterableService<EventItem> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly authStore = inject(GlobalAuthStore);
+  readonly eventsState = inject(EventsStateService);
   readonly canAccess = rbacAllows(this.authStore, 'events.view', 'events.manage');
 
   currentTheme = this.themeService.currentThemeData;
@@ -266,6 +277,7 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
   expandedEvent = signal<string | null>(null);
   currentPage = signal(1);
   pageSize = 10;
+  isLoading = signal(true);
 
   filters: EventFilter = {
     search: '',
@@ -296,26 +308,36 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
   sortField = signal<'date' | 'title' | 'status'>('date');
   sortDirection = signal<1 | -1>(-1);
 
-  events = signal<Event[]>([]);
-  filteredEvents = signal<Event[]>([]);
+  filteredEvents = signal<EventItem[]>([]);
+
+  readonly hasAnyEvents = computed(() => this.eventsState.events().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyEvents() && this.filteredEvents().length === 0,
+  );
 
   activeEventsCount = computed(
-    () => this.events().filter((e: Event) => e.status === 'active').length,
+    () => this.eventsState.events().filter((e: EventItem) => e.status === 'active').length,
   );
 
   totalAttendees = computed(() =>
-    this.events().reduce((sum: number, e: Event) => sum + e.attendees, 0),
+    this.eventsState.events().reduce((sum: number, e: EventItem) => sum + e.attendees, 0),
   );
 
   nextEventDays = computed(() => {
     const now = new Date();
-    const futureEvents = this.events()
+    const futureEvents = this.eventsState
+      .events()
       .filter(
-        (event: Event) => new Date(event.date) >= now && event.status === 'active',
+        (event: EventItem) => new Date(event.date) >= now && event.status === 'active',
       )
-      .sort((a: Event, b: Event) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort(
+        (a: EventItem, b: EventItem) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime(),
+      );
 
-    if (futureEvents.length === 0) return 0;
+    if (futureEvents.length === 0) {
+      return 0;
+    }
 
     const nextEvent = futureEvents[0];
     const diffTime = new Date(nextEvent.date).getTime() - now.getTime();
@@ -323,133 +345,7 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
     return Math.max(0, diffDays);
   });
 
-  initialEvents: Event[] = [
-    {
-      id: 'ev-concierto-2026',
-      title: 'Concierto Verano 2026',
-      description: 'Montaje audio, iluminación y streaming para gira de verano',
-      date: '2026-07-18',
-      time: '21:00',
-      location: 'Auditorio Municipal',
-      status: 'active',
-      attendees: 0,
-      capacity: 5000,
-      type: 'other',
-      organizer: 'Producción Josanz',
-      cost: 0,
-      createdAt: '2026-03-01T09:00:00Z',
-    },
-    {
-      id: '1',
-      title: 'Evento Corporativo ABC',
-      description: 'Evento anual de networking y presentación de productos',
-      date: '2024-04-15',
-      time: '10:00',
-      location: 'Sala de Conferencias Principal',
-      status: 'active',
-      attendees: 150,
-      capacity: 200,
-      type: 'conference',
-      organizer: 'María González',
-      cost: 0,
-      createdAt: '2024-03-01T09:00:00Z',
-    },
-    {
-      id: '2',
-      title: 'Taller de Desarrollo Profesional',
-      description:
-        'Sesión de formación para empleados sobre nuevas tecnologías',
-      date: '2024-04-20',
-      time: '14:30',
-      location: 'Sala de Formación',
-      status: 'active',
-      attendees: 25,
-      capacity: 30,
-      type: 'workshop',
-      organizer: 'Carlos Rodríguez',
-      cost: 50,
-      createdAt: '2024-03-05T14:20:00Z',
-    },
-    {
-      id: '3',
-      title: 'Presentación de Producto XYZ',
-      description: 'Lanzamiento del nuevo producto de la compañía',
-      date: '2024-03-28',
-      time: '16:00',
-      location: 'Auditorio Principal',
-      status: 'completed',
-      attendees: 200,
-      capacity: 250,
-      type: 'presentation',
-      organizer: 'Ana López',
-      cost: 0,
-      createdAt: '2024-02-15T11:30:00Z',
-    },
-    {
-      id: '4',
-      title: 'Reunión Trimestral de Equipo',
-      description:
-        'Revisión de objetivos y planificación del próximo trimestre',
-      date: '2024-04-10',
-      time: '09:00',
-      location: 'Sala de Juntas Ejecutiva',
-      status: 'active',
-      attendees: 12,
-      capacity: 15,
-      type: 'meeting',
-      organizer: 'Director General',
-      cost: 0,
-      createdAt: '2024-03-20T16:45:00Z',
-    },
-    {
-      id: '5',
-      title: 'Cena de Navidad Corporativa',
-      description: 'Evento social de fin de año para empleados y familias',
-      date: '2024-12-20',
-      time: '20:00',
-      location: 'Hotel Gran Palacio',
-      status: 'draft',
-      attendees: 0,
-      capacity: 150,
-      type: 'social',
-      organizer: 'RRHH',
-      cost: 75,
-      createdAt: '2024-03-10T10:15:00Z',
-    },
-  ];
-
-  onRowClick(event: Event) {
-    this.router.navigate(['/events', event.id]);
-  }
-
-  onEdit(event: Event) {
-    this.router.navigate(['/events', event.id, 'edit']);
-  }
-
-  onDuplicate(event: Event) {
-    const newEvent: Event = {
-      ...event,
-      id: Math.random().toString(36).substring(7),
-      title: `${event.title} (COPIA)`,
-      createdAt: new Date().toISOString()
-    };
-    this.events.update(list => [newEvent, ...list]);
-    this.applyFilters();
-  }
-
-  onDelete(event: Event) {
-    if (confirm(`¿Estás seguro de que deseas eliminar el evento ${event.title}?`)) {
-      this.events.update(list => list.filter(e => e.id !== event.id));
-      this.applyFilters();
-    }
-  }
-
-  getInitials(title: string): string {
-    return title.slice(0, 2).toUpperCase();
-  }
-
   constructor() {
-    // Sincronizar búsqueda local con MasterFilter (workflows: navigateAndFilter → search)
     effect(() => {
       const q = this.masterFilter.query();
       if (this.filters.search === q) {
@@ -458,30 +354,68 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
       this.filters = { ...this.filters, search: q };
       this.applyFilters();
     });
+
+    effect(() => {
+      this.eventsState.events();
+      this.applyFilters();
+    });
+  }
+
+  onRowClick(event: EventItem) {
+    void this.router.navigate(['/events', event.id]);
+  }
+
+  onEdit(event: EventItem) {
+    void this.router.navigate(['/events', event.id, 'edit']);
+  }
+
+  onDuplicate(event: EventItem) {
+    this.eventsState.duplicate(event);
+    this.applyFilters();
+  }
+
+  onDelete(event: EventItem) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el evento ${event.title}?`)) {
+      this.eventsState.delete(event.id);
+      this.applyFilters();
+    }
+  }
+
+  getInitials(title: string): string {
+    return title.slice(0, 2).toUpperCase();
   }
 
   getEventGradient(type: string): string {
     switch (type) {
-      case 'conference': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
-      case 'workshop': return 'linear-gradient(135deg, #10b981, #059669)';
-      case 'meeting': return 'linear-gradient(135deg, #f59e0b, #d97706)';
-      case 'social': return 'linear-gradient(135deg, #ec4899, #be185d)';
-      case 'presentation': return 'linear-gradient(135deg, #6366f1, #4338ca)';
-      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+      case 'conference':
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'workshop':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'meeting':
+        return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      case 'social':
+        return 'linear-gradient(135deg, #ec4899, #be185d)';
+      case 'presentation':
+        return 'linear-gradient(135deg, #6366f1, #4338ca)';
+      default:
+        return 'linear-gradient(135deg, #6b7280, #374151)';
     }
   }
 
   ngOnInit() {
-    this.events.set(this.initialEvents);
     this.masterFilter.registerProvider(this);
-    this.route.queryParamMap.pipe(take(1)).subscribe((q: any) => {
+    this.route.queryParamMap.pipe(take(1)).subscribe((q) => {
       const text = q.get('search')?.trim();
       if (text) {
         this.filters.search = text;
+        this.masterFilter.search(text);
         this.applyFilters();
       } else {
-        this.filteredEvents.set(this.events());
+        this.applyFilters();
       }
+    });
+    queueMicrotask(() => {
+      window.setTimeout(() => this.isLoading.set(false), 120);
     });
   }
 
@@ -495,23 +429,38 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
     this.applyFilters();
   }
 
-  filter(query: string): Observable<Event[]> {
+  clearFiltersAndSearch() {
+    this.filters = {
+      search: '',
+      status: '',
+      type: '',
+      dateFrom: '',
+      dateTo: '',
+    };
+    this.masterFilter.search('');
+    this.applyFilters();
+  }
+
+  filter(query: string): Observable<EventItem[]> {
     const term = query.toLowerCase();
-    const matches = this.events().filter((e: Event) => 
-      e.title.toLowerCase().includes(term) || 
-      (e.description ?? '').toLowerCase().includes(term) || 
-      (e.organizer ?? '').toLowerCase().includes(term)
-    );
+    const matches = this.eventsState
+      .events()
+      .filter(
+        (e: EventItem) =>
+          e.title.toLowerCase().includes(term) ||
+          (e.description ?? '').toLowerCase().includes(term) ||
+          (e.organizer ?? '').toLowerCase().includes(term),
+      );
     return of(matches);
   }
 
   applyFilters() {
-    let filtered = [...this.events()];
+    let filtered = [...this.eventsState.events()];
 
     if (this.filters.search) {
       const searchTerm = this.filters.search.toLowerCase();
       filtered = filtered.filter(
-        (event: Event) =>
+        (event: EventItem) =>
           event.title.toLowerCase().includes(searchTerm) ||
           event.description.toLowerCase().includes(searchTerm) ||
           event.organizer?.toLowerCase().includes(searchTerm) ||
@@ -520,33 +469,30 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
     }
 
     if (this.filters.status) {
-      filtered = filtered.filter(
-        (event: Event) => event.status === this.filters.status,
-      );
+      filtered = filtered.filter((event: EventItem) => event.status === this.filters.status);
     }
 
     if (this.filters.type) {
-      filtered = filtered.filter((event: Event) => event.type === this.filters.type);
+      filtered = filtered.filter((event: EventItem) => event.type === this.filters.type);
     }
 
     if (this.filters.dateFrom) {
       const fromDate = new Date(this.filters.dateFrom);
-      filtered = filtered.filter((event: Event) => new Date(event.date) >= fromDate);
+      filtered = filtered.filter((event: EventItem) => new Date(event.date) >= fromDate);
     }
 
     if (this.filters.dateTo) {
       const toDate = new Date(this.filters.dateTo);
       toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter((event: Event) => new Date(event.date) <= toDate);
+      filtered = filtered.filter((event: EventItem) => new Date(event.date) <= toDate);
     }
 
     const field = this.sortField();
     const dir = this.sortDirection();
-    filtered.sort((a: Event, b: Event) => {
+    filtered.sort((a: EventItem, b: EventItem) => {
       let cmp = 0;
       if (field === 'date') {
-        cmp =
-          new Date(a.date).getTime() - new Date(b.date).getTime();
+        cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
       } else if (field === 'title') {
         cmp = a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
       } else {
@@ -557,17 +503,6 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
 
     this.filteredEvents.set(filtered);
     this.currentPage.set(1);
-  }
-
-  clearFilters() {
-    this.filters = {
-      search: '',
-      status: '',
-      type: '',
-      dateFrom: '',
-      dateTo: '',
-    };
-    this.applyFilters();
   }
 
   toggleSort() {
@@ -607,7 +542,9 @@ export class EventsListComponent implements OnInit, OnDestroy, FilterableService
     }
   }
 
-  getStatusVariant(status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | 'secondary' {
+  getStatusVariant(
+    status: string,
+  ): 'primary' | 'success' | 'warning' | 'info' | 'danger' | 'secondary' {
     switch (status) {
       case 'active':
         return 'primary';
