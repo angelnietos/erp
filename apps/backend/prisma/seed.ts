@@ -202,7 +202,14 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.idempotencyKey.deleteMany({});
   await prisma.auditLog.deleteMany({});
   /** Cuentas semilla que no deben borrarse al repetir `db seed`. */
-  const SEED_PROTECTED_USER_EMAILS = ['admin@josanz.com', 'root@babooni.com'] as const;
+  const SEED_PROTECTED_USER_EMAILS = [
+    'admin@josanz.com',
+    'root@babooni.com',
+    'florina.mahalean@babooni.com',
+    'alvaro.ballesteros@babooni.com',
+    'alejandro.ballesteros@babooni.com',
+    'angel.nieto@babooni.com',
+  ] as const;
   await prisma.user.deleteMany({
     where: { tenantId, email: { notIn: [...SEED_PROTECTED_USER_EMAILS] } },
   });
@@ -379,6 +386,59 @@ async function main() {
     update: {},
     create: { userId: babooniAdmin.id, roleId: babooniAdminRole.id },
   });
+
+  const babooniResponsibleRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: babooniTenant.id, name: 'Responsable' },
+  });
+  /** Equipo Babooni (roles ERP: PM/CEO/CTO → Administrador o Responsable). */
+  const babooniTeamSeed = [
+    {
+      email: 'florina.mahalean@babooni.com',
+      firstName: 'Florina',
+      lastName: 'Mahalean',
+      roleId: babooniResponsibleRole.id,
+    },
+    {
+      email: 'alvaro.ballesteros@babooni.com',
+      firstName: 'Alvaro',
+      lastName: 'Ballesteros',
+      roleId: babooniAdminRole.id,
+    },
+    {
+      email: 'alejandro.ballesteros@babooni.com',
+      firstName: 'Alejandro',
+      lastName: 'Ballesteros',
+      roleId: babooniAdminRole.id,
+    },
+    {
+      email: 'angel.nieto@babooni.com',
+      firstName: 'Angel',
+      lastName: 'Nieto',
+      roleId: babooniResponsibleRole.id,
+    },
+  ] as const;
+  for (const u of babooniTeamSeed) {
+    const row = await prisma.user.upsert({
+      where: { tenantId_email: { tenantId: babooniTenant.id, email: u.email } },
+      update: {
+        password: hashedPassword,
+        firstName: u.firstName,
+        lastName: u.lastName,
+      },
+      create: {
+        tenantId: babooniTenant.id,
+        email: u.email,
+        password: hashedPassword,
+        firstName: u.firstName,
+        lastName: u.lastName,
+      },
+    });
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: row.id, roleId: u.roleId } },
+      update: {},
+      create: { userId: row.id, roleId: u.roleId },
+    });
+  }
 
   const admin = await prisma.user.upsert({
     where: {
@@ -1445,6 +1505,31 @@ async function seedBabooniTenantDemo(tenantId: string) {
     }),
   ]);
 
+  await prisma.$transaction([
+    prisma.project.create({
+      data: {
+        tenantId,
+        name: 'Proyecto corporativo Biosstel',
+        description: 'Montaje audiovisual demo Babooni (seed)',
+        status: 'ACTIVE',
+        startDate: new Date('2026-05-01'),
+        endDate: new Date('2026-09-30'),
+        clientId: clientA.id,
+      },
+    }),
+    prisma.project.create({
+      data: {
+        tenantId,
+        name: 'Tour Producciones Norte',
+        description: 'Segundo proyecto demo — referencia en listado',
+        status: 'ACTIVE',
+        startDate: new Date('2026-06-15'),
+        endDate: new Date('2026-12-20'),
+        clientId: clientB.id,
+      },
+    }),
+  ]);
+
   const productDefs: {
     name: string;
     sku: string;
@@ -1633,7 +1718,7 @@ async function seedBabooniTenantDemo(tenantId: string) {
   });
 
   console.log(
-    '- Babooni: clientes, productos, presupuestos, albaranes, flota y alquileres demo',
+    '- Babooni: clientes, proyectos, productos, presupuestos, albaranes, flota y alquileres demo',
   );
 }
 

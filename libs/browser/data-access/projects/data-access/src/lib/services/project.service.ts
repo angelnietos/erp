@@ -85,6 +85,9 @@ export class ProjectService {
   }
 
   private mapDetailRow(p: ProjectDetailRow): Project {
+    const rawCreated = p.createdAt ?? '';
+    const createdAt =
+      rawCreated.includes('T') ? rawCreated.split('T')[0] : rawCreated;
     return {
       id: p.id,
       tenantId: p.tenantId,
@@ -94,7 +97,7 @@ export class ProjectService {
       startDate: p.startDate ?? undefined,
       endDate: p.endDate ?? undefined,
       clientId: p.clientId ?? undefined,
-      createdAt: p.createdAt.includes('T') ? p.createdAt.split('T')[0] : p.createdAt,
+      createdAt,
     };
   }
 
@@ -111,7 +114,7 @@ export class ProjectService {
     return this.http.get<ProjectDetailRow | null>(`${this.baseUrl}/${id}`).pipe(
       map((p) => (p ? this.mapDetailRow(p) : undefined)),
       catchError((err: HttpErrorResponse) => {
-        if (err.status === 404) {
+        if (err.status === 404 || err.status === 400) {
           return of(undefined);
         }
         return throwError(() => new Error(httpErrorMessage(err)));

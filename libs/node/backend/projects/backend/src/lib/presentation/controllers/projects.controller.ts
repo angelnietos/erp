@@ -9,6 +9,8 @@ import {
   UseGuards,
   Query,
   Req,
+  ParseUUIDPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProjectsService } from '../../application/services/projects.service';
@@ -40,25 +42,26 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     const project = await this.projectsService.findById(id);
-    return project
-      ? {
-          id: project.id.value,
-          tenantId: project.tenantId.value,
-          name: project.name,
-          description: project.description,
-          status: project.status,
-          startDate: project.startDate?.toISOString().split('T')[0],
-          endDate: project.endDate?.toISOString().split('T')[0],
-          clientId: project.clientId?.value,
-          createdAt: project.createdAt.toISOString().split('T')[0],
-        }
-      : null;
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+    return {
+      id: project.id.value,
+      tenantId: project.tenantId.value,
+      name: project.name,
+      description: project.description,
+      status: project.status,
+      startDate: project.startDate?.toISOString().split('T')[0],
+      endDate: project.endDate?.toISOString().split('T')[0],
+      clientId: project.clientId?.value,
+      createdAt: project.createdAt.toISOString().split('T')[0],
+    };
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateProjectDto) {
     const project = await this.projectsService.update(id, dto);
     return {
       id: project.id.value,
@@ -72,7 +75,7 @@ export class ProjectsController {
   }
 
   @Patch(':id/complete')
-  async complete(@Param('id') id: string) {
+  async complete(@Param('id', ParseUUIDPipe) id: string) {
     const project = await this.projectsService.complete(id);
     return {
       id: project.id.value,
@@ -82,7 +85,7 @@ export class ProjectsController {
   }
 
   @Patch(':id/cancel')
-  async cancel(@Param('id') id: string) {
+  async cancel(@Param('id', ParseUUIDPipe) id: string) {
     const project = await this.projectsService.cancel(id);
     return {
       id: project.id.value,
@@ -103,7 +106,7 @@ export class ProjectsController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     await this.projectsService.delete(id);
     return { success: true };
   }
