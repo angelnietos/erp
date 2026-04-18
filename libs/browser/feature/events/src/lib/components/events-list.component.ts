@@ -148,19 +148,19 @@ interface EventFilter {
         </ui-feature-filter-bar>
 
         @if (isLoading()) {
-          <div class="loader-container">
+          <div class="feature-loader-wrap">
             <ui-loader message="Cargando eventos…"></ui-loader>
           </div>
         } @else if (!hasAnyEvents()) {
-          <div class="empty-state empty-state--wide">
-            <lucide-icon name="calendar" size="64" class="empty-icon"></lucide-icon>
+          <div class="feature-empty feature-empty--wide">
+            <lucide-icon name="calendar" size="64" class="feature-empty__icon"></lucide-icon>
             <h3>Sin eventos</h3>
             <p>Aún no hay eventos. Crea el primero para empezar a planificar.</p>
             <ui-button variant="solid" routerLink="/events/new" icon="CirclePlus">Crear evento</ui-button>
           </div>
         } @else if (filterProducesNoResults()) {
-          <div class="empty-state empty-state--wide">
-            <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
+          <div class="feature-empty feature-empty--wide">
+            <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
             <h3>Sin resultados</h3>
             <p>Ningún evento coincide con la búsqueda o los filtros actuales.</p>
             <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
@@ -214,12 +214,6 @@ interface EventFilter {
         padding: 2rem;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 5rem;
-      }
-
       .event-actions {
         display: flex;
         gap: 0.25rem;
@@ -230,27 +224,6 @@ interface EventFilter {
         flex-wrap: wrap;
         gap: 1rem 1.25rem;
         align-items: flex-end;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 2px dashed var(--border-soft);
-      }
-      .empty-state--wide {
-        max-width: 520px;
-        margin: 0 auto;
-      }
-      .empty-icon {
-        color: var(--text-muted);
-        opacity: 0.3;
-        margin-bottom: 1.5rem;
       }
 
       @media (max-width: 900px) {

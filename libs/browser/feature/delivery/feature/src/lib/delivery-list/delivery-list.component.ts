@@ -114,6 +114,15 @@ import { Observable, of } from 'rxjs';
         <ui-button
           variant="ghost"
           size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshDeliveryNotes()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
           [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
           (clicked)="toggleSort()"
         >
@@ -128,9 +137,49 @@ import { Observable, of } from 'rxjs';
         </ui-button>
       </ui-feature-filter-bar>
 
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-loader message="SINCRONIZANDO MANIFIESTOS..."></ui-loader>
+      @if (error() && deliveryNotes().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshDeliveryNotes()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
+      @if (isLoading() && deliveryNotes().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando albaranes…"></ui-loader>
+        </div>
+      } @else if (error() && deliveryNotes().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar el listado</h3>
+          <p>{{ error() }}</p>
+          <ui-button
+            variant="solid"
+            icon="rotate-cw"
+            (clicked)="refreshDeliveryNotes()"
+          >
+            Reintentar
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -180,21 +229,45 @@ import { Observable, of } from 'rxjs';
               </div>
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="truck"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>Sin albaranes</h3>
-              <p>No hay registros logísticos que coincidan con la búsqueda.</p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-                >Crear albarán</ui-button
-              >
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún albarán coincide con la búsqueda actual. Prueba con
+                  otros términos.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="x-circle"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="truck"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin albaranes</h3>
+                <p>
+                  Aún no hay manifiestos. Crea el primero para seguir la entrega.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                  >Crear albarán</ui-button
+                >
+              </div>
+            }
           }
         </ui-feature-grid>
       }
@@ -307,12 +380,6 @@ import { Observable, of } from 'rxjs';
         color: var(--success) !important;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 5rem;
-      }
-
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -327,23 +394,6 @@ import { Observable, of } from 'rxjs';
         gap: 1rem;
         justify-content: flex-end;
         padding-top: 1rem;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 2px dashed var(--border-soft);
-      }
-      .empty-icon {
-        color: var(--text-muted);
-        opacity: 0.3;
-        margin-bottom: 1.5rem;
       }
 
       @media (max-width: 900px) {
@@ -438,6 +488,16 @@ export class DeliveryListComponent
 
   deliveryNotes = this.facade.deliveryNotes;
   isLoading = this.facade.isLoading;
+  error = this.facade.error;
+
+  readonly hasAnyDeliveryNotes = computed(
+    () => this.deliveryNotes().length > 0,
+  );
+  readonly filterProducesNoResults = computed(
+    () =>
+      this.hasAnyDeliveryNotes() && this.filteredDeliveryNotes().length === 0,
+  );
+
   currentPage = signal(1);
   totalPages = signal(1);
 
@@ -506,6 +566,14 @@ export class DeliveryListComponent
 
   loadDeliveryNotes() {
     this.facade.loadDeliveryNotes();
+  }
+
+  refreshDeliveryNotes() {
+    this.facade.loadDeliveryNotes(true);
+  }
+
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
   }
 
   onSearch(term: string) {
@@ -577,7 +645,6 @@ export class DeliveryListComponent
 
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadDeliveryNotes();
   }
 
   openCreateModal() {

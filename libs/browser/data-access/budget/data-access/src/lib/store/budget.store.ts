@@ -27,16 +27,27 @@ export const BudgetStore = signalStore(
   withMethods((store, budgetService = inject(BudgetService), router = inject(Router)) => ({
     loadBudgets: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { loading: true })),
+        tap(() =>
+          patchState(store, {
+            loading: true,
+            error: null,
+          }),
+        ),
         switchMap(() =>
           budgetService.getBudgets().pipe(
             tapResponse({
-              next: (budgets: Budget[]) => patchState(store, { budgets, loading: false }),
-              error: (error: Error) => patchState(store, { error: error.message, loading: false }),
-            })
-          )
-        )
-      )
+              next: (budgets: Budget[]) =>
+                patchState(store, { budgets, loading: false, error: null }),
+              error: () =>
+                patchState(store, {
+                  loading: false,
+                  error:
+                    'No se pudieron cargar los presupuestos. Comprueba la conexión e inténtalo de nuevo.',
+                }),
+            }),
+          ),
+        ),
+      ),
     ),
     createBudget: rxMethod<CreateBudgetDTO>(
       pipe(

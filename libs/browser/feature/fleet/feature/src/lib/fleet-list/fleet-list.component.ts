@@ -254,9 +254,45 @@ interface VehicleFormData extends Partial<Vehicle> {
         </div>
       }
 
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-loader>
+      @if (loadError() && vehicles().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ loadError() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshVehicles()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
+      @if (isLoading() && vehicles().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando flota…"></ui-loader>
+        </div>
+      } @else if (loadError() && vehicles().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar la flota</h3>
+          <p>{{ loadError() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshVehicles()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -333,21 +369,43 @@ interface VehicleFormData extends Partial<Vehicle> {
               </div>
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="truck"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay unidades</h3>
-              <p>Comienza registrando tu primer vehículo en la flota.</p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-                >Registrar unidad</ui-button
-              >
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún vehículo coincide con la búsqueda, la pestaña o los
+                  filtros actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="x-circle"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="truck"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>No hay unidades</h3>
+                <p>Comienza registrando tu primer vehículo en la flota.</p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                  >Registrar unidad</ui-button
+                >
+              </div>
+            }
           }
         </ui-feature-grid>
       }
@@ -456,12 +514,6 @@ interface VehicleFormData extends Partial<Vehicle> {
         flex: 1;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 5rem;
-      }
-
       .vehicle-alerts {
         margin-top: 1rem;
       }
@@ -478,23 +530,6 @@ interface VehicleFormData extends Partial<Vehicle> {
       .alert-badge.overdue {
         background: rgba(239, 68, 68, 0.1);
         color: #ef4444;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 2px dashed var(--border-soft);
-      }
-      .empty-icon {
-        color: var(--text-muted);
-        opacity: 0.3;
-        margin-bottom: 1.5rem;
       }
 
       .pagination-footer {
@@ -709,6 +744,7 @@ export class FleetListComponent
 
   vehicles = signal<Vehicle[]>([]);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
   currentPage = signal(1);
   activeTab = signal('all');
   searchFilter = signal('');
@@ -800,15 +836,33 @@ export class FleetListComponent
     );
   }
 
-  loadVehicles() {
+  loadVehicles(_force = false) {
+    this.loadError.set(null);
     this.isLoading.set(true);
     this.vehicleService.getVehicles().subscribe({
       next: (vehicles: Vehicle[]) => {
         this.vehicles.set(vehicles);
         this.isLoading.set(false);
+        this.loadError.set(null);
       },
-      error: () => this.isLoading.set(false),
+      error: () => {
+        this.isLoading.set(false);
+        this.loadError.set(
+          'No se pudieron cargar los vehículos. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
     });
+  }
+
+  clearFiltersAndSearch(): void {
+    this.searchFilter.set('');
+    this.masterFilter.search('');
+    this.activeTab.set('all');
+    this.statusFilter.set('all');
+    this.typeFilter.set('all');
+    this.yearMinFilter.set(null);
+    this.yearMaxFilter.set(null);
+    this.currentPage.set(1);
   }
 
   onTabChange(tabId: string) {
@@ -821,7 +875,7 @@ export class FleetListComponent
   }
 
   refreshVehicles() {
-    this.loadVehicles();
+    this.loadVehicles(true);
     this.toast.show('Vehículos actualizados', 'info');
   }
 
@@ -1136,4 +1190,9 @@ export class FleetListComponent
       paginated.every((v) => this.selectedVehicles().has(v.id))
     );
   });
+
+  readonly hasAnyVehicles = computed(() => this.vehicles().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyVehicles() && this.displayedVehicles().length === 0,
+  );
 }

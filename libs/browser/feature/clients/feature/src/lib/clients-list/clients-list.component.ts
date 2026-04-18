@@ -83,9 +83,13 @@ interface ClientFormData extends Partial<Client> {
       @if (canView()) {
 
       @if (clientsLoadError() && hasAnyClients()) {
-        <div class="load-error-banner" role="alert">
-          <lucide-icon name="alert-circle" size="18" class="banner-icon"></lucide-icon>
-          <span class="banner-text">{{
+        <div class="feature-load-error-banner" role="status" aria-live="polite">
+          <lucide-icon
+            name="alert-circle"
+            size="18"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{
             clientsLoadError() || 'No se pudo completar la operación con clientes.'
           }}</span>
           <ui-button variant="ghost" size="sm" (clicked)="refreshClients(true)">Reintentar</ui-button>
@@ -270,12 +274,12 @@ interface ClientFormData extends Partial<Client> {
 
       <!-- Clients Grid -->
       @if (isLoading()) {
-        <div class="loading-container">
+        <div class="feature-loader-wrap">
           <ui-loader message="Cargando clientes..."></ui-loader>
         </div>
       } @else if (clientsLoadError() && !hasAnyClients()) {
-        <div class="error-state">
-          <lucide-icon name="wifi-off" size="56" class="error-icon"></lucide-icon>
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon"></lucide-icon>
           <h3>No se pudo cargar la cartera</h3>
           <p>
             {{
@@ -286,8 +290,8 @@ interface ClientFormData extends Partial<Client> {
           <ui-button variant="solid" (clicked)="refreshClients(true)">Reintentar</ui-button>
         </div>
       } @else if (!hasAnyClients()) {
-        <div class="empty-state empty-state--wide">
-          <lucide-icon name="building-2" size="64" class="empty-icon"></lucide-icon>
+        <div class="feature-empty feature-empty--wide">
+          <lucide-icon name="building-2" size="64" class="feature-empty__icon"></lucide-icon>
           <h3>Sin clientes todavía</h3>
           <p>Añade tu primer cliente para empezar a trabajar la cartera comercial.</p>
           @if (canManage()) {
@@ -297,8 +301,8 @@ interface ClientFormData extends Partial<Client> {
           }
         </div>
       } @else if (filterProducesNoResults()) {
-        <div class="empty-state empty-state--wide">
-          <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
+        <div class="feature-empty feature-empty--wide">
+          <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
           <h3>Sin resultados</h3>
           <p>Ningún cliente coincide con la búsqueda o los filtros actuales.</p>
           <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
@@ -490,84 +494,6 @@ interface ClientFormData extends Partial<Client> {
 
       .flex-1 {
         flex: 1;
-      }
-
-      .loading-container {
-        display: flex;
-        justify-content: center;
-        padding: 4rem;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 16px;
-        border: 2px dashed var(--border-soft);
-      }
-
-      .empty-icon {
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-        opacity: 0.5;
-      }
-      .empty-state--wide {
-        max-width: 520px;
-        margin: 0 auto;
-      }
-
-      .load-error-banner {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        padding: 0.85rem 1.1rem;
-        border-radius: 12px;
-        border: 1px solid color-mix(in srgb, var(--error) 35%, transparent);
-        background: color-mix(in srgb, var(--error) 12%, transparent);
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-      }
-      .load-error-banner .banner-text {
-        flex: 1;
-        min-width: 12rem;
-        color: var(--text-primary);
-      }
-      .load-error-banner .banner-icon {
-        color: var(--error);
-        flex-shrink: 0;
-      }
-
-      .error-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4rem 2rem;
-        text-align: center;
-        gap: 0.75rem;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 1px dashed var(--border-soft);
-        max-width: 440px;
-        margin: 0 auto;
-      }
-      .error-state h3 {
-        margin: 0;
-        font-size: 1.15rem;
-      }
-      .error-state p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        max-width: 32ch;
-      }
-      .error-icon {
-        color: var(--error);
-        opacity: 0.85;
       }
 
       .client-rating {

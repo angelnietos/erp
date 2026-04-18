@@ -289,11 +289,45 @@ interface RentalFormData extends Partial<Rental> {
         </div>
       }
 
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-loader
-            message="SINCRONIZANDO REGISTROS DE OPERACIÓN..."
-          ></ui-loader>
+      @if (loadError() && rentals().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ loadError() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshRentals()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
+      @if (isLoading() && rentals().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando alquileres…"></ui-loader>
+        </div>
+      } @else if (loadError() && rentals().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar el listado</h3>
+          <p>{{ loadError() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshRentals()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -387,25 +421,47 @@ interface RentalFormData extends Partial<Rental> {
               </div>
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="key"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay expedientes</h3>
-              <p>
-                Comienza añadiendo tu primer expediente de alquiler para
-                gestionar tus propiedades.
-              </p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-              >
-                Añadir primer expediente
-              </ui-button>
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún expediente coincide con la búsqueda, la pestaña o los
+                  filtros actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="x-circle"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="key"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>No hay expedientes</h3>
+                <p>
+                  Comienza añadiendo tu primer expediente de alquiler para
+                  gestionar tus propiedades.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                >
+                  Añadir primer expediente
+                </ui-button>
+              </div>
+            }
           }
         </ui-feature-grid>
 
@@ -585,12 +641,6 @@ interface RentalFormData extends Partial<Rental> {
         min-height: 100vh;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 4rem;
-      }
-
       .rental-extras {
         margin-top: 1rem;
       }
@@ -619,24 +669,6 @@ interface RentalFormData extends Partial<Rental> {
       }
       .text-success {
         color: var(--success) !important;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 16px;
-        border: 2px dashed var(--border-soft);
-      }
-
-      .empty-icon {
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-        opacity: 0.5;
       }
 
       .pagination-footer {
@@ -972,6 +1004,7 @@ export class RentalsListComponent
   // Additional signals
   rentals = signal<Rental[]>([]);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
   activeTab = signal('all');
   searchFilter = signal('');
   isSignatureModalOpen = signal(false);
@@ -1042,14 +1075,21 @@ export class RentalsListComponent
   }
 
   loadRentals() {
+    this.loadError.set(null);
     this.isLoading.set(true);
     this.rentalService.getRentals().subscribe({
       next: (list) => {
         this.rentals.set(list);
         this.updateTabs(list);
         this.isLoading.set(false);
+        this.loadError.set(null);
       },
-      error: () => this.isLoading.set(false),
+      error: () => {
+        this.isLoading.set(false);
+        this.loadError.set(
+          'No se pudieron cargar los alquileres. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
     });
   }
 
@@ -1145,6 +1185,13 @@ export class RentalsListComponent
     this.amountMinFilter.set(null);
     this.amountMaxFilter.set(null);
     this.currentPage.set(1);
+  }
+
+  clearFiltersAndSearch(): void {
+    this.searchFilter.set('');
+    this.masterFilter.search('');
+    this.activeTab.set('all');
+    this.clearFilters();
   }
 
   refreshRentals() {
@@ -1575,6 +1622,11 @@ export class RentalsListComponent
   });
 
   hasSelections = computed(() => this.selectedRentals().size > 0);
+
+  readonly hasAnyRentals = computed(() => this.rentals().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyRentals() && this.filteredRentals().length === 0,
+  );
 
   onPageChange(page: number) {
     this.currentPage.set(page);

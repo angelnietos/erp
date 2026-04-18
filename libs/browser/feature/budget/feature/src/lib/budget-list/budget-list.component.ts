@@ -17,6 +17,7 @@ import {
   UiModalComponent,
   UiInputComponent,
   UiPaginationComponent,
+  UiLoaderComponent,
   UiFeatureHeaderComponent,
   UiFeatureStatsComponent,
   UiFeatureGridComponent,
@@ -59,6 +60,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiModalComponent,
     UiInputComponent,
     UiPaginationComponent,
+    UiLoaderComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     UiFeatureGridComponent,
@@ -291,6 +293,47 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         </div>
       }
 
+      @if (store.error() && store.budgets().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ store.error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshBudgets()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
+      @if (store.loading() && store.budgets().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Cargando presupuestos…"></ui-loader>
+        </div>
+      } @else if (store.error() && store.budgets().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar el listado</h3>
+          <p>{{ store.error() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshBudgets()">
+            Reintentar
+          </ui-button>
+        </div>
+      } @else {
       <ui-feature-grid>
         <!-- Selection Header -->
         @if (paginatedBudgets().length > 0) {
@@ -364,25 +407,47 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             </div>
           </ui-feature-card>
         } @empty {
-          <div class="empty-state">
-            <lucide-icon
-              name="file-text"
-              size="64"
-              class="empty-icon"
-            ></lucide-icon>
-            <h3>No hay presupuestos</h3>
-            <p>
-              Comienza añadiendo tu primer presupuesto para gestionar tu
-              pipeline comercial.
-            </p>
-            <ui-button
-              variant="solid"
-              (clicked)="openCreateModal()"
-              icon="CirclePlus"
-            >
-              Añadir primer presupuesto
-            </ui-button>
-          </div>
+          @if (filterProducesNoResults()) {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon
+                name="search-x"
+                size="56"
+                class="feature-empty__icon"
+              ></lucide-icon>
+              <h3>Sin resultados</h3>
+              <p>
+                Ningún presupuesto coincide con la búsqueda o los filtros
+                actuales.
+              </p>
+              <ui-button
+                variant="ghost"
+                icon="x-circle"
+                (clicked)="clearFiltersAndSearch()"
+              >
+                Limpiar búsqueda y filtros
+              </ui-button>
+            </div>
+          } @else {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon
+                name="file-text"
+                size="56"
+                class="feature-empty__icon"
+              ></lucide-icon>
+              <h3>No hay presupuestos</h3>
+              <p>
+                Comienza añadiendo tu primer presupuesto para gestionar tu
+                pipeline comercial.
+              </p>
+              <ui-button
+                variant="solid"
+                (clicked)="openCreateModal()"
+                icon="CirclePlus"
+              >
+                Añadir primer presupuesto
+              </ui-button>
+            </div>
+          }
         }
       </ui-feature-grid>
 
@@ -395,6 +460,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             (pageChange)="onPageChange($event)"
           ></ui-pagination>
         </div>
+      }
       }
 
       <!-- Create/Edit Modal -->
@@ -641,24 +707,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
       .text-success {
         color: var(--success) !important;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 16px;
-        border: 2px dashed var(--border-soft);
-      }
-
-      .empty-icon {
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-        opacity: 0.5;
       }
 
       /* Modal Form Styles */
@@ -966,6 +1014,11 @@ export class BudgetListComponent
 
   hasSelections = computed(() => this.selectedBudgets().size > 0);
 
+  readonly hasAnyBudgets = computed(() => this.store.budgets().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyBudgets() && this.filteredBudgets().length === 0,
+  );
+
   ngOnInit() {
     this.aiFormBridge.registerDataProxy(
       this.formData as Record<string, unknown>,
@@ -1219,6 +1272,11 @@ export class BudgetListComponent
     this.amountMinFilter.set(null);
     this.amountMaxFilter.set(null);
     this.currentPage.set(1);
+  }
+
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
+    this.clearFilters();
   }
 
   refreshBudgets() {

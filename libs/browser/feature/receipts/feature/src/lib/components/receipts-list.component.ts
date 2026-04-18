@@ -28,6 +28,7 @@ import {
   UiFeatureCardComponent,
   UiSelectComponent,
   UiFeatureAccessDeniedComponent,
+  UiLoaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 
 interface Receipt {
@@ -57,6 +58,7 @@ interface Receipt {
     UiSelectComponent,
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
+    UiLoaderComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -132,6 +134,43 @@ interface Receipt {
         </ui-button>
       </ui-feature-filter-bar>
 
+      @if (loadError() && receipts().length > 0) {
+        <div class="feature-load-error-banner" role="status" aria-live="polite">
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ loadError() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="loadReceipts()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
+      @if (isLoading() && receipts().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Cargando recibos…"></ui-loader>
+        </div>
+      } @else if (loadError() && receipts().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudieron cargar los recibos</h3>
+          <p>{{ loadError() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="loadReceipts()">
+            Reintentar
+          </ui-button>
+        </div>
+      } @else {
       <ui-feature-grid>
         @for (receipt of filteredReceipts(); track receipt.id) {
           <ui-feature-card
@@ -159,14 +198,26 @@ interface Receipt {
              </div>
           </ui-feature-card>
         } @empty {
-          <div class="empty-state">
-            <lucide-icon name="wallet" size="64" class="empty-icon"></lucide-icon>
-            <h3>No hay recibos</h3>
-            <p>Todo está al día o no hay documentos de cobro registrados.</p>
-            <ui-button variant="solid" (clicked)="newReceipt()" icon="CirclePlus">Crear recibo</ui-button>
-          </div>
+          @if (filterProducesNoResults()) {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon name="search-x" size="56" class="feature-empty__icon"></lucide-icon>
+              <h3>Sin resultados</h3>
+              <p>Ningún recibo coincide con la búsqueda o el filtro de estado.</p>
+              <ui-button variant="ghost" icon="x-circle" (clicked)="clearFiltersAndSearch()">
+                Limpiar búsqueda y filtro
+              </ui-button>
+            </div>
+          } @else {
+            <div class="feature-empty feature-empty--wide">
+              <lucide-icon name="wallet" size="56" class="feature-empty__icon"></lucide-icon>
+              <h3>No hay recibos</h3>
+              <p>Todo está al día o no hay documentos de cobro registrados.</p>
+              <ui-button variant="solid" (clicked)="newReceipt()" icon="CirclePlus">Crear recibo</ui-button>
+            </div>
+          }
         }
       </ui-feature-grid>
+      }
     </div>
     }
   `,
@@ -186,19 +237,6 @@ interface Receipt {
 
     .card-actions { display: flex; gap: 0.25rem; }
     .text-success { color: var(--success) !important; }
-
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
     @media (max-width: 900px) {
        .receipts-filter-state { width: 100%; }
@@ -224,6 +262,9 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
 
   sortField = signal<'dueDate' | 'invoiceId' | 'amount'>('dueDate');
   sortDirection = signal<1 | -1>(-1);
+
+  isLoading = signal(false);
+  loadError = signal<string | null>(null);
   statusOptions = [
     { label: 'Todos los estados', value: '' },
     { label: 'Pendiente', value: 'PENDING' },
@@ -338,6 +379,11 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
     return list;
   });
 
+  readonly hasAnyReceipts = computed(() => this.receipts().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyReceipts() && this.filteredReceipts().length === 0,
+  );
+
   ngOnInit() {
     this.masterFilter.registerProvider(this);
     this.loadReceipts();
@@ -373,28 +419,45 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
     return of(result);
   }
 
-  private loadReceipts() {
-    this.receiptsApi.list().subscribe((rows: any[]) => {
-      if (rows.length > 0) {
-        this.receipts.set(
-          rows.map((r: any) => ({
-            id: r.id,
-            invoiceId: r.invoiceId,
-            amount: r.amount,
-            status: r.status,
-            dueDate: r.dueDate.includes('T')
-              ? r.dueDate
-              : `${r.dueDate}T12:00:00.000Z`,
-            paymentDate: r.paymentDate
-              ? r.paymentDate.includes('T')
-                ? r.paymentDate
-                : `${r.paymentDate}T12:00:00.000Z`
-              : undefined,
-            paymentMethod: r.paymentMethod,
-          })),
+  loadReceipts() {
+    this.loadError.set(null);
+    this.isLoading.set(true);
+    this.receiptsApi.list().subscribe({
+      next: (rows: any[]) => {
+        if (rows.length > 0) {
+          this.receipts.set(
+            rows.map((r: any) => ({
+              id: r.id,
+              invoiceId: r.invoiceId,
+              amount: r.amount,
+              status: r.status,
+              dueDate: r.dueDate.includes('T')
+                ? r.dueDate
+                : `${r.dueDate}T12:00:00.000Z`,
+              paymentDate: r.paymentDate
+                ? r.paymentDate.includes('T')
+                  ? r.paymentDate
+                  : `${r.paymentDate}T12:00:00.000Z`
+                : undefined,
+              paymentMethod: r.paymentMethod,
+            })),
+          );
+        }
+        this.isLoading.set(false);
+        this.loadError.set(null);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.loadError.set(
+          'No se pudieron cargar los recibos. Comprueba la conexión e inténtalo de nuevo.',
         );
-      }
+      },
     });
+  }
+
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
+    this.statusFilter = '';
   }
 
   applyFilters() {

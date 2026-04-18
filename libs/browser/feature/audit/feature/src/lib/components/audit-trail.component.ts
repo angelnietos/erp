@@ -28,6 +28,7 @@ import {
   UiFeatureGridComponent,
   UiFeatureCardComponent,
   UiPaginationComponent,
+  UiLoaderComponent,
   UiFeatureAccessDeniedComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
@@ -94,8 +95,9 @@ interface DomainEventPayload {
     UiFeatureGridComponent,
     UiFeatureCardComponent,
     UiPaginationComponent,
+    UiLoaderComponent,
     UiStatCardComponent,
-    UiFeatureFilterBarComponent,
+  UiFeatureFilterBarComponent,
     UiFeatureHeaderComponent,
     UiFeatureStatsComponent,
     LucideAngularModule,
@@ -159,7 +161,33 @@ interface DomainEventPayload {
         </ui-button>
       </ui-feature-filter-bar>
 
+      @if (loadError() && auditLogs().length > 0) {
+        <div class="feature-load-error-banner" role="status" aria-live="polite">
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ loadError() }}</span>
+          <ui-button variant="ghost" size="sm" icon="rotate-cw" (clicked)="reloadLogs()">
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
       <div class="audit-content">
+        @if (isLoading() && auditLogs().length === 0) {
+          <div class="feature-loader-wrap">
+            <ui-loader message="Cargando registro de auditoría…"></ui-loader>
+          </div>
+        } @else if (loadError() && auditLogs().length === 0) {
+          <div class="feature-error-screen" role="alert">
+            <lucide-icon name="wifi-off" size="48" class="feature-error-screen__icon"></lucide-icon>
+            <h3>No se pudo cargar el registro</h3>
+            <p>{{ loadError() }}</p>
+            <ui-button variant="solid" icon="rotate-cw" (clicked)="reloadLogs()">Reintentar</ui-button>
+          </div>
+        } @else {
         <ui-feature-grid>
           @for (log of paginatedLogs(); track log.id) {
             <ui-feature-card
@@ -205,11 +233,22 @@ interface DomainEventPayload {
               }
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon name="history" size="64" class="empty-icon"></lucide-icon>
-              <h3>No hay registros</h3>
-              <p>El registro de auditoría está vacío para los filtros seleccionados.</p>
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon name="search-x" size="56" class="feature-empty__icon"></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>Ningún registro coincide con la búsqueda o los filtros actuales.</p>
+                <ui-button variant="ghost" size="sm" icon="x-circle" (clicked)="clearFiltersAndSearch()">
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon name="history" size="56" class="feature-empty__icon"></lucide-icon>
+                <h3>No hay registros</h3>
+                <p>No hay eventos de dominio en el periodo seleccionado.</p>
+              </div>
+            }
           }
         </ui-feature-grid>
 
@@ -220,6 +259,7 @@ interface DomainEventPayload {
             (pageChange)="goToPage($any($event))"
           ></ui-pagination>
         </footer>
+        }
       </div>
       }
     </div>
@@ -232,19 +272,6 @@ interface DomainEventPayload {
     }
 
     .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
-
-    .empty-state {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 5rem;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 20px;
-      border: 2px dashed var(--border-soft);
-    }
-    .empty-icon { color: var(--text-muted); opacity: 0.3; margin-bottom: 1.5rem; }
 
     .logs-count {
       color: var(--brand);
@@ -442,9 +469,15 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     return filtered;
   });
 
+  isLoading = signal(true);
+  loadError = signal<string | null>(null);
+
+  readonly filterProducesNoResults = computed(
+    () => this.auditLogs().length > 0 && this.filteredLogs().length === 0,
+  );
+
   ngOnInit() {
     this.masterFilter.registerProvider(this);
-    // Set default date range (last 7 days)
     const today = new Date();
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(today.getDate() - 7);
@@ -452,41 +485,90 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     this.filters.dateFrom = sevenDaysAgo.toISOString().split('T')[0];
     this.filters.dateTo = today.toISOString().split('T')[0];
 
-    this.domainEventsApi.list(150).subscribe((events) => {
-      const fromDomain: AuditLog[] = events.map((e) => {
-        const payload = e.payload as DomainEventPayload;
-        const userName = payload?.name || payload?.userName || payload?.email || 'Sistema';
-        const entityName = payload?.name || payload?.email || `${e.aggregateType} - ${e.aggregateId.slice(0, 8)}`;
+    this.fetchAuditLogs();
+  }
 
-        const validActions: AuditLog['action'][] = ['CREATE', 'UPDATE', 'DELETE', 'COPY', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT'];
-        const validEntities: AuditLog['entity'][] = ['USER', 'PROJECT', 'SERVICE', 'EVENT', 'CLIENT', 'INVOICE', 'RECEIPT', 'EQUIPMENT'];
+  private fetchAuditLogs(): void {
+    this.loadError.set(null);
+    this.isLoading.set(true);
+    this.domainEventsApi.list(150).subscribe({
+      next: (events) => {
+        const fromDomain: AuditLog[] = events.map((e) => {
+          const payload = e.payload as DomainEventPayload;
+          const userName =
+            payload?.name || payload?.userName || payload?.email || 'Sistema';
+          const entityName =
+            payload?.name ||
+            payload?.email ||
+            `${e.aggregateType} - ${e.aggregateId.slice(0, 8)}`;
 
-        const action = validActions.includes(e.eventType as AuditLog['action'])
-          ? (e.eventType as AuditLog['action'])
-          : 'UPDATE';
-        const entity = validEntities.includes(e.aggregateType as AuditLog['entity'])
-          ? (e.aggregateType as AuditLog['entity'])
-          : 'PROJECT';
-        
-        return {
-          id: `de-${e.id}`,
-          userName,
-          action,
-          entity,
-          entityName,
-          timestamp: e.occurredAt,
-          details: e.eventType,
-          changes: payload?.changes || { payload: { old: null, new: e.payload } },
-        };
-      });
-      
-      // Use real data if available, otherwise show seeds to avoid empty screen
-      if (fromDomain.length > 0) {
-        this.auditLogs.set(fromDomain);
-      } else {
-        this.auditLogs.set([...this.seedAuditLogs]);
-      }
+          const validActions: AuditLog['action'][] = [
+            'CREATE',
+            'UPDATE',
+            'DELETE',
+            'COPY',
+            'LOGIN',
+            'LOGOUT',
+            'EXPORT',
+            'IMPORT',
+          ];
+          const validEntities: AuditLog['entity'][] = [
+            'USER',
+            'PROJECT',
+            'SERVICE',
+            'EVENT',
+            'CLIENT',
+            'INVOICE',
+            'RECEIPT',
+            'EQUIPMENT',
+          ];
+
+          const action = validActions.includes(e.eventType as AuditLog['action'])
+            ? (e.eventType as AuditLog['action'])
+            : 'UPDATE';
+          const entity = validEntities.includes(
+            e.aggregateType as AuditLog['entity'],
+          )
+            ? (e.aggregateType as AuditLog['entity'])
+            : 'PROJECT';
+
+          return {
+            id: `de-${e.id}`,
+            userName,
+            action,
+            entity,
+            entityName,
+            timestamp: e.occurredAt,
+            details: e.eventType,
+            changes:
+              payload?.changes || { payload: { old: null, new: e.payload } },
+          };
+        });
+
+        if (fromDomain.length > 0) {
+          this.auditLogs.set(fromDomain);
+        } else {
+          this.auditLogs.set([...this.seedAuditLogs]);
+        }
+        this.isLoading.set(false);
+        this.loadError.set(null);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.loadError.set(
+          'No se pudo cargar el registro de auditoría. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
     });
+  }
+
+  reloadLogs(): void {
+    this.fetchAuditLogs();
+  }
+
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
+    this.clearFilters();
   }
 
   ngOnDestroy() {

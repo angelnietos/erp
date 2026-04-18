@@ -16,16 +16,20 @@ export class DeliveryFacade {
 
   loadDeliveryNotes(force = false): void {
     if (!force && this._deliveryNotes().length > 0) return;
+    this._error.set(null);
     this._isLoading.set(true);
     this.service.getDeliveryNotes().subscribe({
       next: (data) => {
         this._deliveryNotes.set(data);
         this._isLoading.set(false);
+        this._error.set(null);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error');
+      error: () => {
         this._isLoading.set(false);
-      }
+        this._error.set(
+          'No se pudieron cargar los albaranes. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
     });
   }
 

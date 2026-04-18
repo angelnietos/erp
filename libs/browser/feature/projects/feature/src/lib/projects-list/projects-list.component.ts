@@ -93,9 +93,13 @@ interface ProjectFormData {
       ></ui-feature-header>
 
       @if (projectsLoadError() && hasAnyProjects()) {
-        <div class="load-error-banner" role="alert">
-          <lucide-icon name="alert-circle" size="18" class="banner-icon"></lucide-icon>
-          <span class="banner-text">{{
+        <div class="feature-load-error-banner" role="status" aria-live="polite">
+          <lucide-icon
+            name="alert-circle"
+            size="18"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{
             projectsLoadError() || 'No se pudo completar la operación con proyectos.'
           }}</span>
           <ui-button variant="ghost" size="sm" (clicked)="refreshProjects(true)">Reintentar</ui-button>
@@ -257,12 +261,12 @@ interface ProjectFormData {
       }
 
       @if (isLoading()) {
-        <div class="loader-container">
+        <div class="feature-loader-wrap">
           <ui-loader message="Cargando proyectos..."></ui-loader>
         </div>
       } @else if (projectsLoadError() && !hasAnyProjects()) {
-        <div class="error-state">
-          <lucide-icon name="wifi-off" size="56" class="error-icon"></lucide-icon>
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon"></lucide-icon>
           <h3>No se pudo cargar el listado</h3>
           <p>
             {{
@@ -273,8 +277,8 @@ interface ProjectFormData {
           <ui-button variant="solid" (clicked)="refreshProjects(true)">Reintentar</ui-button>
         </div>
       } @else if (!hasAnyProjects()) {
-        <div class="empty-state empty-state--wide">
-          <lucide-icon name="layout" size="64" class="empty-icon"></lucide-icon>
+        <div class="feature-empty feature-empty--wide">
+          <lucide-icon name="layout" size="64" class="feature-empty__icon"></lucide-icon>
           <h3>Sin proyectos</h3>
           <p>Crea tu primer proyecto para organizar la operativa y el seguimiento.</p>
           <ui-button variant="solid" (clicked)="openCreateModal()" icon="CirclePlus">
@@ -282,8 +286,8 @@ interface ProjectFormData {
           </ui-button>
         </div>
       } @else if (filterProducesNoResults()) {
-        <div class="empty-state empty-state--wide">
-          <lucide-icon name="search-x" size="64" class="empty-icon"></lucide-icon>
+        <div class="feature-empty feature-empty--wide">
+          <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
           <h3>Sin resultados</h3>
           <p>Ningún proyecto coincide con la búsqueda, pestaña o filtros actuales.</p>
           <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
@@ -445,12 +449,6 @@ interface ProjectFormData {
         flex: 1;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 5rem;
-      }
-
       /* Advanced Filters */
       .advanced-filters {
         margin: 1rem 0;
@@ -548,77 +546,6 @@ interface ProjectFormData {
         position: absolute;
         top: 1rem;
         right: 1rem;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 2px dashed var(--border-soft);
-      }
-      .empty-icon {
-        color: var(--text-muted);
-        opacity: 0.3;
-        margin-bottom: 1.5rem;
-      }
-      .empty-state--wide {
-        max-width: 520px;
-        margin: 0 auto;
-      }
-
-      .load-error-banner {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        padding: 0.85rem 1.1rem;
-        border-radius: 12px;
-        border: 1px solid color-mix(in srgb, var(--error) 35%, transparent);
-        background: color-mix(in srgb, var(--error) 12%, transparent);
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-      }
-      .load-error-banner .banner-text {
-        flex: 1;
-        min-width: 12rem;
-        color: var(--text-primary);
-      }
-      .load-error-banner .banner-icon {
-        color: var(--error);
-        flex-shrink: 0;
-      }
-
-      .error-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4rem 2rem;
-        text-align: center;
-        gap: 0.75rem;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 1px dashed var(--border-soft);
-        max-width: 440px;
-        margin: 0 auto;
-      }
-      .error-state h3 {
-        margin: 0;
-        font-size: 1.15rem;
-      }
-      .error-state p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        max-width: 32ch;
-      }
-      .error-icon {
-        color: var(--error);
-        opacity: 0.85;
       }
 
       .pagination-footer {
