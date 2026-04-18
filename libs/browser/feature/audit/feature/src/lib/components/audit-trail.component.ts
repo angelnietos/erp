@@ -105,7 +105,10 @@ interface DomainEventPayload {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
+    <div
+      class="page-container animate-fade-in feature-page-shell"
+      [class.perf-optimized]="pluginStore.highPerformanceMode()"
+    >
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver el registro de auditoría."
@@ -126,10 +129,9 @@ interface DomainEventPayload {
           [accent]="true">
         </ui-stat-card>
         <ui-stat-card 
-          label="Acciones Hoy" 
+          label="Acciones hoy" 
           [value]="todayActionsCount().toString()" 
-          icon="activity" 
-          [trend]="8">
+          icon="activity">
         </ui-stat-card>
         <ui-stat-card 
           label="Usuarios Activos" 

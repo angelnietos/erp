@@ -72,7 +72,7 @@ interface VehicleFormData extends Partial<Vehicle> {
         permissionHint="fleet.view"
       />
     } @else {
-    <div class="fleet-container">
+    <div class="fleet-container feature-page-shell">
       <ui-feature-header
         title="Flota Logística"
         subtitle="Monitoreo de movilidad y mantenimiento preventivo"
@@ -504,12 +504,6 @@ interface VehicleFormData extends Partial<Vehicle> {
   `,
   styles: [
     `
-      .fleet-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
       .flex-1 {
         flex: 1;
       }

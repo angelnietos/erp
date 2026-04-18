@@ -67,7 +67,7 @@ interface ServiceFormData extends Partial<Service> {
     UiFeatureAccessDeniedComponent,
   ],
   template: `
-    <div class="services-container">
+    <div class="services-container feature-page-shell">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver el catálogo de servicios."
@@ -532,13 +532,6 @@ interface ServiceFormData extends Partial<Service> {
   `,
   styles: [
     `
-      .services-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-        min-height: 100vh;
-      }
-
       :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);

@@ -77,7 +77,7 @@ interface ProjectFormData {
   ],
   providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
   template: `
-    <div class="projects-container">
+    <div class="projects-container feature-page-shell">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver proyectos."
@@ -439,12 +439,6 @@ interface ProjectFormData {
   `,
   styles: [
     `
-      .projects-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
       .flex-1 {
         flex: 1;
       }

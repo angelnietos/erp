@@ -86,7 +86,7 @@ interface Report {
   ],
   template: `
     <div
-      class="page-container animate-fade-in"
+      class="page-container animate-fade-in feature-page-shell feature-page-shell--pad-md"
       [class.perf-optimized]="pluginStore.highPerformanceMode()"
     >
       @if (!canAccess()) {
@@ -371,13 +371,6 @@ interface Report {
   `,
   styles: [
     `
-      .page-container {
-        padding: 1.5rem;
-        max-width: 1400px;
-        margin: 0 auto;
-        box-sizing: border-box;
-      }
-
       .page-header {
         display: flex;
         justify-content: space-between;

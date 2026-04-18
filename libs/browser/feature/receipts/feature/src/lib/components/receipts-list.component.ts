@@ -67,7 +67,7 @@ interface Receipt {
         permissionHint="receipts.view"
       />
     } @else {
-    <div class="receipts-container">
+    <div class="receipts-container feature-page-shell">
       <ui-feature-header
         title="Recibos"
         subtitle="Gestión de cobros y conciliación de pagos"
@@ -222,12 +222,6 @@ interface Receipt {
     }
   `,
   styles: [`
-    .receipts-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
     .receipts-filter-state {
       display: flex;
       align-items: flex-end;

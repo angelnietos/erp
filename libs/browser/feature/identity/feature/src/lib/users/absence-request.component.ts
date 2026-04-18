@@ -59,7 +59,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
         permissionHint="users.view"
       />
     } @else {
-      <div class="absence-request-page availability-container">
+      <div class="availability-container feature-page-shell feature-page-shell--compact">
         <nav class="back-row">
           <a routerLink="/users/availability" class="back-link">
             <lucide-icon name="chevron-left" size="18"></lucide-icon>
@@ -249,15 +249,6 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
   `,
   styles: [
     `
-      .absence-request-page {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 1rem 2.5rem;
-        box-sizing: border-box;
-      }
       .back-row {
         margin-top: 0.25rem;
       }

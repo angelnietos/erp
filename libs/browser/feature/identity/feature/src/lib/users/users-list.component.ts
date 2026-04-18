@@ -48,7 +48,7 @@ import {
         permissionHint="users.view o users.manage"
       />
     } @else {
-      <div class="users-container">
+      <div class="feature-page-shell feature-page-shell--fade-in">
         <ui-feature-header
           title="Usuarios"
           subtitle="Gestión de identidades y control de acceso"
@@ -188,18 +188,6 @@ import {
     }
   `,
   styles: [`
-    .users-container {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-      min-height: 100vh;
-      box-sizing: border-box;
-      animation: fadeIn 0.4s ease-out;
-    }
-
     .users-extra-actions {
       display: flex;
       gap: 0.5rem;
@@ -222,11 +210,6 @@ import {
 
     .action-btn.warning:hover {
       color: var(--warning);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

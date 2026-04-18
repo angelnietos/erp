@@ -59,6 +59,70 @@
   --transition-fast: 150ms var(--ease-out-expo);
   --transition-base: 300ms var(--ease-out-expo);
   --transition-spring: 450ms cubic-bezier(0.175, 0.885, 0.32, 1.25);
+
+  /* Columna principal de vistas feature (lista, dashboard, formularios largos) */
+  --feature-page-max-width: 1400px;
+  --feature-page-padding: 2rem;
+  --feature-page-gap: 2rem;
+}
+
+/**
+ * Shell de página: ancho máximo + centrado + ritmo vertical coherente en todo el ERP.
+ * Uso: envolver el contenido de la feature en `<div class="feature-page-shell">` (alias: `app-feature-page`).
+ * Modificadores:
+ * - `--compact`: padding horizontal estrecho (calendarios, sub-vistas).
+ * - `--width-only`: solo ancho; el contenido controla padding (p. ej. panel con hero full-bleed).
+ * - `--fade-in`: entrada suave al montar.
+ */
+.feature-page-shell,
+.app-feature-page {
+  width: 100%;
+  max-width: var(--feature-page-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  padding: var(--feature-page-padding);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--feature-page-gap);
+}
+
+.feature-page-shell--compact,
+.app-feature-page--compact {
+  --feature-page-padding: 0 1rem 2rem;
+  --feature-page-gap: 1.25rem;
+  min-height: unset;
+}
+
+.feature-page-shell--width-only,
+.app-feature-page--width-only {
+  padding: 0;
+  gap: 0;
+  min-height: unset;
+}
+
+/** Padding/gap intermedio (informes, Verifactu) */
+.feature-page-shell--pad-md,
+.app-feature-page--pad-md {
+  --feature-page-padding: 1.5rem;
+  --feature-page-gap: 1.5rem;
+}
+
+.feature-page-shell--fade-in,
+.app-feature-page--fade-in {
+  animation: feature-page-enter 0.4s ease-out;
+}
+
+@keyframes feature-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* —— Estados UX compartidos (listados / features) —— */

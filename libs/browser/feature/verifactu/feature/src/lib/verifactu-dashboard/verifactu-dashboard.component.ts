@@ -54,7 +54,7 @@ import {
       />
     } @else {
     <div
-      class="page-container animate-fade-in"
+      class="page-container animate-fade-in feature-page-shell feature-page-shell--pad-md"
       [class.high-perf]="pluginStore.highPerformanceMode()"
     >
       <header
@@ -388,15 +388,6 @@ import {
   `,
   styles: [
     `
-      .page-container {
-        padding: 1.5rem;
-        max-width: 1400px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        box-sizing: border-box;
-      }
 
       .page-header {
         display: flex;

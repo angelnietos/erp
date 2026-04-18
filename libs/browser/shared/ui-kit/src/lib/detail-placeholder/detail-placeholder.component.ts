@@ -81,11 +81,13 @@ import { UiCardComponent } from '../card/card.component';
     `
       .placeholder-container {
         padding: 0;
-        max-width: 1400px;
-        margin: 0 auto;
+        max-width: var(--feature-page-max-width, 1400px);
+        margin-left: auto;
+        margin-right: auto;
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
+        box-sizing: border-box;
       }
 
       .page-header {

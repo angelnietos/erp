@@ -59,7 +59,7 @@ interface CalendarCell {
       />
     } @else {
     <div
-      class="availability-dashboard availability-container animate-fade-in"
+      class="availability-dashboard availability-container feature-page-shell feature-page-shell--compact animate-fade-in"
       [class.availability-dashboard--team]="viewMode() === 'team'"
     >
       <ui-feature-header
@@ -406,8 +406,8 @@ interface CalendarCell {
   `,
   styles: [`
     .availability-dashboard {
-      display: flex; flex-direction: column; gap: 1.25rem;
-      padding: 0 1rem 2rem;
+      display: flex; flex-direction: column;
+      /* gap y padding horizontal: feature-page-shell--compact (styles.css global) */
       --avail-persona-width: 280px;
       --avail-day-cell-width: 52px;
     }

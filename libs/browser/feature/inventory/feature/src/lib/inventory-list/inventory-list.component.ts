@@ -69,7 +69,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         permissionHint="products.view"
       />
     } @else {
-    <div class="inventory-container">
+    <div class="inventory-container feature-page-shell">
       <ui-feature-header
         title="Inventario"
         subtitle="Monitoreo global de activos y recursos"
@@ -335,12 +335,6 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
   `,
   styles: [
     `
-      .inventory-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
       .flex-1 {
         flex: 1;
       }

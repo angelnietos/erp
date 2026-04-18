@@ -67,7 +67,7 @@ import { Observable, of } from 'rxjs';
         permissionHint="delivery.view"
       />
     } @else {
-    <div class="delivery-container">
+    <div class="delivery-container feature-page-shell">
       <ui-feature-header
         title="Albaranes"
         subtitle="Gestión de manifiestos logísticos y manifiestos de carga"
@@ -337,12 +337,6 @@ import { Observable, of } from 'rxjs';
   `,
   styles: [
     `
-      .delivery-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
       .navigation-bar {
         margin-bottom: 2rem;
         background: var(--surface);

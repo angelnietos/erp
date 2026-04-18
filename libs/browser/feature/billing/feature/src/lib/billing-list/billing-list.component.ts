@@ -77,7 +77,7 @@ interface InvoiceFormData extends Partial<Invoice> {
         permissionHint="invoices.view"
       />
     } @else {
-    <div class="billing-container">
+    <div class="billing-container feature-page-shell">
       <ui-feature-header
         title="Facturación"
         subtitle="Gestión fiscal e integridad Verifactu (AEAT)"
@@ -633,12 +633,6 @@ interface InvoiceFormData extends Partial<Invoice> {
   `,
   styles: [
     `
-      .billing-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
       .flex-1 {
         flex: 1;
       }

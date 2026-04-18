@@ -79,7 +79,7 @@ interface RentalFormData extends Partial<Rental> {
         permissionHint="rentals.view"
       />
     } @else {
-    <div class="rentals-container">
+    <div class="rentals-container feature-page-shell">
       <ui-feature-header
         title="Alquileres"
         subtitle="Gestión operativa y monitoreo de expedientes"
@@ -634,13 +634,6 @@ interface RentalFormData extends Partial<Rental> {
   `,
   styles: [
     `
-      .rentals-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-        min-height: 100vh;
-      }
-
       .rental-extras {
         margin-top: 1rem;
       }

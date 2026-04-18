@@ -87,7 +87,7 @@ interface QuickAction {
         <ui-button variant="solid" (clicked)="refreshData()">Reintentar</ui-button>
       </div>
     } @else {
-    <div class="dashboard-wrapper animate-fade-in">
+    <div class="dashboard-wrapper animate-fade-in feature-page-shell feature-page-shell--width-only">
       <!-- Premium Hero Header -->
       <section class="dashboard-hero">
         <div class="hero-content">
@@ -317,9 +317,7 @@ interface QuickAction {
     }
 
     .dashboard-wrapper {
-      padding: 0 0 4rem 0;
-      max-width: 1400px;
-      margin: 0 auto;
+      padding-bottom: 4rem;
     }
 
     /* Hero Styling */

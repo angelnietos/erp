@@ -70,7 +70,7 @@ interface ClientFormData extends Partial<Client> {
     UiFeatureAccessDeniedComponent,
   ],
   template: `
-    <div class="clients-container">
+    <div class="clients-container feature-page-shell">
       <!-- Standard Header -->
       <ui-feature-header
         title="Clientes"
@@ -485,13 +485,6 @@ interface ClientFormData extends Partial<Client> {
   `,
   styles: [
     `
-      .clients-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-        min-height: 100vh;
-      }
-
       .flex-1 {
         flex: 1;
       }

@@ -69,7 +69,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     UiFeatureAccessDeniedComponent,
   ],
   template: `
-    <div class="budgets-container">
+    <div class="budgets-container feature-page-shell">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver presupuestos."
@@ -557,13 +557,6 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
   `,
   styles: [
     `
-      .budgets-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-        min-height: 100vh;
-      }
-
       :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);

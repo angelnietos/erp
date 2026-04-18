@@ -64,7 +64,7 @@ interface EventFilter {
     UiLoaderComponent,
   ],
   template: `
-    <div class="events-container">
+    <div class="events-container feature-page-shell">
       @if (!canAccess()) {
         <ui-feature-access-denied
           message="No tienes permiso para ver eventos."
@@ -208,12 +208,6 @@ interface EventFilter {
   `,
   styles: [
     `
-      .events-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-
       .event-actions {
         display: flex;
         gap: 0.25rem;
