@@ -140,16 +140,57 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                     <ui-badge variant="info">{{ budget.status }}</ui-badge>
                   </a>
                 } @empty {
-                  <div class="ns-empty">
-                    <lucide-icon name="file-x" size="40"></lucide-icon>
-                    <p>Sin presupuestos</p>
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="calculator" size="28"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Aún no hay presupuestos</h3>
+                    <p class="ns-empty-state__hint">
+                      Los presupuestos que crees para este cliente aparecerán aquí con su
+                      estado y fechas.
+                    </p>
                   </div>
                 }
               </div>
             }
             @case ('invoices') {
-              <div class="ns-list">
-                @for (inv of getAllInvoices(); track inv.id) {
+              <div class="ns-list ns-list--documental">
+                @if (
+                  getAllInvoices().length === 0 && getAllDeliveryNotes().length === 0
+                ) {
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="archive" size="28"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Sin documentación fiscal</h3>
+                    <p class="ns-empty-state__hint">
+                      Cuando generes facturas o albaranes desde los presupuestos de este
+                      cliente, los verás listados aquí.
+                    </p>
+                  </div>
+                } @else {
+                  @if (getAllInvoices().length === 0) {
+                    <div
+                      class="ns-empty-state ns-empty-state--inline"
+                      role="status"
+                    >
+                      <div
+                        class="ns-empty-state__icon-wrap ns-empty-state__icon-wrap--sm"
+                        aria-hidden="true"
+                      >
+                        <lucide-icon name="receipt" size="20"></lucide-icon>
+                      </div>
+                      <div class="ns-empty-state__text">
+                        <span class="ns-empty-state__title-inline"
+                          >No hay facturas todavía</span
+                        >
+                        <span class="ns-empty-state__hint-inline"
+                          >Se mostrarán al emitirse desde un presupuesto.</span
+                        >
+                      </div>
+                    </div>
+                  }
+                  @for (inv of getAllInvoices(); track inv.id) {
                   <a [routerLink]="['/billing', inv.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-green">
                       <lucide-icon name="receipt" size="20"></lucide-icon>
@@ -167,12 +208,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                       >{{ inv.status }}</ui-badge
                     >
                   </a>
-                } @empty {
-                  <div class="ns-empty">
-                    <lucide-icon name="file-x" size="40"></lucide-icon>
-                    <p>Sin facturas</p>
-                  </div>
-                }
+                  }
                 @for (dn of getAllDeliveryNotes(); track dn.id) {
                   <a [routerLink]="['/delivery', dn.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-orange">
@@ -189,6 +225,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                       >{{ dn.status }}</ui-badge
                     >
                   </a>
+                }
                 }
               </div>
             }
@@ -224,9 +261,15 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                     </p>
                   </a>
                 } @empty {
-                  <div class="ns-empty">
-                    <lucide-icon name="file-x" size="40"></lucide-icon>
-                    <p>Sin informes</p>
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="file-text" size="28"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Sin informes de evento</h3>
+                    <p class="ns-empty-state__hint">
+                      Los informes redactados tras los eventos de este cliente se listarán
+                      aquí con fecha y autor.
+                    </p>
                   </div>
                 }
               </div>
@@ -255,9 +298,15 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
                     >
                   </a>
                 } @empty {
-                  <div class="ns-empty">
-                    <lucide-icon name="file-x" size="40"></lucide-icon>
-                    <p>Sin proyectos</p>
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="truck" size="28"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Sin movimientos de alquiler</h3>
+                    <p class="ns-empty-state__hint">
+                      Los alquileres y expedientes comerciales vinculados a este cliente
+                      aparecerán en esta vista.
+                    </p>
                   </div>
                 }
               </div>
@@ -465,6 +514,92 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         gap: 0.5rem;
       }
 
+      .ns-list--documental {
+        gap: 0.75rem;
+      }
+
+      /** Estados vacíos: bloque centrado con jerarquía tipográfica */
+      .ns-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 2.5rem 1.75rem 2.75rem;
+        margin: 0.25rem 0 0.5rem;
+        border-radius: 16px;
+        border: 1px dashed color-mix(in srgb, var(--text-muted) 28%, var(--border-soft));
+        background: color-mix(in srgb, var(--bg-tertiary) 55%, var(--bg-secondary));
+        box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-primary) 4%, transparent);
+      }
+
+      .ns-empty-state__icon-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--brand) 14%, var(--bg-secondary));
+        color: color-mix(in srgb, var(--brand) 88%, var(--text-primary));
+        box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--brand) 35%, transparent);
+      }
+
+      .ns-empty-state__icon-wrap--sm {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 0;
+        border-radius: 12px;
+        flex-shrink: 0;
+      }
+
+      .ns-empty-state__title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        max-width: 22rem;
+      }
+
+      .ns-empty-state__hint {
+        margin: 0.55rem 0 0;
+        font-size: 0.875rem;
+        line-height: 1.55;
+        font-weight: 500;
+        color: var(--text-muted);
+        max-width: 26rem;
+      }
+
+      /** Variante horizontal cuando hay otros documentos en la misma pestaña */
+      .ns-empty-state--inline {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 1rem 1.15rem;
+        margin: 0 0 0.35rem;
+      }
+
+      .ns-empty-state--inline .ns-empty-state__text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+      }
+
+      .ns-empty-state__title-inline {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .ns-empty-state__hint-inline {
+        font-size: 0.78rem;
+        line-height: 1.45;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
       .ns-doc-card {
         display: flex;
         align-items: center;
@@ -530,17 +665,18 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
         color: var(--text-muted);
       }
 
-      .ns-empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem;
-        color: var(--text-muted);
-        gap: 0.75rem;
-      }
-
       @media (max-width: 640px) {
+        .ns-empty-state {
+          padding: 1.75rem 1.25rem 2rem;
+        }
+        .ns-empty-state--inline {
+          flex-direction: column;
+          text-align: center;
+          align-items: center;
+        }
+        .ns-empty-state--inline .ns-empty-state__text {
+          align-items: center;
+        }
         .ns-stats-row {
           grid-template-columns: 1fr;
         }
