@@ -435,7 +435,7 @@ interface RentalFormData extends Partial<Rental> {
                 </p>
                 <ui-button
                   variant="ghost"
-                  icon="x-circle"
+                  icon="circle-x"
                   (clicked)="clearFiltersAndSearch()"
                 >
                   Limpiar búsqueda y filtros
@@ -488,7 +488,7 @@ interface RentalFormData extends Partial<Rental> {
           <div class="form-errors">
             @for (error of formErrors(); track $index) {
               <div class="error-message">
-                <lucide-icon name="AlertCircle" size="16"></lucide-icon>
+                <lucide-icon name="alert-circle" size="16"></lucide-icon>
                 <span>{{ error }}</span>
               </div>
             }

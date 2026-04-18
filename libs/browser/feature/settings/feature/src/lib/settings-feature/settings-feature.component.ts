@@ -660,7 +660,7 @@ interface PluginDescriptor {
                         @for (skill of bot.activeSkills; track skill) {
                           <div class="skill-tag">
                             <lucide-icon
-                              name="check-circle-2"
+                              name="circle-check-big"
                               size="12"
                             ></lucide-icon>
                             <span>{{ skill }}</span>

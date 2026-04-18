@@ -462,7 +462,7 @@ export class BudgetDetailComponent implements OnInit {
       case 'sent':
         return 'navigation';
       case 'rejected':
-        return 'x-circle';
+        return 'circle-x';
       default:
         return 'help-circle';
     }

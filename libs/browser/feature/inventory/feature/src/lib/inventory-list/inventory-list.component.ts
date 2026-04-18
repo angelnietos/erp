@@ -232,7 +232,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                 </p>
                 <ui-button
                   variant="ghost"
-                  icon="x-circle"
+                  icon="circle-x"
                   (clicked)="clearFiltersAndSearch()"
                 >
                   Limpiar búsqueda y filtros

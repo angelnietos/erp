@@ -238,7 +238,7 @@ interface DomainEventPayload {
                 <lucide-icon name="search-x" size="56" class="feature-empty__icon"></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>Ningún registro coincide con la búsqueda o los filtros actuales.</p>
-                <ui-button variant="ghost" size="sm" icon="x-circle" (clicked)="clearFiltersAndSearch()">
+                <ui-button variant="ghost" size="sm" icon="circle-x" (clicked)="clearFiltersAndSearch()">
                   Limpiar búsqueda y filtros
                 </ui-button>
               </div>

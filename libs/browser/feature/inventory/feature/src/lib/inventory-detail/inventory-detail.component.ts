@@ -38,7 +38,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-button variant="glass" size="md" icon="edit" (click)="onEdit()">EDITAR ACTIVO</ui-button>
+            <ui-button variant="glass" size="md" icon="pencil" (click)="onEdit()">EDITAR ACTIVO</ui-button>
             <ui-button variant="primary" size="md" icon="printer" (click)="onPrintQr()">ETIQUETA QR</ui-button>
           </div>
         </header>

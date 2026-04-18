@@ -333,7 +333,7 @@ interface CalendarCell {
                   <div class="team-board-matrix" [style.--team-day-cols]="calendarCells().length">
                     <div class="board-header">
                       <div class="header-col persona-col sticky-col">
-                        <lucide-icon name="user-circle" size="18"></lucide-icon>
+                        <lucide-icon name="circle-user" size="18"></lucide-icon>
                         <span>Persona</span>
                       </div>
                       <div class="days-row">

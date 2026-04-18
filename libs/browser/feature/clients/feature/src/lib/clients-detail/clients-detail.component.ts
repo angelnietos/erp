@@ -56,7 +56,7 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
             </p>
           </div>
           <div class="ns-header-actions">
-            <ui-button variant="solid" size="sm" icon="edit" (click)="onEdit()">Editar</ui-button>
+            <ui-button variant="solid" size="sm" icon="pencil" (click)="onEdit()">Editar</ui-button>
           </div>
         </div>
 

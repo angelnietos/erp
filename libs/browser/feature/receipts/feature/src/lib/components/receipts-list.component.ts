@@ -203,7 +203,7 @@ interface Receipt {
               <lucide-icon name="search-x" size="56" class="feature-empty__icon"></lucide-icon>
               <h3>Sin resultados</h3>
               <p>Ningún recibo coincide con la búsqueda o el filtro de estado.</p>
-              <ui-button variant="ghost" icon="x-circle" (clicked)="clearFiltersAndSearch()">
+              <ui-button variant="ghost" icon="circle-x" (clicked)="clearFiltersAndSearch()">
                 Limpiar búsqueda y filtro
               </ui-button>
             </div>

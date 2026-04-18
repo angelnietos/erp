@@ -458,7 +458,7 @@ interface InvoiceFormData extends Partial<Invoice> {
                 </p>
                 <ui-button
                   variant="ghost"
-                  icon="x-circle"
+                  icon="circle-x"
                   (clicked)="clearFiltersAndSearch()"
                 >
                   Limpiar búsqueda y filtros
