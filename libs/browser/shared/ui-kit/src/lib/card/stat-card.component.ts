@@ -154,6 +154,10 @@ import { LucideAngularModule } from 'lucide-angular';
         font-weight: 700;
         font-family: var(--font-main, inherit);
       }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-trend {
+        border-radius: 8px;
+      }
     `,
   ],
 })

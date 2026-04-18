@@ -337,7 +337,7 @@
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--bb-radius-md);
   font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.06em;

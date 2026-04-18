@@ -30,10 +30,10 @@
   --bb-sidebar-width: 244px;
   --bb-sidebar-collapsed: 56px;
   --bb-topbar-height: 56px;
-  --bb-radius-sm: 8px;
-  --bb-radius-md: 10px;
-  --bb-radius-lg: 12px;
-  --bb-radius-xl: 16px;
+  --bb-radius-sm: 6px;
+  --bb-radius-md: 8px;
+  --bb-radius-lg: 10px;
+  --bb-radius-xl: 10px;
 
   --bb-page-bg: var(--bg-primary, var(--bio-gray-100));
   --bb-surface: var(--theme-surface, var(--bio-white));

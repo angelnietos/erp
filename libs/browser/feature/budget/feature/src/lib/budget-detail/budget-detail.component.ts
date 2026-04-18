@@ -12,7 +12,6 @@ import {
   UiCardComponent,
   UiButtonComponent,
   UiLoaderComponent,
-  UiTableComponent,
   UiStatCardComponent,
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
@@ -36,7 +35,6 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
     UiCardComponent,
     UiButtonComponent,
     UiLoaderComponent,
-    UiTableComponent,
     UiStatCardComponent,
     UiFeaturePageShellComponent,
   ],
@@ -117,29 +115,33 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
 
         <div class="main-content">
           <ui-card variant="glass" title="Detalle de Líneas Comerciales">
-            <ui-table
-              [columns]="itemColumns"
-              [data]="budget()?.items || []"
-            >
-              <ng-template #cellTemplate let-item let-key="key">
-                @switch (key) {
-                  @case ('price') {
-                    <span class="font-mono">{{
-                      formatCurrencyEu(item.price)
-                    }}</span>
-                  }
-                  @case ('discount') {
-                    <span>{{ item.discount }}%</span>
-                  }
-                  @case ('tax') {
-                    <span>{{ item.tax }}%</span>
-                  }
-                  @default {
-                    {{ item[key] }}
-                  }
-                }
-              </ng-template>
-            </ui-table>
+            <div class="line-items-cards" role="list">
+              @for (line of budget()?.items || []; track line.id) {
+                <article class="line-item-card" role="listitem">
+                  <h3 class="line-item-card__title">Producto {{ line.productId }}</h3>
+                  <dl class="line-item-card__grid">
+                    <div>
+                      <dt>Cantidad</dt>
+                      <dd>{{ line.quantity }}</dd>
+                    </div>
+                    <div>
+                      <dt>Precio</dt>
+                      <dd class="font-mono">{{ formatCurrencyEu(line.price) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Descuento</dt>
+                      <dd>{{ line.discount }}%</dd>
+                    </div>
+                    <div>
+                      <dt>Impuesto</dt>
+                      <dd>{{ line.tax }}%</dd>
+                    </div>
+                  </dl>
+                </article>
+              } @empty {
+                <p class="line-items-empty">Sin líneas en este presupuesto.</p>
+              }
+            </div>
           </ui-card>
 
           <div class="sidebar-info">
@@ -297,6 +299,62 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
         grid-template-columns: 2fr 1fr;
         gap: 1.5rem;
       }
+
+      .line-items-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .line-item-card {
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md, 8px);
+        padding: 0.85rem 1rem;
+        background: color-mix(in srgb, var(--surface) 92%, transparent);
+      }
+      .line-item-card__title {
+        margin: 0 0 0.65rem 0;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.35;
+        word-break: break-word;
+      }
+      .line-item-card__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem 1rem;
+        margin: 0;
+      }
+      .line-item-card__grid > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+      }
+      .line-item-card__grid dt {
+        margin: 0;
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .line-item-card__grid dd {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+      .line-items-empty {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      @media (max-width: 520px) {
+        .line-item-card__grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .sidebar-info {
         display: flex;
         flex-direction: column;
@@ -399,14 +457,6 @@ export class BudgetDetailComponent implements OnInit {
   isLoading = signal(true);
   catalogServices = signal<ServiceCatalogItemDto[]>([]);
   servicesLoading = signal(true);
-
-  itemColumns = [
-    { key: 'productId', header: 'Producto ID' },
-    { key: 'quantity', header: 'Cant.', width: '80px' },
-    { key: 'price', header: 'Precio', width: '120px' },
-    { key: 'discount', header: 'Descuento', width: '100px' },
-    { key: 'tax', header: 'Impuesto', width: '100px' },
-  ];
 
   ngOnInit() {
     this.loadCatalog();

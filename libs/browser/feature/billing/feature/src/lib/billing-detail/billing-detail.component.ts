@@ -4,7 +4,6 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiLoaderComponent,
-  UiTableComponent,
   UiStatCardComponent,
   UiCardComponent,
   UiButtonComponent,
@@ -23,7 +22,6 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
     RouterModule,
     LucideAngularModule,
     UiLoaderComponent,
-    UiTableComponent,
     UiStatCardComponent,
     UiCardComponent,
     UiButtonComponent,
@@ -98,15 +96,29 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
         <div class="main-content">
           <div class="detail-cards">
             <ui-card variant="glass" title="Líneas de Facturación">
-              <ui-table [columns]="itemColumns" [data]="inv.items || []">
-                <ng-template #cellTemplate let-item let-key="key">
-                  @switch (key) {
-                    @case ('unitPrice') { <span class="font-mono">{{ formatCurrencyEu(item.unitPrice) }}</span> }
-                    @case ('total') { <strong class="font-mono" [style.color]="currentTheme().primary">{{ formatCurrencyEu(item.total) }}</strong> }
-                    @default { {{ item[key] }} }
-                  }
-                </ng-template>
-              </ui-table>
+              <div class="line-items-cards" role="list">
+                @for (line of inv.items || []; track line.id) {
+                  <article class="line-item-card" role="listitem">
+                    <h3 class="line-item-card__title">{{ line.description }}</h3>
+                    <dl class="line-item-card__grid">
+                      <div>
+                        <dt>Ud.</dt>
+                        <dd>{{ line.quantity }}</dd>
+                      </div>
+                      <div>
+                        <dt>Precio unit.</dt>
+                        <dd class="font-mono">{{ formatCurrencyEu(line.unitPrice) }}</dd>
+                      </div>
+                      <div class="line-item-card__subtotal">
+                        <dt>Subtotal</dt>
+                        <dd class="font-mono" [style.color]="currentTheme().primary">{{ formatCurrencyEu(line.total) }}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                } @empty {
+                  <p class="line-items-empty">Sin líneas de facturación.</p>
+                }
+              </div>
 
               <footer slot="footer" class="invoice-summary" [style.border-top-color]="currentTheme().primary + '22'">
                 <div class="summary-line">
@@ -235,6 +247,64 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
 
     .notes-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6; }
 
+    .line-items-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .line-item-card {
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md, 8px);
+      padding: 0.85rem 1rem;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+    }
+    .line-item-card__title {
+      margin: 0 0 0.65rem 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.35;
+    }
+    .line-item-card__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem 1rem;
+      margin: 0;
+    }
+    .line-item-card__grid > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+    .line-item-card__grid dt {
+      margin: 0;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .line-item-card__grid dd {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .line-item-card__subtotal dd {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .line-items-empty {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    @media (max-width: 640px) {
+      .line-item-card__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .error-container {
       padding: 4rem;
       display: flex;
@@ -258,13 +328,6 @@ export class BillingDetailComponent implements OnInit {
   currentTheme = this.themeService.currentThemeData;
   invoice = signal<Invoice | null>(null);
   isLoading = signal(true);
-
-  itemColumns = [
-    { key: 'description', header: 'CONCEPTO' },
-    { key: 'quantity', header: 'UD.', width: '70px' },
-    { key: 'unitPrice', header: 'PRECIO UNIT.', width: '120px' },
-    { key: 'total', header: 'SUBTOTAL', width: '120px' },
-  ];
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

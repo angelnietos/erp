@@ -14,7 +14,6 @@ import {
   UiButtonComponent,
   UiBadgeComponent,
   UiLoaderComponent,
-  UiTableComponent,
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
@@ -63,7 +62,6 @@ export interface DeliveryDetailView {
     UiButtonComponent,
     UiBadgeComponent,
     UiLoaderComponent,
-    UiTableComponent,
     UiFeaturePageShellComponent,
   ],
   template: `
@@ -118,20 +116,30 @@ export interface DeliveryDetailView {
         </div>
 
         <ui-card title="Material Entregado">
-          <ui-table [columns]="itemColumns" [data]="d.items">
-            <ng-template #cellTemplate let-item let-key="key">
-              @switch (key) {
-                @case ('condition') {
+          <div class="line-items-cards" role="list">
+            @for (item of d.items; track item.id) {
+              <article class="line-item-card" role="listitem">
+                <div class="line-item-card__row">
+                  <h2 class="line-item-card__title">{{ item.productName }}</h2>
                   <ui-badge [variant]="getConditionVariant(item.condition)">
                     {{ getConditionLabel(item.condition) }}
                   </ui-badge>
-                }
-                @default {
-                  {{ item[key] }}
-                }
-              }
-            </ng-template>
-          </ui-table>
+                </div>
+                <dl class="line-item-card__meta">
+                  <div class="line-item-card__field">
+                    <dt>Cantidad</dt>
+                    <dd>{{ item.quantity }}</dd>
+                  </div>
+                  <div class="line-item-card__field">
+                    <dt>Observaciones</dt>
+                    <dd>{{ item.observations }}</dd>
+                  </div>
+                </dl>
+              </article>
+            } @empty {
+              <p class="line-items-empty">No hay líneas de material en este albarán.</p>
+            }
+          </div>
         </ui-card>
 
         @if (d.status === 'signed' || d.status === 'completed') {
@@ -184,13 +192,13 @@ export interface DeliveryDetailView {
         gap: 8px;
         background: none;
         border: none;
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
         cursor: pointer;
         font-size: 14px;
         padding: 8px 0;
       }
       .back-btn:hover {
-        color: white;
+        color: var(--text-primary, #fff);
       }
       .delivery-header {
         display: flex;
@@ -200,7 +208,7 @@ export interface DeliveryDetailView {
       }
       .delivery-info h1 {
         margin: 0 0 12px 0;
-        color: white;
+        color: var(--text-primary, #fff);
         font-size: 28px;
         font-weight: 700;
       }
@@ -210,7 +218,7 @@ export interface DeliveryDetailView {
         gap: 12px;
       }
       .client-name {
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
         font-size: 14px;
       }
       .header-actions {
@@ -219,12 +227,31 @@ export interface DeliveryDetailView {
       }
       .delivery-meta {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 24px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
+        background: color-mix(in srgb, var(--text-primary, #fff) 4%, transparent);
+        border-radius: var(--radius-md, 8px);
         padding: 20px;
         margin-bottom: 24px;
+        border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+      }
+      @media (max-width: 900px) {
+        .delivery-meta {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 520px) {
+        .delivery-meta {
+          grid-template-columns: 1fr;
+        }
+        .delivery-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+        .header-actions {
+          flex-wrap: wrap;
+        }
       }
       .meta-item {
         display: flex;
@@ -232,11 +259,11 @@ export interface DeliveryDetailView {
         gap: 4px;
       }
       .meta-item .label {
-        color: #64748b;
+        color: var(--text-muted, #64748b);
         font-size: 12px;
       }
       .meta-item .value {
-        color: white;
+        color: var(--text-primary, #fff);
         font-size: 14px;
       }
       .link {
@@ -283,7 +310,66 @@ export interface DeliveryDetailView {
         font-weight: 600;
       }
       .not-found {
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
+      }
+
+      .line-items-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .line-item-card {
+        border: 1px solid var(--border-soft, rgba(148, 163, 184, 0.35));
+        border-radius: var(--radius-md, 8px);
+        padding: 0.9rem 1rem;
+        background: color-mix(in srgb, var(--surface, #fff) 96%, transparent);
+      }
+      .line-item-card__row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.65rem;
+      }
+      .line-item-card__title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary, #fff);
+        line-height: 1.35;
+        flex: 1;
+        min-width: 0;
+      }
+      .line-item-card__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        margin: 0;
+      }
+      .line-item-card__field {
+        display: grid;
+        gap: 0.2rem;
+        min-width: 0;
+      }
+      .line-item-card__field dt {
+        margin: 0;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--text-muted, #94a3b8);
+      }
+      .line-item-card__field dd {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-primary, #e2e8f0);
+        word-break: break-word;
+      }
+      .line-items-empty {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-muted, #94a3b8);
       }
     `,
   ],
@@ -299,13 +385,6 @@ export class DeliveryDetailComponent implements OnInit {
   delivery = signal<DeliveryDetailView | null>(null);
   isLoading = signal(true);
   sigImageBroken = signal(false);
-
-  itemColumns = [
-    { key: 'productName', header: 'Producto' },
-    { key: 'quantity', header: 'Cantidad', width: '100px' },
-    { key: 'condition', header: 'Estado', width: '120px' },
-    { key: 'observations', header: 'Observaciones' },
-  ];
 
   ngOnInit() {
     const routeId = this.id || this.route.snapshot.paramMap.get('id');
