@@ -58,6 +58,6 @@ export class RolesController {
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) id: string) {
     await this.rolesService.delete(id, this.tenantId);
-    return { message: 'Role deleted successfully' };
+    return { message: 'Rol eliminado correctamente' };
   }
 }

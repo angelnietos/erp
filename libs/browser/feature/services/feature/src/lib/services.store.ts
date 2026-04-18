@@ -1,4 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs';
+import { httpErrorMessage } from '@josanz-erp/shared-data-access';
 
 export interface Service {
   id: string;
@@ -17,76 +20,49 @@ export interface Service {
   createdAt: string;
 }
 
-const MOCK_SERVICES: Service[] = [
-  {
-    id: '1',
-    name: 'Servicio de Streaming Básico',
-    description: 'Transmisión en vivo básica',
-    type: 'STREAMING',
-    basePrice: 500,
-    hourlyRate: 50,
-    isActive: true,
-    createdAt: '2024-01-01',
-  },
-  {
-    id: '2',
-    name: 'Producción Audio/Video Completa',
-    description: 'Producción completa de eventos',
-    type: 'PRODUCCIÓN',
-    basePrice: 2000,
-    hourlyRate: 150,
-    isActive: true,
-    createdAt: '2024-01-02',
-  },
-  {
-    id: '3',
-    name: 'Pantalla LED 4x3m Exterior',
-    description: 'Instalación y soporte de pantalla LED P3.9',
-    type: 'LED',
-    basePrice: 1200,
-    hourlyRate: 0,
-    isActive: true,
-    createdAt: '2024-02-10',
-  },
-  {
-    id: '4',
-    name: 'Transporte Logístico Pesado',
-    description: 'Camión 12t para material audiovisual',
-    type: 'TRANSPORTE',
-    basePrice: 300,
-    hourlyRate: 40,
-    isActive: true,
-    createdAt: '2024-02-15',
-  },
-  {
-    id: '5',
-    name: 'Técnico de Sonido Especializado',
-    description: 'Ingeniero de sonido para eventos en vivo',
-    type: 'PERSONAL_TÉCNICO',
-    basePrice: 400,
-    hourlyRate: 60,
-    isActive: true,
-    createdAt: '2024-03-01',
-  },
-  {
-    id: '6',
-    name: 'Operador de Cámara y Vídeo',
-    description: 'Multicámara + dirección de vídeo',
-    type: 'VIDEO_TÉCNICO',
-    basePrice: 350,
-    hourlyRate: 55,
-    isActive: false,
-    createdAt: '2024-03-10',
-  },
-];
+/** Respuesta de GET /api/services (alineada con el backend). */
+interface ServicesApiRow {
+  id: string;
+  name: string;
+  description?: string;
+  type: string;
+  basePrice: number;
+  hourlyRate?: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+const KNOWN_TYPES = new Set<Service['type']>([
+  'STREAMING',
+  'PRODUCCIÓN',
+  'LED',
+  'TRANSPORTE',
+  'PERSONAL_TÉCNICO',
+  'VIDEO_TÉCNICO',
+]);
+
+function mapRowToService(row: ServicesApiRow): Service {
+  const t = row.type as Service['type'];
+  const type = KNOWN_TYPES.has(t) ? t : 'STREAMING';
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    type,
+    basePrice: row.basePrice,
+    hourlyRate: row.hourlyRate,
+    isActive: row.isActive,
+    createdAt: row.createdAt,
+  };
+}
 
 /**
- * ServicesStore — singleton root service that persists services state
- * across component lifecycle (navigation). Components should inject this
- * instead of holding their own state signals.
+ * ServicesStore — estado del catálogo (lista cargada desde GET /api/services).
+ * Las mutaciones locales (add/update/remove/duplicate) siguen siendo optimistas hasta conectar CRUD HTTP.
  */
 @Injectable({ providedIn: 'root' })
 export class ServicesStore {
+  private readonly http = inject(HttpClient);
   private readonly _services = signal<Service[]>([]);
   private readonly _isLoading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
@@ -104,18 +80,31 @@ export class ServicesStore {
   );
 
   /**
-   * Carga el catálogo (mock). Con `force` se vuelve a pedir aunque ya hubiera datos.
+   * Carga el catálogo desde el backend. Con `force` se ignora la caché en memoria y se vuelve a pedir.
    */
   load(force = false): void {
     if (this._loaded && !force) return;
     this._error.set(null);
     this._isLoading.set(true);
-    setTimeout(() => {
-      this._services.set(MOCK_SERVICES);
-      this._isLoading.set(false);
-      this._loaded = true;
-      this._error.set(null);
-    }, 400);
+    this.http
+      .get<ServicesApiRow[]>('/api/services')
+      .pipe(
+        finalize(() => {
+          this._isLoading.set(false);
+        }),
+      )
+      .subscribe({
+        next: (rows) => {
+          this._services.set(rows.map(mapRowToService));
+          this._loaded = true;
+          this._error.set(null);
+        },
+        error: (err: HttpErrorResponse) => {
+          this._error.set(httpErrorMessage(err));
+          this._services.set([]);
+          this._loaded = false;
+        },
+      });
   }
 
   getById(id: string): Service | undefined {

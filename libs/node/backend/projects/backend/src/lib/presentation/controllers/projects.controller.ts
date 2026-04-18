@@ -80,7 +80,7 @@ export class ProjectsController {
     return {
       id: project.id.value,
       status: project.status,
-      message: 'Project completed successfully',
+      message: 'Proyecto completado correctamente',
     };
   }
 
@@ -90,18 +90,18 @@ export class ProjectsController {
     return {
       id: project.id.value,
       status: project.status,
-      message: 'Project cancelled successfully',
+      message: 'Proyecto cancelado correctamente',
     };
   }
 
   @Post(':id/duplicate')
-  async duplicate(@Param('id') id: string) {
+  async duplicate(@Param('id', ParseUUIDPipe) id: string) {
     const duplicatedProject = await this.projectsService.duplicate(id);
     return {
       id: duplicatedProject.id.value,
       name: duplicatedProject.name,
       status: duplicatedProject.status,
-      message: 'Project duplicated successfully',
+      message: 'Proyecto duplicado correctamente',
     };
   }
 

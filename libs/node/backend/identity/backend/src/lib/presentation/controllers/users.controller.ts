@@ -44,6 +44,6 @@ export class UsersController {
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) id: string) {
     await this.usersService.delete(id);
-    return { message: 'User deleted successfully' };
+    return { message: 'Usuario eliminado correctamente' };
   }
 }

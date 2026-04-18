@@ -66,17 +66,17 @@ export class BudgetController {
   @Patch(':id/send')
   async send(@Param('id', ParseUUIDPipe) id: string) {
     await this.budgetService.send(id);
-    return { message: 'Budget sent successfully' };
+    return { message: 'Presupuesto enviado correctamente' };
   }
 
   @Patch(':id/accept')
   async accept(@Param('id', ParseUUIDPipe) id: string) {
     await this.budgetService.accept(id);
-    return { message: 'Budget accepted successfully' };
+    return { message: 'Presupuesto aceptado correctamente' };
   }
 
   @Patch(':id')
-  async updateDraft(@Param('id') id: string, @Body() dto: CreateBudgetDto) {
+  async updateDraft(@Param('id', ParseUUIDPipe) id: string, @Body() dto: CreateBudgetDto) {
     const budget = await this.budgetService.updateDraft(id, dto);
     return {
       id: budget.id.value,
