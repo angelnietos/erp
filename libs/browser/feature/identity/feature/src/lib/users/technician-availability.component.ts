@@ -159,6 +159,7 @@ interface PersonalGridCell {
                  class="scope-btn"
                  [class.active]="personalCalendarScope() === 'month'"
                  (click)="setPersonalCalendarScope('month')"
+                 title="Vista mes (M)"
                >
                  Mes
                </button>
@@ -167,6 +168,7 @@ interface PersonalGridCell {
                  class="scope-btn"
                  [class.active]="personalCalendarScope() === 'week'"
                  (click)="setPersonalCalendarScope('week')"
+                 title="Vista semana (W)"
                >
                  Semana
                </button>
@@ -247,6 +249,7 @@ interface PersonalGridCell {
             </div>
             <ul class="shortcuts-popover__list">
               <li><kbd>T</kbd> Ir a hoy</li>
+              <li><kbd>M</kbd> Vista mes · <kbd>W</kbd> Vista semana (vista individual)</li>
               <li><kbd>←</kbd> / <kbd>→</kbd> Mes o semana anterior/siguiente (vista individual)</li>
               <li><kbd>E</kbd> Exportar CSV</li>
               <li><kbd>?</kbd> Esta ayuda · <kbd>Esc</kbd> Cerrar o limpiar búsqueda</li>
@@ -2635,6 +2638,20 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         if (this.canManageTeam()) {
           ev.preventDefault();
           this.viewMode.set('team');
+        }
+        break;
+      case 'm':
+      case 'M':
+        if (this.viewMode() === 'personal') {
+          ev.preventDefault();
+          this.setPersonalCalendarScope('month');
+        }
+        break;
+      case 'w':
+      case 'W':
+        if (this.viewMode() === 'personal') {
+          ev.preventDefault();
+          this.setPersonalCalendarScope('week');
         }
         break;
       default:
