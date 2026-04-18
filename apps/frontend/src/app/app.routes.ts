@@ -143,6 +143,7 @@ export const appRoutes: Route[] = [
       {
         path: 'not-found',
         component: NotFoundComponent,
+        title: 'Página no encontrada',
       },
     ],
   },
