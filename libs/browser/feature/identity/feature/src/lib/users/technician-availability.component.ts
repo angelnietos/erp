@@ -240,27 +240,28 @@ interface CalendarCell {
                     }
                   </div>
                   
-                  <div class="calendar-grid">
+                  <div class="calendar-grid" role="grid">
                     @for (cell of calendarCells(); track cell.date) {
                       <div
                         class="calendar-cell calendar-cell--readonly"
                         [class.other-month]="!cell.isCurrentMonth"
                         [class.today]="cell.isToday"
                         role="gridcell"
-                        [attr.aria-label]="'Día ' + cell.day"
+                        [attr.aria-label]="
+                          'Día ' + cell.day + ', ' + getCellStatusAbbrev(getTechDayStatus(selectedTechId(), cell.day))
+                        "
                       >
-                        <span class="day-number">{{ cell.day }}</span>
-
-                        <div class="cell-status-content">
-                          @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
-                             <div class="status-indicator-bar" [class]="status"></div>
-                             <div class="status-tag" [class]="status">
-                                {{ getShortLabel(status) }}
-                             </div>
+                        <div class="calendar-cell__top">
+                          <span class="day-number">{{ cell.day }}</span>
+                          @if (cell.isToday) {
+                            <span class="today-badge">Hoy</span>
                           }
                         </div>
-
-                        @if (cell.isToday) { <div class="today-tag">HOY</div> }
+                        @if (getTechDayStatus(selectedTechId(), cell.day); as status) {
+                          <div class="calendar-cell__status" [class]="status">
+                            <span class="status-pill">{{ getCellStatusAbbrev(status) }}</span>
+                          </div>
+                        }
                       </div>
                     }
                   </div>
@@ -432,6 +433,8 @@ interface CalendarCell {
       /* gap y padding horizontal: feature-page-shell--compact (styles.css global) */
       --avail-persona-width: 280px;
       --avail-day-cell-width: 52px;
+      --avail-grid-line: color-mix(in srgb, var(--text-muted) 16%, var(--border-soft));
+      --avail-grid-line-strong: color-mix(in srgb, var(--text-muted) 28%, var(--border-soft));
     }
 
     .legal-hint {
@@ -593,7 +596,7 @@ interface CalendarCell {
 
     .team-board-toolbar-search {
       padding: 0 1.25rem 0.9rem;
-      border-bottom: 1px solid var(--border-soft);
+      border-bottom: 1px solid var(--avail-grid-line);
       background: color-mix(in srgb, var(--bg-tertiary) 40%, var(--bg-secondary));
     }
     .team-board-toolbar-search ::ng-deep .feature-filter-bar {
@@ -624,16 +627,32 @@ interface CalendarCell {
     .tech-card.selected .tech-chevron, .tech-card:hover .tech-chevron { opacity: 1; transform: translateX(0); }
 
     /* CALENDAR PERSONAL */
-    .calendar-card { border-radius: 24px !important; overflow: hidden; border: 1px solid var(--border-soft); }
+    .calendar-card {
+      border-radius: 24px !important;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      box-shadow:
+        0 1px 0 color-mix(in srgb, var(--text-primary) 4%, transparent),
+        0 24px 48px -28px color-mix(in srgb, var(--text-primary) 18%, transparent);
+    }
     .calendar-card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       flex-wrap: wrap;
       gap: 1rem 1.5rem;
-      padding: 2.5rem 3rem;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-soft);
+      padding: 2rem 2.25rem 1.75rem;
+      background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--bg-tertiary) 35%, var(--bg-secondary)) 0%,
+        var(--bg-secondary) 48%,
+        color-mix(in srgb, var(--brand) 4%, var(--bg-secondary)) 100%
+      );
+      border-bottom: 1px solid var(--avail-grid-line);
+    }
+    .header-meta {
+      flex: 1;
+      min-width: min(100%, 280px);
     }
     .label { font-size: 0.6rem; font-weight: 800; color: var(--brand); letter-spacing: 0.2em; }
     .tech-display-name {
@@ -647,19 +666,23 @@ interface CalendarCell {
 
     .personal-month-summary {
       list-style: none;
-      margin: 0.75rem 0 0;
+      margin: 0.85rem 0 0;
       padding: 0;
       display: flex;
       flex-wrap: wrap;
-      gap: 0.45rem 1.1rem;
-      font-size: 0.65rem;
-      font-weight: 700;
+      gap: 0.5rem;
+      font-size: 0.62rem;
+      font-weight: 800;
       color: var(--text-muted);
     }
     .personal-month-summary li {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--bg-tertiary) 65%, transparent);
+      border: 1px solid var(--avail-grid-line);
     }
     .personal-month-summary .dot {
       width: 6px;
@@ -672,53 +695,196 @@ interface CalendarCell {
     .personal-month-summary .dot.HOLIDAY { background: var(--info); box-shadow: 0 0 6px var(--info); }
     .personal-month-summary .dot.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
 
-    .calendar-legend { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
-    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+    .calendar-legend {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 0.4rem 0.65rem;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--bg-tertiary) 45%, transparent);
+      border: 1px solid var(--avail-grid-line);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
     .legend-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
     .legend-item.AVAILABLE .dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
     .legend-item.UNAVAILABLE .dot { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
     .legend-item.HOLIDAY .dot { background: var(--info); box-shadow: 0 0 8px var(--info); }
     .legend-item.SICK_LEAVE .dot { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
 
-    .calendar-container { padding: 2rem 3rem 3rem; }
-    .calendar-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; margin-bottom: 1rem; }
-    .grid-day-label { text-align: center; color: var(--text-muted); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.1em; }
+    .calendar-container {
+      padding: 1.35rem 1.25rem 2rem;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--bg-tertiary) 22%, var(--bg-secondary)) 0%,
+        var(--bg-secondary) 32%,
+        var(--bg-secondary) 100%
+      );
+    }
+    @media (min-width: 768px) {
+      .calendar-container {
+        padding: 1.75rem 2.25rem 2.5rem;
+      }
+    }
 
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; }
+    .calendar-grid-header {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.35rem 0.45rem;
+      margin-bottom: 0.65rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--avail-grid-line);
+    }
+    .grid-day-label {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      padding: 0.35rem 0;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.45rem 0.45rem;
+      align-items: stretch;
+    }
+    @media (min-width: 900px) {
+      .calendar-grid {
+        gap: 0.65rem 0.55rem;
+      }
+    }
+
     .calendar-cell {
-      aspect-ratio: 1 / 1.1; background: var(--bg-tertiary); border: 1px solid var(--border-soft);
-      border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;
-      position: relative; overflow: hidden; transition: var(--transition-base);
-      width: 100%; font: inherit; color: inherit; text-align: left;
+      min-height: 5.5rem;
+      background: color-mix(in srgb, var(--bg-tertiary) 88%, var(--bg-secondary));
+      border: 1px solid var(--avail-grid-line);
+      border-radius: 14px;
+      padding: 0.55rem 0.45rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.45rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+      width: 100%;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-primary) 5%, transparent);
     }
     .calendar-cell--readonly {
       cursor: default;
       user-select: none;
     }
     .calendar-cell--readonly:hover {
-      border-color: var(--border-soft);
-      background: var(--bg-tertiary);
+      border-color: var(--avail-grid-line-strong);
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--text-primary) 6%, transparent),
+        0 8px 20px -14px color-mix(in srgb, var(--text-primary) 16%, transparent);
+      transform: translateY(-1px);
     }
-    .calendar-cell.today { border: 2px solid var(--brand); background: var(--brand-ambient); }
-    .calendar-cell.other-month { opacity: 0.1; pointer-events: none; }
+    .calendar-cell.today {
+      border: 2px solid color-mix(in srgb, var(--brand) 75%, var(--border-soft));
+      background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--brand) 16%, var(--bg-tertiary)) 0%,
+        color-mix(in srgb, var(--brand) 6%, var(--bg-secondary)) 100%
+      );
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--brand) 25%, transparent),
+        0 12px 28px -16px color-mix(in srgb, var(--brand) 45%, transparent);
+    }
+    .calendar-cell.other-month { opacity: 0.12; pointer-events: none; }
 
-    .day-number { font-size: 1.25rem; font-weight: 800; font-family: inherit; color: var(--text-primary); opacity: 0.35; }
-    .today .day-number { color: var(--brand); opacity: 1; }
+    .calendar-cell__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      min-height: 1.35rem;
+    }
+    .day-number {
+      font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+      font-weight: 800;
+      font-family: inherit;
+      line-height: 1;
+      color: var(--text-primary);
+      opacity: 0.45;
+    }
+    .calendar-cell.today .day-number {
+      color: var(--brand);
+      opacity: 1;
+    }
 
-    .cell-status-content { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
-    .status-indicator-bar { width: 100%; height: 3px; border-radius: 10px; background: var(--text-muted); opacity: 0.2; }
-    .status-indicator-bar.AVAILABLE { background: var(--success); opacity: 1; box-shadow: 0 2px 8px var(--success); }
-    .status-indicator-bar.UNAVAILABLE { background: var(--danger); opacity: 1; box-shadow: 0 2px 8px var(--danger); }
-    .status-indicator-bar.HOLIDAY { background: var(--info); opacity: 1; box-shadow: 0 2px 8px var(--info); }
-    .status-indicator-bar.SICK_LEAVE { background: var(--warning); opacity: 1; box-shadow: 0 2px 8px var(--warning); }
+    .today-badge {
+      flex-shrink: 0;
+      font-size: 0.5rem;
+      font-weight: 950;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      background: var(--brand);
+      color: #0a0a0a;
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--brand) 55%, transparent);
+    }
 
-    .status-tag { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); opacity: 0.65; }
-    .status-tag.AVAILABLE { color: var(--success); opacity: 1; }
-    .status-tag.UNAVAILABLE { color: var(--danger); opacity: 1; }
-    .status-tag.HOLIDAY { color: var(--info); opacity: 1; }
-    .status-tag.SICK_LEAVE { color: var(--warning); opacity: 1; }
-
-    .today-tag { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--brand); color: #000; font-size: 0.5rem; font-weight: 950; padding: 2px 6px; border-radius: 4px; box-shadow: 0 0 10px var(--brand-glow); }
+    .calendar-cell__status {
+      margin-top: auto;
+      width: 100%;
+    }
+    .status-pill {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.42rem 0.3rem;
+      border-radius: 10px;
+      font-size: clamp(0.52rem, 1.35vw, 0.62rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid transparent;
+    }
+    .calendar-cell__status.AVAILABLE .status-pill {
+      color: color-mix(in srgb, var(--success) 15%, #052e16);
+      background: color-mix(in srgb, var(--success) 22%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--success) 38%, transparent);
+      box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--success) 55%, transparent);
+    }
+    .calendar-cell__status.UNAVAILABLE .status-pill {
+      color: color-mix(in srgb, var(--danger) 8%, #3f0a0a);
+      background: color-mix(in srgb, var(--danger) 20%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+      box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--danger) 50%, transparent);
+    }
+    .calendar-cell__status.HOLIDAY .status-pill {
+      color: color-mix(in srgb, var(--info) 5%, #0c2a3d);
+      background: color-mix(in srgb, var(--info) 22%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--info) 38%, transparent);
+      box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--info) 45%, transparent);
+    }
+    .calendar-cell__status.SICK_LEAVE .status-pill {
+      color: color-mix(in srgb, var(--warning) 12%, #3d2a06);
+      background: color-mix(in srgb, var(--warning) 22%, var(--bg-tertiary));
+      border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+      box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--warning) 45%, transparent);
+    }
 
     /* TEAM BOARD */
     .team-board-wrapper { min-width: 0; }
@@ -727,7 +893,9 @@ interface CalendarCell {
       border-radius: 22px !important;
       overflow: hidden;
       border: 1px solid var(--border-soft);
-      box-shadow: var(--shadow-sm, 0 8px 32px rgba(0, 0, 0, 0.06));
+      box-shadow:
+        0 1px 0 color-mix(in srgb, var(--text-primary) 4%, transparent),
+        0 24px 48px -28px color-mix(in srgb, var(--text-primary) 18%, transparent);
     }
 
     .team-board-toolbar {
@@ -737,8 +905,13 @@ interface CalendarCell {
       justify-content: space-between;
       gap: 1.25rem;
       padding: 1.35rem 1.5rem 1rem;
-      background: linear-gradient(165deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-tertiary) 88%, var(--bg-secondary)) 100%);
-      border-bottom: 1px solid var(--border-soft);
+      background: linear-gradient(
+        165deg,
+        var(--bg-secondary) 0%,
+        color-mix(in srgb, var(--bg-tertiary) 88%, var(--bg-secondary)) 55%,
+        color-mix(in srgb, var(--brand) 3%, var(--bg-secondary)) 100%
+      );
+      border-bottom: 1px solid var(--avail-grid-line);
     }
     .team-board-toolbar__meta { min-width: 0; flex: 1; }
     .team-board-title {
@@ -878,9 +1051,9 @@ interface CalendarCell {
       position: sticky;
       top: 0;
       z-index: 4;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-soft);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-tertiary) 25%, var(--bg-secondary)) 100%);
+      border-bottom: 1px solid var(--avail-grid-line-strong);
+      box-shadow: 0 8px 20px -12px color-mix(in srgb, var(--text-primary) 14%, transparent);
     }
 
     .header-col.persona-col {
@@ -897,7 +1070,7 @@ interface CalendarCell {
       letter-spacing: 0.08em;
       color: var(--brand);
       font-size: 0.65rem;
-      border-right: 1px solid var(--border-soft);
+      border-right: 1px solid var(--avail-grid-line-strong);
     }
     .header-col.persona-col lucide-icon { opacity: 0.85; }
 
@@ -935,7 +1108,7 @@ interface CalendarCell {
     .day-header-col {
       min-width: 0;
       width: auto;
-      border-right: 1px solid var(--border-soft);
+      border-right: 1px solid var(--avail-grid-line);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -943,6 +1116,9 @@ interface CalendarCell {
       padding: 0.65rem 0.15rem;
       gap: 3px;
       background: var(--bg-secondary);
+    }
+    .day-header-col:nth-child(7n) {
+      border-right: 2px solid var(--avail-grid-line-strong);
     }
     .day-header-col.is-weekend {
       background: color-mix(in srgb, var(--text-muted) 8%, var(--bg-secondary));
@@ -967,13 +1143,19 @@ interface CalendarCell {
     }
     .day-header-col.is-weekend .d-l { opacity: 0.75; color: var(--text-muted); }
 
-    .board-body { background: var(--bg-tertiary); }
+    .board-body {
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--bg-tertiary) 92%, var(--bg-secondary)) 0%,
+        var(--bg-tertiary) 100%
+      );
+    }
 
     .board-row {
       display: grid;
       grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
       align-items: stretch;
-      border-bottom: 1px solid var(--border-soft);
+      border-bottom: 1px solid var(--avail-grid-line);
       min-height: 58px;
       transition: background 0.15s ease, box-shadow 0.15s ease;
       cursor: pointer;
@@ -1002,7 +1184,7 @@ interface CalendarCell {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      border-right: 1px solid var(--border-soft);
+      border-right: 1px solid var(--avail-grid-line-strong);
     }
     .mini-avatar {
       width: 32px;
@@ -1039,11 +1221,15 @@ interface CalendarCell {
     .board-day-cell {
       min-width: 0;
       width: auto;
-      border-right: 1px solid var(--border-soft);
+      border-right: 1px solid var(--avail-grid-line);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.35rem 0;
+      padding: 0.45rem 0.1rem;
+      min-height: 52px;
+    }
+    .board-day-cell:nth-child(7n) {
+      border-right: 2px solid var(--avail-grid-line-strong);
     }
     .board-day-cell.is-weekend {
       background: color-mix(in srgb, var(--text-muted) 6%, transparent);
@@ -1054,13 +1240,15 @@ interface CalendarCell {
     }
 
     .status-chip {
-      width: min(22px, 85%);
-      height: min(22px, 85%);
+      width: clamp(26px, 78%, 36px);
+      height: clamp(26px, 78%, 36px);
       max-width: 100%;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: transform 0.12s ease;
+      aspect-ratio: 1;
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--text-primary) 4%, var(--bg-tertiary));
+      border: 1px solid var(--avail-grid-line);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-primary) 8%, transparent);
     }
     .board-row:hover .status-chip { transform: scale(1.06); }
     .status-chip.AVAILABLE {
@@ -1623,6 +1811,17 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       UNAVAILABLE: 'NO DISP.',
       HOLIDAY: 'VACACIONES',
       SICK_LEAVE: 'INCIDENCIA'
+    };
+    return labels[type] || type;
+  }
+
+  /** Etiqueta corta para celdas del calendario mensual (caben en columnas estrechas). */
+  getCellStatusAbbrev(type: string): string {
+    const labels: Record<string, string> = {
+      AVAILABLE: 'Disp.',
+      UNAVAILABLE: 'Ocup.',
+      HOLIDAY: 'Vac.',
+      SICK_LEAVE: 'Inc.',
     };
     return labels[type] || type;
   }
