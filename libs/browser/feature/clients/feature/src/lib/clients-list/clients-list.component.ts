@@ -550,13 +550,15 @@ interface ClientFormData extends Partial<Client> {
         margin: 1rem 0;
         padding: 1.5rem;
         background: var(--surface);
-        border-radius: 12px;
+        border-radius: 16px;
         border: 1px solid var(--border-soft);
+        box-shadow: 0 8px 32px -14px rgba(8, 8, 8, 0.09);
       }
       .filters-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+        gap: 1.25rem;
+        align-items: end;
       }
       .filter-group {
         display: flex;
