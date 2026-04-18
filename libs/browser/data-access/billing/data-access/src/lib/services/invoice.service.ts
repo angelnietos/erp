@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Budget } from '@josanz-erp/budget-api';
 
 export interface Invoice {
   id: string;
@@ -30,6 +31,12 @@ export interface InvoiceItem {
 export class InvoiceService {
   private http = inject(HttpClient);
   private apiUrl = '/api/invoices';
+  private budgetsUrl = '/api/budgets';
+
+  /** Listado de presupuestos para flujos de facturación (p. ej. alta desde presupuesto). */
+  getBudgets(): Observable<Budget[]> {
+    return this.http.get<Budget[]>(this.budgetsUrl);
+  }
 
   getInvoices(): Observable<Invoice[]> {
     return this.http.get<Invoice[]>(this.apiUrl);

@@ -415,9 +415,8 @@ export class BillingEditComponent implements OnInit {
       notes: this.formData.notes,
     };
 
-    this.invoiceService.createInvoice(payload).subscribe({
+    this.facade.createInvoice$(payload).subscribe({
       next: (created) => {
-        this.facade.upsertInvoice(created);
         this.toast.show('Borrador generado', 'success');
         void this.router.navigate(['/billing', created.id]);
       },

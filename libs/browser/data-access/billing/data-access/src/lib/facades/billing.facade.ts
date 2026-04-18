@@ -1,7 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { Invoice, InvoiceService } from '../services/invoice.service';
-import { BudgetService } from '@josanz-erp/budget-data-access';
 import { Budget } from '@josanz-erp/budget-api';
 import { VerifactuService } from '@josanz-erp/verifactu-data-access';
 import { getStoredTenantId } from '@josanz-erp/identity-data-access';
@@ -15,7 +14,6 @@ export interface BillingTabs {
 @Injectable({ providedIn: 'root' })
 export class BillingFacade {
   private readonly service = inject(InvoiceService);
-  private readonly budgetService = inject(BudgetService);
   private readonly verifactuService = inject(VerifactuService);
 
   /** Full list from API; tabs and mutations keep this in sync. */
@@ -113,12 +111,19 @@ export class BillingFacade {
     this._searchTerm.set(term);
   }
 
+  /**
+   * Crea en API y sincroniza `_allInvoices`. Para encadenar navegación o toasts, usar esto.
+   */
+  createInvoice$(invoice: Omit<Invoice, 'id'>): Observable<Invoice> {
+    return this.service.createInvoice(invoice).pipe(
+      tap((newItem) =>
+        this._allInvoices.update((items) => [...items, newItem]),
+      ),
+    );
+  }
+
   createInvoice(invoice: Omit<Invoice, 'id'>): void {
-    this.service.createInvoice(invoice).subscribe({
-      next: (newItem) => {
-        this._allInvoices.update((items) => [...items, newItem]);
-      },
-    });
+    this.createInvoice$(invoice).subscribe();
   }
 
   /**
@@ -168,7 +173,7 @@ export class BillingFacade {
   }
 
   loadBudgets(): void {
-    this.budgetService.getBudgets().subscribe({
+    this.service.getBudgets().subscribe({
       next: (budgets) => {
         this._budgets.set(budgets);
       },
