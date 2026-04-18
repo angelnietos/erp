@@ -334,8 +334,11 @@ export class DeliveryDetailComponent implements OnInit {
       observations: i.observations?.trim() || '—',
     }));
 
-    const toDay = (iso: string) =>
-      iso.includes('T') ? iso.split('T')[0]! : iso;
+    const toDay = (iso: string) => {
+      if (!iso.includes('T')) return iso;
+      const datePart = iso.split('T')[0];
+      return datePart ?? iso;
+    };
 
     return {
       id: api.id,

@@ -702,7 +702,7 @@ export class FleetListComponent
     );
   }
 
-  loadVehicles(_force = false) {
+  loadVehicles() {
     this.loadError.set(null);
     this.isLoading.set(true);
     this.vehicleService.getVehicles().subscribe({
@@ -741,7 +741,7 @@ export class FleetListComponent
   }
 
   refreshVehicles() {
-    this.loadVehicles(true);
+    this.loadVehicles();
     this.toast.show('Vehículos actualizados', 'info');
   }
 
@@ -968,11 +968,13 @@ export class FleetListComponent
     if (this.typeFilter() !== 'all') {
       list = list.filter((v) => v.type === this.typeFilter());
     }
-    if (this.yearMinFilter() !== null) {
-      list = list.filter((v) => (v.year || 0) >= this.yearMinFilter()!);
+    const yearMin = this.yearMinFilter();
+    if (yearMin !== null) {
+      list = list.filter((v) => (v.year || 0) >= yearMin);
     }
-    if (this.yearMaxFilter() !== null) {
-      list = list.filter((v) => (v.year || 0) <= this.yearMaxFilter()!);
+    const yearMax = this.yearMaxFilter();
+    if (yearMax !== null) {
+      list = list.filter((v) => (v.year || 0) <= yearMax);
     }
 
     const field = this.sortField();
