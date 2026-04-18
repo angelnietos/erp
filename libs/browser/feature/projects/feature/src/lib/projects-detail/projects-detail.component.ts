@@ -14,6 +14,7 @@ import {
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
+import { ClientService } from '@josanz-erp/clients-data-access';
 import { Project, ProjectService, ProjectsFacade } from '@josanz-erp/projects-data-access';
 
 interface ProjectForm {
@@ -105,7 +106,7 @@ interface ProjectForm {
                 </div>
                 <div class="view-block">
                   <span class="view-label">Cliente</span>
-                  <p class="view-value">{{ p.clientName || '—' }}</p>
+                  <p class="view-value">{{ resolveClientLabel(p) }}</p>
                 </div>
                 <div class="view-block">
                   <span class="view-label">Inicio</span>
@@ -186,7 +187,7 @@ interface ProjectForm {
                     icon="users"
                     [(ngModel)]="form.clientId"
                     name="clientId"
-                    [options]="clientOptions"
+                    [options]="clientOptions()"
                   >
                   </ui-select>
                 </div>
@@ -375,6 +376,19 @@ export class ProjectsDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
   private readonly projectsFacade = inject(ProjectsFacade);
+  private readonly clientService = inject(ClientService);
+
+  /** Clientes del tenant para el desplegable (ordenados por nombre). */
+  private readonly clientsForSelect = signal<{ id: string; name: string }[]>([]);
+
+  /** Opciones para `ui-select`: vacío + clientes reales del API. */
+  readonly clientOptions = computed(() => {
+    const rows = this.clientsForSelect();
+    return [
+      { value: '', label: 'Sin cliente asignado' },
+      ...rows.map((c) => ({ value: c.id, label: c.name })),
+    ];
+  });
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -418,19 +432,28 @@ export class ProjectsDetailComponent implements OnInit {
     { value: 'CANCELLED', label: 'Cancelado' },
   ];
 
-  clientOptions = [
-    { value: '', label: 'Seleccionar cliente' },
-    { value: 'client-1', label: 'Cliente Demo 1' },
-    { value: 'client-2', label: 'Cliente Demo 2' },
-  ];
-
   ngOnInit() {
+    this.loadClientsForSelect();
     this.projectId = this.route.snapshot.paramMap.get('id');
     this.isNew = this.projectId === 'new' || !this.projectId;
 
     if (!this.isNew && this.projectId) {
       this.loadProject(this.projectId);
     }
+  }
+
+  private loadClientsForSelect(): void {
+    this.clientService.getClients().subscribe({
+      next: (list) => {
+        const sorted = [...(list ?? [])].sort((a, b) =>
+          a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }),
+        );
+        this.clientsForSelect.set(sorted.map((c) => ({ id: c.id, name: c.name })));
+      },
+      error: () => {
+        this.clientsForSelect.set([]);
+      },
+    });
   }
 
   reload(): void {
@@ -447,6 +470,18 @@ export class ProjectsDetailComponent implements OnInit {
     if (this.projectId) {
       void this.router.navigate(['/projects', this.projectId, 'edit']);
     }
+  }
+
+  /** Nombre de cliente en vista lectura: API + resolución por lista cargada. */
+  resolveClientLabel(p: Project): string {
+    if (p.clientName?.trim()) {
+      return p.clientName.trim();
+    }
+    const id = p.clientId;
+    if (!id) {
+      return '—';
+    }
+    return this.clientsForSelect().find((c) => c.id === id)?.name ?? '—';
   }
 
   statusVariant(s: Project['status']): 'success' | 'warning' | 'info' | 'danger' | 'secondary' {

@@ -112,14 +112,15 @@ interface PersonalGridCell {
           @if (availabilityLoadIssue() === 'full') {
             <lucide-icon name="cloud-off" size="18"></lucide-icon>
             <span
-              >No se pudo sincronizar con el servidor. No se han cargado operarios; revisa la conexión y pulsa
-              actualizar.</span
+              ><strong>Sin datos del servidor.</strong> No se pudo cargar el listado de operarios. Comprueba la
+              conexión y pulsa <strong>Sincronizar datos</strong> (icono de refresco arriba).</span
             >
           } @else {
             <lucide-icon name="alert-triangle" size="18"></lucide-icon>
             <span
-              >Parte de la disponibilidad no llegó desde el servidor. Los días sin registro usan valores por
-              defecto (laborable disponible, fin de semana ocupado). Pulsa actualizar para reintentar.</span
+              ><strong>Carga incompleta.</strong> Falta disponibilidad de algún operario: mientras tanto, los
+              días sin registro muestran laborables como disponibles y fines de semana como no disponibles.
+              Pulsa <strong>Sincronizar datos</strong> para reintentar.</span
             >
           }
         </div>
@@ -678,6 +679,10 @@ interface PersonalGridCell {
     .sync-degraded-banner--partial {
       border-color: color-mix(in srgb, var(--warning, #f59e0b) 35%, var(--border-soft));
       background: color-mix(in srgb, var(--warning, #f59e0b) 10%, var(--bg-secondary));
+    }
+    .sync-degraded-banner strong {
+      font-weight: 800;
+      color: var(--text-primary);
     }
 
     .dashboard-toolbar {

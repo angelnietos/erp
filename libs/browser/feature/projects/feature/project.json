@@ -5,7 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": ["scope:projects", "type:feature"],
-  "implicitDeps": ["projects-data-access"],
+  "implicitDeps": ["projects-data-access", "clients-data-access"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
