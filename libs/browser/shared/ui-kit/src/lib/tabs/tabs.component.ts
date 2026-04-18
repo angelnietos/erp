@@ -280,11 +280,14 @@ export type TabsVariant =
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-default .tab-item:hover {
         color: var(--text-primary);
-        background: color-mix(in srgb, var(--brand) 8%, transparent);
+        background: rgba(0, 0, 0, 0.05);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-default .tab-item.active {
         color: #fff;
+        background: #0a0a0a;
+        box-shadow: none;
+        transform: none;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item {

@@ -1,9 +1,17 @@
 /**
- * Babooni — capa visual global + overrides de shell para acercar el ERP a
- * front-biosstel (theme.css / globals.css). Los patrones de tarjeta y cabecera
- * viven en shared-ui-kit con :host-context(babooni).
- * Solo aplica con html[data-erp-tenant='babooni'].
+ * Babooni — capa visual global (referencia Figma Biosstel: blanco puro, ink,
+ * bordes #d1d1d1, radios ~10px, pocas sombras). Cabeceras/tarjetas en ui-kit
+ * con :host-context(babooni). Solo con html[data-erp-tenant='babooni'].
  */
+
+html[data-erp-tenant='babooni'] {
+  --babooni-ink: #000000;
+  --babooni-ink-soft: #080808;
+  --babooni-border: #d1d1d1;
+  --babooni-surface: #ffffff;
+  --babooni-muted: #747474;
+  --babooni-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
 /* Scrollbars finas como globals.css de Biosstel */
 html[data-erp-tenant='babooni'] * {
@@ -45,33 +53,33 @@ html[data-erp-tenant='babooni'] .availability-container {
   box-sizing: border-box;
 }
 
-/* ── Cabecera de módulo (ui-feature-header) ── */
+/* ── Cabecera de módulo (ui-feature-header) — plano, alto contraste ── */
 html[data-erp-tenant='babooni'] ui-feature-header .header-content {
-  background: var(--theme-surface, #fffefe) !important;
-  border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.08)) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04), 0 8px 28px rgba(8, 8, 8, 0.05) !important;
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .main-title {
   background: none !important;
   -webkit-text-fill-color: unset !important;
   background-clip: unset !important;
-  color: var(--brand, #004b93) !important;
+  color: var(--babooni-ink-soft) !important;
   font-weight: 700 !important;
   font-size: 1.65rem !important;
-  letter-spacing: -0.02em !important;
+  letter-spacing: -0.03em !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .subtitle {
-  color: var(--text-muted, #646464) !important;
+  color: var(--babooni-muted) !important;
   font-weight: 500 !important;
   font-size: 0.95rem !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .icon-box {
-  border-radius: 14px !important;
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--brand, #004b93) 32%, transparent) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
 }
 
 /* ── Métricas colapsables (ui-feature-stats) ── */
@@ -85,9 +93,9 @@ html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn {
 }
 
 html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn:hover {
-  border-color: var(--brand, #004b93) !important;
-  color: var(--brand, #004b93) !important;
-  background: color-mix(in srgb, var(--brand, #004b93) 9%, #ffffff) !important;
+  border-color: var(--babooni-ink-soft) !important;
+  color: var(--babooni-ink-soft) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-stats .stats-grid {
@@ -96,16 +104,16 @@ html[data-erp-tenant='babooni'] ui-feature-stats .stats-grid {
 
 /* ── Tarjetas de estadística ── */
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card {
-  border-radius: 12px !important;
-  background: var(--theme-surface, #fffefe) !important;
-  border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.08)) !important;
-  box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04) !important;
+  border-radius: 10px !important;
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover {
-  transform: translateY(-3px) !important;
-  border-color: color-mix(in srgb, var(--brand, #004b93) 38%, #e6e6e6) !important;
-  box-shadow: 0 8px 28px color-mix(in srgb, var(--brand, #004b93) 22%, transparent) !important;
+  transform: translateY(-2px) !important;
+  border-color: #b8b8b8 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-icon-wrapper {
@@ -114,10 +122,10 @@ html[data-erp-tenant='babooni'] ui-stat-card .stat-icon-wrapper {
 
 /* ── Fila filtros + barra búsqueda (ui-feature-filter-bar) ── */
 html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--framed {
-  background: var(--theme-surface, #fffefe) !important;
-  border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.08)) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04) !important;
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
   padding: 0.65rem 1rem !important;
 }
 
@@ -129,13 +137,9 @@ html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--frame
 
 /* Pestañas modo “pill” (variante default en filtros) */
 html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) {
-  background: color-mix(
-    in srgb,
-    var(--theme-surface, #fffefe) 92%,
-    var(--text-primary, #080808) 4%
-  ) !important;
-  border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.1)) !important;
-  box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04) !important;
+  background: #f3f3f3 !important;
+  border: 1px solid var(--babooni-border) !important;
+  box-shadow: none !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-item {
@@ -151,7 +155,10 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-item.active {
-  color: #fff !important;
+  color: #ffffff !important;
+  background: var(--babooni-ink-soft) !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 /* Pestañas underline junto a la barra */
@@ -169,11 +176,11 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item {
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active {
-  color: var(--brand, #004b93) !important;
+  color: var(--babooni-ink-soft) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active-indicator {
-  background: var(--brand, #004b93) !important;
+  background: var(--babooni-ink-soft) !important;
   height: 3px !important;
   border-radius: 2px 2px 0 0;
 }
@@ -181,10 +188,10 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active
 /* ── Estados vacíos en grillas de módulo (no afecta celdas tabla sueltas) ── */
 html[data-erp-tenant='babooni'] ui-feature-grid .empty-state {
   grid-column: 1 / -1;
-  background: var(--theme-surface, #fffefe) !important;
-  border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.08)) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04), 0 12px 40px rgba(8, 8, 8, 0.05) !important;
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
   padding: 3.5rem 2rem !important;
 }
 
@@ -205,8 +212,8 @@ html[data-erp-tenant='babooni'] ui-feature-grid .empty-state p {
 }
 
 html[data-erp-tenant='babooni'] ui-feature-grid .empty-icon {
-  color: var(--brand, #004b93) !important;
-  opacity: 0.35 !important;
+  color: var(--babooni-ink-soft) !important;
+  opacity: 0.22 !important;
   margin-bottom: 1.25rem !important;
 }
 
@@ -220,12 +227,12 @@ html[data-erp-tenant='babooni'] ui-feature-grid .empty-state ui-button .btn-shap
 
 /* ── Filtros avanzados y paneles auxiliares ── */
 html[data-erp-tenant='babooni'] .advanced-filters {
-  background: var(--theme-surface, #fffefe) !important;
-  border: 1px solid color-mix(in srgb, var(--border-soft) 80%, #e6e6e6) !important;
-  border-radius: 14px !important;
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 12px !important;
   padding: 1rem 1.25rem !important;
   margin-bottom: 1rem !important;
-  box-shadow: 0 2px 10px rgba(8, 8, 8, 0.04) !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
 }
 
 html[data-erp-tenant='babooni'] .filter-label {
@@ -236,10 +243,10 @@ html[data-erp-tenant='babooni'] .filter-label {
 
 html[data-erp-tenant='babooni'] .filter-select,
 html[data-erp-tenant='babooni'] .filter-input {
-  border: 1px solid color-mix(in srgb, var(--border-soft) 80%, #e6e6e6) !important;
+  border: 1px solid var(--babooni-border) !important;
   border-radius: 10px !important;
-  background: var(--bg-secondary, #f7f7f7) !important;
-  color: var(--text-primary, #080808) !important;
+  background: var(--babooni-surface) !important;
+  color: var(--babooni-ink-soft) !important;
 }
 
 html[data-erp-tenant='babooni'] .filter-input::placeholder {

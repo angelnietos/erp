@@ -132,13 +132,13 @@ import { LucideAngularModule } from 'lucide-angular';
       .stat-card:hover .accent-line { transform: scaleX(1); }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
-        border-radius: 12px;
-        box-shadow: 0 1px 2px rgba(8, 8, 8, 0.05);
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px color-mix(in srgb, var(--brand) 18%, rgba(8, 8, 8, 0.08));
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-label {

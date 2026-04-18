@@ -62,14 +62,14 @@
 }
 
 .bb-search__box:hover {
-  border-color: var(--bio-gray-300);
+  border-color: #c4c4c4;
   background: var(--bio-white);
 }
 
 .bb-search__box:focus-within {
-  border-color: var(--bio-primary);
+  border-color: #9a9a9a;
   background: var(--bio-white);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bio-primary) 18%, transparent);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
 .bb-search__box lucide-icon {
@@ -146,9 +146,9 @@
 }
 
 .bb-icon-btn:hover {
-  border-color: var(--bio-primary);
-  color: var(--bio-primary);
-  background: var(--bio-blue-50);
+  border-color: #080808;
+  color: #080808;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .bb-dot {

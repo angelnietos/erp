@@ -1468,12 +1468,11 @@ tr:hover .row-actions,
 .settings-module-disable-terms{display:flex;gap:.75rem;align-items:flex-start;cursor:pointer;font-size:.85rem;color:var(--text-muted,#94a3b8)}
 .settings-module-disable-terms input{margin-top:.2rem;flex-shrink:0}
 
-/* ── Tenant Babooni: look Biosstel (variables en ThemeService); refuerzo UI nativa ── */
+/* ── Tenant Babooni: Biosstel (Figma) — Inter, alto contraste; detalle en babooni-biosstel-pages.css ── */
 html[data-erp-tenant='babooni'] {
   color-scheme: light;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Alineado con front-biosstel: Inter + line-height 1.3 */
   --font-main: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Inter', system-ui, sans-serif;
   line-height: 1.35;

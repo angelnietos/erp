@@ -276,18 +276,18 @@ import { UiBadgeComponent } from '../../badge/badge.component';
        .footer-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
     }
 
-    /* Babooni: tarjetas lista alineadas con Biosstel (shadow-card, borde card, tipografía cuerpo) */
+    /* Babooni: tarjetas tipo Figma Biosstel (borde #d1d1d1, sombra suave) */
     :host-context(html[data-erp-tenant='babooni']) .feature-card {
-      border-radius: 12px;
-      border: 1px solid color-mix(in srgb, var(--text-primary, #080808) 8%, var(--theme-surface, #fffefe));
-      box-shadow: 0 2px 8px 0 rgba(189, 189, 189, 0.28);
-      background: var(--theme-surface, var(--surface));
+      border-radius: 10px;
+      border: 1px solid #d1d1d1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      background: #ffffff;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .feature-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(189, 189, 189, 0.35);
-      border-color: color-mix(in srgb, var(--brand, #004b93) 22%, var(--border-soft, #ecebeb));
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+      border-color: #b8b8b8;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .avatar-bg {
@@ -320,12 +320,12 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost {
-      color: color-mix(in srgb, var(--text-primary) 78%, var(--brand) 22%) !important;
+      color: var(--text-muted) !important;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost:hover {
-      color: var(--brand) !important;
-      background: color-mix(in srgb, var(--brand) 10%, transparent) !important;
+      color: #080808 !important;
+      background: rgba(0, 0, 0, 0.05) !important;
     }
   `]
 })

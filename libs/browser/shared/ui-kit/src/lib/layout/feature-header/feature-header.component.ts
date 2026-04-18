@@ -169,8 +169,8 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       font-size: clamp(1.2rem, 1.1vw + 0.85rem, 1.5rem);
       font-weight: 700;
       text-shadow: none !important;
-      -webkit-text-fill-color: var(--brand, #004b93);
-      color: var(--brand, #004b93);
+      -webkit-text-fill-color: #080808;
+      color: #080808;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb-single span {
@@ -264,9 +264,9 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     :host-context(html[data-erp-tenant='babooni']) .main-title {
       font-size: clamp(1.25rem, 1.2vw + 0.85rem, 1.625rem);
       font-weight: 700;
-      color: var(--brand, #004b93);
+      color: #080808;
       background: none;
-      -webkit-text-fill-color: var(--brand, #004b93);
+      -webkit-text-fill-color: #080808;
       background-clip: unset;
     }
 
@@ -282,19 +282,19 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     }
 
     :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn {
-      background: color-mix(in srgb, var(--text-primary, #080808) 92%, var(--theme-surface) 8%);
-      border-color: color-mix(in srgb, var(--text-primary, #080808) 88%, var(--border-soft) 12%);
-      color: var(--theme-surface, #fffefe);
+      background: #0a0a0a;
+      border-color: #0a0a0a;
+      color: #ffffff;
       text-transform: none;
       letter-spacing: 0.03em;
       font-weight: 600;
       border-radius: 10px;
-      box-shadow: 0 4px 7px 0 rgba(221, 221, 221, 0.45);
+      box-shadow: none;
     }
 
     :host-context(html[data-erp-tenant='babooni']) ::ng-deep ui-button.primary-action .btn:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.06);
+      transform: none;
+      filter: brightness(1.08);
     }
 
     @media (max-width: 768px) {

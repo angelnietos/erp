@@ -1,14 +1,14 @@
 /**
- * Biosstel — espaciado y tokens de layout (referencia front-biosstel `theme.css`).
- * Marca y fondos: enlazados a ThemeService en `:root` (`--brand`, `--bg-primary`, …)
- * para que las variantes premium en tenant Babooni cambien sidebar, badges y acentos.
- * Los fallbacks hex conservan el look oficial si aún no hay tema aplicado.
+ * Biosstel — espaciado y tokens (referencia Figma export + front-biosstel).
+ * Estética: alto contraste blanco/negro, bordes finos ~#d1d1d1, radios 8–10px, sombras discretas.
+ * Marca: `--brand` sigue viniendo de ThemeService; UI base prioriza neutros e ink.
  */
 .bb-shell {
-  /* ── Paleta Biosstel (theme.css) — acentos siguen al tema activo ── */
+  /* ── Paleta: neutros + acento de marca (sidebar/badges); CTAs oscuros tipo login Biosstel ── */
   --bio-primary: var(--brand, #004b93);
-  --bio-button-primary: #1b1b1b;
-  --bio-button-dark: #080808;
+  --bio-button-primary: #0a0a0a;
+  --bio-button-dark: #000000;
+  --bio-border-ui: #d1d1d1;
   --bio-accent-blue: var(--theme-secondary, #185c80);
   --bio-accent-teal: color-mix(in srgb, var(--bio-primary) 42%, #187980);
   --bio-gray-900: #080808;
@@ -17,11 +17,11 @@
   --bio-gray-500: #747474;
   --bio-gray-400: #7c7c7c;
   --bio-gray-300: #b6b6b6;
-  --bio-gray-200: #e6e6e6;
-  --bio-gray-100: #f7f7f7;
-  --bio-blue-50: #eef5fc;
+  --bio-gray-200: #e8e8e8;
+  --bio-gray-100: #f5f5f5;
+  --bio-blue-50: #f3f5f8;
   --bio-blue-400: #59a8f4;
-  --bio-white: #fffefe;
+  --bio-white: #ffffff;
   --bio-success: #21b158;
   --bio-error: #ef4444;
   --bio-info: #5966f4;
@@ -31,24 +31,23 @@
   --bb-sidebar-collapsed: 56px;
   --bb-topbar-height: 56px;
   --bb-radius-sm: 8px;
-  --bb-radius-md: 12px;
-  --bb-radius-lg: 14px;
-  --bb-radius-xl: 18px;
+  --bb-radius-md: 10px;
+  --bb-radius-lg: 12px;
+  --bb-radius-xl: 16px;
 
   --bb-page-bg: var(--bg-primary, var(--bio-gray-100));
   --bb-surface: var(--theme-surface, var(--bio-white));
-  --bb-border: var(--theme-border, var(--bio-gray-200));
+  --bb-border: var(--theme-border, var(--bio-border-ui));
   --bb-sidebar-bg: var(--bg-secondary, var(--bio-gray-100));
   --bb-sidebar-border: var(--theme-border, var(--bio-gray-200));
   --bb-topbar-bg: var(--theme-surface, var(--bio-white));
   --bb-content-max: 100%;
 
-  --bb-shadow-bar: 0 1px 0 rgba(8, 8, 8, 0.06);
-  --bb-shadow-float: 0 4px 24px rgba(8, 8, 8, 0.08);
-  /* Biosstel theme.css — sombras de tarjeta / fila */
-  --bb-shadow-card: 0 2px 8px 0 rgba(189, 189, 189, 0.3);
-  --bb-shadow-row: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
-  --bb-shadow-button: 0 4px 7px 0 rgba(221, 221, 221, 0.5);
+  --bb-shadow-bar: 0 1px 0 rgba(0, 0, 0, 0.06);
+  --bb-shadow-float: 0 2px 14px rgba(0, 0, 0, 0.06);
+  --bb-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --bb-shadow-row: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --bb-shadow-button: none;
 }
 
 /**
@@ -56,9 +55,9 @@
  */
 .bb-card {
   background: var(--bio-white);
-  border: 1px solid var(--bio-gray-200);
+  border: 1px solid var(--bio-border-ui);
   border-radius: var(--bb-radius-lg);
-  box-shadow: var(--bb-shadow-bar);
+  box-shadow: var(--bb-shadow-card);
 }
 
 .bb-muted {

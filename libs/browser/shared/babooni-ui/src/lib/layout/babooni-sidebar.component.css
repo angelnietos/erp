@@ -112,9 +112,9 @@
 }
 
 .bb-sidebar__toggle:hover {
-  border-color: var(--bio-primary);
-  color: var(--bio-primary);
-  background: var(--bio-blue-50);
+  border-color: #080808;
+  color: #080808;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .bb-sidebar__nav {
@@ -158,16 +158,16 @@
 
 .bb-nav-link:hover {
   background: var(--bio-white);
-  color: var(--bio-primary);
+  color: #080808;
   border-color: var(--bio-gray-200);
 }
 
 .bb-nav-link.is-active {
-  background: var(--bio-blue-50);
-  color: var(--bio-primary);
+  background: rgba(0, 0, 0, 0.05);
+  color: #080808;
   font-weight: 600;
-  border-color: color-mix(in srgb, var(--bio-primary) 22%, transparent);
-  box-shadow: inset 3px 0 0 0 var(--bio-primary);
+  border-color: #d1d1d1;
+  box-shadow: inset 3px 0 0 0 #080808;
 }
 
 .bb-nav-link--btn {
