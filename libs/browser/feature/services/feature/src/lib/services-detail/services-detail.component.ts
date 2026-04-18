@@ -50,7 +50,7 @@ interface ServiceForm {
         </div>
         <div class="header-content">
           <h1 class="page-title">
-            {{ isNew ? 'Nuevo Servicio' : 'Editar Servicio' }}
+            {{ isNew ? 'NUEVO SERVICIO' : 'EDITAR SERVICIO' }}
           </h1>
         </div>
         <div class="header-actions">

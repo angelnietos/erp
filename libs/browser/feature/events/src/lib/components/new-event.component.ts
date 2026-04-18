@@ -439,12 +439,12 @@ export class NewEventComponent implements OnInit, OnDestroy {
 
   pageTitle = computed(() => {
     if (this.isNew()) {
-      return 'Nuevo Evento';
+      return 'NUEVO EVENTO';
     }
     if (this.isViewMode()) {
-      return 'Detalle del evento';
+      return 'DETALLE DEL EVENTO';
     }
-    return 'Editar evento';
+    return 'EDITAR EVENTO';
   });
 
   eventForm: FormGroup = this.fb.group({

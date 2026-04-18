@@ -359,7 +359,7 @@ interface ProjectFormData {
       <!-- Create/Edit Modal -->
       <ui-modal
         [isOpen]="isModalOpen()"
-        [title]="editingProject() ? 'Editar proyecto' : 'Nuevo proyecto'"
+        [title]="editingProject() ? 'EDITAR PROYECTO' : 'NUEVO PROYECTO'"
         (closed)="closeModal()"
         variant="glass"
       >

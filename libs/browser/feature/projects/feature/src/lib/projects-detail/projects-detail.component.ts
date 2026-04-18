@@ -395,12 +395,12 @@ export class ProjectsDetailComponent implements OnInit {
 
   pageTitle = computed(() => {
     if (this.isNew) {
-      return 'Nuevo Proyecto';
+      return 'NUEVO PROYECTO';
     }
     if (this.isViewMode()) {
-      return 'Proyecto';
+      return 'PROYECTO';
     }
-    return 'Editar Proyecto';
+    return 'EDITAR PROYECTO';
   });
 
   form: ProjectForm = {

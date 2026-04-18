@@ -482,7 +482,7 @@ interface RentalFormData extends Partial<Rental> {
     <!-- Create/Edit Modal -->
     <ui-modal
       [isOpen]="isModalOpen()"
-      [title]="editingRental() ? 'Editar expediente' : 'Nuevo expediente'"
+      [title]="editingRental() ? 'EDITAR EXPEDIENTE' : 'NUEVO EXPEDIENTE'"
       (closed)="closeModal()"
       variant="glass"
     >

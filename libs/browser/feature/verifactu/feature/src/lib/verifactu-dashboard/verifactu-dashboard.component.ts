@@ -298,7 +298,7 @@ import {
     <ui-modal
       class="verifactu-detail-modal"
       [isOpen]="isDetailModalOpen()"
-      title="Detalle factura VeriFactu"
+      title="DETALLE FACTURA VERIFACTU"
       variant="dark"
       [showFooter]="true"
       (closed)="closeDetailModal()"

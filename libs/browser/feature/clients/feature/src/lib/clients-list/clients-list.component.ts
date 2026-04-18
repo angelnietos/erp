@@ -386,7 +386,7 @@ interface ClientFormData extends Partial<Client> {
       <!-- Create/Edit Modal -->
       <ui-modal
         [isOpen]="isModalOpen()"
-        [title]="editingClient() ? 'Editar cliente' : 'Nuevo cliente'"
+        [title]="editingClient() ? 'EDITAR CLIENTE' : 'NUEVO CLIENTE'"
         (closed)="closeModal()"
         variant="glass"
       >

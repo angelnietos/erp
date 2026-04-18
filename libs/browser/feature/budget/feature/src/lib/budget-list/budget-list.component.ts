@@ -470,7 +470,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       <!-- Create/Edit Modal -->
       <ui-modal
         [isOpen]="isModalOpen()"
-        [title]="editingBudget() ? 'Editar presupuesto' : 'Nuevo presupuesto'"
+        [title]="editingBudget() ? 'EDITAR PRESUPUESTO' : 'NUEVO PRESUPUESTO'"
         (closed)="closeModal()"
         variant="glass"
       >

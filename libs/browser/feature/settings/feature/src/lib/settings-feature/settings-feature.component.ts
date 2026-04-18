@@ -3826,8 +3826,8 @@ export class SettingsFeatureComponent {
 
   readonly deactivateModalTitle = computed(() =>
     this.deactivateModalMode() === 'terms'
-      ? 'Baja de módulo'
-      : 'No puedes desactivar este módulo',
+      ? 'BAJA DE MÓDULO'
+      : 'NO PUEDES DESACTIVAR ESTE MÓDULO',
   );
 
   /** Activar módulos: administradores con gestión de usuarios/roles. */

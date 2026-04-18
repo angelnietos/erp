@@ -434,7 +434,7 @@ interface ServiceFormData extends Partial<Service> {
       <!-- Create/Edit Modal -->
       <ui-modal
         [isOpen]="isModalOpen()"
-        [title]="editingService() ? 'Editar servicio' : 'Nuevo servicio'"
+        [title]="editingService() ? 'EDITAR SERVICIO' : 'NUEVO SERVICIO'"
         (closed)="closeModal()"
         variant="glass"
       >

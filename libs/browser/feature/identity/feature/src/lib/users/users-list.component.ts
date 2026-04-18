@@ -61,6 +61,15 @@ import {
           (actionClicked)="onHeaderPrimaryAction()"
         ></ui-feature-header>
 
+        @if (canManageUsers()) {
+          <div class="users-admin-hint" role="status">
+            <lucide-icon name="info" size="18" class="users-admin-hint__icon" aria-hidden="true"></lucide-icon>
+            <p class="users-admin-hint__text">
+              El alta de usuarios desde esta pantalla aún no está disponible. Usa la API de administración o contacta con soporte.
+            </p>
+          </div>
+        }
+
         @if (loadError() && hasAnyUsers()) {
           <div class="feature-load-error-banner" role="status" aria-live="polite">
             <lucide-icon
@@ -192,6 +201,32 @@ import {
     }
   `,
   styles: [`
+    .users-admin-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid color-mix(in srgb, var(--brand) 32%, transparent);
+      background: color-mix(in srgb, var(--brand) 9%, transparent);
+      font-size: 0.875rem;
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+
+    .users-admin-hint__icon {
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      color: var(--brand);
+    }
+
+    .users-admin-hint__text {
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
     .users-extra-actions {
       display: flex;
       gap: 0.5rem;

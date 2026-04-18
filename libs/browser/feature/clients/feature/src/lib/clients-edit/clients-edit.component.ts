@@ -62,7 +62,7 @@ interface ClientForm {
           </button>
           <div class="edit-header-info">
             <div class="edit-breadcrumb">CLIENTES / EDITAR</div>
-            <h1 class="edit-title">{{ isNew ? 'Nuevo Cliente' : (form.name || 'Editar Cliente') }}</h1>
+            <h1 class="edit-title">{{ isNew ? 'NUEVO CLIENTE' : (form.name || 'EDITAR CLIENTE') }}</h1>
           </div>
           <div class="edit-header-actions">
             <ui-button variant="ghost" icon="x" (click)="goBack()">Cancelar</ui-button>
