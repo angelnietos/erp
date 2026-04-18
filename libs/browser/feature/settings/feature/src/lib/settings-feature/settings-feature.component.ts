@@ -10,6 +10,7 @@ import {
   UiSelectComponent,
   UiModalComponent,
   UiLoaderComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   PluginStore,
@@ -53,9 +54,10 @@ interface PluginDescriptor {
     UiSelectComponent,
     UiModalComponent,
     UiLoaderComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container animate-fade-in">
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true" [fillHost]="true">
       <div class="settings-layout">
         <!-- Sidebar Navigation -->
         <aside class="settings-sidebar">
@@ -1764,15 +1766,10 @@ interface PluginDescriptor {
           }
         </div>
       </ui-modal>
-    </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        height: 100%;
-      }
-
       .settings-layout {
         display: grid;
         grid-template-columns: 280px 1fr;

@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiLoaderComponent, UiStatCardComponent
+  UiLoaderComponent, UiStatCardComponent, UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { InventoryFacade, Product } from '@josanz-erp/inventory-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
@@ -15,10 +15,15 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
   imports: [
     CommonModule, RouterModule, LucideAngularModule,
     UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent
+    UiLoaderComponent, UiStatCardComponent, UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
+    >
+      <div class="inventory-detail__stack">
       @if (isLoading()) {
         <ui-loader message="Sincronizando ficha de activo..."></ui-loader>
       } @else if (product()) {
@@ -93,11 +98,16 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
            <ui-button variant="primary" routerLink="/inventory">VOLVER AL INVENTARIO</ui-button>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    
+    .inventory-detail__stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+    }
     .back-btn {
       background: none; border: none; color: var(--text-muted); 
       display: flex; align-items: center; gap: 8px; font-size: 0.6rem;

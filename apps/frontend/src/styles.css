@@ -109,6 +109,13 @@
   --feature-page-gap: 1.5rem;
 }
 
+/** Alto al 100% del contenedor padre (p. ej. settings con grid interno) */
+.feature-page-shell--fill-host,
+.app-feature-page--fill-host {
+  min-height: unset;
+  height: 100%;
+}
+
 .feature-page-shell--fade-in,
 .app-feature-page--fade-in {
   animation: feature-page-enter 0.4s ease-out;
