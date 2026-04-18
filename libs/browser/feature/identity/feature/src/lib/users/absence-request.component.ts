@@ -253,7 +253,10 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
+        max-width: 1400px;
+        margin: 0 auto;
         padding: 0 1rem 2.5rem;
+        box-sizing: border-box;
       }
       .back-row {
         margin-top: 0.25rem;

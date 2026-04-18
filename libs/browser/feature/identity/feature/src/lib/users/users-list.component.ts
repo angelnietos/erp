@@ -22,6 +22,7 @@ import {
   FilterableService,
   GlobalAuthStore,
   rbacAllows,
+  ToastService,
 } from '@josanz-erp/shared-data-access';
 
 @Component({
@@ -52,7 +53,8 @@ import {
           title="Usuarios"
           subtitle="Gestión de identidades y control de acceso"
           icon="users"
-          actionLabel="NUEVO USUARIO"
+          [actionLabel]="canManageUsers() ? 'Nuevo usuario' : ''"
+          (actionClicked)="onHeaderPrimaryAction()"
         ></ui-feature-header>
 
         @if (loadError() && hasAnyUsers()) {
@@ -75,10 +77,9 @@ import {
             [accent]="true">
           </ui-stat-card>
           <ui-stat-card 
-            label="Activos Ahora" 
+            label="Activos ahora" 
             [value]="activeUsersCount().toString()" 
-            icon="zap" 
-            [trend]="2">
+            icon="zap">
           </ui-stat-card>
           <ui-stat-card 
             label="Roles Definidos" 
@@ -102,11 +103,12 @@ import {
           <ui-button
             variant="ghost"
             size="sm"
-            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            icon="sliders-horizontal"
+            [attr.title]="'Alternar ordenación entre nombre y correo'"
             (clicked)="toggleSort()"
           >
-            Ordenar:
-            {{ sortField() === 'name' ? 'nombre' : 'email' }}
+            Ordenar por
+            {{ sortField() === 'name' ? 'nombre' : 'correo' }}
           </ui-button>
         </ui-feature-filter-bar>
 
@@ -130,7 +132,9 @@ import {
           <div class="feature-empty feature-empty--wide">
             <lucide-icon name="users" size="64" class="feature-empty__icon"></lucide-icon>
             <h3>Sin usuarios</h3>
-            <p>Aún no hay usuarios en este tenant. Crea uno con «Nuevo usuario».</p>
+            <p>
+              Aún no hay cuentas en este espacio de trabajo. Cuando se den de alta, aparecerán aquí.
+            </p>
           </div>
         } @else if (filterProducesNoResults()) {
           <div class="feature-empty feature-empty--wide">
@@ -166,8 +170,14 @@ import {
                 ]"
               >
                  <div footer-extra class="users-extra-actions">
-                   <button class="action-btn warning" (click)="onDeactivate(user); $event.stopPropagation()" [title]="user.isActive ? 'Desactivar' : 'Activar'">
-                     <lucide-icon [name]="user.isActive ? 'user-x' : 'user-check'" size="16"></lucide-icon>
+                   <button
+                     type="button"
+                     class="action-btn warning"
+                     (click)="onDeactivate(user); $event.stopPropagation()"
+                     [attr.aria-label]="user.isActive ? 'Desactivar usuario' : 'Activar usuario'"
+                     [title]="user.isActive ? 'Desactivar' : 'Activar'"
+                   >
+                     <lucide-icon [name]="user.isActive ? 'user-x' : 'user-check'" size="16" aria-hidden="true"></lucide-icon>
                    </button>
                  </div>
               </ui-feature-card>
@@ -182,7 +192,11 @@ import {
       display: flex;
       flex-direction: column;
       gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
       padding: 2rem;
+      min-height: 100vh;
+      box-sizing: border-box;
       animation: fadeIn 0.4s ease-out;
     }
 
@@ -223,8 +237,10 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
   private readonly masterFilter = inject(MasterFilterService);
   public readonly authStore = inject(GlobalAuthStore);
   public readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly canViewUsers = rbacAllows(this.authStore, 'users.view', 'users.manage');
+  readonly canManageUsers = rbacAllows(this.authStore, 'users.manage');
 
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
@@ -281,6 +297,14 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
 
   ngOnDestroy() {
     this.masterFilter.unregisterProvider();
+  }
+
+  onHeaderPrimaryAction(): void {
+    this.toast.show(
+      'El alta de usuarios desde esta pantalla aún no está disponible. Usa la API de administración o contacta con soporte.',
+      'info',
+      5500,
+    );
   }
 
   loadUsers() {
