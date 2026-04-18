@@ -20,7 +20,7 @@ import {
   RolesService,
   Role,
 } from '@josanz-erp/identity-data-access';
-import { User, UpdateUserDto } from '@josanz-erp/identity-api';
+import { User, UpdateUserDto, CreateUserDto } from '@josanz-erp/identity-api';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 import { forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -42,7 +42,9 @@ import { HttpErrorResponse } from '@angular/common/http';
     <div class="user-edit animate-fade-in">
       @if (isLoading()) {
         <div class="loader-wrap">
-          <ui-loader message="Cargando usuario..."></ui-loader>
+          <ui-loader
+            [message]="createMode() ? 'Cargando roles y permisos…' : 'Cargando usuario…'"
+          ></ui-loader>
         </div>
       } @else if (error()) {
         <div class="error-state">
@@ -55,10 +57,14 @@ import { HttpErrorResponse } from '@angular/common/http';
         </div>
       } @else {
         <div class="header-bar">
-          <button type="button" class="back-btn" [routerLink]="['/users', userId()]">
+          <button
+            type="button"
+            class="back-btn"
+            [routerLink]="createMode() ? ['/users'] : ['/users', userId()]"
+          >
             <lucide-icon name="arrow-left" size="18"></lucide-icon>
           </button>
-          <h1 class="title">Editar usuario</h1>
+          <h1 class="title">{{ createMode() ? 'Alta de usuario' : 'Editar usuario' }}</h1>
         </div>
 
         <form class="form-card" (ngSubmit)="save()">
@@ -81,12 +87,33 @@ import { HttpErrorResponse } from '@angular/common/http';
             icon="mail"
             type="email"
           />
-          <div class="toggle-row">
-            <label class="chk">
-              <input type="checkbox" [(ngModel)]="draft.isActive" name="isActive" />
-              <span>Usuario activo</span>
-            </label>
-          </div>
+          @if (createMode()) {
+            <ui-input
+              label="Contraseña"
+              [(ngModel)]="draft.password"
+              name="password"
+              icon="lock"
+              type="password"
+              [attr.autocomplete]="'new-password'"
+            />
+            <ui-input
+              label="Repetir contraseña"
+              [(ngModel)]="draft.passwordConfirm"
+              name="passwordConfirm"
+              icon="lock"
+              type="password"
+              [attr.autocomplete]="'new-password'"
+            />
+            <p class="pw-hint">Mínimo 6 caracteres. El usuario podrá iniciar sesión con este correo.</p>
+          }
+          @if (!createMode()) {
+            <div class="toggle-row">
+              <label class="chk">
+                <input type="checkbox" [(ngModel)]="draft.isActive" name="isActive" />
+                <span>Usuario activo</span>
+              </label>
+            </div>
+          }
 
           <section class="section">
             <h2 class="section-title">Roles del tenant</h2>
@@ -133,7 +160,15 @@ import { HttpErrorResponse } from '@angular/common/http';
           <div class="actions">
             <ui-button type="button" variant="ghost" routerLink="/users">Cancelar</ui-button>
             <ui-button type="submit" variant="solid" icon="save" [disabled]="saving()">
-              {{ saving() ? 'Guardando…' : 'Guardar' }}
+              {{
+                saving()
+                  ? createMode()
+                    ? 'Creando…'
+                    : 'Guardando…'
+                  : createMode()
+                    ? 'Crear usuario'
+                    : 'Guardar'
+              }}
             </ui-button>
           </div>
         </form>
@@ -198,6 +233,11 @@ import { HttpErrorResponse } from '@angular/common/http';
         background: var(--surface);
         border: 1px solid var(--border-soft);
         border-radius: 16px;
+      }
+      .pw-hint {
+        margin: -0.5rem 0 0.25rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
       }
       .toggle-row {
         padding: 0.5rem 0;
@@ -287,6 +327,8 @@ export class UserEditComponent implements OnInit {
   public readonly pluginStore = inject(PluginStore);
 
   userId = signal<string>('');
+  /** Ruta `/users/new` — alta vía API, no placeholder. */
+  createMode = signal(false);
   isLoading = signal(true);
   saving = signal(false);
   error = signal<string | null>(null);
@@ -310,6 +352,8 @@ export class UserEditComponent implements OnInit {
   draft: UpdateUserDto & {
     email?: string;
     isActive?: boolean;
+    password?: string;
+    passwordConfirm?: string;
     roleNames: string[];
     extraPermissions: string[];
   } = {
@@ -318,10 +362,42 @@ export class UserEditComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.createMode.set(this.route.snapshot.data['createMode'] === true);
     this.reload();
   }
 
   reload(): void {
+    if (this.createMode()) {
+      this.userId.set('');
+      this.error.set(null);
+      this.isLoading.set(true);
+      forkJoin({
+        roles: this.rolesApi.findAll(),
+        catalog: this.rolesApi.getPermissionsCatalog(),
+      }).subscribe({
+        next: ({ roles, catalog }) => {
+          this.draft = {
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            passwordConfirm: '',
+            isActive: true,
+            roleNames: [],
+            extraPermissions: [],
+          };
+          this.tenantRoles.set(roles);
+          this.permCatalog.set(catalog);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.error.set('No se pudo cargar roles o permisos.');
+          this.isLoading.set(false);
+        },
+      });
+      return;
+    }
+
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.error.set('Usuario no especificado');
@@ -385,6 +461,10 @@ export class UserEditComponent implements OnInit {
   }
 
   save(): void {
+    if (this.createMode()) {
+      this.saveCreate();
+      return;
+    }
     const id = this.userId();
     if (!id) return;
     this.saving.set(true);
@@ -411,6 +491,56 @@ export class UserEditComponent implements OnInit {
             ? m
             : err.message;
         this.toast.show(detail || 'No se pudo guardar.', 'error');
+        this.saving.set(false);
+      },
+    });
+  }
+
+  private saveCreate(): void {
+    const email = (this.draft.email ?? '').trim();
+    if (!email) {
+      this.toast.show('Indica un correo electrónico.', 'error');
+      return;
+    }
+    const pw = this.draft.password ?? '';
+    const pw2 = this.draft.passwordConfirm ?? '';
+    if (pw.length < 6) {
+      this.toast.show('La contraseña debe tener al menos 6 caracteres.', 'error');
+      return;
+    }
+    if (pw !== pw2) {
+      this.toast.show('Las contraseñas no coinciden.', 'error');
+      return;
+    }
+    if (this.draft.roleNames.length === 0) {
+      this.toast.show('Selecciona al menos un rol del tenant.', 'error');
+      return;
+    }
+    this.saving.set(true);
+    const body: CreateUserDto = {
+      email,
+      password: pw,
+      firstName: this.draft.firstName?.trim() || undefined,
+      lastName: this.draft.lastName?.trim() || undefined,
+      roles: this.draft.roleNames,
+      extraPermissions:
+        this.draft.extraPermissions.length > 0 ? this.draft.extraPermissions : undefined,
+    };
+    this.usersService.create(body).subscribe({
+      next: (u) => {
+        this.toast.show('Usuario creado correctamente.', 'success');
+        void this.router.navigate(['/users', u.id]);
+        this.saving.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        const payload = err.error as { message?: string | string[] } | undefined;
+        const m = payload?.message;
+        const detail = Array.isArray(m)
+          ? m.join(' ')
+          : typeof m === 'string'
+            ? m
+            : err.message;
+        this.toast.show(detail || 'No se pudo crear el usuario.', 'error');
         this.saving.set(false);
       },
     });

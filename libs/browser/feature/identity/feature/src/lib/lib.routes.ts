@@ -17,6 +17,8 @@ export const identityFeatureRoutes: Route[] = [
       { path: 'request', component: AbsenceRequestComponent },
     ],
   },
+  /** Alta de usuario (antes de `:id` para no confundir con id = "new"). */
+  { path: 'new', component: UserEditComponent, data: { createMode: true } },
   /** Más específico primero: `…/edit` no debe capturarse como `:id`. */
   { path: ':id/edit', component: UserEditComponent },
   { path: ':id', component: UserDetailComponent },
