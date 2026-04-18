@@ -60,15 +60,19 @@ export class InventoryFacade {
 
   loadProducts(force = false): void {
     if (!force && this._allProducts().length > 0) return;
+    this._error.set(null);
     this._isLoading.set(true);
     this.service.getProducts().subscribe({
       next: (data) => {
         this._allProducts.set(data);
         this._isLoading.set(false);
+        this._error.set(null);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error loading products');
+      error: () => {
         this._isLoading.set(false);
+        this._error.set(
+          'No se pudieron cargar los productos. Comprueba la conexión e inténtalo de nuevo.',
+        );
       },
     });
   }

@@ -152,6 +152,29 @@ interface ServiceFormData extends Partial<Service> {
         </ui-button>
       </ui-feature-filter-bar>
 
+      @if (error() && store.services().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshServices()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
         <div class="advanced-filters">
@@ -262,9 +285,22 @@ interface ServiceFormData extends Partial<Service> {
         </div>
       }
 
-      @if (store.isLoading()) {
-        <div class="loader-container">
-          <ui-loader message="CARGANDO CATÁLOGO DE SERVICIOS..."></ui-loader>
+      @if (store.isLoading() && store.services().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Cargando catálogo de servicios…"></ui-loader>
+        </div>
+      } @else if (error() && store.services().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar el catálogo</h3>
+          <p>{{ error() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshServices()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -335,25 +371,47 @@ interface ServiceFormData extends Partial<Service> {
               </div>
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="wrench"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay servicios</h3>
-              <p>
-                Comienza añadiendo tu primer servicio para gestionar tu catálogo
-                comercial.
-              </p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-              >
-                Añadir primer servicio
-              </ui-button>
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún servicio coincide con la búsqueda o los filtros
+                  actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="x-circle"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="wrench"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>No hay servicios</h3>
+                <p>
+                  Comienza añadiendo tu primer servicio para gestionar tu catálogo
+                  comercial.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                >
+                  Añadir primer servicio
+                </ui-button>
+              </div>
+            }
           }
         </ui-feature-grid>
       }
@@ -484,30 +542,6 @@ interface ServiceFormData extends Partial<Service> {
       :host ::ng-deep .feature-filter-bar ui-button.active {
         background: var(--primary-light);
         color: var(--primary);
-      }
-
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 4rem;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 16px;
-        border: 2px dashed var(--border-soft);
-      }
-
-      .empty-icon {
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-        opacity: 0.5;
       }
 
       /* Modal Form Styles */
@@ -783,6 +817,12 @@ export class ServicesListComponent
   readonly store = inject(ServicesStore);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'services.view', 'services.manage');
+
+  readonly error = this.store.error;
+  readonly hasAnyServices = computed(() => this.store.services().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyServices() && this.filteredServices().length === 0,
+  );
 
   // Signals for UI state
   isModalOpen = signal(false);
@@ -1177,8 +1217,14 @@ export class ServicesListComponent
     this.currentPage.set(1);
   }
 
+  clearFiltersAndSearch(): void {
+    this._searchQuery.set('');
+    this.masterFilter.search('');
+    this.clearFilters();
+  }
+
   refreshServices() {
-    this.store.load();
+    this.store.load(true);
     this.toast.show('Servicios actualizados', 'info');
   }
 

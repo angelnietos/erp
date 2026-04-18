@@ -137,9 +137,45 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         </ui-button>
       </ui-feature-filter-bar>
 
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-loader message="SINCRONIZANDO INVENTARIO GLOBAL..."></ui-loader>
+      @if (error() && allProducts().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshProducts()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
+      @if (isLoading() && allProducts().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando inventario…"></ui-loader>
+        </div>
+      } @else if (error() && allProducts().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar el inventario</h3>
+          <p>{{ error() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshProducts()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -182,23 +218,45 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
               </div>
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="box"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay productos</h3>
-              <p>
-                El inventario está vacío. Comienza registrando tu primer activo.
-              </p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-                >Registrar equipo</ui-button
-              >
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún producto coincide con la búsqueda o los filtros
+                  actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="x-circle"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="box"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>No hay productos</h3>
+                <p>
+                  El inventario está vacío. Comienza registrando tu primer activo.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                  >Registrar equipo</ui-button
+                >
+              </div>
+            }
           }
         </ui-feature-grid>
 
@@ -287,35 +345,12 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         flex: 1;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 5rem;
-      }
-
       .product-meta {
         margin-top: 0.5rem;
         font-family: var(--font-mono);
         font-size: 0.7rem;
         color: var(--text-muted);
         letter-spacing: 0.05em;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 2px dashed var(--border-soft);
-      }
-      .empty-icon {
-        color: var(--text-muted);
-        opacity: 0.3;
-        margin-bottom: 1.5rem;
       }
 
       .pagination-footer {
@@ -380,7 +415,13 @@ export class InventoryListComponent
   products = this.facade.products;
   allProducts = this.facade.allProducts;
   isLoading = this.facade.isLoading;
+  error = this.facade.error;
   activeTab = this.facade.activeTab;
+
+  readonly hasAnyProducts = computed(() => this.allProducts().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyProducts() && this.products().length === 0,
+  );
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
@@ -501,11 +542,18 @@ export class InventoryListComponent
   }
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadProducts();
   }
 
   refreshProducts() {
-    this.facade.loadProducts();
+    this.facade.loadProducts(true);
+  }
+
+  clearFiltersAndSearch(): void {
+    this.searchTerm = '';
+    this.masterFilter.search('');
+    this.facade.searchProducts('');
+    this.facade.setTab('all');
+    this.currentPage.set(1);
   }
 
   toggleSort() {

@@ -161,6 +161,29 @@ interface InvoiceFormData extends Partial<Invoice> {
         </ui-button>
       </ui-feature-filter-bar>
 
+      @if (error() && allInvoices().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshInvoices()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
+
       <!-- Advanced Filters -->
       @if (showAdvancedFilters()) {
         <div class="advanced-filters">
@@ -280,9 +303,22 @@ interface InvoiceFormData extends Partial<Invoice> {
         </div>
       }
 
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-loader message="SINCRONIZANDO REGISTROS FISCALES..."></ui-loader>
+      @if (isLoading() && allInvoices().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando facturas…"></ui-loader>
+        </div>
+      } @else if (error() && allInvoices().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+          ></lucide-icon>
+          <h3>No se pudo cargar la facturación</h3>
+          <p>{{ error() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshInvoices()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
         <ui-feature-grid>
@@ -408,24 +444,46 @@ interface InvoiceFormData extends Partial<Invoice> {
               </div>
             </ui-feature-card>
           } @empty {
-            <div class="empty-state">
-              <lucide-icon
-                name="banknote"
-                size="64"
-                class="empty-icon"
-              ></lucide-icon>
-              <h3>No hay facturas</h3>
-              <p>
-                Comienza emitiendo una nueva factura o solicita un presupuesto
-                origen.
-              </p>
-              <ui-button
-                variant="solid"
-                (clicked)="openCreateModal()"
-                icon="CirclePlus"
-                >Emitir factura</ui-button
-              >
-            </div>
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ninguna factura coincide con la búsqueda, la pestaña o los
+                  filtros actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="x-circle"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="banknote"
+                  size="56"
+                  class="feature-empty__icon"
+                ></lucide-icon>
+                <h3>No hay facturas</h3>
+                <p>
+                  Comienza emitiendo una nueva factura o solicita un presupuesto
+                  origen.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="openCreateModal()"
+                  icon="CirclePlus"
+                  >Emitir factura</ui-button
+                >
+              </div>
+            }
           }
         </ui-feature-grid>
 
@@ -585,12 +643,6 @@ interface InvoiceFormData extends Partial<Invoice> {
         flex: 1;
       }
 
-      .loader-container {
-        display: flex;
-        justify-content: center;
-        padding: 5rem;
-      }
-
       .fiscal-indicators {
         margin-top: 1rem;
       }
@@ -627,23 +679,6 @@ interface InvoiceFormData extends Partial<Invoice> {
       }
       .text-danger {
         color: #ef4444 !important;
-      }
-
-      .empty-state {
-        grid-column: 1 / -1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 5rem;
-        text-align: center;
-        background: var(--surface);
-        border-radius: 20px;
-        border: 2px dashed var(--border-soft);
-      }
-      .empty-icon {
-        color: var(--text-muted);
-        opacity: 0.3;
-        margin-bottom: 1.5rem;
       }
 
       .pagination-footer {
@@ -917,6 +952,7 @@ export class BillingListComponent
   invoices = this.facade.invoices;
   allInvoices = this.facade.allInvoices;
   isLoading = this.facade.isLoading;
+  error = this.facade.error;
   activeTab = this.facade.activeTab;
   budgets = this.facade.budgets;
   currentPage = signal(1);
@@ -1074,7 +1110,19 @@ export class BillingListComponent
   }
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadInvoices();
+  }
+
+  clearFiltersAndSearch(): void {
+    this.searchTerm = '';
+    this.masterFilter.search('');
+    this.facade.searchInvoices('');
+    this.facade.setTab('all');
+    this.statusFilter.set('all');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.amountMinFilter.set(null);
+    this.amountMaxFilter.set(null);
+    this.currentPage.set(1);
   }
 
   openCreateModal() {
@@ -1247,16 +1295,14 @@ export class BillingListComponent
   selectedCount = computed(() => this.selectedInvoices().size);
   hasSelections = computed(() => this.selectedInvoices().size > 0);
 
-  // Filtered and paginated invoices
+  /** Base: pestaña + búsqueda del facade; luego filtros avanzados y ordenación. */
   filteredInvoices = computed(() => {
-    let filtered = this.allInvoices();
+    let filtered = [...this.invoices()];
 
-    // Status filter
     if (this.statusFilter() !== 'all') {
       filtered = filtered.filter((inv) => inv.status === this.statusFilter());
     }
 
-    // Date range filter
     if (this.dateFromFilter()) {
       const fromDate = new Date(this.dateFromFilter());
       filtered = filtered.filter((inv) => new Date(inv.issueDate) >= fromDate);
@@ -1266,7 +1312,6 @@ export class BillingListComponent
       filtered = filtered.filter((inv) => new Date(inv.issueDate) <= toDate);
     }
 
-    // Amount range filter
     if (this.amountMinFilter() !== null) {
       filtered = filtered.filter(
         (inv) => (inv.total || 0) >= this.amountMinFilter()!,
@@ -1278,8 +1323,30 @@ export class BillingListComponent
       );
     }
 
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    filtered.sort((a, b) => {
+      let cmp = 0;
+      if (field === 'issueDate') {
+        cmp =
+          new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime();
+      } else if (field === 'total') {
+        cmp = (a.total || 0) - (b.total || 0);
+      } else {
+        cmp = (a.status || '').localeCompare(b.status || '', 'es', {
+          sensitivity: 'base',
+        });
+      }
+      return dir === 1 ? cmp : -cmp;
+    });
+
     return filtered;
   });
+
+  readonly filterProducesNoResults = computed(
+    () =>
+      this.allInvoices().length > 0 && this.filteredInvoices().length === 0,
+  );
 
   paginatedInvoices = computed(() => {
     const filtered = this.filteredInvoices();
@@ -1373,7 +1440,7 @@ export class BillingListComponent
   }
 
   refreshInvoices() {
-    this.loadInvoices();
+    this.facade.loadInvoices(true);
     this.toast.show('Facturas actualizadas', 'info');
   }
 

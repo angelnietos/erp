@@ -74,15 +74,19 @@ export class BillingFacade {
 
   loadInvoices(force = false): void {
     if (!force && this._allInvoices().length > 0) return;
+    this._error.set(null);
     this._isLoading.set(true);
     this.service.getInvoices().subscribe({
       next: (data) => {
         this._allInvoices.set(data);
         this._isLoading.set(false);
+        this._error.set(null);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error loading invoices');
+      error: () => {
         this._isLoading.set(false);
+        this._error.set(
+          'No se pudieron cargar las facturas. Comprueba la conexión e inténtalo de nuevo.',
+        );
       },
     });
   }
@@ -157,7 +161,7 @@ export class BillingFacade {
     this.verifactuService.submitInvoiceDirect(invoiceId, tenantId).subscribe({
       next: (res) => {
         if (res.success) {
-          this.loadInvoices();
+          this.loadInvoices(true);
         } else {
           this.updateInvoice(invoiceId, { verifactuStatus: 'error' });
         }

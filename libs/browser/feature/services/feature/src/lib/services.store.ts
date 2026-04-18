@@ -89,10 +89,12 @@ const MOCK_SERVICES: Service[] = [
 export class ServicesStore {
   private readonly _services = signal<Service[]>([]);
   private readonly _isLoading = signal<boolean>(false);
+  private readonly _error = signal<string | null>(null);
   private _loaded = false;
 
   readonly services = this._services.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
+  readonly error = this._error.asReadonly();
 
   readonly activeCount = computed(
     () => this._services().filter((s) => s.isActive).length,
@@ -101,14 +103,18 @@ export class ServicesStore {
     () => new Set(this._services().map((s) => s.type)).size,
   );
 
-  /** Loads data only once per session */
-  load(): void {
-    if (this._loaded) return;
+  /**
+   * Carga el catálogo (mock). Con `force` se vuelve a pedir aunque ya hubiera datos.
+   */
+  load(force = false): void {
+    if (this._loaded && !force) return;
+    this._error.set(null);
     this._isLoading.set(true);
     setTimeout(() => {
       this._services.set(MOCK_SERVICES);
       this._isLoading.set(false);
       this._loaded = true;
+      this._error.set(null);
     }, 400);
   }
 
