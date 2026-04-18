@@ -23,6 +23,21 @@ export class VehicleService {
   private http = inject(HttpClient);
   private apiUrl = '/api/vehicles';
 
+  /** Último listado cargado (p. ej. desde flota) para hidratar detalle sin esperar. */
+  private readonly listCache = new Map<string, Vehicle>();
+
+  /** Llamar al cargar el listado para que el detalle pueda mostrar datos al instante. */
+  seedListCache(vehicles: Vehicle[]): void {
+    this.listCache.clear();
+    for (const v of vehicles) {
+      this.listCache.set(v.id, v);
+    }
+  }
+
+  getListCached(id: string): Vehicle | undefined {
+    return this.listCache.get(id);
+  }
+
   getVehicles(): Observable<Vehicle[]> {
     return this.http.get<Vehicle[]>(this.apiUrl);
   }

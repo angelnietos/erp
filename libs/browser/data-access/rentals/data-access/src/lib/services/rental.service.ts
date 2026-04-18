@@ -41,6 +41,20 @@ export class RentalService {
   private http = inject(HttpClient);
   private apiUrl = '/api/rentals';
 
+  private readonly listCache = new Map<string, Rental>();
+
+  /** Llamar al cargar el listado para hidratar detalle sin spinner continuo. */
+  seedListCache(rentals: Rental[]): void {
+    this.listCache.clear();
+    for (const r of rentals) {
+      this.listCache.set(r.id, r);
+    }
+  }
+
+  getListCached(id: string): Rental | undefined {
+    return this.listCache.get(id);
+  }
+
   getRentals(): Observable<Rental[]> {
     return this.http.get<Rental[]>(this.apiUrl);
   }

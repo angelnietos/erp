@@ -23,7 +23,7 @@ import {
   ServiceCatalogItemDto,
 } from '@josanz-erp/shared-data-access';
 import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
-import { BudgetService } from '@josanz-erp/budget-data-access';
+import { BudgetService, BudgetStore } from '@josanz-erp/budget-data-access';
 import { Budget, BudgetItem } from '@josanz-erp/budget-api';
 
 @Component({
@@ -391,6 +391,7 @@ export class BudgetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly budgetService = inject(BudgetService);
+  readonly store = inject(BudgetStore);
   private readonly servicesCatalog = inject(ServicesCatalogApiService);
 
   currentTheme = this.themeService.currentThemeData;
@@ -430,14 +431,25 @@ export class BudgetDetailComponent implements OnInit {
   }
 
   loadBudget(id: string) {
-    this.isLoading.set(true);
+    const fromStore = this.store.budgets().find((b) => b.id === id);
+    if (fromStore) {
+      this.budget.set(fromStore);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
     this.budgetService.getBudget(id).subscribe({
       next: (budget) => {
-        this.budget.set(budget);
+        if (budget) {
+          this.budget.set(budget);
+        }
         this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading budget:', error);
+        if (!fromStore) {
+          this.budget.set(null);
+        }
         this.isLoading.set(false);
       },
     });

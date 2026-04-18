@@ -274,21 +274,29 @@ export class BillingDetailComponent implements OnInit {
   }
 
   loadInvoice(id: string) {
-    this.isLoading.set(true);
-    // Mocking the backend call with real-time feedback
-    setTimeout(() => {
-      this.invoiceService.getInvoice(id).subscribe({
-        next: (inv) => {
-          if (inv) this.invoice.set(inv);
-          else this.setMockInvoice(id);
-          this.isLoading.set(false);
-        },
-        error: () => {
+    const fromList = this.facade.allInvoices().find((i) => i.id === id);
+    if (fromList) {
+      this.invoice.set(fromList);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+    this.invoiceService.getInvoice(id).subscribe({
+      next: (inv) => {
+        if (inv) {
+          this.invoice.set(inv);
+        } else if (!fromList) {
           this.setMockInvoice(id);
-          this.isLoading.set(false);
         }
-      });
-    }, 600);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        if (!fromList) {
+          this.setMockInvoice(id);
+        }
+        this.isLoading.set(false);
+      },
+    });
   }
 
   private setMockInvoice(id: string) {

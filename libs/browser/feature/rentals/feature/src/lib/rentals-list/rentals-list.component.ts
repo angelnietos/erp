@@ -936,6 +936,7 @@ export class RentalsListComponent
     this.rentalService.getRentals().subscribe({
       next: (list) => {
         this.rentals.set(list);
+        this.rentalService.seedListCache(list);
         this.updateTabs(list);
         this.isLoading.set(false);
         this.loadError.set(null);

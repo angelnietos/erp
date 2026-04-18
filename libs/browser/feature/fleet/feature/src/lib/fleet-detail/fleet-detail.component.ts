@@ -477,16 +477,29 @@ export class FleetDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      // Using real service with mock timeout
-      setTimeout(() => {
-        this.service.getVehicles().subscribe((list) => {
-          const v = list.find((item) => item.id === id);
-          this.vehicle.set(v || null);
-          this.isLoading.set(false);
-        });
-      }, 500);
+    if (!id) {
+      this.isLoading.set(false);
+      return;
     }
+    const cached = this.service.getListCached(id);
+    if (cached) {
+      this.vehicle.set(cached);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+    this.service.getVehicle(id).subscribe({
+      next: (v) => {
+        this.vehicle.set(v ?? null);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        if (!cached) {
+          this.vehicle.set(null);
+        }
+        this.isLoading.set(false);
+      },
+    });
   }
 
   onMaintenance() {

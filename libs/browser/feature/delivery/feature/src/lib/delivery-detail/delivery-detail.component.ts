@@ -20,6 +20,7 @@ import {
 import {
   DeliveryNote as ApiDeliveryNote,
   DeliveryNoteService,
+  DeliveryFacade,
 } from '@josanz-erp/delivery-data-access';
 import {
   openPrintableDocument,
@@ -293,6 +294,7 @@ export class DeliveryDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly deliveryNoteService = inject(DeliveryNoteService);
+  private readonly deliveryFacade = inject(DeliveryFacade);
 
   delivery = signal<DeliveryDetailView | null>(null);
   isLoading = signal(true);
@@ -357,15 +359,23 @@ export class DeliveryDetailComponent implements OnInit {
   }
 
   loadDelivery(id: string) {
-    this.isLoading.set(true);
     this.sigImageBroken.set(false);
+    const fromList = this.deliveryFacade.deliveryNotes().find((n) => n.id === id);
+    if (fromList) {
+      this.delivery.set(this.toView(fromList));
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
     this.deliveryNoteService.getDeliveryNote(id).subscribe({
       next: (api) => {
         this.delivery.set(this.toView(api));
         this.isLoading.set(false);
       },
       error: () => {
-        this.delivery.set(null);
+        if (!fromList) {
+          this.delivery.set(null);
+        }
         this.isLoading.set(false);
       },
     });

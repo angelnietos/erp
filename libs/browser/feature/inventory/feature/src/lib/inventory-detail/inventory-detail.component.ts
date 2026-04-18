@@ -6,7 +6,11 @@ import {
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
   UiLoaderComponent, UiStatCardComponent, UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { InventoryFacade, Product } from '@josanz-erp/inventory-data-access';
+import {
+  InventoryFacade,
+  InventoryService,
+  Product,
+} from '@josanz-erp/inventory-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 @Component({
@@ -153,6 +157,7 @@ export class InventoryDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly facade = inject(InventoryFacade);
+  private readonly inventoryService = inject(InventoryService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -162,14 +167,33 @@ export class InventoryDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-       // Mock or real load
-       setTimeout(() => {
-         const p = this.facade.allProducts().find(item => item.id === id);
-         this.product.set(p || null);
-         this.isLoading.set(false);
-       }, 500);
+    if (!id) {
+      this.isLoading.set(false);
+      return;
     }
+    const fromList = this.facade.allProducts().find((item) => item.id === id);
+    if (fromList) {
+      this.product.set(fromList);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+    this.inventoryService.getProduct(id).subscribe({
+      next: (p) => {
+        if (p) {
+          this.product.set(p);
+        } else if (!fromList) {
+          this.product.set(null);
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        if (!fromList) {
+          this.product.set(null);
+        }
+        this.isLoading.set(false);
+      },
+    });
   }
 
   onEdit() {

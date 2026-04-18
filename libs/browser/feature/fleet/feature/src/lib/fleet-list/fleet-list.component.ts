@@ -708,6 +708,7 @@ export class FleetListComponent
     this.vehicleService.getVehicles().subscribe({
       next: (vehicles: Vehicle[]) => {
         this.vehicles.set(vehicles);
+        this.vehicleService.seedListCache(vehicles);
         this.isLoading.set(false);
         this.loadError.set(null);
       },

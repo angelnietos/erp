@@ -340,7 +340,14 @@ export class RentalsDetailComponent implements OnInit {
   }
 
   loadRental(id: string) {
-    this.isLoading.set(true);
+    const cached = this.service.getListCached(id);
+    if (cached) {
+      this.rental.set(cached);
+      this.isLoading.set(false);
+      this.cdr.markForCheck();
+    } else {
+      this.isLoading.set(true);
+    }
     this.service.getRental(id).subscribe({
       next: (r) => {
         this.rental.set(r);
@@ -348,7 +355,9 @@ export class RentalsDetailComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: () => {
-        this.rental.set(null);
+        if (!cached) {
+          this.rental.set(null);
+        }
         this.isLoading.set(false);
         this.cdr.markForCheck();
       },
