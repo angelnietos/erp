@@ -1,5 +1,5 @@
 import nx from '@nx/eslint-plugin';
-import baseConfig from '../../../eslint.base.mjs';
+import baseConfig from '../../eslint.base.mjs';
 
 export default [
   ...nx.configs['flat/angular'],
@@ -12,7 +12,7 @@ export default [
         'error',
         {
           type: 'attribute',
-          prefix: ['ui-josanz'],
+          prefix: ['ui'],
           style: 'camelCase',
         },
       ],
@@ -20,7 +20,8 @@ export default [
         'error',
         {
           type: 'element',
-          prefix: ['ui-josanz'],
+          // i-lucide es el único elemento legado fuera de ui-*
+          prefix: ['ui', 'i'],
           style: 'kebab-case',
         },
       ],
