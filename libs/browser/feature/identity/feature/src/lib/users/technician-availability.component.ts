@@ -309,7 +309,7 @@ interface CalendarCell {
                     [framed]="true"
                     [appearance]="'feature'"
                     [searchVariant]="'glass'"
-                    placeholder="Filtrar operarios en el cuadrante…"
+                    placeholder="Nombre o rol; varios operarios: ana, carlos o rigging; av…"
                     (searchChange)="onSearch($event)"
                   />
                 </div>
@@ -1313,6 +1313,41 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   private static readonly TEAM_PERSONA_PX = 280;
   private static readonly TEAM_DAY_PX = 52;
 
+  /**
+   * Trocea el filtro del cuadrante: `,` `;` `|` o saltos de línea = varios operarios o criterios (**OR**).
+   * Dentro de cada trozo, varias palabras deben cumplirse todas (**AND**) sobre nombre + rol.
+   */
+  private static teamBoardFilterSegments(raw: string): string[] {
+    return raw
+      .split(/[,;\n|]+/u)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.length > 0);
+  }
+
+  private static teamBoardFilterSegmentCount(raw: string): number {
+    return TechnicianAvailabilityComponent.teamBoardFilterSegments(raw).length;
+  }
+
+  /** Incluye al técnico si coincide **algún** trozo con nombre o rol (visión panorámica multi-persona). */
+  private static matchesTeamBoardFilter(t: Technician, raw: string): boolean {
+    const q = raw.trim();
+    if (!q) {
+      return true;
+    }
+    const segments = TechnicianAvailabilityComponent.teamBoardFilterSegments(q);
+    if (segments.length === 0) {
+      return true;
+    }
+    const hay = `${t.name} ${t.role}`.toLowerCase();
+    return segments.some((segment) => {
+      const words = segment.split(/\s+/u).filter(Boolean);
+      if (words.length === 0) {
+        return false;
+      }
+      return words.every((w) => hay.includes(w));
+    });
+  }
+
   /** Tras «Ir a hoy», centrar el día actual en el cuadrante de equipo cuando termine la carga. */
   private scrollTeamToTodayAfterLoad = false;
 
@@ -1355,14 +1390,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   /** Filas del cuadrante de equipo (misma lista que Operarios, sin duplicar barra lateral). */
   readonly teamBoardRows = computed(() => {
     const list = this.displayedTechnicians();
-    const q = this.teamBoardFilterTerm().trim().toLowerCase();
-    if (!q) {
-      return list;
-    }
-    return list.filter(
-      (t) =>
-        t.name.toLowerCase().includes(q) ||
-        t.role.toLowerCase().includes(q),
+    const raw = this.teamBoardFilterTerm();
+    return list.filter((t) =>
+      TechnicianAvailabilityComponent.matchesTeamBoardFilter(t, raw),
     );
   });
 
@@ -1371,7 +1401,13 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     const shown = this.teamBoardRows().length;
     const q = this.teamBoardFilterTerm().trim();
     if (q && shown !== total) {
-      return `${shown} de ${total} operarios (filtrados)`;
+      const nSeg =
+        TechnicianAvailabilityComponent.teamBoardFilterSegmentCount(q);
+      const segHint = nSeg > 1 ? ` · ${nSeg} criterios (OR)` : '';
+      return `${shown} de ${total} operarios visibles${segHint}`;
+    }
+    if (q && shown === total) {
+      return `${total} operarios (todos coinciden con el filtro)`;
     }
     return `${total} operarios`;
   });
@@ -1522,18 +1558,10 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Technician[]> {
-    const term = query.toLowerCase();
     const pool = this.displayedTechnicians();
     const matches = pool.filter((t: Technician) =>
-      t.name.toLowerCase().includes(term) ||
-      t.role.toLowerCase().includes(term)
+      TechnicianAvailabilityComponent.matchesTeamBoardFilter(t, query),
     );
-    
-    // Si hay un match exacto o muy cercano, podríamos seleccionarlo automáticamente
-    if (matches.length > 0) {
-      // this.selectedTechId.set(matches[0].id); // Evitar efectos secundarios directos aquí si es posible
-    }
-    
     return of(matches);
   }
 
@@ -1544,14 +1572,16 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       this.teamBoardFilterTerm.set('');
     }
     this.masterFilter.search(term);
-    const q = term.toLowerCase().trim();
+    if (this.viewMode() !== 'personal') {
+      return;
+    }
+    const q = term.trim();
     if (!q) {
       return;
     }
     const pool = this.displayedTechnicians();
-    const match = pool.find(
-      (t: Technician) =>
-        t.name.toLowerCase().includes(q) || t.role.toLowerCase().includes(q),
+    const match = pool.find((t: Technician) =>
+      TechnicianAvailabilityComponent.matchesTeamBoardFilter(t, q),
     );
     if (match) {
       this.selectedTechId.set(match.id);
