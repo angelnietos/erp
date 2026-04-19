@@ -35,7 +35,7 @@ export class InvoiceResponseDto {
  */
 export class InvoiceQueueItemDto {
   id!: string;
-  invoice: any;
+  invoice: unknown;
   status!: 'pending' | 'processing' | 'sent' | 'error';
   response?: InvoiceResponseDto;
   createdAt!: Date;

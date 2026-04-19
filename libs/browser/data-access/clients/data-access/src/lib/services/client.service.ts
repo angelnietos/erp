@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { catchHttpDetailNotFound, httpErrorMessage } from '@josanz-erp/shared-data-access';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface ClientContact {
   id: string;
@@ -63,7 +62,7 @@ export interface Rental {
   endDate: string;
   status: string;
   totalPrice?: number;
-  rentalItems?: any[];
+  rentalItems?: unknown[];
 }
 
 export interface Client {
