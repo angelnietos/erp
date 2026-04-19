@@ -20,7 +20,7 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
         class="page-btn nav-btn" 
         [disabled]="currentPage === 1"
         (click)="onPageChange(currentPage - 1)"
-        [attr.aria-label]="'Ir a la página anterior'"
+        [attr.aria-label]="variant === 'minimal' ? 'Página anterior' : 'Ir a la página anterior'"
       >
         <lucide-icon name="chevron-left" aria-hidden="true"></lucide-icon>
         @if (variant !== 'minimal') { <span>Anterior</span> }
@@ -170,4 +170,8 @@ export class UiPaginationComponent {
   }
 
   onPageChange(page: number) {
-    if (page >= 1 && page <= 
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.pageChange.emit(page);
+    }
+  }
+}

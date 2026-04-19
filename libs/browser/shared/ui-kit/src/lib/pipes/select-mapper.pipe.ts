@@ -6,7 +6,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  */
 @Pipe({
   name: 'selectMapper',
-  standalone: true
+  standalone: true,
+  pure: true,
 })
 export class SelectMapperPipe implements PipeTransform {
   transform<T extends object>(items: T[] | null, labelKey: keyof T, valueKey: keyof T): { label: string; value: T[keyof T] }[] {

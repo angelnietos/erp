@@ -16,6 +16,40 @@ export interface CommandItem {
   action?: () => void;
 }
 
+/** Shape of items returned by `MasterFilterService.results` (dynamic per module). */
+function contextHitId(item: unknown): string {
+  if (item && typeof item === 'object' && 'id' in item) {
+    const v = (item as { id: unknown }).id;
+    return v != null ? String(v) : '';
+  }
+  return '';
+}
+
+function contextHitLabel(item: unknown): string {
+  if (!item || typeof item !== 'object') {
+    return 'Resultado';
+  }
+  const o = item as Record<string, unknown>;
+  if (typeof o['name'] === 'string' && o['name'].trim()) {
+    return o['name'];
+  }
+  if (typeof o['label'] === 'string' && o['label'].trim()) {
+    return o['label'];
+  }
+  return 'Resultado';
+}
+
+function contextHitDescription(item: unknown): string {
+  if (!item || typeof item !== 'object') {
+    return 'Ver detalle en el módulo actual';
+  }
+  const o = item as Record<string, unknown>;
+  if (typeof o['description'] === 'string' && o['description'].trim()) {
+    return o['description'];
+  }
+  return 'Ver detalle en el módulo actual';
+}
+
 @Component({
   selector: 'josanz-command-palette',
   standalone: true,
@@ -85,7 +119,7 @@ export interface CommandItem {
                     role="button"
                   >
                     <div class="item-icon">
-                      <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                      <lucide-icon [name]="item.icon" size="18" aria-hidden="true"></lucide-icon>
                     </div>
                     <div class="item-info">
                       <span class="label">{{ item.label }}</span>
@@ -215,6 +249,11 @@ export interface CommandItem {
   `]
 })
 export class CommandPaletteComponent {
+  /** Exposed for template — narrow `unknown` context hits without `$any`. */
+  readonly contextHitId = contextHitId;
+  readonly contextHitLabel = contextHitLabel;
+  readonly contextHitDescription = contextHitDescription;
+
   closePalette = output<void>();
   private router = inject(Router);
 

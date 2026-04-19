@@ -13,10 +13,15 @@ import {
   imports: [CommonModule, LucideAngularModule, UiButtonComponent],
   template: `
     <div class="drawer-overlay" (click)="closeDrawer.emit()" (keydown.escape)="closeDrawer.emit()" tabindex="-1" role="presentation"></div>
-    <div class="drawer-container animate-slide-in">
+    <div
+      class="drawer-container animate-slide-in"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="drawerTitleId"
+    >
       <header class="drawer-header">
         <div class="header-info">
-          <h2 class="drawer-title">Notificaciones</h2>
+          <h2 class="drawer-title" [id]="drawerTitleId">Notificaciones</h2>
           <span class="drawer-subtitle">Actividad reciente del sistema</span>
         </div>
         <ui-button variant="ghost" size="sm" class="drawer-close" (clicked)="closeDrawer.emit()" icon="x"></ui-button>
@@ -47,7 +52,7 @@ import {
                   <p class="note-msg">{{ note.message }}</p>
                   <div class="note-actions">
                     <button type="button" class="action-link" (click)="markRead(note)">
-                      <lucide-icon name="check-check" size="12" class="mr-1"></lucide-icon>
+                      <lucide-icon name="check-check" size="12" class="mr-1" aria-hidden="true"></lucide-icon>
                       Marcar como leída
                     </button>
                   </div>
@@ -310,6 +315,10 @@ import {
   `]
 })
 export class NotificationDrawerComponent {
+  private static titleSeq = 0;
+  /** Stable id for `aria-labelledby` on the dialog panel. */
+  readonly drawerTitleId = `josanz-nd-title-${++NotificationDrawerComponent.titleSeq}`;
+
   closeDrawer = output<void>();
 
   private readonly feed = inject(NotificationFeedStore);

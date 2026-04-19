@@ -57,9 +57,15 @@ interface MessageAction {
       </div>
 
       <!-- Messages Container -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-6" #messagesContainer>
+      <div
+        class="flex-1 overflow-y-auto p-6 space-y-6"
+        #messagesContainer
+        role="log"
+        aria-label="Conversación con el asistente de documentos"
+        aria-live="polite"
+      >
         <div
-          *ngFor="let message of messages()"
+          *ngFor="let message of messages(); trackBy: trackMessageId"
           class="flex gap-3"
           [class]="message.sender === 'user' ? 'justify-end' : 'justify-start'"
         >
@@ -96,7 +102,11 @@ interface MessageAction {
                 class="mt-3 space-y-2"
               >
                 <button
-                  *ngFor="let action of message.actions"
+                  type="button"
+                  *ngFor="
+                    let action of message.actions;
+                    trackBy: trackActionIndex
+                  "
                   (click)="action.action()"
                   class="block w-full text-left px-3 py-2 text-xs bg-tertiary hover:bg-gray-100 rounded-lg border border-soft transition-colors"
                   [class]="
@@ -167,7 +177,11 @@ interface MessageAction {
         <!-- Quick Suggestions -->
         <div class="mb-4 flex flex-wrap gap-3">
           <button
-            *ngFor="let suggestion of quickSuggestions"
+            type="button"
+            *ngFor="
+              let suggestion of quickSuggestions;
+              trackBy: trackSuggestionText
+            "
             (click)="sendQuickMessage(suggestion)"
             class="px-4 py-2 text-sm bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 border border-blue-200 rounded-xl transition-all duration-200 hover:shadow-md font-medium"
           >
@@ -180,7 +194,10 @@ interface MessageAction {
             <input
               type="text"
               [(ngModel)]="newMessage"
-              (keyup.enter)="sendMessage()"
+              (keydown.enter)="onBotChatEnter($event)"
+              [attr.aria-label]="
+                'Mensaje al asistente de creación de documentos'
+              "
               placeholder="Pregúntame sobre documentos, plantillas, diagramas..."
               class="w-full px-6 py-4 pr-12 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface shadow-sm"
               [disabled]="isTyping()"
@@ -190,6 +207,7 @@ interface MessageAction {
             >
               <svg
                 class="w-5 h-5"
+                aria-hidden="true"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -205,8 +223,11 @@ interface MessageAction {
           </div>
 
           <button
+            type="button"
             (click)="sendMessage()"
             [disabled]="!newMessage.trim() || isTyping()"
+            title="Enviar"
+            aria-label="Enviar mensaje"
             class="px-6 py-4 bg-gradient-to-r from-brand to-brand hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center space-x-2 font-medium"
           >
             <span>{{ isTyping() ? 'Pensando...' : 'Enviar' }}</span>
@@ -235,12 +256,32 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private router = inject(Router);
 
+  /** Solo cuando cambia el nº de mensajes o el indicador «escribiendo…». */
+  private lastScrollSignature = '';
+
   constructor() {
     this.initializeBot();
   }
 
-  ngAfterViewChecked() {
-    this.scrollToBottom();
+  ngAfterViewChecked(): void {
+    const sig = `${this.messages().length}-${this.isTyping()}`;
+    if (sig === this.lastScrollSignature) return;
+    this.lastScrollSignature = sig;
+    queueMicrotask(() => {
+      requestAnimationFrame(() => this.scrollToBottom());
+    });
+  }
+
+  trackMessageId(_index: number, message: Message): string {
+    return message.id;
+  }
+
+  trackActionIndex(index: number, _action: MessageAction): number {
+    return index;
+  }
+
+  trackSuggestionText(_index: number, text: string): string {
+    return text;
   }
 
   private initializeBot() {
@@ -265,11 +306,17 @@ export class DocumentBotComponent implements AfterViewChecked {
     this.messages.set([welcomeMessage]);
   }
 
+  /** Enter en el campo: evita acción por defecto y un solo envío. */
+  onBotChatEnter(event: Event): void {
+    event.preventDefault();
+    this.sendMessage();
+  }
+
   sendMessage() {
     if (!this.newMessage.trim()) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content: this.newMessage,
       sender: 'user',
       timestamp: new Date(),
@@ -296,7 +343,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
     const response = this.generateBotResponse(content);
     const botMessage: Message = {
-      id: (Date.now() + 1).toString(),
+      id: crypto.randomUUID(),
       content: response.content,
       sender: 'bot',
       timestamp: new Date(),
@@ -467,7 +514,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private suggestQuoteCreation() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '¡Vamos a crear un presupuesto!\n\nTe recomiendo incluir:\n• Datos del cliente\n• Descripción detallada del proyecto\n• Monto total claro\n• Condiciones de pago\n\n¿Comenzamos?',
       sender: 'bot',
@@ -484,7 +531,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private suggestDocumentationCreation() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '¡Excelente para documentación!\n\nEstructura recomendada:\n• Título y propósito\n• Índice de contenidos\n• Secciones claras\n• Conclusiones\n\n¿Empezamos a crear?',
       sender: 'bot',
@@ -501,7 +548,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showQuoteTips() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '💡 **Consejos para presupuestos efectivos:**\n\n• Sé específico en la descripción\n• Incluye todos los costos\n• Define claramente los plazos\n• Agrega términos y condiciones\n• Usa un tono profesional\n\n¿Listo para crear uno?',
       sender: 'bot',
@@ -518,7 +565,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showDocumentationExamples() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '📚 **Ejemplos de documentación:**\n\n• Manuales de usuario\n• Guías técnicas\n• Especificaciones de proyecto\n• Documentos de proceso\n• Reportes de análisis\n\n¿Qué tipo necesitas?',
       sender: 'bot',
@@ -535,7 +582,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showQuoteTemplate() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '📋 **Plantilla de Presupuesto:**\n\n**Cliente:** [Nombre del cliente]\n**Proyecto:** [Descripción del proyecto]\n**Alcance:** [Qué incluye]\n**Monto Total:** [Cantidad]\n**Plazo:** [Tiempo estimado]\n**Condiciones:** [Términos de pago]\n\n¿Quieres usar esta plantilla?',
       sender: 'bot',
@@ -552,7 +599,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showDocumentationTemplate() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '📄 **Estructura de Documentación:**\n\n1. **Portada**\n   - Título\n   - Autor\n   - Fecha\n   - Versión\n\n2. **Índice**\n\n3. **Introducción**\n   - Propósito\n   - Alcance\n\n4. **Contenido Principal**\n   - Secciones detalladas\n\n5. **Conclusiones**\n\n¿Te ayudo a crear uno?',
       sender: 'bot',
@@ -569,7 +616,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showDocumentTypes() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '📑 **Tipos de Documentos Disponibles:**\n\n• **Presupuestos**: Cotizaciones profesionales\n• **Propuestas Comerciales**: Documentos detallados para clientes\n• **Documentación Técnica**: Manuales y guías\n• **Documentación Arquitectónica**: Diagramas Mermaid y especificaciones\n\nCada tipo tiene su propia plantilla optimizada.',
       sender: 'bot',
@@ -598,7 +645,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private suggestProposalCreation() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '¡Vamos a crear una propuesta comercial impactante!\n\nTe recomiendo incluir:\n• Resumen ejecutivo convincente\n• Objetivos y alcance claros\n• Cronograma realista\n• Precios competitivos\n• Términos claros\n\n¿Comenzamos?',
       sender: 'bot',
@@ -615,7 +662,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private suggestArchitectureCreation() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '¡Perfecto para documentación arquitectónica!\n\nIncluye:\n• Resumen del sistema\n• Diagramas de arquitectura (Mermaid)\n• Flujo de datos\n• APIs y endpoints\n• Tecnologías utilizadas\n• Estrategia de despliegue\n\nLos diagramas se renderizan automáticamente.',
       sender: 'bot',
@@ -632,7 +679,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showProposalStructure() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '📋 **Estructura Recomendada para Propuestas:**\n\n1. **Portada**\n   - Título, cliente, fecha\n\n2. **Resumen Ejecutivo**\n   - Beneficios clave, ROI\n\n3. **Objetivos**\n   - Metas del proyecto\n\n4. **Alcance**\n   - Qué incluye/no incluye\n\n5. **Entregables**\n   - Resultados concretos\n\n6. **Cronograma**\n   - Hitos y fechas\n\n7. **Precios**\n   - Costos detallados\n\n8. **Términos**\n   - Condiciones legales\n\n¿Te ayudo a crear una?',
       sender: 'bot',
@@ -649,7 +696,7 @@ export class DocumentBotComponent implements AfterViewChecked {
 
   private showMermaidExamples() {
     const message: Message = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content:
         '🎨 **Ejemplos de Diagramas Mermaid:**\n\n**Diagrama de Arquitectura:**\n```\ngraph TD\n    A[Cliente Web] --> B[API Gateway]\n    B --> C[Servicio de Autenticación]\n    B --> D[Servicio de Documentos]\n    C --> E[Base de Datos PostgreSQL]\n    D --> E\n```\n\n**Flujo de Datos:**\n```\nsequenceDiagram\n    participant Usuario\n    participant API\n    participant DB\n    Usuario->>API: Solicitud\n    API->>DB: Consulta\n    DB-->>API: Resultados\n    API-->>Usuario: Respuesta\n```\n\n¿Quieres crear documentación con estos diagramas?',
       sender: 'bot',
