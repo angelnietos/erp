@@ -33,11 +33,9 @@ import {
   DocumentAiService,
   DocumentAiContext,
 } from '../services/document-ai.service';
+import type { MarkedGlobal } from '../types/cdn-script-globals';
 
-declare const marked: {
-  parse: (content: string, options?: object) => string;
-  setOptions?: (options: object) => void;
-};
+declare const marked: MarkedGlobal;
 
 interface DocumentType {
   id: string;

@@ -7,7 +7,7 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
 import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
 
 @Component({
-  selector: 'babooni-sidebar',
+  selector: 'lib-babooni-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `

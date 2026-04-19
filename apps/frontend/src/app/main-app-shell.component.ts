@@ -13,7 +13,7 @@ import { AuthStore, getErpTenantSlug } from '@josanz-erp/identity-data-access';
   imports: [RouterModule, AppLayoutComponent, BabooniAppLayoutComponent],
   template: `
     @if (isBabooniTenant()) {
-      <babooni-app-layout />
+      <lib-babooni-app-layout />
     } @else {
       <josanz-app-layout (logoutClick)="auth.logout()" />
     }

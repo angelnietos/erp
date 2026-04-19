@@ -1,7 +1,7 @@
 {
   "name": "inventory-core",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/inventory/domain/src",
+  "sourceRoot": "libs/isomorphic/core/inventory/core/src",
   "projectType": "library",
   "tags": ["scope:inventory", "type:core"],
   "targets": {
@@ -9,26 +9,26 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/inventory/domain",
-        "main": "libs/inventory/domain/src/index.ts",
-        "tsConfig": "libs/inventory/domain/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/inventory/core",
+        "main": "libs/isomorphic/core/inventory/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/inventory/core/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/inventory/domain/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/inventory/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/inventory/domain/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/inventory/core/jest.config.cts",
         "passWithNoTests": true
       },
       "outputs": [
-        "{workspaceRoot}/coverage/libs/inventory/domain"
+        "{workspaceRoot}/coverage/libs/isomorphic/core/inventory/core"
       ]
     }
   }

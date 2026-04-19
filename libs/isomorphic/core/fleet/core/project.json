@@ -1,7 +1,7 @@
 {
   "name": "fleet-core",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/fleet/domain/src",
+  "sourceRoot": "libs/isomorphic/core/fleet/core/src",
   "projectType": "library",
   "tags": ["scope:fleet", "type:core"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/fleet/domain",
-        "main": "libs/fleet/domain/src/index.ts",
-        "tsConfig": "libs/fleet/domain/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/fleet/core",
+        "main": "libs/isomorphic/core/fleet/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/fleet/core/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/fleet/domain/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/fleet/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/fleet/domain/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/fleet/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/fleet/domain"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/fleet/core"]
     }
   }
 }

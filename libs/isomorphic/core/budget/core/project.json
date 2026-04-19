@@ -1,7 +1,7 @@
 {
   "name": "budget-core",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/budget/domain/src",
+  "sourceRoot": "libs/isomorphic/core/budget/core/src",
   "projectType": "library",
   "tags": ["scope:budget", "type:core"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/budget/domain",
-        "main": "libs/budget/domain/src/index.ts",
-        "tsConfig": "libs/budget/domain/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/budget/core",
+        "main": "libs/isomorphic/core/budget/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/budget/core/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/budget/domain/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/budget/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/budget/domain/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/budget/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/budget/domain"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/budget/core"]
     }
   }
 }

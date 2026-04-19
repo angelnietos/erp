@@ -1,21 +1,11 @@
 import { Injectable } from '@angular/core';
 import { escapeHtml } from '../utils/html-escape';
+import type {
+  Html2PdfFactory,
+  MarkedGlobal,
+} from '../types/cdn-script-globals';
 
-/** Cargado vía script en `index.html` (html2pdf.js). */
-interface Html2PdfChain {
-  set: (options: object) => Html2PdfChain;
-  from: (source: string | HTMLElement) => Html2PdfChain;
-  outputPdf: (type: 'blob') => Promise<Blob>;
-}
-
-declare function html2pdf(): Html2PdfChain;
-
-/** Cargado vía script en `index.html` (marked). */
-interface MarkedGlobal {
-  parse: (src: string, options?: object) => string;
-  setOptions?: (options: object) => void;
-}
-
+declare const html2pdf: Html2PdfFactory;
 declare const marked: MarkedGlobal;
 
 interface DocumentData {

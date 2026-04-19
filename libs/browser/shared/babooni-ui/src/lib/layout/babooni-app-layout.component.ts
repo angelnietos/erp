@@ -28,7 +28,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { BabooniSidebarComponent } from './babooni-sidebar.component';
 
 @Component({
-  selector: 'babooni-app-layout',
+  selector: 'lib-babooni-app-layout',
   standalone: true,
   imports: [
     CommonModule,
@@ -43,7 +43,7 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
   template: `
     <josanz-toast-stack />
     <div class="bb-shell">
-      <babooni-sidebar />
+      <lib-babooni-sidebar />
 
       <div class="bb-shell__main">
         <header class="bb-topbar">

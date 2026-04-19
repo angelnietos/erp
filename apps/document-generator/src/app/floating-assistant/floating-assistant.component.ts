@@ -16,11 +16,9 @@ import {
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { escapeHtml } from '../utils/html-escape';
+import type { MarkedGlobal } from '../types/cdn-script-globals';
 
-declare const marked: {
-  parse: (content: string, options?: object) => string;
-  setOptions?: (options: object) => void;
-};
+declare const marked: MarkedGlobal;
 
 @Component({
   selector: 'app-floating-assistant',

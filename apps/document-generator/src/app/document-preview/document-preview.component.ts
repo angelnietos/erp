@@ -11,11 +11,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import mermaid from 'mermaid';
+import type { MarkedGlobal } from '../types/cdn-script-globals';
 
-declare const marked: {
-  parse: (content: string, options?: object) => string;
-  setOptions?: (options: object) => void;
-};
+declare const marked: MarkedGlobal;
 
 /** Payload persistido o en state de navegación (campos variables por tipo). */
 interface DocumentPreviewPayload {
