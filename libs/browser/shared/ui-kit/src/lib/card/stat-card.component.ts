@@ -158,6 +158,24 @@ import { LucideAngularModule } from 'lucide-angular';
       :host-context(html[data-erp-tenant='babooni']) .stat-trend {
         border-radius: 8px;
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        .stat-card {
+          transition: none;
+        }
+        .stat-card:hover {
+          transform: none;
+        }
+        .stat-card:hover .stat-icon-wrapper {
+          transform: none;
+        }
+        .stat-icon-wrapper {
+          transition: none;
+        }
+        .accent-line {
+          transition: none;
+        }
+      }
     `,
   ],
 })

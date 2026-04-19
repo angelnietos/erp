@@ -70,6 +70,18 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
         0 4px 22px rgba(0, 0, 0, 0.45),
         inset 0 1px 0 color-mix(in srgb, var(--toolbar-accent) 12%, transparent);
       overflow: hidden;
+      transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .search-toolbar--feature:focus-within {
+      border-color: color-mix(in srgb, var(--toolbar-accent) 48%, var(--toolbar-bar-border));
+      box-shadow:
+        var(--fld-shine-subtle),
+        0 8px 32px rgba(0, 0, 0, 0.52),
+        0 0 0 1px color-mix(in srgb, var(--toolbar-accent) 18%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--toolbar-accent) 16%, transparent);
     }
 
     .search-toolbar--minimal {
@@ -243,6 +255,13 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
       .btn:hover {
       filter: none;
       background: color-mix(in srgb, var(--toolbar-accent) 10%, transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .search-toolbar--feature,
+      .search-toolbar--feature:focus-within {
+        transition: none;
+      }
     }
   `],
 })

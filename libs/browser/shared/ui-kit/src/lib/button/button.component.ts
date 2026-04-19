@@ -171,6 +171,23 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       animation: rotate 0.8s infinite linear;
     }
     @keyframes rotate { to { transform: rotate(360deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn {
+        transition-duration: 0.15s;
+      }
+      .btn:hover::after {
+        opacity: 0;
+      }
+      .btn-shape-solid:hover,
+      .btn-shape-auto:hover,
+      .btn-shape-glass:hover {
+        transform: none;
+      }
+      .btn:hover .btn-icon {
+        transform: none;
+      }
+    }
   `],
 })
 export class UiButtonComponent {

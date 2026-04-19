@@ -263,6 +263,21 @@ export type TabsVariant =
         background: linear-gradient(180deg, var(--bg-tertiary), transparent);
       }
 
+      @media (prefers-reduced-motion: reduce) {
+        .tab-item {
+          transition: none;
+        }
+        .tab-item.active {
+          transform: none;
+        }
+        .tabs-underline .active-indicator {
+          transition: none;
+        }
+        .tabs-animated .tab-item.active {
+          animation: none;
+        }
+      }
+
       /* Babooni: pestañas menos “gaming”, alineadas con Biosstel */
       :host-context(html[data-erp-tenant='babooni']) .tabs-default {
         background: color-mix(in srgb, var(--theme-surface, #fffefe) 94%, var(--text-primary) 4%);

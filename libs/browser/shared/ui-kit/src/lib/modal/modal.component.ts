@@ -158,6 +158,13 @@ export type ModalVariant = string;
       box-shadow: 0 0 20px -5px var(--modal-accent);
     }
 
+    .close-btn:focus-visible {
+      outline: none;
+      color: var(--text-primary, #fff);
+      border-color: var(--modal-accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--modal-accent) 45%, transparent);
+    }
+
     .modal-body {
       padding: 2rem 2.5rem;
       max-height: 70vh;
@@ -193,6 +200,18 @@ export type ModalVariant = string;
       transition: background 0.3s;
     }
     .modal-body::-webkit-scrollbar-thumb:hover { background: var(--modal-accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .modal-overlay {
+        animation: none;
+      }
+      .modal-content {
+        animation: none;
+      }
+      .close-btn:hover {
+        transform: none;
+      }
+    }
   `],
 })
 export class UiModalComponent {

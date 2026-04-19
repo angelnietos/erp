@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+import { DocumentPersistenceService } from '../services/document-persistence.service';
 
 @Component({
   selector: 'app-document-preview-download',
@@ -14,22 +15,31 @@ export class DocumentPreviewDownloadComponent implements OnInit {
   pdfUrl: string | null = null;
   isGenerating = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private pdfService: PdfGenerationService,
-  ) {}
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly pdfService = inject(PdfGenerationService);
+  private readonly persistence = inject(DocumentPersistenceService);
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.params['id'];
-    // For now, assume document is passed via query params or service
-    // In real app, would fetch from service
-    this.document = history.state.document || {
+    let doc = history.state?.['document'] as Record<string, unknown> | undefined;
+    if (!doc && id) {
+      try {
+        await this.persistence.whenReady();
+        const fromDb = await this.persistence.getPayload(id);
+        if (fromDb) {
+          doc = fromDb as Record<string, unknown>;
+        }
+      } catch {
+        /* sin IndexedDB */
+      }
+    }
+    this.document = doc || {
       id,
       type: 'documentation',
       title: 'Documento',
     };
-    this.generatePdf();
+    void this.generatePdf();
   }
 
   async generatePdf() {

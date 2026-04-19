@@ -191,7 +191,12 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       background: var(--surface);
       border-radius: 16px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.1);
+      box-shadow:
+        0 8px 32px -12px rgba(0, 0, 0, 0.45),
+        0 0 0 1px color-mix(in srgb, var(--brand) 10%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px) saturate(1.12);
+      -webkit-backdrop-filter: blur(14px) saturate(1.12);
       position: relative;
       overflow: hidden;
     }
@@ -204,7 +209,13 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       left: 0;
       right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-hover), transparent);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--brand) 55%, transparent),
+        transparent
+      );
+      opacity: 0.55;
     }
 
     .title-section {
@@ -221,8 +232,21 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       align-items: center;
       justify-content: center;
       color: white;
-      box-shadow: 0 8px 24px -8px var(--brand-glow);
+      box-shadow:
+        0 8px 28px -10px var(--brand-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      border: 1px solid color-mix(in srgb, #fff 18%, transparent);
       flex-shrink: 0;
+      transition:
+        transform 0.35s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+        box-shadow 0.35s ease;
+    }
+
+    .header-content:hover .icon-box {
+      transform: translateY(-2px);
+      box-shadow:
+        0 14px 36px -12px var(--brand-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
 
     .main-title {
@@ -242,6 +266,8 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       color: var(--text-muted);
       margin: 0.25rem 0 0 0;
       font-weight: 500;
+      line-height: 1.55;
+      max-width: 48rem;
     }
 
     .primary-action {
@@ -308,6 +334,16 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       
       .main-title {
         font-size: 1.75rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .header-content:hover .icon-box {
+        transform: none;
+      }
+      .primary-action,
+      .primary-action:hover {
+        transform: none !important;
       }
     }
   `]

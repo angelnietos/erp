@@ -68,6 +68,16 @@ import type { SearchVariant } from '../search/search.component';
       border-radius: 16px;
       border: 1px solid var(--border-soft);
       gap: 1.25rem 1.75rem;
+      transition:
+        border-color 0.28s ease,
+        box-shadow 0.28s ease;
+    }
+
+    .feature-filter-bar--framed:focus-within {
+      border-color: color-mix(in srgb, var(--brand) 32%, var(--border-soft));
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--brand) 14%, transparent),
+        0 10px 36px -14px rgba(0, 0, 0, 0.35);
     }
 
     .feature-filter-bar--plain {

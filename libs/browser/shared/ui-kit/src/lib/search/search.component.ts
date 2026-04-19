@@ -85,12 +85,12 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     input::placeholder {
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 0.56rem;
+      text-transform: none;
+      letter-spacing: 0.04em;
+      font-size: 0.62rem;
       font-weight: 600;
       font-family: var(--font-main);
-      opacity: 0.58;
+      opacity: 0.62;
     }
 
     .clear-btn {
@@ -115,6 +115,11 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       color: white;
       border-color: var(--fld-danger);
       transform: scale(1.1);
+    }
+
+    .clear-btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--fld-brand) 45%, transparent);
     }
 
     .clear-btn lucide-icon { width: 0.8rem; height: 0.8rem; }
@@ -204,6 +209,15 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock.focused .search-icon {
       color: var(--brand, #004b93);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .focus-indicator {
+        transition: none;
+      }
+      .clear-btn:hover {
+        transform: none;
+      }
     }
   `],
 })
