@@ -4,11 +4,12 @@ import {
   AfterViewInit,
   ElementRef,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
-import { PdfGenerationService } from '../services/pdf-generation.service';
+import { DocumentPersistenceService } from '../services/document-persistence.service';
 import mermaid from 'mermaid';
 
 declare const marked: {
@@ -19,7 +20,7 @@ declare const marked: {
 @Component({
   selector: 'app-document-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
@@ -432,31 +433,45 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   @ViewChild('diagramsContainer', { static: false })
   diagramsContainer!: ElementRef;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private pdfService: PdfGenerationService,
-  ) {}
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly persistence = inject(DocumentPersistenceService);
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.params['id'];
-    const stored = localStorage.getItem(`document_${id}`);
-    if (stored) {
-      this.document = JSON.parse(stored);
-    } else {
-      // Fallback mock data
-      this.document = {
-        id,
-        type: 'quote',
-        title: 'Presupuesto Proyecto ABC',
-        client: 'Cliente A',
-        date: new Date(),
-        projectName: 'Proyecto ABC',
-        totalAmount: 5000,
-        description: 'Descripción del presupuesto...',
-        content: '<p>Contenido del documento...</p>',
-      };
+    try {
+      await this.persistence.whenReady();
+      const payload = await this.persistence.getPayload(id);
+      if (payload) {
+        this.document = payload;
+        return;
+      }
+    } catch {
+      /* IndexedDB no disponible o registro vacío */
     }
+    const legacy =
+      typeof localStorage !== 'undefined'
+        ? localStorage.getItem(`document_${id}`)
+        : null;
+    if (legacy) {
+      try {
+        this.document = JSON.parse(legacy);
+        return;
+      } catch {
+        /* corrupto */
+      }
+    }
+    this.document = {
+      id,
+      type: 'quote',
+      title: 'Presupuesto Proyecto ABC',
+      client: 'Cliente A',
+      date: new Date(),
+      projectName: 'Proyecto ABC',
+      totalAmount: 5000,
+      description: 'Descripción del presupuesto...',
+      content: '<p>Contenido del documento...</p>',
+    };
   }
 
   /** Markdown guardado → HTML para vista previa (GFM: tablas, listas, etc.). */

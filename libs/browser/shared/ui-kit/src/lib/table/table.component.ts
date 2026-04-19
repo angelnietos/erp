@@ -15,7 +15,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     >
       @if (useVirtual && data.length === 0) {
         <div class="empty-state standalone">
-          <span class="text-uppercase">No hay registros</span>
+          <span class="empty-title">Sin registros</span>
+          <span class="empty-hint">Prueba a ajustar filtros o crear un elemento nuevo.</span>
         </div>
       } @else if (useVirtual) {
         <div class="virt-head" [style.gridTemplateColumns]="gridTemplate">
@@ -80,7 +81,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
               <tr>
                 <td [attr.colspan]="columns.length" class="empty-cell">
                   <div class="empty-state">
-                    <span class="text-uppercase">No hay registros</span>
+                    <span class="empty-title">Sin registros</span>
+                    <span class="empty-hint">Prueba a cambiar filtros o crear uno nuevo.</span>
                   </div>
                 </td>
               </tr>
@@ -124,10 +126,11 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         );
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 1px 0 color-mix(in srgb, var(--border-vibrant) 65%, transparent);
       }
 
       th {
-        padding: 0.6rem;
+        padding: 0.65rem 0.7rem;
         font-size: 0.52rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -141,7 +144,7 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       td {
-        padding: 0.6rem;
+        padding: 0.65rem 0.7rem;
         font-size: 0.72rem;
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
@@ -241,22 +244,39 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
         padding: 4rem 2rem;
         color: var(--text-muted);
       }
 
-      .empty-state span {
-        font-size: 0.75rem;
-        letter-spacing: 0.2em;
+      .empty-title {
+        font-size: 0.78rem;
+        letter-spacing: 0.12em;
         font-weight: 800;
-        opacity: 0.5;
         font-family: var(--font-display);
         text-transform: uppercase;
+        color: var(--text-secondary);
+      }
+
+      .empty-hint {
+        font-size: 0.82rem;
+        font-weight: 500;
+        line-height: 1.45;
+        max-width: 28ch;
+        text-align: center;
+        color: var(--text-muted);
+        letter-spacing: 0.02em;
       }
 
       .empty-state.standalone {
         padding: 4rem 2rem;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .table-row,
+        .virt-row {
+          transition: none !important;
+        }
       }
     `,
   ],

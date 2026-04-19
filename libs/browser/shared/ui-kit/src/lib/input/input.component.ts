@@ -171,8 +171,8 @@ export type InputVariant = string;
       box-shadow: var(--fld-shine-subtle), var(--theme-input-shadow, inset 0 2px 5px rgba(0, 0, 0, 0.25));
     }
 
-    /* FOCUS STATES — anillo según color semántico activo */
-    input:focus {
+    /* FOCUS STATES — anillo fuerte solo con teclado (:focus-visible) */
+    input:focus-visible {
       background: color-mix(in srgb, var(--input-bg) 82%, #fff 10%);
       border-color: color-mix(in srgb, var(--input-accent) 65%, rgba(255, 255, 255, 0.2));
       box-shadow:
@@ -193,7 +193,7 @@ export type InputVariant = string;
       color: var(--text-muted); pointer-events: none; transition: all 0.3s;
       filter: drop-shadow(0 0 5px transparent);
     }
-    input:focus ~ .field-icon { 
+    input:focus-visible ~ .field-icon { 
        color: var(--input-accent);
        transform: scale(1.1);
        filter: drop-shadow(0 0 8px color-mix(in srgb, var(--input-accent) 60%, transparent));

@@ -16,6 +16,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { AssistantContextService } from '../services/assistant-context.service';
 import {
   UniversalDocumentService,
@@ -905,6 +906,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly pdfService = inject(PdfGenerationService);
+  private readonly documentPersistence = inject(DocumentPersistenceService);
   readonly assistantService = inject(AssistantContextService);
   readonly universalDocument = inject(UniversalDocumentService);
   private readonly documentAi = inject(DocumentAiService);
@@ -1322,13 +1324,11 @@ export class DocumentCreateEditorComponent implements OnInit {
         const pdfArray = new Uint8Array(await pdfBytes.arrayBuffer());
 
         const documentId = Date.now().toString();
-        localStorage.setItem(
-          `document_${documentId}`,
-          JSON.stringify({
-            ...documentData,
-            pdfBytes: Array.from(pdfArray),
-          }),
-        );
+        await this.documentPersistence.whenReady();
+        await this.documentPersistence.save(documentId, {
+          ...documentData,
+          pdfBytes: Array.from(pdfArray),
+        });
 
         this.router.navigate(['/documents/preview', documentId]);
       } catch (error) {

@@ -47,3 +47,11 @@
     0 0 0 1px color-mix(in srgb, var(--fld-danger) 45%, transparent),
     0 6px 22px -8px color-mix(in srgb, var(--fld-danger) 22%, transparent);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  :host input,
+  :host textarea,
+  :host select {
+    transition-duration: 0.12s !important;
+  }
+}

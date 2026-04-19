@@ -294,6 +294,14 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         color: var(--brand);
       }
 
+      .search-box:focus-visible {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow:
+          0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent),
+          0 0 15px var(--brand-glow);
+      }
+
       .search-box input {
         background: none;
         border: none;
@@ -370,6 +378,14 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         border-color: var(--brand);
         box-shadow: 0 0 10px var(--brand-glow);
         transform: translateY(-1px);
+      }
+
+      .icon-btn:focus-visible,
+      .theme-btn:focus-visible {
+        outline: none;
+        border-color: var(--brand);
+        color: #fff;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 35%, transparent);
       }
 
       .notification-dot {
@@ -513,6 +529,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         color: #fff;
       }
 
+      .theme-option:focus-visible,
+      .menu-item:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--brand) 40%, transparent);
+      }
+
       .theme-option.active {
         background: rgba(240, 62, 62, 0.1);
         color: var(--brand);
@@ -578,6 +600,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .user-profile:hover .avatar {
         transform: scale(1.05);
+      }
+
+      .user-profile:focus-visible {
+        outline: none;
+        border-radius: 10px;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 38%, transparent);
       }
 
       .user-menu {
@@ -689,6 +717,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       }
       ::-webkit-scrollbar-track {
         background: transparent;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .theme-menu {
+          animation: none;
+        }
+        .icon-btn:hover,
+        .theme-btn:hover {
+          transform: none;
+        }
+        .user-profile:hover .avatar {
+          transform: none;
+        }
       }
     `,
   ],

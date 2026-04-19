@@ -56,7 +56,7 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
       box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.28);
     }
 
-    textarea:focus {
+    textarea:focus-visible {
       background: color-mix(in srgb, var(--theme-input-bg, #12141c) 78%, #fff 8%);
       border-color: var(--fld-border-brand);
       box-shadow: var(--fld-ring-brand), var(--fld-shadow-brand), var(--fld-shine-top);
@@ -168,7 +168,7 @@ export type TextareaVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dar
       color-scheme: light;
     }
 
-    :host-context(html[data-erp-tenant='babooni']) textarea:not(.textarea-dark):not(.textarea-light):focus {
+    :host-context(html[data-erp-tenant='babooni']) textarea:not(.textarea-dark):not(.textarea-light):focus-visible {
       background: color-mix(in srgb, var(--theme-surface, #fffefe) 82%, var(--fld-brand) 10%);
       border-color: var(--fld-border-brand);
     }

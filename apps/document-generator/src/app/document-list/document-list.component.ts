@@ -2,16 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AssistantContextService } from '../services/assistant-context.service';
+import {
+  DocumentListItem,
+  DocumentPersistenceService,
+} from '../services/document-persistence.service';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-export interface DocumentListItem {
-  id: string;
-  title: string;
-  client: string;
-  date: Date;
-  type: string;
-}
 
 @Component({
   selector: 'app-document-list',
@@ -55,7 +51,8 @@ export interface DocumentListItem {
               Documentos generados
             </h1>
             <p class="text-secondary text-lg">
-              Gestiona y descarga tus PDF generados en esta sesión
+              Historial persistente en este navegador (IndexedDB). Los PDF se
+              guardan aquí al generarlos.
             </p>
             <div class="flex items-center space-x-4 pt-2">
               <div class="flex items-center space-x-2 text-sm text-muted">
@@ -190,10 +187,10 @@ export interface DocumentListItem {
                   </div>
                 </div>
 
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap gap-2">
                   <a
                     [routerLink]="['/documents/preview', doc.id]"
-                    class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
+                    class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
                   >
                     <svg
                       class="w-4 h-4 mr-2"
@@ -219,7 +216,7 @@ export interface DocumentListItem {
                   <button
                     type="button"
                     (click)="downloadDocument(doc)"
-                    class="inline-flex items-center px-4 py-2 bg-success text-bg-secondary rounded-lg hover:shadow-lg transition-all duration-200 shadow-md"
+                    class="inline-flex items-center justify-center px-4 py-2 bg-success text-bg-secondary rounded-lg hover:shadow-lg transition-all duration-200 shadow-md"
                     title="Descargar PDF"
                   >
                     <svg
@@ -233,6 +230,27 @@ export interface DocumentListItem {
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="removeDocument(doc)"
+                    class="inline-flex items-center justify-center px-3 py-2 border border-soft rounded-lg text-sm text-secondary hover:bg-red-500/10 hover:border-red-400/50 hover:text-red-600 transition-colors"
+                    title="Eliminar del historial"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                       />
                     </svg>
                   </button>
@@ -318,6 +336,7 @@ export class DocumentListComponent implements OnInit {
   documents: DocumentListItem[] = [];
   private readonly router = inject(Router);
   private readonly assistantCtx = inject(AssistantContextService);
+  private readonly persistence = inject(DocumentPersistenceService);
 
   openFloatingHelp(): void {
     this.assistantCtx.openAssistant();
@@ -334,46 +353,21 @@ export class DocumentListComponent implements OnInit {
         takeUntilDestroyed(),
       )
       .subscribe(() => {
-        this.documents = this.loadFromLocalStorage();
+        void this.refreshList();
       });
   }
 
   ngOnInit(): void {
-    this.documents = this.loadFromLocalStorage();
+    void this.refreshList();
   }
 
-  private loadFromLocalStorage(): DocumentListItem[] {
-    const items: DocumentListItem[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!key?.startsWith('document_')) continue;
-      try {
-        const raw = localStorage.getItem(key);
-        if (!raw) continue;
-        const data = JSON.parse(raw) as Record<string, unknown>;
-        const id = key.replace('document_', '');
-        const title =
-          (typeof data['title'] === 'string' && data['title']) ||
-          'Sin título';
-        const client =
-          (typeof data['client'] === 'string' && data['client']) ||
-          'Cliente';
-        const type =
-          (typeof data['type'] === 'string' && data['type']) ||
-          'documentation';
-        let dateVal: Date;
-        if (data['date'] != null) {
-          const d = new Date(String(data['date']));
-          dateVal = isNaN(d.getTime()) ? new Date(+id) : d;
-        } else {
-          dateVal = new Date(+id);
-        }
-        items.push({ id, title, client, date: dateVal, type });
-      } catch {
-        /* clave corrupta */
-      }
+  private async refreshList(): Promise<void> {
+    try {
+      await this.persistence.whenReady();
+      this.documents = await this.persistence.listSummaries();
+    } catch {
+      this.documents = [];
     }
-    return items.sort((a, b) => +b.id - +a.id);
   }
 
   getTypeLabel(type: string): string {
@@ -412,12 +406,16 @@ export class DocumentListComponent implements OnInit {
     }
   }
 
-  downloadDocument(doc: DocumentListItem): void {
-    const raw = localStorage.getItem(`document_${doc.id}`);
-    if (!raw) return;
+  async downloadDocument(doc: DocumentListItem): Promise<void> {
     try {
-      const data = JSON.parse(raw) as { pdfBytes?: number[]; title?: string };
-      if (!data.pdfBytes?.length) return;
+      await this.persistence.whenReady();
+      const data = (await this.persistence.getPayload(doc.id)) as {
+        pdfBytes?: number[];
+        title?: string;
+      } | null;
+      if (!data?.pdfBytes?.length) {
+        return;
+      }
       const u8 = new Uint8Array(data.pdfBytes);
       const blob = new Blob([u8], { type: 'application/pdf' });
       const a = document.createElement('a');
@@ -426,6 +424,23 @@ export class DocumentListComponent implements OnInit {
       a.download = `${safe}.pdf`;
       a.click();
       URL.revokeObjectURL(a.href);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async removeDocument(doc: DocumentListItem): Promise<void> {
+    if (
+      !confirm(
+        `¿Eliminar «${doc.title || 'este documento'}» del historial de este dispositivo?`,
+      )
+    ) {
+      return;
+    }
+    try {
+      await this.persistence.whenReady();
+      await this.persistence.delete(doc.id);
+      await this.refreshList();
     } catch (e) {
       console.error(e);
     }

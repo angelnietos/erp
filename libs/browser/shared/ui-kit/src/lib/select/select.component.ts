@@ -107,15 +107,11 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-radius: 12px !important;
     }
 
-    select:focus {
+    select:focus-visible {
       background: color-mix(in srgb, var(--theme-input-bg, #12141c) 78%, #fff 8%);
       border-color: var(--fld-border-brand);
       box-shadow: var(--fld-ring-brand), var(--fld-shadow-brand), var(--fld-shine-top);
-    }
-
-    select:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--fld-brand) 45%, transparent);
-      outline-offset: 2px;
+      outline: none;
     }
 
     .select-default {
@@ -276,7 +272,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       opacity: 0.92;
     }
 
-    select:focus + .chevron {
+    select:focus-visible + .chevron {
       border-right-color: var(--fld-brand);
       border-bottom-color: var(--fld-brand);
       transform: translateY(-30%) rotate(225deg);
@@ -335,7 +331,7 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
         0 2px 10px rgba(8, 8, 8, 0.06);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) select:focus {
+    :host-context(html[data-erp-tenant='babooni']) select:focus-visible {
       background: color-mix(in srgb, var(--theme-surface, #fffefe) 82%, var(--fld-brand) 10%);
       border-color: var(--fld-border-brand);
       box-shadow: var(--fld-ring-brand), 0 6px 20px rgba(8, 8, 8, 0.08);
