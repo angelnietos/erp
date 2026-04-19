@@ -26,11 +26,11 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       gap: 8px;
       padding: 0.25rem 0.75rem;
       border-radius: var(--badge-radius, 100px);
-      font-size: 0.6rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-family: var(--font-display);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.03em;
+      font-family: var(--font-main);
       border: var(--badge-border-width, 1px) solid var(--badge-border, transparent);
       white-space: nowrap;
       transition:
@@ -149,6 +149,18 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       --badge-bg: color-mix(in srgb, var(--info, #5966f4) 14%, var(--theme-surface, #fffefe));
       --badge-color: color-mix(in srgb, var(--info) 45%, #0f172a);
       --badge-border: color-mix(in srgb, var(--info) 32%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .badge:hover {
+        transform: none;
+        box-shadow: var(--badge-shadow, none);
+      }
     }
   `],
 })

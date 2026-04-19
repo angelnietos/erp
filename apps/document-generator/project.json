@@ -19,7 +19,8 @@
         "allowedCommonJsDependencies": [
           "class-validator",
           "class-transformer",
-          "class-transformer/storage"
+          "class-transformer/storage",
+          "dexie"
         ],
         "assets": [
           {

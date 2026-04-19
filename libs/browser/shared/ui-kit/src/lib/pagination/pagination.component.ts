@@ -16,7 +16,7 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
         (click)="onPageChange(currentPage - 1)"
       >
         <lucide-icon name="chevron-left"></lucide-icon>
-        @if (variant !== 'minimal') { <span>ANTERIOR</span> }
+        @if (variant !== 'minimal') { <span>Anterior</span> }
       </button>
       
       <div class="pages-group">
@@ -36,7 +36,7 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
         [disabled]="currentPage === totalPages"
         (click)="onPageChange(currentPage + 1)"
       >
-        @if (variant !== 'minimal') { <span>SIGUIENTE</span> }
+        @if (variant !== 'minimal') { <span>Siguiente</span> }
         <lucide-icon name="chevron-right"></lucide-icon>
       </button>
     </div>
@@ -67,10 +67,10 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
       color: var(--text-secondary);
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.055em;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.02em;
       line-height: 1.3;
       cursor: pointer;
       transition:
@@ -120,7 +120,7 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
       box-shadow: none;
     }
 
-    .nav-btn { font-size: 0.52rem; letter-spacing: 0.05em; }
+    .nav-btn { font-size: 0.65rem; letter-spacing: 0.02em; font-weight: 600; }
     .nav-btn lucide-icon { width: 1.1rem; height: 1.1rem; }
 
     /* Variants */
@@ -130,6 +130,12 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
       background: color-mix(in srgb, var(--surface, rgba(255, 255, 255, 0.04)) 70%, transparent);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page-btn:not(:disabled):hover {
+        transform: none;
+      }
     }
   `],
 })

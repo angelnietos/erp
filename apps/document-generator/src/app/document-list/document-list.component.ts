@@ -51,8 +51,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
               Documentos generados
             </h1>
             <p class="text-secondary text-lg">
-              Historial persistente en este navegador (IndexedDB). Los PDF se
-              guardan aquí al generarlos.
+              Historial en este navegador (IndexedDB): borradores y PDF
+              generados.
             </p>
             <div class="flex items-center space-x-4 pt-2">
               <div class="flex items-center space-x-2 text-sm text-muted">
@@ -127,23 +127,32 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
               <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
                   <div class="flex-1">
-                    <span
-                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-                      [class]="getTypeBadgeClass(doc.type)"
-                    >
-                      <svg
-                        class="w-3 h-3 mr-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                    <div class="flex flex-wrap gap-2">
+                      <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                        [class]="getTypeBadgeClass(doc.type)"
                       >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 011.414 0l4-4z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      {{ getTypeLabel(doc.type) }}
-                    </span>
+                        <svg
+                          class="w-3 h-3 mr-1"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 011.414 0l4-4z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                        {{ getTypeLabel(doc.type) }}
+                      </span>
+                      @if (doc.isDraft) {
+                        <span
+                          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/15 text-slate-800 dark:text-slate-200 border border-slate-500/25"
+                        >
+                          Borrador
+                        </span>
+                      }
+                    </div>
                     <h3
                       class="text-lg font-semibold text-primary mt-2 line-clamp-2 group-hover:text-brand transition-colors"
                     >
@@ -188,31 +197,55 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                  <a
-                    [routerLink]="['/documents/preview', doc.id]"
-                    class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
-                  >
-                    <svg
-                      class="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  @if (doc.isDraft) {
+                    <a
+                      [routerLink]="['/documents/create/edit']"
+                      [queryParams]="{ type: doc.type, draft: doc.id }"
+                      class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
                     >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                    Ver
-                  </a>
+                      <svg
+                        class="w-4 h-4 mr-2 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
+                      Continuar
+                    </a>
+                  } @else {
+                    <a
+                      [routerLink]="['/documents/preview', doc.id]"
+                      class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
+                    >
+                      <svg
+                        class="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                      Ver
+                    </a>
+                  }
+                  @if (!doc.isDraft) {
                   <button
                     type="button"
                     (click)="downloadDocument(doc)"
@@ -233,6 +266,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                       />
                     </svg>
                   </button>
+                  }
                   <button
                     type="button"
                     (click)="removeDocument(doc)"

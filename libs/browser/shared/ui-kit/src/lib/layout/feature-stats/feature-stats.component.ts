@@ -69,10 +69,10 @@ import { LucideAngularModule } from 'lucide-angular';
       align-items: center;
       gap: 8px;
       color: var(--text-muted);
-      font-size: 0.65rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.02em;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: var(--shadow-sm);
@@ -84,6 +84,11 @@ import { LucideAngularModule } from 'lucide-angular';
       border-color: var(--brand);
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
+    }
+
+    .collapse-btn:focus-visible {
+      outline: 2px solid var(--ring-focus);
+      outline-offset: 2px;
     }
 
     .stats-container {
@@ -137,6 +142,17 @@ import { LucideAngularModule } from 'lucide-angular';
       font-size: 0.8125rem;
       font-weight: 600;
       color: color-mix(in srgb, var(--text-primary, #080808) 82%, var(--text-muted, #646464));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stats-wrapper,
+      .stats-container,
+      .stats-grid {
+        transition: none !important;
+      }
+      .collapse-btn:hover {
+        transform: none;
+      }
     }
   `]
 })

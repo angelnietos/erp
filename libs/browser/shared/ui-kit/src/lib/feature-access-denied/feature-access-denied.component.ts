@@ -10,13 +10,17 @@ import { UiButtonComponent } from '../button/button.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="access-denied">
-      <lucide-icon name="shield-off" class="denied-icon"></lucide-icon>
-      <h2 class="title">{{ title() }}</h2>
-      <p class="text">{{ message() }}</p>
-      @if (permissionHint()) {
-        <p class="hint">Permiso requerido: <code>{{ permissionHint() }}</code></p>
-      }
-      <ui-button variant="primary" (clicked)="goHome()">{{ backLabel() }}</ui-button>
+      <div class="access-denied__panel">
+        <lucide-icon name="shield-off" class="denied-icon" aria-hidden="true"></lucide-icon>
+        <h2 class="title">{{ title() }}</h2>
+        <p class="text">{{ message() }}</p>
+        @if (permissionHint()) {
+          <p class="hint">
+            Permiso necesario: <code>{{ permissionHint() }}</code>
+          </p>
+        }
+        <ui-button variant="primary" (clicked)="goHome()">{{ backLabel() }}</ui-button>
+      </div>
     </div>
   `,
   styles: [
@@ -27,36 +31,58 @@ import { UiButtonComponent } from '../button/button.component';
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding: 2rem 1.25rem;
+      }
+      .access-denied__panel {
+        width: 100%;
+        max-width: 440px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         gap: 1rem;
-        padding: 2rem;
+        padding: 2rem 1.75rem;
         text-align: center;
-        max-width: 420px;
-        margin: 0 auto;
+        border-radius: var(--radius-lg, 20px);
+        background: var(--surface, rgba(18, 20, 28, 0.76));
+        border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+        box-shadow: var(--shadow-md, 0 12px 32px rgba(0, 0, 0, 0.35));
       }
       .denied-icon {
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
         color: var(--error, #ef4444);
-        opacity: 0.85;
+        opacity: 0.9;
       }
       .title {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
       }
       .text {
         margin: 0;
         color: var(--text-muted, rgba(255, 255, 255, 0.55));
-        line-height: 1.5;
+        line-height: 1.55;
+        font-size: 0.95rem;
       }
       .hint {
         margin: 0;
         font-size: 0.85rem;
         color: var(--text-muted, rgba(255, 255, 255, 0.45));
-        font-style: italic;
+        line-height: 1.45;
       }
       code {
         font-size: 0.85em;
+        padding: 0.15em 0.4em;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .access-denied__panel {
+        background: var(--theme-surface, #ffffff);
+        border: 1px solid var(--border-soft, #d1d1d1);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
       }
     `,
   ],
@@ -73,6 +99,6 @@ export class UiFeatureAccessDeniedComponent {
   readonly backLabel = input<string>('Volver al inicio');
 
   goHome(): void {
-    void this.router.navigate(['/']);
+    void this.router.navigate(['/dashboard']);
   }
 }

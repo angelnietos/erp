@@ -25,8 +25,9 @@ import {
       <div class="content-area">
         @if (allNotifications().length === 0) {
           <div class="empty-state">
-            <lucide-icon name="bell-off" size="40" class="empty-icon"></lucide-icon>
+            <lucide-icon name="bell-off" size="40" class="empty-icon" aria-hidden="true"></lucide-icon>
             <p class="empty-label">No hay notificaciones pendientes</p>
+            <p class="empty-hint">Cuando haya alertas o avisos, aparecerán aquí.</p>
           </div>
         } @else {
           <div class="notification-list">
@@ -149,11 +150,21 @@ import {
     }
 
     .empty-label {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin: 0;
+      text-align: center;
+    }
+
+    .empty-hint {
+      font-size: 0.8125rem;
       font-weight: 500;
       color: var(--nd-muted);
       margin: 0;
       text-align: center;
+      line-height: 1.45;
+      max-width: 22rem;
     }
 
     .notification-list {
@@ -175,6 +186,12 @@ import {
       border-color: color-mix(in srgb, var(--brand) 55%, var(--nd-border));
       background: rgba(255, 255, 255, 0.09);
       transform: translateX(-2px);
+    }
+
+    .note-card:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 45%, transparent);
+      border-color: color-mix(in srgb, var(--brand) 55%, var(--nd-border));
     }
 
     .note-card.unread {
@@ -253,6 +270,12 @@ import {
       text-underline-offset: 3px;
     }
 
+    .action-link:focus-visible {
+      outline: none;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand, #60a5fa) 45%, transparent);
+    }
+
     .mr-1 { margin-right: 6px; }
 
     .drawer-footer {
@@ -271,6 +294,18 @@ import {
     .content-area::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.15);
       border-radius: 10px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drawer-overlay {
+        animation: none;
+      }
+      .animate-slide-in {
+        animation: none;
+      }
+      .note-card:hover {
+        transform: none;
+      }
     }
   `]
 })

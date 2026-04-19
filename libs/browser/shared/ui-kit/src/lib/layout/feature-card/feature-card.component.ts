@@ -13,6 +13,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       class="feature-card"
       role="button"
       tabindex="0"
+      [attr.aria-label]="name ? 'Abrir: ' + name : 'Abrir tarjeta'"
       (click)="cardClicked.emit()"
       (keydown.enter)="cardClicked.emit()"
       (keydown.space)="$event.preventDefault(); cardClicked.emit()"
@@ -121,6 +122,14 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       transform: translateY(-4px) scale(1.01);
       box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.2);
       border-color: var(--brand);
+    }
+
+    .feature-card:focus-visible {
+      outline: none;
+      border-color: color-mix(in srgb, var(--brand) 55%, var(--border-soft));
+      box-shadow:
+        0 0 0 2px color-mix(in srgb, var(--brand) 35%, transparent),
+        0 12px 32px -8px rgba(0, 0, 0, 0.22);
     }
 
     .card-header {
@@ -248,10 +257,10 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.75rem;
+      font-size: 0.8125rem;
       color: var(--text-muted);
-      font-weight: 600;
-      text-transform: uppercase;
+      font-weight: 500;
+      text-transform: none;
       letter-spacing: 0.02em;
     }
 
@@ -326,6 +335,13 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost:hover {
       color: var(--text-primary) !important;
       background: color-mix(in srgb, var(--brand) 8%, transparent) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .feature-card,
+      .feature-card:hover {
+        transform: none;
+      }
     }
   `]
 })

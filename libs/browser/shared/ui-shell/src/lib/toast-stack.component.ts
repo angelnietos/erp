@@ -108,6 +108,13 @@ import { ToastService } from '@josanz-erp/shared-data-access';
         opacity: 1;
         color: #fff;
       }
+      .toast-close:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--info, #3b82f6) 65%, transparent);
+        outline-offset: 2px;
+        border-radius: 4px;
+        opacity: 1;
+        color: #fff;
+      }
       @keyframes toast-in {
         from {
           transform: translateY(8px);
@@ -116,6 +123,12 @@ import { ToastService } from '@josanz-erp/shared-data-access';
         to {
           transform: translateY(0);
           opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .toast {
+          animation: none;
         }
       }
     `,

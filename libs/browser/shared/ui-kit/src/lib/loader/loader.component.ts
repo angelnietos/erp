@@ -8,9 +8,15 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="loader-container" [class.overlay]="overlay">
+    <div
+      class="loader-container"
+      [class.overlay]="overlay"
+      role="status"
+      [attr.aria-live]="message ? 'polite' : null"
+      aria-busy="true"
+    >
       <div class="loader" [class]="'loader-' + variant">
-        <div class="spinner"></div>
+        <div class="spinner" aria-hidden="true"></div>
         @if (message) {
           <p class="message">{{ message }}</p>
         }
@@ -80,11 +86,14 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
     .loader-danger .message { color: var(--danger); }
 
     .message {
-      font-size: 0.62rem;
+      font-size: 0.8125rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
+      text-transform: none;
+      letter-spacing: 0.02em;
       margin: 0;
+      max-width: 22rem;
+      text-align: center;
+      line-height: 1.45;
       color: var(--text-secondary);
       animation: pulse 1.5s ease-in-out infinite;
       font-family: var(--font-main);
@@ -92,6 +101,17 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
 
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .spinner,
+      .spinner::after {
+        animation: none !important;
+      }
+      .message {
+        animation: none;
+        opacity: 0.95;
+      }
+    }
   `],
 })
 export class UiLoaderComponent {

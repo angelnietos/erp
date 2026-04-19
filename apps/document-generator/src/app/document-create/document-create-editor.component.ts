@@ -95,7 +95,7 @@ interface DocumentType {
         color: #ffffff !important;
       }
 
-      /* Barra inferior: CTA siempre legible sobre gradiente / tema */
+      /* CTA principal: fondo claro + texto oscuro (contraste alto en cualquier tema) */
       .footer-cta-primary {
         display: inline-flex;
         align-items: center;
@@ -106,35 +106,74 @@ interface DocumentType {
         border-radius: 0.75rem;
         font-weight: 600;
         font-size: 0.875rem;
-        line-height: 1.3;
-        color: #ffffff !important;
-        border: none;
+        line-height: 1.35;
+        color: #0f172a !important;
+        border: 1px solid rgba(15, 23, 42, 0.12);
         cursor: pointer;
         background: linear-gradient(
-          135deg,
-          var(--brand) 0%,
-          color-mix(in srgb, var(--brand) 78%, #0f172a) 100%
+          145deg,
+          #ffe4e6 0%,
+          #fecdd3 40%,
+          #fda4af 100%
         );
-        box-shadow: 0 10px 28px color-mix(in srgb, var(--brand) 38%, transparent);
+        box-shadow:
+          0 4px 14px rgba(244, 63, 94, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.85);
         transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
       }
 
       .footer-cta-primary:hover:not(:disabled) {
-        filter: brightness(1.06);
+        filter: brightness(1.02);
         transform: translateY(-1px);
+        box-shadow:
+          0 8px 22px rgba(244, 63, 94, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.95);
       }
 
       .footer-cta-primary:disabled {
         opacity: 0.55;
         cursor: not-allowed;
         transform: none;
-        filter: none;
+        filter: grayscale(0.15);
         box-shadow: none;
       }
 
       .footer-cta-primary svg {
-        color: #ffffff !important;
-        stroke: #ffffff !important;
+        color: #0f172a !important;
+        stroke: #0f172a !important;
+      }
+
+      .footer-save-draft {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: 3rem;
+        padding: 0.75rem 1.1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        line-height: 1.3;
+        color: #0f172a !important;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .footer-save-draft:hover:not(:disabled) {
+        background: #f8fafc;
+        border-color: #94a3b8;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+      }
+
+      .footer-save-draft:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
 
       .action-bar-panel {
@@ -758,6 +797,46 @@ interface DocumentType {
                         </svg>
                         Abrir ayuda flotante
                       </button>
+                      <button
+                        type="button"
+                        (click)="saveDraft()"
+                        [disabled]="!selectedType || isSavingDraft || isGenerating"
+                        class="footer-save-draft w-full sm:w-auto"
+                        title="Guarda el contenido en el historial de este navegador (IndexedDB)"
+                      >
+                        @if (isSavingDraft) {
+                          <svg
+                            class="w-4 h-4 shrink-0 animate-spin text-slate-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                          </svg>
+                        } @else {
+                          <svg
+                            class="w-4 h-4 shrink-0 text-slate-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l3 3m0 0l3-3m-3 3V4"
+                            />
+                          </svg>
+                        }
+                        Guardar borrador
+                      </button>
                       <a
                         routerLink="/documents/analysis"
                         class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
@@ -814,15 +893,23 @@ interface DocumentType {
                             />
                           </svg>
                         }
-                        <span class="text-left leading-snug">
+                        <span class="text-left leading-snug drop-shadow-sm">
                           {{
                             isGenerating
                               ? 'Generando documento…'
-                              : 'Generar documento (PDF / Excel / HTML)'
+                              : 'Generar documento (PDF)'
                           }}
                         </span>
                       </button>
                     </div>
+                    @if (draftSaveMessage) {
+                      <p
+                        class="text-xs text-emerald-700 dark:text-emerald-400 mt-2 text-right"
+                        role="status"
+                      >
+                        {{ draftSaveMessage }}
+                      </p>
+                    }
                   </div>
                 </div>
               </div>
@@ -846,6 +933,10 @@ export class DocumentCreateEditorComponent implements OnInit {
   wordCount = 0;
   characterCount = 0;
   autoSaved = false;
+  /** Id del borrador en IndexedDB (reutilizado al volver a guardar). */
+  savedDraftId: string | null = null;
+  draftSaveMessage = '';
+  isSavingDraft = false;
   /** Feedback breve tras copiar Markdown al portapapeles. */
   copyMarkdownFeedback = false;
   fullscreenMode = false;
@@ -1115,7 +1206,10 @@ export class DocumentCreateEditorComponent implements OnInit {
 
     queueMicrotask(() => this.viewportScroller.scrollToPosition([0, 0]));
 
-    if (templateId) {
+    const draftId = this.route.snapshot.queryParamMap.get('draft');
+    if (draftId) {
+      void this.loadDraftFromQuery(draftId);
+    } else if (templateId) {
       const tpl = this.templatesService.getById(templateId);
       if (tpl) {
         this.documentForm.patchValue({ content: tpl.content });
@@ -1195,9 +1289,94 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
     if (event.ctrlKey && event.key === 's') {
       event.preventDefault();
-      this.autoSaved = true;
-      setTimeout(() => (this.autoSaved = false), 2000);
+      void this.saveDraft();
     }
+  }
+
+  async saveDraft(): Promise<void> {
+    if (!this.selectedType || this.isSavingDraft) {
+      return;
+    }
+    this.isSavingDraft = true;
+    this.draftSaveMessage = '';
+    try {
+      await this.documentPersistence.whenReady();
+      const formValue = this.documentForm.value;
+      const client = this.clients.find((c) => c.id === formValue.clientId);
+      const documentData = {
+        ...formValue,
+        client: client?.name || 'Cliente',
+        type: this.selectedType.id,
+        isDraft: true,
+        pdfBytes: [] as number[],
+      };
+      const id = this.savedDraftId ?? Date.now().toString();
+      await this.documentPersistence.save(id, documentData);
+      this.savedDraftId = id;
+      this.draftSaveMessage = 'Borrador guardado en este navegador.';
+      setTimeout(() => {
+        this.draftSaveMessage = '';
+      }, 4000);
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { draft: id },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    } catch (e) {
+      console.error('saveDraft', e);
+      this.draftSaveMessage =
+        'No se pudo guardar el borrador. Comprueba el almacenamiento del navegador.';
+    } finally {
+      this.isSavingDraft = false;
+    }
+  }
+
+  private async loadDraftFromQuery(draftId: string): Promise<void> {
+    await this.documentPersistence.whenReady();
+    const payload = await this.documentPersistence.getPayload(draftId);
+    if (!payload || typeof payload !== 'object') {
+      return;
+    }
+    const p = payload as Record<string, unknown>;
+    const patch: Record<string, unknown> = {};
+    const formKeys = [
+      'clientId',
+      'date',
+      'projectName',
+      'totalAmount',
+      'description',
+      'title',
+      'content',
+      'executiveSummary',
+      'objectives',
+      'scope',
+      'deliverables',
+      'timeline',
+      'pricing',
+      'terms',
+      'systemOverview',
+      'architectureDiagram',
+      'components',
+      'dataFlow',
+      'apis',
+      'technologies',
+      'deployment',
+    ] as const;
+    for (const k of formKeys) {
+      if (p[k] !== undefined) {
+        patch[k] = p[k];
+      }
+    }
+    if (!patch['clientId'] && typeof p['client'] === 'string') {
+      const cid = this.clients.find((c) => c.name === p['client'])?.id;
+      if (cid) {
+        patch['clientId'] = cid;
+      }
+    }
+    this.savedDraftId = draftId;
+    this.documentForm.patchValue(patch);
+    this.updatePreview();
   }
 
   loadTemplate(template: DocumentTemplate) {
@@ -1327,6 +1506,7 @@ export class DocumentCreateEditorComponent implements OnInit {
         await this.documentPersistence.whenReady();
         await this.documentPersistence.save(documentId, {
           ...documentData,
+          isDraft: false,
           pdfBytes: Array.from(pdfArray),
         });
 

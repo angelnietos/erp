@@ -15,21 +15,22 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
   `,
   styles: [`
     .alert {
-      padding: 1.1rem 1.35rem;
+      padding: 1rem 1.25rem;
       border-radius: var(--radius-md);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       margin-bottom: 1.5rem;
       display: flex;
-      align-items: center;
-      gap: 1rem;
-      animation: alertSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      align-items: flex-start;
+      gap: 0.85rem;
+      animation: alertSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid transparent;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-family: var(--font-display);
+      text-transform: none;
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+      font-family: var(--font-main);
       box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.06));
     }
 
@@ -166,6 +167,18 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
       color: var(--theme-primary, var(--brand));
       border-color: rgba(var(--theme-primary-rgb, 79, 70, 229), 0.3);
       box-shadow: 0 0 15px rgba(var(--theme-primary-rgb, 79, 70, 229), 0.1);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .alert {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      border-radius: var(--radius-md, 8px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .alert {
+        animation: none;
+      }
     }
   `],
 })
