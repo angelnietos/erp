@@ -1163,8 +1163,8 @@ export class FloatingAssistantComponent implements OnInit {
       humorous: {
         '¿Qué veo?': `¡Hey! Estoy en ${ctx.activeTab} vigilando todo. ${documentTypeHumorous} ¿Qué trastada tienes hoy? 😎`,
         'Revisar contenido': `¡Muy bien! Leí todo tu texto. ¡Vaya crack! Solo te faltan estas cosillas: 1) Un resumen que mate 2) Precios que no asusten 3) Un final que les deje con la boca abierta. ¡Tú puedes! 🚀`,
-        Sugerencias: `¡Aquí van los trucos del maestro! ✅ Mete un resumen que les deje boquiabiertos ✅ Diles por qué tu eres el mejor ✅ Añade alguna garantía para que se queden tranquilos ✅ Termina con un golpe de efecto. ¡A por ellos! 🎯`,
-        Errores: `¡Tranquilo/a! Nada grave. Solo un par de erratas por aquí y por allá, nada que no se arregle en dos segundos. ¡Tu documento esta de muerte! 💯`,
+        Sugerencias: `¡Aquí van los trucos del maestro! ✅ Mete un resumen que les deje boquiabiertos ✅ Diles por qué tú eres el mejor ✅ Añade alguna garantía para que se queden tranquilos ✅ Termina con un golpe de efecto. ¡A por ellos! 🎯`,
+        Errores: `¡Tranquilo/a! Nada grave. Solo un par de erratas por aquí y por allá, nada que no se arregle en dos segundos. ¡Tu documento está de muerte! 💯`,
         'Resumir documento': `Resumen express: ${ctx.activeTab}, ${ctx.documentContent.length} caracteres de pura garra. Si quieres menos rollo y más viñetas, dímelo y lo afilo ✂️`,
         'Tono más formal': `Modo «jefe de sala»: sin slang, con garra educada. Cambia «mola» por «resulta adecuado» y listo. ¿Mando un párrafo antes/después? 🎩`,
         'Ideas para CTA': `CTA con gancho: «Pídenos cita», «Te lo enseñamos en 15 min», «Te paso el PDF». Elige una y que no se escape nadie 🎣`,

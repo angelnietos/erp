@@ -78,7 +78,7 @@ export class IntelligentAssistantService {
     const improvements: string[] = [];
     if (avgSentenceLength > 25)
       improvements.push('Reducir longitud de oraciones');
-    if (words.length < 50) improvements.push('Añadir mas contenido');
+    if (words.length < 50) improvements.push('Añadir más contenido');
     if (blocks.filter((b) => b.type === 'heading').length === 0)
       improvements.push('Añadir títulos');
 
@@ -103,34 +103,36 @@ export class IntelligentAssistantService {
     const fullText = blocks.map((b) => b.content).join(' ');
 
     if (!fullText.toLowerCase().includes('resumen') && blocks.length > 5) {
+      const id = crypto.randomUUID();
       suggestions.push({
-        id: crypto.randomUUID(),
+        id,
         type: 'structure',
         confidence: 0.85,
         title: 'Añadir resumen ejecutivo',
         description:
-          'Los documentos con resumen tienen un 72% mas de efectividad',
+          'Los documentos con resumen tienen un 72% más de efectividad',
         apply: () => {
           this.blockEngine.createBlock('heading', 'Resumen Ejecutivo');
           this.blockEngine.createBlock('text', '');
         },
-        discard: () => this.discardSuggestion(suggestions[0].id),
+        discard: () => this.discardSuggestion(id),
       });
     }
 
     if (
       fullText.split(' ').filter((w) => w === 'muy' || w === 'mucho').length > 3
     ) {
+      const id = crypto.randomUUID();
       suggestions.push({
-        id: crypto.randomUUID(),
+        id,
         type: 'improvement',
         confidence: 0.78,
         title: 'Reducir adverbios cualitativos',
         description: 'Sustituir palabras vagas por datos concretos',
         apply: () => {
-          void 0;
+          return;
         },
-        discard: () => this.discardSuggestion(suggestions[1]?.id),
+        discard: () => this.discardSuggestion(id),
       });
     }
 
@@ -144,7 +146,7 @@ export class IntelligentAssistantService {
       'no obstante',
       'respecto',
     ];
-    const informalWords = ['genial', 'guay', 'chulo', 'increible'];
+    const informalWords = ['genial', 'guay', 'chulo', 'increíble'];
 
     const formalCount = formalWords.filter((w) =>
       text.toLowerCase().includes(w),

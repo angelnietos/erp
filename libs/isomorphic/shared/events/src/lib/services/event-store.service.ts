@@ -3,7 +3,7 @@
  * Provides persistence and retrieval of domain events
  */
 
-import { DomainEvent } from '../interfaces/domain-event.interface';
+import { DomainEvent, generateEventUuid } from '../interfaces/domain-event.interface';
 
 /**
  * Stored event record
@@ -82,16 +82,7 @@ export class InMemoryEventStore implements IEventStore {
     
     for (const event of events) {
       const storedEvent: StoredEvent = {
-        id:
-          typeof globalThis !== 'undefined' &&
-          (globalThis as any).crypto &&
-          typeof (globalThis as any).crypto.randomUUID === 'function'
-            ? (globalThis as any).crypto.randomUUID()
-            : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-                const r = (Math.random() * 16) | 0;
-                const v = c === 'x' ? r : (r & 0x3) | 0x8;
-                return v.toString(16);
-              }),
+        id: generateEventUuid(),
         type: event.eventType,
         aggregateId: event.aggregateId,
         data: event as unknown as Record<string, unknown>,
@@ -132,11 +123,13 @@ export class InMemoryEventStore implements IEventStore {
     }
 
     if (filter.from) {
-      results = results.filter(e => e.occurredOn >= filter.from!);
+      const from = filter.from;
+      results = results.filter((e) => e.occurredOn >= from);
     }
 
     if (filter.to) {
-      results = results.filter(e => e.occurredOn <= filter.to!);
+      const to = filter.to;
+      results = results.filter((e) => e.occurredOn <= to);
     }
 
     // Sort by occurredOn descending (newest first)

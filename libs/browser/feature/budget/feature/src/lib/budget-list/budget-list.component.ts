@@ -36,7 +36,7 @@ import {
 import { Observable, of } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { BudgetStore } from '@josanz-erp/budget-data-access';
-import { Budget } from '@josanz-erp/budget-api';
+import { Budget, CreateBudgetDTO } from '@josanz-erp/budget-api';
 import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
 @Component({
@@ -804,18 +804,22 @@ export class BudgetListComponent
   }
 
   onDuplicate(item: Budget) {
-    const { id, ...rest } = item;
-    void id;
+    const dto: CreateBudgetDTO = {
+      clientId: item.clientId,
+      startDate: item.startDate,
+      endDate: item.endDate,
+      items: item.items.map((i) => ({
+        productId: i.productId,
+        quantity: i.quantity,
+        price: i.price,
+        tax: i.tax,
+        discount: i.discount,
+      })),
+    };
     try {
-      if ((this.store as any).createBudget) {
-        (this.store as any).createBudget({
-          ...rest,
-          status: 'DRAFT',
-          createdAt: new Date().toISOString(),
-        });
-      }
+      this.store.createBudget(dto);
     } catch (e) {
-      console.warn('createBudget no implementado en BudgetStore', e);
+      console.warn('No se pudo duplicar el presupuesto', e);
     }
   }
 
@@ -826,11 +830,9 @@ export class BudgetListComponent
       )
     ) {
       try {
-        if ((this.store as any).deleteBudget) {
-          (this.store as any).deleteBudget(item.id);
-        }
+        this.store.deleteBudget(item.id);
       } catch (e) {
-        console.warn('deleteBudget no implementado en BudgetStore', e);
+        console.warn('No se pudo eliminar el presupuesto', e);
       }
     }
   }

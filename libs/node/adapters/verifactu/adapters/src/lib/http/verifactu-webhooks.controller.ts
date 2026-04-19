@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { VerifactuApiKeyGuard } from '../security/verifactu-api-key.guard';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
 

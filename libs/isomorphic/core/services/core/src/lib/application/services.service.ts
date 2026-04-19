@@ -14,7 +14,7 @@ export interface CreateServiceDto {
   type: ServiceType;
   basePrice: number;
   hourlyRate?: number;
-  configuration?: Record<string, any>;
+  configuration?: Record<string, unknown>;
 }
 
 export interface UpdateServiceDto {
@@ -23,7 +23,7 @@ export interface UpdateServiceDto {
   type?: ServiceType;
   basePrice?: number;
   hourlyRate?: number;
-  configuration?: Record<string, any>;
+  configuration?: Record<string, unknown>;
   isActive?: boolean;
 }
 

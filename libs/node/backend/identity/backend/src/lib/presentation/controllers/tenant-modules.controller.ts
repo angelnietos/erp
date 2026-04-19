@@ -47,7 +47,7 @@ export class TenantModulesController {
   }
 
   @Get()
-  async get(@Req() req: { user?: JwtUser }) {
+  async get() {
     const enabledModuleIds = await this.tenantModulesService.getEnabledModuleIds(
       this.tenantId,
     );

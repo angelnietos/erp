@@ -89,5 +89,26 @@ export const BudgetStore = signalStore(
         )
       )
     ),
+    deleteBudget: rxMethod<string>(
+      pipe(
+        tap(() => patchState(store, { loading: true, error: null })),
+        switchMap((id) =>
+          budgetService.deleteBudget(id).pipe(
+            tapResponse({
+              next: () => {
+                const current = store.budgets();
+                patchState(store, {
+                  budgets: current.filter((b) => b.id !== id),
+                  loading: false,
+                  error: null,
+                });
+              },
+              error: (error: Error) =>
+                patchState(store, { error: error.message, loading: false }),
+            }),
+          ),
+        ),
+      ),
+    ),
   }))
 );

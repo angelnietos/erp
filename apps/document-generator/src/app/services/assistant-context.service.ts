@@ -209,7 +209,9 @@ export class AssistantContextService {
       const parsed = JSON.parse(raw) as Partial<AssistantPanelSize>;
       if (
         typeof parsed.width === 'number' &&
-        typeof parsed.height === 'number'
+        typeof parsed.height === 'number' &&
+        Number.isFinite(parsed.width) &&
+        Number.isFinite(parsed.height)
       ) {
         this.panelSize.set(this.clampPanelSize(parsed.width, parsed.height));
       }

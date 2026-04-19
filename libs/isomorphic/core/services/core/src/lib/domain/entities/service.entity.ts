@@ -8,7 +8,7 @@ export interface ServiceProps {
   type: ServiceType;
   basePrice: number;
   hourlyRate?: number;
-  configuration?: Record<string, any>;
+  configuration?: Record<string, unknown>;
   isActive: boolean;
   createdAt: Date;
   updatedAt?: Date;
@@ -55,7 +55,7 @@ export class Service extends AggregateRoot {
     this.props.updatedAt = new Date();
   }
 
-  updateConfiguration(configuration: Record<string, any>): void {
+  updateConfiguration(configuration: Record<string, unknown>): void {
     this.props.configuration = configuration;
     this.props.updatedAt = new Date();
   }
@@ -99,7 +99,7 @@ export class Service extends AggregateRoot {
     return this.props.hourlyRate;
   }
 
-  get configuration(): Record<string, any> | undefined {
+  get configuration(): Record<string, unknown> | undefined {
     return this.props.configuration;
   }
 
