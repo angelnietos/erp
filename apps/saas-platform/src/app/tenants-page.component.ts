@@ -24,32 +24,53 @@ type TenantRow = {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="shell">
-      <header class="top">
-        <div class="brand">
-          <span class="brand-mark">JOSANZ</span>
-          <span class="brand-sub">PLATFORM</span>
+      <header class="top" role="banner">
+        <div class="top-inner">
+          <div class="brand">
+            <span class="brand-mark">JOSANZ</span>
+            <span class="brand-sub">PLATFORM</span>
+          </div>
+          <div class="top-meta">
+            <p class="eyebrow">Panel de producto</p>
+            <h1 class="title">Tenants</h1>
+            <p class="lede">
+              Activa o desactiva módulos por organización. Los cambios se aplican al instante en el ERP
+              conectado.
+            </p>
+          </div>
+          <button type="button" class="btn-logout" (click)="logout()">
+            <span class="btn-logout-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M18 9l3 3m0 0-3 3m3-3H9" />
+              </svg>
+            </span>
+            Cerrar sesión
+          </button>
         </div>
-        <div class="top-meta">
-          <p class="eyebrow">Panel de producto</p>
-          <h1 class="title">Tenants</h1>
-          <p class="lede">
-            Activa o desactiva módulos por organización. Los cambios se aplican al instante en el ERP conectado.
-          </p>
-        </div>
-        <button type="button" class="btn-logout" (click)="logout()">
-          <span class="btn-logout-icon" aria-hidden="true">⏻</span>
-          Salir
-        </button>
       </header>
 
+      <main class="main">
       @if (error()) {
-        <div class="banner banner--error" role="alert">{{ error() }}</div>
+        <div class="banner banner--error" role="alert">
+          <span class="banner-icon" aria-hidden="true">!</span>
+          {{ error() }}
+        </div>
       }
 
       @if (loading()) {
-        <div class="state state--loading">Cargando organizaciones…</div>
+        <div class="state state--loading" role="status" aria-live="polite">
+          <span class="sp-loading-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="state-text">Cargando organizaciones…</span>
+        </div>
       } @else if (tenants().length === 0) {
-        <div class="state">No hay tenants.</div>
+        <div class="state state--empty" role="status">
+          <p class="state-empty-title">Aún no hay organizaciones</p>
+          <p class="state-empty-lede">
+            Cuando existan tenants en el backend, aparecerán aquí para configurar sus módulos.
+          </p>
+        </div>
       } @else {
         <div class="grid">
           @for (t of tenants(); track t.id) {
@@ -100,79 +121,90 @@ type TenantRow = {
           }
         </div>
       }
+      </main>
     </div>
   `,
   styles: `
     :host {
-      --bg0: #06070b;
-      --bg1: #0c0e14;
-      --bg2: #12151e;
-      --line: rgba(255, 255, 255, 0.08);
-      --muted: rgba(232, 234, 239, 0.55);
-      --text: #e8eaef;
-      --accent: #e60012;
-      --accent-dim: #9a0010;
-      --gold: #c9a227;
       --chip-off: rgba(255, 255, 255, 0.06);
-      --chip-on: rgba(230, 0, 18, 0.18);
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+      --chip-on: rgba(230, 0, 18, 0.16);
       display: block;
       min-height: 100vh;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(230, 0, 18, 0.12), transparent 55%),
-        radial-gradient(900px 500px at 90% 0%, rgba(201, 162, 39, 0.08), transparent 50%),
-        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 40%, #0a0b10 100%);
+      font-family: var(--sp-font-sans);
+      color: var(--sp-text);
+      background: transparent;
     }
 
     .shell {
-      max-width: 1280px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: clamp(1.25rem, 4vw, 2.5rem);
+      padding: 0 clamp(1rem, 3.5vw, 2rem) clamp(2rem, 5vw, 3rem);
     }
 
     .top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 0 calc(-1 * clamp(1rem, 3.5vw, 2rem));
+      padding: clamp(0.85rem, 2.5vw, 1.15rem) clamp(1rem, 3.5vw, 2rem);
+      border-bottom: 1px solid var(--sp-line);
+      background: linear-gradient(
+        180deg,
+        rgba(5, 6, 10, 0.92) 0%,
+        rgba(5, 6, 10, 0.78) 100%
+      );
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .top-inner {
+      max-width: 1200px;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: clamp(1rem, 3vw, 2rem);
       align-items: start;
-      padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
-      border-bottom: 1px solid var(--line);
-      margin-bottom: clamp(1.25rem, 3vw, 2rem);
     }
 
-    @media (max-width: 720px) {
-      .top {
+    @media (max-width: 820px) {
+      .top-inner {
         grid-template-columns: 1fr;
       }
+      .btn-logout {
+        justify-self: start;
+      }
+    }
+
+    .main {
+      padding-top: clamp(1.25rem, 3vw, 2rem);
     }
 
     .brand {
       display: flex;
       flex-direction: column;
       line-height: 1;
-      padding: 0.35rem 0.75rem;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), transparent);
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--sp-line);
+      border-radius: 6px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent);
+      box-shadow: var(--sp-shadow-soft);
       align-self: start;
     }
 
     .brand-mark {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: var(--sp-font-display);
       font-weight: 700;
-      font-size: 1.35rem;
-      letter-spacing: 0.12em;
-      color: var(--text);
+      font-size: 1.38rem;
+      letter-spacing: 0.13em;
+      color: var(--sp-text);
     }
 
     .brand-sub {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: var(--sp-font-display);
       font-weight: 600;
-      font-size: 0.7rem;
-      letter-spacing: 0.35em;
-      color: var(--gold);
+      font-size: 0.68rem;
+      letter-spacing: 0.36em;
+      color: var(--sp-gold);
     }
 
     .top-meta {
@@ -180,22 +212,22 @@ type TenantRow = {
     }
 
     .eyebrow {
-      margin: 0 0 0.35rem;
-      font-size: 0.7rem;
+      margin: 0 0 0.4rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--sp-muted);
     }
 
     .title {
-      margin: 0 0 0.5rem;
-      font-family: 'Rajdhani', sans-serif;
+      margin: 0 0 0.55rem;
+      font-family: var(--sp-font-display);
       font-weight: 700;
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2rem, 5vw, 2.85rem);
       letter-spacing: 0.02em;
-      line-height: 1.05;
-      background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.75) 100%);
+      line-height: 1.04;
+      background: linear-gradient(92deg, #fff 0%, rgba(255, 255, 255, 0.74) 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -203,96 +235,168 @@ type TenantRow = {
 
     .lede {
       margin: 0;
-      max-width: 42rem;
-      font-size: 0.95rem;
-      line-height: 1.55;
-      color: var(--muted);
+      max-width: 44rem;
+      font-size: 0.96rem;
+      line-height: 1.58;
+      color: var(--sp-muted);
     }
 
     .btn-logout {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.55rem 1rem;
-      border: 1px solid rgba(230, 0, 18, 0.45);
-      border-radius: 6px;
-      background: linear-gradient(180deg, rgba(230, 0, 18, 0.25), rgba(154, 0, 16, 0.35));
-      color: var(--text);
+      gap: 0.55rem;
+      padding: 0.58rem 1.05rem;
+      border: 1px solid rgba(230, 0, 18, 0.42);
+      border-radius: var(--sp-radius-sm);
+      background: linear-gradient(185deg, rgba(230, 0, 18, 0.22), rgba(154, 0, 16, 0.38));
+      color: var(--sp-text);
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-      box-shadow: 0 4px 20px rgba(230, 0, 18, 0.15);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      box-shadow: 0 6px 22px rgba(230, 0, 18, 0.14);
       justify-self: end;
       white-space: nowrap;
     }
 
     .btn-logout:hover {
       transform: translateY(-1px);
-      border-color: rgba(255, 80, 90, 0.7);
-      box-shadow: 0 8px 28px rgba(230, 0, 18, 0.25);
+      border-color: rgba(255, 120, 130, 0.65);
+      box-shadow: 0 10px 30px rgba(230, 0, 18, 0.22);
     }
 
     .btn-logout-icon {
-      font-size: 1rem;
-      opacity: 0.9;
+      display: inline-flex;
+      width: 1.15rem;
+      height: 1.15rem;
+      opacity: 0.92;
+    }
+
+    .btn-logout-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .banner {
-      padding: 0.85rem 1rem;
-      border-radius: 8px;
-      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.9rem 1.05rem;
+      border-radius: var(--sp-radius-md);
+      margin-bottom: 1.35rem;
       font-size: 0.9rem;
-      border: 1px solid var(--line);
+      line-height: 1.45;
+      border: 1px solid var(--sp-line);
+    }
+
+    .banner-icon {
+      flex-shrink: 0;
+      width: 1.35rem;
+      height: 1.35rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      background: rgba(230, 0, 18, 0.35);
+      color: #fff;
     }
 
     .banner--error {
-      background: rgba(230, 0, 18, 0.12);
-      border-color: rgba(230, 0, 18, 0.35);
-      color: #ffb4b8;
+      background: rgba(230, 0, 18, 0.1);
+      border-color: rgba(230, 0, 18, 0.38);
+      color: var(--sp-danger-text);
     }
 
     .state {
-      padding: 2rem;
+      padding: clamp(2rem, 5vw, 3rem);
       text-align: center;
-      color: var(--muted);
-      border: 1px dashed var(--line);
-      border-radius: 12px;
+      color: var(--sp-muted);
+      border: 1px dashed var(--sp-line);
+      border-radius: var(--sp-radius-lg);
+      background: linear-gradient(165deg, rgba(18, 21, 30, 0.45), rgba(8, 9, 14, 0.35));
     }
 
     .state--loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
       font-weight: 600;
       letter-spacing: 0.02em;
+    }
+
+    .state-text {
+      font-size: 0.95rem;
+    }
+
+    .state--empty {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .state--empty::before {
+      content: '';
+      position: absolute;
+      inset: -40% -20%;
+      background: radial-gradient(
+        circle at 50% 30%,
+        rgba(201, 162, 39, 0.07),
+        transparent 55%
+      );
+      pointer-events: none;
+    }
+
+    .state-empty-title {
+      position: relative;
+      margin: 0 0 0.5rem;
+      font-family: var(--sp-font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--sp-text);
+    }
+
+    .state-empty-lede {
+      position: relative;
+      margin: 0 auto;
+      max-width: 26rem;
+      font-size: 0.92rem;
+      line-height: 1.55;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-      gap: clamp(1rem, 2.5vw, 1.75rem);
+      gap: clamp(1.1rem, 2.5vw, 1.85rem);
     }
 
     .tile {
       position: relative;
       display: flex;
       flex-direction: column;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: linear-gradient(165deg, var(--bg2) 0%, #0d0f16 100%);
-      box-shadow: var(--shadow);
+      border-radius: var(--sp-radius-lg);
+      border: 1px solid var(--sp-line);
+      background: linear-gradient(168deg, var(--sp-bg2) 0%, var(--sp-surface) 100%);
+      box-shadow: var(--sp-shadow);
       overflow: hidden;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     }
 
     .tile:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-3px);
+      border-color: var(--sp-line-strong);
+      box-shadow: var(--sp-shadow), 0 0 0 1px rgba(255, 255, 255, 0.04);
     }
 
     .tile-accent {
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
+      height: 3px;
+      background: linear-gradient(90deg, var(--sp-accent) 0%, var(--sp-gold) 50%, var(--sp-accent) 100%);
+      background-size: 200% 100%;
+      animation: sp-shimmer 10s ease-in-out infinite;
     }
 
     .tile-head {
@@ -300,51 +404,51 @@ type TenantRow = {
       align-items: flex-start;
       justify-content: space-between;
       gap: 1rem;
-      padding: 1.25rem 1.25rem 0.75rem;
+      padding: 1.3rem 1.3rem 0.85rem;
     }
 
     .tenant-name {
       margin: 0;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: var(--sp-font-display);
       font-weight: 700;
-      font-size: 1.35rem;
+      font-size: 1.32rem;
       letter-spacing: 0.02em;
     }
 
     .tenant-slug {
-      margin: 0.25rem 0 0;
+      margin: 0.28rem 0 0;
       font-size: 0.8rem;
-      color: var(--muted);
-      font-family: ui-monospace, monospace;
+      color: var(--sp-muted);
+      font-family: ui-monospace, 'Cascadia Code', monospace;
     }
 
     .badge {
       flex-shrink: 0;
-      padding: 0.35rem 0.65rem;
+      padding: 0.38rem 0.72rem;
       border-radius: 999px;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid rgba(201, 162, 39, 0.35);
-      background: rgba(201, 162, 39, 0.08);
+      color: var(--sp-gold);
+      border: 1px solid rgba(201, 162, 39, 0.4);
+      background: var(--sp-gold-soft);
     }
 
     .section-label {
-      margin: 0 1.25rem 0.65rem;
-      font-size: 0.65rem;
+      margin: 0 1.3rem 0.7rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--sp-muted);
     }
 
     .chip-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 0.5rem;
-      padding: 0 1.25rem 1rem;
+      gap: 0.55rem;
+      padding: 0 1.3rem 1.05rem;
       flex: 1;
     }
 
@@ -353,7 +457,7 @@ type TenantRow = {
       display: block;
       cursor: pointer;
       user-select: none;
-      border-radius: 8px;
+      border-radius: var(--sp-radius-sm);
       overflow: hidden;
     }
 
@@ -364,91 +468,107 @@ type TenantRow = {
       height: 0;
     }
 
+    .chip-input:focus-visible ~ .chip-body {
+      box-shadow: var(--sp-focus);
+    }
+
     .chip-glow {
       position: absolute;
       inset: 0;
-      border-radius: 8px;
+      border-radius: var(--sp-radius-sm);
       opacity: 0;
       transition: opacity 0.2s ease;
-      background: radial-gradient(circle at 50% 50%, rgba(230, 0, 18, 0.35), transparent 70%);
+      background: radial-gradient(circle at 50% 50%, rgba(230, 0, 18, 0.38), transparent 72%);
       pointer-events: none;
     }
 
     .chip:hover .chip-glow {
-      opacity: 0.5;
+      opacity: 0.55;
     }
 
     .chip-body {
       position: relative;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.65rem;
-      border-radius: 8px;
+      gap: 0.55rem;
+      padding: 0.55rem 0.72rem;
+      border-radius: var(--sp-radius-sm);
       border: 1px solid rgba(255, 255, 255, 0.1);
       background: var(--chip-off);
-      transition: background 0.15s ease, border-color 0.15s ease;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .chip:hover .chip-body {
+      border-color: rgba(255, 255, 255, 0.16);
     }
 
     .chip--on .chip-body {
       background: var(--chip-on);
-      border-color: rgba(230, 0, 18, 0.45);
+      border-color: rgba(230, 0, 18, 0.48);
     }
 
     .chip-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.28);
       flex-shrink: 0;
     }
 
     .chip-dot--on {
-      background: var(--accent);
-      box-shadow: 0 0 10px rgba(230, 0, 18, 0.8);
+      background: var(--sp-accent);
+      box-shadow: 0 0 12px rgba(230, 0, 18, 0.85);
     }
 
     .chip-label {
       font-size: 0.8rem;
       font-weight: 600;
-      line-height: 1.2;
+      line-height: 1.25;
     }
 
     .inline-error {
-      margin: 0 1.25rem 0.75rem;
-      font-size: 0.8rem;
+      margin: 0 1.3rem 0.8rem;
+      font-size: 0.82rem;
       color: #ff8a90;
     }
 
     .tile-actions {
-      padding: 0 1.25rem 1.25rem;
+      padding: 0 1.3rem 1.3rem;
+      margin-top: auto;
     }
 
     .btn-primary {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.78rem 1rem;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--sp-radius-sm);
       font-family: inherit;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 700;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
       cursor: pointer;
       color: #fff;
-      background: linear-gradient(180deg, #ff1a2e 0%, var(--accent-dim) 100%);
-      box-shadow: 0 6px 24px rgba(230, 0, 18, 0.25);
-      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+      background: linear-gradient(185deg, #ff1f32 0%, var(--sp-accent-dim) 100%);
+      box-shadow: 0 8px 28px rgba(230, 0, 18, 0.26);
+      transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
     }
 
     .btn-primary:hover:not(:disabled) {
       transform: translateY(-1px);
-      filter: brightness(1.06);
+      filter: brightness(1.05);
     }
 
     .btn-primary:disabled {
       opacity: 0.55;
       cursor: not-allowed;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tile-accent {
+        animation: none;
+        background: linear-gradient(90deg, var(--sp-accent) 0%, var(--sp-gold) 100%);
+      }
     }
   `,
 })
