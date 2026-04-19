@@ -1,10 +1,22 @@
 import { Injectable } from '@angular/core';
 import { escapeHtml } from '../utils/html-escape';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const html2pdf: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const marked: any;
+/** Cargado vía script en `index.html` (html2pdf.js). */
+interface Html2PdfChain {
+  set: (options: object) => Html2PdfChain;
+  from: (source: string | HTMLElement) => Html2PdfChain;
+  outputPdf: (type: 'blob') => Promise<Blob>;
+}
+
+declare function html2pdf(): Html2PdfChain;
+
+/** Cargado vía script en `index.html` (marked). */
+interface MarkedGlobal {
+  parse: (src: string, options?: object) => string;
+  setOptions?: (options: object) => void;
+}
+
+declare const marked: MarkedGlobal;
 
 interface DocumentData {
   title?: string;

@@ -1,23 +1,23 @@
 {
   "name": "verifactu-core",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/domain/src",
+  "sourceRoot": "libs/isomorphic/core/verifactu/core/src",
   "projectType": "library",
   "tags": ["scope:verifactu", "type:core"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/verifactu/core/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/verifactu/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/verifactu/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/verifactu/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/verifactu/core"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/verifactu/core"]
     }
   }
 }

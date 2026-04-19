@@ -774,7 +774,7 @@ declare const marked: {
             <input
               type="text"
               [formControl]="messageInput"
-              (keydown.enter)="sendMessage(); $event.preventDefault()"
+              (keydown.enter)="onChatEnter($event)"
               [disabled]="isAiReplyLoading"
               [attr.aria-label]="
                 'Mensaje para ' + assistantService.petConfig$().name
@@ -985,6 +985,12 @@ export class FloatingAssistantComponent implements OnInit {
   clearConversation(): void {
     this.assistantService.resetChatToWelcome();
     setTimeout(() => this.scrollToBottom(), 0);
+  }
+
+  /** Enter en el campo de mensaje: evita envíos duplicados y propagación. */
+  onChatEnter(event: Event): void {
+    event.preventDefault();
+    void this.sendMessage();
   }
 
   async sendMessage(): Promise<void> {
