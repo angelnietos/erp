@@ -1,7 +1,5 @@
-# Alias: usar docker/backend/Dockerfile (este archivo se mantiene por compatibilidad con scripts antiguos).
-# docker build -f Dockerfile.backend .
-# Preferido: docker build -f docker/backend/Dockerfile .
-
+# Build context: raíz del monorepo
+# pnpm exec nx run backend:build:production → dist/apps/backend (main.js + package.json generado por webpack)
 FROM node:20-bookworm-slim AS builder
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
@@ -22,7 +20,10 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
+# Webpack + NxAppWebpackPlugin(generatePackageJson) deja main.js y package.json en dist/apps/backend
 COPY --from=builder /app/dist/apps/backend ./
+
+# Prisma: migraciones manuales o job CI (schema necesario si ejecutas migrate dentro del contenedor)
 COPY --from=builder /app/apps/backend/prisma ./prisma
 
 RUN if [ -f package.json ]; then npm install --omit=dev; fi
