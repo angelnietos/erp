@@ -6,6 +6,7 @@ import {
   ViewChild,
   OnInit,
 } from '@angular/core';
+import { AIInferenceService } from '@josanz-erp/shared-data-access';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
@@ -130,6 +131,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         border: 1px solid #e2e8f0;
         border-bottom-left-radius: 4px;
         color: #0f172a;
+        white-space: pre-wrap;
+        word-break: break-word;
       }
 
       .message.system {
@@ -451,8 +454,9 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
                   Respuestas con IA real
                 </p>
                 <p class="text-xs text-slate-500 leading-snug">
-                  La apariencia de arriba es solo visual. Para clave API,
-                  modelo (Gemini, OpenAI, Ollama…):
+                  La apariencia de arriba es solo visual. El chat usa tu motor
+                  configurado (Gemini, OpenAI, Ollama…). Sin clave, verás
+                  respuestas locales.
                 </p>
                 <a
                   routerLink="/documents/settings/ai"
@@ -477,6 +481,16 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
                 {{ msg.content }}
               </div>
             }
+            @if (isAiReplyLoading) {
+              <div class="message assistant opacity-90">
+                <span class="inline-flex items-center gap-2 text-slate-500">
+                  <span
+                    class="inline-block w-2 h-2 rounded-full bg-violet-500 animate-pulse"
+                  ></span>
+                  Pensando…
+                </span>
+              </div>
+            }
           </div>
 
           <div
@@ -485,8 +499,10 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             <div class="flex flex-wrap gap-1">
               @for (action of quickActions; track $index) {
                 <button
+                  type="button"
                   (click)="sendQuickAction(action)"
-                  class="px-2 py-1 text-xs bg-white border border-slate-200 rounded text-doc-ink hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors"
+                  [disabled]="isAiReplyLoading"
+                  class="px-2 py-1 text-xs bg-white border border-slate-200 rounded text-doc-ink hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors disabled:opacity-50"
                 >
                   {{ action }}
                 </button>
@@ -498,15 +514,18 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
             <input
               type="text"
               [formControl]="messageInput"
-              (keydown.enter)="sendMessage()"
+              (keydown.enter)="sendMessage(); $event.preventDefault()"
+              [disabled]="isAiReplyLoading"
               placeholder="Pregunta cualquier cosa a {{
                 assistantService.petConfig$().name
               }}..."
-              class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:opacity-50"
             />
             <button
+              type="button"
               (click)="sendMessage()"
-              class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700"
+              [disabled]="isAiReplyLoading"
+              class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 class="w-4 h-4"
@@ -530,6 +549,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 })
 export class FloatingAssistantComponent implements OnInit {
   readonly assistantService = inject(AssistantContextService);
+  private readonly inference = inject(AIInferenceService);
   readonly messageInput = new FormControl('');
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
@@ -537,6 +557,8 @@ export class FloatingAssistantComponent implements OnInit {
   isDragging = false;
   showConfig = false;
   isMinimized = false;
+  /** Respuesta del modelo en curso (Gemini, OpenAI, Ollama…). */
+  isAiReplyLoading = false;
   private dragOffset = { x: 0, y: 0 };
 
   availableSkins = [
@@ -554,6 +576,7 @@ export class FloatingAssistantComponent implements OnInit {
 
   ngOnInit(): void {
     this.assistantService.loadSavedConfig();
+    void this.inference.autoSelectProvider();
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -592,23 +615,72 @@ export class FloatingAssistantComponent implements OnInit {
     this.showConfig = !this.showConfig;
   }
 
-  sendMessage(): void {
+  async sendMessage(): Promise<void> {
     const message = this.messageInput.value?.trim();
-    if (!message) return;
+    if (!message || this.isAiReplyLoading) return;
 
     this.assistantService.addMessage(message, 'user');
     this.messageInput.reset();
+    this.scrollToBottom();
 
-    setTimeout(() => {
-      this.scrollToBottom();
+    if (this.inference.selectedProvider() === 'free') {
       this.assistantService.addMessage(this.getResponse(message), 'assistant');
-      setTimeout(() => this.scrollToBottom(), 100);
-    }, 800);
+      this.scrollToBottom();
+      return;
+    }
+
+    this.isAiReplyLoading = true;
+    try {
+      const system = this.buildFloatingSystemPrompt();
+      const reply = await this.inference.generateResponse(message, system, {
+        maxOutputTokens: 2048,
+      });
+      const text = (reply || '').trim();
+      this.assistantService.addMessage(
+        text || '(Sin respuesta del modelo.)',
+        'assistant',
+      );
+    } catch (err: unknown) {
+      const local = this.getResponse(message);
+      const hint =
+        err instanceof Error ? err.message : 'Error al contactar con el modelo.';
+      this.assistantService.addMessage(
+        `${local}\n\n— ${hint}\n(Configuración IA: menú «Config. IA» o /documents/settings/ai)`,
+        'assistant',
+      );
+    } finally {
+      this.isAiReplyLoading = false;
+      setTimeout(() => this.scrollToBottom(), 80);
+    }
   }
 
   sendQuickAction(action: string): void {
     this.messageInput.setValue(action);
-    this.sendMessage();
+    void this.sendMessage();
+  }
+
+  /** Contexto de sistema: personalidad del pet + fragmento de documento. */
+  private buildFloatingSystemPrompt(): string {
+    const ctx = this.assistantService.context$();
+    const pet = this.assistantService.petConfig$();
+    const personalityHints: Record<string, string> = {
+      friendly: 'Tono cercano y claro, puedes usar emojis con moderación.',
+      professional: 'Tono formal y directo, sin emojis salvo que el usuario los use.',
+      humorous: 'Tono ligero y ingenioso, sin perder utilidad.',
+      minimal: 'Respuestas muy breves, viñetas si ayudan.',
+    };
+    const snippet = (ctx.documentContent || '').slice(0, 8000);
+    const tone =
+      personalityHints[pet.personality] ?? personalityHints['friendly'];
+    return [
+      `Eres "${pet.name}", asistente del Generador de Documentos Josanz ERP.`,
+      tone,
+      `Pestaña o vista: ${ctx.activeTab}. Tipo de documento: ${ctx.documentType || 'no indicado'}.`,
+      snippet
+        ? `Contenido actual del documento (recortado):\n---\n${snippet}\n---`
+        : 'Aún no hay texto de documento en contexto.',
+      'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
+    ].join('\n');
   }
 
   updateConfig<K extends keyof AssistantPetConfig>(

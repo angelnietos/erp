@@ -120,12 +120,12 @@ interface DocumentType {
     <div class="space-y-8">
       <!-- Breadcrumb -->
       <nav class="flex items-center space-x-2 text-sm text-secondary">
-        <button
+        <a
           routerLink="/documents/list"
           class="hover:text-primary transition-colors"
         >
           Documentos
-        </button>
+        </a>
         <svg
           class="w-4 h-4"
           fill="none"
@@ -170,6 +170,14 @@ interface DocumentType {
           <p class="text-secondary text-lg">
             Elige el tipo y una plantilla: el editor se abre en la siguiente
             pantalla para que no tengas que hacer scroll.
+          </p>
+          <p class="text-sm text-muted mt-4">
+            <a
+              routerLink="/documents/settings/ai"
+              class="font-semibold text-brand hover:underline"
+              >Motor de IA</a
+            >
+            · clave API y modelo (misma configuración que el ERP)
           </p>
         </div>
       </div>
