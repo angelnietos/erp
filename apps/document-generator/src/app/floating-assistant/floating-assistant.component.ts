@@ -792,6 +792,7 @@ declare const marked: MarkedGlobal;
             >
               <svg
                 class="w-4 h-4"
+                aria-hidden="true"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

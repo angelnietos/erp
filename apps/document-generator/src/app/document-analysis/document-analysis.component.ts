@@ -489,7 +489,10 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                 <input
                   type="text"
                   [formControl]="chatInput"
-                  (keydown.enter)="sendMessage()"
+                  (keydown.enter)="onAnalysisChatEnter($event)"
+                  [attr.aria-label]="
+                    'Escribe tu pregunta al asistente de análisis de propuestas'
+                  "
                   placeholder="Pregunta al asistente sobre tu propuesta..."
                   class="flex-1 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -497,10 +500,13 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                   type="button"
                   (click)="sendMessage()"
                   [disabled]="isChatSending || effectiveTextLength === 0"
+                  title="Enviar"
+                  aria-label="Enviar mensaje"
                   class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
                   <svg
                     class="w-5 h-5"
+                    aria-hidden="true"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -918,6 +924,12 @@ export class DocumentAnalysisComponent implements OnInit {
     }
   }
 
+  /** Enter en el campo de chat: un solo envío y sin acción por defecto del navegador. */
+  onAnalysisChatEnter(event: Event): void {
+    event.preventDefault();
+    void this.sendMessage();
+  }
+
   async sendMessage(): Promise<void> {
     const message = this.chatInput.value?.trim();
     if (!message || this.isChatSending) {
@@ -969,4 +981,5 @@ export class DocumentAnalysisComponent implements OnInit {
     this.chatInput.setValue(action);
     void this.sendMessage();
   }
+
 }
