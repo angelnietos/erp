@@ -92,8 +92,11 @@ export class AssistantContextService {
   }
 
   setActiveTab(tab: string): void {
+    const previous = this.context().activeTab;
     this.updateContext({ activeTab: tab });
-    this.addSystemMessage(`Cambiando a pestaña: ${tab}`);
+    if (previous !== tab) {
+      this.addSystemMessage(`Cambiando a pestaña: ${tab}`);
+    }
   }
 
   setDocumentContent(content: string, type?: string): void {
@@ -112,12 +115,32 @@ export class AssistantContextService {
   }
 
   toggleAssistant(): void {
+    const wasOpen = this.isOpen();
     this.isOpen.update((v) => !v);
+    if (!wasOpen && this.isOpen()) {
+      this.announcePanelOpened();
+    }
   }
 
   /** Abre el panel del asistente flotante (sin alternar). */
-  openAssistant(): void {
+  openAssistant(options?: { announce?: boolean }): void {
+    const announce = options?.announce !== false;
     this.isOpen.set(true);
+    if (announce) {
+      this.announcePanelOpened();
+    }
+  }
+
+  /** Mensaje para `aria-live` (lectores de pantalla) al abrir el panel. */
+  private readonly assistiveStatus = signal('');
+
+  readonly assistiveStatus$ = this.assistiveStatus.asReadonly();
+
+  private announcePanelOpened(): void {
+    const name = this.petConfig().name;
+    const msg = `${name}: panel de ayuda abierto. Escribe en el campo de texto al final del chat.`;
+    this.assistiveStatus.set('');
+    setTimeout(() => this.assistiveStatus.set(msg), 80);
   }
 
   setPosition(x: number, y: number): void {
@@ -211,6 +234,19 @@ Contexto actual:
 
   clearMessages(): void {
     this.messages.set([]);
+  }
+
+  /** Vuelve a dejar solo el mensaje de bienvenida del asistente. */
+  resetChatToWelcome(): void {
+    this.messages.set([
+      {
+        id: 'welcome-' + Date.now(),
+        type: 'assistant',
+        content:
+          '¡Hola! Soy tu asistente inteligente. Estoy observando todo lo que haces en todas las pestañas. ¿Necesitas ayuda?',
+        timestamp: new Date(),
+      },
+    ]);
   }
 
   updatePetConfig(partial: Partial<AssistantPetConfig>): void {

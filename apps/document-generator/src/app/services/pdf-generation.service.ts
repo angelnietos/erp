@@ -150,24 +150,31 @@ export class PdfGenerationService {
         <meta charset="UTF-8">
         <style>
           @page {
-            margin: 25mm 20mm 25mm 20mm;
+            margin: 22mm 18mm 24mm 18mm;
           }
           * {
             box-sizing: border-box;
           }
           body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
+            font-family:
+              'Segoe UI',
+              system-ui,
+              -apple-system,
+              'Helvetica Neue',
+              sans-serif;
+            line-height: 1.62;
             color: #1e293b;
-            font-size: 12pt;
+            font-size: 11.5pt;
+            letter-spacing: 0.01em;
           }
           h1 {
-            font-size: 22pt;
+            font-size: 20pt;
             font-weight: 800;
             margin: 1.25rem 0 0.65rem 0;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #e2e8f0;
             color: #0f172a;
+            letter-spacing: -0.02em;
             page-break-after: auto;
             break-after: auto;
           }
@@ -284,17 +291,17 @@ export class PdfGenerationService {
             page-break-after: auto;
           }
           th {
-            background-color: #f8fafc;
+            background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
             font-weight: 600;
-            color: #374151;
+            color: #1e293b;
             padding: 0.55rem 0.65rem;
             text-align: left;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
           }
           td {
             padding: 0.55rem 0.65rem;
             border: 1px solid #e2e8f0;
-            background-color: white;
+            background-color: #ffffff;
           }
           tr:nth-child(even) td {
             background-color: #f8fafc;
@@ -306,31 +313,76 @@ export class PdfGenerationService {
           }
           .pdf-header {
             text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1.75rem;
+            padding: 1.35rem 1.25rem 1.25rem;
+            border-radius: 12px;
+            background: linear-gradient(
+              165deg,
+              #f8fafc 0%,
+              #f1f5f9 45%,
+              #eef2f7 100%
+            );
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+          }
+          .pdf-header::before {
+            content: '';
+            display: block;
+            height: 4px;
+            margin: -1.35rem -1.25rem 1rem -1.25rem;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #0ea5e9 100%);
           }
           .pdf-header h1 {
             border: none;
             margin: 0;
             padding: 0;
+            font-size: 22pt;
+            color: #0f172a;
+            letter-spacing: -0.02em;
           }
           .pdf-meta {
-            font-size: 10pt;
+            font-size: 9.5pt;
             color: #64748b;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem 1rem;
+            gap: 0.4rem 0.65rem;
             justify-content: center;
-            margin-top: 1rem;
+            margin-top: 0.85rem;
+          }
+          .pdf-meta span {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            color: #475569;
+          }
+          .pdf-body-content {
+            margin-top: 0.25rem;
+          }
+          .pdf-body-content > h1:first-child,
+          .pdf-body-content > h2:first-child {
+            margin-top: 0;
           }
           .pdf-doc-footer {
-            margin-top: 2rem;
+            margin-top: 2.25rem;
             padding-top: 1rem;
             border-top: 1px solid #e2e8f0;
             text-align: center;
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #94a3b8;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+          }
+          .pdf-doc-footer::before {
+            content: '';
+            display: block;
+            width: 48px;
+            height: 3px;
+            margin: 0 auto 0.65rem;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
         </style>
       </head>
@@ -631,24 +683,31 @@ export class PdfGenerationService {
         <meta charset="UTF-8">
         <style>
           @page {
-            margin: 25mm 20mm 25mm 20mm;
+            margin: 22mm 18mm 24mm 18mm;
           }
           * {
             box-sizing: border-box;
           }
           body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
+            font-family:
+              'Segoe UI',
+              system-ui,
+              -apple-system,
+              'Helvetica Neue',
+              sans-serif;
+            line-height: 1.62;
             color: #1e293b;
-            font-size: 12pt;
+            font-size: 11.5pt;
+            letter-spacing: 0.01em;
           }
           h1 {
-            font-size: 22pt;
+            font-size: 20pt;
             font-weight: 800;
             margin: 1.25rem 0 0.65rem 0;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #e2e8f0;
             color: #0f172a;
+            letter-spacing: -0.02em;
             page-break-after: auto;
           }
           h2 {
@@ -675,6 +734,7 @@ export class PdfGenerationService {
           p {
             margin: 0.5rem 0;
             line-height: 1.65;
+            text-align: justify;
             orphans: 3;
             widows: 3;
           }
@@ -691,31 +751,76 @@ export class PdfGenerationService {
           }
           .pdf-header {
             text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1.75rem;
+            padding: 1.35rem 1.25rem 1.25rem;
+            border-radius: 12px;
+            background: linear-gradient(
+              165deg,
+              #f8fafc 0%,
+              #f1f5f9 45%,
+              #eef2f7 100%
+            );
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+          }
+          .pdf-header::before {
+            content: '';
+            display: block;
+            height: 4px;
+            margin: -1.35rem -1.25rem 1rem -1.25rem;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #0ea5e9 100%);
           }
           .pdf-header h1 {
             border: none;
             margin: 0;
             padding: 0;
+            font-size: 22pt;
+            color: #0f172a;
+            letter-spacing: -0.02em;
           }
           .pdf-meta {
-            font-size: 10pt;
+            font-size: 9.5pt;
             color: #64748b;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem 1rem;
+            gap: 0.4rem 0.65rem;
             justify-content: center;
-            margin-top: 1rem;
+            margin-top: 0.85rem;
+          }
+          .pdf-meta span {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            color: #475569;
+          }
+          .pdf-body-content {
+            margin-top: 0.25rem;
+          }
+          .pdf-body-content > h1:first-child,
+          .pdf-body-content > h2:first-child {
+            margin-top: 0;
           }
           .pdf-doc-footer {
-            margin-top: 2rem;
+            margin-top: 2.25rem;
             padding-top: 1rem;
             border-top: 1px solid #e2e8f0;
             text-align: center;
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #94a3b8;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+          }
+          .pdf-doc-footer::before {
+            content: '';
+            display: block;
+            width: 48px;
+            height: 3px;
+            margin: 0 auto 0.65rem;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
         </style>
       </head>

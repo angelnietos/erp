@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { openAssistantRedirectGuard } from './guards/open-assistant-redirect.guard';
 
 export const documentGeneratorRoutes: Route[] = [
   {
@@ -13,9 +14,10 @@ export const documentGeneratorRoutes: Route[] = [
   },
   {
     path: 'bot',
+    canActivate: [openAssistantRedirectGuard],
     loadComponent: () =>
-      import('./documents-bot/documents-bot.component').then(
-        (m) => m.DocumentsBotComponent,
+      import('./guards/assistant-bot-stub.component').then(
+        (m) => m.AssistantBotStubComponent,
       ),
   },
   {

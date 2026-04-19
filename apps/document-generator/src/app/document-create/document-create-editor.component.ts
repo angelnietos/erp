@@ -275,7 +275,7 @@ interface DocumentType {
                 </div>
 
                 <div
-                  class="rounded-xl border border-violet-200/90 dark:border-violet-900/50 bg-violet-50/50 dark:bg-violet-950/25 p-6 space-y-4"
+                  class="rounded-2xl border border-violet-200/90 dark:border-violet-800/60 bg-gradient-to-br from-violet-50/90 via-white to-slate-50/80 dark:from-violet-950/40 dark:via-slate-950 dark:to-slate-900 p-6 space-y-4 shadow-md shadow-slate-900/5 ring-1 ring-violet-100/70 dark:ring-violet-900/40"
                 >
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -439,7 +439,7 @@ interface DocumentType {
                       <button
                         type="button"
                         (click)="loadTemplate(template)"
-                        class="px-4 py-3 text-left bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all border border-transparent hover:border-blue-200"
+                        class="px-4 py-3 text-left bg-white/90 dark:bg-slate-900/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-800 dark:hover:text-blue-200 rounded-xl transition-all border border-slate-200/80 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 shadow-sm hover:shadow"
                       >
                         <div class="font-medium">
                           {{ template.icon }} {{ template.name }}

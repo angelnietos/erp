@@ -67,9 +67,9 @@
 }
 
 .bb-search__box:focus-within {
-  border-color: #9a9a9a;
+  border-color: color-mix(in srgb, var(--bio-primary) 42%, #9a9a9a);
   background: var(--bio-white);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bio-primary) 14%, transparent);
 }
 
 .bb-search__box lucide-icon {

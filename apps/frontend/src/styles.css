@@ -64,6 +64,9 @@
   --feature-page-max-width: 1400px;
   --feature-page-padding: 2rem;
   --feature-page-gap: 2rem;
+
+  /* Checkboxes, radios y barras de rango nativas */
+  accent-color: var(--brand);
 }
 
 /**
@@ -316,7 +319,9 @@ body {
     );
   color: var(--text-primary);
   font-family: var(--font-main);
-  line-height: 1.4; /* Reduced line height for density */
+  /* Legibilidad amable sin perder densidad de ERP */
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
 }
 
 /* Custom Scrollbar Premium */
@@ -511,13 +516,6 @@ h6 {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.text-uppercase {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.65rem;
-  font-weight: 800;
 }
 
 /* --- PERFORMANCE & QUALITY MODES --- */
@@ -768,9 +766,42 @@ html[data-ui-variant='minimal'] .card {
   color: var(--text-primary);
 }
 
+html[data-theme*='light'] ::selection,
+[data-theme='pearl'] ::selection,
+[data-theme='latte'] ::selection,
+[data-theme='corporate-light'] ::selection {
+  background: color-mix(in srgb, var(--brand) 22%, #e2e8f0);
+  color: var(--text-primary);
+}
+
 :focus-visible {
   outline: 2px solid var(--ring-focus);
   outline-offset: 3px;
+}
+
+/* Menos movimiento cuando el usuario lo pide (accesibilidad + menos distracción) */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-right,
+  .feature-page-shell--fade-in,
+  .app-feature-page--fade-in {
+    animation: none !important;
+  }
+
+  .premium-mode .page-container {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .premium-mode .stat-card::after {
+    animation: none !important;
+  }
 }
 
 /* Texto amable (sin todo mayúsculas) para descripciones */
@@ -1467,6 +1498,46 @@ tr:hover .row-actions,
 .settings-module-disable-warning{margin:0 0 1.25rem;line-height:1.55;font-size:.9rem;color:var(--text-muted,#94a3b8)}
 .settings-module-disable-terms{display:flex;gap:.75rem;align-items:flex-start;cursor:pointer;font-size:.85rem;color:var(--text-muted,#94a3b8)}
 .settings-module-disable-terms input{margin-top:.2rem;flex-shrink:0}
+
+/* ── Controles nativos, safe areas y toques (todo el shell) ── */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+:where(button, [type='button'], [type='submit'], [type='reset']):disabled,
+:where(input, textarea, select):disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+[type='submit'],
+[type='button'],
+[type='reset'],
+[role='button'] {
+  touch-action: manipulation;
+}
 
 /* ── Tenant Babooni: Biosstel (Figma) — Inter, alto contraste; detalle en babooni-biosstel-pages.css ── */
 html[data-erp-tenant='babooni'] {

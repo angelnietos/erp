@@ -162,6 +162,14 @@
   border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 18%, var(--bio-gray-200));
 }
 
+.bb-nav-link:focus-visible {
+  outline: none;
+  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 8%, var(--bio-white));
+  color: var(--text-primary, var(--bio-gray-900));
+  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 35%, var(--bio-gray-200));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand, var(--bio-primary)) 28%, transparent);
+}
+
 .bb-nav-link.is-active {
   background: color-mix(in srgb, var(--brand, var(--bio-primary)) 6%, transparent);
   color: var(--text-primary, var(--bio-gray-900));

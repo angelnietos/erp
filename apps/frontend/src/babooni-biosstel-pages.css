@@ -301,3 +301,10 @@ html[data-erp-tenant='babooni'] babooni-app-layout .bb-user-menu__row:hover {
   background: color-mix(in srgb, var(--brand, var(--bio-primary, #2563eb)) 8%, var(--bio-white, #ffffff));
   color: var(--text-primary, var(--bio-gray-900));
 }
+
+/* Focus visible coherente con el resto del ERP (teclado y lectores) */
+html[data-erp-tenant='babooni'] babooni-app-layout a:focus-visible,
+html[data-erp-tenant='babooni'] babooni-app-layout button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand, #2563eb) 85%, #000);
+  outline-offset: 2px;
+}

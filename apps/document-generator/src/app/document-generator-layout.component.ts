@@ -80,7 +80,7 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               <a
                 routerLink="/documents/list"
                 routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
                 style="color: var(--text-primary)"
               >
                 <svg
@@ -101,7 +101,7 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               <a
                 routerLink="/documents/create"
                 routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
                 style="color: var(--text-primary)"
               >
                 <svg
@@ -122,7 +122,7 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               <a
                 routerLink="/documents/analysis"
                 routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
                 style="color: var(--text-primary)"
               >
                 <svg
@@ -143,7 +143,7 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
               <a
                 routerLink="/documents/settings/ai"
                 routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
                 style="color: var(--text-primary)"
                 title="Clave API, modelo y Ollama"
               >

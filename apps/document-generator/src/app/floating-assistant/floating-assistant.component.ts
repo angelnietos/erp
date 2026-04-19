@@ -63,9 +63,8 @@ declare const marked: {
         position: fixed;
         min-width: 320px;
         min-height: 360px;
-        background: white;
+        background: #ffffff;
         border-radius: 20px;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
         z-index: 9999;
         display: flex;
         flex-direction: column;
@@ -74,12 +73,21 @@ declare const marked: {
         max-height: calc(100vh - 8px);
       }
 
+      .assistant-window:not(.minimized) {
+        border: 1px solid color-mix(in srgb, var(--pet-color, #667eea) 22%, #e2e8f0);
+        box-shadow:
+          0 0 0 1px rgba(15, 23, 42, 0.04),
+          0 25px 50px -12px rgba(15, 23, 42, 0.28),
+          0 12px 24px -8px rgba(15, 23, 42, 0.12);
+      }
+
       .assistant-window.minimized {
         height: 56px !important;
         width: 280px !important;
         min-height: 0;
         min-width: 0;
         overflow: hidden;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
       }
 
       .resize-handle {
@@ -88,8 +96,14 @@ declare const marked: {
         bottom: 0;
         width: 18px;
         height: 18px;
+        margin: 0;
+        padding: 0;
+        border: none;
         cursor: nwse-resize;
         z-index: 2;
+        appearance: none;
+        font: inherit;
+        color: inherit;
         background: linear-gradient(
           135deg,
           transparent 50%,
@@ -106,6 +120,11 @@ declare const marked: {
         );
       }
 
+      .resize-handle:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.9);
+        outline-offset: -2px;
+      }
+
       .window-header {
         background: linear-gradient(
           135deg,
@@ -117,6 +136,12 @@ declare const marked: {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+        cursor: grab;
+      }
+
+      .window-header:active {
+        cursor: grabbing;
       }
 
       .config-panel {
@@ -138,7 +163,8 @@ declare const marked: {
         flex: 1;
         overflow-y: auto;
         padding: 16px;
-        background: #f8fafc;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        scroll-behavior: smooth;
       }
 
       .message {
@@ -164,6 +190,7 @@ declare const marked: {
         border-bottom-left-radius: 4px;
         color: #0f172a;
         word-break: break-word;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
       }
 
       .assistant-bubble-md {
@@ -209,7 +236,7 @@ declare const marked: {
       .input-area {
         padding: 12px;
         border-top: 1px solid #e2e8f0;
-        background: white;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
       }
 
       .context-badge {
@@ -250,6 +277,13 @@ declare const marked: {
         animation: pet-bounce 1s ease-in-out infinite;
       }
 
+      @media (prefers-reduced-motion: reduce) {
+        .animate-idle,
+        .animate-bounce {
+          animation: none;
+        }
+      }
+
       .skin-option {
         width: 40px;
         height: 40px;
@@ -281,14 +315,40 @@ declare const marked: {
         padding: 0;
         overflow: hidden;
       }
+
+      .assistive-live {
+        position: fixed;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        pointer-events: none;
+      }
+
     `,
   ],
   template: `
+    <div
+      class="assistive-live"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {{ assistantService.assistiveStatus$() }}
+    </div>
+
     @if (!assistantService.isOpen$()) {
       <div
         class="pet-bubble animate-idle"
         role="button"
         tabindex="0"
+        [attr.aria-label]="
+          'Abrir asistente ' + assistantService.petConfig$().name
+        "
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
         [style.background]="
@@ -302,7 +362,9 @@ declare const marked: {
         "
         (click)="assistantService.toggleAssistant()"
         (keydown.enter)="assistantService.toggleAssistant()"
-        (keydown.space)="assistantService.toggleAssistant()"
+        (keydown.space)="
+          $event.preventDefault(); assistantService.toggleAssistant()
+        "
         (mousedown)="startDrag($event)"
         (contextmenu)="toggleConfig($event)"
         [class.dragging]="isDragging"
@@ -322,6 +384,9 @@ declare const marked: {
       <div
         class="assistant-window"
         [class.minimized]="isMinimized"
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="floating-assistant-title"
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
         [style.width.px]="isMinimized ? undefined : assistantService.panelSize$().width"
@@ -330,10 +395,14 @@ declare const marked: {
       >
         <div class="window-header" (mousedown)="startDrag($event)">
           <div class="flex items-center space-x-3 min-w-0">
-            <span class="text-2xl shrink-0">{{ getPetFace() }}</span>
-            <span class="font-semibold truncate">{{
-              assistantService.petConfig$().name
+            <span class="text-2xl shrink-0" aria-hidden="true">{{
+              getPetFace()
             }}</span>
+            <span
+              class="font-semibold truncate"
+              id="floating-assistant-title"
+              >{{ assistantService.petConfig$().name }}</span
+            >
             <span class="context-badge shrink-0">{{
               assistantService.context$().activeTab | uppercase
             }}</span>
@@ -344,8 +413,9 @@ declare const marked: {
               (click)="
                 $event.stopPropagation(); togglePanelExpanded()
               "
-              class="text-white/80 hover:text-white p-1 rounded"
+              class="text-white/80 hover:text-white p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
               [title]="expandedPanelHint()"
+              [attr.aria-label]="expandedPanelHint()"
             >
               @if (isExpandedPanelSize()) {
                 <svg
@@ -379,15 +449,39 @@ declare const marked: {
             </button>
             <button
               type="button"
-              (click)="$event.stopPropagation(); isMinimized = !isMinimized"
-              class="text-white/80 hover:text-white p-1 rounded"
-              title="Minimizar"
+              (click)="$event.stopPropagation(); clearConversation()"
+              class="text-white/80 hover:text-white p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+              title="Limpiar historial del chat"
+              aria-label="Limpiar historial del chat"
             >
               <svg
                 class="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              (click)="$event.stopPropagation(); isMinimized = !isMinimized"
+              class="text-white/80 hover:text-white p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+              title="Minimizar"
+              aria-label="Minimizar panel"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -400,8 +494,10 @@ declare const marked: {
             <button
               type="button"
               (click)="$event.stopPropagation(); showConfig = !showConfig"
-              class="text-white/80 hover:text-white p-1 rounded"
+              class="text-white/80 hover:text-white p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
+              [attr.aria-expanded]="showConfig"
               title="Configuración"
+              aria-label="Configuración del asistente"
             >
               <svg
                 class="w-5 h-5"
@@ -426,8 +522,9 @@ declare const marked: {
             <button
               type="button"
               (click)="$event.stopPropagation(); assistantService.toggleAssistant()"
-              class="text-white/80 hover:text-white p-1 rounded"
+              class="text-white/80 hover:text-white p-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white/90"
               title="Cerrar"
+              aria-label="Cerrar asistente"
             >
               <svg
                 class="w-5 h-5"
@@ -552,10 +649,7 @@ declare const marked: {
                 />
               </div>
 
-              <div
-                class="border-t border-slate-200 mt-3 pt-3 space-y-2"
-                (click)="$event.stopPropagation()"
-              >
+              <div class="border-t border-slate-200 mt-3 pt-3 space-y-2">
                 <p class="text-xs font-semibold text-slate-700">
                   Respuestas con IA real
                 </p>
@@ -576,7 +670,15 @@ declare const marked: {
         }
 
         @if (!isMinimized) {
-          <div class="messages-container" #messagesContainer>
+          <div
+            class="messages-container"
+            #messagesContainer
+            role="region"
+            [attr.aria-label]="
+              'Historial de chat con ' + assistantService.petConfig$().name
+            "
+            [attr.aria-busy]="isAiReplyLoading"
+          >
             @for (msg of assistantService.messages$(); track msg.id) {
               <div class="message" [class]="msg.type">
                 @if (msg.context && msg.type !== 'system') {
@@ -678,6 +780,9 @@ declare const marked: {
               [formControl]="messageInput"
               (keydown.enter)="sendMessage(); $event.preventDefault()"
               [disabled]="isAiReplyLoading"
+              [attr.aria-label]="
+                'Mensaje para ' + assistantService.petConfig$().name
+              "
               placeholder="Pregunta cualquier cosa a {{
                 assistantService.petConfig$().name
               }}..."
@@ -687,8 +792,9 @@ declare const marked: {
               type="button"
               (click)="sendMessage()"
               [disabled]="isAiReplyLoading"
-              class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               title="Enviar"
+              aria-label="Enviar mensaje"
             >
               <svg
                 class="w-4 h-4"
@@ -706,11 +812,14 @@ declare const marked: {
             </button>
           </div>
 
-          <div
+          <button
+            type="button"
             class="resize-handle"
-            title="Arrastra para cambiar tamaño"
+            title="Arrastra para cambiar tamaño. Teclado: flechas; Mayús = paso mayor."
+            aria-label="Redimensionar ventana del asistente"
             (mousedown)="startResize($event)"
-          ></div>
+            (keydown)="onResizeKeydown($event)"
+          ></button>
         }
       </div>
     }
@@ -816,6 +925,31 @@ export class FloatingAssistantComponent implements OnInit {
     };
   }
 
+  onResizeKeydown(event: KeyboardEvent): void {
+    const step = event.shiftKey ? 48 : 16;
+    const s = this.assistantService.panelSize$();
+    switch (event.key) {
+      case 'ArrowRight':
+        event.preventDefault();
+        this.assistantService.setPanelSize(s.width + step, s.height);
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.assistantService.setPanelSize(s.width, s.height + step);
+        break;
+      case 'ArrowLeft':
+        event.preventDefault();
+        this.assistantService.setPanelSize(s.width - step, s.height);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.assistantService.setPanelSize(s.width, s.height - step);
+        break;
+      default:
+        break;
+    }
+  }
+
   /** Panel ocupa casi toda la ventana (mismo estado que tras «Ampliar»). */
   isExpandedPanelSize(): boolean {
     const s = this.assistantService.panelSize$();
@@ -842,6 +976,11 @@ export class FloatingAssistantComponent implements OnInit {
   toggleConfig(event: MouseEvent): void {
     event.preventDefault();
     this.showConfig = !this.showConfig;
+  }
+
+  clearConversation(): void {
+    this.assistantService.resetChatToWelcome();
+    setTimeout(() => this.scrollToBottom(), 0);
   }
 
   async sendMessage(): Promise<void> {

@@ -1,0 +1,223 @@
+/* Página 404 — centrada en el área del shell, tono amable y alto contraste */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(72vh, 560px);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  max-width: 26rem;
+  padding: clamp(1.75rem, 4vw, 2.25rem);
+  text-align: center;
+  border-radius: var(--radius-lg, 20px);
+  background: var(--surface, rgba(18, 20, 28, 0.76));
+  border: 1px solid var(--border-vibrant, rgba(255, 255, 255, 0.15));
+  box-shadow: var(--shadow-md, 0 12px 32px rgba(0, 0, 0, 0.35)),
+    var(--shadow-inset-shine, inset 0 1.5px 0 rgba(255, 255, 255, 0.08));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  position: relative;
+  overflow: hidden;
+  animation: card-enter 0.55s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 80% at 50% -20%,
+    color-mix(in srgb, var(--brand, #e60012) 18%, transparent),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.card-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--radius-md, 12px);
+  background: color-mix(in srgb, var(--brand, #e60012) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand, #e60012) 35%, transparent);
+  color: var(--brand, #e60012);
+}
+
+.icon-wrap svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  opacity: 0.95;
+}
+
+.code {
+  margin: 0;
+  font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
+  font-size: clamp(2.75rem, 8vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: linear-gradient(
+    135deg,
+    var(--text-primary, #fff) 0%,
+    color-mix(in srgb, var(--text-primary, #fff) 55%, var(--brand, #e60012)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title {
+  margin: 0.85rem 0 0.5rem;
+  font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
+  font-size: clamp(1.2rem, 3.5vw, 1.35rem);
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  letter-spacing: -0.02em;
+}
+
+.hint {
+  margin: 0 0 1.75rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-muted, rgba(255, 255, 255, 0.55));
+  max-width: 32ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+
+@media (min-width: 420px) {
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.15rem;
+  font-family: var(--font-main, system-ui, sans-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border-radius: var(--radius-md, 12px);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    transform 0.2s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow 0.2s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring-focus, var(--brand, #e60012));
+  outline-offset: 3px;
+}
+
+.btn--primary {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--brand, #e60012) 100%, #fff) 0%,
+    var(--brand, #e60012) 100%
+  );
+  color: var(--text-on-brand, #ffffff);
+  border-color: color-mix(in srgb, var(--brand, #e60012) 50%, #fff);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--brand, #e60012) 35%, transparent);
+}
+
+.btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--brand, #e60012) 45%, transparent);
+}
+
+.btn--ghost {
+  background: color-mix(in srgb, var(--text-primary, #fff) 4%, transparent);
+  color: var(--text-secondary, rgba(255, 255, 255, 0.75));
+  border-color: var(--border-vibrant, rgba(255, 255, 255, 0.15));
+}
+
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--text-primary, #fff) 8%, transparent);
+  color: var(--text-primary, #fff);
+  border-color: color-mix(in srgb, var(--brand, #e60012) 40%, transparent);
+}
+
+.btn svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.tip {
+  margin: 1.35rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-muted, rgba(255, 255, 255, 0.45));
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+
+  .btn {
+    transition: none;
+  }
+
+  .btn--primary:hover {
+    transform: none;
+  }
+}
+
+/* Temas claros: sombras y bordes más suaves */
+:host-context([data-theme='pearl']) .card,
+:host-context([data-theme='latte']) .card,
+:host-context([data-theme='corporate-light']) .card,
+:host-context(html[data-theme*='light']) .card {
+  box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.12));
+}
