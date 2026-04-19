@@ -55,6 +55,23 @@ export const ASSISTANT_PET_CONFIG_STORAGE_KEY = 'assistant-pet-config';
 export const ASSISTANT_DEFAULT_WELCOME =
   '¡Hola! Soy tu asistente inteligente. Estoy observando todo lo que haces en todas las pestañas. ¿Necesitas ayuda?';
 
+const PET_PERSONALITIES: readonly AssistantPetConfig['personality'][] = [
+  'friendly',
+  'professional',
+  'humorous',
+  'minimal',
+];
+
+const PET_BUBBLE_SIZES: readonly AssistantPetConfig['bubbleSize'][] = [
+  'small',
+  'medium',
+  'large',
+];
+
+function clampNumber(n: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, n));
+}
+
 @Injectable({ providedIn: 'root' })
 export class AssistantContextService {
   private readonly context = signal<AssistantContext>({
@@ -282,15 +299,65 @@ Contexto actual:
       try {
         const parsed: unknown = JSON.parse(saved);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          this.petConfig.update((current) => ({
-            ...current,
-            ...(parsed as Partial<AssistantPetConfig>),
-          }));
+          this.petConfig.update((current) =>
+            this.sanitizePetConfigFromStorage(
+              parsed as Record<string, unknown>,
+              current,
+            ),
+          );
         }
       } catch {
         /* JSON inválido: se mantienen valores por defecto */
       }
     }
     this.loadPanelSize();
+  }
+
+  /** Aplica solo campos válidos desde localStorage (evita NaN, tipos raros o cadenas enormes). */
+  private sanitizePetConfigFromStorage(
+    raw: Record<string, unknown>,
+    base: AssistantPetConfig,
+  ): AssistantPetConfig {
+    const next: AssistantPetConfig = { ...base };
+
+    if (typeof raw.name === 'string') {
+      const t = raw.name.trim();
+      if (t.length > 0) next.name = t.slice(0, 64);
+    }
+    if (typeof raw.skin === 'string' && raw.skin.trim().length > 0) {
+      next.skin = raw.skin.trim().slice(0, 48);
+    }
+    if (typeof raw.color === 'string') {
+      const c = raw.color.trim();
+      if (c.length > 0 && c.length <= 32) next.color = c;
+    }
+    if (
+      typeof raw.personality === 'string' &&
+      PET_PERSONALITIES.includes(
+        raw.personality as AssistantPetConfig['personality'],
+      )
+    ) {
+      next.personality = raw.personality as AssistantPetConfig['personality'];
+    }
+    if (
+      typeof raw.animationSpeed === 'number' &&
+      Number.isFinite(raw.animationSpeed)
+    ) {
+      next.animationSpeed = clampNumber(raw.animationSpeed, 0.25, 6);
+    }
+    if (typeof raw.autoOpen === 'boolean') next.autoOpen = raw.autoOpen;
+    if (typeof raw.soundEnabled === 'boolean')
+      next.soundEnabled = raw.soundEnabled;
+    if (
+      typeof raw.bubbleSize === 'string' &&
+      PET_BUBBLE_SIZES.includes(raw.bubbleSize as AssistantPetConfig['bubbleSize'])
+    ) {
+      next.bubbleSize = raw.bubbleSize as AssistantPetConfig['bubbleSize'];
+    }
+    if (typeof raw.opacity === 'number' && Number.isFinite(raw.opacity)) {
+      next.opacity = Math.round(clampNumber(raw.opacity, 0, 100));
+    }
+
+    return next;
   }
 }

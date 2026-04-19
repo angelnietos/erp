@@ -448,7 +448,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                   <div>
                     <p class="font-semibold">Asistente de Calidad</p>
                     <p class="text-sm opacity-90">
-                      Hola! Estoy aquí para ayudarte a mejorar tu propuesta.
+                      ¡Hola! Estoy aquí para ayudarte a mejorar tu propuesta.
                       Puedes preguntarme cualquier cosa o pedirme que revise
                       secciones concretas.
                     </p>
