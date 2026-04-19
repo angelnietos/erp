@@ -315,6 +315,20 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 
       .nav-link:hover .icon-wrapper { transform: scale(1.08); }
 
+      .nav-link:focus-visible {
+        outline: none;
+        background: color-mix(in srgb, var(--brand) 10%, rgba(255, 255, 255, 0.06));
+        color: #fff;
+        border-color: color-mix(in srgb, var(--brand) 42%, rgba(255, 255, 255, 0.1));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 32%, transparent);
+      }
+
+      .toggle-control:focus-visible {
+        outline: none;
+        border-color: color-mix(in srgb, var(--brand) 55%, rgba(255, 255, 255, 0.12));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent);
+      }
+
       .label-text {
         margin-left: 12px;
         white-space: nowrap;
@@ -325,6 +339,21 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
       ::-webkit-scrollbar { width: 3px; }
       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
       ::-webkit-scrollbar-track { background: transparent; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sidebar-container {
+          transition: none;
+        }
+        .logo-capsule {
+          animation: none;
+        }
+        .nav-link:hover {
+          transform: none;
+        }
+        .collapsed .nav-link:hover {
+          transform: none;
+        }
+      }
     `,
   ],
 
