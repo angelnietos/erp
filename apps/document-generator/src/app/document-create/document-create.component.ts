@@ -1,31 +1,11 @@
-import {
-  Component,
-  HostListener,
-  inject,
-  OnInit,
-  ViewChild,
-  ElementRef,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { PdfGenerationService } from '../services/pdf-generation.service';
+import { RouterModule } from '@angular/router';
 import { AssistantContextService } from '../services/assistant-context.service';
-import {
-  UniversalDocumentService,
-  DocumentFormat,
-} from '../services/universal-document.service';
 import {
   TemplatesRegistryService,
   DocumentTemplate,
 } from '../services/templates-registry.service';
-
-declare const marked: { parse: (content: string) => string };
 
 interface DocumentType {
   id: string;
@@ -135,7 +115,7 @@ interface DocumentType {
   ],
   selector: 'app-document-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
@@ -188,8 +168,8 @@ interface DocumentType {
             Crear Nuevo Documento
           </h1>
           <p class="text-secondary text-lg">
-            Selecciona el tipo de documento que deseas crear y deja que nuestro
-            asistente IA te guíe
+            Elige el tipo y una plantilla: el editor se abre en la siguiente
+            pantalla para que no tengas que hacer scroll.
           </p>
         </div>
       </div>
@@ -356,555 +336,67 @@ interface DocumentType {
           }
         </div>
 
-        <!-- Form Section -->
-        @if (selectedType) {
-          <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
-            <div class="mb-8">
-              <div class="flex items-center space-x-3 mb-4">
-                <div
-                  class="w-10 h-10 brand-gradient rounded-xl flex items-center justify-center"
-                >
-                  <svg
-                    class="w-5 h-5 text-bg-secondary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <h2 class="text-2xl font-bold text-primary">
-                    Información del Documento
-                  </h2>
-                  <p class="text-secondary">
-                    Completa los detalles para generar tu
-                    {{ selectedType.name.toLowerCase() }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <form
-              [formGroup]="documentForm"
-              (ngSubmit)="generateDocument()"
-              class="space-y-8"
-            >
-              <div class="bg-tertiary rounded-xl p-6 border border-soft">
-                <h3
-                  class="text-lg font-semibold text-primary mb-4 flex items-center"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2 text-secondary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
-                    />
-                  </svg>
-                  Información General
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-2">
-                    <label
-                      for="clientId"
-                      class="block text-sm font-medium text-primary"
-                      >Cliente *</label
-                    >
-                    <select
-                      id="clientId"
-                      formControlName="clientId"
-                      class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
-                    >
-                      <option value="">Seleccionar cliente</option>
-                      @for (client of clients; track client.id) {
-                        <option [value]="client.id">
-                          {{ client.name }}
-                        </option>
-                      }
-                    </select>
-                  </div>
-                  <div class="space-y-2">
-                    <label
-                      for="date"
-                      class="block text-sm font-medium text-primary"
-                      >Fecha</label
-                    >
-                    <input
-                      id="date"
-                      type="date"
-                      formControlName="date"
-                      class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div class="space-y-6">
-                <div class="space-y-2">
-                  <label
-                    for="title"
-                    class="block text-sm font-medium text-slate-700"
-                    >Título del Documento</label
-                  >
-                  <input
-                    id="title"
-                    type="text"
-                    formControlName="title"
-                    [placeholder]="getTitlePlaceholder()"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
-                  />
-                </div>
-
-                @if (selectedType.id === 'quote') {
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                      <label
-                        for="projectName"
-                        class="block text-sm font-medium text-slate-700"
-                        >Proyecto</label
-                      >
-                      <input
-                        id="projectName"
-                        type="text"
-                        formControlName="projectName"
-                        placeholder="Nombre del proyecto"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
-                      />
-                    </div>
-                    <div class="space-y-2">
-                      <label
-                        for="totalAmount"
-                        class="block text-sm font-medium text-slate-700"
-                        >Monto Total (€)</label
-                      >
-                      <input
-                        id="totalAmount"
-                        type="number"
-                        formControlName="totalAmount"
-                        placeholder="0.00"
-                        step="0.01"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
-                      />
-                    </div>
-                  </div>
-                }
-
-                <!-- Plantillas Rápidas -->
-                <div class="space-y-3">
-                  <div class="block text-sm font-medium text-slate-700">
-                    Plantillas predefinidas para {{ selectedType.name }}
-                  </div>
-                  <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
-                    role="group"
-                    aria-labelledby="templates-label"
-                  >
-                    @for (template of templates; track template.id) {
-                      <button
-                        type="button"
-                        (click)="loadTemplate(template)"
-                        class="px-4 py-3 text-left bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-all border border-transparent hover:border-blue-200"
-                      >
-                        <div class="font-medium">
-                          {{ template.icon }} {{ template.name }}
-                        </div>
-                        <div class="text-xs text-secondary mt-1">
-                          {{ template.description }}
-                        </div>
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <!-- Barra de Herramientas Markdown -->
-                <div
-                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-soft"
-                >
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('**', '**')"
-                    title="Negrita (Ctrl+B)"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-bold"
-                  >
-                    B
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('*', '*')"
-                    title="Cursiva (Ctrl+I)"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all italic"
-                  >
-                    I
-                  </button>
-                  <div class="w-px bg-slate-300 mx-1"></div>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('# ', '')"
-                    title="Encabezado 1"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    H1
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('## ', '')"
-                    title="Encabezado 2"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    H2
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('### ', '')"
-                    title="Encabezado 3"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    H3
-                  </button>
-                  <div class="w-px bg-slate-300 mx-1"></div>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('- ', '')"
-                    title="Lista"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    • Lista
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('> ', '')"
-                    title="Cita"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    " Cita
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertCode()"
-                    title="Código"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-mono text-xs"
-                  >
-                    &lt;&gt;
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertCodeBlock()"
-                    title="Bloque de código"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-mono text-xs"
-                  >
-                    {{ '{}' }}
-                  </button>
-                  <div class="w-px bg-slate-300 mx-1"></div>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('[', '](url)')"
-                    title="Enlace"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    🔗
-                  </button>
-
-                  <div
-                    class="ml-auto flex items-center gap-3 text-xs text-muted"
-                  >
-                    @if (autoSaved) {
-                      <span class="text-green-600 flex items-center gap-1">
-                        <span
-                          class="w-1.5 h-1.5 bg-green-500 rounded-full"
-                        ></span>
-                        Guardado automatico
-                      </span>
-                    }
-                    <span>{{ wordCount }} palabras</span>
-                    <span>{{ characterCount }} caracteres</span>
-                  </div>
-                </div>
-
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <label
-                      for="content"
-                      class="block text-sm font-medium text-slate-700"
-                    >
-                      Contenido Universal (Markdown, Texto, HTML)
-                    </label>
-                    <div class="flex items-center gap-2 text-xs text-muted">
-                      <span class="px-2 py-1 bg-slate-100 rounded"
-                        >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
-                      >
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <!-- Editor Markdown -->
-                    <div class="space-y-2">
-                      <div
-                        class="text-xs font-medium text-muted flex justify-between"
-                      >
-                        <span>Editor</span>
-                        <button
-                          type="button"
-                          (click)="toggleFullscreen()"
-                          class="hover:text-blue-600"
-                        >
-                          {{
-                            fullscreenMode
-                              ? 'Salir pantalla completa'
-                              : 'Pantalla completa'
-                          }}
-                        </button>
-                      </div>
-                      <textarea
-                        #editor
-                        formControlName="content"
-                        [placeholder]="getContentPlaceholder()"
-                        rows="18"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
-                        (input)="updatePreview()"
-                        (keydown)="handleKeydown($event)"
-                        [class.h-screen]="fullscreenMode"
-                      ></textarea>
-                    </div>
-
-                    <!-- Vista Previa Live -->
-                    <div class="space-y-2">
-                      <div class="text-xs font-medium text-muted">
-                        Vista Previa
-                      </div>
-                      <div
-                        class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]"
-                        [innerHTML]="previewHtml"
-                        [class.h-screen]="fullscreenMode"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                @if (selectedType.id === 'architecture') {
-                  <div class="space-y-4">
-                    <div class="space-y-2">
-                      <label
-                        for="architectureDiagram"
-                        class="block text-sm font-medium text-slate-700"
-                        >Diagrama de Arquitectura (Mermaid)</label
-                      >
-                      <textarea
-                        id="architectureDiagram"
-                        formControlName="architectureDiagram"
-                        rows="4"
-                        placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm"
-                      ></textarea>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <div class="pt-8 border-t border-soft space-y-4">
-                <button
-                  type="button"
-                  (click)="goBack()"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-surface text-doc-ink hover:bg-slate-50 hover:border-slate-400 transition-colors shadow-sm"
-                >
-                  <svg
-                    class="w-4 h-4 shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                    />
-                  </svg>
-                  Volver Atrás
-                </button>
-
-                <div
-                  class="rounded-2xl border border-soft bg-[#f1f5f9] p-4 sm:p-5 action-bar-panel"
-                >
-                  <div
-                    class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end"
-                  >
-                    <div class="min-w-0 space-y-3">
-                      <p
-                        class="text-xs font-semibold uppercase tracking-wider text-doc-muted-on-light"
-                      >
-                        Importar y exportar
-                      </p>
-                      <input
-                        type="file"
-                        #fileInput
-                        hidden
-                        (change)="importDocument($event)"
-                        accept=".md,.txt,.pdf,.docx,.xlsx,.html"
-                      />
-                      <div class="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          (click)="fileInput.click()"
-                          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-brand text-white shadow-md hover:opacity-95 transition-opacity"
-                        >
-                          📥 Importar
-                        </button>
-                        <button
-                          type="button"
-                          (click)="exportDocument('markdown')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                        >
-                          📑 MD
-                        </button>
-                        <button
-                          type="button"
-                          (click)="exportDocument('pdf')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                        >
-                          📄 PDF
-                        </button>
-                        <button
-                          type="button"
-                          (click)="exportDocument('xlsx')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                        >
-                          📊 Excel
-                        </button>
-                        <button
-                          type="button"
-                          (click)="exportDocument('html')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                        >
-                          🌐 HTML
-                        </button>
-                        <button
-                          type="button"
-                          (click)="exportDocument('txt')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
-                        >
-                          📃 TXT
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:justify-end lg:min-w-[min(100%,20rem)]"
-                    >
-                      <a
-                        routerLink="/documents/bot"
-                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
-                      >
-                        <svg
-                          class="w-4 h-4 shrink-0 text-slate-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
-                          />
-                        </svg>
-                        Consultar Asistente
-                      </a>
-                      <a
-                        routerLink="/documents/analysis"
-                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
-                      >
-                        <svg
-                          class="w-4 h-4 shrink-0 text-emerald-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        Analizar Propuesta
-                      </a>
-                      <button
-                        type="submit"
-                        [disabled]="documentForm.invalid || isGenerating"
-                        class="footer-cta-primary w-full sm:w-auto sm:min-w-[14rem]"
-                      >
-                        @if (!isGenerating) {
-                          <svg
-                            class="w-5 h-5 shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z"
-                            />
-                          </svg>
-                        }
-                        @if (isGenerating) {
-                          <svg
-                            class="w-5 h-5 shrink-0 animate-spin"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            />
-                          </svg>
-                        }
-                        <span class="text-left leading-snug">
-                          {{
-                            isGenerating
-                              ? 'Generando documento…'
-                              : 'Generar documento (PDF / Excel / HTML)'
-                          }}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-        }
       </div>
+
+      @if (selectedType) {
+        <div
+          class="bg-surface rounded-2xl shadow-xl border border-soft p-8 animate-slide-up"
+        >
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-primary mb-2">
+              Elige una plantilla
+            </h2>
+            <p class="text-secondary">
+              Al elegir una se abre el editor en otra vista con el contenido cargado.
+              También puedes continuar sin plantilla.
+            </p>
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+            role="list"
+          >
+            @for (template of templates; track template.id) {
+              <a
+                role="listitem"
+                [routerLink]="['/documents', 'create', 'edit']"
+                [queryParams]="editorQueryParams(template.id)"
+                class="block px-4 py-3 rounded-xl border border-soft bg-tertiary hover:border-brand hover:bg-brand/5 transition-all text-left no-underline focus:outline-none focus:ring-2 focus:ring-brand"
+              >
+                <div class="font-medium text-primary">
+                  {{ template.icon }} {{ template.name }}
+                </div>
+                <div class="text-xs text-secondary mt-1 line-clamp-2">
+                  {{ template.description }}
+                </div>
+              </a>
+            }
+          </div>
+          <div class="mt-8 flex flex-wrap gap-3 items-center">
+            <a
+              [routerLink]="['/documents', 'create', 'edit']"
+              [queryParams]="{ type: selectedType.id }"
+              class="footer-cta-primary no-underline text-center"
+            >
+              Continuar sin plantilla
+            </a>
+            <button
+              type="button"
+              (click)="clearSelectedType()"
+              class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-medium border border-soft text-primary hover:bg-tertiary transition-colors"
+            >
+              Cambiar tipo de documento
+            </button>
+          </div>
+        </div>
+      }
     </div>
   `,
 })
 export class DocumentCreateComponent implements OnInit {
   selectedType: DocumentType | null = null;
-  documentForm: FormGroup;
-  isGenerating = false;
-  previewHtml = '';
-  wordCount = 0;
-  characterCount = 0;
-  autoSaved = false;
-  fullscreenMode = false;
-
   templates: DocumentTemplate[] = [];
   private readonly templatesService = inject(TemplatesRegistryService);
+  private readonly assistantService = inject(AssistantContextService);
 
   documentTypes: DocumentType[] = [
     {
@@ -944,53 +436,13 @@ export class DocumentCreateComponent implements OnInit {
     },
   ];
 
-  clients = [
-    { id: '1', name: 'Cliente A' },
-    { id: '2', name: 'Cliente B' },
-    { id: '3', name: 'BABOONI' },
-  ];
-
-  clientOptions = this.clients.map((client) => ({
-    label: client.name,
-    value: client.id,
-  }));
-
-  readonly fb = inject(FormBuilder);
-  readonly router = inject(Router);
-  readonly pdfService = inject(PdfGenerationService);
-  readonly assistantService = inject(AssistantContextService);
-  readonly universalDocument = inject(UniversalDocumentService);
-
-  constructor() {
-    this.documentForm = this.fb.group({
-      clientId: ['', Validators.required],
-      date: [new Date().toISOString().split('T')[0]],
-      projectName: [''],
-      totalAmount: [''],
-      description: [''],
-      title: [''],
-      content: [''],
-      executiveSummary: [''],
-      objectives: [''],
-      scope: [''],
-      deliverables: [''],
-      timeline: [''],
-      pricing: [''],
-      terms: [''],
-      systemOverview: [''],
-      architectureDiagram: [''],
-      components: [''],
-      dataFlow: [''],
-      apis: [''],
-      technologies: [''],
-      deployment: [''],
-    });
+  ngOnInit() {
+    this.assistantService.setActiveTab('create');
   }
 
   selectDocumentType(type: DocumentType) {
     this.selectedType = type;
 
-    // Filtrar plantillas según el tipo de documento seleccionado
     const categoryMap: Record<string, DocumentTemplate['category']> = {
       resume: 'hr',
       interview: 'hr',
@@ -1002,275 +454,20 @@ export class DocumentCreateComponent implements OnInit {
     };
 
     const category = categoryMap[type.id];
-    if (category) {
-      this.templates = this.templatesService.getByCategory(category);
-    } else {
-      this.templates = this.templatesService.all();
-    }
+    this.templates = category
+      ? this.templatesService.getByCategory(category)
+      : this.templatesService.all();
   }
 
-  goBack() {
-    this.router.navigate(['/documents/list']);
+  clearSelectedType(): void {
+    this.selectedType = null;
+    this.templates = [];
   }
 
-  getTitlePlaceholder(): string {
-    switch (this.selectedType?.id) {
-      case 'quote':
-        return 'Ej: Presupuesto Desarrollo Web Corporativo';
-      case 'proposal':
-        return 'Ej: Propuesta de Implementación ERP';
-      case 'documentation':
-        return 'Ej: Manual de Usuario - Sistema ERP';
-      case 'architecture':
-        return 'Ej: Arquitectura del Sistema ERP';
-      case 'resume':
-        return 'Ej: Currículum - Juan García López';
-      case 'interview':
-        return 'Ej: Evaluación Técnica - Candidato Senior Developer';
-      case 'offer':
-        return 'Ej: Carta Oferta - Puesto Senior Full Stack';
-      default:
-        return 'Título del documento';
-    }
-  }
-
-  getContentPlaceholder(): string {
-    switch (this.selectedType?.id) {
-      case 'quote':
-        return 'Descripción detallada del presupuesto, alcance de trabajo, condiciones...';
-      case 'proposal':
-        return 'Contenido de la propuesta comercial, beneficios, solución propuesta...';
-      case 'documentation':
-        return 'Contenido detallado de la documentación técnica...';
-      case 'architecture':
-        return 'Descripción de la arquitectura del sistema, componentes, tecnologías...';
-      case 'resume':
-        return 'Datos personales, experiencia laboral, formación y habilidades del candidato';
-      case 'interview':
-        return 'Evaluación técnica, preguntas, ejercicios y scorecard estandarizado';
-      case 'offer':
-        return 'Condiciones contractuales, salario, beneficios y fecha de incorporación';
-      default:
-        return 'Contenido del documento...';
-    }
-  }
-
-  ngOnInit() {
-    this.assistantService.setActiveTab('create');
-
-    // Cargar todas las plantillas por defecto
-    this.templates = this.templatesService.all();
-
-    this.documentForm.valueChanges.subscribe((values) => {
-      this.assistantService.setFormData(values);
-      if (values.content) {
-        this.assistantService.setDocumentContent(
-          values.content,
-          this.selectedType?.id,
-        );
-      }
-      // Auto-set title for internal documentation
-      if (values.clientId === '3' && !values.title) {
-        this.documentForm.patchValue({ title: 'BABOONI' });
-      }
-    });
-
-    setInterval(() => {
-      this.autoSaved = true;
-      setTimeout(() => (this.autoSaved = false), 2000);
-    }, 30000);
-  }
-
-  updatePreview() {
-    const content = this.documentForm.get('content')?.value || '';
-    try {
-      this.previewHtml = marked.parse(content);
-    } catch {
-      this.previewHtml = content;
-    }
-
-    this.wordCount = content
-      .split(/\s+/)
-      .filter((w: string) => w.length > 0).length;
-    this.characterCount = content.length;
-  }
-
-  insertMarkdown(before: string, after: string) {
-    const textarea = document.querySelector(
-      'textarea[formControlName="content"]',
-    ) as HTMLTextAreaElement;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const content = this.documentForm.get('content')?.value || '';
-    const selectedText = content.substring(start, end);
-
-    const newContent =
-      content.substring(0, start) +
-      before +
-      selectedText +
-      after +
-      content.substring(end);
-    this.documentForm.patchValue({ content: newContent });
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.selectionStart = start + before.length;
-      textarea.selectionEnd = end + before.length;
-      this.updatePreview();
-    }, 0);
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeydown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key === 'b') {
-      event.preventDefault();
-      this.insertMarkdown('**', '**');
-    }
-    if (event.ctrlKey && event.key === 'i') {
-      event.preventDefault();
-      this.insertMarkdown('*', '*');
-    }
-    if (event.ctrlKey && event.key === 's') {
-      event.preventDefault();
-      this.autoSaved = true;
-      setTimeout(() => (this.autoSaved = false), 2000);
-    }
-  }
-
-  loadTemplate(template: DocumentTemplate) {
-    this.documentForm.patchValue({ content: template.content });
-    this.updatePreview();
-  }
-
-  insertCode() {
-    this.insertMarkdown('`', '`');
-  }
-
-  insertCodeBlock() {
-    this.insertMarkdown('```\n', '\n```');
-  }
-
-  toggleFullscreen() {
-    this.fullscreenMode = !this.fullscreenMode;
-  }
-
-  async exportDocument(format: string) {
-    const content = this.documentForm.get('content')?.value || '';
-    const title = this.documentForm.get('title')?.value || 'documento';
-    const formValue = this.documentForm.value;
-    const client = this.clients.find((c) => c.id === formValue.clientId);
-
-    if (format === 'pdf') {
-      // ✅ GENERAR PDF REAL CON FORMATO CORRECTO
-      try {
-        const pdfBlob = await this.pdfService.generateMarkdownPdf({
-          content: content,
-          title: title,
-          client: client?.name || 'Josanz ERP',
-        });
-        this.universalDocument.download(pdfBlob, `${title}.pdf`);
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Error generating PDF. Please try again.');
-      }
-      return;
-    }
-
-    const blocks = content.split('\n\n').map((text: string) => ({
-      id: crypto.randomUUID(),
-      type: text.startsWith('# ') ? 'heading' : 'text',
-      content: text,
-      metadata: {},
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      version: 1,
-    }));
-
-    const formatMap: Record<string, DocumentFormat> = {
-      markdown: DocumentFormat.MARKDOWN,
-      xlsx: DocumentFormat.XLSX,
-      html: DocumentFormat.HTML,
-      txt: DocumentFormat.PLAINTEXT,
+  editorQueryParams(templateId: string): { type: string; template: string } {
+    return {
+      type: this.selectedType!.id,
+      template: templateId,
     };
-
-    try {
-      const blob = await this.universalDocument.export(blocks, {
-        format: formatMap[format],
-      });
-      this.universalDocument.download(blob, `${title}.${format}`);
-    } catch (error) {
-      console.error(`Error exporting to ${format}:`, error);
-    }
-  }
-
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
-  async importDocument(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    const result = await this.universalDocument.import(file);
-
-    if (result.success) {
-      const content = result.blocks.map((b) => b.content).join('\n\n');
-      this.documentForm.get('content')?.setValue(content);
-    }
-
-    result.warnings.forEach((warning) => {
-      console.warn(warning);
-    });
-
-    this.fileInput.nativeElement.value = '';
-  }
-
-  async generateDocument() {
-    if (this.documentForm.valid) {
-      this.isGenerating = true;
-      try {
-        const formValue = this.documentForm.value;
-        const client = this.clients.find((c) => c.id === formValue.clientId);
-
-        const documentData = {
-          ...formValue,
-          client: client?.name || 'Cliente',
-          type: this.selectedType?.id,
-        };
-
-        let pdfBytes: Blob;
-        switch (this.selectedType?.id) {
-          case 'quote':
-            pdfBytes = await this.pdfService.generateQuotePdf(documentData);
-            break;
-          case 'proposal':
-            pdfBytes = await this.pdfService.generateProposalPdf(documentData);
-            break;
-          case 'documentation':
-          case 'architecture':
-          default:
-            pdfBytes =
-              await this.pdfService.generateDocumentationPdf(documentData);
-        }
-
-        const pdfArray = new Uint8Array(await pdfBytes.arrayBuffer());
-
-        const documentId = Date.now().toString();
-        localStorage.setItem(
-          `document_${documentId}`,
-          JSON.stringify({
-            ...documentData,
-            pdfBytes: Array.from(pdfArray),
-          }),
-        );
-
-        this.router.navigate(['/documents/preview', documentId]);
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-      } finally {
-        this.isGenerating = false;
-      }
-    }
   }
 }

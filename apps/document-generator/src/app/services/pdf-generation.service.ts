@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { escapeHtml } from '../utils/html-escape';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const html2pdf: any;
@@ -9,10 +10,12 @@ interface DocumentData {
   title?: string;
   content?: string;
   date?: string;
+  /** Texto opcional bajo el título (p. ej. cliente o referencia). */
+  subtitle?: string;
   client?: string;
   type?: string;
   projectName?: string;
-  totalAmount?: number;
+  totalAmount?: number | string;
   description?: string;
   systemOverview?: string;
   architectureDiagram?: string;
@@ -33,6 +36,83 @@ interface DocumentData {
   providedIn: 'root',
 })
 export class PdfGenerationService {
+  /** Fecha legible en español (ISO u otros formatos parseables por Date). */
+  private formatDisplayDate(value?: string): string {
+    if (!value?.trim()) {
+      return new Date().toLocaleDateString('es-ES');
+    }
+    const t = Date.parse(value);
+    if (!Number.isNaN(t)) {
+      return new Date(t).toLocaleDateString('es-ES');
+    }
+    return value;
+  }
+
+  /**
+   * Apartados tipo "1. Título", "2) Intro" en h1/h2 → salto de página desde el 2.º
+   * (el 1.º sigue bajo la cabecera del PDF para no dejar portada en blanco).
+   */
+  private applyPdfSectionBreaks(html: string): string {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(
+        `<div class="pdf-parse-root">${html}</div>`,
+        'text/html',
+      );
+      const root = doc.body.querySelector('.pdf-parse-root');
+      if (!root) {
+        return html;
+      }
+
+      const isNumberedSectionTitle = (text: string): boolean =>
+        /^\s*\d+[\.)]\s+\S/.test(text);
+
+      const headings = root.querySelectorAll('h1, h2, h3');
+      let numberedIndex = 0;
+      headings.forEach((el) => {
+        const text = el.textContent ?? '';
+        if (!isNumberedSectionTitle(text)) {
+          return;
+        }
+        if (numberedIndex > 0) {
+          el.classList.add('pdf-major-section');
+        }
+        numberedIndex += 1;
+      });
+
+      return root.innerHTML;
+    } catch {
+      return html;
+    }
+  }
+
+  private pdfHtml2PdfOptions(filename: string) {
+    return {
+      margin: [18, 12, 18, 12] as [number, number, number, number],
+      filename,
+      image: { type: 'jpeg' as const, quality: 0.92 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        scrollY: 0,
+        logging: false,
+      },
+      jsPDF: {
+        unit: 'mm' as const,
+        format: 'a4' as const,
+        orientation: 'portrait' as const,
+        putOnlyUsedFonts: true,
+      },
+      pagebreak: {
+        mode: ['css', 'legacy'],
+        before: '.pdf-major-section',
+        /** Sin h1/h2/h3 aquí: html2pdf deja páginas casi vacías al intentar no separar títulos del cuerpo. */
+        avoid: ['pre', 'blockquote', 'img', 'svg'],
+      },
+    };
+  }
+
   /**
    * Genera PDF PROFESIONAL desde contenido (Markdown o HTML)
    * El PDF es IDENTICO a la vista previa web
@@ -42,15 +122,27 @@ export class PdfGenerationService {
     const isHtml = /<\/?[a-z][\s\S]*>/i.test(data.content || '');
     let htmlContent = '';
 
-    if (isHtml) {
-      // Si es HTML, usar directamente
-      htmlContent = data.content || '';
-    } else {
-      // Si es Markdown, convertir a HTML
-      htmlContent = marked.parse(data.content || '');
+    const markedOpts = { gfm: true, breaks: true };
+    if (typeof marked?.parse === 'function') {
+      marked.setOptions?.(markedOpts);
     }
 
-    // Plantilla PDF profesional con estilos idénticos
+    if (isHtml) {
+      htmlContent = data.content || '';
+    } else {
+      htmlContent = marked.parse(data.content || '', markedOpts);
+    }
+
+    htmlContent = this.applyPdfSectionBreaks(htmlContent);
+
+    const title = escapeHtml(data.title || 'Documento');
+    const metaDate = escapeHtml(this.formatDisplayDate(data.date));
+    const metaClient = escapeHtml(
+      data.subtitle || data.client || 'Josanz ERP',
+    );
+    const formatLabel = isHtml ? 'HTML' : 'Markdown (GFM)';
+
+    // Plantilla PDF (html2canvas no aplica @page ni running(); pie simple al final)
     const pdfTemplate = `
       <!DOCTYPE html>
       <html>
@@ -72,37 +164,50 @@ export class PdfGenerationService {
           h1 {
             font-size: 22pt;
             font-weight: 800;
-            margin: 1.5rem 0 1rem 0;
+            margin: 1.25rem 0 0.65rem 0;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #e2e8f0;
             color: #0f172a;
-            page-break-after: avoid;
+            page-break-after: auto;
+            break-after: auto;
           }
           h2 {
             font-size: 18pt;
             font-weight: 700;
-            margin: 1.25rem 0 0.75rem 0;
+            margin: 1rem 0 0.5rem 0;
             color: #1e293b;
-            page-break-after: avoid;
+            page-break-after: auto;
+            break-after: auto;
+          }
+          h1.pdf-major-section,
+          h2.pdf-major-section,
+          h3.pdf-major-section {
+            page-break-before: always;
+            break-before: page;
+            margin-top: 0.35rem;
           }
           h3 {
             font-size: 15pt;
             font-weight: 600;
-            margin: 1rem 0 0.5rem 0;
+            margin: 0.85rem 0 0.45rem 0;
             color: #334155;
-            page-break-after: avoid;
+            page-break-after: auto;
+            break-after: auto;
           }
           h4 {
             font-size: 14pt;
             font-weight: 600;
-            margin: 0.75rem 0 0.5rem 0;
+            margin: 0.65rem 0 0.35rem 0;
             color: #475569;
-            page-break-after: avoid;
+            page-break-after: auto;
+            break-after: auto;
           }
           p {
-            margin: 0.75rem 0;
-            line-height: 1.7;
+            margin: 0.5rem 0;
+            line-height: 1.65;
             text-align: justify;
+            orphans: 3;
+            widows: 3;
           }
           ul, ol {
             margin: 0.75rem 0;
@@ -112,12 +217,13 @@ export class PdfGenerationService {
             margin: 0.375rem 0;
           }
           blockquote {
-            margin: 1rem 0;
-            padding: 0.75rem 1rem;
+            margin: 0.65rem 0;
+            padding: 0.65rem 1rem;
             border-left: 4px solid #3b82f6;
             background-color: #eff6ff;
             border-radius: 0 0.5rem 0.5rem 0;
             color: #1e40af;
+            page-break-inside: auto;
           }
           code {
             background-color: #f1f5f9;
@@ -167,19 +273,26 @@ export class PdfGenerationService {
           table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1rem 0;
+            margin: 0.65rem 0;
+            page-break-inside: auto;
+          }
+          thead {
+            display: table-header-group;
+          }
+          tr {
             page-break-inside: avoid;
+            page-break-after: auto;
           }
           th {
             background-color: #f8fafc;
             font-weight: 600;
             color: #374151;
-            padding: 0.75rem;
+            padding: 0.55rem 0.65rem;
             text-align: left;
             border: 1px solid #e2e8f0;
           }
           td {
-            padding: 0.75rem;
+            padding: 0.55rem 0.65rem;
             border: 1px solid #e2e8f0;
             background-color: white;
           }
@@ -206,63 +319,41 @@ export class PdfGenerationService {
             font-size: 10pt;
             color: #64748b;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            justify-content: center;
             margin-top: 1rem;
           }
-          .pdf-footer {
-            position: running(footer);
+          .pdf-doc-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
             text-align: center;
             font-size: 9pt;
             color: #94a3b8;
           }
-          @page {
-            @bottom-center {
-              content: element(footer);
-            }
-          }
         </style>
       </head>
       <body>
-        <div class="pdf-footer">
-          Página <span class="pageNumber"></span> de <span class="totalPages"></span>
-        </div>
-
         <div class="pdf-header">
-          <h1>${data.title || 'Documento'}</h1>
+          <h1>${title}</h1>
           <div class="pdf-meta">
-            <span>Fecha: ${data.date || new Date().toLocaleDateString('es-ES')}</span>
-            <span>Formato: ${isHtml ? 'Texto Enriquecido' : 'Markdown'}</span>
+            <span>Fecha: ${metaDate}</span>
+            <span>${metaClient}</span>
+            <span>${formatLabel}</span>
           </div>
         </div>
 
+        <div class="pdf-body-content">
         ${htmlContent}
+        </div>
+
+        <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
       </body>
       </html>
     `;
 
-    // Opciones de PDF profesionales - SIN PAGINA EN BLANCO
-    const options = {
-      margin: [20, 15, 20, 15],
-      filename: `${data.title || 'documento'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        scrollY: 0,
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait',
-        putOnlyUsedFonts: true,
-      },
-      pagebreak: {
-        mode: 'css',
-        before: '.page-break-before',
-        avoid: 'h1, h2, h3, pre, blockquote',
-      },
-    };
+    const options = this.pdfHtml2PdfOptions(data.title || 'documento');
 
     // Generamos el PDF desde el HTML
     const worker = html2pdf().set(options);
@@ -291,35 +382,39 @@ export class PdfGenerationService {
 
   private async buildArchitectureHtml(data: DocumentData): Promise<string> {
     let html = '';
+    const e = (s?: string) => escapeHtml(s ?? '');
 
     if (data.systemOverview) {
+      const t = e(data.systemOverview);
       html += `
         <div style="margin-bottom: 2rem;">
           <h3 style="font-size: 18pt; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Resumen del Sistema</h3>
           <div style="background-color: #eff6ff; border-radius: 8px; padding: 1rem; border-left: 4px solid #3b82f6;">
-            <p style="color: #1e40af; white-space: pre-wrap;">${data.systemOverview}</p>
+            <p style="color: #1e40af; white-space: pre-wrap;">${t}</p>
           </div>
         </div>
       `;
     }
 
     if (data.architectureDiagram) {
+      const t = e(data.architectureDiagram);
       html += `
         <div style="margin-bottom: 2rem;">
           <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Diagrama de Arquitectura</h4>
           <div style="background-color: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem;">
-            <pre style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 4px; font-size: 9pt; font-family: monospace; white-space: pre-wrap;">${data.architectureDiagram}</pre>
+            <pre style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 4px; font-size: 9pt; font-family: monospace; white-space: pre-wrap;">${t}</pre>
           </div>
         </div>
       `;
     }
 
     if (data.dataFlow) {
+      const t = e(data.dataFlow);
       html += `
         <div style="margin-bottom: 2rem;">
           <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Diagrama de Flujo de Datos</h4>
           <div style="background-color: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem;">
-            <pre style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 4px; font-size: 9pt; font-family: monospace; white-space: pre-wrap;">${data.dataFlow}</pre>
+            <pre style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 4px; font-size: 9pt; font-family: monospace; white-space: pre-wrap;">${t}</pre>
           </div>
         </div>
       `;
@@ -334,7 +429,7 @@ export class PdfGenerationService {
             <div>
               <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Componentes del Sistema</h4>
               <div style="background-color: #f0fdf4; border-radius: 8px; padding: 1rem; border-left: 4px solid #22c55e;">
-                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${data.components}</p>
+                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${e(data.components)}</p>
               </div>
             </div>
           `
@@ -346,7 +441,7 @@ export class PdfGenerationService {
             <div>
               <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Tecnologías Utilizadas</h4>
               <div style="background-color: #faf5ff; border-radius: 8px; padding: 1rem; border-left: 4px solid #a855f7;">
-                <p style="color: #7c3aed; white-space: pre-wrap; font-size: 11pt; font-weight: 600;">${data.technologies}</p>
+                <p style="color: #7c3aed; white-space: pre-wrap; font-size: 11pt; font-weight: 600;">${e(data.technologies)}</p>
               </div>
             </div>
           `
@@ -361,7 +456,7 @@ export class PdfGenerationService {
         <div style="margin-bottom: 2rem;">
           <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">APIs y Endpoints</h4>
           <div style="background-color: #fff7ed; border-radius: 8px; padding: 1rem; border-left: 4px solid #f97316;">
-            <p style="color: #9a3412; white-space: pre-wrap; font-size: 11pt;">${data.apis}</p>
+            <p style="color: #9a3412; white-space: pre-wrap; font-size: 11pt;">${e(data.apis)}</p>
           </div>
         </div>
       `;
@@ -372,13 +467,14 @@ export class PdfGenerationService {
 
   private buildProposalHtml(data: DocumentData): string {
     let html = '';
+    const e = (s?: string) => escapeHtml(s ?? '');
 
     if (data.executiveSummary) {
       html += `
         <div style="margin-bottom: 2rem;">
           <h3 style="font-size: 18pt; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Resumen Ejecutivo</h3>
           <div style="background-color: #eff6ff; border-radius: 8px; padding: 1rem; border-left: 4px solid #3b82f6;">
-            <p style="color: #1e40af; white-space: pre-wrap;">${data.executiveSummary}</p>
+            <p style="color: #1e40af; white-space: pre-wrap;">${e(data.executiveSummary)}</p>
           </div>
         </div>
       `;
@@ -393,7 +489,7 @@ export class PdfGenerationService {
             <div>
               <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Objetivos</h4>
               <div style="background-color: #f9fafb; border-radius: 8px; padding: 1rem;">
-                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${data.objectives}</p>
+                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${e(data.objectives)}</p>
               </div>
             </div>
           `
@@ -405,7 +501,7 @@ export class PdfGenerationService {
             <div>
               <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Alcance del Proyecto</h4>
               <div style="background-color: #f9fafb; border-radius: 8px; padding: 1rem;">
-                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${data.scope}</p>
+                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${e(data.scope)}</p>
               </div>
             </div>
           `
@@ -424,7 +520,7 @@ export class PdfGenerationService {
             <div>
               <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Entregables</h4>
               <div style="background-color: #f0fdf4; border-radius: 8px; padding: 1rem; border-left: 4px solid #22c55e;">
-                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${data.deliverables}</p>
+                <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${e(data.deliverables)}</p>
               </div>
             </div>
           `
@@ -437,7 +533,7 @@ export class PdfGenerationService {
               <div style="margin-bottom: 1rem;">
                 <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Cronograma</h4>
                 <div style="background-color: #faf5ff; border-radius: 8px; padding: 1rem;">
-                  <p style="color: #7c3aed; font-weight: 600;">${data.timeline}</p>
+                  <p style="color: #7c3aed; font-weight: 600;">${e(data.timeline)}</p>
                 </div>
               </div>
             `
@@ -449,7 +545,7 @@ export class PdfGenerationService {
               <div>
                 <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Precios</h4>
                 <div style="background-color: #fffbeb; border-radius: 8px; padding: 1rem;">
-                  <p style="color: #d97706; font-weight: 600;">${data.pricing}</p>
+                  <p style="color: #d97706; font-weight: 600;">${e(data.pricing)}</p>
                 </div>
               </div>
             `
@@ -465,7 +561,7 @@ export class PdfGenerationService {
         <div>
           <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Términos y Condiciones</h4>
           <div style="background-color: #fef2f2; border-radius: 8px; padding: 1rem; border-left: 4px solid #ef4444;">
-            <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${data.terms}</p>
+            <p style="color: #111827; white-space: pre-wrap; font-size: 11pt;">${e(data.terms)}</p>
           </div>
         </div>
       `;
@@ -475,6 +571,19 @@ export class PdfGenerationService {
   }
 
   private buildQuoteHtml(data: DocumentData): string {
+    const project = escapeHtml(data.projectName ?? '');
+    const desc = escapeHtml(data.description ?? '');
+    const rawAmt = data.totalAmount;
+    const num =
+      typeof rawAmt === 'number'
+        ? rawAmt
+        : parseFloat(String(rawAmt ?? '').replace(/\s/g, '').replace(',', '.'));
+    const amountStr = Number.isFinite(num)
+      ? num.toLocaleString('es-ES', {
+          style: 'currency',
+          currency: 'EUR',
+        })
+      : '';
     return `
       <div style="margin-bottom: 2rem;">
         <h3 style="font-size: 18pt; font-weight: 600; margin-bottom: 1rem; color: #1e293b;">Presupuesto del Proyecto</h3>
@@ -482,12 +591,12 @@ export class PdfGenerationService {
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div>
               <span style="font-weight: 600; color: #374151;">Proyecto:</span>
-              <p style="color: #111827; margin-top: 0.25rem;">${data.projectName || ''}</p>
+              <p style="color: #111827; margin-top: 0.25rem;">${project}</p>
             </div>
             <div>
               <span style="font-weight: 600; color: #374151;">Monto Total:</span>
               <p style="color: #111827; margin-top: 0.25rem; font-size: 16pt; font-weight: 600; color: #16a34a;">
-                ${data.totalAmount ? data.totalAmount.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }) : ''}
+                ${amountStr}
               </p>
             </div>
           </div>
@@ -497,7 +606,7 @@ export class PdfGenerationService {
       <div>
         <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Descripción:</h4>
         <div style="background-color: #f9fafb; border-radius: 8px; padding: 1rem;">
-          <p style="color: #111827; white-space: pre-wrap;">${data.description || ''}</p>
+          <p style="color: #111827; white-space: pre-wrap;">${desc}</p>
         </div>
       </div>
     `;
@@ -507,6 +616,14 @@ export class PdfGenerationService {
     htmlContent: string,
     data: DocumentData,
   ): Promise<Blob> {
+    const bodyHtml = this.applyPdfSectionBreaks(htmlContent);
+
+    const title = escapeHtml(data.title || 'Documento');
+    const metaDate = escapeHtml(this.formatDisplayDate(data.date));
+    const metaClient = escapeHtml(
+      data.subtitle || data.client || 'Josanz ERP',
+    );
+
     const pdfTemplate = `
       <!DOCTYPE html>
       <html>
@@ -528,29 +645,49 @@ export class PdfGenerationService {
           h1 {
             font-size: 22pt;
             font-weight: 800;
-            margin: 1.5rem 0 1rem 0;
+            margin: 1.25rem 0 0.65rem 0;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid #e2e8f0;
             color: #0f172a;
-            page-break-after: avoid;
+            page-break-after: auto;
           }
           h2 {
             font-size: 18pt;
             font-weight: 700;
-            margin: 1.25rem 0 0.75rem 0;
+            margin: 1rem 0 0.5rem 0;
             color: #1e293b;
-            page-break-after: avoid;
+            page-break-after: auto;
+          }
+          h1.pdf-major-section,
+          h2.pdf-major-section,
+          h3.pdf-major-section {
+            page-break-before: always;
+            break-before: page;
+            margin-top: 0.35rem;
           }
           h3 {
             font-size: 15pt;
             font-weight: 600;
-            margin: 1rem 0 0.5rem 0;
+            margin: 0.85rem 0 0.45rem 0;
             color: #334155;
-            page-break-after: avoid;
+            page-break-after: auto;
           }
           p {
-            margin: 0.75rem 0;
-            line-height: 1.7;
+            margin: 0.5rem 0;
+            line-height: 1.65;
+            orphans: 3;
+            widows: 3;
+          }
+          table {
+            page-break-inside: auto;
+            border-collapse: collapse;
+            width: 100%;
+          }
+          thead {
+            display: table-header-group;
+          }
+          tr {
+            page-break-inside: avoid;
           }
           .pdf-header {
             text-align: center;
@@ -567,62 +704,40 @@ export class PdfGenerationService {
             font-size: 10pt;
             color: #64748b;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            justify-content: center;
             margin-top: 1rem;
           }
-          .pdf-footer {
-            position: running(footer);
+          .pdf-doc-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
             text-align: center;
             font-size: 9pt;
             color: #94a3b8;
           }
-          @page {
-            @bottom-center {
-              content: element(footer);
-            }
-          }
         </style>
       </head>
       <body>
-        <div class="pdf-footer">
-          Página <span class="pageNumber"></span> de <span class="totalPages"></span>
-        </div>
-
         <div class="pdf-header">
-          <h1>${data.title || 'Documento'}</h1>
+          <h1>${title}</h1>
           <div class="pdf-meta">
-            <span>Fecha: ${data.date || new Date().toLocaleDateString('es-ES')}</span>
+            <span>Fecha: ${metaDate}</span>
+            <span>${metaClient}</span>
           </div>
         </div>
 
-        ${htmlContent}
+        <div class="pdf-body-content">
+        ${bodyHtml}
+        </div>
+
+        <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
       </body>
       </html>
     `;
 
-    const options = {
-      margin: [20, 15, 20, 15],
-      filename: `${data.title || 'documento'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        letterRendering: true,
-        scrollY: 0,
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait',
-        putOnlyUsedFonts: true,
-      },
-      pagebreak: {
-        mode: 'css',
-        before: '.page-break-before',
-        avoid: 'h1, h2, h3',
-      },
-    };
-
+    const options = this.pdfHtml2PdfOptions(data.title || 'documento');
     const worker = html2pdf().set(options);
     const pdfBlob = await worker.from(pdfTemplate).outputPdf('blob');
     return pdfBlob;

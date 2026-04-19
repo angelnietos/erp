@@ -26,6 +26,13 @@ export const documentGeneratorRoutes: Route[] = [
       ),
   },
   {
+    path: 'create/edit',
+    loadComponent: () =>
+      import('./document-create/document-create-editor.component').then(
+        (m) => m.DocumentCreateEditorComponent,
+      ),
+  },
+  {
     path: 'create',
     loadComponent: () =>
       import('./document-create/document-create.component').then(

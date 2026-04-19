@@ -11,6 +11,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import mermaid from 'mermaid';
 
+declare const marked: {
+  parse: (content: string, options?: object) => string;
+  setOptions?: (options: object) => void;
+};
+
 @Component({
   selector: 'app-document-preview',
   standalone: true,
@@ -288,7 +293,7 @@ import mermaid from 'mermaid';
                 <div class="bg-tertiary rounded-lg p-4">
                   <div
                     class="prose prose-sm max-w-none"
-                    [innerHTML]="document?.content"
+                    [innerHTML]="documentationHtml"
                   ></div>
                 </div>
               </div>
@@ -451,6 +456,27 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
         description: 'Descripción del presupuesto...',
         content: '<p>Contenido del documento...</p>',
       };
+    }
+  }
+
+  /** Markdown guardado → HTML para vista previa (GFM: tablas, listas, etc.). */
+  get documentationHtml(): string {
+    const doc = this.document;
+    if (!doc?.content || doc.type !== 'documentation') {
+      return '';
+    }
+    const raw = doc.content as string;
+    if (typeof raw !== 'string') {
+      return '';
+    }
+    if (/<[a-z][\s\S]*>/i.test(raw.trim())) {
+      return raw;
+    }
+    try {
+      marked.setOptions?.({ gfm: true, breaks: true });
+      return marked.parse(raw, { gfm: true, breaks: true });
+    } catch {
+      return '';
     }
   }
 

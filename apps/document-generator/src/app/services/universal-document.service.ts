@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as ExcelJS from 'exceljs';
+import { escapeHtml } from '../utils/html-escape';
 
 export enum DocumentFormat {
   DOCS20 = 'docs20',
@@ -214,18 +215,19 @@ export class UniversalDocumentService {
       '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Documento</title></head><body style="max-width: 800px; margin: 0 auto; padding: 40px; font-family: system-ui, sans-serif;">\n';
 
     blocks.forEach((block) => {
+      const c = escapeHtml(String(block.content ?? ''));
       switch (block.type) {
         case 'heading':
-          html += `<h1 style="color: #1e293b;">${block.content}</h1>\n`;
+          html += `<h1 style="color: #1e293b;">${c}</h1>\n`;
           break;
         case 'quote':
-          html += `<blockquote style="border-left: 4px solid #e2e8f0; padding-left: 16px; color: #64748b;">${block.content}</blockquote>\n`;
+          html += `<blockquote style="border-left: 4px solid #e2e8f0; padding-left: 16px; color: #64748b;">${c}</blockquote>\n`;
           break;
         case 'code':
-          html += `<pre style="background: #f1f5f9; padding: 16px; border-radius: 8px;">${block.content}</pre>\n`;
+          html += `<pre style="background: #f1f5f9; padding: 16px; border-radius: 8px;">${c}</pre>\n`;
           break;
         default:
-          html += `<p style="line-height: 1.6; color: #334155;">${block.content}</p>\n`;
+          html += `<p style="line-height: 1.6; color: #334155;">${c}</p>\n`;
       }
     });
 
