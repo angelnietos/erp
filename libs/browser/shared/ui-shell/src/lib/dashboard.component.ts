@@ -122,7 +122,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
               </div>
             </div>
             <div class="perf-footer" [style.color]="currentTheme().primary">
-              <lucide-icon name="shield-check" size="14" class="mr-2"></lucide-icon>
+              <lucide-icon name="shield-check" size="14" class="mr-2" aria-hidden="true"></lucide-icon>
               CONEXIÓN SEGURA ACTIVA
             </div>
           </ui-card>

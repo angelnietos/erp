@@ -16,8 +16,10 @@ import {
   PluginStore,
   AIBotStore,
   type AIBot,
+  type MascotMouthType,
   ThemeService,
   ToastService,
+  mascotMouthToUi,
 } from '@josanz-erp/shared-data-access';
 import {
   RolesService,
@@ -243,7 +245,7 @@ interface PluginDescriptor {
                          </button>
                        }
                        <div class="custom-color-picker">
-                         <input type="color" [value]="themeService.currentThemeData().primary" (input)="themeService.updatePrimaryColor($any($event.target).value)">
+                         <input type="color" [value]="themeService.currentThemeData().primary" (input)="onThemePrimaryFreeInput($event)">
                        </div>
                      </div>
                      <p class="config-desc mt-2">Este color define el tono base de botones, estados y efectos de brillo en toda la aplicación.</p>
@@ -492,15 +494,15 @@ interface PluginDescriptor {
                 <div class="config-visual-decoration">
                   @if (aiBotStore.getBotByFeature(aiBotStore.activeBotFeature()); as activeBot) {
                     <ui-mascot 
-                      [type]="$any(activeBot.mascotType)" 
+                      [type]="activeBot.mascotType" 
                       [color]="activeBot.color" 
                       [secondaryColor]="activeBot.secondaryColor"
-                      [personality]="$any(activeBot.personality)"
-                      [bodyShape]="$any(activeBot.bodyShape)"
+                      [personality]="activeBot.personality"
+                      [bodyShape]="activeBot.bodyShape"
                       [mouthType]="mascotMouthFor(activeBot)"
-                      [eyesType]="$any(activeBot.eyesType)"
+                      [eyesType]="activeBot.eyesType"
                       [rageMode]="aiBotStore.rageMode()"
-                      [rageStyle]="$any(aiBotStore.rageStyle())"
+                      [rageStyle]="aiBotStore.rageStyle()"
                     ></ui-mascot>
                   }
                 </div>
@@ -516,13 +518,13 @@ interface PluginDescriptor {
                   >
                     <div class="bot-visual">
                       <ui-mascot
-                        [type]="$any(bot.mascotType)"
+                        [type]="bot.mascotType"
                         [color]="bot.color"
                         [secondaryColor]="bot.secondaryColor"
-                        [personality]="$any(bot.personality)"
-                        [bodyShape]="$any(bot.bodyShape)"
-                        [eyesType]="$any(bot.eyesType)"
-                        [mouthType]="$any(bot.mouthType)"
+                        [personality]="bot.personality"
+                        [bodyShape]="bot.bodyShape"
+                        [eyesType]="bot.eyesType"
+                        [mouthType]="mascotMouthFor(bot)"
                       ></ui-mascot>
                     </div>
 
@@ -636,7 +638,7 @@ interface PluginDescriptor {
                             [value]="bot.color"
                             (input)="
                               aiBotStore.updateBotSkin(bot.feature, {
-                                color: $any($event.target).value,
+                                color: colorHexFromInput($event),
                               })
                             "
                           />
@@ -651,7 +653,7 @@ interface PluginDescriptor {
                             [value]="bot.secondaryColor"
                             (input)="
                               aiBotStore.updateBotSkin(bot.feature, {
-                                secondaryColor: $any($event.target).value,
+                                secondaryColor: colorHexFromInput($event),
                               })
                             "
                           />
@@ -828,15 +830,15 @@ interface PluginDescriptor {
                     >
                       <div class="preview-glow"></div>
                       <ui-mascot
-                        [type]="$any(pal.mascotType)"
+                        [type]="pal.mascotType"
                         [color]="pal.color"
                         [secondaryColor]="pal.secondaryColor"
-                        [personality]="$any(pal.personality)"
-                        [bodyShape]="$any(pal.bodyShape)"
-                        [eyesType]="$any(pal.eyesType)"
+                        [personality]="pal.personality"
+                        [bodyShape]="pal.bodyShape"
+                        [eyesType]="pal.eyesType"
                         [mouthType]="mascotMouthFor(pal)"
                         [rageMode]="aiBotStore.rageMode()"
-                        [rageStyle]="$any(aiBotStore.rageStyle())"
+                        [rageStyle]="aiBotStore.rageStyle()"
                       >
                       </ui-mascot>
                     </ui-card>
@@ -997,7 +999,7 @@ interface PluginDescriptor {
                               (input)="
                                 setCompanionPrimaryFromPicker(
                                   pal.feature,
-                                  $any($event.target).value
+                                  colorHexFromInput($event)
                                 )
                               "
                               title="Elegir color principal personalizado"
@@ -1015,7 +1017,7 @@ interface PluginDescriptor {
                             [value]="pal.secondaryColor"
                             (input)="
                               aiBotStore.updateBotSkin(pal.feature, {
-                                secondaryColor: $any($event.target).value,
+                                secondaryColor: colorHexFromInput($event),
                               })
                             "
                             title="Color secundario"
@@ -1729,9 +1731,7 @@ interface PluginDescriptor {
             <input
               type="checkbox"
               [checked]="moduleDisableTermsAccepted()"
-              (change)="
-                moduleDisableTermsAccepted.set($any($event.target).checked)
-              "
+              (change)="onModuleDisableTermsCheckboxChange($event)"
             />
             <span>
               Acepto esta condición y confirmo que entiendo que el módulo dejará
@@ -3923,19 +3923,22 @@ export class SettingsFeatureComponent {
   }
 
   /** Tipos de boca del modelo → entradas soportadas por `ui-mascot`. */
-  mascotMouthFor(bot: AIBot): 'smile' | 'line' | 'o' | 'mean' {
-    switch (bot.mouthType) {
-      case 'smile':
-      case 'line':
-      case 'o':
-        return bot.mouthType;
-      case 'grin':
-        return 'smile';
-      case 'none':
-        return 'line';
-      default:
-        return 'line';
-    }
+  mascotMouthFor(bot: AIBot): MascotMouthType {
+    return mascotMouthToUi(bot.mouthType);
+  }
+
+  colorHexFromInput(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  onThemePrimaryFreeInput(event: Event): void {
+    this.themeService.updatePrimaryColor(this.colorHexFromInput(event));
+  }
+
+  onModuleDisableTermsCheckboxChange(event: Event): void {
+    this.moduleDisableTermsAccepted.set(
+      (event.target as HTMLInputElement).checked,
+    );
   }
 
   isPluginEnabled(id: string) {

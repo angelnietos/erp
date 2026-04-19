@@ -325,42 +325,52 @@ Contexto actual:
   ): AssistantPetConfig {
     const next: AssistantPetConfig = { ...base };
 
-    if (typeof raw.name === 'string') {
-      const t = raw.name.trim();
+    const name = raw['name'];
+    if (typeof name === 'string') {
+      const t = name.trim();
       if (t.length > 0) next.name = t.slice(0, 64);
     }
-    if (typeof raw.skin === 'string' && raw.skin.trim().length > 0) {
-      next.skin = raw.skin.trim().slice(0, 48);
+    const skin = raw['skin'];
+    if (typeof skin === 'string' && skin.trim().length > 0) {
+      next.skin = skin.trim().slice(0, 48);
     }
-    if (typeof raw.color === 'string') {
-      const c = raw.color.trim();
+    const color = raw['color'];
+    if (typeof color === 'string') {
+      const c = color.trim();
       if (c.length > 0 && c.length <= 32) next.color = c;
     }
+    const personality = raw['personality'];
     if (
-      typeof raw.personality === 'string' &&
+      typeof personality === 'string' &&
       PET_PERSONALITIES.includes(
-        raw.personality as AssistantPetConfig['personality'],
+        personality as AssistantPetConfig['personality'],
       )
     ) {
-      next.personality = raw.personality as AssistantPetConfig['personality'];
+      next.personality = personality as AssistantPetConfig['personality'];
     }
+    const animationSpeed = raw['animationSpeed'];
     if (
-      typeof raw.animationSpeed === 'number' &&
-      Number.isFinite(raw.animationSpeed)
+      typeof animationSpeed === 'number' &&
+      Number.isFinite(animationSpeed)
     ) {
-      next.animationSpeed = clampNumber(raw.animationSpeed, 0.25, 6);
+      next.animationSpeed = clampNumber(animationSpeed, 0.25, 6);
     }
-    if (typeof raw.autoOpen === 'boolean') next.autoOpen = raw.autoOpen;
-    if (typeof raw.soundEnabled === 'boolean')
-      next.soundEnabled = raw.soundEnabled;
+    const autoOpen = raw['autoOpen'];
+    if (typeof autoOpen === 'boolean') next.autoOpen = autoOpen;
+    const soundEnabled = raw['soundEnabled'];
+    if (typeof soundEnabled === 'boolean') next.soundEnabled = soundEnabled;
+    const bubbleSize = raw['bubbleSize'];
     if (
-      typeof raw.bubbleSize === 'string' &&
-      PET_BUBBLE_SIZES.includes(raw.bubbleSize as AssistantPetConfig['bubbleSize'])
+      typeof bubbleSize === 'string' &&
+      PET_BUBBLE_SIZES.includes(
+        bubbleSize as AssistantPetConfig['bubbleSize'],
+      )
     ) {
-      next.bubbleSize = raw.bubbleSize as AssistantPetConfig['bubbleSize'];
+      next.bubbleSize = bubbleSize as AssistantPetConfig['bubbleSize'];
     }
-    if (typeof raw.opacity === 'number' && Number.isFinite(raw.opacity)) {
-      next.opacity = Math.round(clampNumber(raw.opacity, 0, 100));
+    const opacity = raw['opacity'];
+    if (typeof opacity === 'number' && Number.isFinite(opacity)) {
+      next.opacity = Math.round(clampNumber(opacity, 0, 100));
     }
 
     return next;

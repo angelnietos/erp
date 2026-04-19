@@ -108,14 +108,14 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         [appearance]="'feature'"
         [searchVariant]="'glass'"
         placeholder="Buscar equipamiento o SKU…"
-        (searchChange)="onSearch($any($event))"
+        (searchChange)="onSearch($event)"
       >
         <div uiFeatureFilterStates>
           <ui-tabs
             [tabs]="tabs()"
             [activeTab]="activeTab()"
             variant="underline"
-            (tabChange)="onTabChange($any($event))"
+            (tabChange)="onTabChange($event)"
           ></ui-tabs>
         </div>
         <ui-button
@@ -147,6 +147,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ error() }}</span>
           <ui-button
@@ -170,6 +171,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar el inventario</h3>
           <p>{{ error() }}</p>

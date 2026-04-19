@@ -64,7 +64,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
       <ui-feature-page-shell [variant]="'compact'" [extraClass]="'availability-container'">
         <nav class="back-row">
           <a routerLink="/users/availability" class="back-link">
-            <lucide-icon name="chevron-left" size="18"></lucide-icon>
+            <lucide-icon name="chevron-left" size="18" aria-hidden="true"></lucide-icon>
             Volver al calendario
           </a>
         </nav>
@@ -81,7 +81,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
           <ui-card shape="auto" class="pending-card">
             <div class="pending-head">
               <h2 class="pending-title">
-                <lucide-icon name="inbox" size="22"></lucide-icon>
+                <lucide-icon name="inbox" size="22" aria-hidden="true"></lucide-icon>
                 Solicitudes pendientes de aprobación
               </h2>
               <ui-button
@@ -137,7 +137,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                 @if (canManageTeam()) {
                   <label class="field full">
                     <span>Solicitar para (opcional = tú mismo)</span>
-                    <select [value]="onBehalfTechnicianId()" (change)="onBehalfTechnicianId.set($any($event.target).value)">
+                    <select [value]="onBehalfTechnicianId()" (change)="onBehalfTechnicianId.set(formFieldValue($event))">
                       <option value="">— Yo / mi ficha técnica —</option>
                       @for (t of techniciansOptions(); track t.id) {
                         <option [value]="t.id">{{ t.name }}</option>
@@ -148,11 +148,11 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                 <div class="field-row">
                   <label class="field">
                     <span>Desde</span>
-                    <input type="date" [value]="vacationStart()" (input)="vacationStart.set($any($event.target).value)" />
+                    <input type="date" [value]="vacationStart()" (input)="vacationStart.set(formFieldValue($event))" />
                   </label>
                   <label class="field">
                     <span>Hasta</span>
-                    <input type="date" [value]="vacationEnd()" (input)="vacationEnd.set($any($event.target).value)" />
+                    <input type="date" [value]="vacationEnd()" (input)="vacationEnd.set(formFieldValue($event))" />
                   </label>
                 </div>
                 <label class="field full">
@@ -160,7 +160,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                   <textarea
                     rows="2"
                     [value]="vacationNotes()"
-                    (input)="vacationNotes.set($any($event.target).value)"
+                    (input)="vacationNotes.set(formFieldValue($event))"
                     placeholder="Ej. verano, puente, etc."
                   ></textarea>
                 </label>
@@ -186,7 +186,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                 @if (canManageTeam()) {
                   <label class="field full">
                     <span>Solicitar para (opcional)</span>
-                    <select [value]="onBehalfTechnicianId()" (change)="onBehalfTechnicianId.set($any($event.target).value)">
+                    <select [value]="onBehalfTechnicianId()" (change)="onBehalfTechnicianId.set(formFieldValue($event))">
                       <option value="">— Yo / mi ficha técnica —</option>
                       @for (t of techniciansOptions(); track t.id) {
                         <option [value]="t.id">{{ t.name }}</option>
@@ -196,7 +196,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                 }
                 <label class="field full">
                   <span>Tipo de ausencia</span>
-                  <select [value]="medicalKind()" (change)="medicalKind.set($any($event.target).value)">
+                  <select [value]="medicalKind()" (change)="onMedicalKindChange($event)">
                     @for (opt of medicalOptions; track opt.value) {
                       <option [value]="opt.value">{{ opt.label }}</option>
                     }
@@ -205,11 +205,11 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                 <div class="field-row">
                   <label class="field">
                     <span>Desde</span>
-                    <input type="date" [value]="medicalStart()" (input)="medicalStart.set($any($event.target).value)" />
+                    <input type="date" [value]="medicalStart()" (input)="medicalStart.set(formFieldValue($event))" />
                   </label>
                   <label class="field">
                     <span>Hasta</span>
-                    <input type="date" [value]="medicalEnd()" (input)="medicalEnd.set($any($event.target).value)" />
+                    <input type="date" [value]="medicalEnd()" (input)="medicalEnd.set(formFieldValue($event))" />
                   </label>
                 </div>
                 <label class="field full">
@@ -217,7 +217,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
                   <textarea
                     rows="2"
                     [value]="medicalNotes()"
-                    (input)="medicalNotes.set($any($event.target).value)"
+                    (input)="medicalNotes.set(formFieldValue($event))"
                     placeholder="Ej. parte de baja, resolución…"
                   ></textarea>
                 </label>
@@ -237,7 +237,7 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
 
           @if (techFootnote(); as tf) {
             <p class="tech-footnote">
-              <lucide-icon name="user" size="14"></lucide-icon>
+              <lucide-icon name="user" size="14" aria-hidden="true"></lucide-icon>
               {{ tf }}
             </p>
           }
@@ -600,6 +600,18 @@ export class AbsenceRequestComponent implements OnInit {
   onTabChange(id: string): void {
     if (id === 'vacation' || id === 'medical') {
       this.activeTab.set(id);
+    }
+  }
+
+  formFieldValue(event: Event): string {
+    return (event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
+      .value;
+  }
+
+  onMedicalKindChange(event: Event): void {
+    const v = (event.target as HTMLSelectElement).value;
+    if (v === 'sick' || v === 'permit' || v === 'legal') {
+      this.medicalKind.set(v);
     }
   }
 

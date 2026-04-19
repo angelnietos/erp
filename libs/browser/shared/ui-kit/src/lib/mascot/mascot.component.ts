@@ -1,25 +1,22 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import type {
+  MascotBodyShape,
+  MascotEyesType,
+  MascotMouthType,
+  MascotPersonality,
+  MascotRageStyle,
+  MascotType,
+} from '@josanz-erp/shared-data-access';
 
-export type MascotType =
-  | 'inventory'
-  | 'budget'
-  | 'clients'
-  | 'projects'
-  | 'fleet'
-  | 'rentals'
-  | 'audit'
-  | 'dashboard'
-  | 'universal';
-
-export type MascotPersonality =
-  | 'happy'
-  | 'tech'
-  | 'mystic'
-  | 'worker'
-  | 'explorer'
-  | 'ninja'
-  | 'queen';
+export type {
+  MascotBodyShape,
+  MascotEyesType,
+  MascotMouthType,
+  MascotPersonality,
+  MascotRageStyle,
+  MascotType,
+} from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'ui-mascot',
@@ -607,6 +604,17 @@ export type MascotPersonality =
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
       }
 
+      .eye.glow {
+        box-shadow:
+          0 0 10px 2px color-mix(in srgb, var(--mascot-color) 70%, transparent),
+          inset 0 2px 6px rgba(0, 0, 0, 0.85);
+        background: radial-gradient(
+          circle at 45% 35%,
+          #1e293b 0%,
+          #0f172a 100%
+        );
+      }
+
       /* Cute Anime Reflection */
       .pupil {
         width: 7px;
@@ -867,24 +875,13 @@ export class UIMascotComponent {
   @Input() color = '#10b981';
   @Input() secondaryColor = '#065f46';
   @Input() personality: MascotPersonality = 'happy';
-  @Input() bodyShape:
-    | 'round'
-    | 'square'
-    | 'capsule'
-    | 'tri'
-    | 'mushroom-cap'
-    | 'mushroom-full'
-    | 'mushroom-luminescent'
-    | 'mushroom-morel'
-    | 'bonsai'
-    | 'bonsai-sakura'
-    | 'bonsai-maple' = 'round';
-  @Input() eyesType: 'dots' | 'joy' | 'shades' | 'angry' | 'insane' = 'dots';
-  @Input() mouthType: 'smile' | 'line' | 'o' | 'mean' = 'line';
+  @Input() bodyShape: MascotBodyShape = 'round';
+  @Input() eyesType: MascotEyesType = 'dots';
+  @Input() mouthType: MascotMouthType = 'line';
 
   // Toxic / Rage configuration
   @Input() rageMode = false;
-  @Input() rageStyle: 'terror' | 'angry' | 'dark' = 'angry';
+  @Input() rageStyle: MascotRageStyle = 'angry';
 
   get effectiveColor(): string {
     if (!this.rageMode) return this.color;

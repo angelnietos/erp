@@ -167,6 +167,7 @@ interface AuditLog {
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ loadError() }}</span>
           <ui-button variant="ghost" size="sm" icon="rotate-cw" (clicked)="reloadLogs()">
@@ -182,7 +183,7 @@ interface AuditLog {
           </div>
         } @else if (loadError() && auditLogs().length === 0) {
           <div class="feature-error-screen" role="alert">
-            <lucide-icon name="wifi-off" size="48" class="feature-error-screen__icon"></lucide-icon>
+            <lucide-icon name="wifi-off" size="48" class="feature-error-screen__icon" aria-hidden="true"></lucide-icon>
             <h3>No se pudo cargar el registro</h3>
             <p>{{ loadError() }}</p>
             <ui-button variant="solid" icon="rotate-cw" (clicked)="reloadLogs()">Reintentar</ui-button>
@@ -235,7 +236,7 @@ interface AuditLog {
           } @empty {
             @if (filterProducesNoResults()) {
               <div class="feature-empty feature-empty--wide">
-                <lucide-icon name="search-x" size="56" class="feature-empty__icon"></lucide-icon>
+                <lucide-icon name="search-x" size="56" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>Ningún registro coincide con la búsqueda o los filtros actuales.</p>
                 <ui-button variant="ghost" size="sm" icon="circle-x" (clicked)="clearFiltersAndSearch()">
@@ -244,7 +245,7 @@ interface AuditLog {
               </div>
             } @else {
               <div class="feature-empty feature-empty--wide">
-                <lucide-icon name="history" size="56" class="feature-empty__icon"></lucide-icon>
+                <lucide-icon name="history" size="56" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
                 <h3>No hay registros</h3>
                 <p>Aún no hay actividad auditada para este tenant. Los inicios de sesión y las operaciones en proyectos, clientes y servicios aparecerán aquí.</p>
               </div>
@@ -256,7 +257,7 @@ interface AuditLog {
           <ui-pagination 
             [currentPage]="currentPage()" 
             [totalPages]="totalPages()"
-            (pageChange)="goToPage($any($event))"
+            (pageChange)="goToPage($event)"
           ></ui-pagination>
         </footer>
         }

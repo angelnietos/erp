@@ -21,12 +21,12 @@ import {
   DashboardAnalyticsService,
   ThemeService,
   Theme,
-  MasterFilterService,
   InterBotMessage,
   OrchestrationBus,
   TechnicianApiService,
   getAiFeatureFromUrl,
   AIProvider,
+  mascotMouthToUi,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -96,11 +96,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   aiBotStore = inject(AIBotStore);
   orchestrationBus = inject(OrchestrationBus);
   private technicianApi = inject(TechnicianApiService);
-  masterFilterService = inject(MasterFilterService);
   dashboardService = inject(DashboardAnalyticsService);
   themeService = inject(ThemeService);
   http = inject(HttpClient);
-  masterFilter = inject(MasterFilterService);
   router = inject(Router);
   ngZone = inject(NgZone);
 
@@ -132,6 +130,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   readonly bot = computed(() =>
     this.aiBotStore.getEffectiveBotForCurrentUser(this.feature),
   );
+
+  /** Expuesto al template: `AIBot` puede tener bocas legacy (`grin`/`none`). */
+  readonly mascotMouthToUi = mascotMouthToUi;
   readonly botPosition = computed(() =>
     this.aiBotStore.getBotPosition(this.feature),
   );

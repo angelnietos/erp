@@ -23,15 +23,15 @@
     (cdkDragEnded)="onMascotDragEnd($event)"
   >
     <ui-mascot
-      [type]="$any(bot()!.mascotType)"
+      [type]="bot()!.mascotType"
       [color]="bot()!.color"
       [secondaryColor]="bot()!.secondaryColor"
-      [personality]="$any(bot()!.personality)"
-      [bodyShape]="$any(bot()!.bodyShape)"
-      [eyesType]="$any(bot()!.eyesType)"
-      [mouthType]="$any(bot()!.mouthType)"
+      [personality]="bot()!.personality"
+      [bodyShape]="bot()!.bodyShape"
+      [eyesType]="bot()!.eyesType"
+      [mouthType]="mascotMouthToUi(bot()!.mouthType)"
       [rageMode]="aiBotStore.rageMode()"
-      [rageStyle]="$any(aiBotStore.rageStyle())"
+      [rageStyle]="aiBotStore.rageStyle()"
     ></ui-mascot>
     <div class="notification-dot animate-pulse"></div>
   </div>
@@ -62,6 +62,7 @@
             name="grip-vertical"
             size="14"
             class="drag-handle-icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span
             class="status-indicator"

@@ -65,6 +65,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 name="search"
                 size="18"
                 class="search-icon"
+                aria-hidden="true"
               ></lucide-icon>
               <input type="text" placeholder="Buscar en el ERP..." readonly />
               <div class="search-shortcut">⌘K</div>
@@ -75,14 +76,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
             <!-- Tenant Badge -->
             @if (tenantName) {
               <div class="tenant-badge">
-                <lucide-icon name="building-2" size="16"></lucide-icon>
+                <lucide-icon name="building-2" size="16" aria-hidden="true"></lucide-icon>
                 <span>{{ tenantName }}</span>
               </div>
             }
 
-            <button class="icon-btn" (click)="toggleNotifications()">
-              <lucide-icon name="bell" size="20"></lucide-icon>
-              <div class="notification-dot"></div>
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="toggleNotifications()"
+              aria-label="Notificaciones"
+            >
+              <lucide-icon name="bell" size="20" aria-hidden="true"></lucide-icon>
+              <div class="notification-dot" aria-hidden="true"></div>
             </button>
 
             @if (premiumExperience()) {
@@ -91,17 +97,26 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 [style.color]="currentThemeData().primary"
                 [style.border-color]="currentThemeData().primary + '44'"
               >
-                <lucide-icon name="sparkles" size="14"></lucide-icon>
+                <lucide-icon name="sparkles" size="14" aria-hidden="true"></lucide-icon>
                 <span>LUXE MODE</span>
               </div>
             }
 
             <!-- Theme Selector -->
             <div class="theme-selector">
-              <button class="theme-btn" (click)="toggleThemeMenu()">
+              <button
+                type="button"
+                class="theme-btn"
+                (click)="toggleThemeMenu()"
+                [attr.aria-label]="
+                  showThemeMenu() ? 'Cerrar selector de tema' : 'Abrir selector de tema'
+                "
+                [attr.aria-expanded]="showThemeMenu()"
+              >
                 <lucide-icon
                   [name]="currentTheme() === 'dark' ? 'moon' : 'sun'"
                   size="20"
+                  aria-hidden="true"
                 ></lucide-icon>
               </button>
               @if (showThemeMenu()) {
@@ -159,7 +174,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 <span class="user-role">Administrador</span>
               </div>
               <div class="avatar">
-                <lucide-icon name="user" size="20"></lucide-icon>
+                <lucide-icon name="user" size="20" aria-hidden="true"></lucide-icon>
               </div>
 
               @if (showUserMenu()) {
@@ -167,12 +182,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                   <div class="menu-header">
                     <span class="text-uppercase">SISTEMA CORE v2.1</span>
                   </div>
-                  <button class="menu-item" routerLink="/settings">
-                    <lucide-icon name="settings" size="16"></lucide-icon>
+                  <button type="button" class="menu-item" routerLink="/settings">
+                    <lucide-icon name="settings" size="16" aria-hidden="true"></lucide-icon>
                     CONFIGURACIÓN
                   </button>
-                  <button class="menu-item logout" (click)="logout()">
-                    <lucide-icon name="log-out" size="16"></lucide-icon>
+                  <button type="button" class="menu-item logout" (click)="logout()">
+                    <lucide-icon name="log-out" size="16" aria-hidden="true"></lucide-icon>
                     CERRAR SESIÓN
                   </button>
                 </div>

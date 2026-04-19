@@ -22,6 +22,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
         }
 
         <button
+          type="button"
           class="toggle-control"
           (click)="toggle()"
           [attr.aria-label]="isCollapsed() ? 'Expandir' : 'Contraer'"
@@ -29,6 +30,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
           <lucide-icon
             [name]="isCollapsed() ? 'chevron-right' : 'chevron-left'"
             size="16"
+            aria-hidden="true"
           ></lucide-icon>
         </button>
       </div>
@@ -44,9 +46,10 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
                 routerLinkActive="active"
                 class="nav-link"
                 [attr.title]="item.label"
+                [attr.aria-label]="isCollapsed() ? item.label : null"
               >
                 <div class="icon-wrapper">
-                  <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                  <lucide-icon [name]="item.icon" size="18" aria-hidden="true"></lucide-icon>
                 </div>
                 @if (!isCollapsed()) {
                   <span class="label-text">{{ item.label }}</span>
@@ -66,9 +69,10 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
               routerLink="/settings"
               class="nav-link settings-link"
               routerLinkActive="active"
+              [attr.aria-label]="isCollapsed() ? 'Configuración' : null"
             >
               <div class="icon-wrapper">
-                <lucide-icon name="cog" size="18"></lucide-icon>
+                <lucide-icon name="cog" size="18" aria-hidden="true"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Configuración</span>
@@ -76,9 +80,14 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
             </a>
           </li>
           <li class="nav-item">
-            <button class="nav-link logout" (click)="logout()">
+            <button
+              type="button"
+              class="nav-link logout"
+              (click)="logout()"
+              [attr.aria-label]="isCollapsed() ? 'Cerrar sesión' : null"
+            >
               <div class="icon-wrapper">
-                <lucide-icon name="log-out" size="18"></lucide-icon>
+                <lucide-icon name="log-out" size="18" aria-hidden="true"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Cerrar Sesión</span>

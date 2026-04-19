@@ -48,7 +48,7 @@ import { HttpErrorResponse } from '@angular/common/http';
         </div>
       } @else if (error()) {
         <div class="error-state">
-          <lucide-icon name="alert-circle" size="48" class="error-icon"></lucide-icon>
+          <lucide-icon name="alert-circle" size="48" class="error-icon" aria-hidden="true"></lucide-icon>
           <p>{{ error() }}</p>
           <div class="error-actions">
             <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
@@ -62,7 +62,7 @@ import { HttpErrorResponse } from '@angular/common/http';
             class="back-btn"
             [routerLink]="createMode() ? ['/users'] : ['/users', userId()]"
           >
-            <lucide-icon name="arrow-left" size="18"></lucide-icon>
+            <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
           </button>
           <h1 class="title">{{ createMode() ? 'Alta de usuario' : 'Editar usuario' }}</h1>
         </div>
@@ -124,7 +124,7 @@ import { HttpErrorResponse } from '@angular/common/http';
                   <input
                     type="checkbox"
                     [checked]="isRoleSelected(r.name)"
-                    (change)="toggleRole(r.name, $any($event.target).checked)"
+                    (change)="toggleRole(r.name, checkboxChecked($event))"
                   />
                   <span>{{ r.name }}</span>
                   <span class="role-type">{{ r.type }}</span>
@@ -147,7 +147,7 @@ import { HttpErrorResponse } from '@angular/common/http';
                       <input
                         type="checkbox"
                         [checked]="draft.extraPermissions.includes(p.id)"
-                        (change)="toggleExtra(p.id, $any($event.target).checked)"
+                        (change)="toggleExtra(p.id, checkboxChecked($event))"
                       />
                       <span>{{ p.label }}</span>
                     </label>
@@ -443,6 +443,10 @@ export class UserEditComponent implements OnInit {
 
   isRoleSelected(name: string): boolean {
     return this.draft.roleNames.includes(name);
+  }
+
+  checkboxChecked(event: Event): boolean {
+    return (event.target as HTMLInputElement).checked;
   }
 
   toggleRole(name: string, checked: boolean): void {
