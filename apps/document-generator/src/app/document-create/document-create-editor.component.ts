@@ -3,6 +3,7 @@ import {
   DestroyRef,
   HostListener,
   inject,
+  isDevMode,
   OnInit,
   ViewChild,
   ElementRef,
@@ -1497,9 +1498,9 @@ export class DocumentCreateEditorComponent implements OnInit {
       this.documentForm.get('content')?.setValue(content);
     }
 
-    result.warnings.forEach((warning) => {
-      console.warn(warning);
-    });
+    if (result.warnings.length > 0 && isDevMode()) {
+      console.warn('importDocument:', result.warnings);
+    }
 
     this.fileInput.nativeElement.value = '';
   }

@@ -202,7 +202,9 @@ interface DocumentType {
             <div
               (click)="selectDocumentType(type)"
               (keydown.enter)="selectDocumentType(type)"
-              (keydown.space)="selectDocumentType(type)"
+              (keydown.space)="
+                $event.preventDefault(); selectDocumentType(type)
+              "
               tabindex="0"
               role="button"
               class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"

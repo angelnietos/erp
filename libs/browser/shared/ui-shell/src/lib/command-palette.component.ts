@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { UiSearchComponent } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, MasterFilterService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  MasterFilterService,
+  MasterFilterResultItem,
+} from '@josanz-erp/shared-data-access';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 
 export interface CommandItem {
@@ -16,38 +20,28 @@ export interface CommandItem {
   action?: () => void;
 }
 
-/** Shape of items returned by `MasterFilterService.results` (dynamic per module). */
-function contextHitId(item: unknown): string {
-  if (item && typeof item === 'object' && 'id' in item) {
-    const v = (item as { id: unknown }).id;
-    return v != null ? String(v) : '';
-  }
-  return '';
+/** Labels for items from `MasterFilterService.results` (per-module entities). */
+function contextHitId(item: MasterFilterResultItem): string {
+  const v = item.id;
+  return v != null ? String(v) : '';
 }
 
-function contextHitLabel(item: unknown): string {
-  if (!item || typeof item !== 'object') {
-    return 'Resultado';
-  }
-  const o = item as Record<string, unknown>;
-  if (typeof o['name'] === 'string' && o['name'].trim()) {
-    return o['name'];
-  }
-  if (typeof o['label'] === 'string' && o['label'].trim()) {
-    return o['label'];
-  }
+function contextHitLabel(item: MasterFilterResultItem): string {
+  const name = item.name?.trim();
+  if (name) return name;
+  const label = item.label?.trim();
+  if (label) return label;
   return 'Resultado';
 }
 
-function contextHitDescription(item: unknown): string {
-  if (!item || typeof item !== 'object') {
-    return 'Ver detalle en el módulo actual';
-  }
-  const o = item as Record<string, unknown>;
-  if (typeof o['description'] === 'string' && o['description'].trim()) {
-    return o['description'];
-  }
-  return 'Ver detalle en el módulo actual';
+function contextHitDescription(item: MasterFilterResultItem): string {
+  const d = item.description?.trim();
+  return d || 'Ver detalle en el módulo actual';
+}
+
+function contextTrackKey(item: MasterFilterResultItem, index: number): string {
+  const id = contextHitId(item);
+  return id ? `ctx-${id}` : `ctx-idx-${index}`;
 }
 
 @Component({
@@ -83,7 +77,7 @@ function contextHitDescription(item: unknown): string {
             @if (contextResults().length > 0) {
                <div class="category-group">
                  <div class="category-label">En este módulo</div>
-                 @for (item of contextResults(); track $any(item).id) {
+                 @for (item of contextResults(); track contextTrackKey(item, $index)) {
                     <div 
                       class="command-item context-hit" 
                       role="button"
@@ -91,14 +85,14 @@ function contextHitDescription(item: unknown): string {
                       (click)="executeContextItem(item)"
                       (keydown.enter)="executeContextItem(item)"
                       (keydown.space)="$event.preventDefault(); executeContextItem(item)"
-                      [class.active]="selectedId() === 'ctx-' + $any(item).id"
+                      [class.active]="selectedId() === contextTrackKey(item, $index)"
                     >
                       <div class="item-icon ctx">
-                        <lucide-icon name="arrow-right-circle" size="18"></lucide-icon>
+                        <lucide-icon name="arrow-right-circle" size="18" aria-hidden="true"></lucide-icon>
                       </div>
                       <div class="item-info">
-                        <span class="label">{{ $any(item).name || $any(item).label || 'Resultado' }}</span>
-                        <span class="desc">{{ $any(item).description || 'Ver detalle en el módulo actual' }}</span>
+                        <span class="label">{{ contextHitLabel(item) }}</span>
+                        <span class="desc">{{ contextHitDescription(item) }}</span>
                       </div>
                     </div>
                  }
@@ -249,10 +243,11 @@ function contextHitDescription(item: unknown): string {
   `]
 })
 export class CommandPaletteComponent {
-  /** Exposed for template — narrow `unknown` context hits without `$any`. */
+  /** Exposed for template — typed context rows from `MasterFilterService`. */
   readonly contextHitId = contextHitId;
   readonly contextHitLabel = contextHitLabel;
   readonly contextHitDescription = contextHitDescription;
+  readonly contextTrackKey = contextTrackKey;
 
   closePalette = output<void>();
   private router = inject(Router);
@@ -320,7 +315,7 @@ export class CommandPaletteComponent {
     }
   }
 
-  executeContextItem(item: unknown) {
+  executeContextItem(item: MasterFilterResultItem) {
     void item;
     // Si tiene ruta específica en el objeto de negocio, la usamos, sino lógica dummy para el demo
     this.closePalette.emit();

@@ -1,5 +1,8 @@
 import { Injectable, signal } from '@angular/core';
-import { FilterableService } from '../tokens/filter.tokens';
+import {
+  FilterableService,
+  MasterFilterResultItem,
+} from '../tokens/filter.tokens';
 import { of, Subject } from 'rxjs';
 import {
   debounceTime,
@@ -17,12 +20,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
  */
 @Injectable({ providedIn: 'root' })
 export class MasterFilterService {
-  private activeProvider = signal<FilterableService<unknown> | null>(null);
+  private activeProvider = signal<FilterableService<MasterFilterResultItem> | null>(
+    null,
+  );
 
   private readonly querySubject = new Subject<string>();
 
   // Señales reactivas para el estado UI
-  readonly results = signal<unknown[]>([]);
+  readonly results = signal<MasterFilterResultItem[]>([]);
   readonly loading = signal<boolean>(false);
   readonly query = signal<string>('');
 
@@ -41,7 +46,7 @@ export class MasterFilterService {
         }),
         switchMap((q) => {
           const provider = this.activeProvider();
-          if (!provider || !q.trim()) return of([]);
+          if (!provider || !q.trim()) return of([] as MasterFilterResultItem[]);
           return provider
             .filter(q)
             .pipe(finalize(() => this.loading.set(false)));
@@ -56,7 +61,7 @@ export class MasterFilterService {
   /**
    * Registra el proveedor de filtrado para el contexto actual.
    */
-  registerProvider(provider: FilterableService<unknown>) {
+  registerProvider(provider: FilterableService<MasterFilterResultItem>) {
     this.activeProvider.set(provider);
   }
 
