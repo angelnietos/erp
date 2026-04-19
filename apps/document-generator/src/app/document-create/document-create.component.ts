@@ -191,6 +191,10 @@ interface DocumentType {
           <p class="text-secondary">
             Elige el tipo que mejor se adapte a tus necesidades
           </p>
+          <p class="text-xs text-muted mt-2 max-w-2xl mx-auto">
+            En el editor tendrás la burbuja de ayuda (esquina): mismo chat e IA
+            que en el resto del generador.
+          </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -334,11 +338,6 @@ interface DocumentType {
                     🎨 Diagramas Mermaid
                   </span>
                 }
-                <span
-                  class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700"
-                >
-                  🤖 Asistente IA
-                </span>
               </div>
             </div>
           }

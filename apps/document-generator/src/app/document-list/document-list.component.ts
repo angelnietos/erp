@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { AssistantContextService } from '../services/assistant-context.service';
+import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface DocumentListItem {
   id: string;
@@ -93,25 +96,6 @@ export interface DocumentListItem {
                 />
               </svg>
               Motor IA
-            </a>
-            <a
-              routerLink="/documents/bot"
-              class="inline-flex items-center px-4 py-2 border border-soft rounded-xl text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
-            >
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
-                />
-              </svg>
-              Asistente IA
             </a>
             <a
               routerLink="/documents/create"
@@ -315,12 +299,13 @@ export interface DocumentListItem {
                   >Configurar motor de IA</a
                 >
                 <span class="text-muted hidden sm:inline">·</span>
-                <a
-                  routerLink="/documents/bot"
-                  class="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center"
+                <button
+                  type="button"
+                  (click)="openFloatingHelp()"
+                  class="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center bg-transparent border-none cursor-pointer p-0"
                 >
-                  Chat asistente
-                </a>
+                  Abrir burbuja de ayuda
+                </button>
               </div>
             </div>
           </div>
@@ -331,6 +316,27 @@ export interface DocumentListItem {
 })
 export class DocumentListComponent implements OnInit {
   documents: DocumentListItem[] = [];
+  private readonly router = inject(Router);
+  private readonly assistantCtx = inject(AssistantContextService);
+
+  openFloatingHelp(): void {
+    this.assistantCtx.openAssistant();
+  }
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        filter((e) => {
+          const path = e.urlAfterRedirects.split('?')[0];
+          return path === '/documents/list' || path.endsWith('/documents/list');
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        this.documents = this.loadFromLocalStorage();
+      });
+  }
 
   ngOnInit(): void {
     this.documents = this.loadFromLocalStorage();

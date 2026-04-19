@@ -737,8 +737,9 @@ interface DocumentType {
                     <div
                       class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:justify-end lg:min-w-[min(100%,20rem)]"
                     >
-                      <a
-                        routerLink="/documents/bot"
+                      <button
+                        type="button"
+                        (click)="openFloatingAssistant()"
                         class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
                       >
                         <svg
@@ -754,8 +755,8 @@ interface DocumentType {
                             d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
                           />
                         </svg>
-                        Consultar Asistente
-                      </a>
+                        Abrir ayuda flotante
+                      </button>
                       <a
                         routerLink="/documents/analysis"
                         class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
@@ -955,6 +956,10 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   goBack() {
     void this.router.navigate(['/documents/create']);
+  }
+
+  openFloatingAssistant(): void {
+    this.assistantService.openAssistant();
   }
 
   private getAiContext(): DocumentAiContext {

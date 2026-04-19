@@ -14,6 +14,13 @@ import {
   AssistantPetConfig,
 } from '../services/assistant-context.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { escapeHtml } from '../utils/html-escape';
+
+declare const marked: {
+  parse: (content: string, options?: object) => string;
+  setOptions?: (options: object) => void;
+};
 
 @Component({
   selector: 'app-floating-assistant',
@@ -54,8 +61,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
       .assistant-window {
         position: fixed;
-        width: 400px;
-        height: 580px;
+        min-width: 320px;
+        min-height: 360px;
         background: white;
         border-radius: 20px;
         box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
@@ -63,15 +70,40 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition:
-          height 0.2s ease,
-          width 0.2s ease;
+        max-width: calc(100vw - 8px);
+        max-height: calc(100vh - 8px);
       }
 
       .assistant-window.minimized {
-        height: 56px;
-        width: 280px;
+        height: 56px !important;
+        width: 280px !important;
+        min-height: 0;
+        min-width: 0;
         overflow: hidden;
+      }
+
+      .resize-handle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 18px;
+        height: 18px;
+        cursor: nwse-resize;
+        z-index: 2;
+        background: linear-gradient(
+          135deg,
+          transparent 50%,
+          rgba(100, 116, 139, 0.35) 50%
+        );
+        border-bottom-right-radius: 18px;
+      }
+
+      .resize-handle:hover {
+        background: linear-gradient(
+          135deg,
+          transparent 45%,
+          rgba(37, 99, 235, 0.45) 45%
+        );
       }
 
       .window-header {
@@ -131,8 +163,38 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         border: 1px solid #e2e8f0;
         border-bottom-left-radius: 4px;
         color: #0f172a;
-        white-space: pre-wrap;
         word-break: break-word;
+      }
+
+      .assistant-bubble-md {
+        white-space: normal;
+        line-height: 1.45;
+      }
+
+      .assistant-bubble-md.markdown-preview {
+        font-size: 13px;
+      }
+
+      .assistant-bubble-md.markdown-preview pre {
+        max-width: 100%;
+        overflow-x: auto;
+        font-size: 11px;
+        padding: 8px;
+        border-radius: 8px;
+      }
+
+      .assistant-bubble-md.markdown-preview p:first-child {
+        margin-top: 0;
+      }
+
+      .user-bubble-md {
+        white-space: normal;
+        line-height: 1.45;
+      }
+
+      .user-bubble-md a {
+        color: #dbeafe;
+        text-decoration: underline;
       }
 
       .message.system {
@@ -478,7 +540,23 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
                     >[{{ msg.context }}]</span
                   >
                 }
-                {{ msg.content }}
+                @switch (msg.type) {
+                  @case ('assistant') {
+                    <div
+                      class="assistant-bubble-md markdown-preview"
+                      [innerHTML]="assistantBubbleHtml(msg.content)"
+                    ></div>
+                  }
+                  @case ('user') {
+                    <div
+                      class="user-bubble-md"
+                      [innerHTML]="userBubbleHtml(msg.content)"
+                    ></div>
+                  }
+                  @default {
+                    <span class="block whitespace-pre-wrap">{{ msg.content }}</span>
+                  }
+                }
               </div>
             }
             @if (isAiReplyLoading) {
@@ -550,6 +628,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 export class FloatingAssistantComponent implements OnInit {
   readonly assistantService = inject(AssistantContextService);
   private readonly inference = inject(AIInferenceService);
+  private readonly sanitizer = inject(DomSanitizer);
   readonly messageInput = new FormControl('');
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
@@ -688,6 +767,30 @@ export class FloatingAssistantComponent implements OnInit {
     value: AssistantPetConfig[K],
   ): void {
     this.assistantService.updatePetConfig({ [key]: value });
+  }
+
+  /** Markdown + HTML seguro para burbujas del asistente (marked en index.html). */
+  assistantBubbleHtml(content: string): SafeHtml {
+    const raw = content ?? '';
+    const mdOpts = { gfm: true, breaks: true };
+    try {
+      marked.setOptions?.(mdOpts);
+      const html =
+        typeof marked.parse === 'function'
+          ? marked.parse(raw, mdOpts)
+          : escapeHtml(raw);
+      return this.sanitizer.bypassSecurityTrustHtml(html);
+    } catch {
+      return this.sanitizer.bypassSecurityTrustHtml(
+        escapeHtml(raw).replace(/\n/g, '<br>'),
+      );
+    }
+  }
+
+  /** Texto de usuario: escapado + saltos de línea. */
+  userBubbleHtml(content: string): SafeHtml {
+    const esc = escapeHtml(content ?? '');
+    return this.sanitizer.bypassSecurityTrustHtml(esc.replace(/\n/g, '<br>'));
   }
 
   getPetFace(): string {

@@ -66,10 +66,10 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
                   Generador de Documentos
                 </h1>
                 <p
-                  class="text-xs font-medium"
+                  class="text-xs font-medium max-w-md"
                   style="color: var(--text-secondary)"
                 >
-                  Crea documentos profesionales con IA
+                  IA en el editor y en la burbuja de ayuda (esquina)
                 </p>
               </div>
             </div>
@@ -118,15 +118,6 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
                   />
                 </svg>
                 <span>Crear Nuevo</span>
-              </a>
-              <a
-                routerLink="/documents/bot"
-                routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
-                style="color: var(--text-primary)"
-              >
-                <lucide-angular name="bot" class="w-4 h-4"></lucide-angular>
-                <span>Asistente</span>
               </a>
               <a
                 routerLink="/documents/analysis"

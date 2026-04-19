@@ -31,6 +31,15 @@ export interface AssistantMessage {
 
 export type MessageType = 'user' | 'assistant' | 'system';
 
+/** Tamaño del panel flotante del chat (persistido). */
+export interface AssistantPanelSize {
+  width: number;
+  height: number;
+}
+
+const DEFAULT_PANEL: AssistantPanelSize = { width: 400, height: 580 };
+const PANEL_STORAGE_KEY = 'assistant-panel-size';
+
 @Injectable({ providedIn: 'root' })
 export class AssistantContextService {
   private readonly context = signal<AssistantContext>({
@@ -56,6 +65,8 @@ export class AssistantContextService {
   private readonly isDragging = signal(false);
   private readonly position = signal({ x: 20, y: 100 });
 
+  private readonly panelSize = signal<AssistantPanelSize>({ ...DEFAULT_PANEL });
+
   private readonly petConfig = signal<AssistantPetConfig>({
     name: 'Kilo',
     skin: 'default',
@@ -74,6 +85,7 @@ export class AssistantContextService {
   readonly messages$ = this.messages.asReadonly();
   readonly isOpen$ = this.isOpen.asReadonly();
   readonly position$ = this.position.asReadonly();
+  readonly panelSize$ = this.panelSize.asReadonly();
 
   updateContext(partial: Partial<AssistantContext>): void {
     this.context.update((current) => ({ ...current, ...partial }));
@@ -103,8 +115,70 @@ export class AssistantContextService {
     this.isOpen.update((v) => !v);
   }
 
+  /** Abre el panel del asistente flotante (sin alternar). */
+  openAssistant(): void {
+    this.isOpen.set(true);
+  }
+
   setPosition(x: number, y: number): void {
     this.position.set({ x, y });
+  }
+
+  /** Límites razonables para el panel (px). */
+  clampPanelSize(width: number, height: number): AssistantPanelSize {
+    const minW = 320;
+    const minH = 360;
+    const maxW = Math.max(minW, window.innerWidth - 16);
+    const maxH = Math.max(minH, window.innerHeight - 16);
+    return {
+      width: Math.round(Math.min(maxW, Math.max(minW, width))),
+      height: Math.round(Math.min(maxH, Math.max(minH, height))),
+    };
+  }
+
+  setPanelSize(width: number, height: number): void {
+    const next = this.clampPanelSize(width, height);
+    this.panelSize.set(next);
+    try {
+      localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** Ventana grande centrada en el viewport (sin salirse). */
+  maximizePanel(): void {
+    const margin = 16;
+    const w = window.innerWidth - margin * 2;
+    const h = window.innerHeight - margin * 2;
+    const next = this.clampPanelSize(w, h);
+    this.panelSize.set(next);
+    this.position.set({ x: margin, y: margin });
+    try {
+      localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  resetPanelSize(): void {
+    this.setPanelSize(DEFAULT_PANEL.width, DEFAULT_PANEL.height);
+  }
+
+  loadPanelSize(): void {
+    try {
+      const raw = localStorage.getItem(PANEL_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<AssistantPanelSize>;
+      if (
+        typeof parsed.width === 'number' &&
+        typeof parsed.height === 'number'
+      ) {
+        this.panelSize.set(this.clampPanelSize(parsed.width, parsed.height));
+      }
+    } catch {
+      /* defaults */
+    }
   }
 
   addMessage(content: string, type: MessageType): void {
@@ -156,5 +230,6 @@ Contexto actual:
         // Config por defecto
       }
     }
+    this.loadPanelSize();
   }
 }
