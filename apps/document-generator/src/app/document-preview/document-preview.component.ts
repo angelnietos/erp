@@ -17,6 +17,33 @@ declare const marked: {
   setOptions?: (options: object) => void;
 };
 
+/** Payload persistido o en state de navegación (campos variables por tipo). */
+interface DocumentPreviewPayload {
+  id?: string;
+  type?: string;
+  title?: string;
+  client?: string;
+  date?: string | Date;
+  content?: unknown;
+  architectureDiagram?: string;
+  dataFlow?: string;
+  projectName?: string;
+  totalAmount?: number | string;
+  description?: string;
+  executiveSummary?: string;
+  objectives?: string;
+  scope?: string;
+  deliverables?: string;
+  timeline?: string;
+  pricing?: string;
+  terms?: string;
+  systemOverview?: string;
+  components?: string;
+  technologies?: string;
+  apis?: string;
+  deployment?: string;
+}
+
 @Component({
   selector: 'app-document-preview',
   standalone: true,
@@ -429,7 +456,7 @@ declare const marked: {
   `,
 })
 export class DocumentPreviewComponent implements OnInit, AfterViewInit {
-  document: any = null;
+  document: DocumentPreviewPayload | null = null;
   @ViewChild('diagramsContainer', { static: false })
   diagramsContainer!: ElementRef;
 
@@ -556,8 +583,8 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getTypeLabel(type: string): string {
-    switch (type) {
+  getTypeLabel(type: string | undefined): string {
+    switch (type ?? '') {
       case 'quote':
         return 'Presupuesto';
       case 'proposal':
@@ -567,12 +594,12 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
       case 'architecture':
         return 'Arquitectura';
       default:
-        return type;
+        return type ?? '';
     }
   }
 
-  getTypeBadgeClass(type: string): string {
-    switch (type) {
+  getTypeBadgeClass(type: string | undefined): string {
+    switch (type ?? '') {
       case 'quote':
         return 'bg-blue-100 text-blue-800';
       case 'proposal':
@@ -587,9 +614,10 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   }
 
   downloadDocument() {
-    // Navigate to preview-download screen
-    this.router.navigate(['/documents/preview-download', this.document.id], {
-      state: { document: this.document },
+    const d = this.document;
+    if (!d?.id) return;
+    void this.router.navigate(['/documents/preview-download', d.id], {
+      state: { document: d },
     });
   }
 

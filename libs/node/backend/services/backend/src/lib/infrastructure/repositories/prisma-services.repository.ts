@@ -13,6 +13,21 @@ export class PrismaServicesRepository implements ServicesRepositoryPort {
   ) {}
 
   private toEntity(row: any): Service {
+    /** `Product` no persiste `created_at` / `updated_at` en Prisma; sin fallback `GET /api/services` hace 500 al llamar `.toISOString()`. */
+    const createdAt =
+      row.createdAt instanceof Date
+        ? row.createdAt
+        : typeof row.createdAt === 'string'
+          ? new Date(row.createdAt)
+          : new Date();
+    const updatedAtRaw = row.updatedAt;
+    const updatedAt =
+      updatedAtRaw instanceof Date
+        ? updatedAtRaw
+        : typeof updatedAtRaw === 'string'
+          ? new Date(updatedAtRaw)
+          : undefined;
+
     return Service.reconstitute(row.id, {
       tenantId: new EntityId(row.tenantId),
       name: row.name,
@@ -22,8 +37,8 @@ export class PrismaServicesRepository implements ServicesRepositoryPort {
       hourlyRate: row.dailyRate || 0,
       configuration: {}, // Product doesn't have configuration JSON yet, but we use defaults
       isActive: true, // Product doesn't have isActive yet, but conceptually it is
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt || undefined,
+      createdAt,
+      updatedAt,
     });
   }
 

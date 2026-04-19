@@ -22,21 +22,29 @@ export interface DocumentExportOptions {
   quality?: 'low' | 'medium' | 'high';
 }
 
+export interface ExportBlock {
+  type: string;
+  content: string;
+}
+
 export interface ImportResult {
   success: boolean;
-  blocks: { type: string; content: string }[];
-  metadata: Record<string, any>;
+  blocks: ExportBlock[];
+  metadata: Record<string, unknown>;
   warnings: string[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class UniversalDocumentService {
-  async export(blocks: any[], options: DocumentExportOptions): Promise<Blob> {
+  async export(
+    blocks: ExportBlock[],
+    options: DocumentExportOptions,
+  ): Promise<Blob> {
     switch (options.format) {
       case DocumentFormat.PDF:
-        return this.exportToPDF(blocks, options);
+        return this.exportToPDF(blocks);
       case DocumentFormat.XLSX:
-        return this.exportToExcel(blocks, options);
+        return this.exportToExcel(blocks);
       case DocumentFormat.MARKDOWN:
         return this.exportToMarkdown(blocks);
       case DocumentFormat.HTML:
@@ -74,10 +82,7 @@ export class UniversalDocumentService {
     }
   }
 
-  private async exportToPDF(
-    blocks: any[],
-    options: DocumentExportOptions,
-  ): Promise<Blob> {
+  private async exportToPDF(blocks: ExportBlock[]): Promise<Blob> {
     const pdfDoc = await PDFDocument.create();
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
@@ -160,10 +165,7 @@ export class UniversalDocumentService {
     return new Blob([buffer], { type: 'application/pdf' });
   }
 
-  private async exportToExcel(
-    blocks: any[],
-    options: DocumentExportOptions,
-  ): Promise<Blob> {
+  private async exportToExcel(blocks: ExportBlock[]): Promise<Blob> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Documento');
 
@@ -185,7 +187,7 @@ export class UniversalDocumentService {
     });
   }
 
-  private async exportToMarkdown(blocks: any[]): Promise<Blob> {
+  private async exportToMarkdown(blocks: ExportBlock[]): Promise<Blob> {
     let markdown = '';
 
     blocks.forEach((block) => {
@@ -210,7 +212,7 @@ export class UniversalDocumentService {
     return new Blob([markdown], { type: 'text/markdown' });
   }
 
-  private async exportToHTML(blocks: any[]): Promise<Blob> {
+  private async exportToHTML(blocks: ExportBlock[]): Promise<Blob> {
     let html =
       '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Documento</title></head><body style="max-width: 800px; margin: 0 auto; padding: 40px; font-family: system-ui, sans-serif;">\n';
 
@@ -235,7 +237,7 @@ export class UniversalDocumentService {
     return new Blob([html], { type: 'text/html' });
   }
 
-  private async exportToPlainText(blocks: any[]): Promise<Blob> {
+  private async exportToPlainText(blocks: ExportBlock[]): Promise<Blob> {
     const text = blocks.map((b) => b.content).join('\n\n');
     return new Blob([text], { type: 'text/plain' });
   }

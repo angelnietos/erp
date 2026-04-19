@@ -480,8 +480,9 @@ export class DocumentCreateComponent implements OnInit {
   }
 
   editorQueryParams(templateId: string): { type: string; template: string } {
+    const t = this.selectedType;
     return {
-      type: this.selectedType!.id,
+      type: t?.id ?? '',
       template: templateId,
     };
   }

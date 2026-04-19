@@ -1067,9 +1067,10 @@ export class DocumentCreateEditorComponent implements OnInit {
       : null;
     const clientId = this.documentForm.get('clientId')?.value;
     const client = this.clients.find((c) => c.id === clientId);
+    const st = this.selectedType;
     return {
-      documentTypeId: this.selectedType!.id,
-      documentTypeLabel: this.selectedType!.name,
+      documentTypeId: st?.id ?? '',
+      documentTypeLabel: st?.name ?? '',
       title: this.documentForm.get('title')?.value ?? undefined,
       clientName: client?.name,
       templateName: tpl?.name,
