@@ -1,0 +1,13 @@
+{
+  "name": "budget-data-access",
+  "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/data-access/budget/data-access/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:budget", "type:data-access"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

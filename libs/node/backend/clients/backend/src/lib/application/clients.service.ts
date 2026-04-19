@@ -4,7 +4,45 @@ import {
   PrismaService,
 } from '@josanz-erp/shared-infrastructure';
 
-type ClientData = Record<string, unknown>;
+/** HTTP body for create/update — fields are optional and coerced in handlers */
+interface ClientWriteBody {
+  name?: string;
+  company?: string;
+  taxId?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  zipCode?: string;
+  country?: string;
+  description?: string;
+  sector?: string;
+  type?: string;
+}
+
+/** Prisma row shape used by mapToDto (includes optional relations) */
+interface ClientEntityPayload {
+  id: string;
+  name: string;
+  taxId?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  city?: string | null;
+  zipCode?: string | null;
+  country?: string | null;
+  description?: string | null;
+  sector?: string | null;
+  type?: string | null;
+  contacts?: unknown;
+  eventReports?: unknown;
+  budgets?: unknown;
+  projects?: unknown;
+  rentals?: unknown;
+  deletedAt?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 @Injectable()
 export class ClientsService {
@@ -71,7 +109,7 @@ export class ClientsService {
     return this.mapToDto(client);
   }
 
-  async create(tenantId: string, data: any, actorUserId: string) {
+  async create(tenantId: string, data: ClientWriteBody, actorUserId: string) {
     const client = await this.prisma.client.create({
       data: {
         tenantId,
@@ -85,7 +123,7 @@ export class ClientsService {
         country: data.country || 'ES',
         description: data.description,
         sector: data.sector || data.type || 'corporate',
-        type: data.type || 'COMPANY'
+        type: data.type || 'COMPANY',
       },
       include: {
         contacts: true
@@ -103,7 +141,7 @@ export class ClientsService {
     return this.mapToDto(client);
   }
 
-  async update(tenantId: string, id: string, data: any, actorUserId: string) {
+  async update(tenantId: string, id: string, data: ClientWriteBody, actorUserId: string) {
     const client = await this.prisma.client.update({
       where: { id },
       data: {
@@ -158,7 +196,7 @@ export class ClientsService {
     return { success: true };
   }
 
-  private mapToDto(client: any) {
+  private mapToDto(client: ClientEntityPayload) {
     return {
       id: client.id,
       name: client.name,

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 
 type ProductData = Record<string, unknown>;
@@ -80,7 +81,7 @@ export class InventoryService {
   }
 
   async delete(_tenantId: string, id: string) {
-    await this.db.$transaction(async (tx: any) => {
+    await this.db.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.inventory.deleteMany({ where: { productId: id } });
       await tx.product.delete({ where: { id } });
     });

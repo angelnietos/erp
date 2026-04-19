@@ -112,7 +112,8 @@ export class ProjectsFacade {
     });
   }
 
-  setTab(_tabId: string): void {
+  setTab(tabId: string): void {
+    void tabId;
     // Tab logic can be implemented if needed
   }
 }

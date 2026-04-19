@@ -48,6 +48,12 @@ export interface AssistantPanelSize {
 
 const DEFAULT_PANEL: AssistantPanelSize = { width: 400, height: 580 };
 const PANEL_STORAGE_KEY = 'assistant-panel-size';
+/** Clave localStorage para la mascota / opciones del asistente flotante. */
+export const ASSISTANT_PET_CONFIG_STORAGE_KEY = 'assistant-pet-config';
+
+/** Mensaje inicial del chat (mismo texto al resetear a bienvenida). */
+export const ASSISTANT_DEFAULT_WELCOME =
+  '¡Hola! Soy tu asistente inteligente. Estoy observando todo lo que haces en todas las pestañas. ¿Necesitas ayuda?';
 
 @Injectable({ providedIn: 'root' })
 export class AssistantContextService {
@@ -64,8 +70,7 @@ export class AssistantContextService {
     {
       id: '1',
       type: 'assistant',
-      content:
-        '¡Hola! Soy tu asistente inteligente. Estoy observando todo lo que haces en todas las pestañas. ¿Necesitas ayuda?',
+      content: ASSISTANT_DEFAULT_WELCOME,
       timestamp: new Date(),
     },
   ]);
@@ -251,8 +256,7 @@ Contexto actual:
       {
         id: 'welcome-' + Date.now(),
         type: 'assistant',
-        content:
-          '¡Hola! Soy tu asistente inteligente. Estoy observando todo lo que haces en todas las pestañas. ¿Necesitas ayuda?',
+        content: ASSISTANT_DEFAULT_WELCOME,
         timestamp: new Date(),
       },
     ]);
@@ -260,19 +264,29 @@ Contexto actual:
 
   updatePetConfig(partial: Partial<AssistantPetConfig>): void {
     this.petConfig.update((current) => ({ ...current, ...partial }));
-    localStorage.setItem(
-      'assistant-pet-config',
-      JSON.stringify(this.petConfig()),
-    );
+    try {
+      localStorage.setItem(
+        ASSISTANT_PET_CONFIG_STORAGE_KEY,
+        JSON.stringify(this.petConfig()),
+      );
+    } catch {
+      /* quota / modo privado: la sesión sigue con el estado en memoria */
+    }
   }
 
   loadSavedConfig(): void {
-    const saved = localStorage.getItem('assistant-pet-config');
+    const saved = localStorage.getItem(ASSISTANT_PET_CONFIG_STORAGE_KEY);
     if (saved) {
       try {
-        this.petConfig.set(JSON.parse(saved));
+        const parsed: unknown = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          this.petConfig.update((current) => ({
+            ...current,
+            ...(parsed as Partial<AssistantPetConfig>),
+          }));
+        }
       } catch {
-        // Config por defecto
+        /* JSON inválido: se mantienen valores por defecto */
       }
     }
     this.loadPanelSize();

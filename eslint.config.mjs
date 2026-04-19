@@ -10,6 +10,7 @@ export const nxModuleBoundariesSharedOptions = {
               onlyDependOnLibsWithTags: [
                 'type:core',
                 'type:model',
+                'type:api',
                 'type:utils',
                 'type:events',
                 'type:config',
@@ -137,6 +138,16 @@ export default [
       /**
        * UI shell is buildable but only depends on Angular + lucide (npm). Some editors resolve
        * ESLint from the workspace root and still surface a stale/false buildable→non-buildable hit on this lib.
+       */
+      '@nx/enforce-module-boundaries': nxModuleBoundariesRule(false),
+    },
+  },
+  {
+    files: ['libs/node/backend/billing/backend/**/*.ts'],
+    rules: {
+      /**
+       * Billing backend is buildable (rollup) and imports Verifactu adapter wiring from a lint-only lib
+       * without its own build target; relax buildable→non-buildable enforcement here.
        */
       '@nx/enforce-module-boundaries': nxModuleBoundariesRule(false),
     },

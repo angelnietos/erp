@@ -1,6 +1,9 @@
-import { Component, inject, HostListener, effect } from '@angular/core';
+import { Component, inject, HostListener, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IntelligentAssistantService } from '../services/intelligent-assistant.service';
+import {
+  AssistantSuggestion,
+  IntelligentAssistantService,
+} from '../services/intelligent-assistant.service';
 import { BlockEngineService } from '../services/block-engine.service';
 
 @Component({
@@ -185,6 +188,109 @@ import { BlockEngineService } from '../services/block-engine.service';
       .suggestion-badge {
         animation: breathe 3s ease-in-out infinite;
       }
+
+      .suggestions-panel {
+        position: fixed;
+        right: 24px;
+        bottom: 96px;
+        width: min(360px, calc(100vw - 48px));
+        max-height: min(420px, 50vh);
+        overflow: auto;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        border-radius: 16px;
+        box-shadow: 0 12px 48px rgba(15, 23, 42, 0.18);
+        padding: 0;
+        z-index: 8890;
+        pointer-events: auto;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+      }
+
+      .suggestions-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+        font-size: 14px;
+        color: #0f172a;
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .suggestions-panel-header button {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+        padding: 4px 8px;
+        color: #64748b;
+        border-radius: 8px;
+      }
+
+      .suggestions-panel-header button:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+
+      .suggestion-row {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .suggestion-row:last-child {
+        border-bottom: none;
+      }
+
+      .suggestion-row h4 {
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .suggestion-row p {
+        margin: 0 0 10px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #64748b;
+      }
+
+      .suggestion-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .suggestion-actions button {
+        font-size: 12px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .suggestion-actions .apply {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .suggestion-actions .apply:hover {
+        filter: brightness(1.05);
+      }
+
+      .suggestion-actions .discard {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .suggestion-actions .discard:hover {
+        background: #e2e8f0;
+      }
     `,
   ],
   template: `
@@ -214,10 +320,43 @@ import { BlockEngineService } from '../services/block-engine.service';
       <button
         type="button"
         class="suggestion-badge visible"
-        (click)="showSuggestions()"
+        (click)="$event.stopPropagation(); toggleSuggestionsPanel()"
       >
         💡 {{ assistant.suggestions().length }} sugerencias
       </button>
+    }
+
+    @if (suggestionsPanelOpen() && assistant.suggestions().length > 0 && !assistant.zenMode()) {
+      <div
+        class="suggestions-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Sugerencias del asistente"
+        tabindex="-1"
+        (click)="$event.stopPropagation()"
+        (keydown)="onSuggestionsPanelKeydown($event)"
+      >
+        <div class="suggestions-panel-header">
+          <span>Sugerencias</span>
+          <button type="button" (click)="closeSuggestionsPanel()" aria-label="Cerrar">
+            ×
+          </button>
+        </div>
+        @for (s of assistant.suggestions(); track s.id) {
+          <div class="suggestion-row">
+            <h4>{{ s.title }}</h4>
+            <p>{{ s.description }}</p>
+            <div class="suggestion-actions">
+              <button type="button" class="apply" (click)="applySuggestion(s)">
+                Aplicar
+              </button>
+              <button type="button" class="discard" (click)="discardSuggestion(s)">
+                Descartar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
     }
 
     <div
@@ -243,6 +382,8 @@ import { BlockEngineService } from '../services/block-engine.service';
 export class ZeroUiComponent {
   readonly assistant = inject(IntelligentAssistantService);
   readonly blockEngine = inject(BlockEngineService);
+
+  readonly suggestionsPanelOpen = signal(false);
 
   menuVisible = false;
   menuX = 0;
@@ -294,6 +435,12 @@ export class ZeroUiComponent {
         document.documentElement.style.cursor = 'auto';
       }
     });
+
+    effect(() => {
+      if (this.assistant.suggestions().length === 0) {
+        this.suggestionsPanelOpen.set(false);
+      }
+    });
   }
 
   @HostListener('document:contextmenu', ['$event'])
@@ -307,6 +454,7 @@ export class ZeroUiComponent {
   @HostListener('document:click')
   onDocumentClick(): void {
     this.menuVisible = false;
+    this.suggestionsPanelOpen.set(false);
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -327,8 +475,28 @@ export class ZeroUiComponent {
     this.assistant.toggle();
   }
 
-  showSuggestions(): void {
-    console.log('Sugerencias:', this.assistant.suggestions());
+  onSuggestionsPanelKeydown(event: KeyboardEvent): void {
+    event.stopPropagation();
+    if (event.key === 'Escape') {
+      this.closeSuggestionsPanel();
+    }
+  }
+
+  toggleSuggestionsPanel(): void {
+    this.suggestionsPanelOpen.update((open) => !open);
+  }
+
+  closeSuggestionsPanel(): void {
+    this.suggestionsPanelOpen.set(false);
+  }
+
+  applySuggestion(s: AssistantSuggestion): void {
+    s.apply();
+    this.closeSuggestionsPanel();
+  }
+
+  discardSuggestion(s: AssistantSuggestion): void {
+    s.discard();
   }
 
   executeAction(action: () => void): void {
