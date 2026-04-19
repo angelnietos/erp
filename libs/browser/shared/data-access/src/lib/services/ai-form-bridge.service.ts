@@ -41,13 +41,13 @@ export class AIFormBridgeService {
   /**
    * Directly fills the active form or data proxy with the provided data.
    */
-  fillActiveForm(data: Record<string, any>) {
+  fillActiveForm(data: Record<string, unknown>) {
     const form = this._activeForm();
     const proxy = this._activeDataProxy();
 
     if (form) {
       try {
-        form.patchValue(data);
+        form.patchValue(data as never);
         form.markAsDirty();
         form.updateValueAndValidity();
         console.log('✅ AI Form Bridge: Form filled (Reactive)', data);
@@ -73,7 +73,8 @@ export class AIFormBridgeService {
    * Returns the current values of the active form.
    * Useful for the AI to "inspect" what's already there.
    */
-  getFormValues(): Record<string, any> | null {
-    return this._activeForm()?.value || null;
+  getFormValues(): Record<string, unknown> | null {
+    const v = this._activeForm()?.value;
+    return v ? (v as Record<string, unknown>) : null;
   }
 }

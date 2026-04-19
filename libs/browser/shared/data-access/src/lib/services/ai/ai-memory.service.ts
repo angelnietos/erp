@@ -6,11 +6,16 @@ export class AIMemoryService {
   private readonly _globalMemories = signal<AIRangeMemory[]>([]);
   readonly globalMemories = this._globalMemories.asReadonly();
 
-  private readonly _botWorkspaces = signal<Record<string, {
-    memories: AIRangeMemory[];
-    lastTasks: any[];
-    contextFiles: any;
-  }>>({});
+  private readonly _botWorkspaces = signal<
+    Record<
+      string,
+      {
+        memories: AIRangeMemory[];
+        lastTasks: unknown[];
+        contextFiles: Record<string, unknown>;
+      }
+    >
+  >({});
   readonly botWorkspaces = this._botWorkspaces.asReadonly();
 
   remember(feature: string, text: string, importance = 5, isGlobal = false) {

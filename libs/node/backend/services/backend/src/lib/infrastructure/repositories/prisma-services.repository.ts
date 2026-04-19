@@ -1,19 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { ClsService } from 'nestjs-cls';
+import type { Prisma } from '@prisma/client';
 import { ServicesRepositoryPort, Service } from '@josanz-erp/services-core';
 import { ServiceType } from '@josanz-erp/services-api';
 import { EntityId } from '@josanz-erp/shared-model';
-import { TenantContext, PrismaService } from '@josanz-erp/shared-infrastructure';
+import { PrismaService } from '@josanz-erp/shared-infrastructure';
+
+/** Producto con categoría; fechas opcionales si el esquema añade columnas más adelante. */
+type ProductServiceRow = Prisma.ProductGetPayload<{
+  include: { categoryRef: true };
+}> & {
+  createdAt?: Date | string | null;
+  updatedAt?: Date | string | null;
+};
 
 @Injectable()
 export class PrismaServicesRepository implements ServicesRepositoryPort {
-  constructor(
-    private readonly cls: ClsService<TenantContext>,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  private toEntity(row: any): Service {
-    /** `Product` no persiste `created_at` / `updated_at` en Prisma; sin fallback `GET /api/services` hace 500 al llamar `.toISOString()`. */
+  /** Sin `categoryId` + categoría tipo SERVICE, el producto no entra en `GET /api/services`. */
+  private async ensureServiceCategoryId(tenantId: string): Promise<string> {
+    const existing = await this.prisma.category.findFirst({
+      where: { tenantId, type: 'SERVICE' },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (existing) {
+      return existing.id;
+    }
+    const created = await this.prisma.category.create({
+      data: {
+        tenantId,
+        name: 'Servicios',
+        type: 'SERVICE',
+        description: 'Categoría por defecto del catálogo de servicios',
+      },
+    });
+    return created.id;
+  }
+
+  private toEntity(row: ProductServiceRow): Service {
+    /** Si el modelo no expone `created_at`, usar fecha por defecto para no romper la serialización. */
     const createdAt =
       row.createdAt instanceof Date
         ? row.createdAt
@@ -71,16 +96,17 @@ export class PrismaServicesRepository implements ServicesRepositoryPort {
   }
 
   async save(service: Service): Promise<void> {
-    // Conceptually a service is a product in a category of type SERVICE.
-    // If saving a new service, we'd need to ensure it has a category.
-    // This is partial as Product model doesn't have configuration or isActive.
+    const tenantId = service.tenantId.value;
+    const categoryId = await this.ensureServiceCategoryId(tenantId);
     const data = {
-      tenantId: service.tenantId.value,
+      tenantId,
       name: service.name,
       description: service.description,
       type: service.type,
       price: service.basePrice,
       dailyRate: service.hourlyRate,
+      categoryId,
+      category: 'SERVICE',
     };
 
     await this.prisma.product.upsert({
@@ -89,9 +115,7 @@ export class PrismaServicesRepository implements ServicesRepositoryPort {
         id: service.id.value,
         ...data,
       },
-      update: {
-        ...data,
-      },
+      update: data,
     });
   }
 

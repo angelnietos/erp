@@ -562,9 +562,7 @@ declare const marked: {
                   max="2"
                   step="0.1"
                   [value]="assistantService.petConfig$().animationSpeed"
-                  (change)="
-                    updateConfig('animationSpeed', +$any($event.target).value)
-                  "
+                  (change)="onAnimationSpeedChange($event)"
                   class="w-28"
                 />
               </div>
@@ -610,7 +608,7 @@ declare const marked: {
                   type="color"
                   class="color-picker"
                   [value]="assistantService.petConfig$().color"
-                  (change)="updateConfig('color', $any($event.target).value)"
+                  (change)="onPetColorChange($event)"
                 />
               </div>
 
@@ -621,9 +619,7 @@ declare const marked: {
                 <select
                   id="pet-personality"
                   [value]="assistantService.petConfig$().personality"
-                  (change)="
-                    updateConfig('personality', $any($event.target).value)
-                  "
+                  (change)="onPetPersonalityChange($event)"
                   class="px-2 py-1 border border-slate-300 rounded text-sm"
                 >
                   <option value="friendly">😊 Amigable</option>
@@ -644,7 +640,7 @@ declare const marked: {
                   max="100"
                   step="5"
                   [value]="assistantService.petConfig$().opacity"
-                  (change)="updateConfig('opacity', +$any($event.target).value)"
+                  (change)="onPetOpacityChange($event)"
                   class="w-28"
                 />
               </div>
@@ -721,7 +717,7 @@ declare const marked: {
             class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light space-y-2"
           >
             <div class="flex flex-wrap gap-1">
-              @for (action of quickActionsPrimary; track $index) {
+              @for (action of quickActionsPrimary; track action) {
                 <button
                   type="button"
                   (click)="sendQuickAction(action)"
@@ -741,7 +737,7 @@ declare const marked: {
             </button>
             @if (showExtraQuick) {
               <div class="flex flex-wrap gap-1">
-                @for (action of quickActionsExtra; track $index) {
+                @for (action of quickActionsExtra; track action) {
                   <button
                     type="button"
                     (click)="sendQuickAction(action)"
@@ -815,6 +811,7 @@ declare const marked: {
           <button
             type="button"
             class="resize-handle"
+            tabindex="0"
             title="Arrastra para cambiar tamaño. Teclado: flechas; Mayús = paso mayor."
             aria-label="Redimensionar ventana del asistente"
             (mousedown)="startResize($event)"
@@ -842,6 +839,11 @@ export class FloatingAssistantComponent implements OnInit {
   isAiReplyLoading = false;
   private dragOffset = { x: 0, y: 0 };
   private resizeStart = { x: 0, y: 0, w: 0, h: 0 };
+
+  /** Paso en px al redimensionar el panel con teclado (flechas). */
+  private readonly resizeKeyStepPx = 16;
+  /** Paso mayor con Mayús pulsado. */
+  private readonly resizeKeyStepPxShift = 48;
 
   availableSkins = [
     { id: 'default', emoji: '🤖', bg: '#667eea' },
@@ -926,7 +928,9 @@ export class FloatingAssistantComponent implements OnInit {
   }
 
   onResizeKeydown(event: KeyboardEvent): void {
-    const step = event.shiftKey ? 48 : 16;
+    const step = event.shiftKey
+      ? this.resizeKeyStepPxShift
+      : this.resizeKeyStepPx;
     const s = this.assistantService.panelSize$();
     switch (event.key) {
       case 'ArrowRight':
@@ -1056,6 +1060,30 @@ export class FloatingAssistantComponent implements OnInit {
     value: AssistantPetConfig[K],
   ): void {
     this.assistantService.updatePetConfig({ [key]: value });
+  }
+
+  onAnimationSpeedChange(event: Event): void {
+    const v = Number((event.target as HTMLInputElement).value);
+    this.updateConfig('animationSpeed', v);
+  }
+
+  onPetColorChange(event: Event): void {
+    this.updateConfig('color', (event.target as HTMLInputElement).value);
+  }
+
+  onPetPersonalityChange(event: Event): void {
+    const v = (event.target as HTMLSelectElement).value;
+    this.updateConfig(
+      'personality',
+      v as AssistantPetConfig['personality'],
+    );
+  }
+
+  onPetOpacityChange(event: Event): void {
+    this.updateConfig(
+      'opacity',
+      Number((event.target as HTMLInputElement).value),
+    );
   }
 
   /** Markdown + HTML seguro para burbujas del asistente (marked en index.html). */

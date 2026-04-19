@@ -1210,7 +1210,9 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
     this.formHooksBound = true;
     this.documentForm.valueChanges.subscribe((values) => {
-      this.assistantService.setFormData(values);
+      this.assistantService.setFormData(
+        values as Record<string, unknown>,
+      );
       if (values.content) {
         this.assistantService.setDocumentContent(
           values.content,

@@ -1,4 +1,4 @@
-import { inject ,computed } from '@angular/core';
+import { computed } from '@angular/core';
 import { signalStore, withState, withMethods, patchState, withComputed } from '@ngrx/signals';
 // import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 

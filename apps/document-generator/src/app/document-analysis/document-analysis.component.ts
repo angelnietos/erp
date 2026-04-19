@@ -2,7 +2,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { AssistantContextService } from '../services/assistant-context.service';
+import {
+  AssistantContextService,
+  DocumentAnalysisCheckResult,
+} from '../services/assistant-context.service';
 import {
   DocumentPersistenceService,
   DocumentListItem,
@@ -18,12 +21,7 @@ interface AnalysisCheck {
   icon: string;
 }
 
-interface AnalysisResult {
-  checkId: string;
-  status: 'pass' | 'warning' | 'error' | 'pending';
-  message: string;
-  suggestions: string[];
-}
+type AnalysisResult = DocumentAnalysisCheckResult;
 
 @Component({
   selector: 'app-document-analysis',

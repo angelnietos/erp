@@ -46,7 +46,10 @@ export class AIPredictiveService {
     return result;
   }
 
-  private calculatePrediction(model: PredictiveModel, input: Record<string, unknown>): any {
+  private calculatePrediction(
+    model: PredictiveModel,
+    input: Record<string, unknown>,
+  ): number | string {
     switch (model.type) {
       case 'demand_forecast':
         return Math.round(((input['currentStock'] as number) || 100) * ((input['growthRate'] as number) || 1.1));

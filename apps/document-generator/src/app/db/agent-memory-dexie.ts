@@ -1,4 +1,3 @@
-/* eslint-disable @nx/enforce-module-boundaries -- paquete npm `dexie`, no un proyecto Nx */
 import Dexie, { type Table } from 'dexie';
 
 /** Perfil local del “usuario” del agente (este navegador). */

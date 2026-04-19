@@ -6,7 +6,8 @@ export default defineConfig({
   datasource: {
     url: process.env.DATABASE_URL,
   },
+  // Alineado con package.json: --project usa module commonjs y evita el aviso MODULE_TYPELESS_PACKAGE_JSON.
   migrations: {
-    seed: 'npx ts-node apps/backend/prisma/seed.ts',
+    seed: 'npx ts-node --project apps/backend/tsconfig.app.json apps/backend/prisma/seed.ts',
   },
 });

@@ -13,7 +13,10 @@ import {
 import { MasterFilterService } from '../services/master-filter.service';
 
 // Import New Refactored Services
-import { AIInferenceService } from '../services/ai/ai-inference.service';
+import {
+  AIInferenceService,
+  type AIProvider,
+} from '../services/ai/ai-inference.service';
 import { AIMemoryService } from '../services/ai/ai-memory.service';
 import { AIWorkflowService } from '../services/ai/ai-workflow.service';
 import { AIPredictiveService } from '../services/ai/ai-predictive.service';
@@ -576,7 +579,7 @@ export class AIBotStore {
       this.inference.selectedProvider.set('ollama');
       this.inference.ollamaConfig.update(c => ({ ...c, model: modelName }));
     } else {
-      this.inference.selectedProvider.set(modelId as any);
+      this.inference.selectedProvider.set(modelId as AIProvider);
     }
   }
 

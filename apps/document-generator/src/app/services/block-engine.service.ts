@@ -4,7 +4,7 @@ export interface Block {
   id: string;
   type: 'text' | 'heading' | 'list' | 'image' | 'table' | 'code' | 'quote';
   content: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   createdAt: number;
   updatedAt: number;
   version: number;
@@ -22,14 +22,34 @@ export interface DocumentState {
   historyIndex: number;
 }
 
-export interface HistoryEntry {
+type HistoryEntryBase = {
   id: string;
   timestamp: number;
-  type: 'create' | 'update' | 'delete' | 'move';
-  before: any;
-  after: any;
   description: string;
-}
+};
+
+/** Entrada de historial para deshacer/rehacer (forma según `type`). */
+export type HistoryEntry =
+  | (HistoryEntryBase & {
+      type: 'create';
+      before: null;
+      after: Block;
+    })
+  | (HistoryEntryBase & {
+      type: 'update';
+      before: Block;
+      after: Block;
+    })
+  | (HistoryEntryBase & {
+      type: 'delete';
+      before: Block;
+      after: null;
+    })
+  | (HistoryEntryBase & {
+      type: 'move';
+      before: { index: number };
+      after: { index: number };
+    });
 
 @Injectable({ providedIn: 'root' })
 export class BlockEngineService {
@@ -68,7 +88,12 @@ export class BlockEngineService {
       activeBlockId: block.id,
     }));
 
-    this.addHistoryEntry('create', null, block, `Crear bloque ${type}`);
+    this.addHistoryEntry({
+      type: 'create',
+      before: null,
+      after: block,
+      description: `Crear bloque ${type}`,
+    });
     return block;
   }
 
@@ -76,7 +101,7 @@ export class BlockEngineService {
     const before = this.state().blocks.find((b) => b.id === id);
     if (!before) return;
 
-    const after = {
+    const after: Block = {
       ...before,
       ...changes,
       updatedAt: Date.now(),
@@ -88,7 +113,12 @@ export class BlockEngineService {
       blocks: s.blocks.map((b) => (b.id === id ? after : b)),
     }));
 
-    this.addHistoryEntry('update', before, after, `Actualizar bloque`);
+    this.addHistoryEntry({
+      type: 'update',
+      before,
+      after,
+      description: `Actualizar bloque`,
+    });
   }
 
   deleteBlock(id: string): void {
@@ -101,7 +131,12 @@ export class BlockEngineService {
       activeBlockId: s.activeBlockId === id ? null : s.activeBlockId,
     }));
 
-    this.addHistoryEntry('delete', block, null, `Eliminar bloque`);
+    this.addHistoryEntry({
+      type: 'delete',
+      before: block,
+      after: null,
+      description: `Eliminar bloque`,
+    });
   }
 
   moveBlock(id: string, newIndex: number): void {
@@ -113,12 +148,12 @@ export class BlockEngineService {
     blocks.splice(newIndex, 0, block);
 
     this.state.update((s) => ({ ...s, blocks }));
-    this.addHistoryEntry(
-      'move',
-      { index: currentIndex },
-      { index: newIndex },
-      `Mover bloque`,
-    );
+    this.addHistoryEntry({
+      type: 'move',
+      before: { index: currentIndex },
+      after: { index: newIndex },
+      description: `Mover bloque`,
+    });
   }
 
   setActiveBlock(id: string | null): void {
@@ -190,20 +225,14 @@ export class BlockEngineService {
   }
 
   private addHistoryEntry(
-    type: HistoryEntry['type'],
-    before: any,
-    after: any,
-    description: string,
+    partial: Omit<HistoryEntry, 'id' | 'timestamp'>,
   ): void {
     this.state.update((s) => {
-      const entry: HistoryEntry = {
+      const entry = {
+        ...partial,
         id: crypto.randomUUID(),
         timestamp: Date.now(),
-        type,
-        before,
-        after,
-        description,
-      };
+      } as HistoryEntry;
 
       const history = s.history.slice(0, s.historyIndex + 1);
       history.push(entry);

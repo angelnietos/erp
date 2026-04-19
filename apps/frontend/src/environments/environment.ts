@@ -10,7 +10,6 @@ export const environment = {
   apiOrigin: 'http://localhost:3000',
   /** Opcional: si el verifactu-api exige VERIFACTU_REQUIRE_API_KEY, pegar aquí la clave del tenant. */
   verifactuApiKey: '',
-  // aiApiKey: 'xai-rtUJRQ0KKE96WunqD5eYq8odwaXVIdhv7Sd1eYWHzju3xP5nwYrJqOLEHhpW3oVBa43G9keJruQFtbcE',
   aiApiKey: '',
   googleApiKey: '',
 };

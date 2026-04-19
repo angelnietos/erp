@@ -12,12 +12,21 @@ export interface AssistantPetConfig {
   opacity: number;
 }
 
+/** Resultado de análisis de documento (p. ej. pestaña de análisis). */
+export interface DocumentAnalysisCheckResult {
+  checkId: string;
+  status: 'pass' | 'warning' | 'error' | 'pending';
+  message: string;
+  suggestions: string[];
+}
+
 export interface AssistantContext {
   activeTab: string;
   documentContent: string;
   documentType: string | null;
-  formData: Record<string, any>;
-  analysisResults: any[];
+  /** Valores del formulario de creación/edición (claves según el modelo). */
+  formData: Record<string, unknown>;
+  analysisResults: DocumentAnalysisCheckResult[];
   currentView: string;
 }
 
@@ -106,11 +115,11 @@ export class AssistantContextService {
     });
   }
 
-  setFormData(data: Record<string, any>): void {
+  setFormData(data: Record<string, unknown>): void {
     this.updateContext({ formData: data });
   }
 
-  setAnalysisResults(results: any[]): void {
+  setAnalysisResults(results: DocumentAnalysisCheckResult[]): void {
     this.updateContext({ analysisResults: results });
   }
 
