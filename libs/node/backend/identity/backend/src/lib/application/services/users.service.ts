@@ -175,7 +175,7 @@ export class UsersService {
     this.assertStringArrayField(dto.extraPermissions, 'extraPermissions');
     const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
-      throw new BadRequestException('Email already exists');
+      throw new BadRequestException('El correo ya está registrado');
     }
 
     const tenantRoles = await this.prisma.role.findMany({
@@ -218,7 +218,7 @@ export class UsersService {
     if (dto.email && dto.email !== user.email) {
       const existingUser = await this.userRepository.findByEmail(dto.email);
       if (existingUser) {
-        throw new BadRequestException('Email already exists');
+        throw new BadRequestException('El correo ya está registrado');
       }
     }
 

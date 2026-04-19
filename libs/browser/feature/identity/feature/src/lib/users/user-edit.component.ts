@@ -413,6 +413,11 @@ export class UserEditComponent implements OnInit {
       catalog: this.rolesApi.getPermissionsCatalog(),
     }).subscribe({
       next: ({ user, roles, catalog }) => {
+        if (!user) {
+          this.error.set('Usuario no encontrado.');
+          this.isLoading.set(false);
+          return;
+        }
         this.applyUser(user);
         this.tenantRoles.set(roles);
         this.permCatalog.set(catalog);

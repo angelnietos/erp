@@ -56,7 +56,9 @@ export class RolesService {
     const existing = await this.prisma.role.findFirst({
       where: { tenantId, name: data.name },
     });
-    if (existing) throw new ConflictException('A role with this name already exists for this company');
+    if (existing) {
+      throw new ConflictException('Ya existe un rol con este nombre en la empresa');
+    }
 
     const mods = await this.resolveTenantEnabledModules(tenantId);
     const permissions = filterPermissionsToEnabledModules(data.permissions, mods);
@@ -82,7 +84,9 @@ export class RolesService {
       const existing = await this.prisma.role.findFirst({
         where: { tenantId, name: data.name, id: { not: id } },
       });
-      if (existing) throw new ConflictException('A role with this name already exists');
+      if (existing) {
+        throw new ConflictException('Ya existe un rol con este nombre');
+      }
     }
 
     let nextData = { ...data };

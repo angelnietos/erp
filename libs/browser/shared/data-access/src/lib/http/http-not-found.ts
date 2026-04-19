@@ -1,5 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import {
+  Observable,
+  OperatorFunction,
+  of,
+  throwError,
+} from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 /** Mensaje legible desde cuerpo Nest o red. */
@@ -18,11 +23,11 @@ export function httpErrorMessage(err: HttpErrorResponse): string {
  * Tras GET de detalle: 404 / 400 → `undefined` (no encontrado o id inválido).
  * Otros errores se propagan como `Error` con mensaje del servidor.
  */
-export function catchHttpDetailNotFound<T>() {
+export function catchHttpDetailNotFound<T>(): OperatorFunction<T, T | undefined> {
   return catchError((err: HttpErrorResponse): Observable<T | undefined> => {
     if (err.status === 404 || err.status === 400) {
-      return of(undefined);
+      return of(undefined) as Observable<T | undefined>;
     }
     return throwError(() => new Error(httpErrorMessage(err)));
-  });
+  }) as OperatorFunction<T, T | undefined>;
 }

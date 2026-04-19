@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Role } from '../models/role.model';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 @Injectable({
   providedIn: 'root',
@@ -21,8 +22,10 @@ export class RolesService {
     );
   }
 
-  findById(id: string): Observable<Role> {
-    return this.http.get<Role>(`${this.apiUrl}/${id}`);
+  findById(id: string): Observable<Role | undefined> {
+    return this.http
+      .get<Role>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Role>());
   }
 
   create(role: Partial<Role>): Observable<Role> {

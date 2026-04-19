@@ -214,6 +214,12 @@ export class UserDetailComponent implements OnInit {
     this.isLoading.set(true);
     this.usersService.findById(id).subscribe({
       next: (u) => {
+        if (!u) {
+          this.error.set('Usuario no encontrado.');
+          this.user.set(null);
+          this.isLoading.set(false);
+          return;
+        }
         this.user.set(u);
         this.isLoading.set(false);
       },

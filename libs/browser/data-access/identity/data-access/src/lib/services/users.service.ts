@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CreateUserDto, UpdateUserDto, User } from '@josanz-erp/identity-api';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 /** Normaliza la respuesta del API (camelCase / snake_case, roles como string u objeto). */
 export function mapApiUserPayload(raw: unknown): User {
@@ -66,10 +67,13 @@ export class UsersService {
       .pipe(map((list) => list.map(mapApiUserPayload)));
   }
 
-  findById(id: string): Observable<User> {
+  findById(id: string): Observable<User | undefined> {
     return this.http
       .get<unknown>(`${this.apiUrl}/${id}`)
-      .pipe(map(mapApiUserPayload));
+      .pipe(
+        map(mapApiUserPayload),
+        catchHttpDetailNotFound<User>(),
+      );
   }
 
   create(dto: CreateUserDto): Observable<User> {
