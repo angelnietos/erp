@@ -15,6 +15,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     <button 
       [type]="type" 
       class="btn"
+      [attr.aria-busy]="loading ? true : null"
       [class.btn-sm]="size === 'sm'"
       [class.btn-md]="size === 'md'"
       [class.btn-lg]="size === 'lg'"

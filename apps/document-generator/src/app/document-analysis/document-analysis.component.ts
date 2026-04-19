@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -457,6 +463,10 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               </div>
 
               <div
+                #chatScroll
+                role="log"
+                aria-label="Conversación con el asistente de análisis"
+                aria-live="polite"
                 class="space-y-4 h-96 overflow-y-auto p-4 bg-slate-50 rounded-xl"
               >
                 @for (msg of chatMessages; track msg.id) {
@@ -544,6 +554,8 @@ type AnalysisResult = DocumentAnalysisCheckResult;
   `,
 })
 export class DocumentAnalysisComponent implements OnInit {
+  @ViewChild('chatScroll') private chatScroll?: ElementRef<HTMLElement>;
+
   activeTab = 'checks';
   isAnalyzing = false;
 
@@ -942,6 +954,7 @@ export class DocumentAnalysisComponent implements OnInit {
         content:
           'Primero carga un documento del historial o pega el texto del documento.',
       });
+      this.scheduleScrollChatToBottom();
       return;
     }
 
@@ -974,7 +987,20 @@ export class DocumentAnalysisComponent implements OnInit {
       });
     } finally {
       this.isChatSending = false;
+      this.scheduleScrollChatToBottom();
     }
+  }
+
+  /** Tras pintar mensajes nuevos, baja el scroll del chat al final. */
+  private scheduleScrollChatToBottom(): void {
+    queueMicrotask(() => {
+      requestAnimationFrame(() => {
+        const el = this.chatScroll?.nativeElement;
+        if (el) {
+          el.scrollTop = el.scrollHeight;
+        }
+      });
+    });
   }
 
   executeQuickAction(action: string): void {

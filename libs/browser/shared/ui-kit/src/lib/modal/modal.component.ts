@@ -19,6 +19,7 @@ export type ModalVariant = string;
         tabindex="0"
         aria-modal="true"
         role="dialog"
+        [attr.aria-labelledby]="title ? titleHeadingId : null"
       >
         <div
           [class]="
@@ -33,7 +34,7 @@ export type ModalVariant = string;
           tabindex="0"
         >
           <div class="modal-header">
-            <h3>{{ title }}</h3>
+            <h3 [id]="titleHeadingId">{{ title }}</h3>
             <button class="close-btn" (click)="onClose()" aria-label="Close modal">×</button>
           </div>
           <div class="modal-body text-friendly">
@@ -215,6 +216,10 @@ export type ModalVariant = string;
   `],
 })
 export class UiModalComponent {
+  private static titleSeq = 0;
+  /** Stable id for `aria-labelledby` on the dialog overlay. */
+  readonly titleHeadingId = `ui-modal-title-${++UiModalComponent.titleSeq}`;
+
   @Input() isOpen = false;
   @Input() title = '';
   @Input() showFooter = true;

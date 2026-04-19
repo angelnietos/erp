@@ -9,10 +9,14 @@ import { UiButtonComponent } from '../button/button.component';
   imports: [LucideAngularModule, UiButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="access-denied">
+    <section
+      class="access-denied"
+      role="region"
+      [attr.aria-labelledby]="headingId"
+    >
       <div class="access-denied__panel">
         <lucide-icon name="shield-off" class="denied-icon" aria-hidden="true"></lucide-icon>
-        <h2 class="title">{{ title() }}</h2>
+        <h2 class="title" [id]="headingId">{{ title() }}</h2>
         <p class="text">{{ message() }}</p>
         @if (permissionHint()) {
           <p class="hint">
@@ -21,7 +25,7 @@ import { UiButtonComponent } from '../button/button.component';
         }
         <ui-button variant="primary" (clicked)="goHome()">{{ backLabel() }}</ui-button>
       </div>
-    </div>
+    </section>
   `,
   styles: [
     `
@@ -88,7 +92,11 @@ import { UiButtonComponent } from '../button/button.component';
   ],
 })
 export class UiFeatureAccessDeniedComponent {
+  private static headingSeq = 0;
   private readonly router = inject(Router);
+
+  /** Unique heading id for `aria-labelledby` (multiple instances on one page). */
+  readonly headingId = `ui-access-denied-h-${++UiFeatureAccessDeniedComponent.headingSeq}`;
 
   readonly title = input<string>('Acceso restringido');
   readonly message = input<string>(

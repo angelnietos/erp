@@ -9,22 +9,32 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div class="pagination" [class]="'pagination-' + variant">
+    <nav
+      class="pagination"
+      [class]="'pagination-' + variant"
+      role="navigation"
+      aria-label="Paginación"
+    >
       <button 
+        type="button"
         class="page-btn nav-btn" 
         [disabled]="currentPage === 1"
         (click)="onPageChange(currentPage - 1)"
+        [attr.aria-label]="'Ir a la página anterior'"
       >
-        <lucide-icon name="chevron-left"></lucide-icon>
+        <lucide-icon name="chevron-left" aria-hidden="true"></lucide-icon>
         @if (variant !== 'minimal') { <span>Anterior</span> }
       </button>
       
       <div class="pages-group">
         @for (page of visiblePages; track page) {
           <button 
+            type="button"
             class="page-btn" 
             [class.active]="page === currentPage"
             (click)="onPageChange(page)"
+            [attr.aria-label]="'Ir a la página ' + page"
+            [attr.aria-current]="page === currentPage ? 'page' : null"
           >
             {{ page }}
           </button>
@@ -32,14 +42,16 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
       </div>
       
       <button 
+        type="button"
         class="page-btn nav-btn"
         [disabled]="currentPage === totalPages"
         (click)="onPageChange(currentPage + 1)"
+        [attr.aria-label]="'Ir a la página siguiente'"
       >
         @if (variant !== 'minimal') { <span>Siguiente</span> }
-        <lucide-icon name="chevron-right"></lucide-icon>
+        <lucide-icon name="chevron-right" aria-hidden="true"></lucide-icon>
       </button>
-    </div>
+    </nav>
   `,
   styles: [`
     .pagination {
@@ -158,8 +170,4 @@ export class UiPaginationComponent {
   }
 
   onPageChange(page: number) {
-    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-      this.pageChange.emit(page);
-    }
-  }
-}
+    if (page >= 1 && page <= 

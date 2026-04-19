@@ -9,6 +9,7 @@ import {
   ElementRef,
   OnInit,
   OnDestroy,
+  isDevMode,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -187,7 +188,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     effect(() => {
       const b = this.bot();
       this.aiBotStore.interBotQueue(); // re-ejecutar cuando lleguen mensajes
-      console.log(`[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`);
+      if (isDevMode()) {
+        console.debug(
+          `[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`,
+        );
+      }
       
       this.aiBotStore.interBotTick();
       const items =
@@ -317,9 +322,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         await this.aiBotStore.autoSelectProvider();
       }
 
-      // Log del estado de proveedores
-      const status = this.aiBotStore.getProviderStatus();
-      console.log('Estado de proveedores de IA:', status);
+      if (isDevMode()) {
+        console.debug('Estado de proveedores de IA:', this.aiBotStore.getProviderStatus());
+      }
     } catch (error) {
       console.warn('Error inicializando proveedores gratuitos:', error);
     }
