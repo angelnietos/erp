@@ -18,7 +18,11 @@ import {
   CreateProjectDto,
   UpdateProjectDto,
 } from '../../application/dtos/create-project.dto';
-import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
+import {
+  JwtAuthGuard,
+  requireRequestTenantId,
+  requireRequestUserId,
+} from '@josanz-erp/shared-infrastructure';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -31,8 +35,8 @@ export class ProjectsController {
   }
 
   @Post()
-  async create(@Body() dto: CreateProjectDto) {
-    const project = await this.projectsService.create(dto);
+  async create(@Req() req: Request, @Body() dto: CreateProjectDto) {
+    const project = await this.projectsService.create(dto, requireRequestUserId(req));
     return {
       id: project.id.value,
       name: project.name,
@@ -61,8 +65,16 @@ export class ProjectsController {
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateProjectDto) {
-    const project = await this.projectsService.update(id, dto);
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateProjectDto,
+  ) {
+    const project = await this.projectsService.update(
+      id,
+      dto,
+      requireRequestUserId(req),
+    );
     return {
       id: project.id.value,
       name: project.name,
@@ -75,8 +87,8 @@ export class ProjectsController {
   }
 
   @Patch(':id/complete')
-  async complete(@Param('id', ParseUUIDPipe) id: string) {
-    const project = await this.projectsService.complete(id);
+  async complete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const project = await this.projectsService.complete(id, requireRequestUserId(req));
     return {
       id: project.id.value,
       status: project.status,
@@ -85,8 +97,8 @@ export class ProjectsController {
   }
 
   @Patch(':id/cancel')
-  async cancel(@Param('id', ParseUUIDPipe) id: string) {
-    const project = await this.projectsService.cancel(id);
+  async cancel(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const project = await this.projectsService.cancel(id, requireRequestUserId(req));
     return {
       id: project.id.value,
       status: project.status,
@@ -95,8 +107,11 @@ export class ProjectsController {
   }
 
   @Post(':id/duplicate')
-  async duplicate(@Param('id', ParseUUIDPipe) id: string) {
-    const duplicatedProject = await this.projectsService.duplicate(id);
+  async duplicate(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const duplicatedProject = await this.projectsService.duplicate(
+      id,
+      requireRequestUserId(req),
+    );
     return {
       id: duplicatedProject.id.value,
       name: duplicatedProject.name,
@@ -106,8 +121,8 @@ export class ProjectsController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseUUIDPipe) id: string) {
-    await this.projectsService.delete(id);
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    await this.projectsService.delete(id, requireRequestUserId(req));
     return { success: true };
   }
 }

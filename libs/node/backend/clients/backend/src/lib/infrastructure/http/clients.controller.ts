@@ -11,7 +11,11 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
+import {
+  JwtAuthGuard,
+  requireRequestTenantId,
+  requireRequestUserId,
+} from '@josanz-erp/shared-infrastructure';
 import { ClientsService } from '../../application/clients.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
@@ -33,7 +37,11 @@ export class ClientsController {
 
   @Post()
   async create(@Req() req: Request, @Body() data: AnyPayload) {
-    return this.clientsService.create(requireRequestTenantId(req), data);
+    return this.clientsService.create(
+      requireRequestTenantId(req),
+      data,
+      requireRequestUserId(req),
+    );
   }
 
   @Put(':id')
@@ -42,11 +50,20 @@ export class ClientsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: AnyPayload,
   ) {
-    return this.clientsService.update(requireRequestTenantId(req), id, data);
+    return this.clientsService.update(
+      requireRequestTenantId(req),
+      id,
+      data,
+      requireRequestUserId(req),
+    );
   }
 
   @Delete(':id')
   async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
-    return this.clientsService.delete(requireRequestTenantId(req), id);
+    return this.clientsService.delete(
+      requireRequestTenantId(req),
+      id,
+      requireRequestUserId(req),
+    );
   }
 }

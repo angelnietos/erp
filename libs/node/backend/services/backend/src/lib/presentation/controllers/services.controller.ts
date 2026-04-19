@@ -18,7 +18,11 @@ import {
   CreateServiceDto,
   UpdateServiceDto,
 } from '../../application/dtos/create-service.dto';
-import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
+import {
+  JwtAuthGuard,
+  requireRequestTenantId,
+  requireRequestUserId,
+} from '@josanz-erp/shared-infrastructure';
 
 @Controller('services')
 @UseGuards(JwtAuthGuard)
@@ -49,8 +53,8 @@ export class ServicesController {
   }
 
   @Post()
-  async create(@Body() dto: CreateServiceDto) {
-    const service = await this.servicesService.create(dto);
+  async create(@Req() req: Request, @Body() dto: CreateServiceDto) {
+    const service = await this.servicesService.create(dto, requireRequestUserId(req));
     return {
       id: service.id.value,
       name: service.name,
@@ -83,8 +87,8 @@ export class ServicesController {
   }
 
   @Patch(':id/deactivate')
-  async deactivate(@Param('id', ParseUUIDPipe) id: string) {
-    const service = await this.servicesService.deactivate(id);
+  async deactivate(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const service = await this.servicesService.deactivate(id, requireRequestUserId(req));
     return {
       id: service.id.value,
       isActive: service.isActive,
@@ -93,8 +97,8 @@ export class ServicesController {
   }
 
   @Patch(':id/activate')
-  async activate(@Param('id', ParseUUIDPipe) id: string) {
-    const service = await this.servicesService.activate(id);
+  async activate(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const service = await this.servicesService.activate(id, requireRequestUserId(req));
     return {
       id: service.id.value,
       isActive: service.isActive,
@@ -103,8 +107,16 @@ export class ServicesController {
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateServiceDto) {
-    const service = await this.servicesService.update(id, dto);
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateServiceDto,
+  ) {
+    const service = await this.servicesService.update(
+      id,
+      dto,
+      requireRequestUserId(req),
+    );
     return {
       id: service.id.value,
       name: service.name,
@@ -118,8 +130,8 @@ export class ServicesController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseUUIDPipe) id: string) {
-    await this.servicesService.delete(id);
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    await this.servicesService.delete(id, requireRequestUserId(req));
     return { success: true };
   }
 }

@@ -1,11 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import {
+  AuditLogWriterService,
+  PrismaService,
+} from '@josanz-erp/shared-infrastructure';
 
 type ClientData = Record<string, unknown>;
 
 @Injectable()
 export class ClientsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogWriter: AuditLogWriterService,
+  ) {}
 
   async findAll(tenantId: string) {
     const clients = await this.prisma.client.findMany({
@@ -65,7 +71,7 @@ export class ClientsService {
     return this.mapToDto(client);
   }
 
-  async create(tenantId: string, data: any) {
+  async create(tenantId: string, data: any, actorUserId: string) {
     const client = await this.prisma.client.create({
       data: {
         tenantId,
@@ -85,10 +91,19 @@ export class ClientsService {
         contacts: true
       }
     });
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'CREATE',
+      targetEntity: `Client:${client.id}`,
+      changesJson: {
+        entityType: 'CLIENT',
+        entityName: client.name,
+        details: 'Cliente creado',
+      },
+    });
     return this.mapToDto(client);
   }
 
-  async update(tenantId: string, id: string, data: any) {
+  async update(tenantId: string, id: string, data: any, actorUserId: string) {
     const client = await this.prisma.client.update({
       where: { id },
       data: {
@@ -108,14 +123,38 @@ export class ClientsService {
         contacts: true
       }
     });
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Client:${client.id}`,
+      changesJson: {
+        entityType: 'CLIENT',
+        entityName: client.name,
+        details: 'Cliente actualizado',
+      },
+    });
     return this.mapToDto(client);
   }
 
-  async delete(_tenantId: string, id: string) {
+  async delete(_tenantId: string, id: string, actorUserId: string) {
+    const row = await this.prisma.client.findFirst({
+      where: { id, deletedAt: null },
+      select: { name: true },
+    });
     await this.prisma.client.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
+    if (row) {
+      await this.auditLogWriter.record(actorUserId, {
+        action: 'DELETE',
+        targetEntity: `Client:${id}`,
+        changesJson: {
+          entityType: 'CLIENT',
+          entityName: row.name,
+          details: 'Cliente eliminado (baja lógica)',
+        },
+      });
+    }
     return { success: true };
   }
 

@@ -7,6 +7,7 @@ import {
 import { EntityId } from '@josanz-erp/shared-model';
 import { CreateServiceDto, UpdateServiceDto } from '../dtos/create-service.dto';
 import {
+  AuditLogWriterService,
   OutboxService,
   PrismaService,
 } from '@josanz-erp/shared-infrastructure';
@@ -18,9 +19,10 @@ export class ServicesService {
     private readonly servicesRepository: ServicesRepositoryPort,
     private readonly outboxService: OutboxService,
     private readonly prisma: PrismaService,
+    private readonly auditLogWriter: AuditLogWriterService,
   ) {}
 
-  async create(dto: CreateServiceDto): Promise<Service> {
+  async create(dto: CreateServiceDto, actorUserId: string): Promise<Service> {
     const service = Service.create({
       tenantId: new EntityId(dto.tenantId),
       name: dto.name,
@@ -34,6 +36,16 @@ export class ServicesService {
     await this.prisma.$transaction(async (tx) => {
       await this.servicesRepository.save(service);
       await this.outboxService.saveEvents(service.pullEvents(), tx);
+    });
+
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'CREATE',
+      targetEntity: `Service:${service.id.value}`,
+      changesJson: {
+        entityType: 'SERVICE',
+        entityName: service.name,
+        details: 'Servicio creado',
+      },
     });
 
     return service;
@@ -57,7 +69,11 @@ export class ServicesService {
     );
   }
 
-  async update(id: string, dto: UpdateServiceDto): Promise<Service> {
+  async update(
+    id: string,
+    dto: UpdateServiceDto,
+    actorUserId: string,
+  ): Promise<Service> {
     const service = await this.servicesRepository.findById(new EntityId(id));
     if (!service) {
       throw new NotFoundException('Servicio no encontrado');
@@ -84,10 +100,20 @@ export class ServicesService {
       await this.outboxService.saveEvents(service.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Service:${service.id.value}`,
+      changesJson: {
+        entityType: 'SERVICE',
+        entityName: service.name,
+        details: 'Servicio actualizado',
+      },
+    });
+
     return service;
   }
 
-  async deactivate(id: string): Promise<Service> {
+  async deactivate(id: string, actorUserId: string): Promise<Service> {
     const service = await this.servicesRepository.findById(new EntityId(id));
     if (!service) {
       throw new NotFoundException('Servicio no encontrado');
@@ -100,10 +126,20 @@ export class ServicesService {
       await this.outboxService.saveEvents(service.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Service:${service.id.value}`,
+      changesJson: {
+        entityType: 'SERVICE',
+        entityName: service.name,
+        details: 'Servicio desactivado',
+      },
+    });
+
     return service;
   }
 
-  async activate(id: string): Promise<Service> {
+  async activate(id: string, actorUserId: string): Promise<Service> {
     const service = await this.servicesRepository.findById(new EntityId(id));
     if (!service) {
       throw new NotFoundException('Servicio no encontrado');
@@ -116,11 +152,33 @@ export class ServicesService {
       await this.outboxService.saveEvents(service.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Service:${service.id.value}`,
+      changesJson: {
+        entityType: 'SERVICE',
+        entityName: service.name,
+        details: 'Servicio activado',
+      },
+    });
+
     return service;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, actorUserId: string): Promise<void> {
+    const existing = await this.servicesRepository.findById(new EntityId(id));
     await this.servicesRepository.delete(new EntityId(id));
+    if (existing) {
+      await this.auditLogWriter.record(actorUserId, {
+        action: 'DELETE',
+        targetEntity: `Service:${id}`,
+        changesJson: {
+          entityType: 'SERVICE',
+          entityName: existing.name,
+          details: 'Servicio eliminado',
+        },
+      });
+    }
   }
 
   async getServicesList(tenantId: string, type?: string): Promise<any[]> {

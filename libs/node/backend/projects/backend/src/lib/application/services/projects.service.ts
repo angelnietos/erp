@@ -7,6 +7,7 @@ import {
 import { EntityId } from '@josanz-erp/shared-model';
 import { CreateProjectDto, UpdateProjectDto } from '../dtos/create-project.dto';
 import {
+  AuditLogWriterService,
   OutboxService,
   PrismaService,
 } from '@josanz-erp/shared-infrastructure';
@@ -18,9 +19,10 @@ export class ProjectsService {
     private readonly projectsRepository: ProjectsRepositoryPort,
     private readonly outboxService: OutboxService,
     private readonly prisma: PrismaService,
+    private readonly auditLogWriter: AuditLogWriterService,
   ) {}
 
-  async create(dto: CreateProjectDto): Promise<Project> {
+  async create(dto: CreateProjectDto, actorUserId: string): Promise<Project> {
     const project = Project.create({
       tenantId: new EntityId(dto.tenantId),
       name: dto.name,
@@ -33,6 +35,16 @@ export class ProjectsService {
     await this.prisma.$transaction(async (tx) => {
       await this.projectsRepository.save(project);
       await this.outboxService.saveEvents(project.pullEvents(), tx);
+    });
+
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'CREATE',
+      targetEntity: `Project:${project.id.value}`,
+      changesJson: {
+        entityType: 'PROJECT',
+        entityName: project.name,
+        details: 'Proyecto creado',
+      },
     });
 
     return project;
@@ -49,7 +61,11 @@ export class ProjectsService {
     );
   }
 
-  async update(id: string, dto: UpdateProjectDto): Promise<Project> {
+  async update(
+    id: string,
+    dto: UpdateProjectDto,
+    actorUserId: string,
+  ): Promise<Project> {
     const project = await this.projectsRepository.findById(new EntityId(id));
     if (!project) {
       throw new NotFoundException('Proyecto no encontrado');
@@ -78,10 +94,20 @@ export class ProjectsService {
       await this.outboxService.saveEvents(project.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Project:${project.id.value}`,
+      changesJson: {
+        entityType: 'PROJECT',
+        entityName: project.name,
+        details: 'Proyecto actualizado',
+      },
+    });
+
     return project;
   }
 
-  async complete(id: string): Promise<Project> {
+  async complete(id: string, actorUserId: string): Promise<Project> {
     const project = await this.projectsRepository.findById(new EntityId(id));
     if (!project) {
       throw new NotFoundException('Proyecto no encontrado');
@@ -94,10 +120,20 @@ export class ProjectsService {
       await this.outboxService.saveEvents(project.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Project:${project.id.value}`,
+      changesJson: {
+        entityType: 'PROJECT',
+        entityName: project.name,
+        details: 'Proyecto marcado como completado',
+      },
+    });
+
     return project;
   }
 
-  async cancel(id: string): Promise<Project> {
+  async cancel(id: string, actorUserId: string): Promise<Project> {
     const project = await this.projectsRepository.findById(new EntityId(id));
     if (!project) {
       throw new NotFoundException('Proyecto no encontrado');
@@ -110,10 +146,20 @@ export class ProjectsService {
       await this.outboxService.saveEvents(project.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Project:${project.id.value}`,
+      changesJson: {
+        entityType: 'PROJECT',
+        entityName: project.name,
+        details: 'Proyecto cancelado',
+      },
+    });
+
     return project;
   }
 
-  async duplicate(id: string): Promise<Project> {
+  async duplicate(id: string, actorUserId: string): Promise<Project> {
     const originalProject = await this.projectsRepository.findById(
       new EntityId(id),
     );
@@ -128,11 +174,33 @@ export class ProjectsService {
       await this.outboxService.saveEvents(duplicatedProject.pullEvents(), tx);
     });
 
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'COPY',
+      targetEntity: `Project:${duplicatedProject.id.value}`,
+      changesJson: {
+        entityType: 'PROJECT',
+        entityName: duplicatedProject.name,
+        details: 'Proyecto duplicado',
+      },
+    });
+
     return duplicatedProject;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, actorUserId: string): Promise<void> {
+    const existing = await this.projectsRepository.findById(new EntityId(id));
     await this.projectsRepository.delete(new EntityId(id));
+    if (existing) {
+      await this.auditLogWriter.record(actorUserId, {
+        action: 'DELETE',
+        targetEntity: `Project:${id}`,
+        changesJson: {
+          entityType: 'PROJECT',
+          entityName: existing.name,
+          details: 'Proyecto eliminado',
+        },
+      });
+    }
   }
 
   async getProjectsList(tenantId: string, clientId?: string): Promise<any[]> {

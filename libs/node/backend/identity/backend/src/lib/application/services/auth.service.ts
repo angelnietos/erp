@@ -2,7 +2,10 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 import { JwtService } from '@nestjs/jwt';
 import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import {
+  AuditLogWriterService,
+  PrismaService,
+} from '@josanz-erp/shared-infrastructure';
 import { TenantContext, isTenantUuid } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
@@ -28,6 +31,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly cls: ClsService<TenantContext>,
+    private readonly auditLogWriter: AuditLogWriterService,
   ) {}
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
@@ -83,6 +87,22 @@ export class AuthService {
       permissions,
       tenantId,
     };
+
+    const displayName = [user.firstName, user.lastName]
+      .filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+      .join(' ')
+      .trim();
+    void this.auditLogWriter
+      .record(user.id.value, {
+        action: 'LOGIN',
+        targetEntity: 'Auth:session',
+        changesJson: {
+          entityType: 'USER',
+          entityName: displayName || user.email,
+          details: 'Inicio de sesión',
+        },
+      })
+      .catch(() => undefined);
 
     return {
       accessToken: await this.jwtService.signAsync(payload),

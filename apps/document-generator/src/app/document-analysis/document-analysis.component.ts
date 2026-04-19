@@ -1,8 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl, FormBuilder } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AssistantContextService } from '../services/assistant-context.service';
+import {
+  DocumentPersistenceService,
+  DocumentListItem,
+} from '../services/document-persistence.service';
+import { ProposalAnalysisService } from '../services/proposal-analysis.service';
 
 interface AnalysisCheck {
   id: string;
@@ -23,7 +28,7 @@ interface AnalysisResult {
 @Component({
   selector: 'app-document-analysis',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
   styles: [
     `
       .tab-active {
@@ -63,13 +68,13 @@ interface AnalysisResult {
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-secondary">
-        <button
+        <nav class="flex items-center space-x-2 text-sm text-secondary">
+        <a
           routerLink="/documents/list"
           class="hover:text-primary transition-colors"
         >
           Documentos
-        </button>
+        </a>
         <svg
           class="w-4 h-4"
           fill="none"
@@ -114,10 +119,114 @@ interface AnalysisResult {
             Analizador de Propuestas
           </h1>
           <p class="text-secondary text-lg">
-            Verifica la calidad y completitud de tus propuestas comerciales con
-            asistente IA
+            Carga un documento del historial (IndexedDB) o pega texto; el análisis
+            usa tu motor de IA configurado (sin datos simulados).
           </p>
         </div>
+      </div>
+
+      <!-- Fuente del documento -->
+      <div
+        class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-6 md:p-8"
+      >
+        <h2 class="text-lg font-bold text-primary mb-4">
+          Documento a analizar
+        </h2>
+        <div class="grid gap-4 md:grid-cols-2 md:gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-doc-ink" for="doc-select"
+              >Historial en este navegador</label
+            >
+            <select
+              id="doc-select"
+              class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-doc-ink focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              [value]="selectedDocId"
+              (change)="onSelectSavedDocument($any($event.target).value)"
+            >
+              <option value="">— Selecciona un documento guardado —</option>
+              @for (d of savedDocuments; track d.id) {
+                <option [value]="d.id">
+                  {{ d.title || 'Sin título' }} · {{ getTypeLabel(d.type) }}
+                  @if (d.isDraft) {
+                    (borrador)
+                  }
+                </option>
+              }
+            </select>
+            @if (savedDocuments.length === 0 && !listLoadError) {
+              <p class="text-sm text-doc-muted-on-light">
+                No hay documentos guardados.
+                <a
+                  routerLink="/documents/create"
+                  class="text-blue-600 hover:underline font-medium"
+                  >Crear uno</a
+                >
+                y usa «Guardar borrador» o genera el PDF para que aparezca en el
+                historial.
+              </p>
+            }
+            @if (listLoadError) {
+              <p class="text-sm text-amber-700" role="alert">{{ listLoadError }}</p>
+            }
+          </div>
+          <div
+            class="rounded-xl border border-soft bg-slate-50/80 dark:bg-slate-900/30 p-4 text-sm"
+          >
+            @if (selectedSummary) {
+              <p class="font-medium text-doc-ink">{{ selectedSummary.title }}</p>
+              <p class="text-doc-muted-on-light mt-1">
+                {{ selectedSummary.client }} ·
+                {{ selectedSummary.date | date: 'medium' }}
+              </p>
+            } @else {
+              <p class="text-doc-muted-on-light">
+                Elige un documento o usa el área de texto abajo.
+              </p>
+            }
+            <p class="mt-3 text-doc-ink">
+              <span class="font-semibold">{{ effectiveTextLength }}</span>
+              caracteres en el texto de análisis
+            </p>
+            <a
+              routerLink="/documents/settings/ai"
+              class="inline-block mt-2 text-blue-600 hover:underline text-sm"
+              >Configuración IA</a
+            >
+          </div>
+        </div>
+
+        <details class="mt-6 group">
+          <summary
+            class="cursor-pointer text-sm font-medium text-blue-700 hover:text-blue-800 list-none flex items-center gap-2"
+          >
+            <span
+              class="inline-block transition-transform group-open:rotate-90"
+              aria-hidden="true"
+              >▸</span
+            >
+            Pegar o editar texto manualmente (opcional)
+          </summary>
+          <p class="text-xs text-doc-muted-on-light mt-2 mb-2">
+            Si rellenas esto, tendrá prioridad sobre el documento cargado del
+            historial.
+          </p>
+          <textarea
+            [(ngModel)]="manualText"
+            (ngModelChange)="onManualTextChange()"
+            rows="8"
+            placeholder="Pega aquí Markdown o texto de la propuesta…"
+            class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-doc-ink font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          ></textarea>
+        </details>
+
+        @if (analysisBanner) {
+          <p
+            class="mt-4 text-sm rounded-lg px-4 py-3 bg-amber-50 text-amber-900 border border-amber-200"
+            role="status"
+          >
+            {{ analysisBanner }}
+          </p>
+        }
       </div>
 
       <!-- Tabs Navigation -->
@@ -186,8 +295,11 @@ interface AnalysisResult {
 
               <div class="pt-4 border-t border-soft">
                 <button
+                  type="button"
                   (click)="runAnalysis()"
-                  [disabled]="isAnalyzing || enabledChecksCount === 0"
+                  [disabled]="
+                    isAnalyzing || enabledChecksCount === 0 || effectiveTextLength === 0
+                  "
                   class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-400 disabled:to-slate-500 transition-all"
                 >
                   @if (isAnalyzing) {
@@ -228,6 +340,14 @@ interface AnalysisResult {
           <!-- Results Tab -->
           @if (activeTab === 'results') {
             <div class="space-y-6">
+              @if (analysisRunError) {
+                <div
+                  class="rounded-xl border border-red-200 bg-red-50 text-red-900 px-4 py-3 text-sm"
+                  role="alert"
+                >
+                  {{ analysisRunError }}
+                </div>
+              }
               <div class="grid grid-cols-4 gap-4 mb-6">
                 <div
                   class="bg-green-50 rounded-xl p-4 text-center border border-green-200"
@@ -360,6 +480,11 @@ interface AnalysisResult {
                     </div>
                   </div>
                 }
+                @if (isChatSending) {
+                  <p class="text-sm text-doc-muted-on-light px-1" role="status">
+                    Generando respuesta con IA…
+                  </p>
+                }
               </div>
 
               <div class="flex space-x-3">
@@ -371,8 +496,10 @@ interface AnalysisResult {
                   class="flex-1 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
+                  type="button"
                   (click)="sendMessage()"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                  [disabled]="isChatSending || effectiveTextLength === 0"
+                  class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
                   <svg
                     class="w-5 h-5"
@@ -395,8 +522,10 @@ interface AnalysisResult {
                 <div class="flex flex-wrap gap-2">
                   @for (quickAction of quickActions; track $index) {
                     <button
+                      type="button"
                       (click)="executeQuickAction(quickAction)"
-                      class="px-4 py-2 bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg text-sm transition-colors"
+                      [disabled]="isChatSending || effectiveTextLength === 0"
+                      class="px-4 py-2 bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg text-sm transition-colors disabled:opacity-50"
                     >
                       {{ quickAction }}
                     </button>
@@ -545,8 +674,21 @@ export class DocumentAnalysisComponent implements OnInit {
   ];
 
   analysisResults: AnalysisResult[] = [];
+  analysisRunError: string | null = null;
   chatMessages: { type: 'user' | 'assistant'; content: string }[] = [];
   chatInput = new FormControl('');
+  isChatSending = false;
+
+  savedDocuments: DocumentListItem[] = [];
+  selectedDocId = '';
+  selectedSummary: DocumentListItem | null = null;
+  /** Texto derivado del payload en IndexedDB (sin edición manual). */
+  builtText = '';
+  /** Si tiene contenido, sustituye a `builtText` para el análisis. */
+  manualText = '';
+  listLoadError: string | null = null;
+  /** Aviso cuando solo hay PDF guardado sin campos de texto. */
+  analysisBanner: string | null = null;
 
   quickActions = [
     'Revisar resumen ejecutivo',
@@ -556,8 +698,10 @@ export class DocumentAnalysisComponent implements OnInit {
     'Sugerencias de mejora',
   ];
 
-  readonly fb = inject(FormBuilder);
   readonly assistantService = inject(AssistantContextService);
+  private readonly persistence = inject(DocumentPersistenceService);
+  private readonly proposalAnalysis = inject(ProposalAnalysisService);
+  private readonly route = inject(ActivatedRoute);
 
   ngOnInit() {
     this.assistantService.setActiveTab('analysis');
@@ -566,9 +710,125 @@ export class DocumentAnalysisComponent implements OnInit {
       {
         type: 'assistant',
         content:
-          '¡Hola! Soy tu asistente para análisis de propuestas. ¿En qué puedo ayudarte hoy?',
+          'Carga un documento del historial o pega texto. Las respuestas usan el mismo motor de IA que el editor.',
       },
     ];
+
+    void this.loadSavedList();
+  }
+
+  get effectiveText(): string {
+    const m = this.manualText.trim();
+    if (m.length > 0) {
+      return this.manualText;
+    }
+    return this.builtText;
+  }
+
+  get effectiveTextLength(): number {
+    return this.effectiveText.trim().length;
+  }
+
+  private async loadSavedList(): Promise<void> {
+    this.listLoadError = null;
+    try {
+      await this.persistence.whenReady();
+      this.savedDocuments = await this.persistence.listSummaries();
+      const docId = this.route.snapshot.queryParamMap.get('doc');
+      if (docId && this.savedDocuments.some((d) => d.id === docId)) {
+        await this.applySelectedDocument(docId);
+      }
+    } catch (e: unknown) {
+      this.listLoadError =
+        e instanceof Error
+          ? e.message
+          : 'No se pudo leer el historial local (IndexedDB).';
+      this.savedDocuments = [];
+    }
+  }
+
+  async onSelectSavedDocument(id: string): Promise<void> {
+    if (!id) {
+      this.selectedDocId = '';
+      this.selectedSummary = null;
+      this.builtText = '';
+      this.analysisBanner = null;
+      this.syncAssistantDocument();
+      return;
+    }
+    await this.applySelectedDocument(id);
+  }
+
+  private async applySelectedDocument(id: string): Promise<void> {
+    this.selectedDocId = id;
+    this.manualText = '';
+    this.analysisBanner = null;
+    this.analysisRunError = null;
+    this.selectedSummary = this.savedDocuments.find((d) => d.id === id) ?? null;
+    try {
+      await this.persistence.whenReady();
+      const payload = await this.persistence.getPayload(id);
+      if (!payload) {
+        this.builtText = '';
+        this.analysisBanner = 'No se encontró el contenido del documento.';
+        this.syncAssistantDocument();
+        return;
+      }
+      this.builtText = this.proposalAnalysis.buildTextFromPayload(payload);
+      if (this.builtText.trim().length < 80) {
+        this.analysisBanner =
+          'Este registro tiene poco texto editable (p. ej. solo PDF generado). Edita el borrador en el editor o pega el contenido abajo.';
+      }
+    } catch (e: unknown) {
+      this.builtText = '';
+      this.analysisBanner =
+        e instanceof Error ? e.message : 'Error al cargar el documento.';
+    }
+    this.syncAssistantDocument();
+  }
+
+  onManualTextChange(): void {
+    this.syncAssistantDocument();
+  }
+
+  private syncAssistantDocument(): void {
+    const t = this.effectiveText;
+    const typ =
+      this.selectedSummary?.type ||
+      (this.route.snapshot.queryParamMap.get('type') ?? undefined);
+    this.assistantService.setDocumentContent(t, typ ?? undefined);
+  }
+
+  getTypeLabel(type: string): string {
+    switch (type) {
+      case 'quote':
+        return 'Presupuesto';
+      case 'proposal':
+        return 'Propuesta';
+      case 'documentation':
+        return 'Documentación';
+      case 'architecture':
+        return 'Arquitectura';
+      case 'resume':
+        return 'CV';
+      case 'interview':
+        return 'Entrevista';
+      case 'offer':
+        return 'Oferta';
+      default:
+        return type;
+    }
+  }
+
+  private buildAnalysisSummaryForChat(): string {
+    if (this.analysisResults.length === 0) {
+      return '';
+    }
+    const parts = this.analysisResults.map(
+      (r) =>
+        `- ${this.getCheckName(r.checkId)}: ${r.status} — ${r.message}`,
+    );
+    return parts.join('\n');
   }
 
   get enabledChecksCount(): number {
@@ -611,144 +871,89 @@ export class DocumentAnalysisComponent implements OnInit {
   }
 
   async runAnalysis(): Promise<void> {
+    const text = this.effectiveText.trim();
+    if (!text) {
+      this.analysisRunError =
+        'No hay texto para analizar: elige un documento del historial o pega contenido.';
+      this.activeTab = 'results';
+      this.analysisResults = [];
+      return;
+    }
+
+    const enabledChecks = this.analysisChecks.filter((c) => c.enabled);
     this.isAnalyzing = true;
     this.activeTab = 'results';
     this.analysisResults = [];
+    this.analysisRunError = null;
 
-    const enabledChecks = this.analysisChecks.filter((c) => c.enabled);
+    try {
+      const criteria = enabledChecks.map((c) => ({
+        id: c.id,
+        name: c.name,
+        description: c.description,
+      }));
+      const items = await this.proposalAnalysis.analyzeCriteria(text, criteria);
+      this.analysisResults = items.map((r) => ({
+        checkId: r.checkId,
+        status: r.status,
+        message: r.message,
+        suggestions: r.suggestions,
+      }));
 
-    for (const check of enabledChecks) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const result = this.simulateCheckResult(check);
-      this.analysisResults.push(result);
+      this.assistantService.setAnalysisResults(this.analysisResults);
+      this.assistantService.addSystemMessage(
+        `Análisis IA completado: ${this.passCount} correctos, ${this.warningCount} advertencias, ${this.errorCount} errores`,
+      );
+    } catch (e: unknown) {
+      const msg =
+        e instanceof Error ? e.message : 'Error desconocido al analizar.';
+      this.analysisRunError = msg;
+      this.analysisResults = [];
+      this.assistantService.addSystemMessage(`Error en análisis: ${msg}`);
+    } finally {
+      this.isAnalyzing = false;
     }
-
-    this.assistantService.setAnalysisResults(this.analysisResults);
-    this.assistantService.addSystemMessage(
-      `Análisis completado: ${this.passCount} correctos, ${this.warningCount} advertencias, ${this.errorCount} errores`,
-    );
-    this.isAnalyzing = false;
   }
 
-  simulateCheckResult(check: AnalysisCheck): AnalysisResult {
-    const statuses: ('pass' | 'warning' | 'error')[] = [
-      'pass',
-      'warning',
-      'error',
-    ];
-    const randomStatus = statuses[Math.floor(Math.random() * 3)];
-
-    const messages: Record<string, string> = {
-      title:
-        randomStatus === 'pass'
-          ? 'El título es claro y descriptivo'
-          : 'El título podría ser más específico',
-      'executive-summary':
-        randomStatus === 'error'
-          ? 'No se detectó resumen ejecutivo en la propuesta'
-          : 'El resumen ejecutivo está presente pero podría mejorarse',
-      objectives: 'Los objetivos están bien definidos',
-      scope:
-        randomStatus === 'warning'
-          ? 'Se recomienda delimitar mejor el alcance del proyecto'
-          : 'El alcance está correctamente especificado',
-      deliverables:
-        randomStatus === 'error'
-          ? 'No se listan los entregables del proyecto'
-          : 'Entregables claramente definidos',
-      timeline:
-        randomStatus === 'warning'
-          ? 'Cronograma presente pero sin hitos intermedios'
-          : 'Cronograma detallado y realista',
-      pricing:
-        randomStatus === 'warning'
-          ? 'Precio indicado pero sin desglose detallado'
-          : 'Estructura de precios correcta',
-      terms: 'Condiciones comerciales claras',
-      'client-focus': 'La propuesta se centra adecuadamente en el cliente',
-      differentiator:
-        randomStatus === 'warning'
-          ? 'No se destacan suficientemente los valores diferenciales'
-          : 'Ventajas competitivas claramente expuestas',
-      typos:
-        randomStatus === 'pass'
-          ? 'No se detectaron errores de escritura'
-          : 'Se encontraron algunos errores de ortografía',
-      'call-action':
-        randomStatus === 'error'
-          ? 'No existe una llamada clara a la acción al final'
-          : 'Llamada a la acción correctamente implementada',
-    };
-
-    const suggestions: Record<string, string[]> = {
-      title: [
-        'Incluye el nombre del cliente en el título',
-        'Especifica el tipo de solución propuesta',
-      ],
-      'executive-summary': [
-        'Añade un resumen de máximo 3 párrafos al inicio',
-        'Destaca 3 beneficios clave para el cliente',
-      ],
-      scope: [
-        'Especifica explícitamente qué NO está incluido',
-        'Divide el alcance en fases si el proyecto es grande',
-      ],
-      deliverables: [
-        'Lista cada entregable con una breve descripción',
-        'Indica formato y fecha de entrega para cada elemento',
-      ],
-      differentiator: [
-        'Destaca por qué tu solución es mejor que la competencia',
-        'Incluye métricas o resultados de proyectos similares',
-      ],
-    };
-
-    return {
-      checkId: check.id,
-      status: randomStatus,
-      message: messages[check.id] || 'Análisis completado',
-      suggestions: suggestions[check.id] || [],
-    };
-  }
-
-  sendMessage(): void {
+  async sendMessage(): Promise<void> {
     const message = this.chatInput.value?.trim();
-    if (!message) return;
+    if (!message || this.isChatSending) {
+      return;
+    }
+    if (this.effectiveTextLength === 0) {
+      this.chatMessages.push({
+        type: 'assistant',
+        content:
+          'Primero carga un documento del historial o pega el texto del documento.',
+      });
+      return;
+    }
 
     this.chatMessages.push({ type: 'user', content: message });
     this.chatInput.reset();
+    this.isChatSending = true;
 
-    setTimeout(() => {
+    try {
+      const summary = this.buildAnalysisSummaryForChat();
+      const reply = await this.proposalAnalysis.chatAboutDocument(
+        message,
+        this.effectiveText,
+        summary,
+      );
+      this.chatMessages.push({ type: 'assistant', content: reply.trim() });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
       this.chatMessages.push({
         type: 'assistant',
-        content: this.getAssistantResponse(message),
+        content: `No se pudo obtener respuesta del modelo: ${msg}`,
       });
-    }, 1000);
+    } finally {
+      this.isChatSending = false;
+    }
   }
 
   executeQuickAction(action: string): void {
     this.chatInput.setValue(action);
-    this.sendMessage();
-  }
-
-  getAssistantResponse(message: string): string {
-    const responses: Record<string, string> = {
-      'Revisar resumen ejecutivo':
-        'Tu resumen ejecutivo debería responder 3 preguntas clave: 1) ¿Qué problema solucionas? 2) ¿Cómo lo solucionas? 3) ¿Por qué tú y no otro? Intenta condensarlo en máximo 3 párrafos.',
-      '¿Qué secciones faltan?':
-        'Basándome en el análisis, te recomiendo añadir: ✅ Plan de implementación detallado ✅ Equipo responsable del proyecto ✅ Casos de éxito similares ✅ Garantías ofrecidas',
-      'Mejorar llamada a la acción':
-        'Una buena llamada a la acción debe ser concreta: "Nos gustaría concertar una reunión el próximo martes a las 10h para revisar esta propuesta contigo" en lugar de genérica.',
-      'Comprobar precio':
-        'Revisa que tu precio incluya: 1) Desglose por conceptos 2) Condiciones de pago 3) Gastos adicionales 4) Plazos de validez de la oferta',
-      'Sugerencias de mejora':
-        'Las 3 mejoras prioritarias para tu propuesta son: 1) Añadir resumen ejecutivo 2) Mejorar la llamada a la acción 3) Destacar tus valores diferenciales frente a la competencia',
-    };
-
-    return (
-      responses[message] ||
-      'He analizado tu consulta. Para darte una respuesta más precisa, ¿podrías facilitarme el contenido de la propuesta que quieres revisar?'
-    );
+    void this.sendMessage();
   }
 }

@@ -26,6 +26,7 @@ import { ReportsExportModule } from './reports-export/reports-export.module';
 import { AiInsightsModule } from './ai-insights/ai-insights.module';
 import { TechniciansModule } from './technicians/technicians.module';
 import { TimeOffModule } from './time-off/time-off.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { TimeOffModule } from './time-off/time-off.module';
     AiInsightsModule,
     TechniciansModule,
     TimeOffModule,
+    AuditModule,
   ],
   providers: [
     {

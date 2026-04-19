@@ -33,7 +33,8 @@ import {
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
-  DomainEventsApiService,
+  AuditLogApiDto,
+  AuditLogsApiService,
   ThemeService,
   PluginStore,
   MasterFilterService,
@@ -76,15 +77,6 @@ interface AuditLog {
   timestamp: string;
   details?: string;
   changes?: Record<string, { old: unknown; new: unknown }>;
-}
-
-/** Shape of a domain event payload as stored in the backend. */
-interface DomainEventPayload {
-  name?: string;
-  userName?: string;
-  email?: string;
-  changes?: Record<string, { old: unknown; new: unknown }>;
-  [key: string]: unknown;
 }
 
 @Component({
@@ -252,7 +244,7 @@ interface DomainEventPayload {
               <div class="feature-empty feature-empty--wide">
                 <lucide-icon name="history" size="56" class="feature-empty__icon"></lucide-icon>
                 <h3>No hay registros</h3>
-                <p>No hay eventos de dominio en el periodo seleccionado.</p>
+                <p>Aún no hay actividad auditada para este tenant. Los inicios de sesión y las operaciones en proyectos, clientes y servicios aparecerán aquí.</p>
               </div>
             }
           }
@@ -304,7 +296,7 @@ interface DomainEventPayload {
 export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService<AuditLog> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
-  private readonly domainEventsApi = inject(DomainEventsApiService);
+  private readonly auditLogsApi = inject(AuditLogsApiService);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(this.authStore, 'audit.view');
@@ -359,61 +351,6 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     { label: 'Factura', value: 'INVOICE' },
     { label: 'Recibo', value: 'RECEIPT' },
     { label: 'Equipo', value: 'EQUIPMENT' },
-  ];
-
-  private readonly seedAuditLogs: AuditLog[] = [
-    {
-      id: '1',
-      userName: 'Admin User',
-      action: 'CREATE',
-      entity: 'PROJECT',
-      entityName: 'Proyecto Demo 1',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min ago
-      details: 'Proyecto creado con configuración básica',
-      changes: {
-        name: { old: null, new: 'Proyecto Demo 1' },
-        status: { old: null, new: 'ACTIVE' },
-      },
-    },
-    {
-      id: '2',
-      userName: 'John Doe',
-      action: 'UPDATE',
-      entity: 'SERVICE',
-      entityName: 'Servicio de Streaming',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-      details: 'Actualización de precio y configuración',
-      changes: {
-        basePrice: { old: 450, new: 500 },
-        hourlyRate: { old: 45, new: 50 },
-      },
-    },
-    {
-      id: '3',
-      userName: 'Admin User',
-      action: 'LOGIN',
-      entity: 'USER',
-      entityName: 'Admin User',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
-      details: 'Inicio de sesión exitoso',
-    },
-    {
-      id: '4',
-      userName: 'Jane Smith',
-      action: 'DELETE',
-      entity: 'CLIENT',
-      entityName: 'Cliente Antiguo',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-      details: 'Cliente eliminado del sistema',
-    },
-    {
-      id: '5',
-      userName: 'John Doe',
-      action: 'EXPORT',
-      entity: 'INVOICE',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-      details: 'Exportación de facturas a PDF',
-    },
   ];
 
   auditLogs = signal<AuditLog[]>([]);
@@ -494,68 +431,57 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     this.fetchAuditLogs();
   }
 
+  private normalizeApiRow(raw: AuditLogApiDto): AuditLog {
+    const validActions: AuditLog['action'][] = [
+      'CREATE',
+      'UPDATE',
+      'DELETE',
+      'COPY',
+      'LOGIN',
+      'LOGOUT',
+      'EXPORT',
+      'IMPORT',
+    ];
+    const validEntities: AuditLog['entity'][] = [
+      'USER',
+      'PROJECT',
+      'SERVICE',
+      'EVENT',
+      'CLIENT',
+      'INVOICE',
+      'RECEIPT',
+      'EQUIPMENT',
+    ];
+
+    const action = (
+      validActions.includes(raw.action as AuditLog['action'])
+        ? raw.action
+        : 'UPDATE'
+    ) as AuditLog['action'];
+    const entity = (
+      validEntities.includes(raw.entity as AuditLog['entity'])
+        ? raw.entity
+        : 'PROJECT'
+    ) as AuditLog['entity'];
+
+    return {
+      id: raw.id,
+      userName: raw.userName,
+      action,
+      entity,
+      entityName: raw.entityName,
+      timestamp: raw.timestamp,
+      details: raw.details,
+      changes: raw.changes,
+    };
+  }
+
   private fetchAuditLogs(): void {
     this.loadError.set(null);
     this.isLoading.set(true);
-    this.domainEventsApi.list(150).subscribe({
-      next: (events) => {
-        const fromDomain: AuditLog[] = events.map((e) => {
-          const payload = e.payload as DomainEventPayload;
-          const userName =
-            payload?.name || payload?.userName || payload?.email || 'Sistema';
-          const entityName =
-            payload?.name ||
-            payload?.email ||
-            `${e.aggregateType} - ${e.aggregateId.slice(0, 8)}`;
-
-          const validActions: AuditLog['action'][] = [
-            'CREATE',
-            'UPDATE',
-            'DELETE',
-            'COPY',
-            'LOGIN',
-            'LOGOUT',
-            'EXPORT',
-            'IMPORT',
-          ];
-          const validEntities: AuditLog['entity'][] = [
-            'USER',
-            'PROJECT',
-            'SERVICE',
-            'EVENT',
-            'CLIENT',
-            'INVOICE',
-            'RECEIPT',
-            'EQUIPMENT',
-          ];
-
-          const action = validActions.includes(e.eventType as AuditLog['action'])
-            ? (e.eventType as AuditLog['action'])
-            : 'UPDATE';
-          const entity = validEntities.includes(
-            e.aggregateType as AuditLog['entity'],
-          )
-            ? (e.aggregateType as AuditLog['entity'])
-            : 'PROJECT';
-
-          return {
-            id: `de-${e.id}`,
-            userName,
-            action,
-            entity,
-            entityName,
-            timestamp: e.occurredAt,
-            details: e.eventType,
-            changes:
-              payload?.changes || { payload: { old: null, new: e.payload } },
-          };
-        });
-
-        if (fromDomain.length > 0) {
-          this.auditLogs.set(fromDomain);
-        } else {
-          this.auditLogs.set([...this.seedAuditLogs]);
-        }
+    this.auditLogsApi.list(150).subscribe({
+      next: (rows) => {
+        this.auditLogs.set(rows.map((r) => this.normalizeApiRow(r)));
         this.isLoading.set(false);
         this.loadError.set(null);
       },
@@ -634,6 +560,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       case 'CREATE': return 'linear-gradient(135deg, #10b981, #059669)';
       case 'UPDATE': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
       case 'DELETE': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      case 'COPY': return 'linear-gradient(135deg, #8b5cf6, #6d28d9)';
       default: return 'linear-gradient(135deg, #6b7280, #374151)';
     }
   }
@@ -646,6 +573,8 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
         return this.TrendingUp;
       case 'DELETE':
         return this.History;
+      case 'COPY':
+        return this.FileText;
       case 'LOGIN':
       case 'LOGOUT':
         return this.User;
@@ -662,6 +591,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       CREATE: 'creó',
       UPDATE: 'actualizó',
       DELETE: 'eliminó',
+      COPY: 'duplicó',
       LOGIN: 'inició sesión',
       LOGOUT: 'cerró sesión',
       EXPORT: 'exportó',
@@ -695,6 +625,8 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       case 'LOGIN':
       case 'LOGOUT':
         return 'secondary';
+      case 'COPY':
+        return 'info';
       default:
         return 'secondary';
     }

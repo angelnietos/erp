@@ -218,7 +218,49 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                       </svg>
                       Continuar
                     </a>
+                    <a
+                      [routerLink]="['/documents/analysis']"
+                      [queryParams]="{ doc: doc.id }"
+                      class="inline-flex items-center justify-center px-3 py-2 border border-emerald-500/40 rounded-lg text-sm font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/15 transition-all duration-200"
+                      title="Analizar borrador con IA"
+                    >
+                      <svg
+                        class="w-4 h-4 mr-1.5 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                      </svg>
+                      Analizar
+                    </a>
                   } @else {
+                    <a
+                      [routerLink]="['/documents/analysis']"
+                      [queryParams]="{ doc: doc.id }"
+                      class="inline-flex items-center justify-center px-3 py-2 border border-emerald-500/40 rounded-lg text-sm font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/15 transition-all duration-200"
+                      title="Analizar con IA"
+                    >
+                      <svg
+                        class="w-4 h-4 mr-1.5 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                      </svg>
+                      Analizar
+                    </a>
                     <a
                       [routerLink]="['/documents/preview', doc.id]"
                       class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
