@@ -19,6 +19,7 @@ export * from './lib/guards/plugin.guard';
 export * from './lib/services/dashboard-analytics.service';
 
 export { AIBotStore } from './lib/store/ai-bot.store';
+export { AIInferenceService } from './lib/services/ai/ai-inference.service';
 export type { AIProvider } from './lib/services/ai/ai-inference.service';
 export * from './lib/models/ai-bot.model';
 export { AIFormBridgeService } from './lib/services/ai-form-bridge.service';

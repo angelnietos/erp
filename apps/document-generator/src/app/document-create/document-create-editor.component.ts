@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import {
   ReactiveFormsModule,
+  FormsModule,
   FormBuilder,
   FormGroup,
   Validators,
@@ -24,6 +25,10 @@ import {
   TemplatesRegistryService,
   DocumentTemplate,
 } from '../services/templates-registry.service';
+import {
+  DocumentAiService,
+  DocumentAiContext,
+} from '../services/document-ai.service';
 
 declare const marked: {
   parse: (content: string, options?: object) => string;
@@ -138,7 +143,7 @@ interface DocumentType {
   ],
   selector: 'app-document-create-editor',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   template: `
     <div class="space-y-8">
       <nav
@@ -267,6 +272,113 @@ interface DocumentType {
                     [placeholder]="getTitlePlaceholder()"
                     class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
                   />
+                </div>
+
+                <div
+                  class="rounded-xl border border-violet-200/90 dark:border-violet-900/50 bg-violet-50/50 dark:bg-violet-950/25 p-6 space-y-4"
+                >
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3
+                        class="text-lg font-semibold text-primary flex items-center gap-2"
+                      >
+                        <span
+                          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/10 text-violet-700 dark:text-violet-300"
+                          aria-hidden="true"
+                          >✨</span
+                        >
+                        Redacción asistida (IA)
+                      </h3>
+                      <p class="text-sm text-secondary mt-1 max-w-2xl">
+                        Describe objetivos, público y datos clave; la IA genera
+                        un borrador en Markdown. Revisa y ajusta siempre el
+                        resultado antes de enviarlo o firmarlo.
+                      </p>
+                    </div>
+                  </div>
+
+                  @if (aiError) {
+                    <p
+                      class="text-sm text-red-600 dark:text-red-400 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 px-3 py-2"
+                      role="alert"
+                    >
+                      {{ aiError }}
+                    </p>
+                  }
+
+                  <div class="space-y-2">
+                    <label
+                      for="aiBrief"
+                      class="block text-sm font-medium text-slate-700"
+                      >Consigna para generar borrador</label
+                    >
+                    <textarea
+                      id="aiBrief"
+                      [(ngModel)]="aiBrief"
+                      rows="3"
+                      placeholder="Ej.: Presupuesto para migración a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
+                      class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y min-h-[5rem]"
+                      [disabled]="isGenerating || isAiGenerating"
+                    ></textarea>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      (click)="generateDraftWithAi('replace')"
+                      [disabled]="isGenerating || isAiGenerating"
+                      class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white shadow hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      @if (isAiGenerating) {
+                        <svg
+                          class="w-4 h-4 animate-spin shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                      }
+                      Sustituir contenido
+                    </button>
+                    <button
+                      type="button"
+                      (click)="generateDraftWithAi('append')"
+                      [disabled]="isGenerating || isAiGenerating"
+                      class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-violet-300 dark:border-violet-800 bg-surface text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Añadir al final
+                    </button>
+                  </div>
+
+                  <div class="border-t border-violet-200/70 dark:border-violet-900/40 pt-4 space-y-2">
+                    <label
+                      for="aiInstruction"
+                      class="block text-sm font-medium text-slate-700"
+                      >Reformular el documento actual</label
+                    >
+                    <textarea
+                      id="aiInstruction"
+                      [(ngModel)]="aiInstruction"
+                      rows="2"
+                      placeholder="Ej.: Acorta a una página, tono más formal, añade sección de riesgos y mitigación."
+                      class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
+                      [disabled]="isGenerating || isAiGenerating"
+                    ></textarea>
+                    <button
+                      type="button"
+                      (click)="transformWithAi()"
+                      [disabled]="isGenerating || isAiGenerating"
+                      class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-doc-ink hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Aplicar instrucción al texto
+                    </button>
+                  </div>
                 </div>
 
                 @if (selectedType.id === 'quote') {
@@ -644,7 +756,9 @@ interface DocumentType {
                       </a>
                       <button
                         type="submit"
-                        [disabled]="documentForm.invalid || isGenerating"
+                        [disabled]="
+                          documentForm.invalid || isGenerating || isAiGenerating
+                        "
                         class="footer-cta-primary w-full sm:w-auto sm:min-w-[14rem]"
                       >
                         @if (!isGenerating) {
@@ -699,6 +813,12 @@ export class DocumentCreateEditorComponent implements OnInit {
   selectedType: DocumentType | null = null;
   documentForm: FormGroup;
   isGenerating = false;
+  /** Plantilla elegida en la URL (solo contexto para IA). */
+  private queryTemplateId: string | null = null;
+  aiBrief = '';
+  aiInstruction = '';
+  isAiGenerating = false;
+  aiError: string | null = null;
   previewHtml = '';
   wordCount = 0;
   characterCount = 0;
@@ -763,6 +883,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly pdfService = inject(PdfGenerationService);
   readonly assistantService = inject(AssistantContextService);
   readonly universalDocument = inject(UniversalDocumentService);
+  private readonly documentAi = inject(DocumentAiService);
 
   constructor() {
     this.documentForm = this.fb.group({
@@ -812,6 +933,78 @@ export class DocumentCreateEditorComponent implements OnInit {
     void this.router.navigate(['/documents/create']);
   }
 
+  private getAiContext(): DocumentAiContext {
+    const tpl = this.queryTemplateId
+      ? this.templatesService.getById(this.queryTemplateId)
+      : null;
+    return {
+      documentTypeId: this.selectedType!.id,
+      documentTypeLabel: this.selectedType!.name,
+      title: this.documentForm.get('title')?.value ?? undefined,
+      templateName: tpl?.name,
+      templateDescription: tpl?.description,
+      existingContent: this.documentForm.get('content')?.value || '',
+    };
+  }
+
+  async generateDraftWithAi(mode: 'replace' | 'append'): Promise<void> {
+    if (!this.selectedType) return;
+    const brief = this.aiBrief.trim();
+    if (!brief) {
+      this.aiError = 'Describe qué debe contener el documento.';
+      return;
+    }
+    this.isAiGenerating = true;
+    this.aiError = null;
+    try {
+      const ctx = this.getAiContext();
+      const md = await this.documentAi.generateDraft(brief, ctx);
+      const current = this.documentForm.get('content')?.value || '';
+      const next =
+        mode === 'append'
+          ? current
+            ? `${current}\n\n---\n\n${md}`
+            : md
+          : md;
+      this.documentForm.patchValue({ content: next });
+      this.updatePreview();
+      this.assistantService.setDocumentContent(next, this.selectedType.id);
+    } catch (e: unknown) {
+      this.aiError =
+        e instanceof Error ? e.message : 'Error al generar con IA.';
+    } finally {
+      this.isAiGenerating = false;
+    }
+  }
+
+  async transformWithAi(): Promise<void> {
+    const instruction = this.aiInstruction.trim();
+    if (!instruction || !this.selectedType) {
+      this.aiError =
+        'Escribe una instrucción (por ejemplo: más formal, acortar, añadir tabla de costes).';
+      return;
+    }
+    const existing = this.documentForm.get('content')?.value || '';
+    if (!existing.trim()) {
+      this.aiError = 'Primero escribe o genera contenido en el editor.';
+      return;
+    }
+    this.isAiGenerating = true;
+    this.aiError = null;
+    try {
+      const ctx = this.getAiContext();
+      const md = await this.documentAi.transformContent(instruction, ctx);
+      this.documentForm.patchValue({ content: md });
+      this.updatePreview();
+      this.assistantService.setDocumentContent(md, this.selectedType.id);
+    } catch (e: unknown) {
+      this.aiError =
+        e instanceof Error ? e.message : 'Error al reformular con IA.';
+    } finally {
+      this.isAiGenerating = false;
+    }
+  }
+
   getTitlePlaceholder(): string {
     switch (this.selectedType?.id) {
       case 'quote':
@@ -859,6 +1052,7 @@ export class DocumentCreateEditorComponent implements OnInit {
 
     const typeId = this.route.snapshot.queryParamMap.get('type');
     const templateId = this.route.snapshot.queryParamMap.get('template');
+    this.queryTemplateId = templateId;
 
     this.selectedType =
       this.documentTypes.find((t) => t.id === (typeId ?? '')) ?? null;
