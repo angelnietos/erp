@@ -667,7 +667,8 @@ declare const marked: MarkedGlobal;
           <div
             class="messages-container"
             #messagesContainer
-            role="region"
+            role="log"
+            aria-live="polite"
             [attr.aria-label]="
               'Historial de chat con ' + assistantService.petConfig$().name
             "

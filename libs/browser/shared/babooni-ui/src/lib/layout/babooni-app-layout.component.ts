@@ -56,7 +56,7 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
               role="button"
               aria-label="Abrir paleta de comandos"
             >
-              <lucide-icon name="search" size="18" />
+              <lucide-icon name="search" size="18" aria-hidden="true" />
               <input type="text" placeholder="Buscar…" readonly />
               <span class="bb-search__kbd">⌘K</span>
             </div>
@@ -65,13 +65,18 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
           <div class="bb-actions">
             @if (tenantName) {
               <div class="bb-badge">
-                <lucide-icon name="building-2" size="16" />
+                <lucide-icon name="building-2" size="16" aria-hidden="true" />
                 <span>{{ tenantName }}</span>
               </div>
             }
 
-            <button type="button" class="bb-icon-btn" (click)="toggleNotifications()">
-              <lucide-icon name="bell" size="20" />
+            <button
+              type="button"
+              class="bb-icon-btn"
+              (click)="toggleNotifications()"
+              aria-label="Notificaciones"
+            >
+              <lucide-icon name="bell" size="20" aria-hidden="true" />
               <span class="bb-dot" aria-hidden="true"></span>
             </button>
 
@@ -81,14 +86,26 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
                 [style.color]="currentThemeData().primary"
                 [style.border-color]="currentThemeData().primary + '44'"
               >
-                <lucide-icon name="sparkles" size="14" />
+                <lucide-icon name="sparkles" size="14" aria-hidden="true" />
                 <span>LUXE</span>
               </div>
             }
 
             <div class="bb-theme-wrap">
-              <button type="button" class="bb-icon-btn" (click)="toggleThemeMenu()">
-                <lucide-icon [name]="currentTheme() === 'dark' ? 'moon' : 'sun'" size="20" />
+              <button
+                type="button"
+                class="bb-icon-btn"
+                (click)="toggleThemeMenu()"
+                [attr.aria-label]="
+                  showThemeMenu() ? 'Cerrar selector de tema' : 'Abrir selector de tema'
+                "
+                [attr.aria-expanded]="showThemeMenu()"
+              >
+                <lucide-icon
+                  [name]="currentTheme() === 'dark' ? 'moon' : 'sun'"
+                  size="20"
+                  aria-hidden="true"
+                />
               </button>
               @if (showThemeMenu()) {
                 <div class="bb-theme-menu" role="listbox" aria-label="Elegir tema visual">
@@ -130,17 +147,17 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
                 <span class="bb-user__role">{{ userRoleLabel() }}</span>
               </div>
               <div class="bb-avatar">
-                <lucide-icon name="user" size="18" />
+                <lucide-icon name="user" size="18" aria-hidden="true" />
               </div>
 
               @if (showUserMenu()) {
                 <div class="bb-user-menu animate-fade-in">
                   <button type="button" class="bb-user-menu__row" routerLink="/settings">
-                    <lucide-icon name="settings" size="16" />
+                    <lucide-icon name="settings" size="16" aria-hidden="true" />
                     Configuración
                   </button>
                   <button type="button" class="bb-user-menu__row bb-user-menu__row--danger" (click)="logout()">
-                    <lucide-icon name="log-out" size="16" />
+                    <lucide-icon name="log-out" size="16" aria-hidden="true" />
                     Cerrar sesión
                   </button>
                 </div>

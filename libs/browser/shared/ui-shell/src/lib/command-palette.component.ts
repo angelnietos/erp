@@ -244,7 +244,6 @@ function contextTrackKey(item: MasterFilterResultItem, index: number): string {
 })
 export class CommandPaletteComponent {
   /** Exposed for template — typed context rows from `MasterFilterService`. */
-  readonly contextHitId = contextHitId;
   readonly contextHitLabel = contextHitLabel;
   readonly contextHitDescription = contextHitDescription;
   readonly contextTrackKey = contextTrackKey;

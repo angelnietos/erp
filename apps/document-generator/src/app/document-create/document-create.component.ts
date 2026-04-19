@@ -201,12 +201,12 @@ interface DocumentType {
           @for (type of documentTypes; track type.id) {
             <div
               (click)="selectDocumentType(type)"
-              (keydown.enter)="selectDocumentType(type)"
-              (keydown.space)="
-                $event.preventDefault(); selectDocumentType(type)
-              "
+              (keydown)="onDocumentTypeCardKeydown($event, type)"
               tabindex="0"
               role="button"
+              [attr.aria-current]="
+                selectedType?.id === type.id ? 'true' : null
+              "
               class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
               [class.selected-doc-type-light]="selectedType?.id === type.id"
               [class.border-blue-500]="selectedType?.id === type.id"
@@ -455,6 +455,18 @@ export class DocumentCreateComponent implements OnInit {
         this.selectDocumentType(match);
       }
     }
+  }
+
+  /** Teclado en tarjetas tipo botón: Enter/Espacio sin scroll por Espacio. */
+  onDocumentTypeCardKeydown(
+    event: KeyboardEvent,
+    type: DocumentType,
+  ): void {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    event.preventDefault();
+    this.selectDocumentType(type);
   }
 
   selectDocumentType(type: DocumentType) {

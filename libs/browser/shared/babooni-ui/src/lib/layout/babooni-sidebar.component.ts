@@ -31,6 +31,7 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
           <lucide-icon
             [name]="isCollapsed() ? 'chevron-right' : 'chevron-left'"
             size="16"
+            aria-hidden="true"
           />
         </button>
       </div>
@@ -45,9 +46,10 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
                 routerLinkActive="is-active"
                 class="bb-nav-link"
                 [attr.title]="item.label"
+                [attr.aria-label]="isCollapsed() ? item.label : null"
               >
                 <span class="bb-nav-link__icon">
-                  <lucide-icon [name]="item.icon" size="18" />
+                  <lucide-icon [name]="item.icon" size="18" aria-hidden="true" />
                 </span>
                 @if (!isCollapsed()) {
                   <span class="bb-nav-link__label">{{ item.label }}</span>
@@ -66,9 +68,10 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
               routerLinkActive="is-active"
               class="bb-nav-link"
               [attr.title]="'Configuración'"
+              [attr.aria-label]="isCollapsed() ? 'Configuración' : null"
             >
               <span class="bb-nav-link__icon">
-                <lucide-icon name="cog" size="18" />
+                <lucide-icon name="cog" size="18" aria-hidden="true" />
               </span>
               @if (!isCollapsed()) {
                 <span class="bb-nav-link__label">Configuración</span>
@@ -76,9 +79,14 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
             </a>
           </li>
           <li>
-            <button type="button" class="bb-nav-link bb-nav-link--btn" (click)="logout()">
+            <button
+              type="button"
+              class="bb-nav-link bb-nav-link--btn"
+              (click)="logout()"
+              [attr.aria-label]="isCollapsed() ? 'Cerrar sesión' : null"
+            >
               <span class="bb-nav-link__icon">
-                <lucide-icon name="log-out" size="18" />
+                <lucide-icon name="log-out" size="18" aria-hidden="true" />
               </span>
               @if (!isCollapsed()) {
                 <span class="bb-nav-link__label">Cerrar sesión</span>

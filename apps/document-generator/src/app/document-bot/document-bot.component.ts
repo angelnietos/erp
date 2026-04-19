@@ -41,7 +41,12 @@ interface MessageAction {
           <div
             class="w-12 h-12 bg-gradient-to-r from-brand to-brand rounded-2xl flex items-center justify-center shadow-lg"
           >
-            <lucide-icon name="bot" size="28" class="text-white"></lucide-icon>
+            <lucide-icon
+              name="bot"
+              size="28"
+              class="text-white"
+              aria-hidden="true"
+            ></lucide-icon>
           </div>
           <div>
             <h1
@@ -78,6 +83,7 @@ interface MessageAction {
               name="bot"
               size="16"
               class="w-4 h-4 text-white"
+              aria-hidden="true"
             ></lucide-icon>
           </div>
 
@@ -135,12 +141,19 @@ interface MessageAction {
               name="user"
               size="16"
               class="w-4 h-4 text-secondary"
+              aria-hidden="true"
             ></lucide-icon>
           </div>
         </div>
 
         <!-- Typing Indicator -->
-        <div *ngIf="isTyping()" class="flex gap-3 justify-start">
+        <div
+          *ngIf="isTyping()"
+          class="flex gap-3 justify-start"
+          role="status"
+          aria-live="polite"
+          aria-label="El asistente está escribiendo"
+        >
           <div
             class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center"
           >
@@ -148,12 +161,13 @@ interface MessageAction {
               name="bot"
               size="16"
               class="w-4 h-4 text-white"
+              aria-hidden="true"
             ></lucide-icon>
           </div>
           <div
             class="doc-chat-bubble-bot rounded-2xl rounded-bl-md px-4 py-3 shadow-sm"
           >
-            <div class="flex space-x-1">
+            <div class="flex space-x-1" aria-hidden="true">
               <div
                 class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
               ></div>
@@ -231,7 +245,12 @@ interface MessageAction {
             class="px-6 py-4 bg-gradient-to-r from-brand to-brand hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex items-center space-x-2 font-medium"
           >
             <span>{{ isTyping() ? 'Pensando...' : 'Enviar' }}</span>
-            <lucide-icon name="send" size="20" class="w-5 h-5"></lucide-icon>
+            <lucide-icon
+              name="send"
+              size="20"
+              class="w-5 h-5"
+              aria-hidden="true"
+            ></lucide-icon>
           </button>
         </div>
       </div>
