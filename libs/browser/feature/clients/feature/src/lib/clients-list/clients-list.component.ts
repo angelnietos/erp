@@ -587,15 +587,13 @@ export class ClientsListComponent
     if (this.typeFilter() !== 'all') {
       list = list.filter((c) => c.type === this.typeFilter());
     }
-    if (this.revenueMinFilter() !== null) {
-      list = list.filter(
-        (c) => this.getClientRevenue(c) >= this.revenueMinFilter()!,
-      );
+    const revMin = this.revenueMinFilter();
+    if (revMin !== null) {
+      list = list.filter((c) => this.getClientRevenue(c) >= revMin);
     }
-    if (this.revenueMaxFilter() !== null) {
-      list = list.filter(
-        (c) => this.getClientRevenue(c) <= this.revenueMaxFilter()!,
-      );
+    const revMax = this.revenueMaxFilter();
+    if (revMax !== null) {
+      list = list.filter((c) => this.getClientRevenue(c) <= revMax);
     }
 
     // 3. Sort
@@ -603,8 +601,8 @@ export class ClientsListComponent
     const dir = this.sortDirection();
 
     return list.sort((a, b) => {
-      let valA: any = '';
-      let valB: any = '';
+      let valA: string | number = '';
+      let valB: string | number = '';
 
       if (field === 'name') {
         valA = a.name.toLowerCase();
@@ -933,14 +931,14 @@ export class ClientsListComponent
     return this.getOrCreateStats(client.id).rating;
   }
 
-  private getOrCreateStats(clientId: string) {
-    if (!this.memoizedStats.has(clientId)) {
-      this.memoizedStats.set(clientId, {
+  private getOrCreateStats(clientId: string): {
+    projects: number;
+    revenue: number;
+    rating: number;
+  } {
+    let stats = this.memoizedStats.get(clientId);
+    if (!stats) {
+      stats = {
         projects: Math.floor(Math.random() * 5) + 1,
         revenue: Math.floor(Math.random() * 100000) + 50000,
         rating: Math.floor(Math.random() * 3) + 3,
-      });
-    }
-    return this.memoizedStats.get(clientId)!;
-  }
-}

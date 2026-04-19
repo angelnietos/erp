@@ -804,13 +804,11 @@ export class ProjectsListComponent
   }
 
   onDuplicate(project: Project) {
-    const projectData = { ...project };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (projectData as any).id;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (projectData as any).createdAt;
+    const { id: _omitId, createdAt: _omitCreatedAt, ...rest } = project;
+    void _omitId;
+    void _omitCreatedAt;
     this.facade.createProject({
-      ...projectData,
+      ...rest,
       name: `${project.name} (Copia)`,
       status: 'ACTIVE' as const,
     });

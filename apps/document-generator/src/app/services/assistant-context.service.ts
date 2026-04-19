@@ -85,7 +85,7 @@ export class AssistantContextService {
 
   private readonly messages = signal<AssistantMessage[]>([
     {
-      id: '1',
+      id: 'welcome-initial',
       type: 'assistant',
       content: ASSISTANT_DEFAULT_WELCOME,
       timestamp: new Date(),
@@ -241,7 +241,7 @@ export class AssistantContextService {
     this.messages.update((current) => [
       ...current,
       {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         type,
         content,
         timestamp: new Date(),
@@ -273,7 +273,7 @@ Contexto actual:
   resetChatToWelcome(): void {
     this.messages.set([
       {
-        id: 'welcome-' + Date.now(),
+        id: `welcome-${crypto.randomUUID()}`,
         type: 'assistant',
         content: ASSISTANT_DEFAULT_WELCOME,
         timestamp: new Date(),
@@ -282,7 +282,12 @@ Contexto actual:
   }
 
   updatePetConfig(partial: Partial<AssistantPetConfig>): void {
-    this.petConfig.update((current) => ({ ...current, ...partial }));
+    this.petConfig.update((current) =>
+      this.sanitizePetConfigFromStorage(
+        partial as Record<string, unknown>,
+        current,
+      ),
+    );
     try {
       localStorage.setItem(
         ASSISTANT_PET_CONFIG_STORAGE_KEY,
@@ -313,7 +318,7 @@ Contexto actual:
     this.loadPanelSize();
   }
 
-  /** Aplica solo campos válidos desde localStorage (evita NaN, tipos raros o cadenas enormes). */
+  /** Fusiona un parche en la config del pet (localStorage o UI) con validación por campo. */
   private sanitizePetConfigFromStorage(
     raw: Record<string, unknown>,
     base: AssistantPetConfig,

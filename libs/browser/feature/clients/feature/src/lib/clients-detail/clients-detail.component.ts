@@ -16,7 +16,13 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
-import { ClientService, Client } from '@josanz-erp/clients-data-access';
+import {
+  Budget,
+  ClientService,
+  Client,
+  DeliveryNote,
+  Invoice,
+} from '@josanz-erp/clients-data-access';
 
 @Component({
   selector: 'lib-clients-detail',
@@ -774,12 +780,12 @@ export class ClientsDetailComponent implements OnInit {
     });
   }
 
-  getAllInvoices() {
-    const invoices: any[] = [];
+  getAllInvoices(): Invoice[] {
+    const invoices: Invoice[] = [];
     const c = this.client();
     if (c?.budgets) {
-      c.budgets.forEach((b: any) => {
-        if (b.invoices) {
+      c.budgets.forEach((b: Budget) => {
+        if (b.invoices?.length) {
           invoices.push(...b.invoices);
         }
       });
@@ -787,12 +793,12 @@ export class ClientsDetailComponent implements OnInit {
     return invoices;
   }
 
-  getAllDeliveryNotes() {
-    const notes: any[] = [];
+  getAllDeliveryNotes(): DeliveryNote[] {
+    const notes: DeliveryNote[] = [];
     const c = this.client();
     if (c?.budgets) {
-      c.budgets.forEach((b: any) => {
-        if (b.deliveryNotes) {
+      c.budgets.forEach((b: Budget) => {
+        if (b.deliveryNotes?.length) {
           notes.push(...b.deliveryNotes);
         }
       });

@@ -395,7 +395,7 @@ export class ZeroUiComponent {
       icon: '𝗕',
       label: 'Negrita',
       action: (): void => {
-        void 0;
+        return;
       },
     },
     {
@@ -403,7 +403,7 @@ export class ZeroUiComponent {
       icon: '𝘐',
       label: 'Cursiva',
       action: (): void => {
-        void 0;
+        return;
       },
     },
     {
@@ -411,7 +411,7 @@ export class ZeroUiComponent {
       icon: 'H',
       label: 'Título',
       action: (): void => {
-        void 0;
+        return;
       },
     },
     {
@@ -420,7 +420,7 @@ export class ZeroUiComponent {
       label: 'Eliminar',
       danger: true,
       action: (): void => {
-        void 0;
+        return;
       },
     },
   ];

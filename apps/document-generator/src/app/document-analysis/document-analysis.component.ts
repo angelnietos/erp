@@ -459,7 +459,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               <div
                 class="space-y-4 h-96 overflow-y-auto p-4 bg-slate-50 rounded-xl"
               >
-                @for (msg of chatMessages; track $index) {
+                @for (msg of chatMessages; track msg.id) {
                   <div
                     [class]="
                       msg.type === 'user'
@@ -518,7 +518,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               <div class="pt-4 border-t border-soft">
                 <p class="text-sm text-muted mb-3">Acciones rápidas:</p>
                 <div class="flex flex-wrap gap-2">
-                  @for (quickAction of quickActions; track $index) {
+                  @for (quickAction of quickActions; track quickAction) {
                     <button
                       type="button"
                       (click)="executeQuickAction(quickAction)"
@@ -673,7 +673,11 @@ export class DocumentAnalysisComponent implements OnInit {
 
   analysisResults: AnalysisResult[] = [];
   analysisRunError: string | null = null;
-  chatMessages: { type: 'user' | 'assistant'; content: string }[] = [];
+  chatMessages: {
+    id: string;
+    type: 'user' | 'assistant';
+    content: string;
+  }[] = [];
   chatInput = new FormControl('');
   isChatSending = false;
 
@@ -706,6 +710,7 @@ export class DocumentAnalysisComponent implements OnInit {
 
     this.chatMessages = [
       {
+        id: 'analysis-chat-welcome',
         type: 'assistant',
         content:
           'Carga un documento del historial o pega texto. Las respuestas usan el mismo motor de IA que el editor.',
@@ -920,6 +925,7 @@ export class DocumentAnalysisComponent implements OnInit {
     }
     if (this.effectiveTextLength === 0) {
       this.chatMessages.push({
+        id: crypto.randomUUID(),
         type: 'assistant',
         content:
           'Primero carga un documento del historial o pega el texto del documento.',
@@ -927,7 +933,11 @@ export class DocumentAnalysisComponent implements OnInit {
       return;
     }
 
-    this.chatMessages.push({ type: 'user', content: message });
+    this.chatMessages.push({
+      id: crypto.randomUUID(),
+      type: 'user',
+      content: message,
+    });
     this.chatInput.reset();
     this.isChatSending = true;
 
@@ -938,10 +948,15 @@ export class DocumentAnalysisComponent implements OnInit {
         this.effectiveText,
         summary,
       );
-      this.chatMessages.push({ type: 'assistant', content: reply.trim() });
+      this.chatMessages.push({
+        id: crypto.randomUUID(),
+        type: 'assistant',
+        content: reply.trim(),
+      });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       this.chatMessages.push({
+        id: crypto.randomUUID(),
         type: 'assistant',
         content: `No se pudo obtener respuesta del modelo: ${msg}`,
       });
