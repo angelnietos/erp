@@ -324,22 +324,63 @@ declare const marked: {
         [class.minimized]="isMinimized"
         [style.left.px]="assistantService.position$().x"
         [style.top.px]="assistantService.position$().y"
+        [style.width.px]="isMinimized ? undefined : assistantService.panelSize$().width"
+        [style.height.px]="isMinimized ? undefined : assistantService.panelSize$().height"
         [style.--pet-color]="assistantService.petConfig$().color"
       >
         <div class="window-header" (mousedown)="startDrag($event)">
-          <div class="flex items-center space-x-3">
-            <span class="text-2xl">{{ getPetFace() }}</span>
-            <span class="font-semibold">{{
+          <div class="flex items-center space-x-3 min-w-0">
+            <span class="text-2xl shrink-0">{{ getPetFace() }}</span>
+            <span class="font-semibold truncate">{{
               assistantService.petConfig$().name
             }}</span>
-            <span class="context-badge">{{
+            <span class="context-badge shrink-0">{{
               assistantService.context$().activeTab | uppercase
             }}</span>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-1 shrink-0">
             <button
-              (click)="isMinimized = !isMinimized"
-              class="text-white/80 hover:text-white"
+              type="button"
+              (click)="
+                $event.stopPropagation(); togglePanelExpanded()
+              "
+              class="text-white/80 hover:text-white p-1 rounded"
+              [title]="expandedPanelHint()"
+            >
+              @if (isExpandedPanelSize()) {
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"
+                  />
+                </svg>
+              } @else {
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                  />
+                </svg>
+              }
+            </button>
+            <button
+              type="button"
+              (click)="$event.stopPropagation(); isMinimized = !isMinimized"
+              class="text-white/80 hover:text-white p-1 rounded"
               title="Minimizar"
             >
               <svg
@@ -357,8 +398,9 @@ declare const marked: {
               </svg>
             </button>
             <button
-              (click)="showConfig = !showConfig"
-              class="text-white/80 hover:text-white"
+              type="button"
+              (click)="$event.stopPropagation(); showConfig = !showConfig"
+              class="text-white/80 hover:text-white p-1 rounded"
               title="Configuración"
             >
               <svg
@@ -382,8 +424,10 @@ declare const marked: {
               </svg>
             </button>
             <button
-              (click)="assistantService.toggleAssistant()"
-              class="text-white/80 hover:text-white"
+              type="button"
+              (click)="$event.stopPropagation(); assistantService.toggleAssistant()"
+              class="text-white/80 hover:text-white p-1 rounded"
+              title="Cerrar"
             >
               <svg
                 class="w-5 h-5"
@@ -572,10 +616,10 @@ declare const marked: {
           </div>
 
           <div
-            class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light"
+            class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light space-y-2"
           >
             <div class="flex flex-wrap gap-1">
-              @for (action of quickActions; track $index) {
+              @for (action of quickActionsPrimary; track $index) {
                 <button
                   type="button"
                   (click)="sendQuickAction(action)"
@@ -585,6 +629,46 @@ declare const marked: {
                   {{ action }}
                 </button>
               }
+            </div>
+            <button
+              type="button"
+              (click)="showExtraQuick = !showExtraQuick"
+              class="text-[11px] font-medium text-blue-700 hover:text-blue-900 underline-offset-2 hover:underline"
+            >
+              {{ showExtraQuick ? 'Ocultar más acciones' : 'Más acciones (resumen, tono, CTA…)' }}
+            </button>
+            @if (showExtraQuick) {
+              <div class="flex flex-wrap gap-1">
+                @for (action of quickActionsExtra; track $index) {
+                  <button
+                    type="button"
+                    (click)="sendQuickAction(action)"
+                    [disabled]="isAiReplyLoading"
+                    class="px-2 py-1 text-xs bg-violet-50 border border-violet-200 rounded text-violet-900 hover:bg-violet-100 hover:border-violet-400 transition-colors disabled:opacity-50"
+                  >
+                    {{ action }}
+                  </button>
+                }
+              </div>
+            }
+            <div
+              class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] border-t border-slate-200/80 pt-2"
+            >
+              <a
+                routerLink="/documents/analysis"
+                class="text-slate-600 hover:text-blue-700 font-medium"
+                >Análisis de propuestas</a
+              >
+              <a
+                routerLink="/documents/list"
+                class="text-slate-600 hover:text-blue-700 font-medium"
+                >Mis documentos</a
+              >
+              <a
+                routerLink="/documents/settings/ai"
+                class="text-slate-600 hover:text-blue-700 font-medium"
+                >Motor de IA</a
+              >
             </div>
           </div>
 
@@ -604,6 +688,7 @@ declare const marked: {
               (click)="sendMessage()"
               [disabled]="isAiReplyLoading"
               class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Enviar"
             >
               <svg
                 class="w-4 h-4"
@@ -620,6 +705,12 @@ declare const marked: {
               </svg>
             </button>
           </div>
+
+          <div
+            class="resize-handle"
+            title="Arrastra para cambiar tamaño"
+            (mousedown)="startResize($event)"
+          ></div>
         }
       </div>
     }
@@ -634,11 +725,14 @@ export class FloatingAssistantComponent implements OnInit {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   isDragging = false;
+  isResizing = false;
   showConfig = false;
   isMinimized = false;
+  showExtraQuick = false;
   /** Respuesta del modelo en curso (Gemini, OpenAI, Ollama…). */
   isAiReplyLoading = false;
   private dragOffset = { x: 0, y: 0 };
+  private resizeStart = { x: 0, y: 0, w: 0, h: 0 };
 
   availableSkins = [
     { id: 'default', emoji: '🤖', bg: '#667eea' },
@@ -651,7 +745,19 @@ export class FloatingAssistantComponent implements OnInit {
     { id: 'unicorn', emoji: '🦄', bg: '#ec4899' },
   ];
 
-  quickActions = ['¿Qué veo?', 'Revisar contenido', 'Sugerencias', 'Errores'];
+  quickActionsPrimary = [
+    '¿Qué veo?',
+    'Revisar contenido',
+    'Sugerencias',
+    'Errores',
+  ];
+
+  quickActionsExtra = [
+    'Resumir documento',
+    'Tono más formal',
+    'Ideas para CTA',
+    'Objeciones típicas',
+  ];
 
   ngOnInit(): void {
     this.assistantService.loadSavedConfig();
@@ -660,16 +766,23 @@ export class FloatingAssistantComponent implements OnInit {
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
+    if (this.isResizing) {
+      const dx = event.clientX - this.resizeStart.x;
+      const dy = event.clientY - this.resizeStart.y;
+      this.assistantService.setPanelSize(
+        this.resizeStart.w + dx,
+        this.resizeStart.h + dy,
+      );
+      return;
+    }
     if (this.isDragging) {
+      const open = this.assistantService.isOpen$();
+      const size = this.assistantService.panelSize$();
+      const w = open ? size.width : 70;
+      const h = open ? size.height : 70;
       this.assistantService.setPosition(
-        Math.max(
-          0,
-          Math.min(window.innerWidth - 70, event.clientX - this.dragOffset.x),
-        ),
-        Math.max(
-          0,
-          Math.min(window.innerHeight - 70, event.clientY - this.dragOffset.y),
-        ),
+        Math.max(0, Math.min(window.innerWidth - w, event.clientX - this.dragOffset.x)),
+        Math.max(0, Math.min(window.innerHeight - h, event.clientY - this.dragOffset.y)),
       );
     }
   }
@@ -677,6 +790,7 @@ export class FloatingAssistantComponent implements OnInit {
   @HostListener('document:mouseup')
   onMouseUp(): void {
     this.isDragging = false;
+    this.isResizing = false;
   }
 
   startDrag(event: MouseEvent): void {
@@ -687,6 +801,42 @@ export class FloatingAssistantComponent implements OnInit {
       y: event.clientY - pos.y,
     };
     event.preventDefault();
+  }
+
+  startResize(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing = true;
+    const s = this.assistantService.panelSize$();
+    this.resizeStart = {
+      x: event.clientX,
+      y: event.clientY,
+      w: s.width,
+      h: s.height,
+    };
+  }
+
+  /** Panel ocupa casi toda la ventana (mismo estado que tras «Ampliar»). */
+  isExpandedPanelSize(): boolean {
+    const s = this.assistantService.panelSize$();
+    return (
+      s.width >= window.innerWidth * 0.72 &&
+      s.height >= window.innerHeight * 0.72
+    );
+  }
+
+  togglePanelExpanded(): void {
+    if (this.isExpandedPanelSize()) {
+      this.assistantService.resetPanelSize();
+    } else {
+      this.assistantService.maximizePanel();
+    }
+  }
+
+  expandedPanelHint(): string {
+    return this.isExpandedPanelSize()
+      ? 'Volver a tamaño estándar'
+      : 'Ampliar al máximo (casi pantalla completa)';
   }
 
   toggleConfig(event: MouseEvent): void {
@@ -824,24 +974,40 @@ export class FloatingAssistantComponent implements OnInit {
         'Revisar contenido': `¡Claro! Estoy analizando tu documento. Veo ${ctx.documentContent.length} caracteres de contenido. Te recomiendo revisar: 1) Resumen ejecutivo 2) Precios detallados 3) Llamada a la acción. ¡Tienes muy buena pinta! ✨`,
         Sugerencias: `¡Genial! Basándome en tu contenido actual, te sugiero: ✅ Añade un resumen ejecutivo claro ✅ Destaca tus valores diferenciales ✅ Incluye garantías ✅ Mejora la llamada final a la acción. ¡Lo harás genial! 💪`,
         Errores: `¡No te preocupes! No he detectado errores críticos en tu documento. Solo te recomiendo revisar la ortografía y asegurarte de que todos los campos estén completos. ¡Está casi perfecto! 🌟`,
+        'Resumir documento': `Aquí va un resumen rápido: estás en ${ctx.activeTab}, con unos ${ctx.documentContent.length} caracteres. ${documentTypeText} Si quieres un resumen por secciones, dime cuál priorizamos.`,
+        'Tono más formal': `Para sonar más formal: usa voz impersonal o «nosotros», evita muletillas, sustituye coloquialismos por términos técnicos y cierra cada bloque con una frase de transición. ¿Quieres que reescriba un párrafo concreto?`,
+        'Ideas para CTA': `Ideas de cierre: «Solicita una demo», «Agenda una llamada», «Descarga el dossier», «Reserva tu plaza». Elige una acción única y repítela al final. ¿Tu objetivo es venta, reunión o descarga?`,
+        'Objeciones típicas': `Objeciones frecuentes: precio, plazos, competencia, garantías. Responde con beneficios medibles, casos de uso y un siguiente paso claro. ¿Quieres que bordemos respuestas para tu sector?`,
       },
       professional: {
         '¿Qué veo?': `Contexto actual: Pestaña ${ctx.activeTab}. Tipo documento: ${ctx.documentType || 'No seleccionado'}. Longitud: ${ctx.documentContent.length} caracteres. Listo para asistirte.`,
         'Revisar contenido': `Análisis completo realizado. Se detectan ${ctx.documentContent.length} caracteres. Recomendaciones: 1) Resumen ejecutivo 2) Estructura de precios 3) Llamada a la acción final.`,
         Sugerencias: `Recomendaciones prioritarias: 1. Resumen ejecutivo 2. Valores diferenciales 3. Garantías 4. Llamada a la acción. Implementar estas mejoras incrementará la efectividad un 35%.`,
         Errores: `No se detectan errores críticos. Se recomienda revisión ortográfica y verificación de campos obligatorios. Documento apto para su uso.`,
+        'Resumir documento': `Resumen ejecutivo: vista ${ctx.activeTab}; extensión ${ctx.documentContent.length} caracteres; tipo ${ctx.documentType || 'sin especificar'}. Propuesta: estructurar en contexto–propuesta–próximos pasos.`,
+        'Tono más formal': `Ajuste de registro: sustituir contracciones, unificar terminología, usar titulares descriptivos y párrafos de 3–5 líneas. Puede facilitar un fragmento para reformular.`,
+        'Ideas para CTA': `CTA recomendadas: solicitud de reunión, envío de propuesta detallada, acceso a documentación técnica. Una sola CTA principal por sección evita dispersión.`,
+        'Objeciones típicas': `Matriz sugerida: objeción → evidencia (dato/caso) → mitigación → siguiente paso. Priorizar coste total de propiedad y plazos de entrega.`,
       },
       humorous: {
         '¿Qué veo?': `¡Hey! Estoy en ${ctx.activeTab} vigilando todo. ${documentTypeHumorous} ¿Qué trastada tienes hoy? 😎`,
         'Revisar contenido': `¡Muy bien! Leí todo tu texto. ¡Vaya crack! Solo te faltan estas cosillas: 1) Un resumen que mate 2) Precios que no asusten 3) Un final que les deje con la boca abierta. ¡Tú puedes! 🚀`,
         Sugerencias: `¡Aquí van los trucos del maestro! ✅ Mete un resumen que les deje boquiabiertos ✅ Diles por qué tu eres el mejor ✅ Añade alguna garantía para que se queden tranquilos ✅ Termina con un golpe de efecto. ¡A por ellos! 🎯`,
         Errores: `¡Tranquilo/a! Nada grave. Solo un par de erratas por aquí y por allá, nada que no se arregle en dos segundos. ¡Tu documento esta de muerte! 💯`,
+        'Resumir documento': `Resumen express: ${ctx.activeTab}, ${ctx.documentContent.length} caracteres de pura garra. Si quieres menos rollo y más viñetas, dímelo y lo afilo ✂️`,
+        'Tono más formal': `Modo «jefe de sala»: sin slang, con garra educada. Cambia «mola» por «resulta adecuado» y listo. ¿Mando un párrafo antes/después? 🎩`,
+        'Ideas para CTA': `CTA con gancho: «Pídenos cita», «Te lo enseñamos en 15 min», «Te paso el PDF». Elige una y que no se escape nadie 🎣`,
+        'Objeciones típicas': `Cuando tiren de «es caro»: tú sacas ROI. Si dudan del plazo: mapa de hitos. Si comparan: diferencial clarísimo. ¿Roleplay de cliente difícil? 🥊`,
       },
       minimal: {
         '¿Qué veo?': `${ctx.activeTab}. ${ctx.documentType || 'Sin tipo'}. ${ctx.documentContent.length} chars.`,
         'Revisar contenido': `Contenido detectado. Revisar: resumen, precios, CTA.`,
         Sugerencias: `Añadir: resumen, diferenciadores, garantías, CTA.`,
         Errores: `Sin errores críticos. Revisar ortografía.`,
+        'Resumir documento': `Resumen: ${ctx.activeTab}; ${ctx.documentContent.length} caracteres.`,
+        'Tono más formal': `Usar registro impersonal, frases cortas, términos técnicos coherentes.`,
+        'Ideas para CTA': `Una CTA: reunión, demo o descarga. Repetir al cierre.`,
+        'Objeciones típicas': `Precio, plazo, riesgo. Responder con dato + siguiente paso.`,
       },
     };
 
