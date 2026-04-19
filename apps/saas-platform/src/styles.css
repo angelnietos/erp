@@ -1,18 +1,20 @@
-/* Josanz Platform — tokens + baseline (dark UI) */
+/* Babooni Platform — tokens + baseline (dark UI, acento Biosstel / azul marca) */
 :root {
-  --sp-bg0: #05060a;
-  --sp-bg1: #0b0d14;
-  --sp-bg2: #12151e;
-  --sp-surface: #0d0f16;
+  --sp-bg0: #040814;
+  --sp-bg1: #0a1020;
+  --sp-bg2: #0f1728;
+  --sp-surface: #0c1220;
   --sp-line: rgba(255, 255, 255, 0.09);
-  --sp-line-strong: rgba(255, 255, 255, 0.14);
-  --sp-muted: rgba(232, 234, 239, 0.55);
-  --sp-text: #e8eaef;
-  --sp-accent: #e60012;
-  --sp-accent-soft: rgba(230, 0, 18, 0.14);
-  --sp-accent-dim: #9a0010;
-  --sp-gold: #c9a227;
-  --sp-gold-soft: rgba(201, 162, 39, 0.12);
+  --sp-line-strong: rgba(255, 255, 255, 0.15);
+  --sp-muted: rgba(220, 230, 245, 0.52);
+  --sp-text: #e8eef8;
+  /* Alineado con kit Babooni / Biosstel (--bio-primary, acentos) */
+  --sp-accent: #004b93;
+  --sp-accent-soft: rgba(0, 75, 147, 0.22);
+  --sp-accent-dim: #003366;
+  --sp-accent-secondary: #59a8f4;
+  --sp-gold: #59a8f4;
+  --sp-gold-soft: rgba(89, 168, 244, 0.12);
   --sp-danger-text: #ffb4b8;
   --sp-radius-sm: 8px;
   --sp-radius-md: 12px;
@@ -21,7 +23,7 @@
   --sp-shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.35);
   --sp-font-sans: 'DM Sans', system-ui, sans-serif;
   --sp-font-display: 'Rajdhani', sans-serif;
-  --sp-focus: 0 0 0 2px var(--sp-bg0), 0 0 0 4px rgba(230, 0, 18, 0.45);
+  --sp-focus: 0 0 0 2px var(--sp-bg0), 0 0 0 4px rgba(89, 168, 244, 0.45);
 }
 
 *,
@@ -43,11 +45,11 @@ body {
   font-optical-sizing: auto;
   background-color: var(--sp-bg0);
   background-image:
-    radial-gradient(1200px 620px at 12% -8%, rgba(230, 0, 18, 0.11), transparent 56%),
-    radial-gradient(880px 520px at 92% 4%, rgba(201, 162, 39, 0.07), transparent 52%),
-    linear-gradient(165deg, var(--sp-bg0) 0%, var(--sp-bg1) 42%, #080910 100%),
-    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+    radial-gradient(1100px 600px at 10% -6%, rgba(0, 75, 147, 0.2), transparent 58%),
+    radial-gradient(900px 520px at 94% 6%, rgba(89, 168, 244, 0.1), transparent 54%),
+    linear-gradient(165deg, var(--sp-bg0) 0%, var(--sp-bg1) 44%, #060b14 100%),
+    linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
   background-size:
     auto,
     auto,
@@ -59,7 +61,7 @@ body {
 }
 
 ::selection {
-  background: rgba(230, 0, 18, 0.35);
+  background: rgba(0, 75, 147, 0.45);
   color: #fff;
 }
 
@@ -78,7 +80,6 @@ body {
   }
 }
 
-/* Reusable platform utilities (loaded once; keeps component CSS smaller) */
 @keyframes sp-shimmer {
   0% {
     background-position: 200% 0;
@@ -112,7 +113,7 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--sp-gold);
+  background: var(--sp-accent-secondary);
   animation: sp-dot-bounce 1.1s ease-in-out infinite;
 }
 

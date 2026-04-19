@@ -1,5 +1,5 @@
 /**
- * Debe alinearse con `@josanz-erp/identity-api` / PluginStore (lista de módulos ERP).
+ * Debe alinearse con identity-api / PluginStore (lista de módulos ERP).
  */
 export const TENANT_MODULE_IDS: readonly string[] = [
   'dashboard',

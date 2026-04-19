@@ -2,10 +2,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
-import { clearPlatformToken } from './platform-auth.interceptor';
 import {
   TENANT_MODULE_CATALOG,
   type TenantModuleCatalogEntry,
@@ -24,32 +22,15 @@ type TenantRow = {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="shell">
-      <header class="top" role="banner">
-        <div class="top-inner">
-          <div class="brand">
-            <span class="brand-mark">JOSANZ</span>
-            <span class="brand-sub">PLATFORM</span>
-          </div>
-          <div class="top-meta">
-            <p class="eyebrow">Panel de producto</p>
-            <h1 class="title">Tenants</h1>
-            <p class="lede">
-              Activa o desactiva módulos por organización. Los cambios se aplican al instante en el ERP
-              conectado.
-            </p>
-          </div>
-          <button type="button" class="btn-logout" (click)="logout()">
-            <span class="btn-logout-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M18 9l3 3m0 0-3 3m3-3H9" />
-              </svg>
-            </span>
-            Cerrar sesión
-          </button>
-        </div>
+      <header class="page-head">
+        <p class="eyebrow">Panel de producto</p>
+        <h1 class="title">Organizaciones</h1>
+        <p class="lede">
+          Activa o desactiva módulos por tenant. Los cambios se aplican al instante en el ERP conectado.
+        </p>
       </header>
 
-      <main class="main">
+      <div class="main">
       @if (error()) {
         <div class="banner banner--error" role="alert">
           <span class="banner-icon" aria-hidden="true">!</span>
@@ -121,13 +102,13 @@ type TenantRow = {
           }
         </div>
       }
-      </main>
+      </div>
     </div>
   `,
   styles: `
     :host {
       --chip-off: rgba(255, 255, 255, 0.06);
-      --chip-on: rgba(230, 0, 18, 0.16);
+      --chip-on: rgba(0, 75, 147, 0.22);
       display: block;
       min-height: 100vh;
       font-family: var(--sp-font-sans);
@@ -141,74 +122,8 @@ type TenantRow = {
       padding: 0 clamp(1rem, 3.5vw, 2rem) clamp(2rem, 5vw, 3rem);
     }
 
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      margin: 0 calc(-1 * clamp(1rem, 3.5vw, 2rem));
-      padding: clamp(0.85rem, 2.5vw, 1.15rem) clamp(1rem, 3.5vw, 2rem);
-      border-bottom: 1px solid var(--sp-line);
-      background: linear-gradient(
-        180deg,
-        rgba(5, 6, 10, 0.92) 0%,
-        rgba(5, 6, 10, 0.78) 100%
-      );
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
-
-    .top-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: clamp(1rem, 3vw, 2rem);
-      align-items: start;
-    }
-
-    @media (max-width: 820px) {
-      .top-inner {
-        grid-template-columns: 1fr;
-      }
-      .btn-logout {
-        justify-self: start;
-      }
-    }
-
-    .main {
-      padding-top: clamp(1.25rem, 3vw, 2rem);
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      line-height: 1;
-      padding: 0.4rem 0.85rem;
-      border: 1px solid var(--sp-line);
-      border-radius: 6px;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent);
-      box-shadow: var(--sp-shadow-soft);
-      align-self: start;
-    }
-
-    .brand-mark {
-      font-family: var(--sp-font-display);
-      font-weight: 700;
-      font-size: 1.38rem;
-      letter-spacing: 0.13em;
-      color: var(--sp-text);
-    }
-
-    .brand-sub {
-      font-family: var(--sp-font-display);
-      font-weight: 600;
-      font-size: 0.68rem;
-      letter-spacing: 0.36em;
-      color: var(--sp-gold);
-    }
-
-    .top-meta {
-      min-width: 0;
+    .page-head {
+      margin-bottom: clamp(1.35rem, 3.5vw, 2.25rem);
     }
 
     .eyebrow {
@@ -241,42 +156,8 @@ type TenantRow = {
       color: var(--sp-muted);
     }
 
-    .btn-logout {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.58rem 1.05rem;
-      border: 1px solid rgba(230, 0, 18, 0.42);
-      border-radius: var(--sp-radius-sm);
-      background: linear-gradient(185deg, rgba(230, 0, 18, 0.22), rgba(154, 0, 16, 0.38));
-      color: var(--sp-text);
-      font-family: inherit;
-      font-size: 0.84rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-      box-shadow: 0 6px 22px rgba(230, 0, 18, 0.14);
-      justify-self: end;
-      white-space: nowrap;
-    }
-
-    .btn-logout:hover {
-      transform: translateY(-1px);
-      border-color: rgba(255, 120, 130, 0.65);
-      box-shadow: 0 10px 30px rgba(230, 0, 18, 0.22);
-    }
-
-    .btn-logout-icon {
-      display: inline-flex;
-      width: 1.15rem;
-      height: 1.15rem;
-      opacity: 0.92;
-    }
-
-    .btn-logout-icon svg {
-      width: 100%;
-      height: 100%;
+    .main {
+      padding-top: 0;
     }
 
     .banner {
@@ -345,7 +226,7 @@ type TenantRow = {
       inset: -40% -20%;
       background: radial-gradient(
         circle at 50% 30%,
-        rgba(201, 162, 39, 0.07),
+        rgba(0, 75, 147, 0.12),
         transparent 55%
       );
       pointer-events: none;
@@ -478,7 +359,7 @@ type TenantRow = {
       border-radius: var(--sp-radius-sm);
       opacity: 0;
       transition: opacity 0.2s ease;
-      background: radial-gradient(circle at 50% 50%, rgba(230, 0, 18, 0.38), transparent 72%);
+      background: radial-gradient(circle at 50% 50%, rgba(0, 75, 147, 0.45), transparent 72%);
       pointer-events: none;
     }
 
@@ -504,7 +385,7 @@ type TenantRow = {
 
     .chip--on .chip-body {
       background: var(--chip-on);
-      border-color: rgba(230, 0, 18, 0.48);
+      border-color: rgba(89, 168, 244, 0.45);
     }
 
     .chip-dot {
@@ -516,8 +397,8 @@ type TenantRow = {
     }
 
     .chip-dot--on {
-      background: var(--sp-accent);
-      box-shadow: 0 0 12px rgba(230, 0, 18, 0.85);
+      background: var(--sp-accent-secondary);
+      box-shadow: 0 0 12px rgba(89, 168, 244, 0.75);
     }
 
     .chip-label {
@@ -549,8 +430,8 @@ type TenantRow = {
       text-transform: uppercase;
       cursor: pointer;
       color: #fff;
-      background: linear-gradient(185deg, #ff1f32 0%, var(--sp-accent-dim) 100%);
-      box-shadow: 0 8px 28px rgba(230, 0, 18, 0.26);
+      background: linear-gradient(185deg, #0a5cb8 0%, var(--sp-accent-dim) 100%);
+      box-shadow: 0 8px 28px rgba(0, 75, 147, 0.32);
       transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
     }
 
@@ -574,7 +455,6 @@ type TenantRow = {
 })
 export class TenantsPageComponent {
   private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
 
   readonly apiBase = environment.apiOrigin.replace(/\/$/, '');
   readonly catalog: readonly TenantModuleCatalogEntry[] = TENANT_MODULE_CATALOG;
@@ -645,11 +525,6 @@ export class TenantsPageComponent {
     } finally {
       this.savingByTenant.update((m) => ({ ...m, [t.id]: false }));
     }
-  }
-
-  logout(): void {
-    clearPlatformToken();
-    void this.router.navigateByUrl('/login');
   }
 
   private httpErrorMessage(e: unknown): string {

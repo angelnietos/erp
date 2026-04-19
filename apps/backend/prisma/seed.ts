@@ -338,18 +338,23 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
 
-  // 1b. Panel SaaS (tabla `platform_users`, sin tenant cliente)
-  await prisma.platformUser.upsert({
+  // 1b. Panel SaaS (tabla `platform_users`, sin tenant cliente) — marca Babooni
+  await prisma.platformUser.deleteMany({
     where: { email: 'platform@josanz.com' },
+  });
+  await prisma.platformUser.upsert({
+    where: { email: 'platform@babooni.com' },
     update: {
       password: hashedPassword,
       isActive: true,
+      firstName: 'Platform',
+      lastName: 'Babooni',
     },
     create: {
-      email: 'platform@josanz.com',
+      email: 'platform@babooni.com',
       password: hashedPassword,
       firstName: 'Platform',
-      lastName: 'Owner',
+      lastName: 'Babooni',
     },
   });
 

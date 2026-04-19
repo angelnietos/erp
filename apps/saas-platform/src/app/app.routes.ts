@@ -11,7 +11,20 @@ export const appRoutes: Route[] = [
     path: '',
     canActivate: [platformAuthGuard],
     loadComponent: () =>
-      import('./tenants-page.component').then((m) => m.TenantsPageComponent),
+      import('./platform-shell.component').then((m) => m.PlatformShellComponent),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'tenants' },
+      {
+        path: 'tenants',
+        loadComponent: () =>
+          import('./tenants-page.component').then((m) => m.TenantsPageComponent),
+      },
+      {
+        path: 'metrics',
+        loadComponent: () =>
+          import('./metrics-page.component').then((m) => m.MetricsPageComponent),
+      },
+    ],
   },
   { path: '**', redirectTo: '' },
 ];

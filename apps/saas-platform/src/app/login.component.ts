@@ -16,13 +16,13 @@ import { setPlatformToken } from './platform-auth.interceptor';
       <div class="login-glow login-glow--b"></div>
       <div class="login-card">
         <div class="brand">
-          <span class="brand-mark">JOSANZ</span>
+          <span class="brand-mark">BABOONI</span>
           <span class="brand-sub">PLATFORM</span>
         </div>
         <p class="eyebrow">Acceso</p>
-        <h1 class="title">Panel SaaS</h1>
+        <h1 class="title">Panel de producto</h1>
         <p class="lede">
-          Administración para dueños del producto (tenants y módulos).
+          Administración de organizaciones, módulos y observabilidad (Babooni).
         </p>
 
         <label class="field-label" for="pf-email">Email</label>
@@ -61,7 +61,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
           <p class="dev-hint-kicker">Solo desarrollo</p>
           <p class="hint">
             Cuenta en <code>platform_users</code> (seed):
-            <code>platform&#64;josanz.com</code> · contraseña típica del seed:
+            <code>platform&#64;babooni.com</code> · contraseña típica del seed:
             Admin123!
           </p>
         </div>
@@ -94,7 +94,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
       inset: 0;
       background: radial-gradient(
         700px 420px at 50% 120%,
-        rgba(230, 0, 18, 0.06),
+        rgba(0, 75, 147, 0.12),
         transparent 55%
       );
       pointer-events: none;
@@ -106,7 +106,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
       border-radius: 50%;
       filter: blur(88px);
       pointer-events: none;
-      opacity: 0.38;
+      opacity: 0.4;
       z-index: 0;
     }
     .login-glow--a {
@@ -114,14 +114,14 @@ import { setPlatformToken } from './platform-auth.interceptor';
       height: min(520px, 85vw);
       top: -14%;
       left: -10%;
-      background: rgba(230, 0, 18, 0.38);
+      background: rgba(0, 75, 147, 0.42);
     }
     .login-glow--b {
       width: min(380px, 65vw);
       height: min(380px, 65vw);
       bottom: -10%;
       right: -6%;
-      background: rgba(201, 162, 39, 0.26);
+      background: rgba(89, 168, 244, 0.22);
     }
 
     .login-card {
@@ -178,7 +178,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
       font-weight: 600;
       font-size: 0.68rem;
       letter-spacing: 0.38em;
-      color: var(--sp-gold);
+      color: var(--sp-accent-secondary);
     }
 
     .eyebrow {
@@ -239,7 +239,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
     }
 
     .field-input:focus {
-      border-color: rgba(230, 0, 18, 0.55);
+      border-color: rgba(89, 168, 244, 0.65);
       box-shadow: 0 0 0 3px var(--sp-accent-soft);
       background: rgba(0, 0, 0, 0.38);
     }
@@ -257,8 +257,8 @@ import { setPlatformToken } from './platform-auth.interceptor';
       text-transform: uppercase;
       cursor: pointer;
       color: #fff;
-      background: linear-gradient(185deg, #ff1f32 0%, var(--sp-accent-dim) 100%);
-      box-shadow: 0 10px 32px rgba(230, 0, 18, 0.28);
+      background: linear-gradient(185deg, #0a5cb8 0%, var(--sp-accent-dim) 100%);
+      box-shadow: 0 10px 32px rgba(0, 75, 147, 0.35);
       transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease,
         box-shadow 0.18s ease;
     }
@@ -272,8 +272,8 @@ import { setPlatformToken } from './platform-auth.interceptor';
 
     .btn-submit:hover:not(:disabled) {
       transform: translateY(-1px);
-      filter: brightness(1.05);
-      box-shadow: 0 14px 40px rgba(230, 0, 18, 0.34);
+      filter: brightness(1.06);
+      box-shadow: 0 14px 40px rgba(0, 75, 147, 0.4);
     }
 
     .btn-submit:active:not(:disabled) {
@@ -299,8 +299,8 @@ import { setPlatformToken } from './platform-auth.interceptor';
       margin-top: 1.35rem;
       padding: 0.75rem 0.85rem;
       border-radius: var(--sp-radius-sm);
-      border: 1px dashed rgba(201, 162, 39, 0.35);
-      background: linear-gradient(135deg, rgba(201, 162, 39, 0.06), transparent);
+      border: 1px dashed rgba(89, 168, 244, 0.35);
+      background: linear-gradient(135deg, rgba(0, 75, 147, 0.12), transparent);
     }
 
     .dev-hint-kicker {
@@ -309,7 +309,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(201, 162, 39, 0.85);
+      color: rgba(89, 168, 244, 0.9);
     }
 
     .hint {
@@ -340,7 +340,7 @@ export class LoginComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  email = 'platform@josanz.com';
+  email = 'platform@babooni.com';
   password = '';
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -357,7 +357,7 @@ export class LoginComponent {
       .subscribe({
         next: (r) => {
           setPlatformToken(r.accessToken);
-          void this.router.navigateByUrl('/');
+          void this.router.navigateByUrl('/tenants');
         },
         error: (e: { error?: { message?: string } }) => {
           this.error.set(
