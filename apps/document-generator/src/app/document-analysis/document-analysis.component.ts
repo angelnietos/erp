@@ -410,7 +410,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                         <ul class="text-sm text-doc-muted-on-light space-y-1">
                           @for (
                             suggestion of result.suggestions;
-                            track $index
+                            track result.checkId + '-' + $index
                           ) {
                             <li>• {{ suggestion }}</li>
                           }

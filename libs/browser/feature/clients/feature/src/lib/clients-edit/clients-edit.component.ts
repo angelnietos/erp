@@ -316,9 +316,9 @@ export class ClientsEditComponent implements OnInit {
             email: c.email || '',
             phone: c.phone || '',
             sector: c.sector || '',
-            fiscalId: (c as any).fiscalId || '',
-            address: (c as any).address || '',
-            notes: (c as any).notes || '',
+            fiscalId: c.taxId || '',
+            address: c.address || '',
+            notes: c.description || '',
           };
         } else {
           this.loadError.set('No se encontró el cliente.');
@@ -344,11 +344,25 @@ export class ClientsEditComponent implements OnInit {
       name: this.form.name,
       email: this.form.email,
       phone: this.form.phone,
-      sector: this.form.sector as any,
+      sector: this.form.sector,
+      taxId: this.form.fiscalId || undefined,
+      address: this.form.address || undefined,
+      description: this.form.notes || '',
+      contact: this.form.name?.trim() || this.form.email || '',
     };
 
     if (this.isNew) {
-      this.clientService.createClient(patch as any).subscribe({
+      const createPayload: Omit<Client, 'id'> = {
+        name: this.form.name,
+        email: this.form.email,
+        phone: this.form.phone,
+        sector: this.form.sector,
+        description: this.form.notes || '',
+        contact: this.form.name?.trim() || this.form.email || '',
+        taxId: this.form.fiscalId || undefined,
+        address: this.form.address || undefined,
+      };
+      this.clientService.createClient(createPayload).subscribe({
         next: (created) => {
           this.toast.show('✅ Cliente creado correctamente', 'success');
           this.isSaving.set(false);

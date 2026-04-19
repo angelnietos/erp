@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import {
   ReceiptsApiService,
+  ReceiptApiDto,
   ThemeService,
   MasterFilterService,
   FilterableService,
@@ -421,10 +422,10 @@ export class ReceiptsListComponent implements OnInit, OnDestroy, FilterableServi
     this.loadError.set(null);
     this.isLoading.set(true);
     this.receiptsApi.list().subscribe({
-      next: (rows: any[]) => {
+      next: (rows: ReceiptApiDto[]) => {
         if (rows.length > 0) {
           this.receipts.set(
-            rows.map((r: any) => ({
+            rows.map((r: ReceiptApiDto): Receipt => ({
               id: r.id,
               invoiceId: r.invoiceId,
               amount: r.amount,

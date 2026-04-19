@@ -902,6 +902,25 @@ export class FloatingAssistantComponent implements OnInit {
     this.isResizing = false;
   }
 
+  /** Cierra el panel con Escape salvo si el foco está en un campo de formulario. */
+  @HostListener('document:keydown', ['$event'])
+  onDocumentEscape(event: KeyboardEvent): void {
+    if (event.key !== 'Escape') return;
+    if (!this.assistantService.isOpen$()) return;
+    const t = event.target;
+    if (
+      t instanceof HTMLInputElement ||
+      t instanceof HTMLTextAreaElement ||
+      t instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+    if (t instanceof HTMLElement && t.isContentEditable) return;
+
+    event.preventDefault();
+    this.assistantService.toggleAssistant();
+  }
+
   startDrag(event: MouseEvent): void {
     this.isDragging = true;
     const pos = this.assistantService.position$();

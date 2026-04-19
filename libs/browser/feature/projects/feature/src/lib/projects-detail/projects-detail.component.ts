@@ -542,7 +542,10 @@ export class ProjectsDetailComponent implements OnInit {
         this.projectsFacade.loadProjects(true);
         this.toast.show('Proyecto actualizado correctamente', 'success');
         this.saving.set(false);
-        void this.router.navigate(['/projects', this.projectId!]);
+        const pid = this.projectId;
+        if (pid) {
+          void this.router.navigate(['/projects', pid]);
+        }
       },
       error: () => {
         this.toast.show('No se pudo guardar el proyecto', 'error');

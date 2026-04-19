@@ -942,3 +942,9 @@ export class ClientsListComponent
         projects: Math.floor(Math.random() * 5) + 1,
         revenue: Math.floor(Math.random() * 100000) + 50000,
         rating: Math.floor(Math.random() * 3) + 3,
+      };
+      this.memoizedStats.set(clientId, stats);
+    }
+    return stats;
+  }
+}
