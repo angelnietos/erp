@@ -10,7 +10,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/node/backend/document-generator-backend",
-        "tsConfig": "libs/node/backend/document-generator-backend/tsconfig.lib.json",
+        "tsConfig": "libs/node/backend/document-generator-backend/tsconfig.json",
         "packageJson": "libs/node/backend/document-generator-backend/package.json",
         "main": "libs/node/backend/document-generator-backend/src/index.ts",
         "assets": ["libs/node/backend/document-generator-backend/*.md"]
