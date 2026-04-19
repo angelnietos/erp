@@ -276,7 +276,8 @@ export class DocumentBotComponent implements AfterViewChecked {
     return message.id;
   }
 
-  trackActionIndex(index: number, _action: MessageAction): number {
+  /** Solo se usa el índice (acciones por mensaje son listas cortas y estables). */
+  trackActionIndex(index: number): number {
     return index;
   }
 
