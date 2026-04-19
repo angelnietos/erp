@@ -256,7 +256,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       @if (hasSelections()) {
         <div class="bulk-actions-bar">
           <div class="bulk-info">
-            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
               >{{ selectedCount() }} presupuesto{{
                 selectedCount() === 1 ? '' : 's'
@@ -276,7 +276,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
               <option value="REJECTED">Marcar como rechazado</option>
             </select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
-              <lucide-icon name="trash2" size="14"></lucide-icon>
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
             </ui-button>
             <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">

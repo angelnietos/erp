@@ -45,7 +45,7 @@ import {
         </div>
       } @else if (loadError()) {
         <div class="ns-error">
-          <lucide-icon name="alert-circle" size="48" class="ns-error-icon"></lucide-icon>
+          <lucide-icon name="alert-circle" size="48" class="ns-error-icon" aria-hidden="true"></lucide-icon>
           <p>{{ loadError() }}</p>
           <div class="ns-error-actions">
             <ui-button variant="solid" size="sm" (clicked)="reload()">Reintentar</ui-button>
@@ -55,7 +55,7 @@ import {
       } @else if (client()) {
         <div class="ns-header-bar">
           <button class="ns-back" routerLink="/clients">
-            <lucide-icon name="arrow-left" size="18"></lucide-icon>
+            <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
           </button>
           <div class="ns-header-info">
             <h1 class="ns-header-title">{{ client()?.name }}</h1>
@@ -132,7 +132,7 @@ import {
                 @for (budget of client()?.budgets; track budget.id) {
                   <a [routerLink]="['/budgets', budget.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-blue">
-                      <lucide-icon name="calculator" size="20"></lucide-icon>
+                      <lucide-icon name="calculator" size="20" aria-hidden="true"></lucide-icon>
                     </div>
                     <div class="ns-doc-info">
                       <span class="ns-doc-title"
@@ -148,7 +148,7 @@ import {
                 } @empty {
                   <div class="ns-empty-state">
                     <div class="ns-empty-state__icon-wrap" aria-hidden="true">
-                      <lucide-icon name="calculator" size="28"></lucide-icon>
+                      <lucide-icon name="calculator" size="28" aria-hidden="true"></lucide-icon>
                     </div>
                     <h3 class="ns-empty-state__title">Aún no hay presupuestos</h3>
                     <p class="ns-empty-state__hint">
@@ -166,7 +166,7 @@ import {
                 ) {
                   <div class="ns-empty-state">
                     <div class="ns-empty-state__icon-wrap" aria-hidden="true">
-                      <lucide-icon name="archive" size="28"></lucide-icon>
+                      <lucide-icon name="archive" size="28" aria-hidden="true"></lucide-icon>
                     </div>
                     <h3 class="ns-empty-state__title">Sin documentación fiscal</h3>
                     <p class="ns-empty-state__hint">
@@ -184,7 +184,7 @@ import {
                         class="ns-empty-state__icon-wrap ns-empty-state__icon-wrap--sm"
                         aria-hidden="true"
                       >
-                        <lucide-icon name="receipt" size="20"></lucide-icon>
+                        <lucide-icon name="receipt" size="20" aria-hidden="true"></lucide-icon>
                       </div>
                       <div class="ns-empty-state__text">
                         <span class="ns-empty-state__title-inline"
@@ -199,7 +199,7 @@ import {
                   @for (inv of getAllInvoices(); track inv.id) {
                   <a [routerLink]="['/billing', inv.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-green">
-                      <lucide-icon name="receipt" size="20"></lucide-icon>
+                      <lucide-icon name="receipt" size="20" aria-hidden="true"></lucide-icon>
                     </div>
                     <div class="ns-doc-info">
                       <span class="ns-doc-title"
@@ -218,7 +218,7 @@ import {
                 @for (dn of getAllDeliveryNotes(); track dn.id) {
                   <a [routerLink]="['/delivery', dn.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-orange">
-                      <lucide-icon name="file-text" size="20"></lucide-icon>
+                      <lucide-icon name="file-text" size="20" aria-hidden="true"></lucide-icon>
                     </div>
                     <div class="ns-doc-info">
                       <span class="ns-doc-title">Albarán</span>
@@ -269,7 +269,7 @@ import {
                 } @empty {
                   <div class="ns-empty-state">
                     <div class="ns-empty-state__icon-wrap" aria-hidden="true">
-                      <lucide-icon name="file-text" size="28"></lucide-icon>
+                      <lucide-icon name="file-text" size="28" aria-hidden="true"></lucide-icon>
                     </div>
                     <h3 class="ns-empty-state__title">Sin informes de evento</h3>
                     <p class="ns-empty-state__hint">
@@ -285,7 +285,7 @@ import {
                 @for (rental of client()?.rentals; track rental.id) {
                   <a [routerLink]="['/rentals', rental.id]" class="ns-doc-card">
                     <div class="ns-doc-icon ns-orange">
-                      <lucide-icon name="package" size="20"></lucide-icon>
+                      <lucide-icon name="package" size="20" aria-hidden="true"></lucide-icon>
                     </div>
                     <div class="ns-doc-info">
                       <span class="ns-doc-title">{{
@@ -306,7 +306,7 @@ import {
                 } @empty {
                   <div class="ns-empty-state">
                     <div class="ns-empty-state__icon-wrap" aria-hidden="true">
-                      <lucide-icon name="truck" size="28"></lucide-icon>
+                      <lucide-icon name="truck" size="28" aria-hidden="true"></lucide-icon>
                     </div>
                     <h3 class="ns-empty-state__title">Sin movimientos de alquiler</h3>
                     <p class="ns-empty-state__hint">

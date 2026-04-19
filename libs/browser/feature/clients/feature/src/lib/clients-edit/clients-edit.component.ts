@@ -47,7 +47,7 @@ interface ClientForm {
         </div>
       } @else if (loadError()) {
         <div class="edit-error">
-          <lucide-icon name="alert-circle" size="48" class="edit-error-icon"></lucide-icon>
+          <lucide-icon name="alert-circle" size="48" class="edit-error-icon" aria-hidden="true"></lucide-icon>
           <p>{{ loadError() }}</p>
           <div class="edit-error-actions">
             <ui-button variant="solid" (clicked)="reloadClient()">Reintentar</ui-button>
@@ -58,7 +58,7 @@ interface ClientForm {
         <!-- HEADER -->
         <header class="edit-header">
           <button class="back-btn" (click)="goBack()">
-            <lucide-icon name="arrow-left" size="18"></lucide-icon>
+            <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
           </button>
           <div class="edit-header-info">
             <div class="edit-breadcrumb">CLIENTES / EDITAR</div>

@@ -43,12 +43,12 @@ interface InvoiceFormData extends Partial<Invoice> {
     <ui-feature-page-shell [extraClass]="'billing-edit-root'">
       @if (isHydrating()) {
         <div class="billing-edit__loading">
-          <lucide-icon name="loader" class="spin" size="40"></lucide-icon>
+          <lucide-icon name="loader" class="spin" size="40" aria-hidden="true"></lucide-icon>
           <p>Cargando factura...</p>
         </div>
       } @else if (loadError() && !isCreateMode()) {
         <div class="billing-edit__error">
-          <lucide-icon name="alert-triangle" size="48"></lucide-icon>
+          <lucide-icon name="alert-triangle" size="48" aria-hidden="true"></lucide-icon>
           <h2>{{ loadError() }}</h2>
           <ui-button variant="glass" (clicked)="goToList()">Volver al listado</ui-button>
         </div>
@@ -119,7 +119,7 @@ interface InvoiceFormData extends Partial<Invoice> {
 
           <div class="billing-edit__notes">
             <label class="billing-edit__label" for="notes-billing-edit">
-              <lucide-icon name="sticky-note" size="16"></lucide-icon>
+              <lucide-icon name="sticky-note" size="16" aria-hidden="true"></lucide-icon>
               Notas
             </label>
             <textarea

@@ -72,7 +72,7 @@ export interface DeliveryDetailView {
       } @else if (delivery(); as d) {
         <div class="page-header">
           <button type="button" class="back-btn" routerLink="/delivery">
-            <lucide-icon name="arrow-left"></lucide-icon>
+            <lucide-icon name="arrow-left" aria-hidden="true"></lucide-icon>
             Volver
           </button>
         </div>

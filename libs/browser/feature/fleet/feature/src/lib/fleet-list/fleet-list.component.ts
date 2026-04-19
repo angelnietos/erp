@@ -227,7 +227,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
       @if (hasSelections()) {
         <div class="bulk-actions-bar">
           <div class="bulk-info">
-            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
               >{{ selectedCount() }} vehículo{{
                 selectedCount() === 1 ? '' : 's'
@@ -237,7 +237,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           </div>
           <div class="bulk-buttons">
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
-              <lucide-icon name="trash2" size="14"></lucide-icon>
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
             </ui-button>
             <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
@@ -345,17 +345,17 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
               <div footer-extra class="vehicle-status">
                 @if (vehicle.status === 'maintenance') {
                   <span class="maintenance-badge">
-                    <lucide-icon name="wrench" size="12"></lucide-icon>
+                    <lucide-icon name="wrench" size="12" aria-hidden="true"></lucide-icon>
                     EN MANTENIMIENTO
                   </span>
                 } @else if (vehicle.status === 'in_use') {
                   <span class="in-use-badge">
-                    <lucide-icon name="truck" size="12"></lucide-icon>
+                    <lucide-icon name="truck" size="12" aria-hidden="true"></lucide-icon>
                     EN USO
                   </span>
                 } @else {
                   <span class="available-badge">
-                    <lucide-icon name="check-circle" size="12"></lucide-icon>
+                    <lucide-icon name="check-circle" size="12" aria-hidden="true"></lucide-icon>
                     DISPONIBLE
                   </span>
                 }

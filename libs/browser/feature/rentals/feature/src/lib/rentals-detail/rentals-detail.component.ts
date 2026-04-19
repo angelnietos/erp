@@ -42,7 +42,7 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
             <button class="back-btn" routerLink="/rentals">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER A ALQUILERES
             </button>
             <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
@@ -153,7 +153,7 @@ import { RentalService, Rental, RentalSignatureStatus } from '@josanz-erp/rental
            <div class="side-column">
               <ui-card variant="glass" title="Garantías y Depósitos">
                  <div class="deposit-box">
-                    <lucide-icon name="shield-check" size="24" [style.color]="currentTheme().primary"></lucide-icon>
+                    <lucide-icon name="shield-check" size="24" [style.color]="currentTheme().primary" aria-hidden="true"></lucide-icon>
                     <div class="deposit-info">
                        <span class="deposit-label">FIANZA BLOQUEADA</span>
                        <span class="deposit-value">{{ formatCurrencyEu((rental()?.totalAmount || 0) * 0.2) }}</span>

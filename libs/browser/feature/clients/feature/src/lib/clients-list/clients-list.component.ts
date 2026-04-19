@@ -248,7 +248,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       @if (hasSelections()) {
         <div class="bulk-actions-bar">
           <div class="bulk-info">
-            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
               >{{ selectedCount() }} cliente{{
                 selectedCount() === 1 ? '' : 's'
@@ -275,7 +275,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         </div>
       } @else if (clientsLoadError() && !hasAnyClients()) {
         <div class="feature-error-screen" role="alert">
-          <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon"></lucide-icon>
+          <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon" aria-hidden="true"></lucide-icon>
           <h3>No se pudo cargar la cartera</h3>
           <p>
             {{
@@ -287,7 +287,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         </div>
       } @else if (!hasAnyClients()) {
         <div class="feature-empty feature-empty--wide">
-          <lucide-icon name="building-2" size="64" class="feature-empty__icon"></lucide-icon>
+          <lucide-icon name="building-2" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
           <h3>Sin clientes todavía</h3>
           <p>Añade tu primer cliente para empezar a trabajar la cartera comercial.</p>
           @if (canManage()) {
@@ -298,7 +298,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         </div>
       } @else if (filterProducesNoResults()) {
         <div class="feature-empty feature-empty--wide">
-          <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
+          <lucide-icon name="search-x" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
           <h3>Sin resultados</h3>
           <p>Ningún cliente coincide con la búsqueda o los filtros actuales.</p>
           <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
@@ -361,7 +361,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 />
               </div>
               <div footer-extra class="client-rating">
-                <lucide-icon name="star" size="12" class="filled"></lucide-icon>
+                <lucide-icon name="star" size="12" class="filled" aria-hidden="true"></lucide-icon>
                 <span>{{ getClientRating(client) }}/5</span>
               </div>
             </ui-feature-card>

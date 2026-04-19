@@ -41,7 +41,7 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
         <ui-loader message="Cargando ficha de unidad..."></ui-loader>
       } @else if (loadError() && !isCreateMode) {
         <div class="error-state">
-          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
+          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary" aria-hidden="true"></lucide-icon>
           <h2>UNIDAD NO ENCONTRADA</h2>
           <ui-button variant="primary" (clicked)="goToList()">VOLVER A FLOTA</ui-button>
         </div>

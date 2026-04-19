@@ -56,7 +56,7 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
         >
           <div class="header-breadcrumb">
             <button class="back-btn" routerLink="/budgets">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER AL LISTADO
             </button>
             <h1

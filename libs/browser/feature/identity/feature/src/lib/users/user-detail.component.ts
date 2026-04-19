@@ -37,7 +37,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         </div>
       } @else if (error()) {
         <div class="error-state">
-          <lucide-icon name="alert-circle" size="48" class="error-icon"></lucide-icon>
+          <lucide-icon name="alert-circle" size="48" class="error-icon" aria-hidden="true"></lucide-icon>
           <p>{{ error() }}</p>
           <div class="error-actions">
             <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
@@ -47,7 +47,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       } @else if (user(); as u) {
         <div class="header-bar">
           <button type="button" class="back-btn" routerLink="/users" title="Volver">
-            <lucide-icon name="arrow-left" size="18"></lucide-icon>
+            <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
           </button>
           <div class="header-text">
             <h1 class="title">{{ fullName(u) }}</h1>

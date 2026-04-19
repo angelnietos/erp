@@ -34,7 +34,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
             <button class="back-btn" routerLink="/inventory">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER AL LISTADO
             </button>
             <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
@@ -97,7 +97,7 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         </div>
       } @else {
         <div class="error-state">
-           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
+           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary" aria-hidden="true"></lucide-icon>
            <h2>ACTIVO NO ENCONTRADO</h2>
            <ui-button variant="primary" routerLink="/inventory">VOLVER AL INVENTARIO</ui-button>
         </div>

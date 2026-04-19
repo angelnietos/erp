@@ -256,7 +256,7 @@ import {
       @if (hasSelections()) {
         <div class="bulk-actions-bar">
           <div class="bulk-info">
-            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
               >{{ selectedCount() }} alquiler{{
                 selectedCount() === 1 ? '' : 'es'
@@ -276,7 +276,7 @@ import {
               <option value="CANCELLED">Marcar como cancelado</option>
             </select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
-              <lucide-icon name="trash2" size="14"></lucide-icon>
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
             </ui-button>
             <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
@@ -385,12 +385,12 @@ import {
                 <div class="signature-status">
                   @if (rental.signatureStatus === 'SIGNED') {
                     <span class="sig-badge signed">
-                      <lucide-icon name="check-circle" size="12"></lucide-icon>
+                      <lucide-icon name="check-circle" size="12" aria-hidden="true"></lucide-icon>
                       FIRMADO
                     </span>
                   } @else {
                     <span class="sig-badge pending">
-                      <lucide-icon name="clock" size="12"></lucide-icon> PEN.
+                      <lucide-icon name="clock" size="12" aria-hidden="true"></lucide-icon> PEN.
                       FIRMA
                     </span>
                   }

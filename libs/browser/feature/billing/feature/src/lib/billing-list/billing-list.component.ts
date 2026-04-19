@@ -266,7 +266,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
       @if (hasSelections()) {
         <div class="bulk-actions-bar">
           <div class="bulk-info">
-            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
               >{{ selectedCount() }} factura{{
                 selectedCount() === 1 ? '' : 's'
@@ -287,7 +287,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
               <option value="cancelled">Marcar como cancelada</option>
             </select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
-              <lucide-icon name="trash2" size="14"></lucide-icon>
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionadas
             </ui-button>
             <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
@@ -374,7 +374,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
               <div class="fiscal-indicators">
                 @if (inv.verifactuStatus === 'sent') {
                   <span class="fiscal-badge success-glow">
-                    <lucide-icon name="shield-check" size="12"></lucide-icon>
+                    <lucide-icon name="shield-check" size="12" aria-hidden="true"></lucide-icon>
                     AEAT REPORTED
                   </span>
                 } @else if (inv.verifactuStatus === 'error') {

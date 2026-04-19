@@ -145,6 +145,7 @@ interface Receipt {
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ loadError() }}</span>
           <ui-button
@@ -168,6 +169,7 @@ interface Receipt {
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudieron cargar los recibos</h3>
           <p>{{ loadError() }}</p>
@@ -205,7 +207,7 @@ interface Receipt {
         } @empty {
           @if (filterProducesNoResults()) {
             <div class="feature-empty feature-empty--wide">
-              <lucide-icon name="search-x" size="56" class="feature-empty__icon"></lucide-icon>
+              <lucide-icon name="search-x" size="56" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
               <h3>Sin resultados</h3>
               <p>Ningún recibo coincide con la búsqueda o el filtro de estado.</p>
               <ui-button variant="ghost" icon="circle-x" (clicked)="clearFiltersAndSearch()">
@@ -214,7 +216,7 @@ interface Receipt {
             </div>
           } @else {
             <div class="feature-empty feature-empty--wide">
-              <lucide-icon name="wallet" size="56" class="feature-empty__icon"></lucide-icon>
+              <lucide-icon name="wallet" size="56" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
               <h3>No hay recibos</h3>
               <p>Todo está al día o no hay documentos de cobro registrados.</p>
               <ui-button variant="solid" (clicked)="newReceipt()" icon="CirclePlus">Crear recibo</ui-button>

@@ -96,7 +96,7 @@ interface PersonalGridCell {
       />
 
       <div class="legal-hint" role="note">
-        <lucide-icon name="shield-check" size="18"></lucide-icon>
+        <lucide-icon name="shield-check" size="18" aria-hidden="true"></lucide-icon>
         <span
           >El calendario es de <strong>solo lectura</strong>. Vacaciones y ausencias deben solicitarse con el botón
           «Pedir días».</span
@@ -110,13 +110,13 @@ interface PersonalGridCell {
           role="status"
         >
           @if (availabilityLoadIssue() === 'full') {
-            <lucide-icon name="cloud-off" size="18"></lucide-icon>
+            <lucide-icon name="cloud-off" size="18" aria-hidden="true"></lucide-icon>
             <span
               ><strong>Sin datos del servidor.</strong> No se pudo cargar el listado de operarios. Comprueba la
               conexión y pulsa <strong>Sincronizar datos</strong> (icono de refresco arriba).</span
             >
           } @else {
-            <lucide-icon name="alert-triangle" size="18"></lucide-icon>
+            <lucide-icon name="alert-triangle" size="18" aria-hidden="true"></lucide-icon>
             <span
               ><strong>Carga incompleta.</strong> Falta disponibilidad de algún operario: mientras tanto, los
               días sin registro muestran laborables como disponibles y fines de semana como no disponibles.
@@ -135,7 +135,7 @@ interface PersonalGridCell {
                 (click)="viewMode() === 'personal' ? calendarNavPrev() : prevMonth()"
                 [title]="viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana anterior (←)' : 'Mes anterior (←)'"
               >
-                 <lucide-icon name="chevron-left" size="18"></lucide-icon>
+                 <lucide-icon name="chevron-left" size="18" aria-hidden="true"></lucide-icon>
               </button>
               <div class="current-month-display">
                 @if (viewMode() === 'personal' && personalCalendarScope() === 'week') {
@@ -152,7 +152,7 @@ interface PersonalGridCell {
                 (click)="viewMode() === 'personal' ? calendarNavNext() : nextMonth()"
                 [title]="viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana siguiente (→)' : 'Mes siguiente (→)'"
               >
-                 <lucide-icon name="chevron-right" size="18"></lucide-icon>
+                 <lucide-icon name="chevron-right" size="18" aria-hidden="true"></lucide-icon>
               </button>
               <button
                 type="button"
@@ -160,7 +160,7 @@ interface PersonalGridCell {
                 (click)="goToToday()"
                 title="Ir a hoy (T)"
               >
-                <lucide-icon name="calendar-check" size="18"></lucide-icon>
+                <lucide-icon name="calendar-check" size="18" aria-hidden="true"></lucide-icon>
                 <span class="today-jump-label">Hoy</span>
               </button>
            </div>
@@ -196,7 +196,7 @@ interface PersonalGridCell {
                 [class.active]="viewMode() === 'personal'"
                 (click)="viewMode.set('personal')"
               >
-                <lucide-icon name="user" size="14"></lucide-icon>
+                <lucide-icon name="user" size="14" aria-hidden="true"></lucide-icon>
                 Individual
               </button>
               <button 
@@ -205,7 +205,7 @@ interface PersonalGridCell {
                 [class.active]="viewMode() === 'team'"
                 (click)="viewMode.set('team')"
               >
-                <lucide-icon name="users" size="14"></lucide-icon>
+                <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
                 Equipo
               </button>
            </div>
@@ -218,7 +218,7 @@ interface PersonalGridCell {
                 (click)="exportAvailabilityCsv()"
                 title="Exportar CSV (E)"
               >
-                <lucide-icon name="download" size="18"></lucide-icon>
+                <lucide-icon name="download" size="18" aria-hidden="true"></lucide-icon>
                 <span class="export-btn__label">CSV</span>
               </button>
               <button
@@ -227,7 +227,7 @@ interface PersonalGridCell {
                 (click)="toggleShortcutsHelp()"
                 title="Atajos de teclado (?)"
               >
-                <lucide-icon name="keyboard" size="18"></lucide-icon>
+                <lucide-icon name="keyboard" size="18" aria-hidden="true"></lucide-icon>
               </button>
               <button
                 type="button"
@@ -236,7 +236,7 @@ interface PersonalGridCell {
                 [queryParams]="pedirDiasQueryParams()"
                 title="Solicitar vacaciones o ausencias (flujo de aprobación)"
               >
-                <lucide-icon name="calendar-plus" size="18"></lucide-icon>
+                <lucide-icon name="calendar-plus" size="18" aria-hidden="true"></lucide-icon>
                 Pedir días
               </button>
               <button 
@@ -245,7 +245,7 @@ interface PersonalGridCell {
                 [class.animate-spin]="isLoading()" 
                 title="Sincronizar datos"
               >
-                <lucide-icon name="rotate-cw" size="18"></lucide-icon>
+                <lucide-icon name="rotate-cw" size="18" aria-hidden="true"></lucide-icon>
               </button>
            </div>
         </div>
@@ -257,7 +257,7 @@ interface PersonalGridCell {
             <div class="shortcuts-popover__head">
               <h2 id="avail-shortcuts-title" class="shortcuts-popover__title">Atajos</h2>
               <button type="button" class="shortcuts-popover__close" (click)="shortcutsHelpOpen.set(false)" aria-label="Cerrar">
-                <lucide-icon name="x" size="18"></lucide-icon>
+                <lucide-icon name="x" size="18" aria-hidden="true"></lucide-icon>
               </button>
             </div>
             <ul class="shortcuts-popover__list">
@@ -299,7 +299,7 @@ interface PersonalGridCell {
                   (click)="clearAvailabilitySearch()"
                   title="Quitar filtro de búsqueda"
                 >
-                  <lucide-icon name="x" size="16"></lucide-icon>
+                  <lucide-icon name="x" size="16" aria-hidden="true"></lucide-icon>
                   <span class="availability-clear-search__label">Limpiar</span>
                 </button>
               }
@@ -323,11 +323,11 @@ interface PersonalGridCell {
                   <span class="tech-name">{{ tech.name }}</span>
                   <span class="tech-role">{{ tech.role }}</span>
                 </div>
-                <lucide-icon name="chevron-right" size="14" class="tech-chevron"></lucide-icon>
+                <lucide-icon name="chevron-right" size="14" class="tech-chevron" aria-hidden="true"></lucide-icon>
               </button>
             } @empty {
               <div class="availability-empty availability-empty--sidebar" role="status">
-                <lucide-icon name="search-x" size="22"></lucide-icon>
+                <lucide-icon name="search-x" size="22" aria-hidden="true"></lucide-icon>
                 <p class="availability-empty__title">Ningún operario coincide</p>
                 <p class="availability-empty__hint">Prueba otros términos o limpia el filtro.</p>
                 <button type="button" class="availability-empty__btn" (click)="clearAvailabilitySearch()">
@@ -410,7 +410,7 @@ interface PersonalGridCell {
               </ui-card>
               @if (isLoading()) {
                 <div class="availability-loading-overlay" aria-live="polite" aria-busy="true">
-                  <lucide-icon name="rotate-cw" size="28" class="animate-spin availability-loading-overlay__icon"></lucide-icon>
+                  <lucide-icon name="rotate-cw" size="28" class="animate-spin availability-loading-overlay__icon" aria-hidden="true"></lucide-icon>
                   <span class="availability-loading-overlay__text">Cargando disponibilidad…</span>
                 </div>
               }
@@ -427,12 +427,12 @@ interface PersonalGridCell {
                       <span class="team-board-month">{{ getMonthName() }} {{ currentYear() }}</span>
                     </h2>
                     <p class="team-board-hint">
-                      <lucide-icon name="users" size="14"></lucide-icon>
+                      <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
                       {{ teamBoardHintCounts() }} · vista mensual completa del equipo
                     </p>
                     @if (!isCompactTeamNav()) {
                       <p class="team-board-scroll-hint-desktop" aria-live="polite">
-                        <lucide-icon name="calendar-days" size="14"></lucide-icon>
+                        <lucide-icon name="calendar-days" size="14" aria-hidden="true"></lucide-icon>
                         Día {{ teamScrollLabel().center }} de {{ teamScrollLabel().total }}
                         @if (teamScrollLabel().from !== teamScrollLabel().to) {
                           <span class="team-board-scroll-hint-desktop__range">
@@ -467,7 +467,7 @@ interface PersonalGridCell {
                         (click)="clearAvailabilitySearch()"
                         title="Quitar filtro de búsqueda"
                       >
-                        <lucide-icon name="x" size="16"></lucide-icon>
+                        <lucide-icon name="x" size="16" aria-hidden="true"></lucide-icon>
                         <span class="availability-clear-search__label">Limpiar</span>
                       </button>
                     }
@@ -486,7 +486,7 @@ interface PersonalGridCell {
                         (click)="scrollTeamHorizontalByDays(-7)"
                         title="Ver días anteriores"
                       >
-                        <lucide-icon name="chevron-left" size="18"></lucide-icon>
+                        <lucide-icon name="chevron-left" size="18" aria-hidden="true"></lucide-icon>
                       </button>
                       <div class="team-mobile-day-bar__text">
                         <span class="team-mobile-day-bar__label">Día {{ teamScrollLabel().center }} de {{ teamScrollLabel().total }}</span>
@@ -510,7 +510,7 @@ interface PersonalGridCell {
                         (click)="scrollTeamHorizontalByDays(7)"
                         title="Ver días siguientes"
                       >
-                        <lucide-icon name="chevron-right" size="18"></lucide-icon>
+                        <lucide-icon name="chevron-right" size="18" aria-hidden="true"></lucide-icon>
                       </button>
                     </div>
                   </div>
@@ -526,7 +526,7 @@ interface PersonalGridCell {
                   <div class="team-board-matrix" [style.--team-day-cols]="monthDays().length">
                     <div class="board-header">
                       <div class="header-col persona-col sticky-col">
-                        <lucide-icon name="circle-user" size="18"></lucide-icon>
+                        <lucide-icon name="circle-user" size="18" aria-hidden="true"></lucide-icon>
                         <span>Persona</span>
                       </div>
                       <div class="days-row">
@@ -588,18 +588,18 @@ interface PersonalGridCell {
                       } @empty {
                         <div class="availability-empty availability-empty--team" role="status">
                           @if (displayedTechnicians().length === 0) {
-                            <lucide-icon name="users" size="26"></lucide-icon>
+                            <lucide-icon name="users" size="26" aria-hidden="true"></lucide-icon>
                             <p class="availability-empty__title">No hay operarios en el cuadrante</p>
                             <p class="availability-empty__hint">Cuando existan técnicos asignados, aparecerán aquí.</p>
                           } @else if (availabilitySearchQuery().trim()) {
-                            <lucide-icon name="search-x" size="26"></lucide-icon>
+                            <lucide-icon name="search-x" size="26" aria-hidden="true"></lucide-icon>
                             <p class="availability-empty__title">Nadie coincide con el filtro</p>
                             <p class="availability-empty__hint">Revisa la búsqueda o limpia para ver a todo el equipo.</p>
                             <button type="button" class="availability-empty__btn" (click)="clearAvailabilitySearch()">
                               Limpiar filtro
                             </button>
                           } @else {
-                            <lucide-icon name="calendar-days" size="26"></lucide-icon>
+                            <lucide-icon name="calendar-days" size="26" aria-hidden="true"></lucide-icon>
                             <p class="availability-empty__title">Sin filas que mostrar</p>
                           }
                         </div>
@@ -620,7 +620,7 @@ interface PersonalGridCell {
               </ui-card>
               @if (isLoading()) {
                 <div class="availability-loading-overlay" aria-live="polite" aria-busy="true">
-                  <lucide-icon name="rotate-cw" size="28" class="animate-spin availability-loading-overlay__icon"></lucide-icon>
+                  <lucide-icon name="rotate-cw" size="28" class="animate-spin availability-loading-overlay__icon" aria-hidden="true"></lucide-icon>
                   <span class="availability-loading-overlay__text">Cargando cuadrante…</span>
                 </div>
               }

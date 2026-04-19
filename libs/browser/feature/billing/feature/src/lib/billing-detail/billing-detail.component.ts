@@ -40,7 +40,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
             <button class="back-btn" routerLink="/billing">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER A FACTURACIÓN
             </button>
             <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 24px ' + currentTheme().primary + '44'">
@@ -140,7 +140,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
           <aside class="sidebar">
             <ui-card variant="glass" title="Vigilancia Fiscal (AEAT)">
                <div class="vf-status-box" [style.background]="getVerifactuBg()">
-                 <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28"></lucide-icon>
+                 <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28" aria-hidden="true"></lucide-icon>
                  <div class="vf-text">
                    <h4 class="text-uppercase">{{ getVerifactuLabel(inv.verifactuStatus) }}</h4>
                    <p class="text-friendly">Certificación VeriFactu cumplimentada bajo normativa 2026/02/AEAT.</p>
@@ -148,7 +148,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                </div>
                @if (inv.verifactuStatus === 'sent') {
                  <div class="qr-placeholder ui-filled">
-                    <lucide-icon name="qr-code" size="64"></lucide-icon>
+                    <lucide-icon name="qr-code" size="64" aria-hidden="true"></lucide-icon>
                     <p class="text-uppercase" style="font-size: 0.5rem; margin-top: 8px;">Código HASH Certificado</p>
                  </div>
                }
@@ -161,7 +161,7 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
         </div>
       } @else {
         <div class="error-container ui-glass">
-          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().danger"></lucide-icon>
+          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().danger" aria-hidden="true"></lucide-icon>
           <h3>Expediente No Encontrado</h3>
           <p>El documento solicitado no existe o no tiene permisos de acceso.</p>
           <ui-button variant="glass" routerLink="/billing">VOLVER AL LISTADO</ui-button>

@@ -9,7 +9,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { combineLatest, debounceTime } from 'rxjs';
+import { combineLatest, debounceTime, interval } from 'rxjs';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import {
@@ -1208,22 +1208,46 @@ export class DocumentCreateEditorComponent implements OnInit {
       return;
     }
     this.formHooksBound = true;
-    this.documentForm.valueChanges.subscribe((values) => {
-      this.assistantService.setFormData(
-        values as Record<string, unknown>,
-      );
-      if (values.content) {
-        this.assistantService.setDocumentContent(
-          values.content,
-          this.selectedType?.id,
+    this.documentForm.valueChanges
+      .pipe(
+        debounceTime(200),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((values) => {
+        this.applyAssistantSyncFromValues(
+          values as Record<string, unknown>,
         );
-      }
-    });
+      });
 
-    setInterval(() => {
-      this.autoSaved = true;
-      setTimeout(() => (this.autoSaved = false), 2000);
-    }, 30000);
+    interval(30_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.autoSaved = true;
+        setTimeout(() => {
+          this.autoSaved = false;
+        }, 2000);
+      });
+  }
+
+  /** Contexto del asistente a partir de valores de formulario (compartido con el debounce). */
+  private applyAssistantSyncFromValues(
+    values: Record<string, unknown>,
+  ): void {
+    this.assistantService.setFormData(values);
+    const content = values['content'];
+    if (content && typeof content === 'string') {
+      this.assistantService.setDocumentContent(
+        content,
+        this.selectedType?.id,
+      );
+    }
+  }
+
+  /** Tras cargas/importaciones: mismo criterio que valueChanges sin esperar al debounce. */
+  private syncAssistantFromFormNow(): void {
+    this.applyAssistantSyncFromValues(
+      this.documentForm.getRawValue() as Record<string, unknown>,
+    );
   }
 
   private async loadFromRoute(): Promise<void> {
@@ -1265,6 +1289,7 @@ export class DocumentCreateEditorComponent implements OnInit {
         const tpl = this.templatesService.getById(templateId);
         if (tpl) {
           this.documentForm.patchValue({ content: tpl.content });
+          this.syncAssistantFromFormNow();
         }
       }
     }
@@ -1315,6 +1340,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
     this.savedDraftId = draftId;
     this.documentForm.patchValue(patch);
+    this.syncAssistantFromFormNow();
   }
 
   updatePreview() {
@@ -1496,6 +1522,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     if (result.success) {
       const content = result.blocks.map((b) => b.content).join('\n\n');
       this.documentForm.get('content')?.setValue(content);
+      this.syncAssistantFromFormNow();
     }
 
     if (result.warnings.length > 0 && isDevMode()) {

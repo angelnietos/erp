@@ -70,87 +70,96 @@ interface PluginDescriptor {
 
           <nav class="settings-nav">
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'profile'"
               (click)="activeTab.set('profile')"
             >
-              <lucide-icon name="user" size="18"></lucide-icon>
+              <lucide-icon name="user" size="18" aria-hidden="true"></lucide-icon>
               <span>Mi Perfil</span>
             </button>
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'general'"
               (click)="activeTab.set('general')"
             >
-              <lucide-icon name="sliders" size="18"></lucide-icon>
+              <lucide-icon name="sliders" size="18" aria-hidden="true"></lucide-icon>
               <span>General</span>
             </button>
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'ai'"
               (click)="activeTab.set('ai')"
             >
-              <lucide-icon name="bot" size="18"></lucide-icon>
+              <lucide-icon name="bot" size="18" aria-hidden="true"></lucide-icon>
               <span>Asistentes de IA</span>
             </button>
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'notifications'"
               (click)="activeTab.set('notifications')"
             >
-              <lucide-icon name="bell" size="18"></lucide-icon>
+              <lucide-icon name="bell" size="18" aria-hidden="true"></lucide-icon>
               <span>Notificaciones</span>
             </button>
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'security'"
               (click)="activeTab.set('security')"
             >
-              <lucide-icon name="lock" size="18"></lucide-icon>
+              <lucide-icon name="lock" size="18" aria-hidden="true"></lucide-icon>
               <span>Seguridad</span>
             </button>
             @if (canSeeRolesAdmin()) {
               <button
+                type="button"
                 class="nav-item"
                 [class.active]="activeTab() === 'roles'"
                 (click)="activeTab.set('roles')"
               >
-                <lucide-icon name="shield-check" size="18"></lucide-icon>
+                <lucide-icon name="shield-check" size="18" aria-hidden="true"></lucide-icon>
                 <span>Roles y Permisos</span>
               </button>
             }
             <button
+              type="button"
               class="nav-item buddy-nav-item"
               [class.active]="activeTab() === 'buddy'"
               (click)="activeTab.set('buddy')"
             >
-              <lucide-icon name="smile" size="18"></lucide-icon>
+              <lucide-icon name="smile" size="18" aria-hidden="true"></lucide-icon>
               <span>Compañeros IA</span>
             </button>
 
             <div class="nav-divider">Otros</div>
 
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'plugins'"
               (click)="activeTab.set('plugins')"
             >
-              <lucide-icon name="puzzle" size="18"></lucide-icon>
+              <lucide-icon name="puzzle" size="18" aria-hidden="true"></lucide-icon>
               <span>Módulos & Plugins</span>
             </button>
             <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'labs'"
               (click)="activeTab.set('labs')"
             >
-              <lucide-icon name="flask-conical" size="18"></lucide-icon>
+              <lucide-icon name="flask-conical" size="18" aria-hidden="true"></lucide-icon>
               <span>Laboratorio</span>
             </button>
           </nav>
 
           <div class="sidebar-footer">
             <div class="status-indicator">
-              <lucide-icon name="shield" size="14"></lucide-icon>
+              <lucide-icon name="shield" size="14" aria-hidden="true"></lucide-icon>
               <span>Núcleo Seguro v3.2</span>
             </div>
           </div>
@@ -175,7 +184,7 @@ interface PluginDescriptor {
                            [color]="themeService.currentThemeData().primary"
                            size="lg">
                          </ui-mascot>
-                         <button class="edit-avatar-btn"><lucide-icon name="pencil" size="14"></lucide-icon></button>
+                         <button type="button" class="edit-avatar-btn" aria-label="Editar avatar"><lucide-icon name="pencil" size="14" aria-hidden="true"></lucide-icon></button>
                       </div>
                       <div class="user-names">
                         <h3>{{ _authStore.user()?.firstName || 'Usuario' }} {{ _authStore.user()?.lastName || '' }}</h3>
@@ -229,7 +238,7 @@ interface PluginDescriptor {
               <div class="prefs-container grid-config">
                 <ui-card variant="glass" class="prefs-card">
                    <div class="pref-header">
-                     <lucide-icon name="palette" size="18"></lucide-icon>
+                     <lucide-icon name="palette" size="18" aria-hidden="true"></lucide-icon>
                      <h3>Identidad de Marca</h3>
                    </div>
                    
@@ -269,7 +278,7 @@ interface PluginDescriptor {
 
                 <ui-card variant="glass" class="prefs-card">
                   <div class="pref-header">
-                     <lucide-icon name="layout" size="18"></lucide-icon>
+                     <lucide-icon name="layout" size="18" aria-hidden="true"></lucide-icon>
                      <h3>Interfaz Despejada</h3>
                    </div>
 
@@ -326,6 +335,7 @@ interface PluginDescriptor {
                     name="alert-circle"
                     size="20"
                     class="feature-load-error-banner__icon"
+                    aria-hidden="true"
                   ></lucide-icon>
                   <span class="feature-load-error-banner__text">{{
                     pluginsTabError()
@@ -360,6 +370,7 @@ interface PluginDescriptor {
                         <lucide-icon
                           [name]="plugin.icon"
                           size="24"
+                          aria-hidden="true"
                         ></lucide-icon>
                       </div>
                       <div class="header-text">
@@ -428,7 +439,7 @@ interface PluginDescriptor {
                 <div class="config-header">
                   <div class="config-title">
                     <div class="title-icon-wrapper">
-                       <lucide-icon name="cpu" size="24"></lucide-icon>
+                       <lucide-icon name="cpu" size="24" aria-hidden="true"></lucide-icon>
                     </div>
                     <div>
                       <h3>Motor de Inferencia (LLM)</h3>
@@ -463,7 +474,7 @@ interface PluginDescriptor {
                         class="ollama-refresh-btn"
                         (click)="aiBotStore.checkOllamaAvailability(true)"
                       >
-                        <lucide-icon name="refresh-cw" size="14"></lucide-icon>
+                        <lucide-icon name="refresh-cw" size="14" aria-hidden="true"></lucide-icon>
                         ACTUALIZAR MODELOS OLLAMA
                       </button>
                     </div>
@@ -666,6 +677,7 @@ interface PluginDescriptor {
                             <lucide-icon
                               name="circle-check-big"
                               size="12"
+                              aria-hidden="true"
                             ></lucide-icon>
                             <span>{{ skill }}</span>
                           </div>
@@ -873,7 +885,7 @@ interface PluginDescriptor {
                           aria-label="Modo rage"
                         >
                           <div class="toggle-label">
-                            <lucide-icon name="zap" size="14"></lucide-icon>
+                            <lucide-icon name="zap" size="14" aria-hidden="true"></lucide-icon>
                             <span>MODO RAGE</span>
                           </div>
                           <div class="switch-pill">
@@ -1276,6 +1288,7 @@ interface PluginDescriptor {
                                   <lucide-icon
                                     name="trash-2"
                                     size="16"
+                                    aria-hidden="true"
                                   ></lucide-icon>
                                 </button>
                               </div>
@@ -1314,7 +1327,7 @@ interface PluginDescriptor {
               <div class="prefs-container grid-config">
                 <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
-                    <lucide-icon name="globe" size="16"></lucide-icon> Idioma y
+                    <lucide-icon name="globe" size="16" aria-hidden="true"></lucide-icon> Idioma y
                     Localización
                   </h3>
                   <div class="form-group mb-4">
@@ -1333,7 +1346,7 @@ interface PluginDescriptor {
 
                 <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
-                    <lucide-icon name="layout" size="16"></lucide-icon> Interfaz
+                    <lucide-icon name="layout" size="16" aria-hidden="true"></lucide-icon> Interfaz
                     y Diseño
                   </h3>
                   <div class="pref-row">
@@ -1453,7 +1466,7 @@ interface PluginDescriptor {
               <div class="grid-config">
                 <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
-                    <lucide-icon name="clock" size="16"></lucide-icon> Sesión
+                    <lucide-icon name="clock" size="16" aria-hidden="true"></lucide-icon> Sesión
                   </h3>
                   <div class="form-group">
                     <ui-select
@@ -1472,7 +1485,7 @@ interface PluginDescriptor {
 
                 <ui-card variant="glass" class="prefs-card">
                   <h3 class="config-subtitle">
-                    <lucide-icon name="trash2" size="16"></lucide-icon> Gestión
+                    <lucide-icon name="trash2" size="16" aria-hidden="true"></lucide-icon> Gestión
                     de Datos
                   </h3>
                   <div class="pref-row">
@@ -1512,7 +1525,7 @@ interface PluginDescriptor {
                   <p>Define quién puede hacer qué en cada módulo del sistema</p>
                 </div>
                 <ui-button variant="filled" size="sm" (click)="createNewRole()">
-                  <lucide-icon name="plus" size="16"></lucide-icon> Nuevo Rol
+                  <lucide-icon name="plus" size="16" aria-hidden="true"></lucide-icon> Nuevo Rol
                 </ui-button>
               </div>
 
@@ -1526,6 +1539,7 @@ interface PluginDescriptor {
                     name="alert-circle"
                     size="20"
                     class="feature-load-error-banner__icon"
+                    aria-hidden="true"
                   ></lucide-icon>
                   <span class="feature-load-error-banner__text">{{
                     rolesLoadError()
@@ -1568,7 +1582,7 @@ interface PluginDescriptor {
                           <span class="role-name-text">{{ role.name }}</span>
                           <span class="role-type-pill">{{ role.type }}</span>
                         </div>
-                        <lucide-icon name="chevron-right" size="14" class="chevron"></lucide-icon>
+                        <lucide-icon name="chevron-right" size="14" class="chevron" aria-hidden="true"></lucide-icon>
                       </div>
                     }
                   </div>
@@ -1592,7 +1606,7 @@ interface PluginDescriptor {
                           <div class="role-actions-btns">
                             @if (!isSelectedRoleSuperAdmin()) {
                               <ui-button variant="outline" size="sm" (click)="deleteRole(role.id)">
-                                <lucide-icon name="trash-2" size="14"></lucide-icon> Eliminar Rol
+                                <lucide-icon name="trash-2" size="14" aria-hidden="true"></lucide-icon> Eliminar Rol
                               </ui-button>
                             }
                           </div>
@@ -1650,7 +1664,7 @@ interface PluginDescriptor {
                     </ui-card>
                   } @else {
                     <div class="no-role-selected">
-                      <lucide-icon name="shield-alert" size="48" class="mb-4 opacity-20"></lucide-icon>
+                      <lucide-icon name="shield-alert" size="48" class="mb-4 opacity-20" aria-hidden="true"></lucide-icon>
                       <p>Selecciona un rol para ver y editar sus permisos</p>
                     </div>
                   }
@@ -1675,6 +1689,7 @@ interface PluginDescriptor {
                     name="flask-conical"
                     size="32"
                     class="labs-icon"
+                    aria-hidden="true"
                   ></lucide-icon>
                   <div>
                     <h3 class="experimental-title">Josanz Genesis Engine</h3>

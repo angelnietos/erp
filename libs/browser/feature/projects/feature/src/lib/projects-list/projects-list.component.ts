@@ -218,7 +218,7 @@ import { Observable, of } from 'rxjs';
       @if (hasSelections()) {
         <div class="bulk-actions-bar">
           <div class="bulk-info">
-            <lucide-icon name="check-square" size="16"></lucide-icon>
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
               >{{ selectedCount() }} proyecto{{
                 selectedCount() === 1 ? '' : 's'
@@ -237,7 +237,7 @@ import { Observable, of } from 'rxjs';
               <option value="CANCELLED">Marcar como cancelado</option>
             </select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
-              <lucide-icon name="trash2" size="14"></lucide-icon>
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
             </ui-button>
             <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
@@ -253,7 +253,7 @@ import { Observable, of } from 'rxjs';
         </div>
       } @else if (projectsLoadError() && !hasAnyProjects()) {
         <div class="feature-error-screen" role="alert">
-          <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon"></lucide-icon>
+          <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon" aria-hidden="true"></lucide-icon>
           <h3>No se pudo cargar el listado</h3>
           <p>
             {{
@@ -265,7 +265,7 @@ import { Observable, of } from 'rxjs';
         </div>
       } @else if (!hasAnyProjects()) {
         <div class="feature-empty feature-empty--wide">
-          <lucide-icon name="layout" size="64" class="feature-empty__icon"></lucide-icon>
+          <lucide-icon name="layout" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
           <h3>Sin proyectos</h3>
           <p>Crea tu primer proyecto para organizar la operativa y el seguimiento.</p>
           <ui-button variant="solid" (clicked)="goToNewProject()" icon="CirclePlus">
@@ -274,7 +274,7 @@ import { Observable, of } from 'rxjs';
         </div>
       } @else if (filterProducesNoResults()) {
         <div class="feature-empty feature-empty--wide">
-          <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
+          <lucide-icon name="search-x" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
           <h3>Sin resultados</h3>
           <p>Ningún proyecto coincide con la búsqueda, pestaña o filtros actuales.</p>
           <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">

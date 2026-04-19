@@ -47,7 +47,7 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
         <ui-loader message="Cargando albarán..."></ui-loader>
       } @else if (loadError() && !isCreateMode) {
         <div class="error-state">
-          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
+          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary" aria-hidden="true"></lucide-icon>
           <h2>ALBARÁN NO ENCONTRADO</h2>
           <ui-button variant="primary" (clicked)="goToList()">VOLVER AL LISTADO</ui-button>
         </div>

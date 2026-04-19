@@ -39,12 +39,12 @@ interface RentalFormData extends Partial<Rental> {
     <ui-feature-page-shell [extraClass]="'rentals-edit-root'">
       @if (isHydrating()) {
         <div class="rentals-edit__loading">
-          <lucide-icon name="loader" class="spin" size="40"></lucide-icon>
+          <lucide-icon name="loader" class="spin" size="40" aria-hidden="true"></lucide-icon>
           <p>Cargando expediente...</p>
         </div>
       } @else if (loadError() && !isCreateMode()) {
         <div class="rentals-edit__error">
-          <lucide-icon name="alert-triangle" size="48"></lucide-icon>
+          <lucide-icon name="alert-triangle" size="48" aria-hidden="true"></lucide-icon>
           <h2>{{ loadError() }}</h2>
           <ui-button variant="glass" (clicked)="goToList()">Volver al listado</ui-button>
         </div>
@@ -60,7 +60,7 @@ interface RentalFormData extends Partial<Rental> {
           <div class="rentals-edit__errors">
             @for (error of formErrors(); track $index) {
               <div class="rentals-edit__err">
-                <lucide-icon name="alert-circle" size="16"></lucide-icon>
+                <lucide-icon name="alert-circle" size="16" aria-hidden="true"></lucide-icon>
                 <span>{{ error }}</span>
               </div>
             }
@@ -123,7 +123,7 @@ interface RentalFormData extends Partial<Rental> {
               ></ui-input>
               <div class="rentals-edit__field">
                 <label class="rentals-edit__label" for="valid-until-rental-edit">
-                  <lucide-icon name="calendar" size="16"></lucide-icon>
+                  <lucide-icon name="calendar" size="16" aria-hidden="true"></lucide-icon>
                   Válido hasta
                 </label>
                 <input
@@ -137,7 +137,7 @@ interface RentalFormData extends Partial<Rental> {
             </div>
             <div class="rentals-edit__notes">
               <label class="rentals-edit__label" for="notes-rental-edit">
-                <lucide-icon name="sticky-note" size="16"></lucide-icon>
+                <lucide-icon name="sticky-note" size="16" aria-hidden="true"></lucide-icon>
                 Notas
               </label>
               <textarea

@@ -56,7 +56,7 @@ interface ProjectForm {
         </div>
       } @else if (!isNew && loadError()) {
         <div class="page-error">
-          <lucide-icon name="alert-circle" size="48" class="page-error-icon"></lucide-icon>
+          <lucide-icon name="alert-circle" size="48" class="page-error-icon" aria-hidden="true"></lucide-icon>
           <p>{{ loadError() }}</p>
           <div class="page-error-actions">
             <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
