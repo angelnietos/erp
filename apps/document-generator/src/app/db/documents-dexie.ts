@@ -1,3 +1,4 @@
+/* eslint-disable @nx/enforce-module-boundaries -- paquete npm `dexie`, no un proyecto Nx */
 import Dexie, { type Table } from 'dexie';
 
 /** Fila almacenada: metadatos indexables + JSON completo del documento. */

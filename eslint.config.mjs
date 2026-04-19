@@ -129,7 +129,10 @@ export default [
     },
   },
   {
-    files: ['libs/shared/ui-shell/**/*.ts', 'libs/shared/ui-shell/**/*.tsx'],
+    files: [
+      'libs/browser/shared/ui-shell/**/*.ts',
+      'libs/browser/shared/ui-shell/**/*.tsx',
+    ],
     rules: {
       /**
        * UI shell is buildable but only depends on Angular + lucide (npm). Some editors resolve

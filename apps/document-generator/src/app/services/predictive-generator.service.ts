@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { BlockEngineService, Block } from './block-engine.service';
+import { BlockEngineService } from './block-engine.service';
 
 export interface Prediction {
   id: string;
@@ -128,7 +128,7 @@ export class PredictiveGeneratorService {
       [/--$/, '—'],
       [/\.\.\.$/, '…'],
       [/(\d)\s*x\s*(\d)/i, '$1 × $2'],
-      [/(\w)\'(\w)/, '$1’$2'],
+      [/(\w)'(\w)/, '$1’$2'],
       [/^#\s+(.*)/, '# $1'],
       [/^##\s+(.*)/, '## $1'],
       [/^\*\s+(.*)/, '• $1'],

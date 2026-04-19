@@ -65,7 +65,7 @@ export class PdfGenerationService {
       }
 
       const isNumberedSectionTitle = (text: string): boolean =>
-        /^\s*\d+[\.)]\s+\S/.test(text);
+        /^\s*\d+[.)]\s+\S/.test(text);
 
       const headings = root.querySelectorAll('h1, h2, h3');
       let numberedIndex = 0;

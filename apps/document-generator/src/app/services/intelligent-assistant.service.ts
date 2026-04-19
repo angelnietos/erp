@@ -127,7 +127,9 @@ export class IntelligentAssistantService {
         confidence: 0.78,
         title: 'Reducir adverbios cualitativos',
         description: 'Sustituir palabras vagas por datos concretos',
-        apply: () => {},
+        apply: () => {
+          void 0;
+        },
         discard: () => this.discardSuggestion(suggestions[1]?.id),
       });
     }

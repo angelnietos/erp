@@ -31,7 +31,6 @@ import {
   MasterFilterService,
   FILTER_PROVIDER,
   FilterableService,
-  DomainEventsApiService,
   ToastService,
   AIFormBridgeService,
   GlobalAuthStore,
@@ -469,7 +468,6 @@ export class ProjectsListComponent
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
   private readonly masterFilter = inject(MasterFilterService);
-  private readonly domainEventsApi = inject(DomainEventsApiService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly aiFormBridge = inject(AIFormBridgeService);

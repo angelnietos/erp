@@ -1,7 +1,7 @@
 {
   "name": "billing-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/billing/shell/src",
+  "sourceRoot": "libs/browser/shell/billing/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/billing/shell/jest.config.cts",
-        "tsConfig": "libs/billing/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/billing/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/billing/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

@@ -1,7 +1,7 @@
 {
   "name": "inventory-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/inventory/shell/src",
+  "sourceRoot": "libs/browser/shell/inventory/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/inventory/shell/jest.config.cts",
-        "tsConfig": "libs/inventory/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/inventory/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/inventory/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

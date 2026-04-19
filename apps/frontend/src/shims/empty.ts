@@ -1,32 +1,37 @@
-// Empty shim for server-only modules when bundling for browser
-export const IsString =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsNotEmpty =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsOptional =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsEnum =
-  (enumType: any) => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsNumber =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsDateString =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsArray =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const ValidateNested =
-  (options?: any) => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsBoolean =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const Min =
-  (value: number) => (target: any, propertyKey: string, descriptor?: any) => {};
-export const Max =
-  (value: number) => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsEmail =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsUUID =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsInt =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-export const IsPositive =
-  () => (target: any, propertyKey: string, descriptor?: any) => {};
-// Add more as needed
+/**
+ * Empty shims for server-only modules (e.g. class-validator) when bundling for the browser.
+ * Mirrors class-validator decorator shapes (factory vs direct property decorator).
+ */
+/* eslint-disable @typescript-eslint/no-unused-vars -- stubs mirror class-validator signatures */
+type DecoratorTarget = object;
+type PropKey = string | symbol;
+
+const noopPropertyDecorator = (
+  _target: DecoratorTarget,
+  _propertyKey: PropKey,
+  _descriptor?: PropertyDescriptor,
+): void => {
+  void 0;
+};
+
+/** @IsString(), @IsNumber(), … */
+const simpleDecorator = () => noopPropertyDecorator;
+
+/** @IsEnum(EnumType), @Min(n), … */
+const paramDecorator = (_arg: unknown) => noopPropertyDecorator;
+
+export const IsString = simpleDecorator;
+export const IsNotEmpty = simpleDecorator;
+export const IsOptional = simpleDecorator;
+export const IsEnum = paramDecorator;
+export const IsNumber = simpleDecorator;
+export const IsDateString = simpleDecorator;
+export const IsArray = simpleDecorator;
+export const ValidateNested = paramDecorator;
+export const IsBoolean = simpleDecorator;
+export const Min = paramDecorator;
+export const Max = paramDecorator;
+export const IsEmail = simpleDecorator;
+export const IsUUID = simpleDecorator;
+export const IsInt = simpleDecorator;
+export const IsPositive = simpleDecorator;

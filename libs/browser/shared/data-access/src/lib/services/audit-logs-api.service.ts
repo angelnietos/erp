@@ -19,7 +19,7 @@ export interface AuditLogApiDto {
 export class AuditLogsApiService {
   private readonly http = inject(HttpClient);
 
-  list(limit = 150): Observable<AuditLogApiDto[]> {
+  list(limit = 200): Observable<AuditLogApiDto[]> {
     return this.http.get<AuditLogApiDto[]>(`/api/audit-logs?limit=${limit}`);
   }
 }

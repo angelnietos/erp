@@ -1,7 +1,7 @@
 import { PrismaClient, Prisma, type Product } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
-import { createHash, randomUUID } from 'crypto';
+import { createHash } from 'crypto';
 import { config as loadEnv } from 'dotenv';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -185,6 +185,7 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.inventory.deleteMany({ where: { product: { tenantId } } });
   await prisma.damageReport.deleteMany({ where: { tenantId } });
   await prisma.product.deleteMany({ where: { tenantId } });
+  await prisma.category.deleteMany({ where: { tenantId } });
   await prisma.vehicle.deleteMany({ where: { tenantId } });
   await prisma.projectEvent.deleteMany({ where: { project: { tenantId } } });
   await prisma.eventTechnician.deleteMany({ where: { event: { tenantId } } });
@@ -1148,42 +1149,107 @@ async function main() {
   ]);
   console.log('- Created vehicles');
 
-  // Seed categories
-  await prisma.$transaction([
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Audio/Video',
-        type: 'PRODUCT',
-        description: 'Equipos de audio y video',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Sonido',
-        type: 'PRODUCT',
-        description: 'Equipos de sonido',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Personal',
-        type: 'SERVICE',
-        description: 'Servicios de personal técnico',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Transporte',
-        type: 'SERVICE',
-        description: 'Servicios de transporte',
-      },
-    }),
-  ]);
+  // Seed categories (ids necesarios para productos con categoryRef SERVICE → GET /api/services)
+  await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Audio/Video',
+      type: 'PRODUCT',
+      description: 'Equipos de audio y video',
+    },
+  });
+  await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Sonido',
+      type: 'PRODUCT',
+      description: 'Equipos de sonido',
+    },
+  });
+  const josanzCategoryPersonal = await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Personal',
+      type: 'SERVICE',
+      description: 'Servicios de personal técnico',
+    },
+  });
+  const josanzCategoryTransport = await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Transporte',
+      type: 'SERVICE',
+      description: 'Servicios de transporte',
+    },
+  });
   console.log('- Created categories');
+
+  const josanzServiceCatalog: {
+    name: string;
+    type: string;
+    categoryId: string;
+    sku: string;
+    price: number;
+    dailyRate: number;
+  }[] = [
+    {
+      name: 'Streaming evento en vivo',
+      type: 'STREAMING',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-STR-001',
+      price: 890,
+      dailyRate: 120,
+    },
+    {
+      name: 'Producción multicámara',
+      type: 'PRODUCCIÓN',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-PRD-001',
+      price: 2400,
+      dailyRate: 350,
+    },
+    {
+      name: 'Transporte equipo PA',
+      type: 'TRANSPORTE',
+      categoryId: josanzCategoryTransport.id,
+      sku: 'SRV-TRN-001',
+      price: 320,
+      dailyRate: 85,
+    },
+    {
+      name: 'Técnico de iluminación (jornada)',
+      type: 'PERSONAL_TÉCNICO',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-PER-001',
+      price: 280,
+      dailyRate: 45,
+    },
+    {
+      name: 'Operación cámara / vídeo',
+      type: 'VIDEO_TÉCNICO',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-VID-001',
+      price: 420,
+      dailyRate: 65,
+    },
+  ];
+
+  for (const s of josanzServiceCatalog) {
+    const row = await prisma.product.create({
+      data: {
+        tenantId: tenant.id,
+        name: s.name,
+        sku: s.sku,
+        categoryId: s.categoryId,
+        category: 'SERVICE',
+        type: s.type,
+        price: s.price,
+        dailyRate: s.dailyRate,
+        description: `Servicio de catálogo — ${s.name}`,
+      },
+    });
+    console.log(`- Created service (catalog): ${row.name}`);
+  }
 
   // Seed technicians
   
@@ -1396,17 +1462,6 @@ async function main() {
     },
   });
   console.log('- Created idempotency key');
-
-  await prisma.auditLog.create({
-    data: {
-      userId: admin.id,
-      action: 'SEED',
-      targetEntity: 'Database',
-      correlationId: randomUUID(),
-      changesJson: { source: 'prisma/seed.ts' } as Prisma.InputJsonValue,
-    },
-  });
-  console.log('- Created audit log');
 
   const day = 24 * 60 * 60 * 1000;
   const now = Date.now();
@@ -1635,6 +1690,82 @@ async function seedBabooniTenantDemo(tenantId: string) {
     });
     inserted.push(product);
   }
+
+  const babooniCatPersonal = await prisma.category.create({
+    data: {
+      tenantId,
+      name: 'Personal técnico',
+      type: 'SERVICE',
+      description: 'Servicios de personal (Babooni demo)',
+    },
+  });
+  const babooniCatTransport = await prisma.category.create({
+    data: {
+      tenantId,
+      name: 'Logística',
+      type: 'SERVICE',
+      description: 'Transporte y logística (Babooni demo)',
+    },
+  });
+
+  const babooniServiceCatalog: {
+    name: string;
+    type: string;
+    categoryId: string;
+    sku: string;
+    price: number;
+    dailyRate: number;
+  }[] = [
+    {
+      name: 'Dirección técnica de evento',
+      type: 'PRODUCCIÓN',
+      categoryId: babooniCatPersonal.id,
+      sku: 'BB-SRV-DIR-01',
+      price: 950,
+      dailyRate: 220,
+    },
+    {
+      name: 'Streaming multicámara HD',
+      type: 'STREAMING',
+      categoryId: babooniCatPersonal.id,
+      sku: 'BB-SRV-STR-01',
+      price: 1200,
+      dailyRate: 280,
+    },
+    {
+      name: 'Furgoneta carga PA',
+      type: 'TRANSPORTE',
+      categoryId: babooniCatTransport.id,
+      sku: 'BB-SRV-TRN-01',
+      price: 180,
+      dailyRate: 95,
+    },
+    {
+      name: 'Técnico de iluminación',
+      type: 'PERSONAL_TÉCNICO',
+      categoryId: babooniCatPersonal.id,
+      sku: 'BB-SRV-ILU-01',
+      price: 320,
+      dailyRate: 48,
+    },
+  ];
+
+  for (const s of babooniServiceCatalog) {
+    await prisma.product.create({
+      data: {
+        tenantId,
+        name: s.name,
+        sku: s.sku,
+        categoryId: s.categoryId,
+        category: 'SERVICE',
+        type: s.type,
+        price: s.price,
+        dailyRate: s.dailyRate,
+        description: `Servicio catálogo Babooni — ${s.name}`,
+      },
+    });
+  }
+  console.log('- Babooni: servicios de catálogo (cuenta técnica SERVICE)');
 
   const budgetApprovedBabooni = await prisma.budget.create({
     data: {

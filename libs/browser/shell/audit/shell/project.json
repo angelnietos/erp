@@ -1,7 +1,7 @@
 {
   "name": "audit-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/audit/shell/src",
+  "sourceRoot": "libs/browser/shell/audit/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/audit/shell/jest.config.cts",
-        "tsConfig": "libs/clients/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/audit/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/audit/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

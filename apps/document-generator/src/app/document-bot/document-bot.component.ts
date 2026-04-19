@@ -665,7 +665,10 @@ export class DocumentBotComponent implements AfterViewChecked {
   }
 
   private navigateToCreate(type?: string) {
-    this.router.navigate(['/documents/create']);
+    void this.router.navigate(
+      ['/documents/create'],
+      type ? { queryParams: { type } } : {},
+    );
   }
 
   private scrollToBottom() {

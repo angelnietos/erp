@@ -647,27 +647,22 @@ export class ServicesListComponent
     }
 
     if (dateFrom) {
-      const fromDate = new Date(dateFrom);
-      list = list.filter((s) => {
-        // Assuming services have createdAt or similar, using a placeholder
-        return true; // TODO: Add date filtering when date fields are available
-      });
+      const from = new Date(dateFrom);
+      list = list.filter((s) => new Date(s.createdAt) >= from);
     }
 
     if (dateTo) {
-      const toDate = new Date(dateTo);
-      toDate.setHours(23, 59, 59, 999);
-      list = list.filter((s) => {
-        return true; // TODO: Add date filtering when date fields are available
-      });
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999);
+      list = list.filter((s) => new Date(s.createdAt) <= to);
     }
 
     if (amountMin !== null) {
-      list = list.filter((s) => (s.basePrice || 0) >= amountMin!);
+      list = list.filter((s) => (s.basePrice || 0) >= amountMin);
     }
 
     if (amountMax !== null) {
-      list = list.filter((s) => (s.basePrice || 0) <= amountMax!);
+      list = list.filter((s) => (s.basePrice || 0) <= amountMax);
     }
 
     // 3. Sort
@@ -675,8 +670,8 @@ export class ServicesListComponent
     const dir = this.sortDirection();
 
     return list.sort((a, b) => {
-      let valA: any = '';
-      let valB: any = '';
+      let valA: string | number = 0;
+      let valB: string | number = 0;
 
       if (field === 'name') {
         valA = a.name.toLowerCase();

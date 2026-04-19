@@ -1,7 +1,7 @@
-import { Component, inject, HostListener, effect } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BlockEngineService, Block } from '../services/block-engine.service';
+import { BlockEngineService } from '../services/block-engine.service';
 import { PredictiveGeneratorService } from '../services/predictive-generator.service';
 import { IntelligentAssistantService } from '../services/intelligent-assistant.service';
 
@@ -183,10 +183,14 @@ import { IntelligentAssistantService } from '../services/intelligent-assistant.s
             predictiveGenerator.currentPrediction() &&
             blockEngine.activeBlock()?.id === block.id
           ) {
-            <div class="prediction-overlay" (click)="acceptPrediction()">
+            <button
+              type="button"
+              class="prediction-overlay text-left w-full"
+              (click)="acceptPrediction()"
+            >
               {{ predictiveGenerator.currentPrediction()?.text }}
               <span class="accept-hint">Tab para aceptar</span>
-            </div>
+            </button>
           }
         </div>
       }
@@ -234,7 +238,7 @@ export class SmartDocumentComponent {
   onBlockInput(blockId: string, event: Event): void {
     const element = event.target as HTMLElement;
     const content = element.innerText;
-    const cursorPosition = this.getCursorPosition(element);
+    const cursorPosition = this.getCursorPosition();
 
     this.blockEngine.updateBlock(blockId, { content });
     this.predictiveGenerator.analyzeTyping(content, cursorPosition);
@@ -318,7 +322,7 @@ export class SmartDocumentComponent {
     }
   }
 
-  private getCursorPosition(element: HTMLElement): number {
+  private getCursorPosition(): number {
     const selection = window.getSelection();
     return selection?.anchorOffset || 0;
   }

@@ -308,3 +308,36 @@ html[data-erp-tenant='babooni'] babooni-app-layout button:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--brand, #2563eb) 85%, #000);
   outline-offset: 2px;
 }
+
+/* Estados vacío / error (auditoría, listas, etc.) — mismo lenguaje que grillas */
+html[data-erp-tenant='babooni'] .feature-empty,
+html[data-erp-tenant='babooni'] .feature-error-screen {
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
+}
+
+html[data-erp-tenant='babooni'] .feature-empty {
+  border-style: dashed !important;
+}
+
+html[data-erp-tenant='babooni'] .feature-error-screen__icon {
+  color: color-mix(in srgb, var(--brand, #2563eb) 70%, #b91c1c) !important;
+  opacity: 0.95 !important;
+}
+
+html[data-erp-tenant='babooni'] .feature-load-error-banner {
+  border-radius: 10px !important;
+  border-color: color-mix(in srgb, var(--error, #dc2626) 35%, var(--babooni-border)) !important;
+  background: color-mix(in srgb, var(--error, #dc2626) 8%, var(--babooni-surface)) !important;
+}
+
+@media (prefers-contrast: more) {
+  html[data-erp-tenant='babooni'] ui-stat-card .stat-card,
+  html[data-erp-tenant='babooni'] ui-feature-header .header-content,
+  html[data-erp-tenant='babooni'] .feature-empty,
+  html[data-erp-tenant='babooni'] .feature-error-screen {
+    border-width: 2px !important;
+  }
+}

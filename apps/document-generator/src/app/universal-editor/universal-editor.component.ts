@@ -884,7 +884,7 @@ export class UniversalEditorComponent {
       tableHtml += '</tbody>\n</table>';
 
       this.insertHtmlAtCursor(tableHtml);
-    } catch (error) {
+    } catch {
       alert(
         'Error al procesar los datos CSV. Asegúrate de que el formato sea correcto.',
       );

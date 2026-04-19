@@ -146,10 +146,11 @@ export class BlockEngineService {
         case 'delete':
           blocks.push(entry.before);
           break;
-        case 'move':
+        case 'move': {
           const [moved] = blocks.splice(entry.after.index, 1);
           blocks.splice(entry.before.index, 0, moved);
           break;
+        }
       }
 
       return { ...s, blocks, historyIndex: newIndex };
@@ -177,10 +178,11 @@ export class BlockEngineService {
         case 'delete':
           blocks = blocks.filter((b) => b.id !== entry.before.id);
           break;
-        case 'move':
+        case 'move': {
           const [moved] = blocks.splice(entry.before.index, 1);
           blocks.splice(entry.after.index, 0, moved);
           break;
+        }
       }
 
       return { ...s, blocks, historyIndex: newIndex };

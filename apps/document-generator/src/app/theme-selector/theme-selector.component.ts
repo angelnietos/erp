@@ -237,7 +237,9 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
       role="dialog"
       aria-modal="true"
       aria-label="Selector de tema"
+      tabindex="-1"
       (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
     >
       <div class="theme-panel-header">
         <span class="theme-panel-title">Tema visual</span>

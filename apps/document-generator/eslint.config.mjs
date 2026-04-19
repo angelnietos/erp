@@ -31,4 +31,15 @@ export default [
     // Override or add rules here
     rules: {},
   },
+  /** Plantillas legacy (ngIf/ngFor): migración gradual a @if/@for */
+  {
+    files: [
+      '**/document-bot/**',
+      '**/document-preview/**',
+      '**/document-preview-download/**',
+    ],
+    rules: {
+      '@angular-eslint/template/prefer-control-flow': 'off',
+    },
+  },
 ];

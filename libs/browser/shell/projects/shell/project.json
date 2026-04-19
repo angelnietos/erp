@@ -1,7 +1,7 @@
 {
   "name": "projects-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/projects/shell/src",
+  "sourceRoot": "libs/browser/shell/projects/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/projects/shell/jest.config.cts",
-        "tsConfig": "libs/clients/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/projects/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/projects/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

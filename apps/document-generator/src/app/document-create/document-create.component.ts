@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AssistantContextService } from '../services/assistant-context.service';
 import {
   TemplatesRegistryService,
@@ -404,6 +404,7 @@ export class DocumentCreateComponent implements OnInit {
   templates: DocumentTemplate[] = [];
   private readonly templatesService = inject(TemplatesRegistryService);
   private readonly assistantService = inject(AssistantContextService);
+  private readonly route = inject(ActivatedRoute);
 
   documentTypes: DocumentType[] = [
     {
@@ -445,6 +446,13 @@ export class DocumentCreateComponent implements OnInit {
 
   ngOnInit() {
     this.assistantService.setActiveTab('create');
+    const typeId = this.route.snapshot.queryParamMap.get('type');
+    if (typeId) {
+      const match = this.documentTypes.find((t) => t.id === typeId);
+      if (match) {
+        this.selectDocumentType(match);
+      }
+    }
   }
 
   selectDocumentType(type: DocumentType) {

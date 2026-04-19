@@ -28,6 +28,13 @@ export const documentGeneratorRoutes: Route[] = [
       ),
   },
   {
+    path: 'create/edit/:documentId',
+    loadComponent: () =>
+      import('./document-create/document-create-editor.component').then(
+        (m) => m.DocumentCreateEditorComponent,
+      ),
+  },
+  {
     path: 'create/edit',
     loadComponent: () =>
       import('./document-create/document-create-editor.component').then(
@@ -68,5 +75,12 @@ export const documentGeneratorRoutes: Route[] = [
       import('./document-ai-settings/document-ai-settings.component').then(
         (m) => m.DocumentAiSettingsComponent,
       ),
+  },
+  {
+    path: 'settings/agent',
+    loadComponent: () =>
+      import(
+        './document-agent-settings/document-agent-settings.component'
+      ).then((m) => m.DocumentAgentSettingsComponent),
   },
 ];

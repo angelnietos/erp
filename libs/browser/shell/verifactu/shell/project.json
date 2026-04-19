@@ -1,7 +1,7 @@
 {
   "name": "verifactu-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/verifactu/shell/src",
+  "sourceRoot": "libs/browser/shell/verifactu/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/verifactu/shell/jest.config.cts",
-        "tsConfig": "libs/verifactu/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/verifactu/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/verifactu/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,7 +24,3 @@
     }
   }
 }
-
-
-
-

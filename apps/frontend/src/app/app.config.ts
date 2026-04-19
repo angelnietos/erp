@@ -5,7 +5,7 @@ import {
   APP_INITIALIZER,
   inject,
 } from '@angular/core';
-import { provideRouter, RouteReuseStrategy } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { appRoutes } from './app.routes';
 import {

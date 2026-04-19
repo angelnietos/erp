@@ -1,7 +1,7 @@
 {
   "name": "delivery-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/delivery/shell/src",
+  "sourceRoot": "libs/browser/shell/delivery/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/delivery/shell/jest.config.cts",
-        "tsConfig": "libs/delivery/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/delivery/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/delivery/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

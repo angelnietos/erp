@@ -141,6 +141,16 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
                 <span>Análisis</span>
               </a>
               <a
+                routerLink="/documents/settings/agent"
+                routerLinkActive="active-link shadow-md"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
+                style="color: var(--text-primary)"
+                title="Skills y memoria del agente"
+              >
+                <lucide-angular name="sparkles" class="w-4 h-4"></lucide-angular>
+                <span class="hidden sm:inline">Agente</span>
+              </a>
+              <a
                 routerLink="/documents/settings/ai"
                 routerLinkActive="active-link shadow-md"
                 class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"

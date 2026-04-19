@@ -1,0 +1,27 @@
+# PostgreSQL dedicado a memoria / skills del agente del generador de documentos (opcional).
+# La app usa IndexedDB por defecto; este servicio prepara sincronización futura vía API.
+#
+# Uso: docker compose -f deploy/document-agent/docker-compose.yml up -d
+
+services:
+  document_agent_postgres:
+    image: postgres:16-alpine
+    container_name: josanz_document_agent_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: josanz_agent
+      POSTGRES_PASSWORD: ${DOCUMENT_AGENT_DB_PASSWORD:-josanz_agent_dev}
+      POSTGRES_DB: josanz_document_agent
+    ports:
+      - '5439:5432'
+    volumes:
+      - josanz_document_agent_pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U josanz_agent -d josanz_document_agent']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  josanz_document_agent_pgdata:

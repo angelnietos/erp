@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars -- shims de decoradores para el bundle del navegador */
 // Empty shim for server-only modules when bundling for browser
 export const IsString =
   () => (target: any, propertyKey: string, descriptor?: any) => {};

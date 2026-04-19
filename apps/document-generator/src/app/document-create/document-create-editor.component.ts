@@ -1,11 +1,14 @@
 import {
   Component,
+  DestroyRef,
   HostListener,
   inject,
   OnInit,
   ViewChild,
   ElementRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { combineLatest, debounceTime } from 'rxjs';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import {
@@ -996,12 +999,15 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly fb = inject(FormBuilder);
   readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   readonly pdfService = inject(PdfGenerationService);
   private readonly documentPersistence = inject(DocumentPersistenceService);
   readonly assistantService = inject(AssistantContextService);
   readonly universalDocument = inject(UniversalDocumentService);
   private readonly documentAi = inject(DocumentAiService);
   private readonly viewportScroller = inject(ViewportScroller);
+
+  private formHooksBound = false;
 
   constructor() {
     this.documentForm = this.fb.group({
@@ -1189,33 +1195,19 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   ngOnInit() {
     this.assistantService.setActiveTab('create');
+    this.bindFormHooksOnce();
+    combineLatest([this.route.paramMap, this.route.queryParamMap])
+      .pipe(debounceTime(0), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        void this.loadFromRoute();
+      });
+  }
 
-    const typeId = this.route.snapshot.queryParamMap.get('type');
-    const templateId = this.route.snapshot.queryParamMap.get('template');
-    this.queryTemplateId = templateId;
-
-    this.selectedType =
-      this.documentTypes.find((t) => t.id === (typeId ?? '')) ?? null;
-
-    if (!this.selectedType) {
-      void this.router.navigate(['/documents/create']);
+  private bindFormHooksOnce(): void {
+    if (this.formHooksBound) {
       return;
     }
-
-    this.setTemplatesForType(this.selectedType);
-
-    queueMicrotask(() => this.viewportScroller.scrollToPosition([0, 0]));
-
-    const draftId = this.route.snapshot.queryParamMap.get('draft');
-    if (draftId) {
-      void this.loadDraftFromQuery(draftId);
-    } else if (templateId) {
-      const tpl = this.templatesService.getById(templateId);
-      if (tpl) {
-        this.documentForm.patchValue({ content: tpl.content });
-      }
-    }
-
+    this.formHooksBound = true;
     this.documentForm.valueChanges.subscribe((values) => {
       this.assistantService.setFormData(values);
       if (values.content) {
@@ -1230,8 +1222,97 @@ export class DocumentCreateEditorComponent implements OnInit {
       this.autoSaved = true;
       setTimeout(() => (this.autoSaved = false), 2000);
     }, 30000);
+  }
 
+  private async loadFromRoute(): Promise<void> {
+    const documentId =
+      this.route.snapshot.paramMap.get('documentId') ??
+      this.route.snapshot.queryParamMap.get('draft') ??
+      null;
+    const typeId = this.route.snapshot.queryParamMap.get('type');
+    const templateId = this.route.snapshot.queryParamMap.get('template');
+    this.queryTemplateId = templateId;
+
+    if (documentId) {
+      await this.documentPersistence.whenReady();
+      const payload = await this.documentPersistence.getPayload(documentId);
+      if (!payload || typeof payload !== 'object') {
+        void this.router.navigate(['/documents/list']);
+        return;
+      }
+      const p = payload as Record<string, unknown>;
+      const typeFromDoc = typeof p['type'] === 'string' ? p['type'] : '';
+      this.selectedType =
+        this.documentTypes.find((t) => t.id === typeFromDoc) ?? null;
+      if (!this.selectedType) {
+        void this.router.navigate(['/documents/create']);
+        return;
+      }
+      this.setTemplatesForType(this.selectedType);
+      this.applyPayloadToForm(documentId, payload);
+    } else {
+      this.selectedType =
+        this.documentTypes.find((t) => t.id === (typeId ?? '')) ?? null;
+      if (!this.selectedType) {
+        void this.router.navigate(['/documents/create']);
+        return;
+      }
+      this.setTemplatesForType(this.selectedType);
+      this.savedDraftId = null;
+      if (templateId) {
+        const tpl = this.templatesService.getById(templateId);
+        if (tpl) {
+          this.documentForm.patchValue({ content: tpl.content });
+        }
+      }
+    }
+
+    queueMicrotask(() => this.viewportScroller.scrollToPosition([0, 0]));
     this.updatePreview();
+  }
+
+  private applyPayloadToForm(draftId: string, payload: unknown): void {
+    if (!payload || typeof payload !== 'object') {
+      return;
+    }
+    const p = payload as Record<string, unknown>;
+    const patch: Record<string, unknown> = {};
+    const formKeys = [
+      'clientId',
+      'date',
+      'projectName',
+      'totalAmount',
+      'description',
+      'title',
+      'content',
+      'executiveSummary',
+      'objectives',
+      'scope',
+      'deliverables',
+      'timeline',
+      'pricing',
+      'terms',
+      'systemOverview',
+      'architectureDiagram',
+      'components',
+      'dataFlow',
+      'apis',
+      'technologies',
+      'deployment',
+    ] as const;
+    for (const k of formKeys) {
+      if (p[k] !== undefined) {
+        patch[k] = p[k];
+      }
+    }
+    if (!patch['clientId'] && typeof p['client'] === 'string') {
+      const cid = this.clients.find((c) => c.name === p['client'])?.id;
+      if (cid) {
+        patch['clientId'] = cid;
+      }
+    }
+    this.savedDraftId = draftId;
+    this.documentForm.patchValue(patch);
   }
 
   updatePreview() {
@@ -1317,10 +1398,7 @@ export class DocumentCreateEditorComponent implements OnInit {
       setTimeout(() => {
         this.draftSaveMessage = '';
       }, 4000);
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { draft: id },
-        queryParamsHandling: 'merge',
+      void this.router.navigate(['/documents', 'create', 'edit', id], {
         replaceUrl: true,
       });
     } catch (e) {
@@ -1330,53 +1408,6 @@ export class DocumentCreateEditorComponent implements OnInit {
     } finally {
       this.isSavingDraft = false;
     }
-  }
-
-  private async loadDraftFromQuery(draftId: string): Promise<void> {
-    await this.documentPersistence.whenReady();
-    const payload = await this.documentPersistence.getPayload(draftId);
-    if (!payload || typeof payload !== 'object') {
-      return;
-    }
-    const p = payload as Record<string, unknown>;
-    const patch: Record<string, unknown> = {};
-    const formKeys = [
-      'clientId',
-      'date',
-      'projectName',
-      'totalAmount',
-      'description',
-      'title',
-      'content',
-      'executiveSummary',
-      'objectives',
-      'scope',
-      'deliverables',
-      'timeline',
-      'pricing',
-      'terms',
-      'systemOverview',
-      'architectureDiagram',
-      'components',
-      'dataFlow',
-      'apis',
-      'technologies',
-      'deployment',
-    ] as const;
-    for (const k of formKeys) {
-      if (p[k] !== undefined) {
-        patch[k] = p[k];
-      }
-    }
-    if (!patch['clientId'] && typeof p['client'] === 'string') {
-      const cid = this.clients.find((c) => c.name === p['client'])?.id;
-      if (cid) {
-        patch['clientId'] = cid;
-      }
-    }
-    this.savedDraftId = draftId;
-    this.documentForm.patchValue(patch);
-    this.updatePreview();
   }
 
   loadTemplate(template: DocumentTemplate) {

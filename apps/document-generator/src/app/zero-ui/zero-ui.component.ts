@@ -211,9 +211,13 @@ import { BlockEngineService } from '../services/block-engine.service';
     </div>
 
     @if (assistant.suggestions().length > 0 && !assistant.zenMode()) {
-      <div class="suggestion-badge visible" (click)="showSuggestions()">
+      <button
+        type="button"
+        class="suggestion-badge visible"
+        (click)="showSuggestions()"
+      >
         💡 {{ assistant.suggestions().length }} sugerencias
-      </div>
+      </button>
     }
 
     <div
@@ -223,14 +227,15 @@ import { BlockEngineService } from '../services/block-engine.service';
       [style.top.px]="menuY"
     >
       @for (item of menuItems; track item.id) {
-        <div
+        <button
+          type="button"
           class="menu-item"
           [class.danger]="item.danger"
           (click)="executeAction(item.action)"
         >
           <span>{{ item.icon }}</span>
           <span>{{ item.label }}</span>
-        </div>
+        </button>
       }
     </div>
   `,
@@ -244,15 +249,38 @@ export class ZeroUiComponent {
   menuY = 0;
 
   menuItems = [
-    { id: 'bold', icon: '𝗕', label: 'Negrita', action: () => {} },
-    { id: 'italic', icon: '𝘐', label: 'Cursiva', action: () => {} },
-    { id: 'heading', icon: 'H', label: 'Título', action: () => {} },
+    {
+      id: 'bold',
+      icon: '𝗕',
+      label: 'Negrita',
+      action: (): void => {
+        void 0;
+      },
+    },
+    {
+      id: 'italic',
+      icon: '𝘐',
+      label: 'Cursiva',
+      action: (): void => {
+        void 0;
+      },
+    },
+    {
+      id: 'heading',
+      icon: 'H',
+      label: 'Título',
+      action: (): void => {
+        void 0;
+      },
+    },
     {
       id: 'delete',
       icon: '🗑️',
       label: 'Eliminar',
       danger: true,
-      action: () => {},
+      action: (): void => {
+        void 0;
+      },
     },
   ];
 
@@ -287,7 +315,11 @@ export class ZeroUiComponent {
 
     if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
       event.preventDefault();
-      event.shiftKey ? this.blockEngine.redo() : this.blockEngine.undo();
+      if (event.shiftKey) {
+        this.blockEngine.redo();
+      } else {
+        this.blockEngine.undo();
+      }
     }
   }
 

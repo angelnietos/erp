@@ -3,6 +3,7 @@ import {
   AIInferenceService,
   GenerateResponseOptions,
 } from '@josanz-erp/shared-data-access';
+import { AgentPersonaService } from './agent-persona.service';
 
 export interface DocumentAiContext {
   /** quote | proposal | documentation | architecture | resume | interview | offer */
@@ -31,6 +32,7 @@ Reglas:
 @Injectable({ providedIn: 'root' })
 export class DocumentAiService {
   private readonly inference = inject(AIInferenceService);
+  private readonly persona = inject(AgentPersonaService);
 
   /** Genera un borrador completo a partir de una consigna breve. */
   async generateDraft(
@@ -38,9 +40,10 @@ export class DocumentAiService {
     ctx: DocumentAiContext,
   ): Promise<string> {
     const prompt = this.buildPrompt(brief, ctx, 'full');
+    const system = await this.buildSystemPrompt();
     const raw = await this.inference.generateResponse(
       prompt,
-      SYSTEM_DOC_WRITER,
+      system,
       DOCUMENT_AI_GEN_OPTS,
     );
     return this.stripCodeFences(raw);
@@ -52,12 +55,22 @@ export class DocumentAiService {
     ctx: DocumentAiContext,
   ): Promise<string> {
     const prompt = this.buildPrompt(instruction, ctx, 'transform');
+    const system = await this.buildSystemPrompt();
     const raw = await this.inference.generateResponse(
       prompt,
-      SYSTEM_DOC_WRITER,
+      system,
       DOCUMENT_AI_GEN_OPTS,
     );
     return this.stripCodeFences(raw);
+  }
+
+  private async buildSystemPrompt(): Promise<string> {
+    try {
+      const extra = await this.persona.getPromptAugmentation();
+      return `${SYSTEM_DOC_WRITER}\n\n---\nInstrucciones y memoria del entorno:\n${extra}`;
+    } catch {
+      return SYSTEM_DOC_WRITER;
+    }
   }
 
   private buildPrompt(

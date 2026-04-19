@@ -67,6 +67,19 @@
 
   /* Checkboxes, radios y barras de rango nativas */
   accent-color: var(--brand);
+
+  /* Hasta que ThemeService fija `data-theme-is-light` (FOUC mínimo en controles nativos) */
+  color-scheme: dark;
+}
+
+html[data-theme-is-light='true'] {
+  color-scheme: light;
+  scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+}
+
+html[data-theme-is-light='false'] {
+  color-scheme: dark;
+  scrollbar-color: color-mix(in srgb, var(--brand) 55%, rgba(40, 44, 52, 0.95)) transparent;
 }
 
 /**
@@ -344,10 +357,15 @@ body {
   opacity: 1;
 }
 
+html[data-theme-is-light='true'] ::-webkit-scrollbar-thumb,
 [data-theme*="light"] ::-webkit-scrollbar-thumb,
 [data-theme="pearl"] ::-webkit-scrollbar-thumb,
 [data-theme="latte"] ::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+html[data-theme-is-light='true'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
 }
 
 h1,
@@ -766,6 +784,7 @@ html[data-ui-variant='minimal'] .card {
   color: var(--text-primary);
 }
 
+html[data-theme-is-light='true'] ::selection,
 html[data-theme*='light'] ::selection,
 [data-theme='pearl'] ::selection,
 [data-theme='latte'] ::selection,
@@ -1540,8 +1559,8 @@ button,
 }
 
 /* ── Tenant Babooni: Biosstel (Figma) — Inter, alto contraste; detalle en babooni-biosstel-pages.css ── */
+/* color-scheme: lo fija `data-theme-is-light` en <html> (tema claro u oscuro premium) */
 html[data-erp-tenant='babooni'] {
-  color-scheme: light;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --font-main: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;

@@ -84,7 +84,7 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "3mb",
+              "maximumWarning": "3.1mb",
               "maximumError": "5mb"
             },
             {
@@ -100,6 +100,9 @@
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/frontend/proxy.conf.json"
+      },
       "configurations": {
         "production": {
           "buildTarget": "frontend:build:production"

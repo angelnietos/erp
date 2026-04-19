@@ -32,6 +32,7 @@ import {
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   AuditLogApiDto,
   AuditLogsApiService,
@@ -41,6 +42,7 @@ import {
   FilterableService,
   GlobalAuthStore,
   rbacAllows,
+  httpErrorMessage,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 
@@ -421,12 +423,9 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-
-    this.filters.dateFrom = sevenDaysAgo.toISOString().split('T')[0];
-    this.filters.dateTo = today.toISOString().split('T')[0];
+    /** Sin rango por defecto: el API ya devuelve los últimos N registros reales; filtrar por 7 días ocultaba historial útil. */
+    this.filters.dateFrom = '';
+    this.filters.dateTo = '';
 
     this.fetchAuditLogs();
   }
@@ -479,16 +478,20 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   private fetchAuditLogs(): void {
     this.loadError.set(null);
     this.isLoading.set(true);
-    this.auditLogsApi.list(150).subscribe({
+    this.auditLogsApi.list(200).subscribe({
       next: (rows) => {
         this.auditLogs.set(rows.map((r) => this.normalizeApiRow(r)));
         this.isLoading.set(false);
         this.loadError.set(null);
       },
-      error: () => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
+        const detail =
+          err instanceof HttpErrorResponse
+            ? httpErrorMessage(err)
+            : 'Error desconocido';
         this.loadError.set(
-          'No se pudo cargar el registro de auditoría. Comprueba la conexión e inténtalo de nuevo.',
+          `No se pudo cargar el registro de auditoría: ${detail}. Comprueba que el backend esté en marcha y que la sesión sea válida.`,
         );
       },
     });
@@ -539,13 +542,9 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   }
 
   clearFilters() {
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-
     this.filters = {
-      dateFrom: sevenDaysAgo.toISOString().split('T')[0],
-      dateTo: today.toISOString().split('T')[0],
+      dateFrom: '',
+      dateTo: '',
     };
 
     this.applyFilters();
