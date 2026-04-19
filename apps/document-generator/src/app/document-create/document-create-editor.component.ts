@@ -6,7 +6,7 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import {
   ReactiveFormsModule,
@@ -294,6 +294,16 @@ interface DocumentType {
                         un borrador en Markdown. Revisa y ajusta siempre el
                         resultado antes de enviarlo o firmarlo.
                       </p>
+                      <p class="text-xs text-muted mt-2 max-w-2xl">
+                        El proveedor y la clave son los mismos que en el resto
+                        del ERP (configuración local del navegador).
+                      </p>
+                      <a
+                        routerLink="/documents/settings/ai"
+                        class="inline-flex mt-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:underline"
+                      >
+                        Configurar clave API y modelo →
+                      </a>
                     </div>
                   </div>
 
@@ -529,16 +539,27 @@ interface DocumentType {
                   >
                     🔗
                   </button>
+                  <button
+                    type="button"
+                    (click)="copyMarkdownToClipboard()"
+                    title="Copiar Markdown al portapapeles"
+                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all text-sm"
+                  >
+                    Copiar
+                  </button>
 
                   <div
                     class="ml-auto flex items-center gap-3 text-xs text-muted"
                   >
+                    @if (copyMarkdownFeedback) {
+                      <span class="text-violet-600 font-medium">Copiado</span>
+                    }
                     @if (autoSaved) {
                       <span class="text-green-600 flex items-center gap-1">
                         <span
                           class="w-1.5 h-1.5 bg-green-500 rounded-full"
                         ></span>
-                        Guardado automatico
+                        Guardado automático
                       </span>
                     }
                     <span>{{ wordCount }} palabras</span>
@@ -823,6 +844,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   wordCount = 0;
   characterCount = 0;
   autoSaved = false;
+  /** Feedback breve tras copiar Markdown al portapapeles. */
+  copyMarkdownFeedback = false;
   fullscreenMode = false;
 
   templates: DocumentTemplate[] = [];
@@ -884,6 +907,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly assistantService = inject(AssistantContextService);
   readonly universalDocument = inject(UniversalDocumentService);
   private readonly documentAi = inject(DocumentAiService);
+  private readonly viewportScroller = inject(ViewportScroller);
 
   constructor() {
     this.documentForm = this.fb.group({
@@ -937,14 +961,32 @@ export class DocumentCreateEditorComponent implements OnInit {
     const tpl = this.queryTemplateId
       ? this.templatesService.getById(this.queryTemplateId)
       : null;
+    const clientId = this.documentForm.get('clientId')?.value;
+    const client = this.clients.find((c) => c.id === clientId);
     return {
       documentTypeId: this.selectedType!.id,
       documentTypeLabel: this.selectedType!.name,
       title: this.documentForm.get('title')?.value ?? undefined,
+      clientName: client?.name,
       templateName: tpl?.name,
       templateDescription: tpl?.description,
       existingContent: this.documentForm.get('content')?.value || '',
     };
+  }
+
+  copyMarkdownToClipboard(): void {
+    const content = this.documentForm.get('content')?.value || '';
+    void navigator.clipboard.writeText(content).then(
+      () => {
+        this.copyMarkdownFeedback = true;
+        setTimeout(() => (this.copyMarkdownFeedback = false), 2000);
+      },
+      () => {
+        alert(
+          'No se pudo copiar al portapapeles. Comprueba los permisos del navegador.',
+        );
+      },
+    );
   }
 
   async generateDraftWithAi(mode: 'replace' | 'append'): Promise<void> {
@@ -1063,6 +1105,8 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
 
     this.setTemplatesForType(this.selectedType);
+
+    queueMicrotask(() => this.viewportScroller.scrollToPosition([0, 0]));
 
     if (templateId) {
       const tpl = this.templatesService.getById(templateId);
@@ -1187,7 +1231,9 @@ export class DocumentCreateEditorComponent implements OnInit {
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
         console.error('Error generating PDF:', error);
-        alert('Error generating PDF. Please try again.');
+        alert(
+          'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
+        );
       }
       return;
     }

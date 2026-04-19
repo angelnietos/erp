@@ -3,7 +3,11 @@ import {
   provideZoneChangeDetection,
   importProvidersFrom,
 } from '@angular/core';
-import { provideRouter, RouteReuseStrategy } from '@angular/router';
+import {
+  provideRouter,
+  RouteReuseStrategy,
+  withInMemoryScrolling,
+} from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { appRoutes } from './app.routes';
 import {
@@ -151,7 +155,13 @@ import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(appRoutes),
+    provideRouter(
+      appRoutes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top',
+        anchorScrolling: 'enabled',
+      }),
+    ),
     provideHttpClient(
       withInterceptors([
         apiOriginInterceptor,

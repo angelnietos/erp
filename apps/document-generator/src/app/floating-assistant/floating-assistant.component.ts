@@ -7,6 +7,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import {
   AssistantContextService,
   AssistantPetConfig,
@@ -16,7 +17,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-floating-assistant',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   styles: [
     `
       .pet-bubble {
@@ -440,6 +441,25 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
                   (change)="updateConfig('opacity', +$any($event.target).value)"
                   class="w-28"
                 />
+              </div>
+
+              <div
+                class="border-t border-slate-200 mt-3 pt-3 space-y-2"
+                (click)="$event.stopPropagation()"
+              >
+                <p class="text-xs font-semibold text-slate-700">
+                  Respuestas con IA real
+                </p>
+                <p class="text-xs text-slate-500 leading-snug">
+                  La apariencia de arriba es solo visual. Para clave API,
+                  modelo (Gemini, OpenAI, Ollama…):
+                </p>
+                <a
+                  routerLink="/documents/settings/ai"
+                  class="inline-flex text-sm font-medium text-blue-600 hover:text-blue-800 underline"
+                >
+                  Abrir configuración del motor de IA →
+                </a>
               </div>
             </div>
           }

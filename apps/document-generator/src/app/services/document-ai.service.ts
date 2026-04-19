@@ -1,15 +1,25 @@
 import { inject, Injectable } from '@angular/core';
-import { AIInferenceService } from '@josanz-erp/shared-data-access';
+import {
+  AIInferenceService,
+  GenerateResponseOptions,
+} from '@josanz-erp/shared-data-access';
 
 export interface DocumentAiContext {
   /** quote | proposal | documentation | architecture | resume | interview | offer */
   documentTypeId: string;
   documentTypeLabel: string;
   title?: string;
+  /** Cliente seleccionado en el formulario (si aplica). */
+  clientName?: string;
   templateName?: string;
   templateDescription?: string;
   existingContent?: string;
 }
+
+/** Borradores largos: más tokens de salida en proveedores compatibles. */
+const DOCUMENT_AI_GEN_OPTS: GenerateResponseOptions = {
+  maxOutputTokens: 8192,
+};
 
 const SYSTEM_DOC_WRITER = `Eres un redactor profesional de documentos empresariales en español.
 Reglas:
@@ -31,6 +41,7 @@ export class DocumentAiService {
     const raw = await this.inference.generateResponse(
       prompt,
       SYSTEM_DOC_WRITER,
+      DOCUMENT_AI_GEN_OPTS,
     );
     return this.stripCodeFences(raw);
   }
@@ -44,6 +55,7 @@ export class DocumentAiService {
     const raw = await this.inference.generateResponse(
       prompt,
       SYSTEM_DOC_WRITER,
+      DOCUMENT_AI_GEN_OPTS,
     );
     return this.stripCodeFences(raw);
   }
@@ -58,6 +70,9 @@ export class DocumentAiService {
     ];
     if (ctx.title?.trim()) {
       parts.push(`Título de trabajo: ${ctx.title.trim()}.`);
+    }
+    if (ctx.clientName?.trim()) {
+      parts.push(`Cliente o destinataria: ${ctx.clientName.trim()}.`);
     }
     if (ctx.templateName) {
       parts.push(
@@ -88,6 +103,10 @@ export class DocumentAiService {
 
   private stripCodeFences(text: string): string {
     let t = text.trim();
+    const wrapped = /^```(?:markdown|md)?\s*([\s\S]*?)```\s*$/i.exec(t);
+    if (wrapped) {
+      return wrapped[1].trim();
+    }
     if (t.startsWith('```')) {
       t = t.replace(/^```(?:markdown|md)?\s*/i, '');
       t = t.replace(/\s*```\s*$/i, '');

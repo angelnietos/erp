@@ -11,6 +11,12 @@ export type AIProvider =
   | 'ollama'
   | 'free';
 
+/** Opciones opcionales para `generateResponse` (retrocompatibles). */
+export interface GenerateResponseOptions {
+  /** Tokens de salida máximos donde el proveedor lo permita (p. ej. documentos largos). Por defecto 2048. */
+  maxOutputTokens?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AIInferenceService {
   private _isCheckingProviders = false;
@@ -110,7 +116,11 @@ export class AIInferenceService {
     return !['ollama', 'free'].includes(this.selectedProvider());
   });
 
-  async generateResponse(prompt: string, context?: string): Promise<string> {
+  async generateResponse(
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
     // selectedModelId is the source of truth — it's what the Settings UI dropdown controls.
     // selectedProvider is kept in sync by setAIModel, but may lag due to HMR or initialization order.
     const modelId = this.selectedModelId();
@@ -131,12 +141,12 @@ export class AIInferenceService {
 
     try {
       switch (provider) {
-        case 'gemini': return await this.generateWithGemini(prompt, context);
-        case 'openai': return await this.generateWithOpenAI(prompt, context);
-        case 'ollama': return await this.generateWithOllama(prompt, context);
+        case 'gemini': return await this.generateWithGemini(prompt, context, options);
+        case 'openai': return await this.generateWithOpenAI(prompt, context, options);
+        case 'ollama': return await this.generateWithOllama(prompt, context, options);
         case 'grok': return await this.generateWithGrok(prompt, context);
-        case 'together': return await this.generateWithTogether(prompt, context);
-        case 'openrouter': return await this.generateWithOpenRouter(prompt, context);
+        case 'together': return await this.generateWithTogether(prompt, context, options);
+        case 'openrouter': return await this.generateWithOpenRouter(prompt, context, options);
         case 'free': return this.generateSmartFallback(prompt, context);
         default: return this.generateSmartFallback(prompt, context);
       }
@@ -147,7 +157,20 @@ export class AIInferenceService {
     }
   }
 
-  private async generateWithGemini(prompt: string, context?: string): Promise<string> {
+  private resolveMaxOutputTokens(
+    options: GenerateResponseOptions | undefined,
+    fallback = 2048,
+    cap = 8192,
+  ): number {
+    const n = options?.maxOutputTokens ?? fallback;
+    return Math.min(Math.max(256, n), cap);
+  }
+
+  private async generateWithGemini(
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
     // Always prefer the Google-specific key, then fall back to the generic stored key
     const apiKey = AI_CONFIG.google_api_key || this.providerApiKey();
     if (!apiKey) throw new Error('API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.');
@@ -175,9 +198,15 @@ export class AIInferenceService {
         // Prepend context as part of the user message — works universally across all API versions
         const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
 
+        const maxOut = this.resolveMaxOutputTokens(options);
         const body = {
           contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-          generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 2048 }
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: maxOut,
+          },
         };
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
@@ -222,9 +251,14 @@ export class AIInferenceService {
     throw new Error(`Fallback Fallido: ${lastError}`);
   }
 
-  private async generateWithOpenAI(prompt: string, context?: string): Promise<string> {
+  private async generateWithOpenAI(
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
     const apiKey = this.providerApiKey();
     if (!apiKey) throw new Error('API Key de OpenAI no configurada');
+    const maxTokens = this.resolveMaxOutputTokens(options, 2048, 16384);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
@@ -234,14 +268,20 @@ export class AIInferenceService {
           ...(context ? [{ role: 'system', content: context }] : []),
           { role: 'user', content: prompt },
         ],
+        max_tokens: maxTokens,
       }),
     });
     const data = await response.json();
     return data.choices[0].message.content;
   }
 
-  private async generateWithOllama(prompt: string, context?: string): Promise<string> {
+  private async generateWithOllama(
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
     const fullPrompt = context ? `${context}\n\n${prompt}` : prompt;
+    const numPredict = this.resolveMaxOutputTokens(options, 2048, 8192);
     const response = await fetch(`${this.ollamaConfig().baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -249,6 +289,7 @@ export class AIInferenceService {
         model: this.ollamaConfig().model,
         prompt: fullPrompt,
         stream: false,
+        options: { num_predict: numPredict },
       }),
     });
     const data = await response.json();
@@ -270,9 +311,14 @@ export class AIInferenceService {
     return data.output || data.choices?.[0]?.message?.content || 'Error Grok';
   }
 
-  private async generateWithTogether(prompt: string, context?: string): Promise<string> {
+  private async generateWithTogether(
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
     const apiKey = this.providerApiKey();
     if (!apiKey) return `[Simulación Together] Sin API Key para: ${prompt}`;
+    const maxTokens = this.resolveMaxOutputTokens(options, 2048, 8192);
     const resp = await fetch('https://api.together.xyz/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
@@ -282,14 +328,20 @@ export class AIInferenceService {
           ...(context ? [{ role: 'system', content: context }] : []),
           { role: 'user', content: prompt },
         ],
+        max_tokens: maxTokens,
       }),
     });
     const data = await resp.json();
     return data.choices[0].message.content;
   }
 
-  private async generateWithOpenRouter(prompt: string, context?: string): Promise<string> {
+  private async generateWithOpenRouter(
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
     const apiKey = this.providerApiKey();
+    const maxTokens = this.resolveMaxOutputTokens(options, 2048, 8192);
     const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -304,6 +356,7 @@ export class AIInferenceService {
           ...(context ? [{ role: 'system', content: context }] : []),
           { role: 'user', content: prompt },
         ],
+        max_tokens: maxTokens,
       }),
     });
     const data = await resp.json();

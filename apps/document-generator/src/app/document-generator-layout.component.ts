@@ -149,6 +149,17 @@ import { FloatingAssistantComponent } from './floating-assistant/floating-assist
                 </svg>
                 <span>Análisis</span>
               </a>
+              <a
+                routerLink="/documents/settings/ai"
+                routerLinkActive="active-link shadow-md"
+                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                style="color: var(--text-primary)"
+                title="Clave API, modelo y Ollama"
+              >
+                <lucide-angular name="cpu" class="w-4 h-4"></lucide-angular>
+                <span class="hidden sm:inline">Config. IA</span>
+                <span class="sm:hidden">IA</span>
+              </a>
             </nav>
           </div>
         </div>

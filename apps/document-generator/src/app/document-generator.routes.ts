@@ -60,4 +60,11 @@ export const documentGeneratorRoutes: Route[] = [
         (m) => m.DocumentAnalysisComponent,
       ),
   },
+  {
+    path: 'settings/ai',
+    loadComponent: () =>
+      import('./document-ai-settings/document-ai-settings.component').then(
+        (m) => m.DocumentAiSettingsComponent,
+      ),
+  },
 ];
