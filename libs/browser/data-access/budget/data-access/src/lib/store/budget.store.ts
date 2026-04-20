@@ -108,5 +108,14 @@ export const BudgetStore = signalStore(
         ),
       ),
     ),
+
+    /** Inserta o sustituye un presupuesto (p. ej. detalle tras GET o envío/aceptación). */
+    patchBudget(budget: Budget): void {
+      const current = store.budgets();
+      const budgets = current.some((b) => b.id === budget.id)
+        ? current.map((b) => (b.id === budget.id ? budget : b))
+        : [...current, budget];
+      patchState(store, { budgets });
+    },
   }))
 );

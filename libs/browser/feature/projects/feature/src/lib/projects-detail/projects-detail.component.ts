@@ -451,6 +451,8 @@ export class ProjectsDetailComponent implements OnInit {
     this.projectId = this.route.snapshot.paramMap.get('id');
     this.isNew = this.projectId === 'new' || !this.projectId;
 
+    this.projectsFacade.loadProjects(false);
+
     if (!this.isNew && this.projectId) {
       this.loadProject(this.projectId);
     }
@@ -533,7 +535,7 @@ export class ProjectsDetailComponent implements OnInit {
     if (this.isNew) {
       this.projectService.createProject(body).subscribe({
         next: (created) => {
-          this.projectsFacade.loadProjects(true);
+          this.projectsFacade.patchProjectCache(created);
           this.toast.show('Proyecto creado correctamente', 'success');
           this.saving.set(false);
           void this.router.navigate(['/projects', created.id]);
@@ -552,8 +554,9 @@ export class ProjectsDetailComponent implements OnInit {
     }
 
     this.projectService.updateProject(this.projectId, body).subscribe({
-      next: () => {
-        this.projectsFacade.loadProjects(true);
+      next: (updated) => {
+        this.projectsFacade.patchProjectCache(updated);
+        this.loadedProject.set(updated);
         this.toast.show('Proyecto actualizado correctamente', 'success');
         this.saving.set(false);
         const pid = this.projectId;
@@ -569,29 +572,45 @@ export class ProjectsDetailComponent implements OnInit {
   }
 
   private loadProject(id: string): void {
-    this.isLoading.set(true);
     this.loadError.set(null);
+
+    const cached = this.projectsFacade.findProjectInCache(id);
+    if (cached) {
+      this.applyProjectToView(cached);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+
     this.projectService.getProject(id).subscribe({
       next: (c) => {
         if (c) {
-          this.loadedProject.set(c);
-          this.form = {
-            name: c.name || '',
-            description: c.description || '',
-            startDate: c.startDate || '',
-            endDate: c.endDate || '',
-            clientId: c.clientId || '',
-            status: c.status,
-          };
-        } else {
+          this.projectsFacade.patchProjectCache(c);
+          this.applyProjectToView(c);
+          this.loadError.set(null);
+        } else if (!cached) {
           this.loadError.set('No se encontró el proyecto.');
         }
         this.isLoading.set(false);
       },
       error: () => {
-        this.loadError.set('No se pudo cargar el proyecto.');
+        if (!cached) {
+          this.loadError.set('No se pudo cargar el proyecto.');
+        }
         this.isLoading.set(false);
       },
     });
+  }
+
+  private applyProjectToView(c: Project): void {
+    this.loadedProject.set(c);
+    this.form = {
+      name: c.name || '',
+      description: c.description || '',
+      startDate: c.startDate || '',
+      endDate: c.endDate || '',
+      clientId: c.clientId || '',
+      status: c.status,
+    };
   }
 }

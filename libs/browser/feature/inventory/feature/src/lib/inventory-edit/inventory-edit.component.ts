@@ -262,10 +262,20 @@ export class InventoryEditComponent implements OnInit {
       return;
     }
     this.productId = id;
+
+    this.facade.loadProducts(false);
+
+    const fromFacade = this.facade.allProducts().find((x) => x.id === id);
+    if (fromFacade) {
+      this.applyProduct(fromFacade);
+      this.isLoading.set(false);
+    }
+
     this.inventoryApi.getProduct(id).subscribe({
       next: (p) => {
         if (p) {
           this.applyProduct(p);
+          this.facade.patchProductInCache(p);
           this.isLoading.set(false);
           return;
         }
@@ -277,11 +287,18 @@ export class InventoryEditComponent implements OnInit {
 
   /** Si GET por id falla o no hay cuerpo, intenta localizar en el listado (misma fuente que el listado). */
   private loadFromProductList(id: string) {
+    const cached = this.facade.allProducts().find((x) => x.id === id);
+    if (cached) {
+      this.applyProduct(cached);
+      this.isLoading.set(false);
+      return;
+    }
     this.inventoryApi.getProducts().subscribe({
       next: (list) => {
         const p = list.find((x) => x.id === id);
         if (p) {
           this.applyProduct(p);
+          this.facade.patchProductInCache(p);
         } else {
           this.loadError.set(true);
         }

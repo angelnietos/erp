@@ -112,6 +112,24 @@ export class ProjectsFacade {
     });
   }
 
+  /** Proyecto ya cargado en lista (evita pantalla en blanco al entrar al detalle). */
+  findProjectInCache(id: string): Project | undefined {
+    return this._projects().find((p) => p.id === id);
+  }
+
+  /** Actualiza o añade tras detalle / guardado sin volver a pedir toda la lista. */
+  patchProjectCache(project: Project): void {
+    this._projects.update((projects) => {
+      const i = projects.findIndex((p) => p.id === project.id);
+      if (i === -1) {
+        return [...projects, project];
+      }
+      const next = [...projects];
+      next[i] = project;
+      return next;
+    });
+  }
+
   setTab(tabId: string): void {
     void tabId;
     // Tab logic can be implemented if needed

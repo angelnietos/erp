@@ -112,4 +112,17 @@ export class InventoryFacade {
       }),
     );
   }
+
+  /** Tras GET por id o guardado: mantiene la lista alineada sin recargar todo. */
+  patchProductInCache(product: Product): void {
+    this._allProducts.update((items) => {
+      const i = items.findIndex((x) => x.id === product.id);
+      if (i === -1) {
+        return [...items, product];
+      }
+      const next = [...items];
+      next[i] = product;
+      return next;
+    });
+  }
 }

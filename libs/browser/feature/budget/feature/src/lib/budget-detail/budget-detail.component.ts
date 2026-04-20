@@ -497,6 +497,7 @@ export class BudgetDetailComponent implements OnInit {
       next: (budget) => {
         if (budget) {
           this.budget.set(budget);
+          this.store.patchBudget(budget);
         } else if (!fromStore) {
           this.budget.set(null);
         }
@@ -587,6 +588,7 @@ export class BudgetDetailComponent implements OnInit {
     this.budgetService.sendBudget(budget.id).subscribe({
       next: (updatedBudget) => {
         this.budget.set(updatedBudget);
+        this.store.patchBudget(updatedBudget);
       },
       error: (error) => {
         console.error('Error sending budget:', error);
@@ -600,6 +602,7 @@ export class BudgetDetailComponent implements OnInit {
     this.budgetService.acceptBudget(budget.id).subscribe({
       next: (updatedBudget) => {
         this.budget.set(updatedBudget);
+        this.store.patchBudget(updatedBudget);
       },
       error: (error) => {
         console.error('Error approving budget:', error);
