@@ -1,5 +1,32 @@
 import { Injectable, signal, effect } from '@angular/core';
 
+/** WCAG: luminancia relativa sRGB → texto sobre `brand` legible. */
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.trim());
+  if (!m) return null;
+  return {
+    r: parseInt(m[1], 16),
+    g: parseInt(m[2], 16),
+    b: parseInt(m[3], 16),
+  };
+}
+
+function relativeLuminance(r: number, g: number, b: number): number {
+  const lin = (c: number) => {
+    c /= 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** Texto oscuro o claro sobre botones / fondos `--brand`. */
+function pickTextOnBrand(brandHex: string): string {
+  const rgb = hexToRgb(brandHex);
+  if (!rgb) return '#ffffff';
+  const L = relativeLuminance(rgb.r, rgb.g, rgb.b);
+  return L > 0.42 ? '#0f172a' : '#ffffff';
+}
+
 export interface Theme {
   id: string;
   name: string;
@@ -50,6 +77,10 @@ export class ThemeManagerService {
       const theme = this.currentTheme();
       document.documentElement.setAttribute('data-theme', theme.id);
       document.documentElement.setAttribute('data-ui-variant', theme.uiVariant);
+      document.documentElement.setAttribute(
+        'data-theme-is-light',
+        theme.category === 'light' ? 'true' : 'false',
+      );
 
       // Aplicar variables CSS globales
       document.documentElement.style.setProperty('--brand', theme.colors.brand);
@@ -129,6 +160,20 @@ export class ThemeManagerService {
         const cssVar = `--${key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
         document.documentElement.style.setProperty(cssVar, value as string);
       });
+
+      const root = document.documentElement;
+      const isLight = theme.category === 'light';
+      root.style.setProperty(
+        '--text-muted',
+        isLight ? '#64748b' : 'rgba(255, 255, 255, 0.66)',
+      );
+      root.style.setProperty('--text-on-brand', pickTextOnBrand(theme.colors.brand));
+      root.style.setProperty(
+        '--ring-focus',
+        isLight
+          ? `color-mix(in srgb, ${theme.colors.brand} 55%, #0f172a)`
+          : `color-mix(in srgb, ${theme.colors.brand} 70%, #ffffff)`,
+      );
     });
   }
 
