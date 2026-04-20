@@ -66,14 +66,14 @@ import { UiButtonComponent } from '../button/button.component';
       }
       .text {
         margin: 0;
-        color: var(--text-muted, rgba(255, 255, 255, 0.55));
+        color: var(--text-muted, rgba(255, 255, 255, 0.66));
         line-height: 1.55;
         font-size: 0.95rem;
       }
       .hint {
         margin: 0;
         font-size: 0.85rem;
-        color: var(--text-muted, rgba(255, 255, 255, 0.45));
+        color: var(--text-muted, rgba(255, 255, 255, 0.58));
         line-height: 1.45;
       }
       code {

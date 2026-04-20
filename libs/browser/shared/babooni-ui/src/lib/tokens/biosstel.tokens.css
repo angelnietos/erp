@@ -13,9 +13,9 @@
   --bio-accent-teal: color-mix(in srgb, var(--bio-primary) 42%, #187980);
   --bio-gray-900: #080808;
   --bio-gray-800: #1b1b1b;
-  --bio-gray-600: #646464;
-  --bio-gray-500: #747474;
-  --bio-gray-400: #7c7c7c;
+  --bio-gray-600: #5a5a5a;
+  --bio-gray-500: #5c5c5c;
+  --bio-gray-400: #6e6e6e;
   --bio-gray-300: #b6b6b6;
   --bio-gray-200: #e8e8e8;
   --bio-gray-100: #f5f5f5;
@@ -43,6 +43,13 @@
   --bb-topbar-bg: var(--theme-surface, var(--bio-white));
   --bb-content-max: 100%;
 
+  /* Puente con ThemeService / ui-kit: respeta modo claro u oscuro sin romper Biosstel “solo luz”. */
+  --bb-ink: var(--text-primary, var(--bio-gray-900));
+  --bb-ink-secondary: var(--text-secondary, var(--bio-gray-600));
+  --bb-ink-muted: var(--text-muted, var(--bio-gray-500));
+  --bb-field-bg: var(--bg-tertiary, var(--bio-gray-100));
+  --bb-focus-ring: var(--ring-focus, color-mix(in srgb, var(--brand, var(--bio-primary)) 52%, #0f172a));
+
   --bb-shadow-bar: 0 1px 0 rgba(0, 0, 0, 0.06);
   --bb-shadow-float: 0 2px 14px rgba(0, 0, 0, 0.06);
   --bb-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -54,14 +61,14 @@
  * Tarjetas / paneles de contenido (usar en features Babooni).
  */
 .bb-card {
-  background: var(--bio-white);
+  background: var(--theme-surface, var(--bio-white));
   border: 1px solid var(--bio-border-ui);
   border-radius: var(--bb-radius-lg);
   box-shadow: var(--bb-shadow-card);
 }
 
 .bb-muted {
-  color: var(--bio-gray-600);
+  color: var(--text-muted, var(--bio-gray-500));
   font-size: 0.875rem;
   line-height: 1.35;
 }
@@ -70,6 +77,6 @@
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--bio-gray-900);
+  color: var(--text-primary, var(--bio-gray-900));
   line-height: 1.3;
 }

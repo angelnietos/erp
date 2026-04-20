@@ -14,7 +14,7 @@
   display: flex;
   height: 100%;
   background: var(--bb-page-bg);
-  color: var(--bio-gray-900);
+  color: var(--bb-ink);
 }
 
 .bb-shell__main {
@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--bio-gray-100);
+  background: var(--bb-field-bg);
   border-radius: var(--bb-radius-xl);
   padding: 0 14px;
   height: 40px;
@@ -62,18 +62,18 @@
 }
 
 .bb-search__box:hover {
-  border-color: #c4c4c4;
-  background: var(--bio-white);
+  border-color: var(--border-vibrant, #c4c4c4);
+  background: var(--bb-surface);
 }
 
 .bb-search__box:focus-within {
   border-color: color-mix(in srgb, var(--bio-primary) 42%, #9a9a9a);
-  background: var(--bio-white);
+  background: var(--bb-surface);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--bio-primary) 14%, transparent);
 }
 
 .bb-search__box lucide-icon {
-  color: var(--bio-gray-400);
+  color: var(--bb-ink-muted);
   flex-shrink: 0;
 }
 
@@ -81,7 +81,7 @@
   flex: 1;
   border: none;
   background: transparent;
-  color: var(--bio-gray-900);
+  color: var(--bb-ink);
   font-size: 0.875rem;
   font-weight: 500;
   outline: none;
@@ -89,7 +89,7 @@
 }
 
 .bb-search__box input::placeholder {
-  color: var(--bio-gray-500);
+  color: var(--bb-ink-muted);
   font-weight: 400;
 }
 
@@ -99,8 +99,8 @@
   padding: 4px 8px;
   border-radius: var(--bb-radius-sm);
   border: 1px solid var(--bb-border);
-  color: var(--bio-gray-500);
-  background: var(--bio-white);
+  color: var(--bb-ink-muted);
+  background: var(--bb-surface);
   font-family: var(--font-main);
 }
 
@@ -132,8 +132,8 @@
   height: 40px;
   border-radius: var(--bb-radius-md);
   border: 1px solid var(--bb-border);
-  background: var(--bio-white);
-  color: var(--bio-gray-600);
+  background: var(--bb-surface);
+  color: var(--bb-ink-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,12 +148,12 @@
 .bb-icon-btn:hover {
   border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 45%, var(--bb-border));
   color: var(--brand, var(--bio-primary));
-  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 7%, var(--bio-white));
+  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 7%, var(--bb-surface));
 }
 
 .bb-icon-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand, var(--bio-primary)) 35%, transparent);
+  box-shadow: 0 0 0 2px var(--bb-focus-ring);
 }
 
 .bb-dot {
@@ -176,7 +176,7 @@
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: var(--bio-white);
+  background: var(--bb-surface);
   border: 1px solid var(--bb-border);
   border-radius: var(--bb-radius-lg);
   padding: 8px 6px 10px;
@@ -200,7 +200,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--bio-gray-500);
+  color: var(--bb-ink-muted);
 }
 
 .bb-theme-option {
@@ -215,13 +215,13 @@
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--bio-gray-800);
+  color: var(--bb-ink-secondary);
   text-align: left;
   transition: background 0.15s ease;
 }
 
 .bb-theme-option:hover {
-  background: var(--bio-gray-100);
+  background: var(--bb-field-bg);
 }
 
 .bb-theme-option.is-active {
@@ -232,7 +232,7 @@
 
 .bb-theme-option:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--brand, var(--bio-primary)) 35%, transparent);
+  box-shadow: inset 0 0 0 2px var(--bb-focus-ring);
 }
 
 .bb-theme-swatch {
@@ -256,7 +256,7 @@
 
 .bb-user:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand, var(--bio-primary)) 32%, transparent);
+  box-shadow: 0 0 0 2px var(--bb-focus-ring);
 }
 
 .bb-user__meta {
@@ -269,7 +269,7 @@
 .bb-user__name {
   font-weight: 600;
   font-size: 0.8rem;
-  color: var(--bio-gray-900);
+  color: var(--bb-ink);
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -280,7 +280,7 @@
 .bb-user__role {
   font-size: 0.68rem;
   font-weight: 500;
-  color: var(--bio-gray-500);
+  color: var(--bb-ink-muted);
 }
 
 .bb-avatar {
@@ -301,7 +301,7 @@
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: var(--bio-white);
+  background: var(--bb-surface);
   border: 1px solid var(--bb-border);
   border-radius: var(--bb-radius-lg);
   padding: 8px;
@@ -322,13 +322,13 @@
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--bio-gray-800);
+  color: var(--bb-ink-secondary);
   text-align: left;
   font-family: var(--font-main);
 }
 
 .bb-user-menu__row:hover {
-  background: var(--bio-gray-100);
+  background: var(--bb-field-bg);
 }
 
 .bb-user-menu__row--danger:hover {
@@ -358,7 +358,7 @@
   font-weight: 800;
   letter-spacing: 0.06em;
   border: 1px solid;
-  background: var(--bio-white);
+  background: var(--bb-surface);
 }
 
 ::-webkit-scrollbar {

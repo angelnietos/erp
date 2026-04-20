@@ -23,8 +23,8 @@ const cssVariables = `
   --danger: #ff5e6c;
   --info: #3fc1ff;
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.75);
-  --text-muted: rgba(255, 255, 255, 0.55);
+  --text-secondary: rgba(255, 255, 255, 0.82);
+  --text-muted: rgba(255, 255, 255, 0.66);
   --border-soft: rgba(255, 255, 255, 0.08);
   --border-vibrant: rgba(255, 255, 255, 0.15);
   --ring-focus: var(--brand);
