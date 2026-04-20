@@ -1114,7 +1114,7 @@ export class DocumentCreateEditorComponent implements OnInit {
           : md;
       this.documentForm.patchValue({ content: next });
       this.updatePreview();
-      this.assistantService.setDocumentContent(next, this.selectedType.id);
+      this.syncAssistantFromFormNow();
     } catch (e: unknown) {
       this.aiError =
         e instanceof Error ? e.message : 'Error al generar con IA.';
@@ -1142,7 +1142,7 @@ export class DocumentCreateEditorComponent implements OnInit {
       const md = await this.documentAi.transformContent(instruction, ctx);
       this.documentForm.patchValue({ content: md });
       this.updatePreview();
-      this.assistantService.setDocumentContent(md, this.selectedType.id);
+      this.syncAssistantFromFormNow();
     } catch (e: unknown) {
       this.aiError =
         e instanceof Error ? e.message : 'Error al reformular con IA.';
@@ -1377,6 +1377,7 @@ export class DocumentCreateEditorComponent implements OnInit {
       after +
       content.substring(end);
     this.documentForm.patchValue({ content: newContent });
+    this.syncAssistantFromFormNow();
 
     setTimeout(() => {
       textarea.focus();
@@ -1441,6 +1442,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   loadTemplate(template: DocumentTemplate) {
     this.documentForm.patchValue({ content: template.content });
     this.updatePreview();
+    this.syncAssistantFromFormNow();
   }
 
   insertCode() {

@@ -226,6 +226,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                   name="search-x"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>
@@ -246,6 +247,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
                   name="box"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>No hay productos</h3>
                 <p>

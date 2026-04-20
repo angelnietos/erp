@@ -157,14 +157,14 @@ interface EventFilter {
           </div>
         } @else if (!hasAnyEvents()) {
           <div class="feature-empty feature-empty--wide">
-            <lucide-icon name="calendar" size="64" class="feature-empty__icon"></lucide-icon>
+            <lucide-icon name="calendar" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
             <h3>Sin eventos</h3>
             <p>Aún no hay eventos. Crea el primero para empezar a planificar.</p>
             <ui-button variant="solid" routerLink="/events/new" icon="CirclePlus">Crear evento</ui-button>
           </div>
         } @else if (filterProducesNoResults()) {
           <div class="feature-empty feature-empty--wide">
-            <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
+            <lucide-icon name="search-x" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
             <h3>Sin resultados</h3>
             <p>Ningún evento coincide con la búsqueda o los filtros actuales.</p>
             <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">

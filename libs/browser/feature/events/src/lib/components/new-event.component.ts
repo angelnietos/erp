@@ -53,7 +53,7 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
         </div>
       } @else if (!isNew() && loadError()) {
         <div class="page-error">
-          <lucide-icon name="alert-circle" size="48" class="page-error-icon"></lucide-icon>
+          <lucide-icon name="alert-circle" size="48" class="page-error-icon" aria-hidden="true"></lucide-icon>
           <p>{{ loadError() }}</p>
           <div class="page-error-actions">
             <ui-button variant="solid" (clicked)="reload()">Reintentar</ui-button>
@@ -64,7 +64,7 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
         <header class="page-header">
           <div class="header-breadcrumb">
             <ui-button variant="ghost" [routerLink]="['/events']" class="back-button">
-              <lucide-icon [img]="ArrowLeftIcon" size="16"></lucide-icon>
+              <lucide-icon [img]="ArrowLeftIcon" size="16" aria-hidden="true"></lucide-icon>
               Volver
             </ui-button>
             <h1 class="page-title text-uppercase">{{ pageTitle() }}</h1>
@@ -161,15 +161,15 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
 
                   <div class="form-grid">
                     <ui-input label="Fecha" type="date" formControlName="date" required>
-                      <lucide-icon [img]="CalendarIcon" size="16" slot="prefix"></lucide-icon>
+                      <lucide-icon [img]="CalendarIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
                     <ui-input label="Hora de Inicio" type="time" formControlName="startTime" required>
-                      <lucide-icon [img]="ClockIcon" size="16" slot="prefix"></lucide-icon>
+                      <lucide-icon [img]="ClockIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
                     <ui-input label="Hora de Fin" type="time" formControlName="endTime">
-                      <lucide-icon [img]="ClockIcon" size="16" slot="prefix"></lucide-icon>
+                      <lucide-icon [img]="ClockIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
                     <div class="form-spacer"></div>
@@ -181,11 +181,11 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
 
                   <div class="form-grid">
                     <ui-input label="Ubicación" placeholder="Sala, dirección, enlace virtual…" formControlName="location">
-                      <lucide-icon [img]="MapPinIcon" size="16" slot="prefix"></lucide-icon>
+                      <lucide-icon [img]="MapPinIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
                     <ui-input label="Capacidad Máxima" type="number" placeholder="0" formControlName="capacity">
-                      <lucide-icon [img]="UsersIcon" size="16" slot="prefix"></lucide-icon>
+                      <lucide-icon [img]="UsersIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
                     <ui-select
@@ -222,12 +222,12 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
 
             <div class="form-actions">
               <ui-button variant="ghost" type="button" [routerLink]="['/events']">
-                <lucide-icon [img]="XIcon" size="16"></lucide-icon>
+                <lucide-icon [img]="XIcon" size="16" aria-hidden="true"></lucide-icon>
                 Cancelar
               </ui-button>
 
               <ui-button variant="primary" type="submit" [disabled]="eventForm.invalid || isSubmitting()">
-                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                <lucide-icon [img]="SaveIcon" size="16" aria-hidden="true"></lucide-icon>
                 {{ isSubmitting() ? 'Guardando…' : 'Guardar evento' }}
               </ui-button>
             </div>
