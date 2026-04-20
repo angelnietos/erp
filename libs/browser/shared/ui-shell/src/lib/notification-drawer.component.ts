@@ -81,7 +81,7 @@ import {
     :host {
       /* Panel oscuro: tokens propios (no usar --text-* del tema claro aquí). */
       --nd-border: rgba(255, 255, 255, 0.1);
-      --nd-muted: rgba(255, 255, 255, 0.55);
+      --nd-muted: rgba(255, 255, 255, 0.66);
       --nd-body: rgba(255, 255, 255, 0.82);
       --nd-surface-card: rgba(255, 255, 255, 0.06);
     }

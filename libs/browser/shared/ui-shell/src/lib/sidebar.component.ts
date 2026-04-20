@@ -126,7 +126,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
         transition:
           width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
           min-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        color: rgba(255, 255, 255, 0.55);
+        color: rgba(255, 255, 255, 0.66);
         overflow: hidden;
         position: relative;
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
@@ -190,7 +190,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
         font-size: 0.95rem; /* Reduced from 1.05rem */
         letter-spacing: 0.16em;
         font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
-        background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.55));
+        background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.66));
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -199,7 +199,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
       .toggle-control {
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.07);
-        color: rgba(255, 255, 255, 0.45);
+        color: rgba(255, 255, 255, 0.58);
         width: 28px;
         height: 28px;
         border-radius: 6px;
@@ -248,7 +248,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
         padding: 6px 12px; /* Reduced padding from 7/10 */
         border-radius: 6px;
         text-decoration: none;
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(255, 255, 255, 0.66);
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         min-height: 38px; /* Reduced from 42px */

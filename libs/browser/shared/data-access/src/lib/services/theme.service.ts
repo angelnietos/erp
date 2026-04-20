@@ -125,8 +125,30 @@ function accessibleMutedColor(
   const m = parseHexColor(mutedHex);
   const t = parseHexColor(textHex);
   if (!m || !t) return mutedHex;
-  const pull = isLight ? 0.14 : 0.26;
+  const pull = isLight ? 0.14 : 0.32;
   return mixRgbHex(m, t, pull);
+}
+
+function relativeLuminance(r: number, g: number, b: number): number {
+  const lin = (c: number) => {
+    c /= 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** Texto oscuro o claro sobre botones / superficies `--brand` (alineado con document-generator). */
+function pickTextOnBrand(brandHex: string): string {
+  const rgb = parseHexColor(brandHex);
+  if (!rgb) return '#ffffff';
+  const L = relativeLuminance(rgb.r, rgb.g, rgb.b);
+  return L > 0.42 ? '#0f172a' : '#ffffff';
+}
+
+function ringFocusFromBrand(brandHex: string, isLight: boolean): string {
+  return isLight
+    ? `color-mix(in srgb, ${brandHex} 55%, #0f172a)`
+    : `color-mix(in srgb, ${brandHex} 70%, #ffffff)`;
 }
 
 export interface ThemeConfig {
@@ -1784,6 +1806,15 @@ export class ThemeService {
       root.style.setProperty('--btn-shadow', `0 4px 20px rgba(${hexToRgbTriplet(hex)}, 0.3)`);
     }
 
+    const themeKey = this.currentTheme();
+    const cfg = THEMES[themeKey];
+    const bgTriplet = hexToRgbTriplet(cfg.background).split(',').map(Number);
+    const brightness =
+      (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
+    const isLight = brightness > 180;
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(hex));
+    root.style.setProperty('--ring-focus', ringFocusFromBrand(hex, isLight));
+
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('custom_primary_color', hex);
     }
@@ -1816,6 +1847,12 @@ export class ThemeService {
       config.text,
       isLight,
     );
+    const textRgb = parseHexColor(config.text);
+    const mutedRgb = parseHexColor(mutedResolved);
+    const secondaryResolved =
+      textRgb && mutedRgb
+        ? mixRgbHex(mutedRgb, textRgb, isLight ? 0.18 : 0.28)
+        : mutedResolved;
 
     root.style.setProperty('--theme-text', config.text);
     root.style.setProperty('--theme-text-muted', mutedResolved);
@@ -1829,10 +1866,12 @@ export class ThemeService {
     root.style.setProperty('--bg-secondary', config.bgSecondary);
     root.style.setProperty('--bg-tertiary', config.bgTertiary);
     root.style.setProperty('--text-primary', config.text);
-    root.style.setProperty('--text-secondary', mutedResolved);
+    root.style.setProperty('--text-secondary', secondaryResolved);
     root.style.setProperty('--text-muted', mutedResolved);
     root.style.setProperty('--accent-muted', mutedResolved);
     root.style.setProperty('--border-soft', config.border);
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(config.brand));
+    root.style.setProperty('--ring-focus', ringFocusFromBrand(config.brand, isLight));
 
     root.style.setProperty('--surface', hexToRgba(config.surface, 0.78));
     const brandRgb = hexToRgbTriplet(config.brand);
@@ -1920,6 +1959,12 @@ export class ThemeService {
       merged.text,
       isLight,
     );
+    const textRgbB = parseHexColor(merged.text);
+    const mutedRgbB = parseHexColor(mutedResolved);
+    const secondaryResolvedB =
+      textRgbB && mutedRgbB
+        ? mixRgbHex(mutedRgbB, textRgbB, isLight ? 0.18 : 0.28)
+        : mutedResolved;
 
     root.style.setProperty('--theme-primary', merged.primary);
     root.style.setProperty('--theme-primary-rgb', hexToRgbTriplet(merged.primary));
@@ -1940,10 +1985,12 @@ export class ThemeService {
     root.style.setProperty('--bg-secondary', merged.bgSecondary);
     root.style.setProperty('--bg-tertiary', merged.bgTertiary);
     root.style.setProperty('--text-primary', merged.text);
-    root.style.setProperty('--text-secondary', mutedResolved);
+    root.style.setProperty('--text-secondary', secondaryResolvedB);
     root.style.setProperty('--text-muted', mutedResolved);
     root.style.setProperty('--accent-muted', mutedResolved);
     root.style.setProperty('--border-soft', merged.border);
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(merged.brand));
+    root.style.setProperty('--ring-focus', ringFocusFromBrand(merged.brand, isLight));
 
     root.style.setProperty('--surface', hexToRgba(merged.surface, 0.94));
     const brandRgb = hexToRgbTriplet(merged.brand);
