@@ -24,7 +24,14 @@ import {
           <h2 class="drawer-title" [id]="drawerTitleId">Notificaciones</h2>
           <span class="drawer-subtitle">Actividad reciente del sistema</span>
         </div>
-        <ui-button variant="ghost" size="sm" class="drawer-close" (clicked)="closeDrawer.emit()" icon="x"></ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          class="drawer-close"
+          icon="x"
+          aria-label="Cerrar panel de notificaciones"
+          (clicked)="closeDrawer.emit()"
+        ></ui-button>
       </header>
 
       <div class="content-area">

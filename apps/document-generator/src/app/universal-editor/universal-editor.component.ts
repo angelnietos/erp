@@ -351,7 +351,7 @@ export type EditorMode =
     <div class="editor-container">
       <div class="mode-tabs">
         @for (mode of availableModes; track mode.id) {
-          <button
+          <button type="button"
             class="tab-btn"
             [class.active]="currentMode() === mode.id"
             (click)="setMode(mode.id)"
@@ -371,7 +371,7 @@ export type EditorMode =
 
       @if (showFormattingToolbar) {
         <div class="formatting-toolbar">
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('bold')"
             [class.active]="isFormatActive('bold')"
@@ -379,7 +379,7 @@ export type EditorMode =
           >
             <b>B</b>
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('italic')"
             [class.active]="isFormatActive('italic')"
@@ -387,7 +387,7 @@ export type EditorMode =
           >
             <i>I</i>
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('underline')"
             [class.active]="isFormatActive('underline')"
@@ -395,7 +395,7 @@ export type EditorMode =
           >
             <u>U</u>
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('strikethrough')"
             [class.active]="isFormatActive('strikethrough')"
@@ -406,21 +406,21 @@ export type EditorMode =
 
           <div class="toolbar-separator"></div>
 
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('h1')"
             title="Título 1"
           >
             H1
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('h2')"
             title="Título 2"
           >
             H2
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('h3')"
             title="Título 3"
@@ -430,28 +430,28 @@ export type EditorMode =
 
           <div class="toolbar-separator"></div>
 
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('bulletList')"
             title="Lista con viñetas"
           >
             • List
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('numberedList')"
             title="Lista numerada"
           >
             1. List
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('blockquote')"
             title="Cita"
           >
             ❝ Quote
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="formatText('code')"
             title="Código"
@@ -461,28 +461,28 @@ export type EditorMode =
 
           <div class="toolbar-separator"></div>
 
-          <button
+          <button type="button"
             class="format-btn"
             (click)="insertTable()"
             title="Insertar tabla"
           >
             📊
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="insertTableFromCSV()"
             title="Importar tabla desde CSV"
           >
             📥 CSV
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="insertLink()"
             title="Insertar enlace"
           >
             🔗
           </button>
-          <button
+          <button type="button"
             class="format-btn"
             (click)="insertImage()"
             title="Insertar imagen"
@@ -545,35 +545,35 @@ export type EditorMode =
             <div
               style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;"
             >
-              <button
+              <button type="button"
                 class="format-btn"
                 (click)="addRow()"
                 title="Añadir fila al final"
               >
                 ➕ Fila
               </button>
-              <button
+              <button type="button"
                 class="format-btn"
                 (click)="addColumn()"
                 title="Añadir columna al final"
               >
                 ➕ Columna
               </button>
-              <button
+              <button type="button"
                 class="format-btn"
                 (click)="exportToCSV()"
                 title="Exportar a CSV"
               >
                 📤 CSV
               </button>
-              <button
+              <button type="button"
                 class="format-btn"
                 (click)="clearTable()"
                 title="Limpiar tabla"
               >
                 🗑️ Limpiar
               </button>
-              <button
+              <button type="button"
                 class="format-btn"
                 (click)="sortTable()"
                 title="Ordenar tabla"
@@ -588,7 +588,7 @@ export type EditorMode =
             <div class="text-4xl mb-4">📄</div>
             <p>Vista previa PDF - Modo de solo lectura</p>
             <p class="text-sm mt-2">
-              Cambia a modo Texto o Markdown para editar el contenido extraido
+              Cambia a modo Texto o Markdown para editar el contenido extraído
             </p>
           </div>
         }

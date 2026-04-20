@@ -198,9 +198,24 @@ interface Receipt {
             ]"
           >
              <div footer-extra class="receipt-extra-actions">
-                <ui-button variant="ghost" size="sm" icon="eye" (click)="$event.stopPropagation(); goToBilling(receipt)" title="Ver Factura"></ui-button>
+                <ui-button
+                  variant="ghost"
+                  size="sm"
+                  icon="eye"
+                  title="Ver factura"
+                  aria-label="Ver factura"
+                  (clicked)="$event.stopPropagation(); goToBilling(receipt)"
+                ></ui-button>
                 @if (receipt.status === 'PENDING') {
-                   <ui-button variant="ghost" size="sm" icon="check" (click)="$event.stopPropagation(); markAsPaid(receipt)" class="text-success" title="Marcar como pagado"></ui-button>
+                   <ui-button
+                     variant="ghost"
+                     size="sm"
+                     icon="check"
+                     class="text-success"
+                     title="Marcar como pagado"
+                     aria-label="Marcar recibo como pagado"
+                     (clicked)="$event.stopPropagation(); markAsPaid(receipt)"
+                   ></ui-button>
                 }
              </div>
           </ui-feature-card>

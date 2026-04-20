@@ -15,6 +15,8 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     <button 
       [type]="type" 
       class="btn"
+      [attr.aria-label]="ariaLabel ?? null"
+      [attr.title]="title ?? null"
       [attr.aria-busy]="loading ? true : null"
       [class.btn-sm]="size === 'sm'"
       [class.btn-md]="size === 'md'"
@@ -196,6 +198,10 @@ export class UiButtonComponent {
   @Input() size: ButtonSize = 'md';
   @Input() disabled = false;
   @Input() loading = false;
+  /** Nombre accesible del botón nativo (p. ej. solo icono). */
+  @Input({ alias: 'aria-label' }) ariaLabel: string | null | undefined = undefined;
+  /** Tooltip nativo del botón. */
+  @Input() title: string | null | undefined = undefined;
   @Input() icon: string | { name: string } = '';
   
   @Input() color: ButtonColor = 'app';
