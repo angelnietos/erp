@@ -47,10 +47,11 @@ export class DynamicCanvasComponent implements OnChanges, OnDestroy {
 
   /**
    * Tras mostrar contenido, opcionalmente vacía el canvas pasados N ms.
-   * `null` (por defecto): no se borra solo; el caller limpia vía store o vaciando `htmlRef`.
+   * `null`: no hay temporizador (el caller debe limpiar `htmlRef`/store).
    */
   @Input() autoClearAfterMs: number | null = null;
 
+  /** Se emite cuando el temporizador ha vaciado el canvas (p. ej. para sincronizar el store). */
   @Output() readonly canvasAutoCleared = new EventEmitter<void>();
 
   private readonly sanitizer = inject(DomSanitizer);
@@ -60,12 +61,16 @@ export class DynamicCanvasComponent implements OnChanges, OnDestroy {
   private timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!changes['htmlRef']) {
+    if (changes['htmlRef']) {
+      this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(this.htmlRef || '');
+    }
+    if (!changes['htmlRef'] && !changes['autoClearAfterMs']) {
       return;
     }
+    this.resetAutoClearTimer();
+  }
 
-    this.safeHtml = this.sanitizer.bypassSecurityTrustHtml(this.htmlRef || '');
-
+  private resetAutoClearTimer(): void {
     if (this.timeoutId !== undefined) {
       clearTimeout(this.timeoutId);
       this.timeoutId = undefined;

@@ -1,4 +1,11 @@
-import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import {
+  Injectable,
+  signal,
+  computed,
+  effect,
+  inject,
+  isDevMode,
+} from '@angular/core';
 import { ALL_BOTS } from './bots';
 import {
   AIBot,
@@ -162,7 +169,11 @@ export class AIBotStore {
       if (pendingFilter && this.masterFilterService) {
         setTimeout(() => {
           this.masterFilterService.search(pendingFilter);
-          console.log(`🤖 AI: Aplicado filtro delegado para ${feature}: "${pendingFilter}"`);
+          if (isDevMode()) {
+            console.log(
+              `🤖 AI: Aplicado filtro delegado para ${feature}: "${pendingFilter}"`,
+            );
+          }
         }, 500);
       }
     });
@@ -245,7 +256,11 @@ export class AIBotStore {
       ? `INSTRUCCIÓN AUTOMÁTICA DE BUDDY: ${JSON.stringify(payload)}`
       : message;
 
-    console.log(`📡 [Delegate] ${fromFeature} → ${targetFeature}: ${instructionText}`);
+    if (isDevMode()) {
+      console.log(
+        `📡 [Delegate] ${fromFeature} → ${targetFeature}: ${instructionText}`,
+      );
+    }
 
     // 1) Send via inter-bot queue (for open chat windows)
     this.sendInterBotMessage(fromFeature, targetFeature, instructionText);

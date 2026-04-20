@@ -344,7 +344,10 @@ export class UserEditComponent implements OnInit {
       if (!map.has(g)) {
         map.set(g, []);
       }
-      map.get(g)!.push(p);
+      const bucket = map.get(g);
+      if (bucket) {
+        bucket.push(p);
+      }
     }
     return Array.from(map.entries()).map(([name, items]) => ({ name, items }));
   });

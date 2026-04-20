@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, isDevMode, signal } from '@angular/core';
 
 export type OrchestrationType =
   | 'navigate_and_filter'
@@ -77,7 +77,9 @@ export class OrchestrationBus {
   /** Publicar en el log de orquestación */
   private _addLog(msg: string) {
     this._log.update(l => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...l].slice(0, 50));
-    console.log(`🎭 [OrchestrationBus] ${msg}`);
+    if (isDevMode()) {
+      console.log(`🎭 [OrchestrationBus] ${msg}`);
+    }
   }
 
   addLog(msg: string) {
