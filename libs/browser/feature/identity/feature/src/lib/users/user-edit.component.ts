@@ -61,6 +61,9 @@ import { HttpErrorResponse } from '@angular/common/http';
             type="button"
             class="back-btn"
             [routerLink]="createMode() ? ['/users'] : ['/users', userId()]"
+            [attr.aria-label]="
+              createMode() ? 'Volver al listado de usuarios' : 'Volver al detalle del usuario'
+            "
           >
             <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
           </button>

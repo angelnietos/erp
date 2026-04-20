@@ -46,7 +46,13 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         </div>
       } @else if (user(); as u) {
         <div class="header-bar">
-          <button type="button" class="back-btn" routerLink="/users" title="Volver">
+          <button
+            type="button"
+            class="back-btn"
+            routerLink="/users"
+            title="Volver"
+            aria-label="Volver al listado de usuarios"
+          >
             <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
           </button>
           <div class="header-text">

@@ -178,7 +178,10 @@ import {
                      type="button"
                      class="action-btn warning"
                      (click)="onDeactivate(user); $event.stopPropagation()"
-                     [attr.aria-label]="user.isActive ? 'Desactivar usuario' : 'Activar usuario'"
+                     [attr.aria-label]="
+                       (user.isActive ? 'Desactivar usuario: ' : 'Activar usuario: ') +
+                       userDisplayLabel(user)
+                     "
                      [title]="user.isActive ? 'Desactivar' : 'Activar'"
                    >
                      <lucide-icon [name]="user.isActive ? 'user-x' : 'user-check'" size="16" aria-hidden="true"></lucide-icon>
@@ -209,7 +212,11 @@ import {
 
     .action-btn:hover {
       background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
+      color: var(--text-primary);
+    }
+
+    html[data-theme-is-light='true'] .action-btn:hover {
+      background: color-mix(in srgb, var(--text-primary) 6%, transparent);
     }
 
     .action-btn.warning:hover {
@@ -361,6 +368,12 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
         this.users.update(list => list.map(u => u.id === user.id ? { ...u, isActive: newStatus } : u));
       }
     });
+  }
+
+  /** Nombre legible para etiquetas ARIA (activar/desactivar). */
+  userDisplayLabel(user: User): string {
+    const n = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+    return n || user.email || 'Usuario';
   }
 
   getInitials(first: string | undefined, last: string | undefined): string {

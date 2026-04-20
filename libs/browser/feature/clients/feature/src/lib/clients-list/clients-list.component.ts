@@ -247,7 +247,11 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
       <!-- Bulk Actions Bar -->
       @if (hasSelections()) {
-        <div class="bulk-actions-bar">
+        <div
+          class="bulk-actions-bar"
+          role="region"
+          aria-label="Acciones para clientes seleccionados"
+        >
           <div class="bulk-info">
             <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span

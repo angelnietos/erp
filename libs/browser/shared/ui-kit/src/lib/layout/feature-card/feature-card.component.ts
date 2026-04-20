@@ -76,7 +76,8 @@ import { UiBadgeComponent } from '../../badge/badge.component';
               size="sm"
               icon="Copy"
               (click)="$event.stopPropagation(); duplicateClicked.emit()"
-              title="Duplicar"
+              [title]="name ? 'Duplicar ' + name : 'Duplicar'"
+              [aria-label]="name ? 'Duplicar ' + name : 'Duplicar elemento'"
             ></ui-button>
             }
             @if (showEdit) {
@@ -86,7 +87,8 @@ import { UiBadgeComponent } from '../../badge/badge.component';
               icon="Pencil"
               (click)="$event.stopPropagation(); editClicked.emit()"
               class="edit-btn"
-              title="Editar"
+              [title]="name ? 'Editar ' + name : 'Editar'"
+              [aria-label]="name ? 'Editar ' + name : 'Editar elemento'"
             ></ui-button>
             }
             @if (showDelete) {
@@ -96,7 +98,8 @@ import { UiBadgeComponent } from '../../badge/badge.component';
               icon="Trash2"
               (click)="$event.stopPropagation(); deleteClicked.emit()"
               class="delete-btn"
-              title="Eliminar"
+              [title]="name ? 'Eliminar ' + name : 'Eliminar'"
+              [aria-label]="name ? 'Eliminar ' + name : 'Eliminar elemento'"
             ></ui-button>
             }
          </div>
