@@ -53,7 +53,7 @@ export const ASSISTANT_PET_CONFIG_STORAGE_KEY = 'assistant-pet-config';
 
 /** Mensaje inicial del chat (mismo texto al resetear a bienvenida). */
 export const ASSISTANT_DEFAULT_WELCOME =
-  '¡Hola! Soy tu asistente inteligente. Estoy observando todo lo que haces en todas las pestañas. ¿Necesitas ayuda?';
+  '¡Hola! Soy tu asistente. Puedo ayudarte con el documento y con lo que estés haciendo en esta app. ¿Necesitas algo?';
 
 const PET_PERSONALITIES: readonly AssistantPetConfig['personality'][] = [
   'friendly',

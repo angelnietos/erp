@@ -225,9 +225,12 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
       [attr.aria-expanded]="open"
       [attr.aria-haspopup]="true"
       [attr.aria-controls]="'theme-panel-dialog'"
+      [attr.aria-label]="
+        'Temas visuales, tema actual: ' + currentTheme().name
+      "
       title="Temas visuales"
     >
-      {{ currentTheme().icon }}
+      <span aria-hidden="true">{{ currentTheme().icon }}</span>
     </button>
 
     @if (open) {

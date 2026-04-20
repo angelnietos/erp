@@ -26,7 +26,10 @@ interface SkillDraft {
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="space-y-8">
-      <nav class="flex items-center space-x-2 text-sm text-secondary">
+      <nav
+        class="flex items-center space-x-2 text-sm text-secondary"
+        aria-label="Migas de pan"
+      >
         <a routerLink="/documents/list" class="hover:text-primary">Documentos</a>
         <span aria-hidden="true">/</span>
         <a routerLink="/documents/settings/ai" class="hover:text-primary"

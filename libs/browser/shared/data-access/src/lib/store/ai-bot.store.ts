@@ -22,6 +22,27 @@ import { AIWorkflowService } from '../services/ai/ai-workflow.service';
 import { AIPredictiveService } from '../services/ai/ai-predictive.service';
 import { OrchestrationBus } from '../services/ai/orchestration-bus.service';
 
+const DYNAMIC_CANVAS_STORAGE_KEY = 'ai_dynamic_canvas';
+/** Overlay HTML en la pantalla de login: no se persiste (solo sesión SPA; Buddy puede inyectar bajo demanda). */
+const LOGIN_DYNAMIC_FEATURE = 'login';
+
+function loadPersistedDynamicCanvasWithoutLogin(): Record<string, string> {
+  try {
+    const raw = JSON.parse(
+      localStorage.getItem(DYNAMIC_CANVAS_STORAGE_KEY) || '{}',
+    ) as Record<string, string>;
+    if (raw[LOGIN_DYNAMIC_FEATURE] === undefined) {
+      return raw;
+    }
+    const rest = { ...raw };
+    delete rest[LOGIN_DYNAMIC_FEATURE];
+    localStorage.setItem(DYNAMIC_CANVAS_STORAGE_KEY, JSON.stringify(rest));
+    return rest;
+  } catch {
+    return {};
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class AIBotStore {
   // Inject New Services
@@ -72,13 +93,18 @@ export class AIBotStore {
 
   // Dynamic HTML canvas per feature (AI-generated UI injection)
   private readonly _dynamicCanvas = signal<Record<string, string>>(
-    JSON.parse(localStorage.getItem('ai_dynamic_canvas') || '{}')
+    loadPersistedDynamicCanvasWithoutLogin(),
   );
   readonly dynamicCanvas = this._dynamicCanvas.asReadonly();
 
   setDynamicCanvas(feature: string, html: string) {
-    this._dynamicCanvas.update(c => ({ ...c, [feature]: html }));
-    localStorage.setItem('ai_dynamic_canvas', JSON.stringify(this._dynamicCanvas()));
+    this._dynamicCanvas.update((c) => ({ ...c, [feature]: html }));
+    const merged = { ...this._dynamicCanvas() };
+    delete merged[LOGIN_DYNAMIC_FEATURE];
+    localStorage.setItem(
+      DYNAMIC_CANVAS_STORAGE_KEY,
+      JSON.stringify(merged),
+    );
   }
 
   // --- Moods & Emotions ---
