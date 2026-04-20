@@ -107,6 +107,11 @@ export class AIBotStore {
     );
   }
 
+  /** Quita el overlay HTML del login (solo memoria SPA; no afecta a localStorage). */
+  clearLoginDynamicOverlay(): void {
+    this.setDynamicCanvas(LOGIN_DYNAMIC_FEATURE, '');
+  }
+
   // --- Moods & Emotions ---
   private readonly _botMoods = signal<Record<string, { mood: BotMood; energy: number }>>(
     JSON.parse(localStorage.getItem('ai_bot_moods') || '{}')
