@@ -236,9 +236,18 @@ type AnalysisResult = DocumentAnalysisCheckResult;
       <!-- Tabs Navigation -->
       <div class="bg-surface rounded-2xl shadow-xl border border-soft/50">
         <div class="border-b border-soft">
-          <div class="flex space-x-8 px-8">
+          <div
+            class="flex space-x-8 px-8"
+            role="tablist"
+            aria-label="Secciones de análisis de propuesta"
+          >
             @for (tab of tabs; track tab.id) {
               <button
+                type="button"
+                role="tab"
+                [attr.id]="'analysis-tab-' + tab.id"
+                [attr.aria-selected]="activeTab === tab.id"
+                [attr.aria-controls]="'analysis-panel-' + tab.id"
                 (click)="activeTab = tab.id"
                 class="py-4 px-2 text-sm font-medium transition-colors"
                 [class.tab-active]="activeTab === tab.id"
@@ -254,7 +263,12 @@ type AnalysisResult = DocumentAnalysisCheckResult;
         <div class="p-8">
           <!-- Checks Selection Tab -->
           @if (activeTab === 'checks') {
-            <div class="space-y-6">
+            <div
+              class="space-y-6"
+              role="tabpanel"
+              id="analysis-panel-checks"
+              aria-labelledby="analysis-tab-checks"
+            >
               <h2 class="text-xl font-bold text-primary mb-4">
                 Selecciona qué quieres revisar
               </h2>
@@ -311,6 +325,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                       class="inline w-5 h-5 mr-2 animate-spin"
                       fill="none"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         stroke-linecap="round"
@@ -325,6 +340,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                       class="inline w-5 h-5 mr-2"
                       fill="none"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         stroke-linecap="round"
@@ -343,7 +359,12 @@ type AnalysisResult = DocumentAnalysisCheckResult;
 
           <!-- Results Tab -->
           @if (activeTab === 'results') {
-            <div class="space-y-6">
+            <div
+              class="space-y-6"
+              role="tabpanel"
+              id="analysis-panel-results"
+              aria-labelledby="analysis-tab-results"
+            >
               @if (analysisRunError) {
                 <div
                   class="rounded-xl border border-red-200 bg-red-50 text-red-900 px-4 py-3 text-sm"
@@ -431,7 +452,12 @@ type AnalysisResult = DocumentAnalysisCheckResult;
 
           <!-- Assistant Tab -->
           @if (activeTab === 'assistant') {
-            <div class="space-y-6">
+            <div
+              class="space-y-6"
+              role="tabpanel"
+              id="analysis-panel-assistant"
+              aria-labelledby="analysis-tab-assistant"
+            >
               <div class="ai-message mb-6">
                 <div class="flex items-start space-x-3">
                   <div

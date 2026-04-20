@@ -199,7 +199,7 @@ import { IntelligentAssistantService } from '../services/intelligent-assistant.s
         <div class="text-center py-16 text-slate-400">
           <div class="text-5xl mb-4">📄</div>
           <p>Empieza a escribir. DOCS 2.0 se encargará del resto.</p>
-          <p class="text-sm mt-2">Pulta Enter para crear nuevos bloques</p>
+          <p class="text-sm mt-2">Pulsa Enter para crear nuevos bloques</p>
         </div>
       }
     </div>
