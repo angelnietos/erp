@@ -66,7 +66,14 @@ interface ProjectForm {
       } @else {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-actions">
-            <ui-button variant="ghost" icon="arrow-left" (clicked)="goBack()"> Volver </ui-button>
+            <ui-button
+              variant="ghost"
+              icon="arrow-left"
+              (clicked)="goBack()"
+              [aria-label]="'Volver al listado de proyectos'"
+            >
+              Volver
+            </ui-button>
           </div>
           <div class="header-breadcrumb">
             <h1 class="page-title text-uppercase glow-text">{{ pageTitle() }}</h1>
@@ -80,7 +87,14 @@ interface ProjectForm {
             @if (isViewMode()) {
               <ui-button variant="primary" icon="pencil" (clicked)="goEdit()">Editar</ui-button>
             } @else {
-              <ui-button variant="secondary" icon="x" (clicked)="goBack()">Cancelar</ui-button>
+              <ui-button
+                variant="secondary"
+                icon="x"
+                (clicked)="goBack()"
+                [aria-label]="'Cancelar edición y volver al listado de proyectos'"
+              >
+                Cancelar
+              </ui-button>
               <ui-button variant="primary" icon="save" [disabled]="saving()" (clicked)="save()">
                 {{ saving() ? 'Guardando…' : 'Guardar' }}
               </ui-button>

@@ -55,7 +55,12 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
           [style.border-bottom-color]="currentTheme().primary + '33'"
         >
           <div class="header-breadcrumb">
-            <button class="back-btn" routerLink="/budgets">
+            <button
+              type="button"
+              class="back-btn"
+              routerLink="/budgets"
+              aria-label="Volver al listado de presupuestos"
+            >
               <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER AL LISTADO
             </button>

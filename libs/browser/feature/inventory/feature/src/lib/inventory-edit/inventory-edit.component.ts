@@ -54,7 +54,14 @@ import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data
       } @else {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-actions">
-            <ui-button variant="ghost" icon="arrow-left" (clicked)="goBack()">Volver</ui-button>
+            <ui-button
+              variant="ghost"
+              icon="arrow-left"
+              (clicked)="goBack()"
+              [aria-label]="backNavAriaLabel()"
+            >
+              Volver
+            </ui-button>
           </div>
           <div class="header-breadcrumb">
             <h1 class="page-title text-uppercase glow-text">
@@ -299,6 +306,17 @@ export class InventoryEditComponent implements OnInit {
       description: p.description ?? '',
     };
     this.loadError.set(false);
+  }
+
+  /** Nombre accesible del botón Volver (alta → listado; edición → ficha o listado). */
+  backNavAriaLabel(): string {
+    if (this.isCreateMode) {
+      return 'Volver al listado de inventario';
+    }
+    if (this.productId) {
+      return 'Volver a la ficha del activo';
+    }
+    return 'Volver al listado de inventario';
   }
 
   goBack() {
