@@ -379,7 +379,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                   </span>
                 } @else if (inv.verifactuStatus === 'error') {
                   <span class="fiscal-badge error-glow">
-                    <lucide-icon name="alert-triangle" size="12"></lucide-icon>
+                    <lucide-icon name="alert-triangle" size="12" aria-hidden="true"></lucide-icon>
                     FISCAL ERROR
                   </span>
                 }
@@ -444,6 +444,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                   name="search-x"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>
@@ -464,6 +465,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                   name="banknote"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>No hay facturas</h3>
                 <p>

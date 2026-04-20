@@ -67,7 +67,7 @@ interface InvoiceFormData extends Partial<Invoice> {
             </p>
             <div class="billing-edit__field">
               <label class="billing-edit__label" for="budget-select-edit">
-                <lucide-icon name="file-text" size="16"></lucide-icon>
+                <lucide-icon name="file-text" size="16" aria-hidden="true"></lucide-icon>
                 Presupuesto origen
               </label>
               <select

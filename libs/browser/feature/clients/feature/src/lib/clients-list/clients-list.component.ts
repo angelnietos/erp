@@ -258,7 +258,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
           </div>
           <div class="bulk-buttons">
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
-              <lucide-icon name="trash2" size="14"></lucide-icon>
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
             </ui-button>
             <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">

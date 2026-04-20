@@ -912,6 +912,14 @@ interface DocumentType {
                         {{ draftSaveMessage }}
                       </p>
                     }
+                    @if (documentGenerateError) {
+                      <p
+                        class="text-xs text-red-700 dark:text-red-400 mt-2 text-right"
+                        role="alert"
+                      >
+                        {{ documentGenerateError }}
+                      </p>
+                    }
                   </div>
                 </div>
               </div>
@@ -938,6 +946,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   /** Id del borrador en IndexedDB (reutilizado al volver a guardar). */
   savedDraftId: string | null = null;
   draftSaveMessage = '';
+  /** Mensaje si falla Generar documento (PDF final). */
+  documentGenerateError = '';
   isSavingDraft = false;
   /** Feedback breve tras copiar Markdown al portapapeles. */
   copyMarkdownFeedback = false;
@@ -1235,7 +1245,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   ): void {
     this.assistantService.setFormData(values);
     const content = values['content'];
-    if (content && typeof content === 'string') {
+    if (typeof content === 'string') {
       this.assistantService.setDocumentContent(
         content,
         this.selectedType?.id,
@@ -1509,6 +1519,9 @@ export class DocumentCreateEditorComponent implements OnInit {
       this.universalDocument.download(blob, `${title}.${format}`);
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
+      alert(
+        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e inténtalo de nuevo.`,
+      );
     }
   }
 
@@ -1536,6 +1549,7 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   async generateDocument() {
     if (this.documentForm.valid) {
+      this.documentGenerateError = '';
       this.isGenerating = true;
       try {
         const formValue = this.documentForm.value;
@@ -1575,6 +1589,8 @@ export class DocumentCreateEditorComponent implements OnInit {
         this.router.navigate(['/documents/preview', documentId]);
       } catch (error) {
         console.error('Error generating PDF:', error);
+        this.documentGenerateError =
+          'No se pudo generar el documento. Revisa los datos e inténtalo de nuevo.';
       } finally {
         this.isGenerating = false;
       }
