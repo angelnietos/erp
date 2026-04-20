@@ -85,6 +85,7 @@ import { Observable, of } from 'rxjs';
             name="alert-circle"
             size="18"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{
             projectsLoadError() || 'No se pudo completar la operación con proyectos.'

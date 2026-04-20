@@ -66,6 +66,7 @@ import {
               name="alert-circle"
               size="18"
               class="feature-load-error-banner__icon"
+              aria-hidden="true"
             ></lucide-icon>
             <span class="feature-load-error-banner__text">{{ loadError() }}</span>
             <ui-button variant="ghost" size="sm" (clicked)="loadUsers()">Reintentar</ui-button>
@@ -121,7 +122,7 @@ import {
           </div>
         } @else if (loadError() && !hasAnyUsers()) {
           <div class="feature-error-screen" role="alert">
-            <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon"></lucide-icon>
+            <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon" aria-hidden="true"></lucide-icon>
             <h3>No se pudo cargar la lista</h3>
             <p>
               {{
@@ -133,7 +134,7 @@ import {
           </div>
         } @else if (!hasAnyUsers()) {
           <div class="feature-empty feature-empty--wide">
-            <lucide-icon name="users" size="64" class="feature-empty__icon"></lucide-icon>
+            <lucide-icon name="users" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
             <h3>Sin usuarios</h3>
             <p>
               Aún no hay cuentas en este espacio de trabajo. Cuando se den de alta, aparecerán aquí.

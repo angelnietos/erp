@@ -296,6 +296,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ store.error() }}</span>
           <ui-button
@@ -319,6 +320,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar el listado</h3>
           <p>{{ store.error() }}</p>
@@ -406,6 +408,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 name="search-x"
                 size="56"
                 class="feature-empty__icon"
+                aria-hidden="true"
               ></lucide-icon>
               <h3>Sin resultados</h3>
               <p>
@@ -426,6 +429,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 name="file-text"
                 size="56"
                 class="feature-empty__icon"
+                aria-hidden="true"
               ></lucide-icon>
               <h3>No hay presupuestos</h3>
               <p>

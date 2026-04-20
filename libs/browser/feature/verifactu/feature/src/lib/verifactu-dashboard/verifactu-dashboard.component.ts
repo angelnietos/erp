@@ -137,6 +137,7 @@ import {
                 name="wifi-off"
                 size="56"
                 class="feature-error-screen__icon"
+                aria-hidden="true"
               ></lucide-icon>
               <h3>No se pudo cargar el registro</h3>
               <p>
@@ -155,6 +156,7 @@ import {
                 name="building-2"
                 size="64"
                 class="feature-empty__icon"
+                aria-hidden="true"
               ></lucide-icon>
               <h3>Sin tenant</h3>
               <p>
@@ -173,6 +175,7 @@ import {
                 name="inbox"
                 size="64"
                 class="feature-empty__icon"
+                aria-hidden="true"
               ></lucide-icon>
               <h3>Sin registros fiscales</h3>
               <p>No hay operaciones VeriFactu para este tenant todavía.</p>
@@ -183,6 +186,7 @@ import {
                 name="search-x"
                 size="64"
                 class="feature-empty__icon"
+                aria-hidden="true"
               ></lucide-icon>
               <h3>Sin resultados</h3>
               <p>Ningún registro coincide con la búsqueda actual.</p>
@@ -201,6 +205,7 @@ import {
                   name="alert-circle"
                   size="20"
                   class="feature-load-error-banner__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <span class="feature-load-error-banner__text">{{
                   store.error()
@@ -283,6 +288,7 @@ import {
                   name="shield-check"
                   [style.color]="currentTheme().primary"
                   size="16"
+                  aria-hidden="true"
                 ></lucide-icon>
               </div>
               <div class="cert-info">
@@ -313,6 +319,7 @@ import {
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{
             store.error()

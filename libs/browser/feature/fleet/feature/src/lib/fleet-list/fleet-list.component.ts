@@ -257,6 +257,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ loadError() }}</span>
           <ui-button
@@ -280,6 +281,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar la flota</h3>
           <p>{{ loadError() }}</p>
@@ -368,6 +370,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                   name="search-x"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>
@@ -388,6 +391,7 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
                   name="truck"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>No hay unidades</h3>
                 <p>Comienza registrando tu primer vehículo en la flota.</p>

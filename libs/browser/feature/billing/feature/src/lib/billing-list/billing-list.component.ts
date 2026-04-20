@@ -165,6 +165,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ error() }}</span>
           <ui-button
@@ -307,6 +308,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar la facturación</h3>
           <p>{{ error() }}</p>

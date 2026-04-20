@@ -250,6 +250,7 @@ import {
                         <lucide-icon
                           name="clipboard-check"
                           size="20"
+                          aria-hidden="true"
                         ></lucide-icon>
                       </div>
                       <div class="ns-doc-info">

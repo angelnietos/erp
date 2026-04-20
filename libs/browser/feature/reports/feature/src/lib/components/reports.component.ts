@@ -116,6 +116,7 @@ interface Report {
               name="alert-circle"
               size="20"
               class="feature-load-error-banner__icon"
+              aria-hidden="true"
             ></lucide-icon>
             <span class="feature-load-error-banner__text">{{
               serverExportError()
@@ -139,7 +140,7 @@ interface Report {
             >
               <div class="report-type-content">
                 <div class="report-icon">
-                  <lucide-icon [img]="reportType.icon" size="32"></lucide-icon>
+                  <lucide-icon [img]="reportType.icon" size="32" aria-hidden="true"></lucide-icon>
                 </div>
                 <div class="report-info">
                   <h3 class="report-name">{{ reportType.name }}</h3>
@@ -176,6 +177,7 @@ interface Report {
                     name="alert-circle"
                     size="20"
                     class="feature-load-error-banner__icon"
+                    aria-hidden="true"
                   ></lucide-icon>
                   <span class="feature-load-error-banner__text">{{
                     generationError()
@@ -295,6 +297,7 @@ interface Report {
                         <lucide-icon
                           [img]="getReportTypeIcon(report.type)"
                           size="20"
+                          aria-hidden="true"
                         ></lucide-icon>
                       </div>
                       <div class="report-details">
@@ -314,6 +317,7 @@ interface Report {
                         <lucide-icon
                           [name]="'download'"
                           size="16"
+                          aria-hidden="true"
                         ></lucide-icon>
                         JSON
                       </ui-button>

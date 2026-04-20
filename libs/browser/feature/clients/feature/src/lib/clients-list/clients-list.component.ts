@@ -84,6 +84,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
             name="alert-circle"
             size="18"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{
             clientsLoadError() || 'No se pudo completar la operación con clientes.'

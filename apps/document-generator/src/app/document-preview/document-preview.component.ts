@@ -49,18 +49,22 @@ interface DocumentPreviewPayload {
   template: `
     <div class="space-y-8">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-secondary">
-        <button
+      <nav
+        class="flex items-center space-x-2 text-sm text-secondary"
+        aria-label="Migas de pan"
+      >
+        <a
           routerLink="/documents/list"
           class="hover:text-primary transition-colors"
         >
           Documentos
-        </button>
+        </a>
         <svg
-          class="w-4 h-4"
+          class="w-4 h-4 shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -89,10 +93,11 @@ interface DocumentPreviewPayload {
             <div class="flex items-center space-x-4 pt-2">
               <div class="flex items-center space-x-2 text-sm text-muted">
                 <svg
-                  class="w-4 h-4"
+                  class="w-4 h-4 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -108,6 +113,7 @@ interface DocumentPreviewPayload {
 
           <div class="flex flex-col sm:flex-row gap-3">
             <button
+              type="button"
               (click)="downloadDocument()"
               class="inline-flex items-center px-6 py-4 bg-success text-bg-secondary font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
@@ -116,6 +122,7 @@ interface DocumentPreviewPayload {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -127,6 +134,7 @@ interface DocumentPreviewPayload {
               Descargar PDF
             </button>
             <button
+              type="button"
               (click)="goBack()"
               class="inline-flex items-center px-6 py-4 border border-soft rounded-xl text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
             >
@@ -135,6 +143,7 @@ interface DocumentPreviewPayload {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"

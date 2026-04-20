@@ -1020,6 +1020,7 @@ export class UniversalEditorComponent {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   clearTable(): void {

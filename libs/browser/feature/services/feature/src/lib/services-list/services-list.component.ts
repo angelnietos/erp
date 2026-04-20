@@ -155,6 +155,7 @@ import { ServicesStore, Service } from '../services.store';
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ error() }}</span>
           <ui-button
@@ -288,6 +289,7 @@ import { ServicesStore, Service } from '../services.store';
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar el catálogo</h3>
           <p>{{ error() }}</p>
@@ -370,6 +372,7 @@ import { ServicesStore, Service } from '../services.store';
                   name="search-x"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>
@@ -390,6 +393,7 @@ import { ServicesStore, Service } from '../services.store';
                   name="wrench"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>No hay servicios</h3>
                 <p>

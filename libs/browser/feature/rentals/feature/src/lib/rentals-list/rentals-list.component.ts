@@ -296,6 +296,7 @@ import {
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ loadError() }}</span>
           <ui-button
@@ -319,6 +320,7 @@ import {
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar el listado</h3>
           <p>{{ loadError() }}</p>
@@ -424,6 +426,7 @@ import {
                   name="search-x"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>
@@ -444,6 +447,7 @@ import {
                   name="key"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>No hay expedientes</h3>
                 <p>

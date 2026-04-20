@@ -143,6 +143,7 @@ import { Observable, of } from 'rxjs';
             name="alert-circle"
             size="20"
             class="feature-load-error-banner__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span class="feature-load-error-banner__text">{{ error() }}</span>
           <ui-button
@@ -166,6 +167,7 @@ import { Observable, of } from 'rxjs';
             name="wifi-off"
             size="48"
             class="feature-error-screen__icon"
+            aria-hidden="true"
           ></lucide-icon>
           <h3>No se pudo cargar el listado</h3>
           <p>{{ error() }}</p>
@@ -231,6 +233,7 @@ import { Observable, of } from 'rxjs';
                   name="search-x"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin resultados</h3>
                 <p>
@@ -251,6 +254,7 @@ import { Observable, of } from 'rxjs';
                   name="truck"
                   size="56"
                   class="feature-empty__icon"
+                  aria-hidden="true"
                 ></lucide-icon>
                 <h3>Sin albaranes</h3>
                 <p>
