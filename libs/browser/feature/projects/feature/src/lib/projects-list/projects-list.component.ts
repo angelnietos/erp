@@ -217,7 +217,11 @@ import { Observable, of } from 'rxjs';
 
       <!-- Bulk Actions Bar -->
       @if (hasSelections()) {
-        <div class="bulk-actions-bar">
+        <div
+          class="bulk-actions-bar"
+          role="region"
+          aria-label="Acciones para proyectos seleccionados"
+        >
           <div class="bulk-info">
             <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
@@ -230,6 +234,13 @@ import { Observable, of } from 'rxjs';
           <div class="bulk-buttons">
             <select
               class="bulk-status-select"
+              [attr.aria-label]="
+                'Cambiar estado de ' +
+                selectedCount() +
+                (selectedCount() === 1
+                  ? ' proyecto seleccionado'
+                  : ' proyectos seleccionados')
+              "
               (change)="bulkChangeStatus($event)"
             >
               <option value="">Cambiar estado</option>

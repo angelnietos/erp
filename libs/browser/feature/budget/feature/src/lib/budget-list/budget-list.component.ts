@@ -254,7 +254,11 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
       <!-- Bulk Actions Bar -->
       @if (hasSelections()) {
-        <div class="bulk-actions-bar">
+        <div
+          class="bulk-actions-bar"
+          role="region"
+          aria-label="Acciones para presupuestos seleccionados"
+        >
           <div class="bulk-info">
             <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
             <span
@@ -267,6 +271,13 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
           <div class="bulk-buttons">
             <select
               class="bulk-status-select"
+              [attr.aria-label]="
+                'Cambiar estado de ' +
+                selectedCount() +
+                (selectedCount() === 1
+                  ? ' presupuesto seleccionado'
+                  : ' presupuestos seleccionados')
+              "
               (change)="bulkChangeStatus($event)"
             >
               <option value="">Cambiar estado</option>
@@ -389,6 +400,10 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 icon="eye"
                 [routerLink]="['/budgets', item.id]"
                 title="Ver detalles"
+                [aria-label]="
+                  'Ver detalles del presupuesto #' +
+                  (item.id.slice(0, 8) | uppercase)
+                "
               ></ui-button>
               @if (config.enableDownload) {
                 <ui-button
@@ -397,6 +412,10 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                   icon="download"
                   class="text-success"
                   title="Descargar PDF"
+                  [aria-label]="
+                    'Descargar PDF del presupuesto #' +
+                    (item.id.slice(0, 8) | uppercase)
+                  "
                 ></ui-button>
               }
             </div>

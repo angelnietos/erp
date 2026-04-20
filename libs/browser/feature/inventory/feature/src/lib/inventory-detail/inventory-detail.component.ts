@@ -33,7 +33,12 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
       } @else if (product()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
-            <button class="back-btn" routerLink="/inventory">
+            <button
+              type="button"
+              class="back-btn"
+              routerLink="/inventory"
+              aria-label="Volver al listado de inventario"
+            >
               <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER AL LISTADO
             </button>
@@ -47,8 +52,8 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-button variant="glass" size="md" icon="pencil" (click)="onEdit()">EDITAR ACTIVO</ui-button>
-            <ui-button variant="primary" size="md" icon="printer" (click)="onPrintQr()">ETIQUETA QR</ui-button>
+            <ui-button variant="glass" size="md" icon="pencil" (clicked)="onEdit()">EDITAR ACTIVO</ui-button>
+            <ui-button variant="primary" size="md" icon="printer" (clicked)="onPrintQr()">ETIQUETA QR</ui-button>
           </div>
         </header>
 
