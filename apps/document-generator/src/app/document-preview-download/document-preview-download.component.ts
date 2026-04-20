@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
@@ -22,11 +22,24 @@ export class DocumentPreviewDownloadComponent implements OnInit {
   document: PreviewDownloadDocument | null = null;
   pdfUrl: string | null = null;
   isGenerating = false;
+  pdfError: string | null = null;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly pdfService = inject(PdfGenerationService);
   private readonly persistence = inject(DocumentPersistenceService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.revokePdfObjectUrl());
+  }
+
+  private revokePdfObjectUrl(): void {
+    if (this.pdfUrl) {
+      URL.revokeObjectURL(this.pdfUrl);
+      this.pdfUrl = null;
+    }
+  }
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.params['id'];
@@ -54,7 +67,9 @@ export class DocumentPreviewDownloadComponent implements OnInit {
     const doc = this.document;
     if (!doc) return;
 
+    this.pdfError = null;
     this.isGenerating = true;
+    this.revokePdfObjectUrl();
     try {
       let pdfBlob: Blob;
       const kind = typeof doc.type === 'string' ? doc.type : 'documentation';
@@ -78,6 +93,8 @@ export class DocumentPreviewDownloadComponent implements OnInit {
       this.pdfUrl = URL.createObjectURL(pdfBlob);
     } catch (error) {
       console.error('Error generating PDF:', error);
+      this.pdfError =
+        'No se pudo generar la vista previa del PDF. Revisa los datos e inténtalo de nuevo.';
     } finally {
       this.isGenerating = false;
     }

@@ -421,6 +421,7 @@ declare const marked: MarkedGlobal;
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -435,6 +436,7 @@ declare const marked: MarkedGlobal;
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -502,6 +504,7 @@ declare const marked: MarkedGlobal;
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -529,6 +532,7 @@ declare const marked: MarkedGlobal;
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -579,6 +583,7 @@ declare const marked: MarkedGlobal;
                 >
                   @for (skin of availableSkins; track skin.id; let i = $index) {
                     <button
+                      type="button"
                       role="radio"
                       [attr.id]="'skin-option-' + i"
                       [attr.aria-checked]="
