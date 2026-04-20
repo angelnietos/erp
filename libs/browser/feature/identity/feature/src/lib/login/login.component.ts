@@ -124,6 +124,16 @@ export class LoginComponent implements OnInit {
     void this.router.navigate(['/auth/tenant']);
   }
 
+  /**
+   * Duración del mensaje dinámico (p. ej. saludo de Buddy) en el canvas del login.
+   * Al expirar, `ui-dynamic-canvas` emite y se limpia el store para no dejar HTML colgado.
+   */
+  readonly loginBuddyCanvasTtlMs = 12_000;
+
+  onLoginCanvasAutoCleared(): void {
+    this.aiBotStore.clearLoginDynamicOverlay();
+  }
+
   onSubmit() {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.getRawValue();

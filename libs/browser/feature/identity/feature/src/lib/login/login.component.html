@@ -1,6 +1,10 @@
 <div class="auth-wrapper">
   <lib-animated-background [theme]="backgroundTheme()"></lib-animated-background>
-  <ui-dynamic-canvas [htmlRef]="dynamicHtml()"></ui-dynamic-canvas>
+  <ui-dynamic-canvas
+    [htmlRef]="dynamicHtml()"
+    [autoClearAfterMs]="loginBuddyCanvasTtlMs"
+    (canvasAutoCleared)="onLoginCanvasAutoCleared()"
+  ></ui-dynamic-canvas>
 
   <div class="auth-card glass">
     <div class="auth-header">

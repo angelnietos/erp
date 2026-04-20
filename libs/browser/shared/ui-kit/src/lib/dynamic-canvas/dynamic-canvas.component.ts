@@ -2,9 +2,11 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
+  Output,
   SimpleChanges,
   ViewEncapsulation,
   inject,
@@ -49,6 +51,8 @@ export class DynamicCanvasComponent implements OnChanges, OnDestroy {
    */
   @Input() autoClearAfterMs: number | null = null;
 
+  @Output() readonly canvasAutoCleared = new EventEmitter<void>();
+
   private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -72,6 +76,7 @@ export class DynamicCanvasComponent implements OnChanges, OnDestroy {
       this.timeoutId = setTimeout(() => {
         this.safeHtml = this.sanitizer.bypassSecurityTrustHtml('');
         this.timeoutId = undefined;
+        this.canvasAutoCleared.emit();
         this.cdr.markForCheck();
       }, ms);
     }
