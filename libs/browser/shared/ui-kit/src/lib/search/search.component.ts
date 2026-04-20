@@ -15,7 +15,7 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       [class.search-dock]="dockToolbar"
       [class.focused]="isFocused"
     >
-      <lucide-icon name="search" class="search-icon"></lucide-icon>
+      <lucide-icon name="search" class="search-icon" aria-hidden="true"></lucide-icon>
       <input 
         type="text" 
         [placeholder]="placeholder"
@@ -25,8 +25,8 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
         (blur)="isFocused = false"
       />
       @if (value) {
-        <button class="clear-btn" (click)="onClear($event)">
-          <lucide-icon name="x"></lucide-icon>
+        <button type="button" class="clear-btn" (click)="onClear($event)" aria-label="Limpiar búsqueda">
+          <lucide-icon name="x" aria-hidden="true"></lucide-icon>
         </button>
       }
       <div class="focus-indicator"></div>

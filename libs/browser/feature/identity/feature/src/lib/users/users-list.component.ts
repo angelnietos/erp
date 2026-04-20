@@ -142,7 +142,7 @@ import {
           </div>
         } @else if (filterProducesNoResults()) {
           <div class="feature-empty feature-empty--wide">
-            <lucide-icon name="search-x" size="64" class="feature-empty__icon"></lucide-icon>
+            <lucide-icon name="search-x" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
             <h3>Sin resultados</h3>
             <p>Ningún usuario coincide con la búsqueda actual.</p>
             <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">

@@ -34,7 +34,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
              <div class="title-row">
                 <h3 class="item-name">{{ name }}</h3>
                 @if (isFavorite) {
-                <lucide-icon name="star" size="14" class="favorite-icon"></lucide-icon>
+                <lucide-icon name="star" size="14" class="favorite-icon" aria-hidden="true"></lucide-icon>
                 }
              </div>
              @if (badgeLabel || subtitle) {
@@ -60,7 +60,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
          <div class="footer-main">
             @for (item of footerItems; track $index) {
             <div class="footer-item">
-               <lucide-icon [name]="item.icon" size="14"></lucide-icon>
+               <lucide-icon [name]="item.icon" size="14" aria-hidden="true"></lucide-icon>
                <span>{{ item.label }}</span>
             </div>
             }

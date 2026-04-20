@@ -69,15 +69,15 @@ import {
       >
         <div actions class="verifactu-top-actions">
           <div class="tenant-selector ui-glass-panel">
-            <lucide-icon name="building-2" size="14"></lucide-icon>
+            <lucide-icon name="building-2" size="14" aria-hidden="true"></lucide-icon>
             <input
               type="text"
               [ngModel]="tenantId()"
               (ngModelChange)="tenantId.set($event)"
               placeholder="UUID tenant (login)"
             />
-            <button type="button" class="sync-btn" (click)="loadRecords()">
-              <lucide-icon name="refresh-cw" size="14"></lucide-icon>
+            <button type="button" class="sync-btn" (click)="loadRecords()" aria-label="Actualizar registros VeriFactu">
+              <lucide-icon name="refresh-cw" size="14" aria-hidden="true"></lucide-icon>
             </button>
           </div>
           @if (!tenantId()) {
@@ -243,10 +243,12 @@ import {
                       </td>
                       <td>
                         <button
+                          type="button"
                           class="icon-btn"
                           (click)="viewInvoiceDetail(record)"
+                          aria-label="Ver detalle de la factura"
                         >
-                          <lucide-icon name="eye" size="14"></lucide-icon>
+                          <lucide-icon name="eye" size="14" aria-hidden="true"></lucide-icon>
                         </button>
                       </td>
                     </tr>

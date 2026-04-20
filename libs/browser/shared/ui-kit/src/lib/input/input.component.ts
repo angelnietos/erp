@@ -29,7 +29,7 @@ export type InputVariant = string;
         [class.has-icon]="icon" 
         [class.has-error]="error" 
       >
-        @if (icon) { <lucide-icon [name]="icon" class="field-icon"></lucide-icon> }
+        @if (icon) { <lucide-icon [name]="icon" class="field-icon" aria-hidden="true"></lucide-icon> }
         <input 
           [id]="id" 
           [type]="type" 

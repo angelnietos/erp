@@ -41,7 +41,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       } @else {
         <ng-content></ng-content>
         @if (getIconName()) { 
-          <lucide-icon [name]="getIconName()!" class="btn-icon"></lucide-icon> 
+          <lucide-icon [name]="getIconName()!" class="btn-icon" aria-hidden="true"></lucide-icon> 
         }
       }
     </button>

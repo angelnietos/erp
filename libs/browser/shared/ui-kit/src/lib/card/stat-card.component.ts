@@ -9,7 +9,7 @@ import { LucideAngularModule } from 'lucide-angular';
   template: `
     <div class="stat-card ui-glass ui-neon" [class.accent]="accent">
       <div class="stat-icon-wrapper">
-        <lucide-icon [name]="icon" size="22"></lucide-icon>
+        <lucide-icon [name]="icon" size="22" aria-hidden="true"></lucide-icon>
       </div>
       <div class="stat-content">
         <span class="stat-label">{{ label }}</span>

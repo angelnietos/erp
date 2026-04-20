@@ -34,7 +34,7 @@ export type TabsVariant =
           (click)="onTabSelect(tab.id)"
         >
           @if (tab.icon) {
-            <lucide-icon [name]="tab.icon" class="tab-icon"></lucide-icon>
+            <lucide-icon [name]="tab.icon" class="tab-icon" aria-hidden="true"></lucide-icon>
           }
           <span class="tab-label">{{ tab.label }}</span>
           @if (tab.badge !== undefined) {

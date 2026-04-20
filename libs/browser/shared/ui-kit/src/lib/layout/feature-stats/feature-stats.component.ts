@@ -16,7 +16,7 @@ import { LucideAngularModule } from 'lucide-angular';
           [attr.aria-expanded]="!isCollapsed()"
           (click)="toggleCollapse()"
         >
-          <lucide-icon [name]="isCollapsed() ? 'chevron-down' : 'chevron-up'" size="14"></lucide-icon>
+          <lucide-icon [name]="isCollapsed() ? 'chevron-down' : 'chevron-up'" size="14" aria-hidden="true"></lucide-icon>
           <span>{{ isCollapsed() ? 'Mostrar métricas' : 'Ocultar métricas' }}</span>
         </button>
         <div class="header-line"></div>

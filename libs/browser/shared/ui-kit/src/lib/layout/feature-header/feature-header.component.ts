@@ -62,7 +62,7 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
         <div class="header-content">
           <div class="title-section">
             <div class="icon-box" [style.background]="iconBackground">
-              <lucide-icon [name]="icon" size="32"></lucide-icon>
+              <lucide-icon [name]="icon" size="32" aria-hidden="true"></lucide-icon>
             </div>
             <div class="text-box">
               <h1 class="main-title">{{ title }}</h1>

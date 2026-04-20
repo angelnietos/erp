@@ -292,12 +292,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                     (click)="downloadDocument(doc)"
                     class="inline-flex items-center justify-center px-4 py-2 bg-success text-bg-secondary rounded-lg hover:shadow-lg transition-all duration-200 shadow-md"
                     title="Descargar PDF"
+                    aria-label="Descargar PDF"
                   >
                     <svg
                       class="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         stroke-linecap="round"
@@ -495,10 +497,11 @@ export class DocumentListComponent implements OnInit {
       const blob = new Blob([u8], { type: 'application/pdf' });
       const a = document.createElement('a');
       const safe = (data.title || 'documento').replace(/[/\\?%*:|"<>]/g, '-');
-      a.href = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      a.href = url;
       a.download = `${safe}.pdf`;
       a.click();
-      URL.revokeObjectURL(a.href);
+      setTimeout(() => URL.revokeObjectURL(url), 0);
     } catch (e) {
       console.error(e);
     }

@@ -34,7 +34,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
               (click)="itemClick.emit(item)"
             >
               <span class="nav-icon">
-                <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                <lucide-icon [name]="item.icon" size="18" aria-hidden="true"></lucide-icon>
               </span>
               <span class="nav-label">{{ item.label }}</span>
               @if (item.badge) {
@@ -53,7 +53,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
                       (click)="itemClick.emit(child)"
                     >
                       <span class="nav-icon">
-                        <lucide-icon [name]="child.icon" size="18"></lucide-icon>
+                        <lucide-icon [name]="child.icon" size="18" aria-hidden="true"></lucide-icon>
                       </span>
                       <span class="nav-label">{{ child.label }}</span>
                     </a>

@@ -305,14 +305,32 @@ import { BlockEngineService } from '../services/block-engine.service';
     </div>
 
     <div class="minimal-toolbar" [class.visible]="!assistant.zenMode()">
-      <button class="toolbar-btn" title="Deshacer" (click)="blockEngine.undo()">
-        ↩️
+      <button
+        type="button"
+        class="toolbar-btn"
+        title="Deshacer"
+        aria-label="Deshacer último cambio"
+        (click)="blockEngine.undo()"
+      >
+        <span aria-hidden="true">↩️</span>
       </button>
-      <button class="toolbar-btn" title="Rehacer" (click)="blockEngine.redo()">
-        ↪️
+      <button
+        type="button"
+        class="toolbar-btn"
+        title="Rehacer"
+        aria-label="Rehacer cambio deshecho"
+        (click)="blockEngine.redo()"
+      >
+        <span aria-hidden="true">↪️</span>
       </button>
-      <button class="toolbar-btn" title="Zen Mode" (click)="toggleZen()">
-        🧘
+      <button
+        type="button"
+        class="toolbar-btn"
+        title="Zen Mode"
+        aria-label="Activar o salir del modo Zen"
+        (click)="toggleZen()"
+      >
+        <span aria-hidden="true">🧘</span>
       </button>
     </div>
 

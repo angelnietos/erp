@@ -84,7 +84,7 @@ interface QuickAction {
       </div>
     } @else if (dashboardLoadError() && !summary()) {
       <div class="dashboard-error-state animate-fade-in">
-        <lucide-icon name="cloud-off" size="40" class="dashboard-error-state__icon"></lucide-icon>
+        <lucide-icon name="cloud-off" size="40" class="dashboard-error-state__icon" aria-hidden="true"></lucide-icon>
         <p class="dashboard-error-state__msg">{{ dashboardLoadError() }}</p>
         <ui-button variant="solid" (clicked)="refreshData()">Reintentar</ui-button>
       </div>
@@ -132,7 +132,7 @@ interface QuickAction {
         <div class="analytics-col">
           <ui-card class="glass-panel">
             <div class="panel-header">
-               <lucide-icon name="bar-chart-3" size="18"></lucide-icon>
+               <lucide-icon name="bar-chart-3" size="18" aria-hidden="true"></lucide-icon>
                <h3>Rendimiento Comercial</h3>
             </div>
             
@@ -141,7 +141,7 @@ interface QuickAction {
                 charts().revenueByClient.length === 0 && charts().revenueByProject.length === 0
               ) {
                 <div class="panel-empty">
-                  <lucide-icon name="bar-chart-2" size="28"></lucide-icon>
+                  <lucide-icon name="bar-chart-2" size="28" aria-hidden="true"></lucide-icon>
                   <p>Aún no hay datos de ingresos para mostrar gráficos.</p>
                   <span class="panel-empty__hint">Cuando haya facturación por cliente o proyecto, aparecerá aquí.</span>
                 </div>
@@ -181,7 +181,7 @@ interface QuickAction {
           <!-- Recent Activity -->
           <ui-card class="glass-panel">
             <div class="panel-header">
-               <lucide-icon name="activity" size="18"></lucide-icon>
+               <lucide-icon name="activity" size="18" aria-hidden="true"></lucide-icon>
                <h3>Flujo de Actividad</h3>
                <ui-button variant="ghost" size="sm" (clicked)="goToAuditTrail()">HISTORIAL</ui-button>
             </div>
@@ -189,7 +189,7 @@ interface QuickAction {
             <div class="activity-feed">
               @if (recentActivities().length === 0) {
                 <div class="panel-empty panel-empty--compact">
-                  <lucide-icon name="inbox" size="24"></lucide-icon>
+                  <lucide-icon name="inbox" size="24" aria-hidden="true"></lucide-icon>
                   <p>No hay actividad reciente.</p>
                 </div>
               }
@@ -204,7 +204,7 @@ interface QuickAction {
                   (keydown.space)="$event.preventDefault(); goToActivity(activity.type)"
                 >
                   <div class="item-icon" [attr.data-type]="activity.type">
-                     <lucide-icon name="{{ getActivityIconName(activity.type) }}" size="14"></lucide-icon>
+                     <lucide-icon name="{{ getActivityIconName(activity.type) }}" size="14" aria-hidden="true"></lucide-icon>
                   </div>
                   <div class="item-info">
                      <div class="item-top">
@@ -224,7 +224,7 @@ interface QuickAction {
           <!-- Quick Actions -->
           <ui-card class="actions-panel glass-panel">
             <div class="panel-header">
-               <lucide-icon name="zap" size="18"></lucide-icon>
+               <lucide-icon name="zap" size="18" aria-hidden="true"></lucide-icon>
                <h3>Acciones Flash</h3>
             </div>
             <div class="actions-list">
@@ -236,7 +236,7 @@ interface QuickAction {
                   (clicked)="goToRoute($event, action.route)"
                 >
                   <div class="action-btn-content">
-                     <lucide-icon [name]="action.icon" size="18"></lucide-icon>
+                     <lucide-icon [name]="action.icon" size="18" aria-hidden="true"></lucide-icon>
                      <div class="action-btn-text">
                         <span class="a-title">{{ action.title }}</span>
                         <span class="a-desc">{{ action.description }}</span>
