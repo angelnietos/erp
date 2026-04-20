@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, isDevMode } from '@angular/core';
 import { Router } from '@angular/router';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
@@ -108,16 +108,30 @@ export const AuthStore = signalStore(
         pipe(
           switchMap(() => authService.refreshSession().pipe(
             catchError((err) => {
-              console.warn('[AuthStore] refreshSession failed:', err?.status, err?.message);
+              if (isDevMode()) {
+                console.warn(
+                  '[AuthStore] refreshSession failed:',
+                  err?.status,
+                  err?.message,
+                );
+              }
               return of(null);
             })
           )),
           tap((response: AuthResponse | null) => {
             if (!response) return;
-            
-            console.log('[AuthStore] refreshSession response user:', response.user.email);
-            console.log('[AuthStore] refreshSession response permissions:', response.user.permissions);
-            
+
+            if (isDevMode()) {
+              console.log(
+                '[AuthStore] refreshSession response user:',
+                response.user.email,
+              );
+              console.log(
+                '[AuthStore] refreshSession response permissions:',
+                response.user.permissions,
+              );
+            }
+
             authService.setToken(response.accessToken);
             if (response.tenantId) {
               authService.setTenantId(response.tenantId);

@@ -1,4 +1,4 @@
-import { computed } from '@angular/core';
+import { computed, isDevMode } from '@angular/core';
 import { signalStore, withState, withMethods, patchState, withComputed } from '@ngrx/signals';
 // import { pipe, tap, switchMap, catchError, of } from 'rxjs';
 
@@ -32,12 +32,28 @@ export const GlobalAuthStore = signalStore(
       const user = store.user();
       if (!user) return false;
       const has = user.permissions?.includes('*') || user.permissions?.includes(permission);
-      if (has) console.log(`[GlobalAuthStore] Permission GRANTED for '${permission}' (User has: ${user.permissions.join(',')})`);
-      else console.warn(`[GlobalAuthStore] Permission DENIED for '${permission}' (User has: ${user.permissions.join(',')})`);
+      if (isDevMode()) {
+        if (has) {
+          console.log(
+            `[GlobalAuthStore] Permission GRANTED for '${permission}' (User has: ${user.permissions.join(',')})`,
+          );
+        } else {
+          console.warn(
+            `[GlobalAuthStore] Permission DENIED for '${permission}' (User has: ${user.permissions.join(',')})`,
+          );
+        }
+      }
       return has;
     },
     setUser(user: AuthState['user']) {
-      console.log('[GlobalAuthStore] Setting user:', user?.email, 'with permissions:', user?.permissions);
+      if (isDevMode()) {
+        console.log(
+          '[GlobalAuthStore] Setting user:',
+          user?.email,
+          'with permissions:',
+          user?.permissions,
+        );
+      }
       patchState(store, { user });
     },
     logout() {

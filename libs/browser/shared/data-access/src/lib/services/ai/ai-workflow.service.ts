@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, isDevMode } from '@angular/core';
 import { Router } from '@angular/router';
 import { ThemeService, Theme } from '../theme.service';
 import { MasterFilterService } from '../master-filter.service';
@@ -45,7 +45,9 @@ export class AIWorkflowService {
 
       for (const action of actions) {
         const normalizedAction = this.normalizeAction(action);
-        console.log('🤖 Bot executing workflow step:', normalizedAction);
+        if (isDevMode()) {
+          console.log('🤖 Bot executing workflow step:', normalizedAction);
+        }
         this.orchestrationBus.addLog(`⚙️ Ejecutando: ${normalizedAction.type}`);
         await this.dispatchAction(normalizedAction);
       }

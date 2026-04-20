@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, isDevMode, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +12,9 @@ export class AIFormBridgeService {
    * For Reactive Forms (FormGroup)
    */
   registerForm(form: FormGroup) {
-    console.log('📝 AI Form Bridge: Form registered');
+    if (isDevMode()) {
+      console.log('📝 AI Form Bridge: Form registered');
+    }
     this._activeForm.set(form);
     this._activeDataProxy.set(null);
   }
@@ -21,7 +23,9 @@ export class AIFormBridgeService {
    * For Template Forms or simple objects (ngModel)
    */
   registerDataProxy(data: Record<string, unknown> | object) {
-    console.log('📝 AI Form Bridge: Data Proxy registered');
+    if (isDevMode()) {
+      console.log('📝 AI Form Bridge: Data Proxy registered');
+    }
     this._activeDataProxy.set(data as Record<string, unknown>);
     this._activeForm.set(null);
   }
@@ -50,7 +54,9 @@ export class AIFormBridgeService {
         form.patchValue(data as never);
         form.markAsDirty();
         form.updateValueAndValidity();
-        console.log('✅ AI Form Bridge: Form filled (Reactive)', data);
+        if (isDevMode()) {
+          console.log('✅ AI Form Bridge: Form filled (Reactive)', data);
+        }
         return true;
       } catch (e) { console.error(e); return false; }
     }
@@ -60,12 +66,16 @@ export class AIFormBridgeService {
         Object.keys(data).forEach(key => {
           proxy[key] = data[key];
         });
-        console.log('✅ AI Form Bridge: Data Proxy filled (Template)', data);
+        if (isDevMode()) {
+          console.log('✅ AI Form Bridge: Data Proxy filled (Template)', data);
+        }
         return true;
       } catch (e) { console.error(e); return false; }
     }
 
-    console.warn('⚠️ AI Form Bridge: No active form or proxy found.');
+    if (isDevMode()) {
+      console.warn('⚠️ AI Form Bridge: No active form or proxy found.');
+    }
     return false;
   }
 
