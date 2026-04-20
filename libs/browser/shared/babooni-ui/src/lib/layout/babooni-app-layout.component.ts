@@ -43,6 +43,7 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
   template: `
     <josanz-toast-stack />
     <div class="bb-shell">
+      <a href="#erp-main-content" class="erp-skip-link">Saltar al contenido principal</a>
       <lib-babooni-sidebar />
 
       <div class="bb-shell__main">
@@ -174,7 +175,7 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
           <josanz-command-palette (closePalette)="closeCommandPalette()" />
         }
 
-        <main class="bb-scroll">
+        <main id="erp-main-content" class="bb-scroll" tabindex="-1">
           <div class="bb-content">
             <router-outlet />
           </div>

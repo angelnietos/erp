@@ -1,31 +1,10 @@
 import { Injectable, signal, effect } from '@angular/core';
-
-/** WCAG: luminancia relativa sRGB → texto sobre `brand` legible. */
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.trim());
-  if (!m) return null;
-  return {
-    r: parseInt(m[1], 16),
-    g: parseInt(m[2], 16),
-    b: parseInt(m[3], 16),
-  };
-}
-
-function relativeLuminance(r: number, g: number, b: number): number {
-  const lin = (c: number) => {
-    c /= 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  };
-  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-}
-
-/** Texto oscuro o claro sobre botones / fondos `--brand`. */
-function pickTextOnBrand(brandHex: string): string {
-  const rgb = hexToRgb(brandHex);
-  if (!rgb) return '#ffffff';
-  const L = relativeLuminance(rgb.r, rgb.g, rgb.b);
-  return L > 0.42 ? '#0f172a' : '#ffffff';
-}
+import {
+  FALLBACK_BRAND_HEX,
+  normalizeCssHexColor,
+  pickTextOnBrand,
+  ringFocusFromBrand,
+} from '@josanz-erp/shared-data-access';
 
 export interface Theme {
   id: string;
@@ -75,6 +54,9 @@ export class ThemeManagerService {
 
     effect(() => {
       const theme = this.currentTheme();
+      const brandHex =
+        normalizeCssHexColor(theme.colors.brand) ?? FALLBACK_BRAND_HEX;
+
       document.documentElement.setAttribute('data-theme', theme.id);
       document.documentElement.setAttribute('data-ui-variant', theme.uiVariant);
       document.documentElement.setAttribute(
@@ -83,11 +65,8 @@ export class ThemeManagerService {
       );
 
       // Aplicar variables CSS globales
-      document.documentElement.style.setProperty('--brand', theme.colors.brand);
-      document.documentElement.style.setProperty(
-        '--primary',
-        theme.colors.brand,
-      );
+      document.documentElement.style.setProperty('--brand', brandHex);
+      document.documentElement.style.setProperty('--primary', brandHex);
       document.documentElement.style.setProperty(
         '--bg-primary',
         theme.colors.bgPrimary,
@@ -121,36 +100,36 @@ export class ThemeManagerService {
         theme.colors.border,
       );
 
-      // Aplicar variables derivadas dinámicas
+      // Aplicar variables derivadas dinámicas (hex de marca canonizado para `color-mix`)
       document.documentElement.style.setProperty(
         '--brand-ambient',
         theme.category === 'light'
-          ? `color-mix(in srgb, ${theme.colors.brand} 4%, transparent)`
-          : `color-mix(in srgb, ${theme.colors.brand} 8%, transparent)`,
+          ? `color-mix(in srgb, ${brandHex} 4%, transparent)`
+          : `color-mix(in srgb, ${brandHex} 8%, transparent)`,
       );
       document.documentElement.style.setProperty(
         '--brand-ambient-strong',
         theme.category === 'light'
-          ? `color-mix(in srgb, ${theme.colors.brand} 8%, transparent)`
-          : `color-mix(in srgb, ${theme.colors.brand} 16%, transparent)`,
+          ? `color-mix(in srgb, ${brandHex} 8%, transparent)`
+          : `color-mix(in srgb, ${brandHex} 16%, transparent)`,
       );
       document.documentElement.style.setProperty(
         '--brand-surface',
         theme.category === 'light'
-          ? `color-mix(in srgb, ${theme.colors.brand} 8%, ${theme.colors.bgSecondary})`
-          : `color-mix(in srgb, ${theme.colors.brand} 12%, transparent)`,
+          ? `color-mix(in srgb, ${brandHex} 8%, ${theme.colors.bgSecondary})`
+          : `color-mix(in srgb, ${brandHex} 12%, transparent)`,
       );
       document.documentElement.style.setProperty(
         '--brand-border-soft',
-        `color-mix(in srgb, ${theme.colors.brand} 25%, transparent)`,
+        `color-mix(in srgb, ${brandHex} 25%, transparent)`,
       );
       document.documentElement.style.setProperty(
         '--brand-glow',
-        `color-mix(in srgb, ${theme.colors.brand} 40%, transparent)`,
+        `color-mix(in srgb, ${brandHex} 40%, transparent)`,
       );
       document.documentElement.style.setProperty(
         '--brand-muted',
-        `color-mix(in srgb, ${theme.colors.brand} 65%, #000)`,
+        `color-mix(in srgb, ${brandHex} 65%, #000)`,
       );
 
       // Aplicar fondo al body inmediatamente
@@ -158,7 +137,8 @@ export class ThemeManagerService {
 
       Object.entries(theme.colors).forEach(([key, value]) => {
         const cssVar = `--${key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
-        document.documentElement.style.setProperty(cssVar, value as string);
+        const v = key === 'brand' ? brandHex : (value as string);
+        document.documentElement.style.setProperty(cssVar, v);
       });
 
       const root = document.documentElement;
@@ -167,13 +147,8 @@ export class ThemeManagerService {
         '--text-muted',
         isLight ? '#64748b' : 'rgba(255, 255, 255, 0.66)',
       );
-      root.style.setProperty('--text-on-brand', pickTextOnBrand(theme.colors.brand));
-      root.style.setProperty(
-        '--ring-focus',
-        isLight
-          ? `color-mix(in srgb, ${theme.colors.brand} 55%, #0f172a)`
-          : `color-mix(in srgb, ${theme.colors.brand} 70%, #ffffff)`,
-      );
+      root.style.setProperty('--text-on-brand', pickTextOnBrand(brandHex));
+      root.style.setProperty('--ring-focus', ringFocusFromBrand(brandHex, isLight));
     });
   }
 

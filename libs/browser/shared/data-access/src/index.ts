@@ -4,6 +4,18 @@ export {
 } from './lib/http/http-not-found';
 export { GlobalAuthStore } from './lib/store/auth.store';
 export { rbacAllows } from './lib/utils/rbac';
+export {
+  accessibleMutedColor,
+  FALLBACK_BRAND_HEX,
+  hexToRgbTripletString,
+  isLightBackgroundFromHex,
+  mixRgbHex,
+  normalizeCssHexColor,
+  parseHexColor,
+  pickTextOnBrand,
+  relativeLuminance,
+  ringFocusFromBrand,
+} from './lib/utils/theme-color';
 export * from './lib/services/theme.service';
 export * from './lib/services/technician-api.service';
 export * from './lib/services/time-off-api.service';

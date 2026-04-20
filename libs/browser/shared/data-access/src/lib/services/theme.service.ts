@@ -1,4 +1,14 @@
 import { Injectable, signal, effect, computed } from '@angular/core';
+import {
+  accessibleMutedColor,
+  hexToRgbTripletString,
+  isLightBackgroundFromHex,
+  mixRgbHex,
+  normalizeCssHexColor,
+  parseHexColor,
+  pickTextOnBrand,
+  ringFocusFromBrand,
+} from '../utils/theme-color';
 
 /** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
 export type Theme =
@@ -75,80 +85,12 @@ export type Theme =
   | 'babooni';
 
 function hexToRgbTriplet(hex: string): string {
-  const normalized = hex.replace('#', '').trim();
-  if (normalized.length !== 6) return '79, 70, 229';
-  const n = parseInt(normalized, 16);
-  if (Number.isNaN(n)) return '79, 70, 229';
-  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+  return hexToRgbTripletString(hex);
 }
 
 function hexToRgba(hex: string, alpha: number): string {
   const t = hexToRgbTriplet(hex);
   return `rgba(${t}, ${alpha})`;
-}
-
-function parseHexColor(hex: string): { r: number; g: number; b: number } | null {
-  const s = hex.replace('#', '').trim();
-  if (s.length === 6 && /^[0-9a-fA-F]+$/.test(s)) {
-    const n = parseInt(s, 16);
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-  }
-  if (s.length === 3 && /^[0-9a-fA-F]+$/.test(s)) {
-    return {
-      r: parseInt(s[0] + s[0], 16),
-      g: parseInt(s[1] + s[1], 16),
-      b: parseInt(s[2] + s[2], 16),
-    };
-  }
-  return null;
-}
-
-function mixRgbHex(
-  a: { r: number; g: number; b: number },
-  b: { r: number; g: number; b: number },
-  t: number,
-): string {
-  const u = Math.min(1, Math.max(0, t));
-  const r = Math.round(a.r * (1 - u) + b.r * u);
-  const g = Math.round(a.g * (1 - u) + b.g * u);
-  const bl = Math.round(a.b * (1 - u) + b.b * u);
-  const n = (r << 16) | (g << 8) | bl;
-  return `#${n.toString(16).padStart(6, '0')}`;
-}
-
-/** Acerca el texto secundario al color de cuerpo para mejorar legibilidad (WCAG). */
-function accessibleMutedColor(
-  mutedHex: string,
-  textHex: string,
-  isLight: boolean,
-): string {
-  const m = parseHexColor(mutedHex);
-  const t = parseHexColor(textHex);
-  if (!m || !t) return mutedHex;
-  const pull = isLight ? 0.14 : 0.32;
-  return mixRgbHex(m, t, pull);
-}
-
-function relativeLuminance(r: number, g: number, b: number): number {
-  const lin = (c: number) => {
-    c /= 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  };
-  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-}
-
-/** Texto oscuro o claro sobre botones / superficies `--brand` (alineado con document-generator). */
-function pickTextOnBrand(brandHex: string): string {
-  const rgb = parseHexColor(brandHex);
-  if (!rgb) return '#ffffff';
-  const L = relativeLuminance(rgb.r, rgb.g, rgb.b);
-  return L > 0.42 ? '#0f172a' : '#ffffff';
-}
-
-function ringFocusFromBrand(brandHex: string, isLight: boolean): string {
-  return isLight
-    ? `color-mix(in srgb, ${brandHex} 55%, #0f172a)`
-    : `color-mix(in srgb, ${brandHex} 70%, #ffffff)`;
 }
 
 export interface ThemeConfig {
@@ -1790,33 +1732,40 @@ export class ThemeService {
    * Útil para personalización de perfil o temas personalizados.
    */
   updatePrimaryColor(hex: string) {
+    const normalized = normalizeCssHexColor(hex);
+    if (!normalized) {
+      return;
+    }
     const root = document.documentElement;
-    root.style.setProperty('--brand', hex);
-    root.style.setProperty('--brand-rgb', hexToRgbTriplet(hex));
-    root.style.setProperty('--primary', hex);
-    root.style.setProperty('--primary-rgb', hexToRgbTriplet(hex));
-    root.style.setProperty('--brand-glow', `rgba(${hexToRgbTriplet(hex)}, 0.5)`);
-    root.style.setProperty('--brand-ambient', `rgba(${hexToRgbTriplet(hex)}, 0.12)`);
-    root.style.setProperty('--brand-ambient-strong', `rgba(${hexToRgbTriplet(hex)}, 0.2)`);
-    
+    root.style.setProperty('--brand', normalized);
+    root.style.setProperty('--brand-rgb', hexToRgbTriplet(normalized));
+    root.style.setProperty('--primary', normalized);
+    root.style.setProperty('--primary-rgb', hexToRgbTriplet(normalized));
+    root.style.setProperty('--brand-glow', `rgba(${hexToRgbTriplet(normalized)}, 0.5)`);
+    root.style.setProperty('--brand-ambient', `rgba(${hexToRgbTriplet(normalized)}, 0.12)`);
+    root.style.setProperty(
+      '--brand-ambient-strong',
+      `rgba(${hexToRgbTriplet(normalized)}, 0.2)`,
+    );
+
     // Si la variante es glass, actualizamos también el borde vibrante
     if (this.currentVariant() === 'glass') {
-      root.style.setProperty('--border-vibrant', `rgba(${hexToRgbTriplet(hex)}, 0.3)`);
-      root.style.setProperty('--card-border', `rgba(${hexToRgbTriplet(hex)}, 0.3)`);
-      root.style.setProperty('--btn-shadow', `0 4px 20px rgba(${hexToRgbTriplet(hex)}, 0.3)`);
+      root.style.setProperty('--border-vibrant', `rgba(${hexToRgbTriplet(normalized)}, 0.3)`);
+      root.style.setProperty('--card-border', `rgba(${hexToRgbTriplet(normalized)}, 0.3)`);
+      root.style.setProperty(
+        '--btn-shadow',
+        `0 4px 20px rgba(${hexToRgbTriplet(normalized)}, 0.3)`,
+      );
     }
 
     const themeKey = this.currentTheme();
     const cfg = THEMES[themeKey];
-    const bgTriplet = hexToRgbTriplet(cfg.background).split(',').map(Number);
-    const brightness =
-      (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
-    const isLight = brightness > 180;
-    root.style.setProperty('--text-on-brand', pickTextOnBrand(hex));
-    root.style.setProperty('--ring-focus', ringFocusFromBrand(hex, isLight));
+    const isLight = isLightBackgroundFromHex(cfg.background);
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(normalized));
+    root.style.setProperty('--ring-focus', ringFocusFromBrand(normalized, isLight));
 
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('custom_primary_color', hex);
+      localStorage.setItem('custom_primary_color', normalized);
     }
   }
 
@@ -1838,10 +1787,7 @@ export class ThemeService {
     root.style.setProperty('--theme-background', config.background);
     root.style.setProperty('--theme-surface', config.surface);
 
-    const bgTriplet = hexToRgbTriplet(config.background).split(',').map(Number);
-    const brightness =
-      (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
-    const isLight = brightness > 180;
+    const isLight = isLightBackgroundFromHex(config.background);
     const mutedResolved = accessibleMutedColor(
       config.textMuted,
       config.text,
@@ -1950,10 +1896,7 @@ export class ThemeService {
       info: baseConfig.info,
     };
 
-    const bgTriplet = hexToRgbTriplet(merged.background).split(',').map(Number);
-    const brightness =
-      (bgTriplet[0] * 299 + bgTriplet[1] * 587 + bgTriplet[2] * 114) / 1000;
-    const isLight = brightness > 180;
+    const isLight = isLightBackgroundFromHex(merged.background);
     const mutedResolved = accessibleMutedColor(
       merged.textMuted,
       merged.text,

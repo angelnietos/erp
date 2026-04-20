@@ -5,11 +5,11 @@
  */
 
 html[data-erp-tenant='babooni'] {
-  --babooni-ink: #000000;
-  --babooni-ink-soft: #080808;
+  --babooni-ink: var(--text-primary, #000000);
+  --babooni-ink-soft: var(--text-primary, #080808);
   --babooni-border: #d1d1d1;
   --babooni-surface: #ffffff;
-  --babooni-muted: #747474;
+  --babooni-muted: var(--text-muted, #747474);
   --babooni-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.05);
   /**
    * ThemeService inyecta radios grandes (p. ej. variante neumorphic 40px) en estilo inline;
@@ -287,24 +287,38 @@ html[data-erp-tenant='babooni'] .loader-container {
 }
 
 /* ── Shell Babooni: contenido bajo topbar + toques de marca en topbar ── */
-html[data-erp-tenant='babooni'] babooni-app-layout .bb-content {
+html[data-erp-tenant='babooni'] lib-babooni-app-layout .bb-content {
   max-width: min(1240px, 100%);
   padding: 16px clamp(0.75rem, 2vw, 1.25rem) 120px;
   box-sizing: border-box;
 }
 
-html[data-erp-tenant='babooni'] babooni-app-layout .bb-search__box:hover {
+html[data-erp-tenant='babooni'] lib-babooni-app-layout .bb-search__box:hover {
   border-color: color-mix(in srgb, var(--brand, #2563eb) 38%, var(--bb-border, #d1d1d1));
 }
 
-html[data-erp-tenant='babooni'] babooni-app-layout .bb-user-menu__row:hover {
+html[data-erp-tenant='babooni'] lib-babooni-app-layout .bb-user-menu__row:hover {
   background: color-mix(in srgb, var(--brand, var(--bio-primary, #2563eb)) 8%, var(--bio-white, #ffffff));
   color: var(--text-primary, var(--bio-gray-900));
 }
 
+/**
+ * Lucide renderiza el SVG dentro del componente; sin reglas globales el trazo no
+ * hereda `color` y puede quedar negro fijo. Forzar currentColor en el shell Babooni.
+ */
+html[data-erp-tenant='babooni'] lib-babooni-sidebar lucide-icon,
+html[data-erp-tenant='babooni'] lib-babooni-app-layout lucide-icon {
+  color: inherit;
+}
+
+html[data-erp-tenant='babooni'] lib-babooni-sidebar lucide-icon svg,
+html[data-erp-tenant='babooni'] lib-babooni-app-layout lucide-icon svg {
+  stroke: currentColor;
+}
+
 /* Focus visible coherente con el resto del ERP (teclado y lectores) */
-html[data-erp-tenant='babooni'] babooni-app-layout a:focus-visible,
-html[data-erp-tenant='babooni'] babooni-app-layout button:focus-visible {
+html[data-erp-tenant='babooni'] lib-babooni-app-layout a:focus-visible,
+html[data-erp-tenant='babooni'] lib-babooni-app-layout button:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--brand, #2563eb) 85%, #000);
   outline-offset: 2px;
 }

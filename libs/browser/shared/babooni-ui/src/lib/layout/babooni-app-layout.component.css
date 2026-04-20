@@ -287,13 +287,21 @@
   width: 40px;
   height: 40px;
   border-radius: var(--bb-radius-md);
-  background: var(--bio-button-primary);
-  color: var(--bio-white);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--brand, var(--bio-primary)) 88%, #0f172a) 0%,
+    color-mix(in srgb, var(--brand, var(--bio-primary)) 58%, #1e293b) 100%
+  );
+  color: var(--text-on-brand, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--bio-gray-800);
-  box-shadow: 0 2px 8px rgba(8, 8, 8, 0.12);
+  border: 1px solid color-mix(in srgb, var(--brand, var(--bio-primary)) 42%, var(--bb-border));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--brand, var(--bio-primary)) 22%, transparent);
+}
+
+.bb-avatar lucide-icon {
+  color: inherit;
 }
 
 .bb-user-menu {

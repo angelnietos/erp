@@ -45,6 +45,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
     <josanz-crm-background></josanz-crm-background>
     <josanz-toast-stack />
     <div class="app-layout" style="position: relative; z-index: 1;">
+      <a href="#erp-main-content" class="erp-skip-link">Saltar al contenido principal</a>
       <!-- Sidebar -->
       <josanz-sidebar (logoutClick)="logoutClick.emit()"></josanz-sidebar>
 
@@ -211,7 +212,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         }
 
         <!-- Dynamic Content -->
-        <main class="content-scroll">
+        <main id="erp-main-content" class="content-scroll" tabindex="-1">
           <div class="content">
             <router-outlet></router-outlet>
           </div>
