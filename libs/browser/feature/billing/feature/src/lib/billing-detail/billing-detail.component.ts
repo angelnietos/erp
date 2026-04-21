@@ -448,7 +448,7 @@ export class BillingDetailComponent implements OnInit {
     const inv = this.invoice();
     const tenantId = getStoredTenantId();
     if (!inv || !tenantId) return;
-    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId).subscribe({
+    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId, inv.invoiceNumber, inv.total).subscribe({
       next: (res) => {
         if (!res.success) {
           this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });

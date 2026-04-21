@@ -19,8 +19,8 @@ export class VerifactuService {
 	}
 
 	// Submit directly (bypasses queue, for immediate processing)
-	submitInvoiceDirect(invoiceId: string, tenantId: string): Observable<SubmitToVerifactuResponse> {
-		return this.api.submitInvoice(invoiceId, tenantId);
+	submitInvoiceDirect(invoiceId: string, tenantId: string, invoiceNumber?: string, total?: number): Observable<SubmitToVerifactuResponse> {
+		return this.api.submitInvoice(invoiceId, tenantId, invoiceNumber, total);
 	}
 
 	// Load all records for a tenant

@@ -32,10 +32,12 @@ export class VerifactuApi {
 	}
 
 	// Submit invoice directly to VeriFactu
-	submitInvoice(invoiceId: string, tenantId: string): Observable<SubmitToVerifactuResponse> {
+	submitInvoice(invoiceId: string, tenantId: string, invoiceNumber?: string, total?: number): Observable<SubmitToVerifactuResponse> {
 		return this.http.post<SubmitToVerifactuResponse>(`${this.baseUrl}/verifactu/submit`, {
 			invoiceId,
 			tenantId,
+			invoiceNumber,
+			total
 		});
 	}
 
