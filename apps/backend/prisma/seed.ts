@@ -727,7 +727,7 @@ async function main() {
       clientId: clients[0].id,
       startDate: new Date('2026-04-10'),
       endDate: new Date('2026-04-15'),
-      status: 'APPROVED',
+      status: 'ACCEPTED',
       total: 2300,
       items: {
         create: [
@@ -754,7 +754,7 @@ async function main() {
       clientId: clients[1].id,
       startDate: new Date('2026-04-20'),
       endDate: new Date('2026-04-22'),
-      status: 'APPROVED',
+      status: 'ACCEPTED',
       total: 1200,
       items: {
         create: [

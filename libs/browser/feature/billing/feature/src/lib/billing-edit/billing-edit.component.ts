@@ -295,7 +295,7 @@ export class BillingEditComponent implements OnInit {
 
   budgetSelectOptions = computed(() => {
     const eligible = this.facade.budgets().filter(
-      (b: Budget) => b.status === 'ACCEPTED' || b.status === 'SENT',
+      (b: Budget) => b.status === 'ACCEPTED' || b.status === 'APPROVED' || b.status === 'SENT',
     );
     return eligible.map((b: Budget) => ({
       label: `#${b.id.slice(0, 8).toUpperCase()} · ${(b.total || 0).toFixed(2)} € · ${b.status}`,
