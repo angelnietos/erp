@@ -16,6 +16,8 @@ export interface Invoice {
   issueDate: string;
   dueDate: string;
   verifactuStatus?: 'pending' | 'sent' | 'error';
+  aeatReference?: string;
+  qrCode?: string;
   items?: InvoiceItem[];
   notes?: string;
 }

@@ -348,6 +348,18 @@ export class BillingDetailComponent implements OnInit {
       next: (inv) => {
         if (inv) {
           this.invoice.set(inv);
+          // Consultar estado real en Verifactu (CRM) para sincronizar UI
+          this.verifactuApi.getInvoiceDetail(id).subscribe({
+             next: (vf) => {
+                this.invoice.update(current => current ? { 
+                  ...current, 
+                  verifactuStatus: vf.verifactuStatus as 'sent' | 'error' | 'pending',
+                  aeatReference: vf.aeatReference,
+                  qrCode: vf.qrCode
+                } : current);
+             },
+             error: () => { /* Ignorar si no hay registro aún */ }
+          });
         } else if (!fromList) {
           this.setMockInvoice(id);
         }
@@ -452,6 +464,9 @@ export class BillingDetailComponent implements OnInit {
       next: (res) => {
         if (!res.success) {
           this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
+        } else {
+          // Si el envío a la cola fue OK, esperamos un poco y recargamos para ver el resultado del worker
+          setTimeout(() => this.loadInvoice(inv.id), 2000);
         }
         this.loadInvoice(inv.id);
       },
