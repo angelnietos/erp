@@ -22,15 +22,15 @@ graph TD
         E & F --> G["⚙️ Orchestrator <br/> (Azure Functions)"]
         G --> H["🧹 Normalization Layer <br/> (Deskew, Cleaning)"]
         H --> I["🤖 Routing Agent <br/> (GPT-4o mini)"]
-        
+
         I -->|Native PDF| J1["📄 PDF Parser"]
         I -->|Structured Image| J2["🔍 Azure Document Intelligence"]
         I -->|Unstructured/Handwritten| J3["👁️ GPT-4o Vision"]
-        
+
         J1 & J2 & J3 --> K["📝 Raw Text Buffer"]
         K --> L["🏷️ Document Classifier <br/> (GPT-4o mini)"]
         L --> M{Type?}
-        
+
         M --> M1["🛠️ ITV Extractor"]
         M --> M2["🛡️ Insurance Extractor"]
         M --> M3["👷 PRL Extractor"]
@@ -52,11 +52,11 @@ graph TD
         R -->|GREEN| S["✅ Approved"]
         R -->|AMBER| T["🙋 Human Review <br/> (HITL Interface)"]
         R -->|RED| U["🚫 Blocked"]
-        
+
         T --> V["💎 Gold Dataset"]
         V -->|Feedback Loop| I
         V -->|Refinement| L
-        
+
         S & T & U --> Y[("🗄️ Cosmos DB <br/> Audit Log")]
     end
 
@@ -71,40 +71,44 @@ graph TD
 ## 🛠️ Desglose Técnico de Fases
 
 ### 1. Ingesta y Gestión de Tráfico (Entrypoint)
+
 El sistema utiliza una arquitectura de **Zero Trust** y **Asynchronous Processing**.
 
-*   **Azure API Management + Azure AD**: No solo protege contra ataques, sino que garantiza que cada token consumido de IA sea imputable a un centro de costes o cliente específico.
-*   **FastAPI Backend**: Actúa como un *Stateless Gateway*. Su única responsabilidad es validar el schema inicial, subir el archivo a **Azure Blob Storage** y emitir un `document_id`.
-*   **Estrategia de Colas Híbrida**: 
-    > [!TIP]
-    > Usamos **Redis** para el "Fast Path" (usuarios en vivo esperando) y **Service Bus** para el "Durable Path" (procesamiento masivo de histórico), equilibrando velocidad y resiliencia.
+- **Azure API Management + Azure AD**: No solo protege contra ataques, sino que garantiza que cada token consumido de IA sea imputable a un centro de costes o cliente específico.
+- **FastAPI Backend**: Actúa como un _Stateless Gateway_. Su única responsabilidad es validar el schema inicial, subir el archivo a **Azure Blob Storage** y emitir un `document_id`.
+- **Estrategia de Colas Híbrida**:
+  > [!TIP]
+  > Usamos **Redis** para el "Fast Path" (usuarios en vivo esperando) y **Service Bus** para el "Durable Path" (procesamiento masivo de histórico), equilibrando velocidad y resiliencia.
 
 ### 2. Capa de Inteligencia y Extracción de Coste Optimizado
+
 El "Routing Agent" es el cerebro que ahorra miles de dólares al mes.
 
-| Método | Coste | Precisión en Texto | Caso de Uso |
-| :--- | :--- | :--- | :--- |
-| **PDF Parser** | ~$0.00 | 100% (Digital) | PDFs generados por ordenador. |
-| **Document Intelligence**| Low | Alta | Formularios, tablas, documentos estándar. |
-| **GPT-4o Vision** | High | Creativa/Contextual | Fotos movidas, manuscritos, bajas resoluciones. |
+| Método                    | Coste  | Precisión en Texto  | Caso de Uso                                     |
+| :------------------------ | :----- | :------------------ | :---------------------------------------------- |
+| **PDF Parser**            | ~$0.00 | 100% (Digital)      | PDFs generados por ordenador.                   |
+| **Document Intelligence** | Low    | Alta                | Formularios, tablas, documentos estándar.       |
+| **GPT-4o Vision**         | High   | Creativa/Contextual | Fotos movidas, manuscritos, bajas resoluciones. |
 
-*   **Normalization Layer**: Aplica técnicas de vision computerizada para enderezar (deskew), eliminar ruido y ajustar DPIs. Esto aumenta la precisión del OCR en un ~25%.
-*   **Extractores Especializados**: En lugar de un prompt gigante, usamos prompts pequeños y específicos por tipo de documento, reduciendo alucinaciones y latencia.
+- **Normalization Layer**: Aplica técnicas de vision computerizada para enderezar (deskew), eliminar ruido y ajustar DPIs. Esto aumenta la precisión del OCR en un ~25%.
+- **Extractores Especializados**: En lugar de un prompt gigante, usamos prompts pequeños y específicos por tipo de documento, reduciendo alucinaciones y latencia.
 
 ### 3. Compliance: El "Filtro de la Verdad"
+
 Aquí es donde la IA se combina con la lógica de negocio inquebrantable.
 
-*   **Rules Engine (Python)**: Lógica determinista. Si una ITV caducó ayer, se rechaza. No hay debate, no hay "creatividad" de IA.
-*   **Semantic Validator**: La IA revisa si el contenido tiene sentido. Ejemplo: *"¿La matrícula en el texto coincide con la matrícula en la foto? ¿Hay signos de edición digital en las fechas?"*
-*   **Risk Scoring**: Asigna un peso a cada fallo. Un error en la fecha es `RED`, un nombre mal escrito puede ser `AMBER`.
+- **Rules Engine (Python)**: Lógica determinista. Si una ITV caducó ayer, se rechaza. No hay debate, no hay "creatividad" de IA.
+- **Semantic Validator**: La IA revisa si el contenido tiene sentido. Ejemplo: _"¿La matrícula en el texto coincide con la matrícula en la foto? ¿Hay signos de edición digital en las fechas?"_
+- **Risk Scoring**: Asigna un peso a cada fallo. Un error en la fecha es `RED`, un nombre mal escrito puede ser `AMBER`.
 
 ### 4. HITL (Human-In-The-Loop) y Mejora Continua
+
 El sistema no es estático; se vuelve más inteligente con cada error.
 
-*   **Interface HITL**: Permite a los validadores corregir el JSON extraído. Esta corrección se guarda como el **Gold Standard**.
-*   **Feedback Loop**: Los datos corregidos por humanos se utilizan para:
-    1.  Ajustar los **Prompts** del Routing Agent.
-    2.  Entrenar versiones **Fine-tuned** de modelos más pequeños para alcanzar precisión de modelos grandes a 1/10 del coste.
+- **Interface HITL**: Permite a los validadores corregir el JSON extraído. Esta corrección se guarda como el **Gold Standard**.
+- **Feedback Loop**: Los datos corregidos por humanos se utilizan para:
+  1.  Ajustar los **Prompts** del Routing Agent.
+  2.  Entrenar versiones **Fine-tuned** de modelos más pequeños para alcanzar precisión de modelos grandes a 1/10 del coste.
 
 ---
 
@@ -118,3 +122,9 @@ El sistema no es estático; se vuelve más inteligente con cada error.
 
 > [!IMPORTANT]
 > **Conclusión**: Esta arquitectura no "lee" documentos, los **entiende y valida** bajo un marco legal, optimizando el margen operativo mediante el uso inteligente y jerarquizado de modelos de LLM.
+
+Arquitectura correcta:
+
+1. OCR (barato)
+2. GPT-4o mini (estructurar)
+3. GPT-4o Vision (solo fallback)
