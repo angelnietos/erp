@@ -1,156 +1,524 @@
-# 🏗️ Arquitectura de Procesamiento Inteligente de Documentos (IDP) - Especificación Detallada
-
-Este documento define la arquitectura técnica y operativa del sistema de Procesamiento Inteligente de Documentos (IDP) implementado en JOSANZ ERP. El objetivo del sistema no es solo la digitalización o el Reconocimiento Óptico de Caracteres (OCR), sino actuar como un **motor de decisión legal y de cumplimiento (Compliance) asistido por IA**, garantizando trazabilidad, optimización de costes y soberanía de los datos para documentación técnica como CAE (Coordinación de Actividades Empresariales), ITV, Seguros, PRL (Prevención de Riesgos Laborales) y normativas ADR.
-
----
-
-## 📊 1. Diagrama de Arquitectura de Alto Nivel
-
-```mermaid
 graph TD
-    %% Entrypoint
-    subgraph Phase1 [FASE 1: Ingesta y Gestión de Tráfico]
-        A["👤 Usuario / API / Integración ERP"] --> B["🔐 Azure API Management <br/> (Validación Azure AD + Rate Limiting)"]
-        B --> C["🚀 FastAPI Gateway <br/> (Stateless, async I/O)"]
-        C --> D{"⚖️ Queue Selector / Decisión de Enrutamiento"}
 
-        %% Paths
-        D -->|Fast Path (Tiempo Real)| E["⚡ Redis Queue <br/> (Baja latencia)"]
-        D -->|Durable Path (Procesamiento Batch)| F["📥 Azure Service Bus <br/> (Persistencia + Reintentos)"]
-    end
+A[Documento CAE] --> B{Gateway validacion}
 
-    %% Intelligence Layer
-    subgraph Phase2 [FASE 2: Capa de Inteligencia y Extracción]
-        E & F --> G["⚙️ Orchestrator <br/> (Azure Functions - Escalado Dinámico)"]
-        G --> H["🧹 Normalization Layer <br/> (Deskew, Denoise, DPI Fix)"]
-        H --> I["🤖 Routing Agent <br/> (GPT-4o mini - Clasificador de vía óptima)"]
+B -->|Invalid| B1[Rechazo inmediato]
+B -->|Valid| C[Upload Blob Storage]
 
-        %% Extraccion base
-        I -->|Costo: ~0 | J1["📄 PDF Parser <br/> (PyMuPDF - Solo texto digital puro)"]
-        I -->|Costo: Bajo | J2["🔍 Azure Document Intelligence <br/> (OCR Industrial para estructurados)"]
-        I -->|Costo: Alto | J3["👁️ GPT-4o Vision <br/> (Fallback: Fotos malas, manuscritos)"]
+C --> D{Queue selector}
+D -->|Fast path| D1[Redis queue]
+D -->|Durable path| D2[Service Bus]
 
-        J1 & J2 & J3 --> K["📝 Raw Text Buffer"]
+D1 --> E[Orchestrator]
+D2 --> E
 
-        %% Especializacion
-        K --> L["🏷️ Document Classifier <br/> (GPT-4o mini - Detección de subtipo CAE)"]
-        L --> M{Tipología Identificada}
+E --> F[Normalization]
+F --> G[Image preprocessing]
 
-        M -->|Fechas, inspector| M1["🛠️ ITV Extractor"]
-        M -->|Coberturas, recibos| M2["🛡️ Insurance Extractor"]
-        M -->|Certificados, aptitud| M3["👷 PRL Extractor"]
-        M -->|Materias peligrosas| M4["🚚 ADR Extractor"]
-        M -->|Sin plantilla| M5["📦 Generic/Other Extractor"]
-    end
+G --> H{PDF con texto?}
 
-    %% Compliance Layer
-    subgraph Phase3 [FASE 3: Compliance y Riesgo (Filtro Legal)]
-        M1 & M2 & M3 & M4 & M5 --> N["📦 Structured JSON <br/> (Datos unificados)"]
-        N --> O["⚖️ Python Rules Engine <br/> (Lógica determinista/legal estricta)"]
-        O --> P["🧠 Semantic Validator <br/> (GPT-4o mini - Incoherencias y fraude)"]
-        P --> Q["🎯 Risk Scoring Engine <br/> (Ponderación de fallos)"]
-    end
+H -->|Si| I1[PDF parser]
+H -->|No| I2[OCR Document Intelligence]
 
-    %% Decision & Audit
-    subgraph Phase4 [FASE 4: Decisión, HITL y Auditoría]
-        Q --> R{Decisión de Score}
+I1 --> J[Raw text]
+I2 --> J
 
-        %% Resultados
-        R -->|GREEN (Puntuación Óptima)| S["✅ Approved - Proceso Automático"]
-        R -->|AMBER (Dudas/Excepciones)| T["🙋 Human Review Queue <br/> (HITL Interface)"]
-        R -->|RED (Incumplimiento Claro)| U["🚫 Blocked - Rechazo Automático"]
+J --> K{OCR calidad suficiente}
 
-        %% HITL y Aprendizaje
-        T --> V["💎 Gold Dataset <br/> (Correcciones verificadas por humanos)"]
-        V -->|Mejora de Prompts| I
-        V -->|Refinamiento de OCR/Reglas| L
+K -->|Alta| L[Texto estructurado]
+K -->|Baja| M[GPT-4o Vision fallback]
 
-        %% Auditoria
-        S & T & U --> Y[("🗄️ Cosmos DB <br/> (Audit Log Inmutable)")]
-    end
+M --> L
 
-    %% Estilos de las cajas
-    style Phase1 fill:#f0f8ff,stroke:#005a9c,stroke-width:2px
-    style Phase2 fill:#fff8dc,stroke:#b8860b,stroke-width:2px
-    style Phase3 fill:#f5fffa,stroke:#2e8b57,stroke-width:2px
-    style Phase4 fill:#fff0f5,stroke:#dc143c,stroke-width:2px
-```
+L --> N{Document classifier}
 
----
+N -->|ITV| O1[Extractor ITV]
+N -->|Seguro| O2[Extractor Seguro]
+N -->|Permiso circulacion| O3[Extractor Permiso]
+N -->|PRL| O4[Extractor PRL]
+N -->|Acceso obra| O5[Extractor Acceso]
+N -->|Certificado empresa| O6[Extractor Empresa]
+N -->|Ficha tecnica| O7[Extractor Tecnica]
+N -->|Carnet conductor| O8[Extractor Carnet]
+N -->|ADR| O9[Extractor ADR]
 
-## 🛠️ Detalles Fase por Fase
+O1 --> P
+O2 --> P
+O3 --> P
+O4 --> P
+O5 --> P
+O6 --> P
+O7 --> P
+O8 --> P
+O9 --> P
 
-### 🏗️ FASE 1: Ingesta y Gestión de Tráfico (Entrypoint)
+P[Structured JSON] --> Q[Rules Engine CAE]
 
-El objetivo de esta fase es asegurar la entrada, proteger el sistema de saturaciones inadvertidas o ataques, y derivar la carga de trabajo eficientemente.
+Q --> Q1[Fechas validez]
+Q --> Q2[Seguro cobertura]
+Q --> Q3[Reglas actividad]
+Q --> Q4[Match vehiculo empresa]
 
-1.  **Azure API Management (APIM) + Azure AD:**
-    - **¿Qué hace?**: Es la puerta de entrada principal. Autentica las llamadas utilizando Azure Active Directory (Azure AD) para confirmar la identidad del sistema o usuario y el origen (el "tenant" en un entorno multi-cliente de ERP).
-    - **Rate Limiting**: Configurado para limitar peticiones (ej. 100 requests/minuto por cliente). Esto es _crítico_ porque procesar documentos con IA tiene un coste por token/petición. Sin APIM, un bucle infinito en un script del cliente podría generar una factura gigante en servicios cognitivos en horas.
-    - **Trazabilidad Financiera**: Permite asignar costes de llamadas a la API (y en consecuencia de LLM) a un cliente específico.
+Q1 --> R
+Q2 --> R
+Q3 --> R
+Q4 --> R
 
-2.  **FastAPI Backend (Gateway Asíncrono):**
-    - **¿Qué hace?**: Un servicio muy ligero construido en Python (FastAPI).
-    - **Responsabilidad estricta**: Recibe el archivo binario, lo valida rápidamente (tamaño, mime-type), genera un identificador único de trazabilidad (`document_id`), sube el archivo original (Raw Data) a un Azure Blob Storage y delega el procesamiento.
-    - **Decisión de Diseño**: La elección de FastAPI se debe a que es _async_. Una operación de Input/Output (como subir un archivo o esperar a la nube) no bloquea la recepción de nuevas peticiones concurrentes. **El backend nunca procesa la IA.**
+R --> S[Semantic validator]
+S --> T[Risk scoring]
 
-3.  **Selector de Colas (Redis vs Service Bus):**
-    - **El Problema**: A veces un usuario sube una ITV y está esperando que la pantalla del ERP le diga "Aceptado" casi instantáneamente. Otras veces, un administrador sube un archivo ZIP con 500 historiales de aseguradoras que no corre prisa.
-    - **Redis (Fast Path)**: Baja latencia. Si el documento requiere una respuesta bloqueante para la UI (síncrona para el usuario), va en memoria mediante Redis.
-    - **Azure Service Bus (Durable Path)**: Procesos batch masivos. Garantiza que si el sistema de IA se cae temporalmente por mantenimiento, no se pierdan los eventos de procesamiento, con reintentos automáticos tras backoffs progresivos.
+T --> U{Decision}
 
-### 🧠 FASE 2: Capa de Inteligencia y Extracción Híbrida
+U -->|Green| V[Aprobado]
+U -->|Amber| W[Revision humana]
+U -->|Red| X[Rechazado]
 
-Esta es la fase de ingenia inversa o de desestructuración, donde la magia se equilibra milimétricamente con el presupuesto ("FinOps para IA").
+W --> Y[Supervisor CAE]
+Y --> Z[Gold dataset]
 
-4.  **Capa de Normalización (Normalization Layer):**
-    - **El Problema**: "Basura entra, basura sale" (Garbage in, garbage out). La IA o los sistemas de OCR fallan miserablemente si reciben un PDF de 2GB compuesto por fotos torcidas y mal iluminadas tomadas.
-    - **¿Qué hace?**: Utiliza algoritmos de visión por ordenador estándar (mucho más rápidos/baratos que IA) antes de siquiera mirar el contenido. Si detecta ficheros de Apple (`.heic`), los convierte a `.jpg`. Ejecuta rutinas de **Deskew** (enderezar horizontes de fotos) y limpieza general mejorando resoluciones a 300 DPI recomendados.
-    - **Impacto**: Un escaneo torcido que iba a fallar el primer intento y forzar a que el caro modelo Vision lo lea entero, ahora puede ser parseado por un OCR estructurado mucho más económico. Un ahorro que escala dramáticamente.
+Z --> AA[Mejora extractores]
+Z --> AB[Mejora reglas]
 
-5.  **Routing Agent (GPT-4o mini): El "Enrutador Económico":**
-    - **¿Qué hace?**: Antes de lanzar el archivo a un parser, un modelo rápido de OpenAI evalúa los metadatos o una previsualización diminuta del documento para decidir **cuál es el camino más barato en dólares para leerlo correctamente**.
-    - **PDF Parser (PyMuPDF)**: ¿Es un PDF generado directamente por software (ej. un certificado firmado digitalmente)? Se envía aquí. Coste: Esencialmente 0. Precisión: 100% de los caracteres.
-    - **Azure Document Intelligence (OCR)**: ¿Es un escaneo plano bien encuadrado de un formulario estándar (como casi todo formato legal español)? Se envía al OCR industrial de Azure. Coste: Centavos. Formato: Bueno deduciendo tablas.
-    - **GPT-4o Vision (Fallback)**: ¿Están mezclados 4 tickets arrugados en una foto a contraluz? _Solamente_ estos casos se escalan al modelo Vision multimodal. Coste: 10x-50x más caro que el OCR.
+V --> AC[Audit log]
+W --> AC
+X --> AC
 
-6.  **Clasificador y Extractores Especializados:**
-    - **Document Classifier**: Una vez tenemos texto plano/bruto (`Raw Text`), un agente clasifica qué es: Póliza de Seguro, Recibo, Documento ITV, Certificado PRL.
-    - **Sub-Agentes Especializados**: Una de las peores prácticas en la Ingeniería de Prompts es darle a un LLM un prompt de 5 páginas. En Josanz ERP, tenemos "Micro-Extractores". Si sabemos que es una tarjeta de la ITV, el texto va a un _ITV Extractor_ con un único objetivo: devolver un JSON estricto con `plate` (matrícula), `issue_date` y `expiry_date`.
-    - **Resultado**: Al pedir JSONs con campos pequeños con prompts muy restrictivos a modelos rápidos (`gpt-4o-mini`), minimizamos las alucinaciones al máximo.
 
-### ⚖️ FASE 3: Capa de Compliance (El Núcleo del Negocio)
 
-Hasta ahora, hemos capturado texto. La FASE 3 da el veredicto de ese texto basado en normativas (CAE, inspecciones de trabajo).
 
-7.  **Engine de Reglas de Python (Rules Engine):**
-    - **¿Qué hace?**: Lógica condicional de programación pura y dura (`if / else`).
-    - **La Regla de Oro Legal**: **La IA jamás toma la decisión de denegar el acceso a un trabajador al recinto.** Un LLM puede alucinar o estar sesgado; un código Python indicando `if today > expiration_date: return False` no alucina.
-    - Si los datos del JSON están, el motor dicta si cumplen los pre-requisitos puramente formales y cronológicos.
+🧠 EXPLICACIÓN DETALLADA (LO QUE REALMENTE IMPORTA)
 
-8.  **Validador Semántico IA (Semantic Validator):**
-    - **El Problema**: Algo puede cuadrar numéricamente, pero fallar lógicamente ("Fecha de nacimiento: 2026", o un nombre en un seguro que es del contratista pero no de la empresa principal).
-    - **¿Qué hace?**: La IA de validación busca incoherencias lógicas o signos de manipulación de OCR que un `if/else` no conciba. Revisa el cruce de datos contra los tenantes del ERP.
+Voy a explicarte cada fase como lo haría un arquitecto senior, sin humo.
 
-9.  **Risk Scoring Engine (Ponderación unificada):**
-    - **¿Qué hace?**: Unifica la dureza matemática del motor Python y las observaciones laxas del Validador Semántico para generar un _Score_ de riesgo total.
+🏗️ FASE 1 — INGESTA Y CONTROL
+A → B (Gateway)
 
-### 👤 FASE 4: Human in the Loop (HITL), Decisión y Automejora
+Aquí decides si el documento vive o muere.
 
-Este pipeline nunca se cierra, sino que es un ciclo iterativo.
+✔ Validas:
 
-10. **Toma de Decisiones y El HITL Interface:**
-    - El Score de riesgo anterior se evalúa contra tres umbrales configurables por la empresa:
-      - **GREEN (Vía Libre)**: Puntuación perfecta, cero warnings semánticos. El documento se aprueba y se sincroniza en el módulo CAE de Josanz ERP "sin haber sido tocado por manos humanas".
-      - **RED (Rechazo Radical)**: Fecha ITV caducada hace 1 año. Queda bloqueado.
-      - **AMBER (Cola de Revisión)**: (Ejemplo: _Nombre de la empresa un 80% similar por un error ortográfico en la escritura._). El documento se deposita en una cola especial donde un operario humano de la plataforma lo verifica.
-    - La herramienta HITL (Human In The Loop) en el ERP le muestra la imagen del doc, los campos JSON extraídos que la IA ha dudado, y le permite aplicar la lógica humana fina.
+MIME type
+tamaño
+virus / corrupción
 
-11. **Gold Dataset y Auditoría Constante:**
-    - **El Feedback Loop**: Las métricas generadas por las decisiones de las personas cuando corrigen un "AMBER" a un rechazo, o a una aprobación manual, son enviadas para su posterior perfeccionamiento de OCR (fine-tuning del sistema). El error disminuye mes a mes por puro redentrenamiento de datos limpios.
-    - **Auditoría Eterna en Cosmos DB**: La responsabilidad legal (sobre quién aprobó que camión de materias peligrosas entrase a obra) está protegida. Cada iteración, petición a IA, log JSON y timestamp cae en Cosmos DB de manera inmutable. Si viene una inspección, JOSANZ ERP puede sacar el JSON completo y decir qué reglas evaluó y el "por qué" de su autorización legal.
+👉 Esto evita gastar dinero en IA innecesaria.
 
-## 🚀 Resumen del Valor de Arquitectura
+C → D (Storage + Colas)
 
-Tu sistema está construido bajo la principal premisa que separa los juguetes basados en API LLM's del software empresarial: **Control de responsabilidades**.
-Tu IA hace lo que se le da bien (interpretar patrones variables), tu código de backend hace lo estricto e infalible (evaluar vigencia, caducidades e ids), tu base de datos audita cada transacción asegurando Compliance técnico y el operario es llamado la menor cantidad de veces posibles, garantizando máxima escalabilidad sin pérdida de calidad.
+Dos caminos:
+
+Redis (Fast path)
+→ usuario esperando respuesta en UI
+→ latencia baja
+
+Service Bus (Durable)
+→ cargas masivas
+→ reintentos garantizados
+
+👉 Esto es clave para escalar sin romper nada.
+
+🧹 FASE 2 — PREPROCESADO (DONDE SE GANA DINERO)
+F + G (Normalization + preprocessing)
+
+Aquí haces:
+
+deskew (enderezar)
+denoise
+contraste
+conversión HEIC → PNG
+PDF → imágenes
+
+💡 Impacto real:
+
++20–30% precisión OCR
+menos uso de GPT-4o (caro)
+🧠 FASE 3 — EXTRACCIÓN INTELIGENTE (CORE)
+🔍 Paso crítico: decisión OCR vs parser
+H (PDF con texto)
+
+👉 SI:
+
+usas parser (gratis, perfecto)
+
+👉 NO:
+
+OCR (Azure Document Intelligence)
+📊 Evaluación de calidad (K)
+
+Aquí decides si confiar o no en el OCR.
+
+Ejemplo real:
+
+confidence < 0.75
+texto incoherente
+falta matrícula
+
+👉 entonces:
+
+➡ fallback a GPT-4o Vision
+
+🤖 Fallback multimodal (M)
+
+Solo cuando falla OCR.
+
+Esto es CLAVE:
+
+❌ ERROR típico: usar GPT-4o siempre
+✅ CORRECTO: usarlo solo como fallback
+
+🧾 FASE 4 — CLASIFICACIÓN Y EXTRACTORES
+N (Classifier)
+
+Identifica tipo:
+
+ITV
+Seguro
+PRL
+ADR
+etc (9 tipos)
+O1–O9 (Extractores especializados)
+
+💡 Esto responde a tu gran duda:
+
+👉 NO es un agente único
+👉 SON extractores especializados
+
+Cada uno:
+
+prompt pequeño
+contexto mínimo
+salida JSON fija
+
+Ejemplo ITV:
+
+{
+  "matricula": "",
+  "fecha_itv": "",
+  "resultado": ""
+}
+
+✔ Más precisión
+✔ Menos coste
+✔ Menos alucinaciones
+
+⚖️ FASE 5 — RULES ENGINE (LO MÁS IMPORTANTE)
+
+Aquí la IA deja de mandar.
+
+Q (motor de reglas)
+
+Código puro:
+
+fechas
+coberturas
+permisos
+relaciones empresa-vehículo
+
+👉 Esto es lo que te salva legalmente.
+
+🛡️ FASE 6 — VALIDACIÓN SEMÁNTICA
+S (LLM ligero)
+
+Detecta cosas como:
+
+documento manipulado
+incoherencias visuales
+datos raros
+
+👉 No decide, solo añade señales.
+
+🎯 FASE 7 — SCORING Y DECISIÓN
+T (risk scoring)
+
+Combinas:
+
+reglas (peso alto)
+IA (peso medio)
+OCR (peso base)
+U (decisión final)
+🟢 GREEN → automático
+🟡 AMBER → humano
+🔴 RED → bloqueado
+👤 FASE 8 — HUMAN IN THE LOOP
+W → Y → Z
+
+El humano:
+
+corrige
+valida
+confirma
+
+👉 esto genera el activo más importante:
+
+dataset validado por negocio
+
+🔁 FASE 9 — FEEDBACK LOOP
+Z → AA / AB
+
+Mejoras:
+
+prompts
+extractores
+reglas
+
+👉 aquí es donde el sistema se vuelve “inteligente de verdad”
+
+📑 FASE 10 — AUDITORÍA
+AC (audit log)
+
+Guardas TODO:
+
+input original
+OCR
+JSON
+reglas ejecutadas
+decisión final
+
+👉 esto es lo que te pide una inspección laboral
+
+🧠 RESPUESTA CLAVE A TU DUDA FINAL
+❓ ¿Qué son los agentes realmente?
+
+En TU arquitectura:
+
+👉 NO son “copilots independientes gigantes”
+
+👉 SON piezas concretas:
+
+Routing (ligero)
+Clasificador
+Extractores (x9)
+Validador semántico
+❗ Lo importante
+
+👉 El flujo lo controla código
+👉 La IA SOLO interpreta
+
+
+💰 1. COSTE REAL POR DOCUMENTO (AFINADO)
+
+Voy a darte un modelo realista basado en uso típico en CAE (no teórico).
+
+🔢 Suposiciones razonables
+1 documento = 1–3 páginas
+80% pasan por OCR normal
+15% usan parser PDF
+5% necesitan fallback multimodal
+prompts optimizados (cortos)
+💸 Coste por componente
+🟢 OCR — Azure AI Document Intelligence
+~0.01 – 0.03 € por página
+👉 promedio documento: 0.02 €
+🟢 LLM ligero — GPT-4o mini
+
+Usos:
+
+routing
+clasificación
+extracción
+validación semántica
+~0.0005 – 0.002 € por llamada
+👉 ~3–5 llamadas por doc
+
+👉 total: 0.003 – 0.01 €
+
+🔴 Multimodal fallback — GPT-4o
+solo ~5% docs
+~0.02 – 0.06 € por uso
+
+👉 coste medio ponderado: ~0.002 – 0.004 €
+
+☁️ Infraestructura Azure
+
+Incluye:
+
+Microsoft Azure Container Apps
+Functions
+Storage
+colas
+
+👉 coste estimado por doc:
+0.003 – 0.01 €
+
+🧮 COSTE TOTAL REALISTA
+Escenario	Coste por documento
+Optimizado	0.02 – 0.04 €
+Normal	0.04 – 0.07 €
+Peor caso (mucho Vision)	0.08 – 0.12 €
+📊 Coste mensual
+Volumen	Coste
+10k docs	400 – 700 €
+100k docs	4k – 7k €
+1M docs	40k – 70k €
+
+👉 Esto es realista en producción.
+
+🧠 2. PROMPTS REALES (LO QUE MARCA LA DIFERENCIA)
+🔑 Reglas clave (importantísimo)
+JSON estricto
+sin texto libre
+sin inferencias
+campos obligatorios o null
+🛠️ Ejemplo — Extractor ITV
+SYSTEM:
+
+Eres un sistema experto en documentos de ITV en España.
+
+TAREA:
+Extraer datos estructurados de un documento ITV.
+
+REGLAS:
+- No inventes datos
+- Si no ves un campo → null
+- Devuelve SOLO JSON válido
+- Fechas en formato YYYY-MM-DD
+- Matrícula en mayúsculas sin espacios
+
+SCHEMA:
+
+{
+  "tipo": "ITV",
+  "matricula": "",
+  "fecha_inspeccion": "",
+  "fecha_caducidad": "",
+  "resultado": "",
+  "estacion_itv": ""
+}
+🛡️ Extractor Seguro
+Extrae:
+
+{
+  "tipo": "SEGURO",
+  "compania": "",
+  "numero_poliza": "",
+  "fecha_inicio": "",
+  "fecha_fin": "",
+  "cobertura": "",
+  "matricula": ""
+}
+🚚 Extractor ADR
+{
+  "tipo": "ADR",
+  "numero_certificado": "",
+  "fecha_validez": "",
+  "clase_material": "",
+  "restricciones": ""
+}
+🧠 Validador semántico
+Analiza este JSON y detecta incoherencias.
+
+Responde:
+
+{
+  "is_consistent": true/false,
+  "issues": []
+}
+🧱 3. ESTRUCTURA FASTAPI (PRODUCCIÓN REAL)
+
+Esto es lo que separa una demo de un sistema serio.
+
+📁 Estructura
+app/
+├── main.py
+├── api/
+│   └── upload.py
+├── services/
+│   ├── orchestrator.py
+│   ├── routing.py
+│   ├── ocr_service.py
+│   ├── llm_service.py
+│   └── extractors/
+│       ├── itv.py
+│       ├── insurance.py
+│       └── adr.py
+├── core/
+│   ├── config.py
+│   └── logging.py
+├── workers/
+│   └── processor.py
+🚀 main.py
+from fastapi import FastAPI
+from api.upload import router
+
+app = FastAPI()
+app.include_router(router)
+📥 upload endpoint
+from fastapi import APIRouter, UploadFile
+from services.orchestrator import process_document
+
+router = APIRouter()
+
+@router.post("/upload")
+async def upload(file: UploadFile):
+    result = await process_document(file)
+    return result
+🧠 orchestrator (core del sistema)
+async def process_document(file):
+
+    # 1. normalización
+    doc = normalize(file)
+
+    # 2. routing
+    route = decide_route(doc)
+
+    # 3. extracción base
+    if route == "pdf":
+        text = extract_pdf(doc)
+    elif route == "ocr":
+        text = ocr(doc)
+    else:
+        text = vision(doc)
+
+    # 4. clasificación
+    doc_type = classify(text)
+
+    # 5. extracción especializada
+    data = extract_by_type(doc_type, text)
+
+    # 6. validación
+    validated = validate_rules(data)
+
+    # 7. scoring
+    score = score_result(validated)
+
+    return {
+        "data": data,
+        "score": score
+    }
+⚙️ routing inteligente
+def decide_route(doc):
+
+    if is_pdf_with_text(doc):
+        return "pdf"
+
+    if is_clean_image(doc):
+        return "ocr"
+
+    return "vision"
+
+👉 Esto evita gastar dinero innecesario.
+
+🧠 4. CLAVES QUE MARCAN LA DIFERENCIA (EXPERIENCIA REAL)
+❌ Lo que rompe sistemas
+usar GPT-4o para todo
+no validar con código
+prompts gigantes
+no tener fallback
+✅ Lo que funciona
+OCR primero
+IA solo donde aporta valor
+reglas deterministas
+HITL activo
+dataset de mejora
+🎯 RESUMEN FINAL
+
+Tu sistema ya está en nivel:
+
+👉 enterprise-grade AI system
+
+Porque:
+
+separa control vs IA
+optimiza coste automáticamente
+es auditable legalmente
+

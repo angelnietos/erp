@@ -154,3 +154,139 @@ Este pipeline nunca se cierra, sino que es un ciclo iterativo.
 
 Tu sistema está construido bajo la principal premisa que separa los juguetes basados en API LLM's del software empresarial: **Control de responsabilidades**.
 Tu IA hace lo que se le da bien (interpretar patrones variables), tu código de backend hace lo estricto e infalible (evaluar vigencia, caducidades e ids), tu base de datos audita cada transacción asegurando Compliance técnico y el operario es llamado la menor cantidad de veces posibles, garantizando máxima escalabilidad sin pérdida de calidad.
+
+
+
+graph TD
+
+%% =========================
+%% FASE 1 - INGESTA
+%% =========================
+
+A[Documento CAE] --> B{Gateway Validacion}
+
+B -->|Invalid| B1[Reject inmediato]
+B -->|Valid| C[Upload Blob Storage]
+
+C --> D{Queue Selector}
+
+D -->|Tiempo real| D1[Redis Queue]
+D -->|Batch| D2[Service Bus]
+
+D1 --> E[Orchestrator]
+D2 --> E
+
+%% =========================
+%% FASE 2 - PREPROCESADO
+%% =========================
+
+E --> F[Normalization]
+
+F --> G[Image preprocessing]
+
+%% =========================
+%% FASE 3 - ROUTING INTELIGENTE
+%% =========================
+
+G --> H{Routing Decision}
+
+H -->|PDF con texto| I1[PDF Parser]
+H -->|Imagen clara| I2[OCR Document Intelligence]
+H -->|Imagen compleja| I3[GPT-4o Vision]
+
+I1 --> J[Raw Text]
+I2 --> J
+I3 --> J
+
+%% =========================
+%% FASE 4 - CLASIFICACION
+%% =========================
+
+J --> K{Document Classifier}
+
+K -->|ITV| L1[Extractor ITV]
+K -->|Insurance| L2[Extractor Insurance]
+K -->|Registration| L3[Extractor Registration]
+K -->|PRL| L4[Extractor PRL]
+K -->|Site Access| L5[Extractor Access]
+K -->|Company Cert| L6[Extractor Company]
+K -->|Technical Sheet| L7[Extractor Technical]
+K -->|Driver License| L8[Extractor License]
+K -->|ADR| L9[Extractor ADR]
+
+L1 --> M
+L2 --> M
+L3 --> M
+L4 --> M
+L5 --> M
+L6 --> M
+L7 --> M
+L8 --> M
+L9 --> M
+
+M[Structured JSON]
+
+%% =========================
+%% FASE 5 - COMPLIANCE
+%% =========================
+
+M --> N[Rules Engine CAE]
+
+N --> N1[Validity dates]
+N --> N2[Insurance coverage]
+N --> N3[Activity rules]
+N --> N4[Vehicle-company match]
+
+N1 --> O
+N2 --> O
+N3 --> O
+N4 --> O
+
+%% =========================
+%% FASE 6 - VALIDACION IA
+%% =========================
+
+O --> P[Semantic Validator]
+
+P --> Q[Risk Scoring]
+
+%% =========================
+%% FASE 7 - DECISION
+%% =========================
+
+Q --> R{Compliance Result}
+
+R -->|Pass| S[Approved access]
+R -->|Review| T[Human review]
+R -->|Reject| U[Blocked access]
+
+%% =========================
+%% FASE 8 - HITL + FEEDBACK
+%% =========================
+
+T --> V[CAE Supervisor]
+V --> W[Validated dataset]
+
+W --> X[Improve extractors]
+W --> Y[Improve rules]
+
+%% =========================
+%% FASE 9 - AUDITORIA
+%% =========================
+
+S --> Z[Audit log]
+T --> Z
+U --> Z
+
+
+
+
+
+
+
+
+
+
+
+
+
