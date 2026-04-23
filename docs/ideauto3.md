@@ -187,10 +187,10 @@ style L13 fill:#eceff1,stroke:#37474f
 *   **3. Idempotencia:** Motor cardinal para arquitecturas distribuidas. Se inscribe un `Expedition_ID` único fundacional. Si por cortes inestables de fibra el usuario u otra CLI pulsa "Subir" 3 veces, la clave de Idempotencia atrapa el clon en la entrada, despachando el resultado anterior encachado (evitando invocar IA de nuevo).
 *   **4. Storage y Fingerprint Inteligente:** El expediente se deposita en almacenamiento WORM perpetuo (Blob). El sistema extrae una *Vectorización Visual y Semántica*. Esto aniquila el mayor de los problemas en procesamiento masivo: si alguien somete un documento del que se varió un píxel pero su huella semántica es 99% idéntica, intercepta el procesamiento redundante, recortando costes asintóticamente.
 
-### 5-7: Columna Vertebral de Orquestación
+### 5-7: Columna Vertebral de Orquestación y Concurrencia
 
-*   **5. Event Router & Backbone:** Discriminador de estrés de tráfico. Envía expedientes "Fast-path" a memorias ultrarrápidas de *Redis Queues* (Respuesta Síncrona Relativa), pero desvía expedientes monstruosos por *Service Bus* para garantizar la entrega frente a posibles caídas en infraestructuras receptoras.
-*   **6. Orchestrator + FSM (State Machine):** El núcleo duro lógico (Cerebro Operativo). Actualiza al milisegundo el semáforo sobre el expediente en Redis: `RECIBIDO → EXTRAYENDO → EVALUANDO → FINALIZADO`. Si el sistema entero colapsa, y este orquestador se resetea, al arrancar consulta la *memoria Redis* retomando sus labores sin pedir que suban los expedientes nuevamente.
+*   **5. Event Router & Backbone:** Discriminador de estrés de tráfico. Envía expedientes "Fast-path" a memorias ultrarrápidas de *Redis Queues* (Respuesta Síncrona Relativa), pero desvía cargas monstruosas por *Service Bus* para garantizar la entrega frente a picos agudos de ingesta. **Gracias a este desacoplamiento total, el sistema soporta alta concurrencia**: miles de usuarios pueden inyectar expedientes en paralelo sin bloquear ni ralentizar la aplicación central.
+*   **6. Orchestrator + FSM (State Machine):** El núcleo lógico (Cerebro Operativo) actualiza al milisegundo el estado del expediente en la memoria Redis (`RECIBIDO → EXTRAYENDO → EVALUANDO → FINALIZADO`). Esta arquitectura garantiza **fluidez absoluta en el frontend**: el usuario visualiza barras de progreso precisas y en tiempo real (vía WebSockets alimentados por Redis) sin lag. Además, si el orquestador se resetea por caída, arranca consultando la *memoria Redis* y retoma su labor sin obligar al usuario a recargar ni re-subir la documentación.
 *   **7. Worker Pool (Fan-Out):** Fragmentación instantánea asíncrona. Si el usuario sube 9 documentos, se alzan concurrentemente 9 clústers/hilos efímeros.
 
 ### 8: Pipeline Atómico Documental (El Subsistema IA Central)
@@ -206,10 +206,10 @@ Cada Micro-Worker atraviesa la siguiente fase por cada hoja del archivo:
 *   **9. Agregador (Saga Completa):** Reúne las respuestas aisladas de los 9 workers finalizados. Reensambla temporalidad y concordancia global.
 *   **10. CAE & Scoring Machine:** Expone el JSON general a *reglamentación codificada determinista*. Combina validez temporal (`Fechas > Actuales`) e incongruencias relacionales entre distintos documentos adjuntos. Genera índices de Riesgo en tres franjas (Aprobado Inmediato, Revisión HitL, o Rechazo Total).
 
-### 12 - 14: Capa Transversal Operativa (Loop Biológico)
+### 12 - 14: Capa Transversal Operativa (Loop Biológico y MLOps)
 
 *   **13 & 14 (Observabilidad y Recuperación):** Red de Trazabilidad total de registros a Data Lakes contables por directrices de cumplimiento bancario. Las *Dead Letter Queues* evitan paros cardíacos del sistema al expulsar expedientes insalvables sin frenar el procesamiento central del clúster.
-*   **12 (Human-in-the-Loop y Evolución Autárquica):** Operación Diferida de Medianoche. Los gestores que evaluaron expedientes "Amarillos" dictaron su error al corregirlos en Front-end. Este plano rastrea ese Delta de fallo y automáticamente lo reasigna a un Creador de Datasets. Dicho pipeline de *Fine-Tuning* pule e invoca pesos estructurales en los Model Registry para ir restando paulatinamente el número de revisiones manuales al mes.
+*   **12 (Human-in-the-Loop y Evolución Asíncrona Diaria):** Operación automatizada (*Feedback Loop*). Cuando los gestores revisan y corrigen los expedientes "Amarillos" dudosamente puntuados, esas correcciones (el fallo original de la IA vs la verdad digitada del gestor) fluyen como eventos paralelos a través del **Azure Service Bus**. Esta telemetría alimenta silenciosamente la base del Dataset. Así, ejecutando un Cron Job diario cada madrugada, la IA inicia rutinas automáticas de re-entrenamiento (*Fine-Tuning*). El sistema incorpora todo lo aprendido por los trabajadores del día, actualiza dinámicamente los Modelos (Registry), y paulatinamente resta la necesidad de revisión humana al volverse exponencialmente más inteligente.
 
 ---
 > 💡 *En conclusión técnica, estática y financiera:*  
