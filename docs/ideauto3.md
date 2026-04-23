@@ -138,7 +138,7 @@ end
 %% ===================== 11. OUTPUT =====================
 subgraph L11["11. DELIVERY UX"]
     direction TB
-    OK & REV & REJ & DUP2 & CACHED_RES --> UX["11.1 Realtime UX (WebSockets)"]
+    OK & REV & REJ & DUP2 & CACHED_RES --> UX["11.1 Auto-fill Form / Feedback UI"]
 end
 
 %% ===================== 12. HUMAN LOOP =====================
@@ -190,7 +190,7 @@ style L13 fill:#eceff1,stroke:#37474f
 ### 5-7: Columna Vertebral de Orquestación y Concurrencia
 
 *   **5. Event Router & Backbone:** Discriminador de estrés de tráfico. Envía expedientes "Fast-path" a memorias ultrarrápidas de *Redis Queues* (Respuesta Síncrona Relativa), pero desvía cargas monstruosas por *Service Bus* para garantizar la entrega frente a picos agudos de ingesta. **Gracias a este desacoplamiento total, el sistema soporta alta concurrencia**: miles de usuarios pueden inyectar expedientes en paralelo sin bloquear ni ralentizar la aplicación central.
-*   **6. Orchestrator + FSM (State Machine):** El núcleo lógico (Cerebro Operativo) actualiza al milisegundo el estado del expediente en la memoria Redis (`RECIBIDO → EXTRAYENDO → EVALUANDO → FINALIZADO`). Esta arquitectura garantiza **fluidez absoluta en el frontend**: el usuario visualiza barras de progreso precisas y en tiempo real (vía WebSockets alimentados por Redis) sin lag. Además, si el orquestador se resetea por caída, arranca consultando la *memoria Redis* y retoma su labor sin obligar al usuario a recargar ni re-subir la documentación.
+*   **6. Orchestrator + FSM (State Machine):** El núcleo lógico (Cerebro Operativo) actualiza al milisegundo el estado del expediente en la memoria Redis (`RECIBIDO → EXTRAYENDO → EVALUANDO → FINALIZADO`). El objetivo primario arquitectónico de esto es que, al finalizar con éxito, el sistema **Autocompleta de inmediato el formulario (Auto-fill) de la Interfaz de Usuario** con los datos estructurados. Si el modelo arroja incertidumbres ("Amarillo"), levanta en pantalla un **Panel de Feedback** para que el humano valide o corrija el campo. Además, si el orquestador se resetea por caída, arranca consultando la *memoria Redis* y retoma su labor sin obligar al usuario a recargar ni re-subir la documentación.
 *   **7. Worker Pool (Fan-Out):** Fragmentación instantánea asíncrona. Si el usuario sube 9 documentos, se alzan concurrentemente 9 clústers/hilos efímeros.
 
 ### 8: Pipeline Atómico Documental (El Subsistema IA Central)
