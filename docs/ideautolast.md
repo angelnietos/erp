@@ -147,4 +147,46 @@ Esta conceptualización permite trazar un _Stack Arquitectónico_ hiperresistent
 | **Almacenamiento Activo FrontEnd**    | **Azure Cache for Redis**                                | Cómputo Pub/Sub veloz disociando a la BD, acortando consultas e integrando transaccionalidad Websockets al CRM del usuario sin bloqueos.                               |
 | **Data Lake en Observabilidad**       | **Azure Blob Storage / Data Lake Gen 2**                 | Tiering jerarquizado de costes de retención (Archivado perpetuo o acceso rápido). Ingestionado por un modelo analítico o _Delta Lake_ pasivamente.                     |
 
-> _"El éxito de la arquitectura empresarial en Inteligencia Artificial Documental radica, intrínsecamente, en una separación dogmática de dependencias. **Runtime**, **Estado** y **Aprendizaje** jamás pueden habitar orgánicamente en el mismo carril horizontal operativo."_
+---
+
+## 🛡️ Patrones de Resiliencia y Garantías de Negocio (Banking Grade)
+
+Para que un sistema de IA sea adoptado en entornos de alta criticidad, no basta con que sea "inteligente"; debe ser **determinista en su ejecución**.
+
+### 1. Garantías de Procesamiento "Exactly-Once"
+Mediante el uso de **Idempotency Keys** (Claves de Idempotencia) generadas en la ingesta, el sistema garantiza que, ante un reintento por caída de red o timeout del modelo, el motor de orquestación no duplique costes ni genere estados inconsistentes en el expediente.
+
+### 2. Aislamiento por "Dead Letter Queues" (DLQ)
+Si un documento específico (ej. un PDF corrupto o un formato exótico) hace fallar el worker de extracción tras la política de reintentos exponenciales, este es "aparcado" en una **DLQ**. Esto permite que el resto del expediente de 9 documentos termine su flujo, notificando parcialidad al usuario en lugar de un error genérico de sistema.
+
+### 3. Replay System (Reprocesamiento Selectivo)
+Gracias al desacoplamiento del Plano de Control, es posible "re-inyectar" un solo documento fallido una vez corregido el problema técnico, sin necesidad de que el usuario vuelva a subir los otros 8 documentos válidos.
+
+---
+
+## 💰 Optimización Operativa y Retorno de Inversión (ROI)
+
+El uso indiscriminado de modelos de visión y GPT-4 puede erosionar los márgenes operativos. Esta arquitectura implementa tres estrategias de ahorro:
+
+### 1. Caching Semántico y Estructural
+Si un documento (ej. una cabecera de una mutua de seguros específica) ya ha sido procesado mil veces, el sistema utiliza **vectores de similitud** en Redis para identificar que la "plantilla" es conocida. Esto permite pasar de una extracción "zero-shot" (cara) a una extracción guiada por coordenadas o incluso por caché semántico si el contenido es redundante.
+
+### 2. Batching Inteligente de OCR
+En lugar de disparar peticiones síncronas individuales, el orquestador agrupa procesos de baja prioridad en lotes (*batching*), aprovechando las tarifas de procesamiento por lotes de los proveedores cloud, reduciendo hasta un **40% el coste transaccional**.
+
+### 3. Modelo de "Cascada de Modelos" (Model Cascade)
+No todos los documentos requieren un GPT-4o.
+- **Clasificador (Nivel 1):** Modelo ligero (ej. GPT-4o-mini o BERT local) para identificar el tipo de doc.
+- **Extractor (Nivel 2):** Solo si la validación falla o el documento es complejo, se escala al modelo de mayor razonamiento.
+- **Resultado:** Reducción drástica del gasto de tokens sin sacrificar la precisión en el 5% de casos complejos.
+
+---
+
+## 🎯 Conclusión Estratégica
+
+La transición de un **Pipeline Lineal** a una **Arquitectura de Planos Desacoplados** es lo que diferencia un prototipo de IA de una infraestructura empresarial resiliente. 
+
+Al separar el **Runtime** (la velocidad), el **Estado** (la verdad), el **Aprendizaje** (la evolución) y los **Costes** (la viabilidad), el sistema se convierte en un activo estratégico capaz de escalar a millones de documentos con garantías de cumplimiento legal y rentabilidad financiera.
+
+---
+_Documento técnico para presentación ejecutiva y de ingeniería. v2.0 - Arquitectura Desacoplada._
