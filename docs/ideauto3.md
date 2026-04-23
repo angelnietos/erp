@@ -1,532 +1,216 @@
-Perfecto, aquí ya no sirve “ver diagramas”, sirve **entender el sistema como una máquina completa**. Te lo explico como si fueras a implementarlo en producción de verdad, fase por fase, sin huecos.
+# 🏛️ Especificación Arquitectónica Definitiva: Plataforma de Inteligencia Documental Distribuida
+
+> **Tesis Central de Ingeniería:**  
+> *"Esto no es un pipeline secuencial de procesamiento. Constituye un **sistema de decisión distribuido sobre documentos**, orquestado por eventos, dotado de memoria transaccional inmutable, evaluación de estado y rutinas autónomas de aprendizaje continuo (MLOps)."*
+
+Esta es la especificación técnica final de producción, trazada de manera exhaustiva de extremo a extremo, configurada para resolver las disrupciones típicas de redes integrando resiliencia, control de duplicados masivos y eficiencia en el gasto computacional (CAPEX/OPEX IA).
 
 ---
 
-# 🧠 SISTEMA COMPLETO (EXPLICADO DE VERDAD, DE EXTREMO A EXTREMO)
+## 🗺️ Topología Maestra del Sistema (Arquitectura End-to-End)
 
-Esto no es un pipeline lineal. Es:
+El siguiente modelo ilustra la máquina de estados completa delineando los 14 vectores funcionales críticos:
 
-> 🧩 un sistema distribuido de decisión + IA + estado + aprendizaje continuo
-
----
-
-# 🟢 FASE 1 — FRONTEND (CAPTURA DEL EXPEDIENTE)
-
-El usuario sube:
-
-- 9 documentos (PDFs o imágenes)
-- en un solo “expediente”
-
-📌 Aquí NO hay IA.
-
-Solo:
-
-- UI upload
-- validación básica cliente
-
-📌 Problema que resuelve:
-evitar carga inválida antes de gastar backend
-
----
-
-# 🔐 FASE 2 — API GATEWAY (FILTRO DE ENTRADA)
-
-Aquí se decide si el sistema acepta el expediente.
-
-Hace:
-
-- autenticación (JWT)
-- rate limit
-- antivirus
-- validación de formato
-- tamaño de archivos
-
-📌 Importante:
-si falla aquí → el sistema ni empieza
-
----
-
-# 🆔 FASE 3 — ID + IDEMPOTENCIA
-
-Se genera:
-
-- ID único del expediente
-
-y se evita esto:
-
-> “el usuario sube el mismo expediente 3 veces por error”
-
-📌 Esto es crítico porque:
-
-- hay retries
-- hay redes inestables
-- hay usuarios duplicando uploads
-
----
-
-# 🔐 FASE 4 — CONTEXTO DE SEGURIDAD
-
-Se añade:
-
-- tenant (cliente)
-- permisos
-- cifrado
-
-📌 Esto asegura:
-
-- separación de empresas
-- datos aislados
-- seguridad legal (GDPR)
-
----
-
-# 🧊 FASE 5 — STORAGE RAW (PDF INMUTABLE)
-
-Se guarda el expediente tal cual llega:
-
-- Blob storage
-- versionado
-- cifrado
-
-📌 Esto es la “fuente de verdad”
-
-Nunca se modifica.
-
----
-
-# 🧠 FASE 6 — FINGERPRINT (ANTI-DUPLICADO INTELIGENTE)
-
-Aquí empieza lo interesante.
-
-Se genera una “huella del documento”:
-
-No es solo hash.
-
-Es mezcla de:
-
-- hash estructural
-- embeddings semánticos
-- características visuales
-
-📌 Sirve para:
-
-- detectar duplicados incluso si cambian cosas mínimas
-
----
-
-# ⚡ FASE 7 — EVENT ROUTER
-
-Decide cómo se procesa:
-
-- Redis Queue → rápido (real-time)
-- Service Bus → batch (masivo / diferido)
-
-📌 Esto permite:
-
-- escalar
-- priorizar usuarios VIP
-- separar carga pesada
-
----
-
-# 🧠 FASE 8 — ORQUESTADOR (CEREBRO DEL SISTEMA)
-
-Aquí vive la lógica central.
-
-Hace:
-
-- controla flujo del expediente
-- decide siguiente paso
-- recupera estado desde Redis
-
-📌 Esto es clave:
-sin esto, todo sería caótico
-
----
-
-# 🧾 FASE 9 — STATE MACHINE (REDIS)
-
-Redis guarda TODO:
-
-- estado del expediente
-- estado de cada documento
-- progreso IA
-- errores
-- retries
-
-📌 Estados típicos:
-
-```
-RECEIVED
-PROCESSING
-DOCS_DONE
-SCORING
-COMPLETED
-FAILED
-```
-
----
-
-# 📦 FASE 10 — FAN OUT (PARALELIZACIÓN)
-
-El expediente se divide en:
-
-- 9 documentos → 9 workers
-
-📌 Esto evita:
-
-- procesamiento secuencial lento
-- UX de “espera eterna”
-
----
-
-# 📄 FASE 11 — PDF PARSER
-
-Cada documento:
-
-- se abre
-- se divide en páginas
-
-📌 Aquí empieza la estructura real del contenido
-
----
-
-# 🧾 FASE 12 — DETECCIÓN DE CONTENIDO
-
-Por página:
-
-- texto digital
-- imagen escaneada
-- mixto
-
-📌 Esto define el camino siguiente
-
----
-
-# 🖼️ FASE 13 — VISION PREPROCESSING
-
-Si es imagen:
-
-- deskew (alinear)
-- denoise (ruido)
-- mejorar contraste
-
-📌 objetivo:
-hacer el OCR más preciso
-
----
-
-# 👁️ FASE 14 — OCR
-
-Convierte imagen → texto
-
-📌 pero:
-
-- no siempre es fiable
-- depende calidad documento
-
----
-
-# 🤖 FASE 15 — FALLBACK LLM VISION
-
-Si OCR falla:
-
-- modelo multimodal (GPT-4o / Claude)
-
-📌 esto salva casos difíciles:
-
-- fotos malas
-- escaneos rotos
-
----
-
-# 🧹 FASE 16 — NORMALIZACIÓN
-
-El texto bruto se limpia:
-
-- encoding roto
-- espacios raros
-- errores OCR
-
-📌 salida:
-texto estructurado limpio
-
----
-
-# 🧠 FASE 17 — NER (EXTRACCIÓN SEMÁNTICA)
-
-Extrae:
-
-- nombres
-- fechas
-- importes
-- entidades legales
-
-📌 aquí empieza “entender el documento”
-
----
-
-# 📑 FASE 18 — CLASIFICADOR DOCUMENTAL
-
-Detecta tipo:
-
-- DNI
-- factura
-- contrato
-- fiscal
-- legal
-
-📌 esto decide qué agente usar
-
----
-
-# 🤖 FASE 19 — AGENTES ESPECIALIZADOS
-
-Cada uno es experto:
-
-- DNI Agent → identidad
-- Invoice Agent → facturas
-- Contract Agent → contratos
-- Legal Agent → cláusulas legales
-- Fiscal Agent → impuestos
-
-📌 cada uno convierte texto → JSON estructurado
-
----
-
-# 🧩 FASE 20 — FAN-IN (RECONSTRUCCIÓN DEL EXPEDIENTE)
-
-Ahora se juntan los 9 documentos:
-
-- coherencia entre ellos
-- contradicciones
-- duplicidades
-
-📌 resultado:
-
-👉 expediente único estructurado
-
----
-
-# ⚖️ FASE 21 — DECISIÓN FINAL (CAE + IA)
-
-Aquí se decide:
-
-- aprobar
-- revisión humana
-- rechazar
-
-Usa:
-
-- reglas fijas (CAE)
-- scoring IA
-- coherencia global
-
----
-
-# 🔁 CAPA TRANSVERSAL (IMPORTANTÍSIMA)
-
-## 🧠 Redis updates constantes
-
-Cada fase actualiza estado
-
-## 📊 Observabilidad
-
-- logs
-- métricas
-- trazas
-
-## 🧠 Learning loop
-
-- humanos corrigen
-- IA se reentrena
-- modelos evolucionan
-
----
-
-# 🧠 IDEA CLAVE FINAL
-
-Esto NO es un pipeline.
-
-Es:
-
-> 🧠 un sistema de decisión distribuido sobre documentos con memoria, aprendizaje y control de estado.
-
----
-
-# 🚀 SI QUIERES EL SIGUIENTE NIVEL
-
-Puedo llevarte esto a nivel aún más real:
-
-- cuánto cuesta cada fase (€ por expediente)
-- cuellos de botella reales
-- arquitectura Azure/AWS equivalente
-- cómo escalar a millones de docs/día
-- cómo evitar fallos de IA en producción crítica
-
-Solo dime.
-
+```mermaid
 flowchart LR
 
 %% ===================== 1. FRONTEND =====================
 subgraph L1["1. FRONTEND"]
-A["1.1 Upload Pack (9 Docs)"] --> B["1.2 API Gateway"]
+    direction TB
+    A["1.1 Upload Pack (9 Docs)"] --> B["1.2 API Gateway"]
 end
 
 %% ===================== 2. API =====================
-subgraph L2["2. API GATEWAY"]
-B --> B1["2.1 Auth (JWT) + Rate Limit"]
-B1 --> B2{"2.2 Valid Request?"}
-B2 -- No --> ERR["2.3 Reject + UX Error"]
-B2 -- Yes --> ID["2.4 Generate Expedition ID"]
+subgraph L2["2. EDGE SECURE GATEWAY"]
+    direction TB
+    B --> B1["2.1 Auth (JWT) + Rate Limit"]
+    B1 --> B2{"2.2 Valid Request?"}
+    B2 -- No --> ERR["2.3 Reject + UX Error"]
+    B2 -- Yes --> ID["2.4 Generate Expedition ID"]
 end
 
 %% ===================== 3. IDENTITY =====================
-subgraph L3["3. IDENTITY + IDEMPOTENCY"]
-ID --> ID2["3.1 Idempotency Check"]
-ID2 --> ID3{"3.2 Already processed?"}
-ID3 -- Yes --> CACHE["3.3 Return Cached Result"]
-ID3 -- No --> SEC["3.4 Security Context (Tenant + Encryption)"]
+subgraph L3["3. CONTEXTO E IDEMPOTENCIA"]
+    direction TB
+    ID --> ID2["3.1 Idempotency Check"]
+    ID2 --> ID3{"3.2 Already processed?"}
+    ID3 -- Yes --> CACHED_RES["3.3 Return Cached Result"]
+    ID3 -- No --> SEC["3.4 Security Context (Tenant/Enc)"]
 end
 
 %% ===================== 4. STORAGE =====================
-subgraph L4["4. STORAGE"]
-SEC --> RAW["4.1 Blob Storage RAW (Immutable PDFs)"]
-RAW --> FP0["4.2 Pre-Fingerprint (Hash + Embeddings)"]
-FP0 --> FP1{"4.3 Duplicate?"}
-FP1 -- Yes --> DUP["4.4 Stop (Duplicate Detected)"]
-FP1 -- No --> EVT["4.5 Event Router"]
+subgraph L4["4. PERSISTENCIA INICIAL"]
+    direction TB
+    SEC --> RAW["4.1 Blob Storage RAW (Immutable PDFs)"]
+    RAW --> FP0["4.2 Pre-Fingerprint (Hash/Embeddings)"]
+    FP0 --> FP1{"4.3 Duplicate?"}
+    FP1 -- Yes --> DUP["4.4 Stop (Duplicate Detected)"]
+    FP1 -- No --> EVT["4.5 Event Router"]
 end
 
 %% ===================== 5. EVENT BACKBONE =====================
 subgraph L5["5. EVENT BACKBONE"]
-EVT --> RQ["5.1 Redis Queue (Fast Path)"]
-EVT --> SB["5.2 Service Bus (Reliable Path)"]
+    direction TB
+    EVT --> RQ["5.1 Redis Queue (Fast Path)"]
+    EVT --> SB["5.2 Service Bus (Reliable Path)"]
 
-SB --> DLQ["5.3 Dead Letter Queue"]
-SB --> RETRY["5.4 Retry Manager"]
+    SB --> DLQ["5.3 Dead Letter Queue"]
+    SB --> RETRY["5.4 Retry Manager"]
 
-RQ --> ORCH["5.5 Orchestrator"]
-SB --> ORCH
+    RQ --> ORCH["5.5 Orchestrator"]
+    SB --> ORCH
 end
 
 %% ===================== 6. ORCHESTRATION =====================
-subgraph L6["6. ORCHESTRATION + STATE"]
-ORCH --> STATE[(6.1 Redis Live State)]
-ORCH --> CACHE2[(6.2 Read Model Cache)]
-ORCH --> AUDIT["6.3 Event Log"]
-ORCH --> FSM["6.4 State Machine (RECEIVED → DONE)"]
+subgraph L6["6. MÁQUINA DE ESTADOS"]
+    direction TB
+    ORCH --> STATE[(6.1 Redis Live State)]
+    ORCH --> CACHE2[(6.2 Read Model Cache)]
+    ORCH --> AUDIT["6.3 Event Log / Firehose"]
+    ORCH --> FSM["6.4 State Machine FSM"]
 end
 
 %% ===================== 7. WORKERS =====================
-subgraph L7["7. WORKER POOL"]
-ORCH --> W1["7.1 Doc Workers (xN)"]
-W1 --> PIPE["7.2 Document Pipeline"]
+subgraph L7["7. FAN-OUT WORKER POOL"]
+    direction TB
+    ORCH --> W1["7.1 Doc Micro-Workers (x9)"]
+    W1 --> PIPE["7.2 Sub-Runtime Trigger"]
 end
 
 %% ===================== 8. DOCUMENT PIPELINE =====================
-subgraph L8["8. DOCUMENT PIPELINE"]
+subgraph L8["8. PIPELINE ATÓMICO (Por Documento)"]
+    direction TB
+    PIPE --> SPLIT["8.1 PDF Parser + Splitter"]
+    SPLIT --> T{"8.2 Content Type"}
+    
+    T -- Text --> TXT["8.3 Text Extraction"]
+    T -- Image --> IMG["8.4 Render Page"]
 
-PIPE --> SPLIT["8.1 PDF Parser + Splitter"]
+    IMG --> PRE["8.5 Vision Preprocessing"]
+    PRE --> OCR["8.6 Core OCR Engine"]
 
-SPLIT --> T{"8.2 Content Type"}
-T -- Text --> TXT["8.3 Text Extraction"]
-T -- Image --> IMG["8.4 Render Page"]
+    OCR --> CONF{"8.7 Confidence Score"}
+    CONF -- Low --> VLM["8.8 Multimodal LLM Fallback"]
+    CONF -- High --> TXT2["8.9 Text Fusion"]
 
-IMG --> PRE["8.5 Vision Preprocessing"]
-PRE --> OCR["8.6 OCR Engine"]
+    VLM --> TXT2
+    TXT --> TXT2
 
-OCR --> CONF{"8.7 Confidence Score"}
-CONF -- Low --> VLM["8.8 Multimodal LLM Fallback"]
-CONF -- High --> TXT2["8.9 Merge Text"]
+    TXT2 --> NORM["8.10 Text Normalization"]
+    NORM --> NER["8.11 NER + Semantic Entities"]
+    NER --> CLASS{"8.12 Doc Classifier"}
 
-VLM --> TXT2
-TXT --> TXT2
+    CLASS --> D1["8.13 DNI Agent"]
+    CLASS --> D2["8.14 Invoice Agent"]
+    CLASS --> D3["8.15 Contract Agent"]
+    CLASS --> D4["8.16 Insurance Agent"]
+    CLASS --> D5["8.17 Fiscal Agent"]
+    CLASS --> D6["8.18 Legal Agent"]
+    CLASS --> D7["8.19 Core Generic Agent"]
 
-TXT2 --> NORM["8.10 Normalization"]
-NORM --> NER["8.11 NER + Entities"]
-
-NER --> CLASS{"8.12 Document Classifier"}
-
-CLASS --> D1["8.13 DNI Agent"]
-CLASS --> D2["8.14 Invoice Agent"]
-CLASS --> D3["8.15 Contract Agent"]
-CLASS --> D4["8.16 Insurance Agent"]
-CLASS --> D5["8.17 Fiscal Agent"]
-CLASS --> D6["8.18 Legal Agent"]
-CLASS --> D7["8.19 Generic Agent"]
-
-D1 --> J1["8.20 JSON Output"]
-D2 --> J2["8.20 JSON Output"]
-D3 --> J3["8.20 JSON Output"]
-D4 --> J4["8.20 JSON Output"]
-D5 --> J5["8.20 JSON Output"]
-D6 --> J6["8.20 JSON Output"]
-D7 --> J7["8.20 JSON Output"]
-
+    D1 & D2 & D3 & D4 & D5 & D6 & D7 --> JOUT["8.20 Extracted JSON"]
 end
 
 %% ===================== 9. AGGREGATION =====================
-subgraph L9["9. FAN-IN AGGREGATION"]
-J1 --> AGG["9.1 Aggregator"]
-J2 --> AGG
-J3 --> AGG
-J4 --> AGG
-J5 --> AGG
-J6 --> AGG
-J7 --> AGG
-
-AGG --> UNIFIED["9.2 Unified Expedition JSON"]
+subgraph L9["9. FAN-IN (AGREGADOR)"]
+    direction TB
+    JOUT --> AGG["9.1 Async Aggregator"]
+    AGG --> UNIFIED["9.2 Unified Expedition JSON"]
 end
 
 %% ===================== 10. VALIDATION ENGINE =====================
-subgraph L10["10. CAE + SCORING ENGINE"]
-UNIFIED --> FP2["10.1 Semantic Fingerprint"]
+subgraph L10["10. SCORING Y MOTOR CAE"]
+    direction TB
+    UNIFIED --> FP2["10.1 Global Semantic Fingerprint"]
+    FP2 --> SIM{"10.2 Similarity Check"}
 
-FP2 --> SIM{"10.2 Similarity Check"}
+    SIM -- Duplicate --> DUP2["10.3 Blocked Duplicate"]
+    SIM -- New --> RULES["10.4 Rules Engine (CAE)"]
 
-SIM -- Duplicate --> DUP2["10.3 Blocked Duplicate"]
-SIM -- New --> RULES["10.4 Rules Engine (CAE)"]
+    RULES --> SCORE["10.5 Scoring Engine"]
+    SCORE --> DEC{"10.6 Final Decision"}
 
-RULES --> SCORE["10.5 Scoring Engine (Rules + ML)"]
-SCORE --> DEC{"10.6 Final Decision"}
-
-DEC -- >0.9 --> OK["10.7 Approved"]
-DEC -- 0.7-0.9 --> REV["10.8 Human Review"]
-DEC -- <0.7 --> REJ["10.9 Rejected"]
+    DEC -- >0.90 --> OK["10.7 Fully Approved"]
+    DEC -- 0.70-0.89 --> REV["10.8 Human Backoffice"]
+    DEC -- <0.70 --> REJ["10.9 Rejected"]
 end
 
 %% ===================== 11. OUTPUT =====================
-subgraph L11["11. UX OUTPUT"]
-OK --> UX["11.1 Auto-fill UI"]
-REV --> UX
-REJ --> UX
-DUP2 --> UX
-CACHE --> UX
-CACHE2 --> UX
+subgraph L11["11. DELIVERY UX"]
+    direction TB
+    OK & REV & REJ & DUP2 & CACHED_RES --> UX["11.1 Realtime UX (WebSockets)"]
 end
 
 %% ===================== 12. HUMAN LOOP =====================
-subgraph L12["12. HUMAN LOOP + LEARNING"]
-REV --> HUMAN["12.1 Supervisor UI"]
-HUMAN --> LABEL["12.2 Corrections"]
+subgraph L12["12. MLOPS Y REENTRENAMIENTO"]
+    direction TB
+    REV --> HUMAN["12.1 Supervisor UI"]
+    HUMAN --> LABEL["12.2 Corrections Tagging"]
 
-LABEL --> DATASET["12.3 Dataset Builder"]
-DATASET --> FINE["12.4 Fine-tuning Pipeline"]
-FINE --> REG["12.5 Model Registry"]
+    LABEL --> DATASET["12.3 Golden Dataset Builder"]
+    DATASET --> FINE["12.4 Fine-Tuning Pipeline"]
+    FINE --> REG["12.5 Model Registry"]
 
-LABEL --> FPDB["12.6 Fingerprint DB Update"]
+    LABEL --> FPDB["12.6 Vectors DB Update"]
 end
 
 %% ===================== 13. OBSERVABILITY =====================
-subgraph L13["13. OBSERVABILITY"]
-AUDIT --> MON["13.1 Monitoring + Metrics + Tracing"]
-STATE --> MON
-CACHE2 --> MON
-DLQ --> MON
+subgraph L13["13. OBSERVABILIDAD INTEGRAL"]
+    direction TB
+    AUDIT --> MON["13.1 App Insights / Tracing"]
+    STATE --> MON
+    DLQ --> MON
 end
 
-%% ===================== 14. RETRIES =====================
-RETRY --> ORCH
-SB --> RETRY
-SB --> DLQ
+%% Estilos para legibilidad visual
+style L1 fill:#f9f9f9,stroke:#333
+style L2 fill:#f8eaef,stroke:#d81b60
+style L3 fill:#e3f2fd,stroke:#1565c0
+style L4 fill:#e8f5e9,stroke:#2e7d32
+style L5 fill:#fff3e0,stroke:#e65100
+style L6 fill:#c5cae9,stroke:#283593
+style L7 fill:#b2ebf2,stroke:#00838f
+style L8 fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+style L9 fill:#f3e5f5,stroke:#4a148c
+style L10 fill:#e8eaf6,stroke:#1a237e,stroke-width:2px
+style L12 fill:#fffde7,stroke:#fbc02d,stroke-dasharray: 5 5
+style L13 fill:#eceff1,stroke:#37474f
+```
+
+---
+
+## ⚙️ Dinámica Operativa Detallada
+
+### 1-4: Ingesta, Seguridad y Deduplicación Absoluta
+
+*   **1 & 2: Edge Security:** El Front-end inyecta el paquete indivisible. El API Gateway efectúa el aislamiento, evalúa cuotas de red (Rate Limitation) y escanea *malware*. Si el payload está corrupto, reacciona con un *4xx/5xx*, omitiendo cargar procesos estresantes internos.
+*   **3. Idempotencia:** Motor cardinal para arquitecturas distribuidas. Se inscribe un `Expedition_ID` único fundacional. Si por cortes inestables de fibra el usuario u otra CLI pulsa "Subir" 3 veces, la clave de Idempotencia atrapa el clon en la entrada, despachando el resultado anterior encachado (evitando invocar IA de nuevo).
+*   **4. Storage y Fingerprint Inteligente:** El expediente se deposita en almacenamiento WORM perpetuo (Blob). El sistema extrae una *Vectorización Visual y Semántica*. Esto aniquila el mayor de los problemas en procesamiento masivo: si alguien somete un documento del que se varió un píxel pero su huella semántica es 99% idéntica, intercepta el procesamiento redundante, recortando costes asintóticamente.
+
+### 5-7: Columna Vertebral de Orquestación
+
+*   **5. Event Router & Backbone:** Discriminador de estrés de tráfico. Envía expedientes "Fast-path" a memorias ultrarrápidas de *Redis Queues* (Respuesta Síncrona Relativa), pero desvía expedientes monstruosos por *Service Bus* para garantizar la entrega frente a posibles caídas en infraestructuras receptoras.
+*   **6. Orchestrator + FSM (State Machine):** El núcleo duro lógico (Cerebro Operativo). Actualiza al milisegundo el semáforo sobre el expediente en Redis: `RECIBIDO → EXTRAYENDO → EVALUANDO → FINALIZADO`. Si el sistema entero colapsa, y este orquestador se resetea, al arrancar consulta la *memoria Redis* retomando sus labores sin pedir que suban los expedientes nuevamente.
+*   **7. Worker Pool (Fan-Out):** Fragmentación instantánea asíncrona. Si el usuario sube 9 documentos, se alzan concurrentemente 9 clústers/hilos efímeros.
+
+### 8: Pipeline Atómico Documental (El Subsistema IA Central)
+
+Cada Micro-Worker atraviesa la siguiente fase por cada hoja del archivo:
+*   **8.1 al 8.5:** Divide PDF en retículas. Si es hoja digital, ahorramos costes sustrayendo texto nativo; si es imagen celular, aplica visión artificial preventiva (Deskew, Denoise Lapping).
+*   **8.6 al 8.9 (Fallback Resiliente Multimodal):** Invoca el OCR Tesseract/Azure puro. Aquí radica la revolución: El sistema evalúa el `Confidence Score` del OCR. Si la imagen era mala y el texto resultante está irreconocible (low confidence), se interrumpe y redirige el documento crítico a un Modelo Multimodal Fundacional (Ej: *GPT-4o Vision*). Salva escaneos borrosos sin sacrificar presupuestos infiriendo tokens caros sobre textos ya legibles.
+*   **8.10 - 8.12 (Limpieza y Enrutamiento):** Normalizado léxico (encoding) y aplicación de modelos *NER (Named Entity Recognition)*. El Clasificador predice estocásticamente a qué familia pertenece el material que observa.
+*   **8.13 - 8.20 (Extractores Agentes AI):** El identificador llama a un Pront/Modelo afinado exclusivo. El "Agente DNI" está calibrado férreamente contra pasaportes; el "Agente Fiscal" domina IBANs e impuestos. El producto de este ecosistema de agentes concurrentes es un JSON estructurado universal.
+
+### 9 & 10: Agregación Fan-In y Motor de Decisión Integrada (CAE)
+
+*   **9. Agregador (Saga Completa):** Reúne las respuestas aisladas de los 9 workers finalizados. Reensambla temporalidad y concordancia global.
+*   **10. CAE & Scoring Machine:** Expone el JSON general a *reglamentación codificada determinista*. Combina validez temporal (`Fechas > Actuales`) e incongruencias relacionales entre distintos documentos adjuntos. Genera índices de Riesgo en tres franjas (Aprobado Inmediato, Revisión HitL, o Rechazo Total).
+
+### 12 - 14: Capa Transversal Operativa (Loop Biológico)
+
+*   **13 & 14 (Observabilidad y Recuperación):** Red de Trazabilidad total de registros a Data Lakes contables por directrices de cumplimiento bancario. Las *Dead Letter Queues* evitan paros cardíacos del sistema al expulsar expedientes insalvables sin frenar el procesamiento central del clúster.
+*   **12 (Human-in-the-Loop y Evolución Autárquica):** Operación Diferida de Medianoche. Los gestores que evaluaron expedientes "Amarillos" dictaron su error al corregirlos en Front-end. Este plano rastrea ese Delta de fallo y automáticamente lo reasigna a un Creador de Datasets. Dicho pipeline de *Fine-Tuning* pule e invoca pesos estructurales en los Model Registry para ir restando paulatinamente el número de revisiones manuales al mes.
+
+---
+> 💡 *En conclusión técnica, estática y financiera:*  
+> *Esto deja de recaer bajo el paraguas experimental de la Inferencia simple para consolidarse como Infraestructura Cloud Definitiva y Autosustentable. El acoplamiento de Controladores Idempotentes (Tolerancia a fallas), Ruteros Caching y Escaladas en Cascada Híbrida (Control Financiero) dictaminan el nivel máximo de exigencia en arquitecturas modernas impulsadas por Inteligencia Artificial.*
