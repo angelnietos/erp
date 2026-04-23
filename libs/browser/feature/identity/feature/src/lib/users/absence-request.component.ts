@@ -253,31 +253,42 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
   `,
   styles: [
     `
+      .availability-container {
+        animation: fadeIn 0.4s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
       .back-row {
-        margin-top: 0.25rem;
+        margin-bottom: 1.5rem;
+        margin-top: 0.5rem;
       }
       .back-link {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        font-size: 0.875rem;
+        gap: 0.4rem;
+        font-size: 0.9rem;
         font-weight: 600;
-        color: var(--brand);
+        color: var(--text-muted, #64748b);
         text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        background: transparent;
+        margin-left: -0.75rem;
       }
       .back-link:hover {
-        text-decoration: underline;
+        background: var(--bg-hover, #f1f5f9);
+        color: var(--brand, #2563eb);
+        transform: translateX(-3px);
       }
       .pending-card {
-        padding: 1.25rem 1.5rem !important;
-        border-radius: 18px !important;
-        border: 1px solid var(--border-soft);
-        background: linear-gradient(
-          165deg,
-          color-mix(in srgb, var(--brand) 6%, var(--theme-surface, #fff)) 0%,
-          var(--theme-surface, #fff) 100%
-        );
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        padding: 1.5rem 2rem !important;
+        border-radius: 20px !important;
+        border: 1px solid color-mix(in srgb, var(--brand) 15%, transparent);
+        background: linear-gradient(145deg, color-mix(in srgb, var(--brand) 4%, var(--theme-surface, #fff)) 0%, var(--theme-surface, #fff) 100%);
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 2px 5px rgba(0,0,0,0.02);
       }
       .pending-head {
         display: flex;
@@ -285,21 +296,27 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
         justify-content: space-between;
         gap: 1rem;
         flex-wrap: wrap;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1.25rem;
       }
       .pending-title {
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 1.05rem;
+        gap: 0.6rem;
+        font-size: 1.15rem;
         font-weight: 700;
         color: var(--text-primary);
+        letter-spacing: -0.01em;
       }
       .pending-empty {
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         color: var(--text-muted);
+        padding: 1.5rem;
+        text-align: center;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: 12px;
+        border: 1px dashed var(--border-soft);
       }
       .pending-list {
         list-style: none;
@@ -307,53 +324,69 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
+        gap: 0.85rem;
       }
       .pending-item {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 0.75rem;
-        padding: 0.85rem 1rem;
-        border-radius: 12px;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-radius: 14px;
         border: 1px solid var(--border-soft);
-        background: var(--bg-secondary, #f7f7f7);
+        background: var(--theme-surface, #fff);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .pending-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.08);
+        border-color: color-mix(in srgb, var(--brand) 30%, transparent);
       }
       .pending-meta {
         display: flex;
         flex-direction: column;
-        gap: 0.2rem;
+        gap: 0.25rem;
         min-width: 0;
       }
       .pending-kind {
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         color: var(--brand);
       }
       .pending-dates {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: var(--text-primary);
       }
       .pending-who {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: var(--text-muted);
       }
       .pending-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.6rem;
         flex-wrap: wrap;
       }
       .request-card.main-form-card {
-        padding: 1.75rem 2rem !important;
-        border-radius: 22px !important;
-        border: 1px solid color-mix(in srgb, var(--border-soft) 90%, var(--brand) 8%);
+        padding: 2rem 2.5rem !important;
+        border-radius: 24px !important;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
         box-shadow:
-          0 1px 0 rgba(255, 255, 255, 0.6) inset,
-          0 12px 40px rgba(0, 0, 0, 0.06);
+          0 1px 0 rgba(255, 255, 255, 0.8) inset,
+          0 16px 48px -8px rgba(0, 0, 0, 0.06),
+          0 4px 12px -2px rgba(0, 0, 0, 0.03);
+      }
+      :host-context([data-theme='dark']) .request-card.main-form-card {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 
+          0 1px 0 rgba(255, 255, 255, 0.05) inset,
+          0 16px 48px -8px rgba(0, 0, 0, 0.4);
       }
       .request-card ui-tabs {
         display: block;
@@ -365,27 +398,36 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
         box-sizing: border-box;
       }
       .tab-panels {
-        margin-top: 1.5rem;
+        margin-top: 2rem;
+        animation: fadeSlide 0.3s ease-out forwards;
+      }
+      @keyframes fadeSlide {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       .panel-title {
         margin: 0 0 0.5rem;
-        font-size: 1.15rem;
-        font-weight: 700;
+        font-size: 1.3rem;
+        font-weight: 800;
         color: var(--text-primary);
         letter-spacing: -0.02em;
       }
       .panel-hint {
-        margin: 0 0 1.25rem;
-        font-size: 0.92rem;
+        margin: 0 0 1.5rem;
+        font-size: 0.95rem;
         color: var(--text-muted);
-        line-height: 1.5;
+        line-height: 1.6;
+        background: color-mix(in srgb, var(--brand) 5%, transparent);
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border-left: 3px solid var(--brand);
       }
       .field-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        gap: 1.25rem;
       }
-      @media (max-width: 560px) {
+      @media (max-width: 640px) {
         .field-row {
           grid-template-columns: 1fr;
         }
@@ -393,53 +435,80 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
       .field {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        margin-bottom: 1rem;
+        gap: 0.4rem;
+        margin-bottom: 1.25rem;
       }
       .field.full {
         grid-column: 1 / -1;
       }
       .field span {
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
         color: var(--text-muted);
+        margin-left: 0.25rem;
       }
       .field input[type='date'],
       .field select,
       .field textarea {
         font: inherit;
-        padding: 0.6rem 0.8rem;
-        border-radius: 12px;
-        border: 1px solid var(--border-soft);
-        background: var(--theme-surface, #fff);
+        padding: 0.75rem 1rem;
+        border-radius: 14px;
+        border: 2px solid transparent;
+        background: var(--bg-secondary, #f1f5f9);
         color: var(--text-primary);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) inset;
+      }
+      .field input[type='date']:hover,
+      .field select:hover,
+      .field textarea:hover {
+        background: var(--bg-hover, #e2e8f0);
+      }
+      .field input[type='date']:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        background: var(--theme-surface, #fff);
+        border-color: var(--brand);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 20%, transparent);
       }
       .field textarea {
         resize: vertical;
-        min-height: 3.5rem;
+        min-height: 4.5rem;
+        line-height: 1.5;
       }
       ui-button {
-        margin-top: 0.5rem;
+        margin-top: 1rem;
+        display: inline-block;
       }
       .tech-footnote {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        margin: 1.25rem 0 0;
-        font-size: 0.88rem;
+        gap: 0.5rem;
+        margin: 2rem 0 0;
+        font-size: 0.9rem;
         color: var(--text-muted);
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--border-soft);
       }
       .warn-banner {
-        margin: 1rem 0 0;
-        padding: 0.85rem 1.1rem;
-        border-radius: 12px;
-        background: color-mix(in srgb, var(--warning) 16%, transparent);
-        border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
-        font-size: 0.88rem;
+        margin: 1.5rem 0 0;
+        padding: 1rem 1.25rem;
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--warning) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+        font-size: 0.95rem;
         color: var(--text-primary);
-        line-height: 1.45;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .warn-banner::before {
+        content: '⚠️';
+        font-size: 1.2rem;
       }
     `,
   ],
