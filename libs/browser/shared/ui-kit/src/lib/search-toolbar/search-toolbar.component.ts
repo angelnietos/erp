@@ -104,27 +104,18 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature .search-toolbar__field {
-      align-self: center;
-      flex: 1 1 auto;
-      min-width: 0;
-      margin: 0.35rem 0.4rem 0.35rem 0.55rem;
-      padding: 0.05rem 0.45rem 0.05rem 0.2rem;
-      border-radius: 12px;
-      background: color-mix(
-        in srgb,
-        var(--text-primary) 5.5%,
-        var(--theme-surface, var(--surface))
-      );
-      border: 1px solid var(--border-soft);
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+      align-self: stretch;
+      flex: 1 1 200px;
+      min-width: 150px;
+      margin: 0;
+      padding: 0;
+      border-radius: 999px 0 0 999px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
     }
 
-    :host-context(html[data-theme-is-light='false'])
-      .search-toolbar--feature
-      .search-toolbar__field {
-      background: color-mix(in srgb, var(--theme-surface) 92%, var(--text-primary) 8%);
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
-    }
+
 
     .search-toolbar__divider {
       width: 1px;
@@ -214,9 +205,9 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature .search-toolbar__field {
-      border-radius: 10px;
-      background: color-mix(in srgb, var(--text-primary, #080808) 5%, #f3f4f6);
-      border-color: rgba(8, 8, 8, 0.1);
+      border-radius: 10px 0 0 10px;
+      background: transparent;
+      border-color: transparent;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature .search-toolbar__divider {

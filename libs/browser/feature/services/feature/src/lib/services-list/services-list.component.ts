@@ -539,28 +539,32 @@ import { ServicesStore, Service } from '../services.store';
 
       .selection-header {
         grid-column: 1 / -1;
-        background: var(--surface);
-        border: 1px solid var(--border-soft);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
         display: flex;
+        justify-content: flex-end;
         align-items: center;
+        padding: 0 0.5rem 0.5rem 0;
       }
-
       .checkbox-label {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         cursor: pointer;
-        font-weight: 600;
-        color: var(--text-primary);
+        color: var(--text-muted);
+        opacity: 0.8;
+        transition: color 0.2s, opacity 0.2s;
       }
-
+      .checkbox-label:hover {
+        color: var(--text-primary);
+        opacity: 1;
+      }
       .selection-checkbox {
-        width: 16px;
-        height: 16px;
-        accent-color: var(--primary);
+        width: 15px;
+        height: 15px;
+        accent-color: var(--brand);
         cursor: pointer;
       }
 

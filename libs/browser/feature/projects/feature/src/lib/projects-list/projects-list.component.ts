@@ -431,26 +431,35 @@ import { Observable, of } from 'rxjs';
         font-size: 0.875rem;
       }
 
-      /* Selection */
       .selection-header {
         grid-column: 1 / -1;
         display: flex;
         justify-content: flex-end;
-        padding: 1rem;
-        border-bottom: 1px solid var(--border-soft);
+        align-items: center;
+        padding: 0 0.5rem 0.5rem 0;
       }
       .checkbox-label {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 0.72rem;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         cursor: pointer;
+        color: var(--text-muted);
+        opacity: 0.8;
+        transition: color 0.2s, opacity 0.2s;
+      }
+      .checkbox-label:hover {
+        color: var(--text-primary);
+        opacity: 1;
       }
       .selection-checkbox {
-        width: 16px;
-        height: 16px;
-        accent-color: var(--primary);
+        width: 15px;
+        height: 15px;
+        accent-color: var(--brand);
+        cursor: pointer;
       }
       .card-selection {
         position: absolute;
