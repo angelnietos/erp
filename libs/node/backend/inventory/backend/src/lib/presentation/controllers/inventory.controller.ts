@@ -33,7 +33,8 @@ export class ProductsController {
 
   @Post()
   async create(@Req() req: Request, @Body() data: AnyPayload) {
-    return this.inventoryService.create(requireRequestTenantId(req), data);
+    const actorUserId = (req.user as any)?.sub;
+    return this.inventoryService.create(requireRequestTenantId(req), data, actorUserId);
   }
 
   @Put(':id')
@@ -42,11 +43,13 @@ export class ProductsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: AnyPayload,
   ) {
-    return this.inventoryService.update(requireRequestTenantId(req), id, data);
+    const actorUserId = (req.user as any)?.sub;
+    return this.inventoryService.update(requireRequestTenantId(req), id, data, actorUserId);
   }
 
   @Delete(':id')
   async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
-    return this.inventoryService.delete(requireRequestTenantId(req), id);
+    const actorUserId = (req.user as any)?.sub;
+    return this.inventoryService.delete(requireRequestTenantId(req), id, actorUserId);
   }
 }

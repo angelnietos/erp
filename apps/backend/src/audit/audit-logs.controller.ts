@@ -94,6 +94,8 @@ export class AuditLogsController {
       take: n,
     });
 
+    console.log(`[AuditLogsController] Found ${rows.length} rows for tenant ${tenantId} (users: ${userIds.length})`);
+
     const users = await this.prisma.user.findMany({
       where: { id: { in: [...new Set(rows.map((r) => r.userId))] } },
       select: { id: true, firstName: true, lastName: true, email: true },

@@ -15,14 +15,20 @@ export class AuditLogWriterService {
       changesJson?: Prisma.InputJsonValue;
     },
   ): Promise<void> {
-    await this.prisma.auditLog.create({
-      data: {
-        userId,
-        action: input.action,
-        targetEntity: input.targetEntity,
-        correlationId: randomUUID(),
-        changesJson: (input.changesJson ?? {}) as Prisma.InputJsonValue,
-      },
-    });
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          userId,
+          action: input.action,
+          targetEntity: input.targetEntity,
+          correlationId: randomUUID(),
+          changesJson: (input.changesJson ?? {}) as Prisma.InputJsonValue,
+        },
+      });
+      console.log(`[AuditLogWriter] Recorded ${input.action} for user ${userId} on ${input.targetEntity}`);
+    } catch (err) {
+      console.error(`[AuditLogWriter] Failed to record audit log for user ${userId}:`, err);
+      // We don't throw to avoid breaking the main business flow if audit logging fails
+    }
   }
 }

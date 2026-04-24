@@ -1,12 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import {
+  AuditLogWriterService,
+  PrismaService,
+} from '@josanz-erp/shared-infrastructure';
 
 type ProductData = Record<string, unknown>;
 
 @Injectable()
 export class InventoryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogWriter: AuditLogWriterService,
+  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private get db(): any { return this.prisma; }
@@ -29,7 +35,7 @@ export class InventoryService {
     return this.mapToDto(product);
   }
 
-  async create(tenantId: string, data: ProductData) {
+  async create(tenantId: string, data: ProductData, actorUserId?: string) {
     const product = await this.db.product.create({
       data: {
         tenantId,
@@ -51,7 +57,7 @@ export class InventoryService {
     return this.mapToDto(product);
   }
 
-  async update(tenantId: string, id: string, data: ProductData) {
+  async update(tenantId: string, id: string, data: ProductData, actorUserId?: string) {
     const updatePayload: Record<string, unknown> = {};
     if (data['name']) updatePayload['name'] = String(data['name']);
     if (data['sku']) updatePayload['sku'] = String(data['sku']);
@@ -80,11 +86,26 @@ export class InventoryService {
     return this.mapToDto(product);
   }
 
-  async delete(_tenantId: string, id: string) {
+  async delete(_tenantId: string, id: string, actorUserId?: string) {
+    const existing = await this.db.product.findUnique({ where: { id } });
+    
     await this.db.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.inventory.deleteMany({ where: { productId: id } });
       await tx.product.delete({ where: { id } });
     });
+
+    if (existing && actorUserId) {
+      void this.auditLogWriter.record(actorUserId, {
+        action: 'DELETE',
+        targetEntity: `Product:${id}`,
+        changesJson: {
+          entityType: 'PRODUCT',
+          entityName: existing.name,
+          details: 'Producto eliminado del inventario',
+        },
+      }).catch(() => undefined);
+    }
+
     return { success: true };
   }
 

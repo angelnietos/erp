@@ -124,176 +124,209 @@ interface AuditLog {
           label="Registros Totales" 
           [value]="auditLogs().length.toString()" 
           icon="history" 
-          [accent]="true">
+          [accent]="true"
+          class="stat-standard">
         </ui-stat-card>
         <ui-stat-card 
           label="Acciones hoy" 
           [value]="todayActionsCount().toString()" 
-          icon="activity">
+          icon="activity"
+          class="stat-standard">
         </ui-stat-card>
         <ui-stat-card 
           label="Usuarios Activos" 
           [value]="activeUsersCount().toString()" 
-          icon="users">
+          icon="users"
+          class="stat-standard">
         </ui-stat-card>
       </ui-feature-stats>
 
       <ui-feature-filter-bar
         [appearance]="'feature'"
         [searchVariant]="'glass'"
-        placeholder="Buscar en el log por usuario, acción o entidad…"
+        placeholder="Buscar por usuario, acción o entidad..."
         (searchChange)="onSearch($event)"
       >
-        <ui-button
-          variant="ghost"
-          size="sm"
-          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
-          (clicked)="toggleSort()"
-        >
-          Ordenar:
-          {{
-            sortField() === 'timestamp'
-              ? 'fecha'
-              : sortField() === 'userName'
-                ? 'usuario'
-                : 'acción'
-          }}
-        </ui-button>
-      </ui-feature-filter-bar>
-
-      @if (loadError() && auditLogs().length > 0) {
-        <div class="feature-load-error-banner" role="status" aria-live="polite">
-          <lucide-icon
-            name="alert-circle"
-            size="20"
-            class="feature-load-error-banner__icon"
-            aria-hidden="true"
-          ></lucide-icon>
-          <span class="feature-load-error-banner__text">{{ loadError() }}</span>
-          <ui-button variant="ghost" size="sm" icon="rotate-cw" (clicked)="reloadLogs()">
-            Reintentar
+        <div class="filter-actions">
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+            class="sort-button"
+          >
+            ORDENAR POR:
+            <span class="sort-field-label">
+              {{
+                sortField() === 'timestamp'
+                  ? 'FECHA'
+                  : sortField() === 'userName'
+                    ? 'USUARIO'
+                    : 'ACCIÓN'
+              }}
+            </span>
+          </ui-button>
+          
+          <ui-button
+            variant="solid"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="reloadLogs()"
+            [loading]="isLoading()"
+            class="refresh-button"
+          >
+            ACTUALIZAR
           </ui-button>
         </div>
-      }
+      </ui-feature-filter-bar>
 
-      <div class="audit-content">
+      <div class="audit-trail-grid-wrap animate-fade-in">
         @if (isLoading() && auditLogs().length === 0) {
-          <div class="feature-loader-wrap">
-            <ui-loader message="Cargando registro de auditoría…"></ui-loader>
+          <div class="audit-loading-surface">
+            <ui-loader message="Analizando traza de auditoría..."></ui-loader>
           </div>
         } @else if (loadError() && auditLogs().length === 0) {
-          <div class="feature-error-screen" role="alert">
-            <lucide-icon name="wifi-off" size="48" class="feature-error-screen__icon" aria-hidden="true"></lucide-icon>
-            <h3>No se pudo cargar el registro</h3>
+          <div class="audit-error-surface">
+            <lucide-icon name="alert-triangle" size="48"></lucide-icon>
+            <h3>Fallo en el servidor</h3>
             <p>{{ loadError() }}</p>
-            <ui-button variant="solid" icon="rotate-cw" (clicked)="reloadLogs()">Reintentar</ui-button>
+            <ui-button variant="solid" (clicked)="reloadLogs()">Reintentar conexión</ui-button>
           </div>
         } @else {
-        <ui-feature-grid>
-          @for (log of paginatedLogs(); track log.id) {
-            <ui-feature-card
-              [name]="log.userName | uppercase"
-              [subtitle]="getEntityText(log.entity) | uppercase"
-              [avatarInitials]="log.userName.slice(0, 2).toUpperCase()"
-              [avatarBackground]="getActionOrbColor(log.action)"
-              status="active"
-              [badgeLabel]="getActionText(log.action) | uppercase"
-              [badgeVariant]="getActionVariant(log.action)"
-              [showEdit]="false"
-              [showDuplicate]="false"
-              [showDelete]="false"
-              (cardClicked)="toggleLogExpansion(log.id)"
-              [footerItems]="[
-                { icon: 'clock', label: formatTimestamp(log.timestamp) },
-                { icon: 'shield', label: log.action }
-              ]"
-            >
-              @if (log.entityName) {
-                <div class="log-entity-target" style="margin-top: 0.5rem; font-size: 0.8rem; font-weight: 700; color: var(--brand);">
-                  OBJETIVO: {{ log.entityName }}
-                </div>
-              }
-              
-              @if (expandedLog() === log.id) {
-                <div class="log-details-block" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border-soft);">
-                  @if (log.details) {
-                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">{{ log.details }}</p>
-                  }
-                  @if (hasChanges(log.changes || {})) {
-                    <div class="changes-list" style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
-                      @for (change of getChangesArray(log.changes || {}); track change.field) {
-                        <div style="font-size: 0.75rem; color: var(--text-secondary);">
-                          <strong style="color: var(--text-primary);">{{ change.field }}:</strong> 
-                          <span style="opacity: 0.6; text-decoration: line-through;">{{ change.old | json }}</span> &rarr; 
-                          <span style="color: var(--success);">{{ change.new | json }}</span>
-                        </div>
-                      }
+          <ui-feature-grid>
+            @for (log of paginatedLogs(); track log.id) {
+              <ui-feature-card
+                [name]="log.userName"
+                [subtitle]="getEntityText(log.entity)"
+                [avatarInitials]="log.userName.slice(0, 2)"
+                [avatarBackground]="getActionOrbColor(log.action)"
+                [badgeLabel]="getActionText(log.action)"
+                [badgeVariant]="getActionVariant(log.action)"
+                [showEdit]="false"
+                [footerItems]="[
+                  { icon: 'clock', label: formatTimestamp(log.timestamp) },
+                  { icon: 'info', label: log.id.slice(0,8) }
+                ]"
+                (cardClicked)="toggleLogExpansion(log.id)"
+                class="audit-card"
+              >
+                @if (log.entityName) {
+                  <div class="target-chip">
+                    <span class="chip-label">OBJETIVO:</span>
+                    <span class="chip-value">{{ log.entityName }}</span>
+                  </div>
+                }
+
+                @if (expandedLog() === log.id) {
+                  <div class="log-expansion-panel animate-slide-down">
+                    <div class="detail-row">
+                      <lucide-icon name="info" size="14"></lucide-icon>
+                      <p>{{ log.details || 'Sin detalles adicionales' }}</p>
                     </div>
-                  }
-                </div>
-              }
-            </ui-feature-card>
-          } @empty {
-            @if (filterProducesNoResults()) {
-              <div class="feature-empty feature-empty--wide">
-                <lucide-icon name="search-x" size="56" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
-                <h3>Sin resultados</h3>
-                <p>Ningún registro coincide con la búsqueda o los filtros actuales.</p>
-                <ui-button variant="ghost" size="sm" icon="circle-x" (clicked)="clearFiltersAndSearch()">
-                  Limpiar búsqueda y filtros
-                </ui-button>
-              </div>
-            } @else {
-              <div class="feature-empty feature-empty--wide">
-                <lucide-icon name="history" size="56" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
-                <h3>No hay registros</h3>
-                <p>Aún no hay actividad auditada para este tenant. Los inicios de sesión y las operaciones en proyectos, clientes y servicios aparecerán aquí.</p>
+                    
+                    @if (hasChanges(log.changes || {})) {
+                      <div class="changes-timeline">
+                        <div class="timeline-header">VALORES MODIFICADOS</div>
+                        @for (change of getChangesArray(log.changes || {}); track change.field) {
+                          <div class="change-entry">
+                            <span class="field">{{ change.field }}</span>
+                            <div class="flow">
+                              <span class="old">{{ change.old | json }}</span>
+                              <lucide-icon name="arrow-right" size="12"></lucide-icon>
+                              <span class="new">{{ change.new | json }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                    
+                    <div class="technical-meta">
+                      <span>ENTITY_ID: {{ log.targetEntity }}</span>
+                      <span class="spacer">|</span>
+                      <span>TRACE_ID: {{ log.id }}</span>
+                    </div>
+                  </div>
+                }
+              </ui-feature-card>
+            } @empty {
+              <div class="full-empty-state">
+                <div class="orb-empty"></div>
+                <lucide-icon name="shield" size="64"></lucide-icon>
+                <h3>Traza de Auditoría Vacía</h3>
+                <p>Aún no se ha registrado actividad para este tenant. Las acciones de usuarios y cambios en el sistema aparecerán aquí en tiempo real.</p>
               </div>
             }
-          }
-        </ui-feature-grid>
-
-        <footer class="pagination-footer">
-          <ui-pagination 
-            [currentPage]="currentPage()" 
-            [totalPages]="totalPages()"
-            (pageChange)="goToPage($event)"
-          ></ui-pagination>
-        </footer>
+          </ui-feature-grid>
+          
+          <div class="pagination-footer">
+            <ui-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              (pageChange)="goToPage($event)"
+            ></ui-pagination>
+          </div>
         }
       </div>
       }
     </ui-feature-page-shell>
   `,
   styles: [`
-    .audit-content {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+    .filter-actions { display: flex; gap: 1rem; align-items: center; }
+    .sort-field-label { color: var(--brand); font-weight: 950; margin-left: 0.25rem; }
+
+    .audit-trail-grid-wrap { margin-top: 2rem; position: relative; }
+    
+    .audit-card {
+      background: rgba(255, 255, 255, 0.03) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05) !important;
+      transition: all 0.4s var(--ease-out-expo);
+    }
+    .audit-card:hover { transform: translateY(-5px); border-color: rgba(var(--brand-rgb), 0.3) !important; }
+
+    .target-chip {
+      margin-top: 1rem; padding: 0.5rem 0.85rem; border-radius: 10px;
+      background: rgba(var(--brand-rgb), 0.1); border: 1px solid rgba(var(--brand-rgb), 0.2);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .chip-label { font-size: 0.6rem; font-weight: 950; color: var(--brand); letter-spacing: 0.05em; }
+    .chip-value { font-size: 0.75rem; font-weight: 800; color: var(--text-primary); }
+
+    .log-expansion-panel {
+      margin-top: 1.5rem; padding: 1.5rem; border-radius: 16px;
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; gap: 1.25rem;
     }
 
-    .pagination-footer { margin-top: 3rem; display: flex; justify-content: center; }
+    .detail-row { display: flex; gap: 0.75rem; color: var(--text-muted); }
+    .detail-row p { font-size: 0.85rem; margin: 0; line-height: 1.5; font-weight: 500; }
 
-    .logs-count {
-      color: var(--brand);
-      font-size: 0.75rem;
-      font-weight: 900;
-      font-family: var(--font-gaming);
+    .changes-timeline { display: flex; flex-direction: column; gap: 0.75rem; }
+    .timeline-header { font-size: 0.65rem; font-weight: 950; color: var(--brand); opacity: 0.8; letter-spacing: 0.1em; }
+    .change-entry { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.75rem; background: rgba(255,255,255,0.02); border-radius: 8px; }
+    .change-entry .field { font-size: 0.7rem; font-weight: 850; color: var(--text-secondary); text-transform: uppercase; }
+    .change-entry .flow { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.75rem; }
+    .change-entry .old { text-decoration: line-through; opacity: 0.5; }
+    .change-entry .new { color: #10b981; font-weight: 700; }
+
+    .technical-meta { margin-top: 0.5rem; font-size: 0.55rem; color: var(--text-muted); opacity: 0.4; display: flex; gap: 1rem; font-family: var(--font-mono); }
+
+    .full-empty-state {
+      padding: 6rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; color: var(--text-muted); background: rgba(0,0,0,0.15); border-radius: 32px;
+      border: 2px dashed rgba(255,255,255,0.05); position: relative; overflow: hidden;
+      grid-column: 1 / -1;
+    }
+    .full-empty-state h3 { font-size: 1.5rem; font-weight: 950; color: var(--text-primary); margin: 1.5rem 0 0.5rem; }
+    .full-empty-state p { max-width: 400px; font-size: 0.9rem; opacity: 0.6; }
+
+    .orb-empty {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--brand-rgb), 0.1) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
     }
 
-    .log-toggle {
-      color: var(--text-muted);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .log-toggle .rotated {
-      transform: rotate(180deg);
-      color: var(--brand);
-    }
-
-    @media (max-width: 768px) {
-      .log-meta { gap: 1rem; flex-wrap: wrap; }
-    }
+    .pagination-footer { margin-top: 4rem; display: flex; justify-content: center; }
   `],
 })
 export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService<AuditLog> {
