@@ -3115,22 +3115,24 @@ interface PluginDescriptor {
       }
 
       .roles-layout-grid {
-        display: grid;
-        grid-template-columns: 320px 1fr;
+        display: flex;
         gap: 2rem;
-        height: calc(100vh - 280px);
-        min-height: 600px;
+        align-items: flex-start;
+        width: 100%;
+        position: relative;
       }
 
       .roles-selector-card {
-        background: rgba(15, 23, 42, 0.4);
-        backdrop-filter: blur(40px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 28px;
+        width: 320px;
+        flex-shrink: 0;
+        background: var(--surface);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        max-height: 800px;
+        box-shadow: var(--shadow-md);
       }
 
       .selector-header {
@@ -3156,13 +3158,13 @@ interface PluginDescriptor {
       .role-item-btn {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        padding: 1.25rem;
-        border-radius: 20px;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: var(--radius-md);
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 1px solid rgba(255, 255, 255, 0.02);
-        background: rgba(15, 23, 42, 0.3);
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        background: var(--surface-secondary);
         position: relative;
         overflow: hidden;
       }
@@ -3226,10 +3228,9 @@ interface PluginDescriptor {
       }
 
       .role-name-text {
-        font-weight: 800;
+        font-weight: 700;
         font-size: 0.95rem;
-        color: #fff;
-        letter-spacing: -0.01em;
+        color: var(--text-primary);
       }
 
       .role-type-pill {
@@ -3255,8 +3256,8 @@ interface PluginDescriptor {
       }
 
       .role-matrix-detail {
-        overflow-y: auto;
-        padding-right: 0.75rem;
+        flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
@@ -3264,15 +3265,16 @@ interface PluginDescriptor {
 
       .role-config-card {
         padding: 0;
-        overflow: visible;
-        background: rgba(15, 23, 42, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: var(--surface) !important;
+        border: 1px solid var(--border-soft) !important;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
       }
 
       .role-config-header {
         padding: 2.5rem;
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--surface-secondary);
+        border-bottom: 1px solid var(--border-soft);
       }
 
       .role-main-info {
@@ -3289,13 +3291,20 @@ interface PluginDescriptor {
       }
 
       .role-description-hint {
-        font-size: 0.9rem;
-        color: #fff;
-        opacity: 0.7;
+        font-size: 0.95rem;
+        color: var(--text-secondary) !important;
         margin-top: 0.5rem;
       }
 
-      .role-locked-notice{font-size:.85rem;color:var(--brand);margin:0 0 .75rem;padding:.75rem 1rem;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.08)}
+      .role-locked-notice {
+        font-size: 0.85rem;
+        color: var(--brand);
+        margin: 0 0 1rem;
+        padding: 1rem;
+        background: var(--brand-ambient);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--brand-border-soft);
+      }
       .permission-toggle-box.readonly-perm{cursor:not-allowed;pointer-events:none;opacity:.88}
 
       .permissions-matrix-container {
@@ -3303,15 +3312,12 @@ interface PluginDescriptor {
         display: flex;
         flex-direction: column;
         gap: 3.5rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 0 0 28px 28px;
-        min-height: 400px;
       }
 
       .category-title {
-        font-size: 1.15rem;
-        font-weight: 900;
-        color: #fff !important;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-primary) !important;
         margin-bottom: 1.75rem;
         display: flex;
         align-items: center;
@@ -3331,14 +3337,15 @@ interface PluginDescriptor {
 
       .permission-items-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1.25rem;
+        width: 100%;
       }
 
       .permission-toggle-box {
-        background: rgba(15, 23, 42, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 22px;
+        background: var(--surface-secondary);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
         padding: 1.5rem;
         display: flex;
         justify-content: space-between;
@@ -3381,13 +3388,13 @@ interface PluginDescriptor {
         gap: 0.35rem;
         position: relative;
         z-index: 1;
+        overflow: hidden;
       }
 
       .perm-label {
-        font-weight: 800;
+        font-weight: 700;
         font-size: 0.92rem;
-        color: #fff !important;
-        letter-spacing: -0.01em;
+        color: var(--text-primary) !important;
       }
 
       .perm-id {
@@ -3417,8 +3424,7 @@ interface PluginDescriptor {
 
       .permission-toggle-box.active .perm-label,
       .permission-toggle-box.active .perm-id {
-        color: #000 !important;
-        opacity: 1;
+        color: var(--text-on-brand) !important;
       }
 
       .toggle-pill {
