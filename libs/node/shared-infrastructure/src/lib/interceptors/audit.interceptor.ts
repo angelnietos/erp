@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
 import { AuditLogWriterService } from '../audit/audit-log-writer.service';
-import { JwtRequestUser } from '../utils/request-tenant';
+import { JwtRequestUser, getRequestTenantId } from '../utils/request-tenant';
 
 /**
  * Interceptor global para auditar automáticamente mutaciones (POST, PUT, PATCH, DELETE).
@@ -41,10 +41,12 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
+    const tenantId = getRequestTenantId(request);
+
     return next.handle().pipe(
       tap({
         next: (response) => {
-          this.logAction(user, method, url, body, response);
+          this.logAction(user, method, url, body, response, tenantId);
         },
         error: (err) => {
           // Opcional: auditar intentos fallidos con flag de error
@@ -60,6 +62,7 @@ export class AuditInterceptor implements NestInterceptor {
     url: string,
     body: any,
     response: any,
+    tenantId?: string,
   ) {
     try {
       const action = this.mapMethodToAction(method);
@@ -73,10 +76,10 @@ export class AuditInterceptor implements NestInterceptor {
         action,
         targetEntity: `${entity}:${targetId}`,
         changesJson: {
+          tenantId, // Guardamos el tenantId explícitamente para búsquedas y Platform Users
           entityType: entity.toUpperCase(),
           entityName,
           details: `Acción automática via API: ${method} ${url}`,
-          // No guardamos el body entero por privacidad/espacio, pero podríamos guardar campos clave
           metadata: {
             path: url,
             method

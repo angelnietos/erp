@@ -87,7 +87,10 @@ export class AuditLogsController {
 
     const rows = await this.prisma.auditLog.findMany({
       where: {
-        userId: { in: userIds },
+        OR: [
+          { userId: { in: userIds } },
+          { changesJson: { path: ['tenantId'], equals: tenantId } },
+        ],
         action: { not: 'SEED' },
       },
       orderBy: { createdAt: 'desc' },
