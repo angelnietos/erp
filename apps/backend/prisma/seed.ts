@@ -125,12 +125,20 @@ const FULL_ACCESS_ROLE_PERMISSIONS = uniquePermissions(['*', ...ALL_APP_PERMISSI
 const RESPONSABLE_ROLE_PERMISSIONS = uniquePermissions([
   'dashboard.view',
   'users.view',
+  'users.manage',
+  'clients.view',
+  'clients.manage',
+  'products.view',
+  'inventory.movement',
   'budgets.view',
   'budgets.approve',
   'rentals.view',
   'rentals.approve',
   'projects.view',
-  'clients.view',
+  'projects.manage',
+  'events.view',
+  'events.manage',
+  'services.view',
   'reports.view',
 ]);
 

@@ -3162,7 +3162,7 @@ interface PluginDescriptor {
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         border: 1px solid rgba(255, 255, 255, 0.02);
-        background: rgba(255, 255, 255, 0.01);
+        background: rgba(15, 23, 42, 0.3);
         position: relative;
         overflow: hidden;
       }
@@ -3183,9 +3183,9 @@ interface PluginDescriptor {
       }
 
       .role-item-btn.active {
-        background: rgba(var(--brand-rgb), 0.12);
-        border-color: rgba(var(--brand-rgb), 0.4);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        background: rgba(var(--brand-rgb), 0.25);
+        border-color: rgba(var(--brand-rgb), 0.6);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
       }
 
       .role-item-btn.active::before {
@@ -3265,12 +3265,14 @@ interface PluginDescriptor {
       .role-config-card {
         padding: 0;
         overflow: visible;
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
       }
 
       .role-config-header {
         padding: 2.5rem;
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .role-main-info {
@@ -3287,9 +3289,10 @@ interface PluginDescriptor {
       }
 
       .role-description-hint {
-        font-size: 0.88rem;
-        color: var(--text-muted);
-        opacity: 0.8;
+        font-size: 0.9rem;
+        color: #fff;
+        opacity: 0.7;
+        margin-top: 0.5rem;
       }
 
       .role-locked-notice{font-size:.85rem;color:var(--brand);margin:0 0 .75rem;padding:.75rem 1rem;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.08)}
@@ -3300,17 +3303,21 @@ interface PluginDescriptor {
         display: flex;
         flex-direction: column;
         gap: 3.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 0 0 28px 28px;
+        min-height: 400px;
       }
 
       .category-title {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 900;
-        color: #fff;
+        color: #fff !important;
         margin-bottom: 1.75rem;
         display: flex;
         align-items: center;
         gap: 1rem;
-        letter-spacing: -0.02em;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
       }
 
       .category-title::before {
@@ -3329,8 +3336,8 @@ interface PluginDescriptor {
       }
 
       .permission-toggle-box {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 22px;
         padding: 1.5rem;
         display: flex;
@@ -3360,8 +3367,8 @@ interface PluginDescriptor {
       }
 
       .permission-toggle-box.active {
-        background: rgba(var(--brand-rgb), 0.04);
-        border-color: rgba(var(--brand-rgb), 0.3);
+        background: rgba(var(--brand-rgb), 0.15);
+        border-color: var(--brand);
       }
 
       .permission-toggle-box.active::after {
@@ -3379,7 +3386,7 @@ interface PluginDescriptor {
       .perm-label {
         font-weight: 800;
         font-size: 0.92rem;
-        color: #fff;
+        color: #fff !important;
         letter-spacing: -0.01em;
       }
 
@@ -3403,9 +3410,15 @@ interface PluginDescriptor {
       }
 
       .permission-toggle-box.active {
-        background: var(--brand);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.4);
+        background: linear-gradient(135deg, var(--brand), rgba(var(--brand-rgb), 0.8));
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.5);
+      }
+
+      .permission-toggle-box.active .perm-label,
+      .permission-toggle-box.active .perm-id {
+        color: #000 !important;
+        opacity: 1;
       }
 
       .toggle-pill {
