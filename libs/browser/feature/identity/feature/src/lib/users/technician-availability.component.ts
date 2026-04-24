@@ -585,12 +585,21 @@ interface PersonalGridCell {
 
     /* TOOLBAR & ACTIONS */
     .dashboard-toolbar {
-      background: var(--surface);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-xl);
-      padding: 1.25rem 1.75rem;
-      box-shadow: var(--shadow-md);
-      backdrop-filter: blur(20px);
+      background: color-mix(in srgb, var(--surface) 95%, white 2%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 1.5rem 2rem;
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      backdrop-filter: blur(35px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-toolbar::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     }
 
     .header-actions {
@@ -598,7 +607,9 @@ interface PersonalGridCell {
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 1.5rem;
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
     }
 
     .month-navigator {
@@ -656,19 +667,37 @@ interface PersonalGridCell {
     .scope-btn:hover:not(.active), .toggle-btn:hover:not(.active) { background: rgba(0,0,0,0.05); color: var(--text-primary); }
 
     .request-days-btn {
-      background: var(--brand); color: #fff; border: none;
-      padding: 0.65rem 1.4rem; border-radius: 14px;
-      font-size: 0.75rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.05em;
-      display: flex; align-items: center; gap: 0.65rem;
-      transition: all 0.3s var(--ease-out-expo);
-      box-shadow: 0 8px 18px -4px color-mix(in srgb, var(--brand) 40%, transparent);
+      background: var(--brand); 
+      color: #fff; 
+      border: none;
+      padding: 0.75rem 1.75rem; 
+      border-radius: 16px;
+      font-size: 0.75rem; 
+      font-weight: 950; 
+      text-transform: uppercase; 
+      letter-spacing: 0.08em;
+      display: flex; 
+      align-items: center; 
+      gap: 0.75rem;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 25px -5px color-mix(in srgb, var(--brand) 50%, transparent);
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
+
+    .request-days-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+
     .request-days-btn:hover { 
-      transform: translateY(-2px) scale(1.02); 
-      box-shadow: 0 12px 24px -4px color-mix(in srgb, var(--brand) 50%, transparent); 
+      transform: translateY(-3px) scale(1.02); 
+      box-shadow: 0 15px 35px -8px color-mix(in srgb, var(--brand) 60%, transparent); 
       filter: brightness(1.1);
     }
+    .request-days-btn:hover::after { opacity: 1; }
 
     /* VIBRANT STATUSES - SOLID COLORS WITH GLOW */
     .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.08); border-left: 6px solid #10b981; }
@@ -748,50 +777,62 @@ interface PersonalGridCell {
 
     /* CALENDAR CARD & SUMMARY */
     .calendar-card {
-      background: var(--surface) !important;
-      border: 1px solid var(--border-soft) !important;
-      border-radius: var(--radius-xl) !important;
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(12px);
-      position: relative; overflow: hidden;
+      background: rgba(15, 23, 42, 0.6) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 32px !important;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      backdrop-filter: blur(35px);
+      position: relative; 
+      overflow: hidden;
     }
-    .calendar-card::after { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%); pointer-events: none; }
-    .calendar-card-header { 
-      padding: 2.5rem 3rem; border-bottom: 1px solid var(--border-soft); 
-      display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
-    }
-    .tech-display-name { font-family: var(--font-display); font-size: 2.75rem; font-weight: 950; letter-spacing: -0.04em; color: var(--text-primary); margin-top: 0.5rem; line-height: 0.9; }
 
-    .personal-month-summary {
-      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; padding: 0; list-style: none;
+    .calendar-container { padding: 2.5rem; }
+    .calendar-grid-header { 
+      display: grid; 
+      grid-template-columns: repeat(7, 1fr); 
+      margin-bottom: 1.5rem; 
+      gap: 1rem; 
     }
-    .personal-month-summary li {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.75rem 1.25rem; border-radius: 16px;
-      background: var(--surface); 
-      border: 1.5px solid var(--border-soft);
-      box-shadow: var(--shadow-sm);
-      font-size: 0.75rem; font-weight: 900; color: var(--text-primary);
-      transition: all 0.3s ease;
-      cursor: default;
+    .grid-day-label { 
+      text-align: center; 
+      font-size: 0.75rem; 
+      font-weight: 950; 
+      color: var(--text-muted); 
+      opacity: 0.5; 
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
-    .personal-month-summary li:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--brand); }
-    .personal-month-summary .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 
-    .calendar-container { padding: 2rem; }
-    .calendar-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 1rem; gap: 0.75rem; }
-    .grid-day-label { text-align: center; font-size: 0.7rem; font-weight: 900; color: var(--text-muted); opacity: 0.6; }
-
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.75rem; }
+    .calendar-grid { 
+      display: grid; 
+      grid-template-columns: repeat(7, minmax(0, 1fr)); 
+      gap: 1rem; 
+    }
     .calendar-cell {
-      min-height: 120px; background: var(--bg-primary); 
-      border: 1.5px solid var(--border-soft); border-radius: var(--radius-lg);
-      padding: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem;
-      transition: all 0.25s ease; position: relative; overflow: hidden;
+      min-height: 140px; 
+      background: color-mix(in srgb, var(--surface) 80%, white 2%); 
+      border: 1px solid rgba(255, 255, 255, 0.06); 
+      border-radius: 20px;
+      padding: 1.25rem; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 0.75rem;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+      position: relative; 
+      overflow: hidden;
     }
-    .calendar-cell:hover { border-color: var(--brand); transform: translateY(-4px); box-shadow: var(--shadow-md); z-index: 2; }
-    .calendar-cell.today { border-color: var(--brand); background: var(--brand-ambient); border-width: 2px; }
+    .calendar-cell:hover { 
+      border-color: color-mix(in srgb, var(--brand) 40%, transparent); 
+      transform: translateY(-6px) scale(1.02); 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+      z-index: 10; 
+    }
+    .calendar-cell.today { 
+      border-color: var(--brand); 
+      background: color-mix(in srgb, var(--brand) 8%, var(--surface)); 
+      border-width: 2px;
+      box-shadow: inset 0 0 20px rgba(var(--brand-rgb), 0.1);
+    }
 
     .day-number { font-size: 1.25rem; font-weight: 950; color: var(--text-primary); }
     .today-tag { font-size: 0.55rem; font-weight: 950; background: var(--brand); color: #fff; padding: 2px 6px; border-radius: 6px; margin-left: 0.5rem; letter-spacing: 0.05em; }
@@ -811,34 +852,53 @@ interface PersonalGridCell {
     .cell-notes { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; line-height: 1.3; margin-top: 0.25rem; }
 
     /* TEAM BOARD MATRIX - PANORAMIC VIEW */
-    .team-board-toolbar { padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
-    .team-board-title { font-size: 1.5rem; font-weight: 950; color: var(--text-primary); letter-spacing: -0.02em; }
-    .team-board-month { color: var(--brand); margin-left: 0.5rem; }
-    .team-board-hint { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; font-weight: 700; margin-top: 0.25rem; }
+    .team-board-toolbar { 
+      padding: 2rem 2.5rem; 
+      border-bottom: 1px solid rgba(255,255,255,0.06); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      background: rgba(255,255,255,0.02); 
+    }
+    .team-board-title { font-size: 1.75rem; font-weight: 950; color: var(--text-primary); letter-spacing: -0.03em; }
+    .team-board-month { color: var(--brand); margin-left: 0.65rem; opacity: 0.9; }
+    .team-board-hint { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; font-weight: 700; margin-top: 0.5rem; opacity: 0.6; }
     
-    .team-board-matrix { width: max-content; min-width: 100%; display: flex; flex-direction: column; background: var(--border-soft); gap: 1px; }
+    .team-board-matrix { 
+      width: max-content; 
+      min-width: 100%; 
+      display: flex; 
+      flex-direction: column; 
+      background: rgba(255,255,255,0.05); 
+      gap: 1px; 
+    }
     
     .board-header { 
       display: flex;
-      position: sticky; top: 0; z-index: 30; background: var(--surface) !important;
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+      background: color-mix(in srgb, var(--surface) 95%, white 5%) !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .persona-col { 
-      width: 260px; min-width: 260px; max-width: 260px; flex-shrink: 0; padding: 0.75rem 1.25rem; 
-      font-weight: 950; color: var(--brand); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; 
-      display: flex; align-items: center; gap: 0.6rem; border-right: 2px solid var(--border-soft); 
-      background: var(--surface);
+      width: 280px; min-width: 280px; max-width: 280px; flex-shrink: 0; padding: 1.25rem 2rem; 
+      font-weight: 950; color: var(--brand); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.15em; 
+      display: flex; align-items: center; gap: 0.85rem; border-right: 2px solid rgba(255,255,255,0.08); 
+      background: inherit;
     }
     
     .days-row { display: flex; flex-direction: row; flex: 1; }
     
     .day-header-col { 
-      width: 48px; min-width: 48px; flex-shrink: 0; padding: 0.5rem 0.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: var(--surface); border-right: 1px solid var(--border-soft); 
+      width: 52px; min-width: 52px; flex-shrink: 0; padding: 0.85rem 0.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: inherit; border-right: 1px solid rgba(255,255,255,0.06); 
+      transition: all 0.2s ease;
     }
-    .day-header-col.is-today { background: var(--brand-ambient); color: var(--brand); }
-    .day-header-col.is-weekend { background: var(--bg-hover); opacity: 0.8; }
-    .day-header-col .d-n { font-weight: 950; font-size: 0.9rem; line-height: 1; }
-    .day-header-col .d-l { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-top: 0.15rem; }
+    .day-header-col.is-today { background: color-mix(in srgb, var(--brand) 15%, transparent); color: #fff; }
+    .day-header-col.is-weekend { background: rgba(0,0,0,0.2); opacity: 0.7; }
+    .day-header-col .d-n { font-weight: 950; font-size: 1.1rem; line-height: 1; }
+    .day-header-col .d-l { font-size: 0.55rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-top: 0.25rem; opacity: 0.5; }
 
     .board-body { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); }
     .board-row { display: flex; flex-direction: row; background: var(--surface); transition: all 0.2s ease; cursor: pointer; min-width: max-content; }
@@ -846,8 +906,8 @@ interface PersonalGridCell {
     .board-row.is-selected { background: var(--brand-ambient) !important; z-index: 5; }
 
     .board-tech-info { 
-      width: 260px; min-width: 260px; max-width: 260px; flex-shrink: 0; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; 
-      border-right: 2px solid var(--border-soft); background: inherit;
+      width: 280px; min-width: 280px; max-width: 280px; flex-shrink: 0; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; 
+      border-right: 2px solid rgba(255,255,255,0.08); background: inherit;
     }
     .mini-avatar { 
       width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
@@ -858,8 +918,8 @@ interface PersonalGridCell {
     .mini-meta .r { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .board-day-cell { 
-      width: 48px; min-width: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      border-right: 1px solid var(--border-soft); background: inherit;
+      width: 52px; min-width: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      border-right: 1px solid rgba(255,255,255,0.05); background: inherit;
     }
     .board-day-cell.is-today { background: rgba(var(--brand-rgb, 239, 68, 68), 0.04); }
     
