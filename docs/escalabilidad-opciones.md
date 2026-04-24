@@ -13,11 +13,11 @@ Audiencia: CTO, arquitectura, estrategia y socios que evalúan **crecimiento té
 
 Hoy el campo de firma puede contener data URL o URL. A escala:
 
-| Opción | Pros | Contras |
-|--------|------|---------|
-| Solo DB (texto largo) | Simple, transaccional | Tamaño de backups, límites de fila |
+| Opción                                             | Pros                     | Contras                              |
+| -------------------------------------------------- | ------------------------ | ------------------------------------ |
+| Solo DB (texto largo)                              | Simple, transaccional    | Tamaño de backups, límites de fila   |
 | Object storage (S3, Azure Blob, GCS) + URL firmada | Escalable, barato por GB | Más componentes, políticas de acceso |
-| Servicio de firma (Signaturit, DocuSign, etc.) | Valor legal alto | Coste por transacción, integración |
+| Servicio de firma (Signaturit, DocuSign, etc.)     | Valor legal alto         | Coste por transacción, integración   |
 
 Recomendación típica: **objeto en bucket privado** y en BD solo **clave + hash + metadatos**; el ERP genera URLs temporales para visualización.
 
