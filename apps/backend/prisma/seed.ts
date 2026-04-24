@@ -387,10 +387,14 @@ async function main() {
     },
   });
 
+  const babooniSuperAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: babooniTenant.id, name: 'SuperAdmin' },
+  });
+
   await prisma.userRole.upsert({
-    where: { userId_roleId: { userId: babooniAdmin.id, roleId: babooniAdminRole.id } },
+    where: { userId_roleId: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id } },
     update: {},
-    create: { userId: babooniAdmin.id, roleId: babooniAdminRole.id },
+    create: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id },
   });
 
   const babooniResponsibleRole = await prisma.role.findFirstOrThrow({

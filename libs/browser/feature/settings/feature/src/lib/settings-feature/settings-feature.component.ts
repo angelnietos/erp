@@ -3453,10 +3453,10 @@ export class SettingsFeatureComponent {
   private readonly _rolesService = inject(RolesService);
   public readonly _authStore = inject(AuthStore);
 
-  /** Solo usuarios con rol SuperAdmin pueden ver y editar la matriz de roles y permisos. */
+  /** Los usuarios con permiso '*' o 'roles.manage' pueden ver y editar la matriz de roles y permisos. */
   readonly canSeeRolesAdmin = computed(() => {
-    const roles = this._authStore.user()?.roles;
-    return Array.isArray(roles) && roles.includes('SuperAdmin');
+    const p = this._authStore.user()?.permissions ?? [];
+    return p.includes('*') || p.includes('roles.manage');
   });
 
   readonly activeTab = signal<
