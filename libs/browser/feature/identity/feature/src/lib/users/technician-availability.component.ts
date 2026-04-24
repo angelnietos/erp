@@ -129,123 +129,60 @@ interface PersonalGridCell {
       <header class="dashboard-toolbar" [attr.aria-busy]="isLoading()">
         <div class="header-actions">
            <div class="month-navigator">
-              <button
-                class="nav-btn ripple"
-                type="button"
-                (click)="viewMode() === 'personal' ? calendarNavPrev() : prevMonth()"
-                [title]="viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana anterior (←)' : 'Mes anterior (←)'"
-              >
-                 <lucide-icon name="chevron-left" size="18" aria-hidden="true"></lucide-icon>
+              <button class="nav-btn ripple" type="button" (click)="viewMode() === 'personal' ? calendarNavPrev() : prevMonth()" title="Anterior">
+                 <lucide-icon name="chevron-left" size="18"></lucide-icon>
               </button>
               <div class="current-month-display">
-                @if (viewMode() === 'personal' && personalCalendarScope() === 'week') {
-                  <span class="m-name">Semana</span>
-                  <span class="m-year">{{ weekRangeLabel() }}</span>
-                } @else {
-                  <span class="m-name">{{ getMonthName() }}</span>
-                  <span class="m-year">{{ currentYear() }}</span>
-                }
+                <span class="m-name">{{ viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana' : getMonthName() }}</span>
+                <span class="m-year">{{ viewMode() === 'personal' && personalCalendarScope() === 'week' ? weekRangeLabel() : currentYear() }}</span>
               </div>
-              <button
-                class="nav-btn ripple"
-                type="button"
-                (click)="viewMode() === 'personal' ? calendarNavNext() : nextMonth()"
-                [title]="viewMode() === 'personal' && personalCalendarScope() === 'week' ? 'Semana siguiente (→)' : 'Mes siguiente (→)'"
-              >
-                 <lucide-icon name="chevron-right" size="18" aria-hidden="true"></lucide-icon>
+              <button class="nav-btn ripple" type="button" (click)="viewMode() === 'personal' ? calendarNavNext() : nextMonth()" title="Siguiente">
+                 <lucide-icon name="chevron-right" size="18"></lucide-icon>
               </button>
-              <button
-                type="button"
-                class="nav-btn ripple today-jump-btn"
-                (click)="goToToday()"
-                title="Ir a hoy (T)"
-              >
-                <lucide-icon name="calendar-check" size="18" aria-hidden="true"></lucide-icon>
-                <span class="today-jump-label">Hoy</span>
+              <button type="button" class="nav-btn ripple today-jump-btn" (click)="goToToday()">
+                <lucide-icon name="calendar-check" size="16"></lucide-icon>
+                <span>Hoy</span>
               </button>
            </div>
 
-           @if (viewMode() === 'personal') {
-             <div class="personal-scope-toggle" role="group" aria-label="Vista del calendario">
-               <button
-                 type="button"
-                 class="scope-btn"
-                 [class.active]="personalCalendarScope() === 'month'"
-                 (click)="setPersonalCalendarScope('month')"
-                 title="Vista mes (M)"
-               >
-                 Mes
-               </button>
-               <button
-                 type="button"
-                 class="scope-btn"
-                 [class.active]="personalCalendarScope() === 'week'"
-                 (click)="setPersonalCalendarScope('week')"
-                 title="Vista semana (W)"
-               >
-                 Semana
-               </button>
-             </div>
-           }
+           <div class="header-center-toggles" style="display: flex; gap: 0.75rem;">
+             @if (viewMode() === 'personal') {
+               <div class="personal-scope-toggle">
+                 <button type="button" class="scope-btn" [class.active]="personalCalendarScope() === 'month'" (click)="setPersonalCalendarScope('month')">Mes</button>
+                 <button type="button" class="scope-btn" [class.active]="personalCalendarScope() === 'week'" (click)="setPersonalCalendarScope('week')">Semana</button>
+               </div>
+             }
 
-           @if (canManageTeam()) {
-           <div class="view-toggle">
-              <button 
-                type="button"
-                class="toggle-btn" 
-                [class.active]="viewMode() === 'personal'"
-                (click)="viewMode.set('personal')"
-              >
-                <lucide-icon name="user" size="14" aria-hidden="true"></lucide-icon>
-                Individual
-              </button>
-              <button 
-                type="button"
-                class="toggle-btn" 
-                [class.active]="viewMode() === 'team'"
-                (click)="viewMode.set('team')"
-              >
-                <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
-                Equipo
-              </button>
+             @if (canManageTeam()) {
+               <div class="view-toggle">
+                 <button type="button" class="toggle-btn" [class.active]="viewMode() === 'personal'" (click)="viewMode.set('personal')">
+                   <lucide-icon name="user" size="14" aria-hidden="true"></lucide-icon>
+                   Individual
+                 </button>
+                 <button type="button" class="toggle-btn" [class.active]="viewMode() === 'team'" (click)="viewMode.set('team')">
+                   <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
+                   Equipo
+                 </button>
+               </div>
+             }
            </div>
-           }
            
            <div class="header-actions-extra">
-              <button
-                type="button"
-                class="nav-btn ripple export-btn"
-                (click)="exportAvailabilityCsv()"
-                title="Exportar CSV (E)"
-              >
-                <lucide-icon name="download" size="18" aria-hidden="true"></lucide-icon>
-                <span class="export-btn__label">CSV</span>
+              <div class="calendar-legend">
+                <div class="legend-item AVAILABLE"><span class="dot AVAILABLE"></span><span>Disp.</span></div>
+                <div class="legend-item UNAVAILABLE"><span class="dot UNAVAILABLE"></span><span>Ocupado</span></div>
+                <div class="legend-item HOLIDAY"><span class="dot HOLIDAY"></span><span>Vacac.</span></div>
+                <div class="legend-item SICK_LEAVE"><span class="dot SICK_LEAVE"></span><span>Resto</span></div>
+              </div>
+              <button type="button" class="nav-btn ripple" (click)="exportAvailabilityCsv()" title="Exportar CSV">
+                <lucide-icon name="download" size="18"></lucide-icon>
               </button>
-              <button
-                type="button"
-                class="nav-btn ripple shortcuts-help-btn"
-                (click)="toggleShortcutsHelp()"
-                title="Atajos de teclado (?)"
-              >
-                <lucide-icon name="keyboard" size="18" aria-hidden="true"></lucide-icon>
+              <button type="button" class="nav-btn ripple" (click)="loadMonth()" [class.animate-spin]="isLoading()" title="Sincronizar">
+                <lucide-icon name="rotate-cw" size="18"></lucide-icon>
               </button>
-              <button
-                type="button"
-                class="request-days-btn"
-                [routerLink]="['/users/availability', 'request']"
-                [queryParams]="pedirDiasQueryParams()"
-                title="Solicitar vacaciones o ausencias (flujo de aprobación)"
-              >
-                <lucide-icon name="calendar-plus" size="18" aria-hidden="true"></lucide-icon>
+              <button type="button" class="request-days-btn" [routerLink]="['/users/availability', 'request']" [queryParams]="pedirDiasQueryParams()">
+                <lucide-icon name="calendar-plus" size="18"></lucide-icon>
                 Pedir días
-              </button>
-              <button 
-                class="nav-btn ripple refresh-btn" 
-                (click)="loadMonth()" 
-                [class.animate-spin]="isLoading()" 
-                title="Sincronizar datos"
-              >
-                <lucide-icon name="rotate-cw" size="18" aria-hidden="true"></lucide-icon>
               </button>
            </div>
         </div>
@@ -283,27 +220,14 @@ interface PersonalGridCell {
             <ui-badge variant="info" class="count-badge">{{ personalSidebarTechnicians().length }}</ui-badge>
           </div>
           <div class="sidebar-search">
-            <div class="availability-filter-slot">
-              <ui-feature-filter-bar
-                [framed]="true"
-                [appearance]="'feature'"
-                [searchVariant]="'glass'"
-                [value]="availabilitySearchQuery()"
-                placeholder="Nombre, rol; varios: ana, led…"
-                (searchChange)="onSearch($event)"
-              />
-              @if (availabilitySearchQuery().trim()) {
-                <button
-                  type="button"
-                  class="availability-clear-search"
-                  (click)="clearAvailabilitySearch()"
-                  title="Quitar filtro de búsqueda"
-                >
-                  <lucide-icon name="x" size="16" aria-hidden="true"></lucide-icon>
-                  <span class="availability-clear-search__label">Limpiar</span>
-                </button>
-              }
-            </div>
+            <ui-feature-filter-bar
+              [framed]="true"
+              [appearance]="'feature'"
+              [searchVariant]="'glass'"
+              [value]="availabilitySearchQuery()"
+              placeholder="Buscar técnico..."
+              (searchChange)="onSearch($event)"
+            />
           </div>
           <div class="technician-list custom-scrollbar" role="list">
             @for (tech of personalSidebarTechnicians(); track tech.id) {
@@ -348,24 +272,18 @@ interface PersonalGridCell {
                   <div class="header-meta">
                     @if (getSelectedTechName(); as name) {
                       <div class="tech-selector-info">
-                        <span class="label">Calendario</span>
+                        <span class="label" style="text-transform: uppercase; font-size: 0.7rem; font-weight: 950; color: var(--brand); letter-spacing: 0.1em; opacity: 0.8;">Operario Seleccionado</span>
                         <h2 class="tech-display-name">{{ name }}</h2>
                         @if (personalMonthSummary(); as pm) {
-                          <ul class="personal-month-summary" aria-label="Resumen del mes visible">
-                            <li><span class="dot AVAILABLE"></span> Disp. {{ pm.available }}</li>
-                            <li><span class="dot UNAVAILABLE"></span> Ocup. {{ pm.unavailable }}</li>
-                            <li><span class="dot HOLIDAY"></span> Vac. {{ pm.holiday }}</li>
-                            <li><span class="dot SICK_LEAVE"></span> Incid. {{ pm.incident }}</li>
+                          <ul class="personal-month-summary">
+                            <li><span class="dot AVAILABLE"></span> <strong>{{ pm.available }}</strong> Disponibles</li>
+                            <li><span class="dot UNAVAILABLE"></span> <strong>{{ pm.unavailable }}</strong> Ocupados</li>
+                            <li><span class="dot HOLIDAY"></span> <strong>{{ pm.holiday }}</strong> Vacaciones</li>
+                            <li><span class="dot SICK_LEAVE"></span> <strong>{{ pm.incident }}</strong> Otros</li>
                           </ul>
                         }
                       </div>
                     }
-                  </div>
-                  <div class="calendar-legend">
-                    <div class="legend-item AVAILABLE"><span class="dot"></span><span>Disp.</span></div>
-                    <div class="legend-item UNAVAILABLE"><span class="dot"></span><span>Ocupado</span></div>
-                    <div class="legend-item HOLIDAY"><span class="dot"></span><span>Vacac.</span></div>
-                    <div class="legend-item SICK_LEAVE"><span class="dot"></span><span>Resto</span></div>
                   </div>
                 </div>
                 
@@ -382,6 +300,7 @@ interface PersonalGridCell {
                     role="grid"
                   >
                     @for (cell of personalCalendarCells(); track cell.date) {
+                      @let statusObj = getTechStatusByIso(selectedTechId(), cell.date);
                       <div
                         class="calendar-cell calendar-cell--readonly"
                         [class.calendar-cell--outside-focus]="!cell.isInFocusMonth"
@@ -389,20 +308,30 @@ interface PersonalGridCell {
                         [class.is-weekend]="isWeekendYmd(cell.year, cell.month, cell.day)"
                         role="gridcell"
                         [attr.aria-label]="
-                          'Día ' + cell.day + ', ' + getCellStatusAbbrev(getTechStatusByIso(selectedTechId(), cell.date))
+                          'Día ' + cell.day + ', ' + getCellStatusAbbrev(statusObj.type)
                         "
                       >
                         <div class="calendar-cell__top">
                           <span class="day-number">{{ cell.day }}</span>
                           @if (cell.isToday) {
-                            <span class="today-badge">Hoy</span>
+                            <span class="today-tag">ESTE DÍA</span>
                           }
                         </div>
-                        @if (getTechStatusByIso(selectedTechId(), cell.date); as status) {
-                          <div class="calendar-cell__status" [class]="status">
-                            <span class="status-pill">{{ getCellStatusAbbrev(status) }}</span>
+                        
+                        <div class="calendar-cell__content">
+                          <div class="status-marker" [class]="statusObj.type">
+                            <span class="status-label">{{ getCellStatusAbbrev(statusObj.type) }}</span>
+                            @if (statusObj.startTime && statusObj.endTime) {
+                              <span class="time-range">{{ statusObj.startTime }}-{{ statusObj.endTime }}</span>
+                            }
                           </div>
-                        }
+                          
+                          @if (statusObj.notes) {
+                            <div class="cell-notes" [title]="statusObj.notes">
+                              {{ statusObj.notes }}
+                            </div>
+                          }
+                        </div>
                       </div>
                     }
                   </div>
@@ -572,12 +501,16 @@ interface PersonalGridCell {
                                 [class.is-today]="cell.isToday"
                                 [class.is-weekend]="isWeekend(cell.day)"
                               >
-                                @if (getTechDayStatus(tech.id, cell.day); as status) {
+                                @if (getTechDayStatus(tech.id, cell.day); as statusObj) {
                                   <div
                                     class="status-chip"
-                                    [class]="status"
-                                    [attr.title]="getShortLabel(status) + ' · día ' + cell.day"
-                                  ></div>
+                                    [class]="statusObj.type"
+                                    [attr.title]="getShortLabel(statusObj.type) + ' · día ' + cell.day + (statusObj.notes ? ' · ' + statusObj.notes : '')"
+                                  >
+                                    @if (statusObj.type === 'HOLIDAY' || statusObj.type === 'SICK_LEAVE') {
+                                      <div class="status-dot-vibrant"></div>
+                                    }
+                                  </div>
                                 } @else {
                                   <div class="status-chip default" title="Sin dato"></div>
                                 }
@@ -633,962 +566,302 @@ interface PersonalGridCell {
   `,
   styles: [`
     .availability-dashboard {
-      display: flex; flex-direction: column;
-      --avail-persona-width: 290px;
-      --avail-day-cell-width: 54px;
-      --avail-grid-line: color-mix(in srgb, var(--text-muted) 10%, var(--border-soft));
-      --avail-grid-line-strong: color-mix(in srgb, var(--text-muted) 22%, var(--border-soft));
-      animation: fadeIn 0.4s ease-out forwards;
+      --avail-accent: var(--brand);
+      --color-avail: #10b981;
+      --color-unavail: #ef4444;
+      --color-holiday: #3b82f6;
+      --color-incident: #f59e0b;
+      
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: availFadeIn 0.5s var(--ease-out-expo) forwards;
     }
-    @keyframes fadeIn {
+
+    @keyframes availFadeIn {
       from { opacity: 0; transform: translateY(15px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .dashboard-layout {
-      display: grid;
-      grid-template-columns: minmax(240px, 300px) 1fr;
-      gap: 1.5rem;
-      align-items: start;
-    }
-    @media (max-width: 1200px) {
-      .dashboard-layout {
-        grid-template-columns: 240px 1fr;
-        gap: 1rem;
-      }
-    }
-    @media (max-width: 1000px) {
-      .dashboard-layout {
-        display: flex;
-        flex-direction: column;
-      }
-      .team-sidebar {
-        width: 100%;
-        max-height: 400px;
-        overflow-y: auto;
-      }
-    }
-
-
-    .legal-hint {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      padding: 1rem 1.25rem;
-      border-radius: 16px;
-      border: 1px solid color-mix(in srgb, var(--info) 20%, transparent);
-      background: color-mix(in srgb, var(--info) 6%, var(--theme-surface, #fff));
-      color: var(--text-primary);
-      font-size: 0.88rem;
-      line-height: 1.5;
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(10px);
-    }
-    .legal-hint lucide-icon {
-      flex-shrink: 0;
-      color: var(--info);
-    }
-
-    .sync-degraded-banner {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.85rem;
-      padding: 1rem 1.25rem;
-      border-radius: 16px;
-      border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
-      background: color-mix(in srgb, var(--warning) 10%, var(--theme-surface, #fff));
-      color: var(--text-primary);
-      font-size: 0.88rem;
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-    }
-    .sync-degraded-banner lucide-icon {
-      flex-shrink: 0;
-      color: var(--warning);
-    }
-    .sync-degraded-banner--partial {
-      border-color: color-mix(in srgb, var(--warning) 25%, transparent);
-      background: color-mix(in srgb, var(--warning) 8%, var(--theme-surface, #fff));
-    }
-
+    /* TOOLBAR & ACTIONS */
     .dashboard-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 1.25rem;
-      padding: 0.5rem 0 1.5rem;
-      border-bottom: 2.5px solid var(--border-soft);
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem 1.75rem;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(20px);
     }
 
     .header-actions {
       display: flex;
-      gap: 1.25rem;
-      align-items: center;
       flex-wrap: wrap;
-      width: 100%;
+      align-items: center;
       justify-content: space-between;
+      gap: 1.5rem;
     }
 
     .month-navigator {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
-      padding: 0.45rem;
-      border-radius: 18px;
-      background: var(--bg-hover, #f1f5f9);
-      border: 1px solid var(--border-soft);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
-    }
-
-    .nav-btn {
-      width: 40px;
-      height: 40px;
-      border: none;
-      border-radius: 12px;
-      background: transparent;
-      color: var(--text-primary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .nav-btn:hover:not(:disabled) {
-      background: var(--theme-surface, #fff);
-      color: var(--brand);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transform: translateY(-1px);
-    }
-
-    .today-jump-btn {
-      padding: 0 1.15rem;
-      width: auto;
       gap: 0.5rem;
-    }
-    .today-jump-label {
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      background: var(--bg-secondary);
+      padding: 0.35rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
     }
 
     .current-month-display {
+      min-width: 140px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      min-width: 150px;
-      padding: 0 1rem;
+      line-height: 1.1;
     }
-    .m-name {
-      font-size: 1.1rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-primary);
+    .m-name { font-weight: 900; font-size: 0.95rem; color: var(--text-primary); text-transform: capitalize; }
+    .m-year { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); opacity: 0.8; }
+
+    .nav-btn {
+      width: 36px; height: 36px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 1px solid var(--border-soft);
+      color: var(--text-primary); transition: all 0.2s ease;
     }
-    .m-year {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--brand);
-      opacity: 0.8;
+    .nav-btn:hover { background: var(--bg-hover); color: var(--brand); transform: translateY(-1px); }
+    
+    .today-jump-btn { 
+      width: auto !important; padding: 0 1rem; gap: 0.5rem; font-size: 0.75rem; font-weight: 800; 
+      background: var(--brand-ambient); color: var(--brand); border-color: var(--brand-border-soft);
     }
 
-    .view-toggle {
-       display: flex;
-       padding: 0.45rem;
-       gap: 0.45rem;
-       border-radius: 18px;
-       background: var(--bg-hover, #f1f5f9);
-       border: 1px solid var(--border-soft);
-    }
-    .toggle-btn {
-      padding: 0.7rem 1.4rem;
-      border-radius: 12px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      cursor: pointer;
+    .personal-scope-toggle, .view-toggle {
       display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      transition: all 0.2s ease;
+      background: var(--bg-secondary);
+      padding: 3px;
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      gap: 2px;
     }
-    .toggle-btn.active {
-      background: var(--brand);
-      color: #fff;
-      box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--brand) 60%, transparent);
+
+    .scope-btn, .toggle-btn {
+      padding: 0.5rem 1rem; border-radius: 11px; border: none;
+      background: transparent; color: var(--text-muted);
+      font-size: 0.725rem; font-weight: 850; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em;
     }
+    .scope-btn.active, .toggle-btn.active {
+      background: var(--surface); color: var(--brand);
+      box-shadow: var(--shadow-sm); transform: scale(1.02);
+    }
+    .scope-btn:hover:not(.active), .toggle-btn:hover:not(.active) { background: rgba(0,0,0,0.05); color: var(--text-primary); }
 
     .request-days-btn {
-      padding: 0.8rem 1.5rem;
-      border-radius: 16px;
-      background: var(--brand);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      text-decoration: none;
-      box-shadow: 0 6px 20px -6px color-mix(in srgb, var(--brand) 50%, transparent);
+      background: var(--brand); color: #fff; border: none;
+      padding: 0.65rem 1.4rem; border-radius: 14px;
+      font-size: 0.75rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; align-items: center; gap: 0.65rem;
+      transition: all 0.3s var(--ease-out-expo);
+      box-shadow: 0 8px 18px -4px color-mix(in srgb, var(--brand) 40%, transparent);
+      cursor: pointer;
     }
-    .request-days-btn:hover {
-      transform: translateY(-2px);
+    .request-days-btn:hover { 
+      transform: translateY(-2px) scale(1.02); 
+      box-shadow: 0 12px 24px -4px color-mix(in srgb, var(--brand) 50%, transparent); 
       filter: brightness(1.1);
-      box-shadow: 0 10px 25px -8px color-mix(in srgb, var(--brand) 60%, transparent);
     }
 
+    /* VIBRANT STATUSES - SOLID COLORS */
+    .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.12); border-left: 6px solid #10b981; }
+    .status-marker.UNAVAILABLE { background: rgba(239, 68, 68, 0.12); border-left: 6px solid #ef4444; }
+    .status-marker.HOLIDAY { background: rgba(59, 130, 246, 0.12); border-left: 6px solid #3b82f6; }
+    .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.12); border-left: 6px solid #f59e0b; }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; border: 1.5px solid #fff; }
+    .dot.AVAILABLE { background: #10b981 !important; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+    .dot.UNAVAILABLE { background: #ef4444 !important; box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
+    .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 6px rgba(59, 130, 246, 0.4); }
+    .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+
+    .calendar-legend { display: flex !important; gap: 1.25rem !important; flex-wrap: wrap !important; flex-direction: row !important; align-items: center !important; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; font-weight: 900; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .legend-item .dot { width: 10px; height: 10px; border-width: 1px; }
+
+    /* LAYOUT & SIDEBAR */
     .dashboard-layout {
       display: grid;
-      grid-template-columns: 340px minmax(0, 1fr);
-      gap: 2.5rem;
-      margin-top: 2rem;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 2rem;
       align-items: start;
     }
     .dashboard-layout--team {
-       grid-template-columns: 1fr;
-       gap: 0;
+      grid-template-columns: 1fr !important;
     }
-
-    .main-content { min-width: 0; }
 
     .team-sidebar {
       display: flex;
       flex-direction: column;
-      gap: 1.75rem;
+      gap: 1.5rem;
       position: sticky;
-      top: 2rem;
+      top: 1.5rem;
     }
+
     .sidebar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 0.5rem;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .sidebar-header h3 {
-      font-size: 0.85rem;
-      font-weight: 950;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--text-muted);
-      margin: 0;
-    }
+    .sidebar-header h3 { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
 
     .technician-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding-right: 0.75rem;
+      display: flex; flex-direction: column; gap: 0.85rem;
+      max-height: calc(100vh - 400px); overflow-y: auto; padding-right: 0.5rem;
     }
 
-    .availability-dashboard--team .team-board-wrapper {
-      min-height: min-content;
-      width: 100%;
-    }
-
-    .team-board-toolbar-search {
-      padding: 0 1.25rem 0.85rem;
-      border-bottom: 1px solid var(--avail-grid-line);
-      background: color-mix(in srgb, var(--bg-tertiary) 40%, var(--bg-secondary));
-    }
-    .team-board-toolbar-search ::ng-deep .feature-filter-bar {
-      margin-bottom: 0;
-      max-width: none;
-      flex: 1;
-      min-width: 0;
-    }
-    .team-board-filter-hint {
-      margin: 0.65rem 0 0;
-      font-size: 0.65rem;
-      font-weight: 600;
-      line-height: 1.45;
-      color: var(--text-muted);
-      max-width: 52rem;
-    }
-    .team-board-filter-hint__ex {
-      font-weight: 800;
-      color: color-mix(in srgb, var(--brand) 55%, var(--text-muted));
-    }
-
-    .availability-filter-slot {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.5rem;
-      width: 100%;
-      max-width: 640px;
-    }
-    .availability-filter-slot ::ng-deep .feature-filter-bar {
-      margin-bottom: 0;
-      flex: 1;
-      min-width: 0;
-    }
-    .availability-clear-search {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      margin-top: 0.35rem;
-      padding: 0.45rem 0.65rem;
-      border-radius: 12px;
-      border: 1px solid var(--avail-grid-line);
-      background: var(--bg-secondary);
-      color: var(--text-muted);
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-    }
-    .availability-clear-search:hover {
-      border-color: var(--brand-border-soft);
-      color: var(--brand);
-      background: var(--brand-ambient);
-    }
-    .availability-clear-search__label {
-      white-space: nowrap;
-    }
-
-    .availability-panel {
-      position: relative;
-      width: 100%;
-      min-width: 0;
-    }
-    .availability-loading-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1.25rem;
-      border-radius: 24px;
-      background: color-mix(in srgb, var(--bg-secondary) 85%, transparent);
-      backdrop-filter: blur(8px);
-      transition: opacity 0.3s ease;
-    }
-    .availability-loading-overlay__icon {
-      color: var(--brand);
-      filter: drop-shadow(0 0 10px color-mix(in srgb, var(--brand) 40%, transparent));
-    }
-    .availability-loading-overlay__text {
-      font-size: 0.8rem;
-      font-weight: 850;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    .availability-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      padding: 3rem 2rem;
-      text-align: center;
-      background: color-mix(in srgb, var(--bg-hover) 30%, transparent);
-      border-radius: 20px;
-      border: 1.5px dashed var(--border-soft);
-    }
-    .availability-empty lucide-icon { opacity: 0.5; color: var(--text-muted); }
-    .availability-empty__title { margin: 0; font-size: 1rem; font-weight: 900; color: var(--text-primary); }
-    .availability-empty__hint { margin: 0; font-size: 0.85rem; color: var(--text-muted); max-width: 24rem; }
-    .availability-empty__btn {
-      margin-top: 0.5rem;
-      padding: 0.65rem 1.25rem;
-      border-radius: 14px;
-      background: var(--brand);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    button.tech-card {
-      display: flex;
-      align-items: center;
-      gap: 1.15rem;
-      padding: 1.15rem 1.4rem;
-      border-radius: 20px;
-      border: 1.5px solid var(--border-soft);
-      background: var(--theme-surface, #fff);
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .tech-card {
+      width: 100%; display: flex; align-items: center; gap: 1rem;
+      padding: 1.15rem; background: var(--surface);
+      border: 1.5px solid var(--border-soft); border-radius: 20px;
+      cursor: pointer; transition: all 0.3s var(--ease-out-expo);
       text-align: left;
-      width: 100%;
-      position: relative;
     }
-    .tech-card:hover {
-      transform: translateX(8px);
-      border-color: var(--brand);
-      background: color-mix(in srgb, var(--brand) 4%, var(--theme-surface, #fff));
-      box-shadow: 0 12px 28px -12px rgba(0,0,0,0.12);
-    }
-    .tech-card.selected {
-      border-color: var(--brand);
-      background: color-mix(in srgb, var(--brand) 8%, var(--theme-surface, #fff));
-      box-shadow: 0 15px 35px -12px color-mix(in srgb, var(--brand) 25%, transparent);
-      border-width: 2px;
-    }
+    .tech-card:hover { transform: translateX(8px); border-color: var(--brand); background: var(--bg-hover); }
+    .tech-card.selected { background: var(--brand-ambient); border-color: var(--brand); border-width: 2px; }
 
-    .tech-avatar-wrapper { position: relative; }
     .tech-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 850;
-      font-size: 1.1rem;
-      color: #fff;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-      transition: transform 0.3s ease;
+      width: 48px; height: 48px; border-radius: 16px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-weight: 850; color: #fff; font-size: 1.1rem;
     }
-    .tech-card:hover .tech-avatar { transform: scale(1.05); }
+    .tech-body { flex: 1; min-width: 0; }
+    .tech-name { display: block; font-weight: 800; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tech-role { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.15rem; opacity: 0.8; }
 
-    .status-indicator {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 2.5px solid var(--theme-surface, #fff);
-    }
-    .status-indicator.online { background: var(--success); box-shadow: 0 0 12px var(--success); }
-    .status-indicator.away { background: var(--warning); box-shadow: 0 0 12px var(--warning); }
-    .status-indicator.offline { background: var(--text-muted); }
-
-    .tech-body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .tech-name { font-weight: 850; font-size: 1rem; color: var(--text-primary); letter-spacing: -0.01em; }
-    .tech-role { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-top: 0.15rem; }
-    .tech-chevron { opacity: 0; transition: all 0.3s ease; transform: translateX(-10px); color: var(--brand); }
-    .tech-card.selected .tech-chevron, .tech-c    /* CALENDAR PERSONAL */
+    /* CALENDAR CARD & SUMMARY */
     .calendar-card {
-      border-radius: 32px !important;
-      border: 1px solid var(--glass-border);
-      background: var(--glass-bg);
-      backdrop-filter: blur(24px);
-      overflow: hidden;
-      box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.1);
-      animation: scaleIn 0.5s ease-out;
+      background: var(--surface) !important;
+      border: 1px solid var(--border-soft) !important;
+      border-radius: var(--radius-xl) !important;
+      box-shadow: var(--shadow-lg);
     }
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
+    .calendar-card-header { 
+      padding: 2rem 2.5rem; border-bottom: 1px solid var(--border-soft); 
+      display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem;
     }
-
-    .calendar-card-header {
-      padding: clamp(1rem, 2vw, 2.25rem) clamp(1rem, 2.5vw, 2.75rem);
-      border-bottom: 2px solid var(--border-soft);
-      background: rgba(255, 255, 255, 0.15);
-    }
-    .tech-display-name {
-      font-size: 1.8rem;
-      font-weight: 950;
-      letter-spacing: -0.02em;
-      margin-top: 0.5rem;
-      color: var(--text-primary);
-    }
+    .tech-display-name { font-size: 2.25rem; font-weight: 950; letter-spacing: -0.03em; color: var(--text-primary); margin-top: 0.25rem; }
 
     .personal-month-summary {
-      list-style: none;
-      padding: 0;
-      margin: 1.25rem 0 0;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; padding: 0; list-style: none;
     }
     .personal-month-summary li {
-      padding: 0.5rem 1rem;
-      border-radius: 14px;
-      background: color-mix(in srgb, var(--brand) 6%, transparent);
-      font-size: 0.75rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: var(--text-primary);
-      border: 1px solid color-mix(in srgb, var(--brand) 10%, transparent);
-    }
-    .personal-month-summary .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-    .personal-month-summary .dot.AVAILABLE { background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .personal-month-summary .dot.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-    .personal-month-summary .dot.HOLIDAY { background: var(--info); box-shadow: 0 0 8px var(--info); }
-    .personal-month-summary .dot.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
-
-    .calendar-legend {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      align-items: center;
-      padding: 0.6rem 1rem;
-      border-radius: 16px;
-      background: color-mix(in srgb, var(--bg-hover) 40%, transparent);
-      border: 1px solid var(--border-soft);
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.65rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }
-    .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; }
-    .legend-item.AVAILABLE .dot { background: var(--success); }
-    .legend-item.UNAVAILABLE .dot { background: var(--danger); }
-    .legend-item.HOLIDAY .dot { background: var(--info); }
-    .legend-item.SICK_LEAVE .dot { background: var(--warning); }
-
-    .calendar-container {
-      padding: clamp(1.25rem, 3vw, 2.5rem) clamp(0.75rem, 2.5vw, 2.75rem) 2.5rem;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .calendar-grid-header {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-    .grid-day-label {
-      text-align: center;
-      font-size: 0.7rem;
-      font-weight: 950;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--text-muted);
-      opacity: 0.7;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: clamp(0.35rem, 1vw, 1rem);
-    }
-
-    .calendar-cell {
-      min-height: clamp(5.5rem, 12vh, 7.5rem);
-      background: color-mix(in srgb, var(--bg-secondary) 40%, var(--theme-surface, #fff));
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1.25rem; border-radius: 16px;
+      background: var(--surface); 
       border: 1.5px solid var(--border-soft);
-      border-radius: clamp(12px, 2vw, 20px);
-      padding: clamp(0.5rem, 1.2vw, 1rem);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      font-size: 0.75rem; font-weight: 900; color: var(--text-primary);
+      transition: all 0.3s ease;
+      cursor: default;
     }
-    .calendar-cell:hover {
-      background: var(--theme-surface, #fff);
-      border-color: var(--brand);
-      transform: translateY(-4px);
-      box-shadow: 0 15px 35px -10px rgba(0,0,0,0.1);
-      z-index: 2;
-    }
-    .calendar-cell.today {
-      background: color-mix(in srgb, var(--brand) 8%, var(--theme-surface, #fff));
-      border: 2.5px solid var(--brand);
-    }
-    .calendar-cell.is-weekend:not(.today) {
-       background: color-mix(in srgb, var(--text-muted) 8%, var(--bg-hover));
-    }
+    .personal-month-summary li:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--brand); }
+    .personal-month-summary .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 
-    .calendar-cell__top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.25rem;
-      margin-bottom: 0.5rem;
-    }
+    .calendar-container { padding: 2rem; }
+    .calendar-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 1rem; gap: 0.75rem; }
+    .grid-day-label { text-align: center; font-size: 0.7rem; font-weight: 900; color: var(--text-muted); opacity: 0.6; }
 
-    .today-badge {
-      flex-shrink: 0;
-      font-size: clamp(0.45rem, 0.8vw, 0.55rem);
-      font-weight: 950;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 0.15rem 0.4rem;
-      border-radius: 6px;
-      background: var(--brand);
-      color: #fff;
-      box-shadow: 0 4px 10px color-mix(in srgb, var(--brand) 40%, transparent);
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.75rem; }
+    .calendar-cell {
+      min-height: 120px; background: var(--bg-primary); 
+      border: 1.5px solid var(--border-soft); border-radius: var(--radius-lg);
+      padding: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
     }
+    .calendar-cell:hover { border-color: var(--brand); transform: translateY(-4px); box-shadow: var(--shadow-md); z-index: 2; }
+    .calendar-cell.today { border-color: var(--brand); background: var(--brand-ambient); border-width: 2px; }
 
-    .day-number {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      font-weight: 950;
-      opacity: 0.5;
-      color: var(--text-primary);
-      line-height: 1;
-    }
-    .calendar-cell.today .day-number { opacity: 1; color: var(--brand); }
+    .day-number { font-size: 1.25rem; font-weight: 950; color: var(--text-primary); }
+    .today-tag { font-size: 0.55rem; font-weight: 950; background: var(--brand); color: #fff; padding: 2px 6px; border-radius: 6px; margin-left: 0.5rem; letter-spacing: 0.05em; }
 
-    .status-pill {
-      display: block;
-      padding: clamp(0.3rem, 0.8vw, 0.5rem);
-      border-radius: clamp(8px, 1.5vw, 14px);
-      font-size: clamp(0.55rem, 1vw, 0.7rem);
-      font-weight: 850;
-      text-transform: uppercase;
-      text-align: center;
-      box-shadow: 0 4px 12px -4px rgba(0,0,0,0.1);
+    .status-marker {
+      padding: 0.65rem 0.85rem; border-radius: 12px; display: flex; flex-direction: column; gap: 0.25rem;
+      border-left: 6px solid transparent; 
+      background: var(--bg-secondary);
       transition: all 0.2s ease;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
-    .calendar-cell:hover .status-pill { transform: scale(1.02); }
-    .AVAILABLE .status-pill { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
-    .UNAVAILABLE .status-pill { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
-    .HOLIDAY .status-pill { background: color-mix(in srgb, var(--info) 14%, transparent); color: var(--info); }
-    .SICK_LEAVE .status-pill { background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); }
+    .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.12); border-left-color: #10b981; }
+    .status-marker.UNAVAILABLE { background: rgba(239, 68, 68, 0.12); border-left-color: #ef4444; }
+    .status-marker.HOLIDAY { background: rgba(59, 130, 246, 0.12); border-left-color: #3b82f6; }
+    .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.12); border-left-color: #f59e0b; }
 
-    /* TEAM BOARD */
-    .team-board-card {
-      border-radius: 32px !important;
-      border: 1px solid var(--border-soft);
-      overflow: hidden;
-      box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.1);
-    }
-    .team-board-toolbar {
-      padding: 1.75rem 2.25rem;
-      background: var(--bg-secondary);
-      border-bottom: 2.5px solid var(--border-soft);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .team-board-title {
-      font-size: 1.5rem;
-      font-weight: 950;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
-      margin: 0;
-    }
+    .status-label { font-size: 0.7rem; font-weight: 950; text-transform: uppercase; color: var(--text-primary); letter-spacing: 0.02em; }
+    .cell-notes { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; line-height: 1.3; margin-top: 0.25rem; }
 
-    .team-board-matrix {
-      width: 100%;
-      min-width: calc(var(--avail-persona-width) + var(--team-day-cols, 31) * var(--avail-day-cell-width));
-    }
-
-    .board-header {
-      display: grid;
-      grid-template-columns: var(--avail-persona-width) 1fr;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: var(--theme-surface, #fff);
-      border-bottom: 2px solid var(--avail-grid-line-strong);
-      backdrop-filter: blur(10px);
-    }
-    .header-col.persona-col {
-      padding: 1.25rem 2rem;
-      font-size: 0.85rem;
-      font-weight: 950;
-      letter-spacing: 0.12em;
-      color: var(--brand);
-      text-transform: uppercase;
-      border-right: 2px solid var(--avail-grid-line-strong);
-    }
-
-    .day-header-col {
-      padding: 1rem 0.25rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.25rem;
-      border-right: 1.5px solid var(--avail-grid-line);
-      background: var(--theme-surface, #fff);
-    }
-    .day-header-col.is-today {
-      background: color-mix(in srgb, var(--brand) 8%, transparent);
-      box-shadow: inset 0 -3px 0 var(--brand);
-    }
-    .day-header-col .d-n { font-weight: 950; font-size: 1.1rem; }
-    .day-header-col .d-l { font-size: 0.65rem; font-weight: 850; text-transform: uppercase; color: var(--text-muted); opacity: 0.6; }
-
-    .board-row {
-      display: grid;
-      grid-template-columns: var(--avail-persona-width) 1fr;
-      border-bottom: 1.5px solid var(--avail-grid-line);
-      background: var(--theme-surface, #fff);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      min-height: 72px;
-    }
-    .board-row:hover { background: color-mix(in srgb, var(--brand) 4%, transparent); }
-    .board-row.is-selected { background: color-mix(in srgb, var(--brand) 8%, transparent); }
-
-    .board-tech-info {
-      padding: 0.85rem 1.75rem;
-      display: flex;
-      align-items: center;
-      gap: 1.15rem;
-      border-right: 2px solid var(--avail-grid-line-strong);
-      background: inherit;
-    }
-    .mini-avatar { width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-    .mini-meta .n { display: block; font-weight: 850; font-size: 0.95rem; color: var(--text-primary); }
-    .mini-meta .r { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 750; letter-spacing: 0.04em; }
-
-    .board-day-cell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-right: 1.5px solid var(--avail-grid-line);
-      padding: 0.5rem;
-    }
-    .status-chip {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      border: 2px solid transparent;
-    }
-    .status-chip:hover { transform: scale(1.6); z-index: 5; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    .status-chip.AVAILABLE { background: var(--success); box-shadow: 0 0 10px color-mix(in srgb, var(--success) 60%, transparent); }
-    .status-chip.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 10px color-mix(in srgb, var(--danger) 60%, transparent); }
-    .status-chip.HOLIDAY { background: var(--info); box-shadow: 0 0 10px color-mix(in srgb, var(--info) 60%, transparent); }
-    .status-chip.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 10px color-mix(in srgb, var(--warning) 60%, transparent); }
-
-    .team-board-scroll-wrap {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-splay: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    .team-board-scroll {
-      overflow-x: auto;
-      overflow-y: visible;
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-      width: 100%;
-    }
-    .team-board-scroll:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
-      outline-offset: 2px;
-    }
-    .team-board-hscroll-indicator {
-      height: 4px;
-      margin: 0.35rem 0.35rem 0.15rem;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--text-muted) 14%, transparent);
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .team-board-hscroll-indicator__thumb {
-      height: 100%;
-      min-width: 6%;
-      border-radius: inherit;
-      background: color-mix(in srgb, var(--brand) 50%, var(--text-muted));
-      transition: margin-inline-start 0.14s ease, width 0.14s ease;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .team-board-hscroll-indicator__thumb {
-        transition: none;
-      }
-    }
-
-    .team-board-matrix {
-      --team-day-cols: 31;
-      width: 100%;
-      /* Fuerza scroll horizontal en lugar de aplastar columnas: columna persona + días con ancho mínimo */
-      min-width: max(100%, calc(var(--avail-persona-width) + var(--team-day-cols, 31) * 44px));
-    }
-
-    .board-header {
-      display: grid;
-      grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
-      position: sticky;
-      top: 0;
-      z-index: 4;
-      background: linear-gradient(180deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-tertiary) 25%, var(--bg-secondary)) 100%);
-      border-bottom: 1px solid var(--avail-grid-line-strong);
-      box-shadow: 0 8px 20px -12px color-mix(in srgb, var(--text-primary) 14%, transparent);
-    }
-
-    .header-col.persona-col {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      width: var(--avail-persona-width);
-      min-width: var(--avail-persona-width);
-      max-width: var(--avail-persona-width);
-      flex-shrink: 0;
-      padding: 0.85rem 1rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--brand);
-      font-size: 0.65rem;
-      border-right: 1px solid var(--avail-grid-line-strong);
-    }
-    .header-col.persona-col lucide-icon { opacity: 0.85; }
-
-    .sticky-col {
-      position: sticky;
-      left: 0;
-      background: var(--bg-secondary);
-      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.06);
-    }
-    .board-header .sticky-col {
-      z-index: 5;
-    }
-    .board-tech-info.sticky-col {
-      z-index: 2;
-      background: var(--bg-tertiary);
-    }
-    .board-row.is-alt .board-tech-info.sticky-col {
-      background: color-mix(in srgb, var(--bg-tertiary) 92%, var(--bg-secondary));
-    }
-    .board-row:hover .board-tech-info.sticky-col {
-      background: var(--bg-secondary);
-    }
-    .board-row.is-selected .board-tech-info.sticky-col {
-      background: var(--brand-ambient);
-    }
-
-    .days-row {
-      display: grid;
-      grid-template-columns: repeat(var(--team-day-cols, 31), minmax(0, 1fr));
-      min-width: 0;
-      width: 100%;
-      align-self: stretch;
-    }
-
-    .day-header-col {
-      min-width: 0;
-      width: auto;
-      border-right: 1px solid var(--avail-grid-line);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0.65rem 0.15rem;
-      gap: 3px;
-      background: var(--bg-secondary);
-    }
-    .day-header-col:nth-child(7n) {
-      border-right: 2px solid var(--avail-grid-line-strong);
-    }
-    .day-header-col.is-weekend {
-      background: color-mix(in srgb, var(--text-muted) 8%, var(--bg-secondary));
-    }
-    .day-header-col.is-today {
-      background: var(--brand-ambient);
-      box-shadow: inset 0 -3px 0 var(--brand);
-    }
-    .day-header-col.is-today .d-n { color: var(--brand); }
-    .day-header-col .d-n {
-      font-size: clamp(0.55rem, 2.1vmin, 0.88rem);
-      font-weight: 900;
-      line-height: 1;
-      color: var(--text-primary);
-    }
-    .day-header-col .d-l {
-      font-size: clamp(0.45rem, 1.6vmin, 0.58rem);
-      font-weight: 800;
-      text-transform: capitalize;
-      opacity: 0.55;
-      letter-spacing: 0.02em;
-    }
-    .day-header-col.is-weekend .d-l { opacity: 0.75; color: var(--text-muted); }
-
-    .board-body {
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--bg-tertiary) 92%, var(--bg-secondary)) 0%,
-        var(--bg-tertiary) 100%
-      );
-    }
-
-    .board-row {
-      display: grid;
-      grid-template-columns: var(--avail-persona-width) minmax(0, 1fr);
-      align-items: stretch;
-      border-bottom: 1px solid var(--avail-grid-line);
-      min-height: 58px;
-      transition: background 0.15s ease, box-shadow 0.15s ease;
-      cursor: pointer;
-      outline: none;
-    }
-    .board-row:last-child { border-bottom: none; }
-    .board-row.is-alt { background: color-mix(in srgb, var(--bg-secondary) 35%, var(--bg-tertiary)); }
-    .board-row:hover {
-      background: color-mix(in srgb, var(--brand) 6%, var(--bg-secondary));
-    }
-    .board-row.is-selected {
-      background: var(--brand-ambient);
-      box-shadow: inset 3px 0 0 var(--brand);
-    }
-    .board-day-cell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-right: 1.5px solid var(--avail-grid-line);
-      padding: 0.5rem;
-    }
-    .status-chip {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      border: 2px solid transparent;
-      cursor: help;
-    }
-    .status-chip:hover {
-      transform: scale(1.6);
-      z-index: 5;
-    }
-    .status-chip.AVAILABLE { background: var(--success); box-shadow: 0 0 12px color-mix(in srgb, var(--success) 70%, transparent); }
-    .status-chip.UNAVAILABLE { background: var(--danger); box-shadow: 0 0 12px color-mix(in srgb, var(--danger) 70%, transparent); }
-    .status-chip.HOLIDAY { background: var(--info); box-shadow: 0 0 12px color-mix(in srgb, var(--info) 70%, transparent); }
-    .status-chip.SICK_LEAVE { background: var(--warning); box-shadow: 0 0 12px color-mix(in srgb, var(--warning) 70%, transparent); }
-    .status-chip.default { opacity: 0.3; background: var(--text-muted); }
-
-    /* RESPONSIVE & UTILS */
-    @media (max-width: 899px) {
-      .availability-dashboard--team .legal-hint { padding: 0.75rem 1rem; font-size: 0.8rem; }
-      .availability-dashboard--team .dashboard-toolbar { justify-content: center; gap: 1rem; }
-      .availability-dashboard--team .team-board-toolbar { padding: 1.25rem 1rem; }
-      .availability-dashboard--team .team-board-title { font-size: 1.25rem; }
-      .availability-dashboard--team .team-board-card { border-radius: 20px !important; }
-    }
-
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text-muted) 25%, transparent); border-radius: 10px; }
-    .custom-scrollbar-h::-webkit-scrollbar { height: 6px; }
-    .custom-scrollbar-h::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text-muted) 25%, transparent); border-radius: 10px; }
+    /* TEAM BOARD MATRIX - PANORAMIC VIEW */
+    .team-board-toolbar { padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
+    .team-board-title { font-size: 1.5rem; font-weight: 950; color: var(--text-primary); letter-spacing: -0.02em; }
+    .team-board-month { color: var(--brand); margin-left: 0.5rem; }
+    .team-board-hint { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; font-weight: 700; margin-top: 0.25rem; }
     
-    .sticky-col { position: sticky; left: 0; z-index: 5; background: inherit; }
+    .team-board-matrix { width: max-content; min-width: 100%; display: flex; flex-direction: column; background: var(--border-soft); gap: 1px; }
+    
+    .board-header { 
+      display: flex;
+      position: sticky; top: 0; z-index: 30; background: var(--surface) !important;
+    }
+    .persona-col { 
+      width: 260px; min-width: 260px; max-width: 260px; flex-shrink: 0; padding: 0.75rem 1.25rem; 
+      font-weight: 950; color: var(--brand); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.1em; 
+      display: flex; align-items: center; gap: 0.6rem; border-right: 2px solid var(--border-soft); 
+      background: var(--surface);
+    }
+    
+    .days-row { display: flex; flex-direction: row; flex: 1; }
+    
+    .day-header-col { 
+      width: 48px; min-width: 48px; flex-shrink: 0; padding: 0.5rem 0.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: var(--surface); border-right: 1px solid var(--border-soft); 
+    }
+    .day-header-col.is-today { background: var(--brand-ambient); color: var(--brand); }
+    .day-header-col.is-weekend { background: var(--bg-hover); opacity: 0.8; }
+    .day-header-col .d-n { font-weight: 950; font-size: 0.9rem; line-height: 1; }
+    .day-header-col .d-l { font-size: 0.5rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-top: 0.15rem; }
+
+    .board-body { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); }
+    .board-row { display: flex; flex-direction: row; background: var(--surface); transition: all 0.2s ease; cursor: pointer; min-width: max-content; }
+    .board-row:hover { background: var(--bg-hover) !important; }
+    .board-row.is-selected { background: var(--brand-ambient) !important; z-index: 5; }
+
+    .board-tech-info { 
+      width: 260px; min-width: 260px; max-width: 260px; flex-shrink: 0; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; 
+      border-right: 2px solid var(--border-soft); background: inherit;
+    }
+    .mini-avatar { 
+      width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 900; font-size: 0.75rem; flex-shrink: 0;
+    }
+    .mini-meta { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .mini-meta .n { font-weight: 850; font-size: 0.8rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-meta .r { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .board-day-cell { 
+      width: 48px; min-width: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      border-right: 1px solid var(--border-soft); background: inherit;
+    }
+    .board-day-cell.is-today { background: rgba(var(--brand-rgb, 239, 68, 68), 0.04); }
+    
+    .status-chip { width: 24px; height: 16px; border-radius: 3px; border: 1.5px solid rgba(255,255,255,0.4); }
+    .status-chip.AVAILABLE { background: #10b981 !important; }
+    .status-chip.UNAVAILABLE { background: #ef4444 !important; }
+    .status-chip.HOLIDAY { background: #3b82f6 !important; }
+    .status-chip.SICK_LEAVE { background: #f59e0b !important; }
+
+    .sticky-col { position: sticky; left: 0; z-index: 20; background: inherit; box-shadow: 4px 0 8px -4px rgba(0,0,0,0.1); }
+    
+    .team-board-scroll-wrap { 
+      position: relative; width: 100%; border-radius: var(--radius-lg); 
+      overflow: hidden; border: 1px solid var(--border-soft); 
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+    }
+    .team-board-scroll { overflow-x: auto; width: 100%; display: block; }
   `]
 
 })
@@ -2311,7 +1584,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         rangeEnd.getDate(),
       );
 
-      const data: Record<string, Record<number, string>> = {};
+      const data: Record<string, Record<number, any>> = {};
 
       await Promise.all(
         realTechs.map(async (tech) => {
@@ -2322,20 +1595,23 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
             data[tech.id] = {};
             for (let d = 1; d <= daysInMonth; d++) {
-              data[tech.id][d] = this.defaultDayStatus(year, month, d);
+              data[tech.id][d] = { type: this.defaultDayStatus(year, month, d) };
             }
             (avail ?? []).forEach((a: TechnicianAvailability) => {
               const dayNum = this.dayNumberFromAvailability(a);
               if (dayNum < 1 || dayNum > daysInMonth) {
                 return;
               }
-              data[tech.id][dayNum] = this.normalizeAvailabilityType(a.type);
+              data[tech.id][dayNum] = {
+                ...a,
+                type: this.normalizeAvailabilityType(a.type)
+              };
             });
           } catch {
             partialFailures++;
             data[tech.id] = {};
             for (let d = 1; d <= daysInMonth; d++) {
-              data[tech.id][d] = this.defaultDayStatus(year, month, d);
+              data[tech.id][d] = { type: this.defaultDayStatus(year, month, d) };
             }
           }
         }),
@@ -2395,19 +1671,15 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     return iso ? new Date(iso).getDate() : 0;
   }
 
-  getTechDayStatus(techId: string, day: number): string {
-    return this.teamAvailability()[techId]?.[day] || 'AVAILABLE';
-  }
-
   /** Estado por fecha ISO (vista calendario alineada o semanal). */
-  getTechStatusByIso(techId: string, iso: string): string {
+  getTechStatusByIso(techId: string, iso: string): any {
     const by = this.teamAvailabilityIso()[techId];
     if (by?.[iso]) {
       return by[iso];
     }
     const parts = iso.split('-');
     if (parts.length !== 3) {
-      return 'AVAILABLE';
+      return { type: 'AVAILABLE' };
     }
     const y = +parts[0];
     const m0 = +parts[1] - 1;
@@ -2415,7 +1687,11 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
     if (y === this.currentYear() && m0 === this.currentMonth()) {
       return this.getTechDayStatus(techId, d);
     }
-    return 'AVAILABLE';
+    return { type: 'AVAILABLE' };
+  }
+
+  getTechDayStatus(techId: string, day: number): any {
+    return this.teamAvailability()[techId]?.[day] || { type: 'AVAILABLE' };
   }
 
   isWeekendYmd(y: number, m: number, d: number): boolean {
@@ -2426,13 +1702,13 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
   private syncIsoMapsFromAvailabilityData(
     year: number,
     month: number,
-    data: Record<string, Record<number, string>>,
+    data: Record<string, Record<number, any>>,
   ): void {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const start = TechnicianAvailabilityComponent.mondayOfWeekContaining(new Date(year, month, 1));
     const end = TechnicianAvailabilityComponent.sundayOfWeekContaining(new Date(year, month, daysInMonth));
     const endT = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
-    const out: Record<string, Record<string, string>> = {};
+    const out: Record<string, Record<string, any>> = {};
     for (const techId of Object.keys(data)) {
       out[techId] = {};
       const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
@@ -2442,10 +1718,10 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         const dd = cur.getDate();
         const iso = TechnicianAvailabilityComponent.toIso(yy, mm, dd);
         if (yy === year && mm === month) {
-          out[techId][iso] = data[techId][dd] ?? 'AVAILABLE';
+          out[techId][iso] = data[techId][dd] ?? { type: 'AVAILABLE' };
         } else {
           const wd = cur.getDay();
-          out[techId][iso] = wd === 0 || wd === 6 ? 'UNAVAILABLE' : 'AVAILABLE';
+          out[techId][iso] = { type: wd === 0 || wd === 6 ? 'UNAVAILABLE' : 'AVAILABLE' };
         }
         cur.setDate(cur.getDate() + 1);
       }
