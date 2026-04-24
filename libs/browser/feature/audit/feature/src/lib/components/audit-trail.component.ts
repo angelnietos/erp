@@ -79,6 +79,7 @@ interface AuditLog {
   timestamp: string;
   details?: string;
   changes?: Record<string, { old: unknown; new: unknown }>;
+  targetEntity?: string;
 }
 
 @Component({

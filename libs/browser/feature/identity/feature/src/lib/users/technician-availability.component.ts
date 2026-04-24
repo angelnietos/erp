@@ -275,12 +275,36 @@ interface PersonalGridCell {
                         <span class="label" style="text-transform: uppercase; font-size: 0.7rem; font-weight: 950; color: var(--brand); letter-spacing: 0.1em; opacity: 0.8;">Operario Seleccionado</span>
                         <h2 class="tech-display-name">{{ name }}</h2>
                         @if (personalMonthSummary(); as pm) {
-                          <ul class="personal-month-summary">
-                            <li><span class="dot AVAILABLE"></span> <strong>{{ pm.available }}</strong> Disponibles</li>
-                            <li><span class="dot UNAVAILABLE"></span> <strong>{{ pm.unavailable }}</strong> Ocupados</li>
-                            <li><span class="dot HOLIDAY"></span> <strong>{{ pm.holiday }}</strong> Vacaciones</li>
-                            <li><span class="dot SICK_LEAVE"></span> <strong>{{ pm.incident }}</strong> Otros</li>
-                          </ul>
+                          <div class="personal-month-summary-grid">
+                            <div class="summary-card status-avail">
+                              <div class="summary-dot AVAILABLE"></div>
+                              <div class="summary-data">
+                                <span class="summary-val">{{ pm.available }}</span>
+                                <span class="summary-lbl">Disp.</span>
+                              </div>
+                            </div>
+                            <div class="summary-card status-unavail">
+                              <div class="summary-dot UNAVAILABLE"></div>
+                              <div class="summary-data">
+                                <span class="summary-val">{{ pm.unavailable }}</span>
+                                <span class="summary-lbl">Ocup.</span>
+                              </div>
+                            </div>
+                            <div class="summary-card status-holiday">
+                              <div class="summary-dot HOLIDAY"></div>
+                              <div class="summary-data">
+                                <span class="summary-val">{{ pm.holiday }}</span>
+                                <span class="summary-lbl">Vacac.</span>
+                              </div>
+                            </div>
+                            <div class="summary-card status-other">
+                              <div class="summary-dot SICK_LEAVE"></div>
+                              <div class="summary-data">
+                                <span class="summary-val">{{ pm.incident }}</span>
+                                <span class="summary-lbl">Otros</span>
+                              </div>
+                            </div>
+                          </div>
                         }
                       </div>
                     }
@@ -314,12 +338,13 @@ interface PersonalGridCell {
                         <div class="calendar-cell__top">
                           <span class="day-number">{{ cell.day }}</span>
                           @if (cell.isToday) {
-                            <span class="today-tag">ESTE DÍA</span>
+                            <span class="today-tag">HOY</span>
                           }
                         </div>
                         
                         <div class="calendar-cell__content">
-                          <div class="status-marker" [class]="statusObj.type">
+                          <div class="status-badge" [class]="statusObj.type">
+                            <div class="status-badge-dot"></div>
                             <span class="status-label">{{ getCellStatusAbbrev(statusObj.type) }}</span>
                             @if (statusObj.startTime && statusObj.endTime) {
                               <span class="time-range">{{ statusObj.startTime }}-{{ statusObj.endTime }}</span>
@@ -753,27 +778,35 @@ interface PersonalGridCell {
 
     .tech-card {
       width: 100%; display: flex; align-items: center; gap: 1.25rem;
-      padding: 1.25rem; background: var(--surface);
-      border: 1px solid var(--border-soft); border-radius: 24px;
-      cursor: pointer; transition: all 0.4s var(--ease-out-expo);
+      padding: 1rem 1.25rem; background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 20px;
+      cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: left; position: relative; overflow: hidden;
+      backdrop-filter: blur(10px);
     }
-
-    .tech-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); opacity: 0; transition: opacity 0.3s ease; }
-    .tech-card:hover { transform: translateX(10px) scale(1.01); border-color: var(--brand-border-soft); background: var(--surface-hover); box-shadow: var(--shadow-md); }
+    .tech-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent); opacity: 0; transition: opacity 0.3s ease; }
+    .tech-card:hover { transform: translateX(6px) scale(1.02); border-color: rgba(var(--brand-rgb), 0.4); background: rgba(255,255,255,0.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
     .tech-card:hover::before { opacity: 1; }
-    .tech-card.selected { background: var(--brand-ambient-strong); border-color: var(--brand); border-width: 1.5px; box-shadow: var(--shadow-sm), 0 0 15px var(--brand-glow); }
+    .tech-card.selected { background: rgba(var(--brand-rgb), 0.1); border-color: var(--brand); box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.2), inset 0 0 0 1px var(--brand); }
     .tech-card.selected .tech-name { color: var(--brand); }
+    .tech-card.selected .tech-avatar { box-shadow: 0 0 15px rgba(var(--brand-rgb), 0.4); }
 
+    .tech-avatar-wrapper { position: relative; }
     .tech-avatar {
-      width: 52px; height: 52px; border-radius: 18px;
+      width: 46px; height: 46px; border-radius: 14px;
       flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      font-weight: 950; color: #fff; font-size: 1.2rem;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+      font-weight: 950; color: #fff; font-size: 1.1rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
     }
-    .tech-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
-    .tech-name { display: block; font-weight: 950; font-size: 1.05rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
-    .tech-role { display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; opacity: 0.8; }
+    .status-indicator { position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--surface); }
+    .status-indicator.online { background: #10b981; }
+    .status-indicator.offline { background: #64748b; }
+    .status-indicator.away { background: #f59e0b; }
+
+    .tech-body { flex: 1; min-width: 0; position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; }
+    .tech-name { display: block; font-weight: 950; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
+    .tech-role { display: block; font-size: 0.65rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-top: 0.15rem; opacity: 0.8; letter-spacing: 0.05em; }
 
     /* CALENDAR CARD & SUMMARY */
     .calendar-card {
@@ -786,70 +819,114 @@ interface PersonalGridCell {
       overflow: hidden;
     }
 
-    .calendar-container { padding: 2.5rem; }
+    .personal-month-summary-grid {
+      display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;
+    }
+    
+    .summary-card {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 1rem; border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03); 
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+    }
+    .summary-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.06); }
+    
+    .status-avail { border-bottom: 2px solid #10b981; }
+    .status-unavail { border-bottom: 2px solid #ef4444; }
+    .status-holiday { border-bottom: 2px solid #3b82f6; }
+    .status-other { border-bottom: 2px solid #f59e0b; }
+
+    .summary-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .summary-dot.AVAILABLE { background: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.8); }
+    .summary-dot.UNAVAILABLE { background: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+    .summary-dot.HOLIDAY { background: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.8); }
+    .summary-dot.SICK_LEAVE { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.8); }
+
+    .summary-data { display: flex; flex-direction: column; line-height: 1.1; }
+    .summary-val { font-size: 1.15rem; font-weight: 950; font-family: var(--font-gaming, var(--font-mono)); color: var(--text-primary); }
+    .summary-lbl { font-size: 0.6rem; font-weight: 850; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
+
     .calendar-grid-header { 
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
-      margin-bottom: 1.5rem; 
+      margin-bottom: 1rem; 
       gap: 1rem; 
     }
     .grid-day-label { 
       text-align: center; 
-      font-size: 0.75rem; 
+      font-size: 0.65rem; 
       font-weight: 950; 
       color: var(--text-muted); 
-      opacity: 0.5; 
-      letter-spacing: 0.1em;
+      opacity: 0.7; 
+      letter-spacing: 0.15em;
       text-transform: uppercase;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .calendar-grid { 
       display: grid; 
       grid-template-columns: repeat(7, minmax(0, 1fr)); 
-      gap: 1rem; 
+      gap: 0.85rem; 
     }
     .calendar-cell {
-      min-height: 140px; 
-      background: color-mix(in srgb, var(--surface) 80%, white 2%); 
-      border: 1px solid rgba(255, 255, 255, 0.06); 
-      border-radius: 20px;
-      padding: 1.25rem; 
+      min-height: 130px; 
+      background: rgba(255, 255, 255, 0.02); 
+      border: 1px solid rgba(255, 255, 255, 0.04); 
+      border-radius: 16px;
+      padding: 1rem; 
       display: flex; 
       flex-direction: column; 
       gap: 0.75rem;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
       position: relative; 
       overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .calendar-cell::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+      opacity: 0; transition: opacity 0.3s;
     }
     .calendar-cell:hover { 
-      border-color: color-mix(in srgb, var(--brand) 40%, transparent); 
-      transform: translateY(-6px) scale(1.02); 
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+      border-color: rgba(255,255,255,0.15); 
+      transform: translateY(-4px) scale(1.02); 
+      box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); 
       z-index: 10; 
     }
+    .calendar-cell:hover::before { opacity: 1; }
     .calendar-cell.today { 
       border-color: var(--brand); 
-      background: color-mix(in srgb, var(--brand) 8%, var(--surface)); 
-      border-width: 2px;
-      box-shadow: inset 0 0 20px rgba(var(--brand-rgb), 0.1);
+      background: rgba(var(--brand-rgb), 0.05);
+      box-shadow: 0 0 25px rgba(var(--brand-rgb), 0.15), inset 0 0 0 1px var(--brand);
     }
 
-    .day-number { font-size: 1.25rem; font-weight: 950; color: var(--text-primary); }
-    .today-tag { font-size: 0.55rem; font-weight: 950; background: var(--brand); color: #fff; padding: 2px 6px; border-radius: 6px; margin-left: 0.5rem; letter-spacing: 0.05em; }
+    .day-number { font-size: 1.35rem; font-weight: 950; font-family: var(--font-gaming, var(--font-sans)); color: var(--text-primary); }
+    .today-tag { font-size: 0.5rem; font-weight: 950; background: var(--brand); color: #fff; padding: 3px 8px; border-radius: 8px; margin-left: 0.5rem; letter-spacing: 0.1em; display: inline-flex; align-items: center; align-self: flex-start; }
+    
+    .calendar-cell__top { display: flex; align-items: center; }
 
-    .status-marker {
-      padding: 0.65rem 0.85rem; border-radius: 12px; display: flex; flex-direction: column; gap: 0.25rem;
-      border-left: 6px solid transparent; 
-      background: var(--bg-secondary);
-      transition: all 0.2s ease;
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.65rem; border-radius: 8px;
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+      margin-top: auto; align-self: flex-start; width: fit-content;
     }
-    .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.12); border-left-color: #10b981; }
-    .status-marker.UNAVAILABLE { background: rgba(239, 68, 68, 0.12); border-left-color: #ef4444; }
-    .status-marker.HOLIDAY { background: rgba(59, 130, 246, 0.12); border-left-color: #3b82f6; }
-    .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.12); border-left-color: #f59e0b; }
+    .status-badge.AVAILABLE { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+    .status-badge.UNAVAILABLE { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+    .status-badge.HOLIDAY { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
+    .status-badge.SICK_LEAVE { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); }
 
-    .status-label { font-size: 0.7rem; font-weight: 950; text-transform: uppercase; color: var(--text-primary); letter-spacing: 0.02em; }
-    .cell-notes { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; line-height: 1.3; margin-top: 0.25rem; }
+    .status-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .AVAILABLE .status-badge-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
+    .UNAVAILABLE .status-badge-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .HOLIDAY .status-badge-dot { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+    .SICK_LEAVE .status-badge-dot { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+
+    .status-label { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--text-primary); letter-spacing: 0.05em; }
+    .cell-notes { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; line-height: 1.3; margin-top: 0.5rem; opacity: 0.7; }
 
     /* TEAM BOARD MATRIX - PANORAMIC VIEW */
     .team-board-toolbar { 
