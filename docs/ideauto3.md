@@ -1,7 +1,7 @@
 # 🏛️ Especificación Arquitectónica Definitiva: Plataforma de Inteligencia Documental Distribuida
 
 > **Tesis Central de Ingeniería:**  
-> *"Esto no es un pipeline secuencial de procesamiento. Constituye un **sistema de decisión distribuido sobre documentos**, orquestado por eventos, dotado de memoria transaccional inmutable, evaluación de estado y rutinas autónomas de aprendizaje continuo (MLOps)."*
+> _"Esto no es un pipeline secuencial de procesamiento. Constituye un **sistema de decisión distribuido sobre documentos**, orquestado por eventos, dotado de memoria transaccional inmutable, evaluación de estado y rutinas autónomas de aprendizaje continuo (MLOps)."_
 
 Esta es la especificación técnica final de producción, trazada de manera exhaustiva de extremo a extremo, configurada para resolver las disrupciones típicas de redes integrando resiliencia, control de duplicados masivos y eficiencia en el gasto computacional (CAPEX/OPEX IA).
 
@@ -82,7 +82,7 @@ subgraph L8["8. PIPELINE ATÓMICO (Por Documento)"]
     direction TB
     PIPE --> SPLIT["8.1 PDF Parser + Splitter"]
     SPLIT --> T{"8.2 Content Type"}
-    
+
     T -- Text --> TXT["8.3 Text Extraction"]
     T -- Image --> IMG["8.4 Render Page"]
 
@@ -179,50 +179,193 @@ style L13 fill:#eceff1,stroke:#37474f
 
 ---
 
-## ⚙️ Dinámica Operativa Detallada: Las 14 Fases Puestas Bajo Lupa
+## ⚙️ FASE 1 — Frontend (Captura del expediente)
 
-A continuación, se detalla qué hace cada fase y, lo más importante, **por qué existe y qué problema resuelve**:
+El usuario sube un expediente con múltiples documentos (PDFs, imágenes).
 
-### FASE 1: Frontend (Captura del Expediente)
-El proceso comienza cuando el usuario interactúa de forma directa con la aplicación. Selecciona y sube un paquete o "expediente" que contiene típicamente múltiples documentos (ej. 9 PDFs o imágenes). En este punto el sistema no aplica ninguna inteligencia artificial. El único objetivo aquí es realizar validaciones elementales en el navegador del usuario (por ejemplo, comprobar que no suba archivos vacíos ni formatos no admitidos) para evitar enviar basura a la nube y generar gasto innecesario.
+Función:
+validación básica (formatos, tamaño, nº archivos)
+UX de subida
+Problema que resuelve:
+evita basura en backend
+reduce coste de procesamiento
+🟦 FASE 2 — API Gateway (seguridad perimetral)
 
-### FASE 2: API Gateway (Filtro Perimetral de Seguridad)
-Antes de que los documentos toquen el núcleo de procesamiento, pasan por un guardia de seguridad estricto. El API Gateway verifica quién está enviando el archivo (Autenticación JWT), frena ataques si alguien intenta saturar el sistema subiendo miles de archivos por segundo (*Rate Limit*) y analiza en tiempo real que no existan virus ocultos en los archivos. Si esta puerta se cierra (se detecta una anomalía), el usuario recibe un bloqueo al instante y el sistema principal no gasta un céntimo en procesamiento.
+Azure API Management
 
-### FASE 3: Identidad e Idempotencia (Prevención de Duplicados Humanos)
-Una vez que el paquete pasa la seguridad, se le genera inmediatamente un "Carnet de Identidad" único (`Expedition_ID`). Esto activa el crucial mecanismo de *Idempotencia*. ¿Qué significa? Si el usuario, por la inestabilidad de su internet o por desesperación, pulsa el botón de enviar 3 veces seguidas sin darse cuenta, el sistema lo identifica como la misma acción exacta. Frenará los dos últimos intentos y retornará el mismo resultado que ya procesó o está procesando en el primer intento, evitando así gastar el triple de cómputo en la IA por un mero error de interfaz. Además, aquí se determina y encapsula la transacción para asegurar que los datos de una empresa (Tenant) jamás se crucen bajo ningún motivo con los de otra.
+Función:
+autenticación (JWT/OAuth)
+rate limiting
+inspección básica de seguridad
+Problema:
+protección contra ataques y saturación
+🟦 FASE 3 — Idempotencia + control de expediente
+Función:
+genera Expedition_ID
+evita duplicados
+asigna tenant
+Problema:
+evita doble procesamiento por retries del usuario
+🟦 FASE 4 — Almacenamiento bruto (Raw Data Lake)
+Función:
+guarda documento original inmutable
+Problema:
+trazabilidad legal y auditoría RGPD
+🟦 FASE 5 — Fingerprinting / deduplicación
+Función:
+hash o embedding del documento
+detecta duplicados
+Problema:
+evita reprocesar documentos idénticos
+🟦 FASE 6 — Event Router (colas de entrada)
 
-### FASE 4: Raw Storage & Fingerprint (El Cimiento Inmutable)
-El documento original, tal cual fue subido, se incrusta profundamente en un "Storage de Crudos" (Data Lake) en formato *"solo escritura, nunca borrado"*. Esto es vital para protegerse penalmente ante futuras auditorías (es la verdad absoluta de lo que entregó el cliente). Simultáneamente, el sistema saca una huella matemática (*Fingerprint vectorial*) de cómo se "ve y se lee" este documento. En un sistema de altísimo volumen, si alguien sube exactamente el mismo archivo semanas o meses después, la huella digital coincidirá casi al 99%. Ante eso, el sistema cancela la IA y simplemente devuelve los datos extraídos que ya tenía en memoria, produciendo de inmediato cero coste en inferencia cognitiva adicional.
+Azure Service Bus
 
-### FASE 5: Event Router & Backbone (Las Arterias de Tráfico)
-En este punto necesitamos despachar la operación. Se toma una decisión vital sobre por qué carril de procesamiento enviar la carga. Para trámites ligeros el router inyecta los procesos por los carriles ultra-síncronos (*Redis Queues*). Sin embargo, si al negocio le ingresan repentinamente cientos de miles de expedientes pesados de un plumazo, la arquitectura los desvía al **Service Bus de Azure**, una tubería blindada capaz de soportar embotellamientos inmensos. Esto permite una enorme descongestión asíncrona: **miles de usuarios pueden operar simultáneamente en la interfaz de sus ordenadores con pasmosa fluidez**, sin percibir jamás que el centro de la aplicación web está recibiendo un ataque de tráfico u operando a capacidad máxima.
+Función:
+enruta eventos a colas o streams
+Problema:
+desacoplar sistema y absorber picos
+🟦 FASE 7 — Orquestador (state machine)
+Función:
+controla estado del expediente
+registra progreso
+Problema:
+resiliencia y reanudación de procesos
+🟦 FASE 8 — Fan-out (paralelización)
+Función:
+divide expediente en documentos
+ejecuta workers en paralelo
+Problema:
+escalabilidad y reducción de tiempo
+🟦 FASE 9 — Preprocesado de documento
+Función:
+mejora imagen (rotación, contraste, ruido)
+detecta tipo de entrada (imagen vs PDF)
+Problema:
+mejorar calidad antes de OCR/IA
+🟦 FASE 10 — Clasificación de documento
+Función:
+identifica tipo documental:
+factura
+contrato
+nómina
+DNI
+Problema:
+enrutar procesamiento específico
+🟦 FASE 11 — OCR (extracción de texto)
+Función:
+conversión imagen → texto
+extracción directa si PDF digital
+Problema:
+digitalizar contenido no estructurado
+🟦 FASE 12 — IA multimodal (fallback inteligente)
 
-### FASE 6: Orquestador y Máquina de Estado (El Cerebro)
-El orquestador no lee papeles ni extrae textos. Es el mánager del sistema. Coordina cada movimiento minucioso anotando el progreso absoluto en una libreta de memoria ultrarrápida llamada *Redis* (ej. "En progreso: recibiendo hoja 3", "Etapa 4 terminada"). El objetivo arquitectónico maestro de concentrar el estado general de este modo nos permite **autocompletar el formulario visual de cara al usuario final (Auto-Fill)** con certeza tan pronto culmine cada sección. Adicionalmente, si el servidor físico que opera el orquestador llegase a sufrir una desconexión o rotura, al despertar retomará su punto exacto consultando a su libreta *Redis*, impidiendo pedirle disculpas al cliente por correos obligándole a someter todo nuevamente.
+GPT-4o
 
-### FASE 7: Fan-Out Worker Pool (Clonación y Concurrencia de Nube)
-Cualquier computadora convencional leería los 9 documentos del expediente uno tras otro (secuencial), ahogándose y tardando muchísimos minutos. El orquestador moderno ejecuta en su defecto un *Fan-Out*. Si subiste 9 archivos juntos, la máquina crea instantáneamente 9 hilos temporales clonados en la nube operando en paralelo. Todos los documentos de un expediente inmenso se atacan y barren en el tiempo estándar e idéntico a lo que tardaría uno solo.
+Función:
+interpreta documentos difíciles o degradados
+reconstrucción semántica
+Problema:
+casos donde OCR falla
+🟦 FASE 13 — Extracción semántica (NER)
+Función:
+extracción de entidades:
+DNI
+IBAN
+importes
+fechas
+Problema:
+estructurar texto en datos útiles
+🟦 FASE 14 — Agentes especializados
+Función:
+agentes por dominio:
+fiscal
+legal
+financiero
+Problema:
+análisis experto por tipo de información
+🟦 FASE 15 — Normalización de datos
+Función:
+estandariza formatos:
+fechas
+monedas
+textos
+Problema:
+evitar inconsistencias entre documentos
+🟦 FASE 16 — Validación de esquema (schema enforcement)
 
-### FASE 8: Pipeline Atómico Documental (El Motor Central de Extracción)
-Este es el grueso del trabajo pesado en MLOps e Inteligencia Artificial. Cada uno de los 9 "workers" anteriores ataca un documento bajo las siguientes sub-etapas internas:
-*   **A.** El PDF se secciona a nivel atómico para buscar textos digitales limpios y obviar gastos OCR.
-*   **B.** Si es una fotografía rota subida en mala iluminación se ejecutan filtros pre-visión por software reparando el contraste e inclinación para elevar la capacidad del modelo artificial posterior a captar sus letras.
-*   **C. Modelo de "Cascada":** Arranca inferiendo de forma económica para extraer la semántica. El algoritmo dictamina el estado de pureza del OCR (Confianza Alta o Baja). Solo enviará de vuelta un *Fallback pesado y multimodal de LMM (GPT-4o Vision)* en extrema necesidad. Las inferencias costosas abordan únicamente fotos arrugadas incomprensibles. Esto es lo que vuelve el sistema rentable para un Banco.
-*   **D. Limpieza e Identificación (NER):** El Clasificador reestructura el desorden del crudo y define categóricamente su tipología: Esto es un Contrato; Esto es una Nómina salarial.
-*   **E. Los Agentes Sub-especializados:** El Clasificador despierta micro-programas especialistas para rematar la obra. El "Agente Fiscal" es experto únicamente devorando tramas de datos del IBAN, facturación e Impuestos, desechando cláusulas legales que a su vez caen presa del "Agente Legal". Todos terminan por vomitar variables ordenadas bajo un exquisito formato computacional que todos los programadores pueden usar fácilmente (`JSON`).
+JSON Schema
 
-### FASE 9: Fan-In (Agregación Transaccional Sintetizada)
-Como los 9 ficheros se despacharon paralelamente en la Fase 7 y terminaron a diferente ritmo (un DNI tarda 3 segundos; un informe 40 segundos), se genera la necesidad de reunificarlos en la historia del expediente. El orquestador ejecuta el *Fan-In*: espera impasible en la terminal a que los 9 trabajadores entreguen sus estructuras minúsculas sueltas, y al estar completadas, ensambla el rompecabezas colosal en un "Meta JSON" universal consolidado.
+Función:
+valida estructura del JSON final
+Problema:
+evitar datos corruptos o incompletos
+🟦 FASE 17 — Motor de reglas de negocio (CAE)
+Función:
+aplica reglas legales y de negocio:
+vigencia
+coherencia documental
+validación CAE
+Problema:
+IA no puede decidir cumplimiento legal
+🟦 FASE 18 — Resolución de inconsistencias
+Función:
+detecta conflictos entre documentos:
+fechas incompatibles
+datos distintos
+Problema:
+coherencia global del expediente
+🟦 FASE 19 — Scoring de riesgo
+Función:
+asigna nivel:
+verde (OK)
+amarillo (revisión)
+rojo (bloqueo)
+Problema:
+priorización automática de expedientes
+🟦 FASE 20 — Dead Letter Queue (gestión de fallos)
 
-### FASE 10: Scoring Y Motor de Validación Interconectada (CAE)
-Tener la extracción de datos de la IA cruda no basta; las inteligencias artificiales estadísticamente experimentan problemas de razonamiento e "alucinan" variables. Este bloque cruza información artificial con *lógica pura humana inquebrantable*. Se cruza lo abstraído en el documento A vs B (Ej. La identificación abstraída del Doc 1... ¿tiene temporalidad legal con respecto a las fechas de caducidad del Doc 2?). Acto seguido, dicta una sentencia numérica generando un "*Score* de Veracidad". Puede ser "Aprobado Instantáneo Verde", o bien "Bloqueado Rojo Total" ante falsificación detectable. Si arroja discrepancias moderadas es etiquetado como "Amarillo (HitL)".
+Azure Service Bus
 
-### FASE 11: Auto-Fill y Feedback de la UX (La Interfaz del Humano)
-El expediente finaliza y los resultados estocásticos le golpean el front-end del usuario. En lugar de ofrecerle el típico software tradicional soso con docenas de barras requeridas, **el sistema lo premia presentando el formulario inmenso completamente auto-rellenado (Auto-fill)** sin que tocara su teclado. Pero además, si la sentencia CAE determinó que un valor clave tenía una calificación "Amarilla" (Incertidumbre cognitiva), el front-end activa de inmediato su pantalla UI arrojando visualmente una caja y exigiendo un simple Clic para resolver o confirmar solo ese valor concreto dudoso al Humano.
+Función:
+almacena procesos fallidos
+permite retry o análisis posterior
+Problema:
+evitar pérdida de datos o procesos corruptos
+🟦 FASE 21 — Observabilidad + auditoría completa
 
-### FASE 12 y 13: Loop de MLOps y el Aprendizaje Diario Asíncrono
-¿Qué ocurre con la discrepancia que resolvió el operador humano en el paso once a la IA y la corrigió?. La belleza de arquitecturas vivas recae en el Loop Diario: Todo salto originado por la máquina que terminó diferentemente ingresado por el humano emite un evento silencioso por el "Canal Sensorial de Azure Service Bus" y se aloja en un repositorio ciego (Dataset). Así, cada medianoche al apagar las oficinas, la infraestructura despliega tareas estacionales (Crons). Toma toda la experiencia y correcciones acumuladas de sus trabajadores ese día iniciando entrenamientos desatendidos (*Fine-tuning*) para refinar autónomamente las ponderaciones matemáticas de su cerebro (Model Registry). Amanece siempre más sabia disminuyendo los semáforos amarillos.
+Azure Monitor
 
-### FASE 14: Observabilidad y Trazabilidad Compliance
-Mientras absolutamente todas las 13 bases giran bajo millonésimas de segundo la estructura completa cuenta con un espectador omnipotente inamovible de registro contable. Toda telemetría críptica —duraciones de latencia de OCR, invocaciones a modelos OpenAi, rechazos, colapsos, caídas del sistema encarriladas por el canal colas de Muertos (*Dead-Letter Queues*)— se perenniza. Esta es la garantía penal suprema del CTO capaz de imprimir a cualquier auditor del Gobierno, Banco o Ciberseguridad por qué su automatismo denegó o cobró una transacción el 23 de septiembre de 2024.
+Función:
+logs completos
+trazas distribuidas
+métricas de IA y sistema
+auditoría legal RGPD
+Problema:
+cumplimiento, trazabilidad y debugging forense
+🧠 RESUMEN FINAL DEL SISTEMA
+
+Este sistema es una combinación de:
+
+⚙️ Arquitectura
+microservicios
+event-driven systems
+procesamiento distribuido
+🤖 IA
+OCR
+visión artificial
+LLM multimodal
+agentes especializados
+📊 Negocio
+CAE
+reglas legales
+scoring de riesgo
+🔐 Enterprise
+auditoría
+DLQ
+observabilidad
+compliance RGPD / ISO
+🔥 IDEA CLAVE
+
+Las fases 1–14 procesan el documento
+Las fases 15–21 lo convierten en un sistema empresarial robusto, auditable y confiable
