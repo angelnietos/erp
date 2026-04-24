@@ -670,21 +670,27 @@ interface PersonalGridCell {
       filter: brightness(1.1);
     }
 
-    /* VIBRANT STATUSES - SOLID COLORS */
-    .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.12); border-left: 6px solid #10b981; }
-    .status-marker.UNAVAILABLE { background: rgba(239, 68, 68, 0.12); border-left: 6px solid #ef4444; }
-    .status-marker.HOLIDAY { background: rgba(59, 130, 246, 0.12); border-left: 6px solid #3b82f6; }
-    .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.12); border-left: 6px solid #f59e0b; }
+    /* VIBRANT STATUSES - SOLID COLORS WITH GLOW */
+    .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.08); border-left: 6px solid #10b981; }
+    .status-marker.UNAVAILABLE { background: rgba(239, 68, 68, 0.08); border-left: 6px solid #ef4444; }
+    .status-marker.HOLIDAY { background: rgba(59, 130, 246, 0.08); border-left: 6px solid #3b82f6; }
+    .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.08); border-left: 6px solid #f59e0b; }
 
-    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; border: 1.5px solid #fff; }
-    .dot.AVAILABLE { background: #10b981 !important; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
-    .dot.UNAVAILABLE { background: #ef4444 !important; box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
-    .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 6px rgba(59, 130, 246, 0.4); }
-    .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; border: 1.5px solid #fff; transition: transform 0.3s var(--transition-spring); }
+    .dot.AVAILABLE { background: #10b981 !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+    .dot.UNAVAILABLE { background: #ef4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+    .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+    .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
 
-    .calendar-legend { display: flex !important; gap: 1.25rem !important; flex-wrap: wrap !important; flex-direction: row !important; align-items: center !important; }
-    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; font-weight: 900; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
-    .legend-item .dot { width: 10px; height: 10px; border-width: 1px; }
+    .calendar-legend { display: flex !important; gap: 1.5rem !important; flex-wrap: wrap !important; flex-direction: row !important; align-items: center !important; }
+    .legend-item { 
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.75rem; border-radius: 10px; 
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border-soft);
+      font-size: 0.65rem; font-weight: 950; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.08em; 
+      transition: all 0.2s ease;
+    }
+    .legend-item:hover { background: rgba(255,255,255,0.06); transform: translateY(-1px); }
+    .legend-item .dot { width: 8px; height: 8px; border-width: 1px; }
 
     /* LAYOUT & SIDEBAR */
     .dashboard-layout {
@@ -712,27 +718,29 @@ interface PersonalGridCell {
 
     .technician-list {
       display: flex; flex-direction: column; gap: 0.85rem;
-      max-height: calc(100vh - 400px); overflow-y: auto; padding-right: 0.5rem;
+      max-height: calc(100vh    .tech-card {
+      width: 100%; display: flex; align-items: center; gap: 1.25rem;
+      padding: 1.25rem; background: var(--surface);
+      border: 1px solid var(--border-soft); border-radius: 24px;
+      cursor: pointer; transition: all 0.4s var(--ease-out-expo);
+      text-align: left; position: relative; overflow: hidden;
     }
-
-    .tech-card {
-      width: 100%; display: flex; align-items: center; gap: 1rem;
-      padding: 1.15rem; background: var(--surface);
-      border: 1.5px solid var(--border-soft); border-radius: 20px;
-      cursor: pointer; transition: all 0.3s var(--ease-out-expo);
-      text-align: left;
-    }
-    .tech-card:hover { transform: translateX(8px); border-color: var(--brand); background: var(--bg-hover); }
-    .tech-card.selected { background: var(--brand-ambient); border-color: var(--brand); border-width: 2px; }
+    .tech-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); opacity: 0; transition: opacity 0.3s ease; }
+    .tech-card:hover { transform: translateX(10px) scale(1.01); border-color: var(--brand-border-soft); background: var(--surface-hover); box-shadow: var(--shadow-md); }
+    .tech-card:hover::before { opacity: 1; }
+    .tech-card.selected { background: var(--brand-ambient-strong); border-color: var(--brand); border-width: 1.5px; box-shadow: var(--shadow-sm), 0 0 15px var(--brand-glow); }
+    .tech-card.selected .tech-name { color: var(--brand); }
 
     .tech-avatar {
-      width: 48px; height: 48px; border-radius: 16px;
+      width: 52px; height: 52px; border-radius: 18px;
       flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      font-weight: 850; color: #fff; font-size: 1.1rem;
+      font-weight: 950; color: #fff; font-size: 1.2rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.25);
     }
-    .tech-body { flex: 1; min-width: 0; }
-    .tech-name { display: block; font-weight: 800; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tech-role { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.15rem; opacity: 0.8; }
+    .tech-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
+    .tech-name { display: block; font-weight: 950; font-size: 1.05rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
+    .tech-role { display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; opacity: 0.7; letter-spacing: 0.05em; }
+transform: uppercase; margin-top: 0.15rem; opacity: 0.8; }
 
     /* CALENDAR CARD & SUMMARY */
     .calendar-card {
@@ -740,12 +748,16 @@ interface PersonalGridCell {
       border: 1px solid var(--border-soft) !important;
       border-radius: var(--radius-xl) !important;
       box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(12px);
+      position: relative; overflow: hidden;
     }
+    .calendar-card::after { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%); pointer-events: none; }
     .calendar-card-header { 
-      padding: 2rem 2.5rem; border-bottom: 1px solid var(--border-soft); 
+      padding: 2.5rem 3rem; border-bottom: 1px solid var(--border-soft); 
       display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
     }
-    .tech-display-name { font-size: 2.25rem; font-weight: 950; letter-spacing: -0.03em; color: var(--text-primary); margin-top: 0.25rem; }
+    .tech-display-name { font-family: var(--font-display); font-size: 2.75rem; font-weight: 950; letter-spacing: -0.04em; color: var(--text-primary); margin-top: 0.5rem; line-height: 0.9; }
 
     .personal-month-summary {
       display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; padding: 0; list-style: none;
@@ -859,9 +871,10 @@ interface PersonalGridCell {
       position: relative; width: 100%; border-radius: var(--radius-lg); 
       overflow: hidden; border: 1px solid var(--border-soft); 
       background: var(--surface);
-      box-shadow: var(--shadow-md);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(10px);
     }
-    .team-board-scroll { overflow-x: auto; width: 100%; display: block; }
+    .team-board-scroll { overflow-x: auto; width: 100%; display: block; scroll-behavior: smooth; }
   `]
 
 })

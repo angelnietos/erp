@@ -43,8 +43,11 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     }
     
     .badge:hover {
-      transform: scale(1.04) translateY(-1px);
-      box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--badge-color, var(--brand)) 35%, transparent);
+      transform: scale(1.06) translateY(-2px);
+      background: color-mix(in srgb, var(--badge-bg) 85%, #fff 15%);
+      box-shadow: 
+        0 10px 25px -5px color-mix(in srgb, var(--badge-color, var(--brand)) 45%, transparent),
+        0 0 15px color-mix(in srgb, var(--badge-color, var(--brand)) 25%, transparent);
     }
 
     .dot {

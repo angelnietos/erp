@@ -143,9 +143,10 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       border: 2px solid var(--btn-accent);
     }
     .btn-shape-outline:hover {
-      background: var(--btn-accent);
-      color: var(--btn-text);
-      box-shadow: 0 0 20px -5px var(--btn-accent);
+      background: color-mix(in srgb, var(--btn-accent) 8%, transparent);
+      border-color: var(--btn-accent);
+      color: var(--btn-accent);
+      box-shadow: 0 0 25px -5px color-mix(in srgb, var(--btn-accent) 40%, transparent);
     }
 
     .btn-shape-ghost {

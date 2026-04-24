@@ -64,16 +64,18 @@ export type CardVariant = string;
       content: '';
       position: absolute;
       inset: 0 0 auto 0;
-      height: 1px;
+      height: 2px;
       background: linear-gradient(
         90deg,
         transparent,
-        color-mix(in srgb, var(--brand) 45%, transparent),
-        color-mix(in srgb, #fff 25%, transparent),
-        color-mix(in srgb, var(--brand) 35%, transparent),
+        rgba(255,255,255,0),
+        color-mix(in srgb, var(--brand) 60%, transparent),
+        #ffffff,
+        color-mix(in srgb, var(--brand) 60%, transparent),
+        rgba(255,255,255,0),
         transparent
       );
-      opacity: 0.55;
+      opacity: 0.8;
       pointer-events: none;
       z-index: 1;
     }
@@ -125,19 +127,19 @@ export type CardVariant = string;
       --card-shadow: none;
     }
 
-    .card-shape-neumorphic {
-      --card-bg: var(--bg-primary);
-      --card-border-width: 0px;
-      --card-shadow: var(--shadow-md);
-      --card-radius: 40px;
-    }
-
     .card-shape-minimal {
       --card-bg: transparent;
       --card-border-width: 0px;
       --card-shadow: none;
       --card-radius: 0px;
       border-bottom: 2px solid var(--border-soft) !important;
+    }
+
+    .card-shape-neumorphic {
+      --card-bg: var(--bg-primary);
+      --card-border-width: 0px;
+      --card-shadow: var(--shadow-md);
+      --card-radius: 40px;
     }
 
     .card-header {
@@ -171,15 +173,16 @@ export type CardVariant = string;
 
     .hover-effect { cursor: pointer; }
     .hover-effect:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px) scale(1.005);
       box-shadow:
-        0 24px 48px rgba(0, 0, 0, 0.38),
-        0 0 36px -12px var(--brand-glow, rgba(255, 255, 255, 0.08));
-      --card-border: color-mix(in srgb, var(--brand) 55%, var(--border-soft));
+        0 35px 70px rgba(0, 0, 0, 0.45),
+        0 0 45px -15px var(--brand-glow, rgba(255, 255, 255, 0.12));
+      --card-border: color-mix(in srgb, var(--brand) 65%, var(--border-soft));
     }
 
-    .hover-effect::before {
-      opacity: 0.9;
+    .hover-effect:hover::before {
+      opacity: 1;
+      height: 3px;
     }
   `],
 })

@@ -174,11 +174,12 @@ export type InputVariant = string;
     /* FOCUS STATES — anillo fuerte solo con teclado (:focus-visible) */
     input:focus-visible {
       background: color-mix(in srgb, var(--input-bg) 82%, #fff 10%);
-      border-color: color-mix(in srgb, var(--input-accent) 65%, rgba(255, 255, 255, 0.2));
+      border-color: var(--input-accent);
       box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--input-accent) 18%, transparent),
-        0 10px 32px -12px color-mix(in srgb, var(--input-accent) 36%, transparent),
+        0 0 0 4px color-mix(in srgb, var(--input-accent) 15%, transparent),
+        0 15px 35px -12px color-mix(in srgb, var(--input-accent) 45%, transparent),
         var(--fld-shine-top);
+      transform: translateY(-1px);
     }
 
     input::placeholder {
