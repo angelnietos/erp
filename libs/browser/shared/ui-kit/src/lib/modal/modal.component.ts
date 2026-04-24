@@ -63,10 +63,10 @@ export type ModalVariant = string;
       -webkit-backdrop-filter: blur(12px) saturate(1.2);
     }
 
-    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalFadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(12px); } }
     @keyframes modalSlideUp { 
-      from { opacity: 0; transform: translateY(30px) scale(0.96); } 
-      to { opacity: 1; transform: translateY(0) scale(1); } 
+      from { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(4px); } 
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
     }
 
     /* Modal Content Base */
@@ -153,10 +153,10 @@ export type ModalVariant = string;
 
     .close-btn:hover {
       color: #fff;
-      background: color-mix(in srgb, var(--modal-accent) 20%, transparent);
+      background: color-mix(in srgb, var(--modal-accent) 25%, transparent);
       border-color: var(--modal-accent);
-      transform: rotate(90deg) scale(1.1);
-      box-shadow: 0 0 20px -5px var(--modal-accent);
+      transform: rotate(180deg) scale(1.15);
+      box-shadow: 0 0 25px -5px var(--modal-accent);
     }
 
     .close-btn:focus-visible {

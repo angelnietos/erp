@@ -110,8 +110,12 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     select:focus-visible {
       background: color-mix(in srgb, var(--theme-input-bg, #12141c) 78%, #fff 8%);
       border-color: var(--fld-border-brand);
-      box-shadow: var(--fld-ring-brand), var(--fld-shadow-brand), var(--fld-shine-top);
+      box-shadow: 
+        0 0 0 4px color-mix(in srgb, var(--fld-brand) 15%, transparent),
+        0 15px 35px -12px color-mix(in srgb, var(--fld-brand) 45%, transparent),
+        var(--fld-shine-top);
       outline: none;
+      transform: translateY(-1px);
     }
 
     .select-default {

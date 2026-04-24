@@ -718,13 +718,18 @@ interface PersonalGridCell {
 
     .technician-list {
       display: flex; flex-direction: column; gap: 0.85rem;
-      max-height: calc(100vh    .tech-card {
+      max-height: calc(100vh - 400px); overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .tech-card {
       width: 100%; display: flex; align-items: center; gap: 1.25rem;
       padding: 1.25rem; background: var(--surface);
       border: 1px solid var(--border-soft); border-radius: 24px;
       cursor: pointer; transition: all 0.4s var(--ease-out-expo);
       text-align: left; position: relative; overflow: hidden;
     }
+
     .tech-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); opacity: 0; transition: opacity 0.3s ease; }
     .tech-card:hover { transform: translateX(10px) scale(1.01); border-color: var(--brand-border-soft); background: var(--surface-hover); box-shadow: var(--shadow-md); }
     .tech-card:hover::before { opacity: 1; }
@@ -739,8 +744,7 @@ interface PersonalGridCell {
     }
     .tech-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
     .tech-name { display: block; font-weight: 950; font-size: 1.05rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
-    .tech-role { display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; opacity: 0.7; letter-spacing: 0.05em; }
-transform: uppercase; margin-top: 0.15rem; opacity: 0.8; }
+    .tech-role { display: block; font-size: 0.7rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; opacity: 0.8; }
 
     /* CALENDAR CARD & SUMMARY */
     .calendar-card {

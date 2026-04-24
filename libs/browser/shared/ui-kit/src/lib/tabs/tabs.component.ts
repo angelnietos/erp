@@ -106,12 +106,12 @@ export type TabsVariant =
         background: linear-gradient(
           180deg,
           color-mix(in srgb, var(--brand) 88%, #fff) 0%,
-          var(--brand) 100%
+          color-mix(in srgb, var(--brand) 92%, #000) 100%
         );
         box-shadow:
-          0 1px 0 rgba(255, 255, 255, 0.22) inset,
-          0 8px 24px -8px var(--brand-glow);
-        transform: translateY(-1px);
+          0 1px 0 rgba(255, 255, 255, 0.25) inset,
+          0 10px 30px -10px var(--brand-glow);
+        transform: translateY(-2px);
       }
 
       .tab-item:active:not(.active) {

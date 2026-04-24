@@ -1787,119 +1787,157 @@ interface PluginDescriptor {
     `
       .settings-layout {
         display: grid;
-        grid-template-columns: 280px 1fr;
-        height: calc(100vh - 120px);
-        gap: 2rem;
+        grid-template-columns: 310px 1fr;
+        height: calc(100vh - 110px);
+        gap: 2.5rem;
       }
 
       .settings-sidebar, .roles-selector-card {
-        background: rgba(15,23,42,.4);
-        backdrop-filter: blur(40px) saturate(180%);
-        border: 1px solid rgba(255,255,255,.05);
+        background: color-mix(in srgb, var(--surface) 82%, var(--brand) 3%);
+        backdrop-filter: blur(35px) saturate(1.8) contrast(1.1);
+        -webkit-backdrop-filter: blur(35px) saturate(1.8) contrast(1.1);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 50%, white 5%);
         border-radius: 32px;
         display: flex;
         flex-direction: column;
-        padding: 2.5rem 1.25rem;
-        box-shadow: 10px 0 50px rgba(0,0,0,.2);
+        padding: 2.5rem 1.15rem;
+        box-shadow: 
+          20px 0 60px rgba(0,0,0,.45),
+          inset 0 1px 0 rgba(255,255,255,0.06);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .settings-sidebar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--brand) 8%, transparent), transparent 70%);
+        pointer-events: none;
       }
 
       .sidebar-header {
-        padding: 0 1rem 2rem 1rem;
+        padding: 0 1.25rem 2.5rem 1.25rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 1rem;
       }
 
       .glow-text {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         font-weight: 900;
-        color: #fff;
-        margin: 0;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        text-shadow: 0 0 15px var(--brand-glow);
+        letter-spacing: 0.25em;
+        background: linear-gradient(135deg, #fff 0%, var(--brand) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 12px color-mix(in srgb, var(--brand) 40%, transparent));
+        margin: 0;
       }
 
       .subtitle {
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         color: var(--brand);
-        font-weight: 700;
-        margin-top: 0.25rem;
+        font-weight: 800;
+        margin-top: 0.45rem;
         text-transform: uppercase;
-        opacity: 0.8;
+        letter-spacing: 0.15em;
+        opacity: 0.7;
       }
 
       .settings-nav {
         flex: 1;
         display: flex;
         flex-direction: column;
+        gap: 0.45rem;
+        padding: 0.5rem;
       }
 
       .nav-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.85rem 1.25rem;
-        border-radius: 12px;
-        color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.02);
-        font-size: 0.82rem;
-        font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-bottom: 0.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.03);
+        gap: 1rem;
+        padding: 0.9rem 1.25rem;
+        border-radius: 16px;
+        color: var(--text-secondary);
+        background: transparent;
+        font-size: 0.825rem;
+        font-weight: 700;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid transparent;
         cursor: pointer;
         width: 100%;
         text-align: left;
+        position: relative;
       }
 
       .nav-item:hover {
         color: #fff;
-        background: rgba(255, 255, 255, 0.07);
-        border-color: rgba(255, 255, 255, 0.1);
-        transform: translateX(4px);
+        background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+        border-color: color-mix(in srgb, var(--brand) 15%, transparent);
+        transform: translateX(8px);
       }
 
       .nav-item.active {
         color: #fff;
-        background: linear-gradient(135deg, rgba(var(--brand-rgb), 0.2), rgba(var(--brand-rgb), 0.05));
-        border-color: rgba(var(--brand-rgb), 0.3);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 22%, transparent) 0%, transparent 100%);
+        border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+        box-shadow: 
+          0 10px 25px -5px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255,255,255,0.08);
       }
 
-      .nav-item.buddy-nav-item {
-        margin-top: 1rem;
-        border-top: 1px solid var(--border-soft);
-        padding-top: 1.5rem;
+      .nav-item.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 25%;
+        height: 50%;
+        width: 4px;
+        background: var(--brand);
+        border-radius: 0 4px 4px 0;
+        box-shadow: 0 0 15px var(--brand);
       }
 
       .nav-item lucide-icon {
-        opacity: 0.6;
+        opacity: 0.5;
+        transition: transform 0.3s ease, opacity 0.3s ease;
       }
+      .nav-item:hover lucide-icon { transform: scale(1.15) rotate(-5deg); opacity: 1; }
+      .nav-item.active lucide-icon { opacity: 1; color: var(--brand); transform: scale(1.1); }
 
-      .nav-item.active lucide-icon {
-        opacity: 1;
+      .nav-item.buddy-nav-item {
+        margin-top: 1.5rem;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 1.5rem;
       }
 
       .sidebar-footer {
-        padding-top: 1rem;
-        border-top: 1px solid var(--border-soft);
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        margin-top: 1rem;
       }
 
       .status-indicator {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.7rem;
+        gap: 0.65rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
         color: var(--text-muted);
         padding: 0.5rem 1rem;
+        opacity: 0.6;
       }
 
       .nav-divider {
-        padding: 1.5rem 1rem 0.5rem 1.25rem;
-        font: 800 0.65rem/1 sans-serif;
+        padding: 1.75rem 1rem 0.5rem 1.25rem;
+        font-size: 0.6rem;
+        font-weight: 900;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.15em;
-        opacity: 0.5;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        letter-spacing: 0.25em;
+        opacity: 0.4;
       }
 
       /* Content Area */
@@ -2041,33 +2079,35 @@ interface PluginDescriptor {
       .status-badge-premium {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
-        padding: 0.65rem 1.25rem !important;
+        gap: 0.75rem;
+        padding: 0.75rem 1.5rem !important;
         border-radius: 99px !important;
         font-weight: 900 !important;
-        letter-spacing: 0.08em !important;
-        font-size: 0.62rem !important;
-        background: rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        letter-spacing: 0.12em !important;
+        font-size: 0.65rem !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
       }
 
       .status-dot {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background: #ef4444;
-        box-shadow: 0 0 12px #ef4444;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        position: relative;
       }
 
       .status-dot.online {
         background: #10b981;
-        box-shadow: 0 0 12px #10b981;
-        animation: status-pulse-green 2s infinite;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+        animation: cinematic-pulse-green 2.5s infinite ease-in-out;
       }
 
-      @keyframes status-pulse-green {
-        0%, 100% { opacity: 0.8; }
-        50% { opacity: 1; box-shadow: 0 0 15px #10b981; }
+      @keyframes cinematic-pulse-green {
+        0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); }
+        50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
       }
 
       .config-body-wrapper {
@@ -2101,51 +2141,70 @@ interface PluginDescriptor {
       .config-visual-decoration::after {
         content: '';
         position: absolute;
-        width: 140px;
-        height: 140px;
+        width: 160px;
+        height: 160px;
         background: var(--brand);
-        filter: blur(60px);
-        opacity: 0.15;
+        filter: blur(70px);
+        opacity: 0.25;
         border-radius: 50%;
         z-index: 0;
+        animation: aura-heartbeat 4s infinite ease-in-out;
+      }
+
+      @keyframes aura-heartbeat {
+        0%, 100% { transform: scale(1); opacity: 0.2; }
+        50% { transform: scale(1.3); opacity: 0.35; }
       }
 
       .config-visual-decoration ui-mascot {
         z-index: 1;
-        transform: scale(1.6);
-        filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
-        animation: float-mascot-premium 6s ease-in-out infinite;
+        transform: scale(1.8);
+        filter: drop-shadow(0 25px 50px rgba(0,0,0,0.7));
+        animation: float-mascot-premium 8s ease-in-out infinite;
+        will-change: transform;
       }
 
       @keyframes float-mascot-premium {
-        0%, 100% { transform: scale(1.6) translateY(0); }
-        50% { transform: scale(1.6) translateY(-15px); }
+        0%, 100% { transform: scale(1.8) translateY(0) rotate(0deg); }
+        33% { transform: scale(1.8) translateY(-18px) rotate(2deg); }
+        66% { transform: scale(1.8) translateY(-8px) rotate(-2deg); }
       }
 
       .ollama-refresh-btn {
-        margin-top: 1rem;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         color: var(--text-muted);
-        padding: 0.5rem 1rem;
-        border-radius: 10px;
-        font-size: 0.68rem;
+        padding: 0.65rem 1.25rem;
+        border-radius: 14px;
+        font-size: 0.7rem;
         font-weight: 800;
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.75rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.1em;
       }
 
       .ollama-refresh-btn:hover {
-        background: rgba(var(--brand-rgb), 0.15);
-        color: var(--brand);
-        border-color: rgba(var(--brand-rgb), 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        background: color-mix(in srgb, var(--brand) 15%, transparent);
+        color: #fff;
+        border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 
+          0 10px 25px -5px rgba(0,0,0,0.4),
+          0 0 15px color-mix(in srgb, var(--brand) 20%, transparent);
+      }
+
+      .ollama-refresh-btn:hover lucide-icon {
+        animation: high-speed-spin 0.8s infinite linear;
+      }
+
+      @keyframes high-speed-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
 
       .companion-toolbar {
@@ -2330,16 +2389,20 @@ interface PluginDescriptor {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem 1.25rem;
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: all 0.3s ease;
+        padding: 1.25rem 1.5rem;
+        background: color-mix(in srgb, var(--surface) 90%, white 2%);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
       }
 
       .skill-config-item:hover {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(var(--brand-rgb, 16, 185, 129), 0.2);
+        background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+        border-color: color-mix(in srgb, var(--brand) 20%, transparent);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
       }
 
       .skill-name {
@@ -2524,43 +2587,57 @@ interface PluginDescriptor {
 
       /* Enhanced Toggles */
       .toggle-wrapper {
-        width: 50px;
-        height: 26px;
-        background: rgba(255, 255, 255, 0.05);
+        width: 56px;
+        height: 28px;
+        background: color-mix(in srgb, var(--surface) 80%, white 5%);
         border-radius: 100px;
         position: relative;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
       }
 
       .toggle-handle {
         position: absolute;
-        top: 4px;
-        left: 4px;
-        width: 16px;
-        height: 16px;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
         background: #fff;
         border-radius: 50%;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      }
+
+      .toggle-wrapper:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
       }
 
       .toggle-wrapper.active {
         background: var(--brand);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 0 15px rgba(var(--brand-rgb, 16, 185, 129), 0.4);
+        border-color: rgba(255, 255, 255, 0.25);
+        box-shadow: 
+          0 0 20px color-mix(in srgb, var(--brand) 40%, transparent),
+          inset 0 1px 0 rgba(255,255,255,0.1);
       }
       .toggle-wrapper.active .toggle-handle {
-        left: 28px;
+        left: 31px;
+        background: var(--text-on-brand, #fff);
         transform: scale(1.1);
       }
       .toggle-wrapper.active.premium {
-        background: #facc15;
+        background: linear-gradient(135deg, #facc15, #eab308);
+        box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
       }
 
       .premium-text {
-        color: #facc15 !important;
+        background: linear-gradient(135deg, #fef08a, #facc15);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900 !important;
+        filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.3));
       }
 
       /* Buddy Customizer */
@@ -2573,11 +2650,13 @@ interface PluginDescriptor {
 
       .buddy-preview-card {
         position: relative;
-        height: 350px;
+        height: 380px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle, rgba(var(--brand-rgb), 0.1), transparent);
+        background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--brand) 12%, transparent), transparent 75%);
+        border-radius: 32px;
+        border: 1px solid rgba(255,255,255,0.05);
         overflow: hidden;
       }
 
@@ -2586,18 +2665,31 @@ interface PluginDescriptor {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 200px;
-        height: 200px;
+        width: 240px;
+        height: 240px;
         background: var(--brand);
-        opacity: 0.15;
-        filter: blur(40px);
+        opacity: 0.25;
+        filter: blur(50px);
         border-radius: 50%;
+        animation: glow-breathe 6s infinite ease-in-out;
+      }
+
+      @keyframes glow-breathe {
+        0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.2); }
       }
 
       .buddy-preview-card ui-mascot {
-        width: 180px;
-        height: 180px;
-        transform: scale(1.5);
+        width: 200px;
+        height: 200px;
+        transform: scale(1.6);
+        filter: drop-shadow(0 30px 60px rgba(0,0,0,0.8));
+        animation: preview-float 8s infinite ease-in-out;
+      }
+
+      @keyframes preview-float {
+        0%, 100% { transform: scale(1.6) translateY(0); }
+        50% { transform: scale(1.6) translateY(-20px); }
       }
 
       .buddy-options-card,
@@ -2625,24 +2717,26 @@ interface PluginDescriptor {
       }
 
       .color-input {
-        width: 60px;
-        height: 40px;
+        width: 72px;
+        height: 48px;
         border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        background: rgba(15, 23, 42, 0.6);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--surface) 90%, black 10%);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 4px;
       }
 
       .color-input:hover {
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
+        border-color: color-mix(in srgb, var(--brand) 40%, white 20%);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
       }
 
       .color-input:focus {
         outline: none;
         border-color: var(--brand);
-        box-shadow: 0 0 0 3px rgba(var(--brand-rgb), 0.3);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
       }
 
       .color-picker-grid {
@@ -2682,25 +2776,47 @@ interface PluginDescriptor {
       }
 
       .color-swatch-item {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        padding: 3px;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        padding: 4px;
         border: 2px solid transparent;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.02);
+      }
+
+      .color-swatch-item:hover {
+        transform: translateY(-5px) rotate(8deg) scale(1.1);
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.15);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
       }
 
       .color-swatch-item.active {
         border-color: #fff;
-        transform: scale(1.1);
+        background: rgba(255,255,255,0.08);
+        transform: scale(1.15);
+        box-shadow: 0 0 20px 2px color-mix(in srgb, currentColor 40%, transparent);
       }
 
       .color-swatch {
         width: 100%;
         height: 100%;
-        border-radius: 50%;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .color-swatch::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(0,0,0,0.1) 100%);
       }
 
       /* Rage Mode Config Styles */
@@ -3111,45 +3227,45 @@ interface PluginDescriptor {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
       }
 
       .roles-layout-grid {
-        display: flex;
-        gap: 2rem;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2.5rem;
         align-items: flex-start;
         width: 100%;
         position: relative;
       }
 
       .roles-selector-card {
-        width: 320px;
-        flex-shrink: 0;
-        background: var(--surface);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border-soft);
-        border-radius: var(--radius-lg);
+        background: color-mix(in srgb, var(--surface) 88%, var(--brand) 2%);
+        backdrop-filter: blur(40px) saturate(2);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 40%, white 5%);
+        border-radius: 28px;
         display: flex;
         flex-direction: column;
         max-height: 800px;
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 25px 60px -15px rgba(0,0,0,.5);
+        overflow: hidden;
       }
 
       .selector-header {
-        padding: 1.5rem;
+        padding: 1.75rem;
         font-weight: 900;
-        font-size: 0.85rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.25em;
         color: var(--brand);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        background: linear-gradient(to right, rgba(var(--brand-rgb), 0.08), transparent);
+        background: linear-gradient(to right, color-mix(in srgb, var(--brand) 10%, transparent), transparent);
       }
 
       .roles-list-scroll {
         flex: 1;
         overflow-y: auto;
-        padding: 1rem;
+        padding: 1.25rem;
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
@@ -3159,58 +3275,58 @@ interface PluginDescriptor {
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1rem;
-        border-radius: var(--radius-md);
+        padding: 1.15rem;
+        border-radius: 18px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         border: 1px solid transparent;
-        background: var(--surface-secondary);
+        background: rgba(255, 255, 255, 0.03);
         position: relative;
         overflow: hidden;
       }
 
-      .role-item-btn::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(var(--brand-rgb), 0.1), transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
       .role-item-btn:hover {
-        background: rgba(255, 255, 255, 0.04);
-        transform: translateY(-2px) translateX(4px);
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateX(6px);
         border-color: rgba(255, 255, 255, 0.08);
       }
 
       .role-item-btn.active {
-        background: rgba(var(--brand-rgb), 0.25);
-        border-color: rgba(var(--brand-rgb), 0.6);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        background: color-mix(in srgb, var(--brand) 12%, var(--surface));
+        border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+        box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
       }
 
-      .role-item-btn.active::before {
-        opacity: 1;
+      .role-item-btn.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 25%;
+        height: 50%;
+        width: 3px;
+        background: var(--brand);
+        border-radius: 0 4px 4px 0;
+        box-shadow: 0 0 15px var(--brand);
       }
 
       .role-icon-indicator {
-        width: 14px;
-        height: 14px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         flex-shrink: 0;
         position: relative;
         z-index: 1;
+        background: currentColor;
       }
 
       .role-icon-indicator::after {
         content: '';
         position: absolute;
-        inset: -4px;
+        inset: -6px;
         border-radius: 50%;
         background: currentColor;
-        opacity: 0.2;
-        filter: blur(6px);
+        opacity: 0.3;
+        filter: blur(8px);
       }
 
       .role-icon-indicator.SUPERADMIN { color: #facc15; }
@@ -3222,36 +3338,33 @@ interface PluginDescriptor {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.15rem;
-        position: relative;
-        z-index: 1;
+        gap: 0.25rem;
       }
 
       .role-name-text {
-        font-weight: 700;
-        font-size: 0.95rem;
+        font-weight: 800;
+        font-size: 0.9rem;
         color: var(--text-primary);
+        letter-spacing: -0.01em;
       }
 
       .role-type-pill {
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         font-weight: 900;
         color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        opacity: 0.7;
+        letter-spacing: 0.15em;
+        opacity: 0.6;
       }
 
       .role-item-btn .chevron {
-        opacity: 0.3;
+        opacity: 0.2;
         transition: all 0.3s ease;
         color: #fff;
-        position: relative;
-        z-index: 1;
       }
       .role-item-btn.active .chevron {
-        opacity: 1;
-        transform: translateX(4px);
+        opacity: 0.8;
+        transform: translateX(4px) scale(1.2);
         color: var(--brand);
       }
 
@@ -3260,20 +3373,20 @@ interface PluginDescriptor {
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 2rem;
       }
 
       .role-config-card {
         padding: 0;
-        background: var(--surface) !important;
+        background: color-mix(in srgb, var(--surface) 85%, var(--brand) 2%) !important;
         border: 1px solid var(--border-soft) !important;
-        border-radius: var(--radius-lg);
+        border-radius: 32px;
         overflow: hidden;
       }
 
       .role-config-header {
-        padding: 2.5rem;
-        background: var(--surface-secondary);
+        padding: 3rem;
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
         border-bottom: 1px solid var(--border-soft);
       }
 
@@ -3282,127 +3395,113 @@ interface PluginDescriptor {
         justify-content: space-between;
         align-items: flex-end;
         gap: 3rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .role-actions-btns {
-        display: flex;
-        gap: 1rem;
+        margin-bottom: 1rem;
       }
 
       .role-description-hint {
         font-size: 0.95rem;
         color: var(--text-secondary) !important;
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
+        max-width: 600px;
+        line-height: 1.6;
       }
 
       .role-locked-notice {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 700;
         color: var(--brand);
-        margin: 0 0 1rem;
-        padding: 1rem;
-        background: var(--brand-ambient);
-        border-radius: var(--radius-md);
-        border: 1px solid var(--brand-border-soft);
+        margin-bottom: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        background: color-mix(in srgb, var(--brand) 12%, transparent);
+        border-radius: 16px;
+        border-left: 4px solid var(--brand);
+        backdrop-filter: blur(10px);
       }
-      .permission-toggle-box.readonly-perm{cursor:not-allowed;pointer-events:none;opacity:.88}
 
       .permissions-matrix-container {
-        padding: 2.5rem;
+        padding: 3rem;
         display: flex;
         flex-direction: column;
-        gap: 3.5rem;
+        gap: 4rem;
       }
 
       .category-title {
-        font-size: 1.1rem;
-        font-weight: 800;
+        font-size: 1rem;
+        font-weight: 900;
         color: var(--text-primary) !important;
-        margin-bottom: 1.75rem;
+        margin-bottom: 2rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
-        letter-spacing: 0.05em;
+        gap: 1.25rem;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
       }
 
       .category-title::before {
         content: '';
-        width: 6px;
+        width: 4px;
         height: 24px;
-        background: linear-gradient(to bottom, var(--brand), transparent);
-        border-radius: 3px;
-        box-shadow: 0 0 15px var(--brand-glow);
+        background: var(--brand);
+        border-radius: 2px;
+        box-shadow: 0 0 15px var(--brand);
       }
 
       .permission-items-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
         width: 100%;
       }
 
       .permission-toggle-box {
-        background: var(--surface-secondary);
+        background: color-mix(in srgb, var(--surface) 70%, transparent);
         border: 1px solid var(--border-soft);
-        border-radius: var(--radius-md);
-        padding: 1.5rem;
+        border-radius: 20px;
+        padding: 1.75rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
         overflow: hidden;
-      }
-
-      .permission-toggle-box::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--brand);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        z-index: 0;
       }
 
       .permission-toggle-box:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
-        transform: translateY(-4px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border-color: color-mix(in srgb, var(--brand) 25%, var(--border-soft));
       }
 
       .permission-toggle-box.active {
-        background: rgba(var(--brand-rgb), 0.15);
+        background: color-mix(in srgb, var(--brand) 12%, var(--surface));
         border-color: var(--brand);
       }
 
-      .permission-toggle-box.active::after {
-        opacity: 0.03;
-      }
-
-      .toggle-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-        position: relative;
-        z-index: 1;
-        overflow: hidden;
+      .permission-toggle-box.active::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--brand) 15%, transparent), transparent 70%);
+        pointer-events: none;
       }
 
       .perm-label {
-        font-weight: 700;
-        font-size: 0.92rem;
+        font-weight: 800;
+        font-size: 0.95rem;
         color: var(--text-primary) !important;
+        letter-spacing: -0.01em;
       }
 
       .perm-id {
         font-size: 0.65rem;
         font-family: 'JetBrains Mono', monospace;
         color: var(--brand);
-        opacity: 0.6;
-        letter-spacing: 0.02em;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
       }
 
       .toggle-ui {
@@ -3411,20 +3510,31 @@ interface PluginDescriptor {
         background: rgba(255, 255, 255, 0.08);
         border-radius: 99px;
         position: relative;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         border: 1px solid rgba(255, 255, 255, 0.05);
-        z-index: 1;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
 
-      .permission-toggle-box.active {
-        background: linear-gradient(135deg, var(--brand), rgba(var(--brand-rgb), 0.8));
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.5);
+      .toggle-pill {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border-radius: 50%;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
       }
 
-      .permission-toggle-box.active .perm-label,
-      .permission-toggle-box.active .perm-id {
-        color: var(--text-on-brand) !important;
+      .permission-toggle-box.active .toggle-ui {
+        background: var(--brand);
+        border-color: rgba(255,255,255,0.2);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--brand) 40%, transparent);
+      }
+
+      .permission-toggle-box.active .toggle-pill {
+        left: 27px;
+        background: var(--text-on-brand, #fff);
       }
 
       .toggle-pill {
