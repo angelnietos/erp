@@ -507,68 +507,62 @@ interface PluginDescriptor {
                 <lucide-icon name="chevron-right" size="12"></lucide-icon>
                 <span class="current">Compañeros</span>
               </div>
-              <div class="section-title">
-                <h2>Compañeros IA</h2>
-                <p>
-                  Personaliza la apariencia y las habilidades de Buddy y del
-                  agente del panel (JAIME). Es independiente del agente
-                  principal del hub.
-                </p>
+
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Tus <span>Compañeros</span></h2>
+                  <p class="hero-subtitle">Personaliza la apariencia y habilidades de cada asistente personal</p>
+                </div>
+                <div class="hero-right">
+                  <div class="security-badge">
+                    <lucide-icon name="heart" size="16"></lucide-icon>
+                    <span>Activo: {{ aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature()) }}</span>
+                  </div>
+                </div>
               </div>
 
-              <div class="companion-toolbar">
-                <div
-                  class="companion-subtabs"
-                  role="tablist"
-                  aria-label="Compañero a personalizar"
+              <div class="companion-pick-row">
+                <button
+                  class="companion-pick-btn"
+                  [class.active]="companionEditorFeature() === 'buddy'"
+                  (click)="companionEditorFeature.set('buddy')"
+                  type="button"
                 >
-                  <button
-                    type="button"
-                    role="tab"
-                    class="companion-subtab"
-                    [class.active]="companionEditorFeature() === 'buddy'"
-                    (click)="companionEditorFeature.set('buddy')"
-                  >
-                    Buddy
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    class="companion-subtab"
-                    [class.active]="companionEditorFeature() === 'dashboard'"
-                    (click)="companionEditorFeature.set('dashboard')"
-                  >
-                    JAIME · panel
-                  </button>
-                </div>
-                <div class="companion-context-block">
-                  <span class="primary-agent-pill">
-                    Agente principal:
-                    {{
-                      aiBotStore.getBotDisplayName(
-                        aiBotStore.activeBotFeature()
-                      )
-                    }}
-                  </span>
-                  <p class="companion-context-hint">
-                    Cambiar de pestaña solo elige qué compañero editas aquí; el
-                    agente principal se define en «Asistentes de IA».
-                  </p>
-                </div>
+                  <div class="pick-icon">
+                    <lucide-icon name="smile" size="20"></lucide-icon>
+                  </div>
+                  <div class="pick-label">
+                    <span class="pick-name">Buddy</span>
+                    <span class="pick-desc">Asistente de chat principal</span>
+                  </div>
+                </button>
+                <button
+                  class="companion-pick-btn"
+                  [class.active]="companionEditorFeature() === 'dashboard'"
+                  (click)="companionEditorFeature.set('dashboard')"
+                  type="button"
+                >
+                  <div class="pick-icon">
+                    <lucide-icon name="layout-dashboard" size="20"></lucide-icon>
+                  </div>
+                  <div class="pick-label">
+                    <span class="pick-name">JAIME</span>
+                    <span class="pick-desc">Agente del panel de control</span>
+                  </div>
+                </button>
               </div>
 
-              @if (
-                aiBotStore.getBotByFeature(companionEditorFeature());
-                as pal
-              ) {
-                <div class="buddy-customizer">
-                  <div class="buddy-visual-col">
-                    <ui-card
-                      variant="glass"
-                      class="buddy-preview-card"
-                      [class.is-rage-preview]="aiBotStore.rageMode()"
-                    >
-                      <div class="preview-glow"></div>
+              @if (aiBotStore.getBotByFeature(companionEditorFeature()); as pal) {
+                <div class="companion-studio">
+
+                  <!-- Left: Mascot Stage -->
+                  <div class="companion-stage">
+                    <div class="stage-card" [class.is-rage-preview]="aiBotStore.rageMode()">
+                      <div class="stage-glow" [style.background]="pal.color"></div>
+                      <div class="stage-rings">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                      </div>
                       <ui-mascot
                         [type]="pal.mascotType"
                         [color]="pal.color"
@@ -579,13 +573,53 @@ interface PluginDescriptor {
                         [mouthType]="mascotMouthFor(pal)"
                         [rageMode]="aiBotStore.rageMode()"
                         [rageStyle]="aiBotStore.rageStyle()"
+                        class="stage-mascot"
+                      ></ui-mascot>
+                    </div>
+
+                    <div class="stage-controls">
+                      <ui-input
+                        label="Nombre"
+                        [ngModel]="aiBotStore.getBotDisplayName(pal.feature)"
+                        (ngModelChange)="aiBotStore.updateBotName(pal.feature, $event)"
+                        placeholder="Ej: Buddy, JAIME…"
+                      ></ui-input>
+
+                      <div
+                        class="rage-toggle mt-4"
+                        [class.active]="aiBotStore.rageMode()"
+                        (click)="aiBotStore.setRageMode(!aiBotStore.rageMode())"
+                        tabindex="0" role="switch"
+                        [attr.aria-checked]="aiBotStore.rageMode()"
+                        aria-label="Modo rage"
                       >
-                      </ui-mascot>
-                    </ui-card>
+                        <div class="toggle-label">
+                          <lucide-icon name="zap" size="14"></lucide-icon>
+                          <span>MODO RAGE</span>
+                        </div>
+                        <div class="switch-pill"><div class="switch-handle"></div></div>
+                      </div>
+
+                      @if (aiBotStore.rageMode()) {
+                        <div class="rage-options animate-slide-up mt-4">
+                          <ui-select
+                            label="Nivel de Psicopatía"
+                            [options]="[
+                              { value: 'angry', label: 'Enfadado (Rojo)' },
+                              { value: 'terror', label: 'Terror Psicológico' },
+                              { value: 'dark', label: 'Vacío Oscuro' }
+                            ]"
+                            [ngModel]="aiBotStore.rageStyle()"
+                            (ngModelChange)="aiBotStore.setRageStyle($event)"
+                          ></ui-select>
+                        </div>
+                      }
+                    </div>
                   </div>
 
-                  <div class="buddy-config-col">
-                    <ui-card variant="glass" class="buddy-options-card">
+                  <!-- Right: Config Panels -->
+                  <div class="companion-panels" [class.dimmed]="aiBotStore.rageMode()">
+                    <ui-card variant="glass">
                       <div class="card-header-with-toggle">
                         <div class="buddy-name-edit flex-1">
                           <ui-input
