@@ -69,41 +69,15 @@ interface PluginDescriptor {
           </div>
 
           <nav class="settings-nav">
+            <div class="nav-section-label">Personal</div>
             <button
               type="button"
               class="nav-item"
               [class.active]="activeTab() === 'profile'"
               (click)="activeTab.set('profile')"
             >
-              <lucide-icon name="user" size="18" aria-hidden="true"></lucide-icon>
+              <lucide-icon name="user" size="16" aria-hidden="true"></lucide-icon>
               <span>Mi Perfil</span>
-            </button>
-            <button
-              type="button"
-              class="nav-item beauty-nav-item"
-              [class.active]="activeTab() === 'appearance'"
-              (click)="activeTab.set('appearance')"
-            >
-              <lucide-icon name="sparkles" size="18" aria-hidden="true"></lucide-icon>
-              <span>Apariencia</span>
-            </button>
-            <button
-              type="button"
-              class="nav-item"
-              [class.active]="activeTab() === 'general'"
-              (click)="activeTab.set('general')"
-            >
-              <lucide-icon name="sliders" size="18" aria-hidden="true"></lucide-icon>
-              <span>General</span>
-            </button>
-            <button
-              type="button"
-              class="nav-item"
-              [class.active]="activeTab() === 'ai'"
-              (click)="activeTab.set('ai')"
-            >
-              <lucide-icon name="bot" size="18" aria-hidden="true"></lucide-icon>
-              <span>Asistentes de IA</span>
             </button>
             <button
               type="button"
@@ -111,16 +85,58 @@ interface PluginDescriptor {
               [class.active]="activeTab() === 'notifications'"
               (click)="activeTab.set('notifications')"
             >
-              <lucide-icon name="bell" size="18" aria-hidden="true"></lucide-icon>
+              <lucide-icon name="bell" size="16" aria-hidden="true"></lucide-icon>
               <span>Notificaciones</span>
             </button>
+
+            <div class="nav-section-label">Motor Visual</div>
+            <button
+              type="button"
+              class="nav-item luxe-nav-item"
+              [class.active]="activeTab() === 'appearance'"
+              (click)="activeTab.set('appearance')"
+            >
+              <lucide-icon name="sparkles" size="16" aria-hidden="true"></lucide-icon>
+              <span>Atmósfera</span>
+            </button>
+            <button
+              type="button"
+              class="nav-item"
+              [class.active]="activeTab() === 'general'"
+              (click)="activeTab.set('general')"
+            >
+              <lucide-icon name="sliders" size="16" aria-hidden="true"></lucide-icon>
+              <span>General</span>
+            </button>
+
+            <div class="nav-section-label">Inteligencia</div>
+            <button
+              type="button"
+              class="nav-item"
+              [class.active]="activeTab() === 'ai'"
+              (click)="activeTab.set('ai')"
+            >
+              <lucide-icon name="bot" size="16" aria-hidden="true"></lucide-icon>
+              <span>Agentes (API)</span>
+            </button>
+            <button
+              type="button"
+              class="nav-item"
+              [class.active]="activeTab() === 'buddy'"
+              (click)="activeTab.set('buddy')"
+            >
+              <lucide-icon name="smile" size="16" aria-hidden="true"></lucide-icon>
+              <span>Compañeros</span>
+            </button>
+
+            <div class="nav-section-label">Organización</div>
             <button
               type="button"
               class="nav-item"
               [class.active]="activeTab() === 'security'"
               (click)="activeTab.set('security')"
             >
-              <lucide-icon name="lock" size="18" aria-hidden="true"></lucide-icon>
+              <lucide-icon name="lock" size="16" aria-hidden="true"></lucide-icon>
               <span>Seguridad</span>
             </button>
             @if (canSeeRolesAdmin()) {
@@ -130,30 +146,18 @@ interface PluginDescriptor {
                 [class.active]="activeTab() === 'roles'"
                 (click)="activeTab.set('roles')"
               >
-                <lucide-icon name="shield-check" size="18" aria-hidden="true"></lucide-icon>
-                <span>Roles y Permisos</span>
+                <lucide-icon name="shield-check" size="16" aria-hidden="true"></lucide-icon>
+                <span>Roles</span>
               </button>
             }
-            <button
-              type="button"
-              class="nav-item buddy-nav-item"
-              [class.active]="activeTab() === 'buddy'"
-              (click)="activeTab.set('buddy')"
-            >
-              <lucide-icon name="smile" size="18" aria-hidden="true"></lucide-icon>
-              <span>Compañeros IA</span>
-            </button>
-
-            <div class="nav-divider">Otros</div>
-
             <button
               type="button"
               class="nav-item"
               [class.active]="activeTab() === 'plugins'"
               (click)="activeTab.set('plugins')"
             >
-              <lucide-icon name="puzzle" size="18" aria-hidden="true"></lucide-icon>
-              <span>Módulos & Plugins</span>
+              <lucide-icon name="puzzle" size="16" aria-hidden="true"></lucide-icon>
+              <span>Módulos</span>
             </button>
             <button
               type="button"
@@ -161,8 +165,8 @@ interface PluginDescriptor {
               [class.active]="activeTab() === 'labs'"
               (click)="activeTab.set('labs')"
             >
-              <lucide-icon name="flask-conical" size="18" aria-hidden="true"></lucide-icon>
-              <span>Laboratorio</span>
+              <lucide-icon name="flask-conical" size="16" aria-hidden="true"></lucide-icon>
+              <span>Labs</span>
             </button>
           </nav>
 
@@ -178,8 +182,13 @@ interface PluginDescriptor {
         <main class="settings-content">
           @if (activeTab() === 'profile') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Cuenta</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Mi Perfil</span>
+              </div>
               <div class="section-title">
-                <h2>Mi Perfil</h2>
+                <h2>Ajustes de Perfil</h2>
                 <p>Gestiona tu identidad y presencia en la plataforma</p>
               </div>
 
@@ -329,6 +338,11 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'plugins') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Organización</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Módulos</span>
+              </div>
               <div class="section-title">
                 <h2>Gestión de Módulos</h2>
                 <p>Activa funcionalidades adicionales para tu organización</p>
@@ -435,6 +449,11 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'ai') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>IA Hub</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Agentes (API)</span>
+              </div>
               <div class="section-title">
                 <h2>AI Assistant Hub</h2>
                 <p>
@@ -788,6 +807,11 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'buddy') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Inteligencia</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Compañeros</span>
+              </div>
               <div class="section-title">
                 <h2>Compañeros IA</h2>
                 <p>
@@ -1410,6 +1434,11 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'notifications') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Cuenta</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Notificaciones</span>
+              </div>
               <div class="section-title">
                 <h2>Notificaciones</h2>
                 <p>Gestiona cómo y cuándo quieres recibir avisos</p>
@@ -1467,9 +1496,14 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'security') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Cuenta</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Seguridad</span>
+              </div>
               <div class="section-title">
-                <h2>Seguridad y Privacidad</h2>
-                <p>Protege tus datos y configura el acceso seguro</p>
+                <h2>Seguridad de Acceso</h2>
+                <p>Gestiona tu contraseña y sesiones activas</p>
               </div>
 
               <div class="grid-config">
@@ -1684,6 +1718,11 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'labs') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Organización</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Labs</span>
+              </div>
               <div class="section-title">
                 <h2>Laboratorio Experimental</h2>
                 <p>
@@ -1734,6 +1773,11 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'appearance') {
             <section class="content-section animate-slide-up">
+              <div class="section-breadcrumb">
+                <span>Motor Visual</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Atmósfera</span>
+              </div>
               <div class="section-title">
                 <h2>Atmósfera y Estilo</h2>
                 <p>Configura la experiencia visual "Luxe" y la identidad del sistema</p>
@@ -1909,807 +1953,229 @@ interface PluginDescriptor {
     `
       .settings-layout {
         display: grid;
-        grid-template-columns: 310px 1fr;
-        height: calc(100vh - 110px);
-        gap: 2.5rem;
+        grid-template-columns: 280px 1fr;
+        height: 100vh;
+        margin: -2rem;
+        background: transparent;
       }
 
-      .settings-sidebar, .roles-selector-card {
-        background: color-mix(in srgb, var(--surface) 82%, var(--brand) 3%);
-        backdrop-filter: blur(35px) saturate(1.8) contrast(1.1);
-        -webkit-backdrop-filter: blur(35px) saturate(1.8) contrast(1.1);
-        border: 1px solid color-mix(in srgb, var(--border-soft) 50%, white 5%);
-        border-radius: 32px;
+      /* Navigation Sidebar */
+      .settings-sidebar {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(60px) saturate(1.5);
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
         display: flex;
         flex-direction: column;
-        padding: 2.5rem 1.15rem;
-        box-shadow: 
-          20px 0 60px rgba(0,0,0,.45),
-          inset 0 1px 0 rgba(255,255,255,0.06);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .settings-sidebar::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--brand) 8%, transparent), transparent 70%);
-        pointer-events: none;
+        padding: 3.5rem 1.75rem;
+        box-shadow: 15px 0 60px rgba(0, 0, 0, 0.02);
       }
 
       .sidebar-header {
-        padding: 0 1.25rem 2.5rem 1.25rem;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        margin-bottom: 1rem;
+        margin-bottom: 3rem;
+        padding-left: 1rem;
       }
 
-      .glow-text {
-        font-size: 1.5rem;
+      .sidebar-header h1 {
+        font-size: 1.25rem;
         font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.25em;
-        background: linear-gradient(135deg, #fff 0%, var(--brand) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 0 12px color-mix(in srgb, var(--brand) 40%, transparent));
+        letter-spacing: -0.02em;
+        color: #0f172a;
         margin: 0;
       }
 
-      .subtitle {
+      .sidebar-header .subtitle {
         font-size: 0.65rem;
-        color: var(--brand);
         font-weight: 800;
-        margin-top: 0.45rem;
         text-transform: uppercase;
-        letter-spacing: 0.15em;
-        opacity: 0.7;
+        letter-spacing: 0.1em;
+        color: #94a3b8;
+        margin-top: 0.25rem;
+      }
+
+      .nav-section-label {
+        font-size: 0.625rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin: 1.75rem 0 0.5rem 1rem;
+        opacity: 0.6;
       }
 
       .settings-nav {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.45rem;
-        padding: 0.5rem;
+        gap: 0.2rem;
       }
 
       .nav-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 0.9rem 1.25rem;
-        border-radius: 16px;
-        color: var(--text-secondary);
-        background: transparent;
-        font-size: 0.825rem;
-        font-weight: 700;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid transparent;
+        gap: 0.75rem;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        color: #475569;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         cursor: pointer;
-        width: 100%;
+        border: none;
+        background: transparent;
         text-align: left;
-        position: relative;
       }
 
       .nav-item:hover {
-        color: #fff;
-        background: color-mix(in srgb, var(--brand) 8%, var(--surface));
-        border-color: color-mix(in srgb, var(--brand) 15%, transparent);
-        transform: translateX(8px);
+        background: rgba(255, 255, 255, 0.5);
+        color: var(--brand);
+        transform: translateX(4px);
       }
 
       .nav-item.active {
-        color: #fff;
-        background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 22%, transparent) 0%, transparent 100%);
-        border-color: color-mix(in srgb, var(--brand) 35%, transparent);
-        box-shadow: 
-          0 10px 25px -5px rgba(0, 0, 0, 0.3),
-          inset 0 1px 0 rgba(255,255,255,0.08);
-      }
-
-      .nav-item.active::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 25%;
-        height: 50%;
-        width: 4px;
-        background: var(--brand);
-        border-radius: 0 4px 4px 0;
-        box-shadow: 0 0 15px var(--brand);
-      }
-
-      .nav-item lucide-icon {
-        opacity: 0.5;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-      }
-      .nav-item:hover lucide-icon { transform: scale(1.15) rotate(-5deg); opacity: 1; }
-      .nav-item.active lucide-icon { opacity: 1; color: var(--brand); transform: scale(1.1); }
-
-      .nav-item.buddy-nav-item {
-        margin-top: 1.5rem;
-        border-top: 1px solid rgba(255,255,255,0.05);
-        padding-top: 1.5rem;
+        background: #ffffff;
+        color: var(--brand);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transform: translateX(6px);
       }
 
       .sidebar-footer {
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255,255,255,0.05);
-        margin-top: 1rem;
+        margin-top: auto;
+        padding: 1rem;
+        opacity: 0.4;
       }
 
       .status-indicator {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
-        font-size: 0.65rem;
+        gap: 0.5rem;
+        font-size: 0.6rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-        padding: 0.5rem 1rem;
-        opacity: 0.6;
+        color: #64748b;
       }
 
-      .nav-divider {
-        padding: 1.75rem 1rem 0.5rem 1.25rem;
-        font-size: 0.6rem;
-        font-weight: 900;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.25em;
-        opacity: 0.4;
-      }
-
-      /* Content Area */
+      /* Main Content */
       .settings-content {
+        padding: 5rem 6rem;
         overflow-y: auto;
-        padding-right: 0.5rem;
-        padding-bottom: 4rem;
+        background: rgba(255, 255, 255, 0.05);
       }
 
       .content-section {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
       }
 
-      .grid-config {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .config-subtitle {
+      .section-breadcrumb {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 1.5rem;
-        opacity: 0.9;
-      }
-
-      .labs-card {
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(217, 70, 239, 0.05));
-        border: 1px solid rgba(139, 92, 246, 0.2);
-      }
-
-      .labs-header {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .labs-icon {
-        color: #a78bfa;
-        filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.4));
-      }
-
-      .experimental-title {
+        margin-bottom: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 800;
-        font-size: 1.1rem;
-        color: #fff;
-        margin-bottom: 0.25rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
       }
 
-      .labs-toggle.active {
-        background: #8b5cf6 !important;
-        box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+      .section-breadcrumb .current {
+        color: var(--brand);
       }
 
       .section-title h2 {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #fff;
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        color: #0f172a;
         margin: 0;
       }
 
       .section-title p {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin: 0.4rem 0 0 0;
-      }
-
-      .ai-global-config-card {
-        position: relative;
-        overflow: hidden;
-        border-radius: 28px;
-        border: 1px solid rgba(255,255,255,.08);
-        background: rgba(15,23,42,.7);
-        transition: .4s ease;
-        box-shadow: 0 20px 40px rgba(0,0,0,.3);
-      }
-
-      .ai-global-config-card:hover {
-        border-color: rgba(var(--brand-rgb), .25) !important;
-      }
-
-      .title-icon-wrapper {
-        width: 48px;
-        height: 48px;
-        background: rgba(var(--brand-rgb), 0.15);
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(var(--brand-rgb), 0.25);
-        box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.05);
-      }
-
-      .config-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.75rem 2.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .config-title {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-      }
-
-      .config-title lucide-icon {
-        color: var(--brand);
-        filter: drop-shadow(0 0 10px rgba(var(--brand-rgb), 0.6));
-      }
-
-      .config-title h3 {
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: -0.01em;
-      }
-
-      .config-subtitle-text {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin: 0.15rem 0 0 0;
-        font-weight: 600;
-        letter-spacing: 0.01em;
-        opacity: 0.7;
-      }
-
-      .status-badge-premium {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.5rem !important;
-        border-radius: 99px !important;
-        font-weight: 900 !important;
-        letter-spacing: 0.12em !important;
-        font-size: 0.65rem !important;
-        background: rgba(0, 0, 0, 0.4) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-      }
-
-      .status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #ef4444;
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
-        position: relative;
-      }
-
-      .status-dot.online {
-        background: #10b981;
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-        animation: cinematic-pulse-green 2.5s infinite ease-in-out;
-      }
-
-      @keyframes cinematic-pulse-green {
-        0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); }
-        50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
-      }
-
-      .config-body-wrapper {
-        display: flex;
-        gap: 2.5rem;
-        padding: 2.5rem;
-        align-items: flex-start;
-      }
-
-      .config-body {
-        flex: 1;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-      }
-
-      .config-body .full-width {
-        grid-column: 1 / -1;
-      }
-
-      .config-visual-decoration {
-        flex-shrink: 0;
-        width: 180px;
-        height: 180px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
-
-      .config-visual-decoration::after {
-        content: '';
-        position: absolute;
-        width: 160px;
-        height: 160px;
-        background: var(--brand);
-        filter: blur(70px);
-        opacity: 0.25;
-        border-radius: 50%;
-        z-index: 0;
-        animation: aura-heartbeat 4s infinite ease-in-out;
-      }
-
-      @keyframes aura-heartbeat {
-        0%, 100% { transform: scale(1); opacity: 0.2; }
-        50% { transform: scale(1.3); opacity: 0.35; }
-      }
-
-      .config-visual-decoration ui-mascot {
-        z-index: 1;
-        transform: scale(1.8);
-        filter: drop-shadow(0 25px 50px rgba(0,0,0,0.7));
-        animation: float-mascot-premium 8s ease-in-out infinite;
-        will-change: transform;
-      }
-
-      @keyframes float-mascot-premium {
-        0%, 100% { transform: scale(1.8) translateY(0) rotate(0deg); }
-        33% { transform: scale(1.8) translateY(-18px) rotate(2deg); }
-        66% { transform: scale(1.8) translateY(-8px) rotate(-2deg); }
-      }
-
-      .ollama-refresh-btn {
-        margin-top: 1.5rem;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: var(--text-muted);
-        padding: 0.65rem 1.25rem;
-        border-radius: 14px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-      }
-
-      .ollama-refresh-btn:hover {
-        background: color-mix(in srgb, var(--brand) 15%, transparent);
-        color: #fff;
-        border-color: color-mix(in srgb, var(--brand) 40%, transparent);
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 
-          0 10px 25px -5px rgba(0,0,0,0.4),
-          0 0 15px color-mix(in srgb, var(--brand) 20%, transparent);
-      }
-
-      .ollama-refresh-btn:hover lucide-icon {
-        animation: high-speed-spin 0.8s infinite linear;
-      }
-
-      @keyframes high-speed-spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-
-      .companion-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 1.25rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .companion-subtabs {
-        display: inline-flex;
-        padding: 4px;
-        border-radius: 14px;
-        background: rgba(15, 23, 42, 0.65);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        gap: 4px;
-      }
-
-      .companion-subtab {
-        border: none;
-        background: transparent;
-        color: var(--text-muted);
-        padding: 0.55rem 1.1rem;
-        border-radius: 10px;
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        cursor: pointer;
-        transition:
-          color 0.2s ease,
-          background 0.2s ease,
-          box-shadow 0.2s ease;
-      }
-
-      .companion-subtab:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.04);
-      }
-
-      .companion-subtab.active {
-        background: rgba(var(--brand-rgb, 16, 185, 129), 0.28);
-        color: #fff;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-      }
-
-      .companion-context-block {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.5rem;
-        text-align: right;
-        max-width: min(100%, 440px);
-      }
-
-      .primary-agent-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.68rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        padding: 0.4rem 0.85rem;
-        border-radius: 99px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-muted);
-      }
-
-      .companion-context-hint {
-        font-size: 0.72rem;
-        color: var(--text-muted);
-        line-height: 1.45;
-        margin: 0;
-      }
-
-      .companion-form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 0 1rem;
-      }
-
-      .companion-secondary-row {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-
-      /* Plugin Grid */
-      .plugin-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.25rem;
-      }
-
-      .plugin-card {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        height: 100%;
-      }
-
-      .plugin-header {
-        display: flex;
-        gap: 1.25rem;
-        align-items: center;
-      }
-
-      .plugin-icon {
-        width: 54px;
-        height: 54px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--border-soft);
-        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
-      }
-
-      .header-text h3 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #fff;
-        margin: 0;
-      }
-
-      .category-tag {
-        font: 800 0.65rem/1 sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--brand);
-        opacity: 0.7;
-      }
-
-      .plugin-desc {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        line-height: 1.5;
-        margin: 0;
-        flex: 1;
-      }
-
-      .bot-actions-row {
-        display: flex;
-        gap: 1rem;
-        margin-top: auto;
-      }
-
-      .bot-actions-row ui-button {
-        flex: 1;
-      }
-
-      /* Inline Skills Panel */
-      .inline-skills-panel {
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border-soft);
-      }
-
-      .inline-skills-panel h4 {
         font-size: 0.95rem;
-        font-weight: 700;
-        color: #fff;
-        margin: 0 0 1rem 0;
-      }
-
-      .skills-config-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 0.75rem;
-        margin-bottom: 2rem;
-        min-height: 250px; /* Preserve space for skills config */
-        align-content: start;
-      }
-
-      .skill-config-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.25rem 1.5rem;
-        background: color-mix(in srgb, var(--surface) 90%, white 2%);
-        border-radius: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .skill-config-item:hover {
-        background: color-mix(in srgb, var(--brand) 6%, var(--surface));
-        border-color: color-mix(in srgb, var(--brand) 20%, transparent);
-        transform: translateY(-4px) scale(1.01);
-        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.4);
-      }
-
-      .skill-name {
-        font-size: 0.9rem;
-        font-weight: 800;
-        color: #fff;
-        display: block;
-        letter-spacing: -0.01em;
-      }
-      .skill-desc {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin: 0.3rem 0 0 0;
+        color: #64748b;
+        margin: 0.5rem 0 2.5rem 0;
         font-weight: 500;
       }
 
-      .ai-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        width: 100%;
-        padding-bottom: 2rem;
-      }
-
-      .ai-bot-card {
-        display: flex;
+      .grid-config {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
         gap: 2rem;
-        padding: 2rem;
-        transition: .4s ease;
-        border: 1px solid rgba(255,255,255,.05);
-        background: rgba(255,255,255,.01);
       }
 
-      .ai-bot-card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(var(--brand-rgb), 0.3);
+      /* Cards & Controls */
+      ui-card[variant="glass"] {
+        background: rgba(255, 255, 255, 0.4) !important;
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.04) !important;
+        padding: 2rem !important;
+        transition: transform 0.3s ease;
       }
 
-      .bot-visual {
-        flex-shrink: 0;
-        width: 120px;
-        height: 120px;
+      ui-card[variant="glass"]:hover {
+        transform: translateY(-2px);
+      }
+
+      .pref-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 20px;
-        position: relative;
-      }
-
-      .bot-info {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .bot-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .bot-info h3 {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .bot-labels {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .mr-2 {
-        margin-right: 0.5rem;
-      }
-      .mb-6 {
-        margin-bottom: 1.5rem;
-      }
-      .mb-4 {
-        margin-bottom: 1rem;
-      }
-      .flex-1 {
-        flex: 1;
-      }
-      .mt-6 {
-        margin-top: 1.5rem;
-      }
-      .mt-4 {
-        margin-top: 1rem;
-      }
-
-      .bot-feature {
-        font-size: 0.75rem;
-        color: var(--brand);
-        font-weight: 900;
-        margin-bottom: 1.25rem;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        opacity: 0.9;
-      }
-
-      .bot-desc {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-      }
-
-      .skills-list {
-        display: flex;
-        flex-wrap: wrap;
         gap: 0.75rem;
-        margin-bottom: 2rem;
-        height: 110px; /* Fixed height for summary area */
-        overflow-y: auto;
-        align-content: flex-start;
-        padding-right: 0.5rem;
+        margin-bottom: 1.5rem;
+        color: #0f172a;
       }
 
-      .skills-list::-webkit-scrollbar {
-        width: 4px;
-      }
-      .skills-list::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-      }
-
-      .skill-tag {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(var(--brand-rgb, 126, 34, 206), 0.1);
-        padding: 0.5rem 1rem;
-        border-radius: 100px;
-        font-size: 0.75rem;
-        color: var(--brand);
-        border: 1px solid rgba(var(--brand-rgb, 126, 34, 206), 0.2);
+      .pref-header h3 {
+        font-size: 1rem;
         font-weight: 800;
-        backdrop-filter: blur(4px);
-        transition: all 0.3s ease;
+        letter-spacing: -0.01em;
+        margin: 0;
       }
 
-      .skill-tag lucide-icon {
-        color: inherit;
-        opacity: 1;
-      }
-
-      /* Prefs */
-      .prefs-card {
-        padding: 1rem 2rem;
-      }
       .pref-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1.5rem 0;
-      }
-      .pref-row:not(:last-child) {
-        border-bottom: 1px solid var(--border-soft);
+        padding: 1.25rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.04);
       }
 
       .pref-text h4 {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 700;
-        color: #fff;
+        color: #334155;
         margin: 0;
       }
+
       .pref-text p {
         font-size: 0.75rem;
-        color: var(--text-muted);
-        margin: 0.25rem 0 0 0;
+        color: #64748b;
+        margin: 0.2rem 0 0 0;
+        line-height: 1.4;
       }
 
-      /* Enhanced Toggles */
-      .toggle-wrapper {
-        width: 56px;
+      .divider {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.05);
+        border: none;
+        margin: 2rem 0;
+      }
+
+      /* AI Bot Specifics */
+      .ai-bot-card {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .bot-visual {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+      }
+
+      .bot-feature {
         height: 28px;
         background: color-mix(in srgb, var(--surface) 80%, white 5%);
         border-radius: 100px;
@@ -3702,50 +3168,79 @@ interface PluginDescriptor {
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-sidebar {
-        background: rgba(255, 255, 255, 0.45);
-        backdrop-filter: blur(40px);
-        border-right: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(60px);
+        border-right: 1px solid rgba(0, 0, 0, 0.04);
+        padding: 3.5rem 1.75rem;
         border-radius: 0;
-        box-shadow: 20px 0 80px rgba(0, 0, 0, 0.03);
+        box-shadow: 15px 0 60px rgba(0, 0, 0, 0.02);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .nav-section-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 1.5rem 0 0.5rem 1rem;
+        opacity: 0.8;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .sidebar-header h1 {
-        font-size: 2.2rem;
+        font-size: 1.5rem;
         font-weight: 900;
-        color: var(--brand);
-        text-shadow: 0 4px 15px rgba(var(--brand-rgb), 0.2);
+        color: #0f172a;
         letter-spacing: -0.04em;
-        text-transform: none;
+        margin-bottom: 2rem;
+        padding-left: 1rem;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item {
-        border-radius: 16px;
-        margin-bottom: 0.5rem;
-        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 0.15rem;
+        padding: 0.75rem 1rem;
         background: transparent;
-        color: #64748b;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        font-weight: 700;
-        font-size: 0.95rem;
+        color: #475569;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        font-weight: 600;
+        font-size: 0.88rem;
         border: none !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item:hover {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.6);
         color: var(--brand);
-        transform: translateX(6px);
+        transform: translateX(4px);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item.active {
         background: #ffffff;
         color: var(--brand);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-        transform: translateX(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transform: translateX(6px);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item.active::after {
         display: none;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .section-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .section-breadcrumb .current {
+        color: var(--brand);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-content {
@@ -3765,12 +3260,12 @@ interface PluginDescriptor {
       :host-context(html[data-erp-tenant='babooni']) .plugin-card,
       :host-context(html[data-erp-tenant='babooni']) .ai-bot-card,
       :host-context(html[data-erp-tenant='babooni']) .ai-global-config-card {
-        background: rgba(255, 255, 255, 0.75) !important;
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.6) !important;
-        border-radius: 32px !important;
-        box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.08) !important;
-        padding: 2.5rem !important;
+        background: rgba(255, 255, 255, 0.35) !important;
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.05) !important;
+        padding: 2rem !important;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .luxe-range {
