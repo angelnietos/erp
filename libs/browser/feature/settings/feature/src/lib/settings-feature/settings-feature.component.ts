@@ -3568,6 +3568,93 @@ interface PluginDescriptor {
         .roles-layout-grid { grid-template-columns: 1fr; }
         .roles-selector-card { height: 400px; }
       }
+
+      /* BABOONI / BIOSSTEL LUXE SETTINGS OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .settings-layout {
+        background: transparent;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .settings-sidebar {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px);
+        border-right: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
+        padding: 2rem 1.5rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 850;
+        color: #0f172a;
+        text-shadow: none;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .nav-item {
+        border-radius: 12px;
+        margin-bottom: 0.35rem;
+        padding: 0.75rem 1rem;
+        background: transparent;
+        color: var(--text-muted);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .nav-item:hover {
+        background: rgba(255, 255, 255, 0.6);
+        color: var(--brand);
+        transform: translateX(4px);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .nav-item.active {
+        background: #ffffff;
+        color: var(--brand);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transform: translateX(4px);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .settings-content {
+        padding: 3rem 4rem;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .content-section h2 {
+        font-size: 1.75rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .id-card,
+      :host-context(html[data-erp-tenant='babooni']) .prefs-card,
+      :host-context(html[data-erp-tenant='babooni']) .plugin-card,
+      :host-context(html[data-erp-tenant='babooni']) .ai-bot-card {
+        background: rgba(255, 255, 255, 0.65) !important;
+        backdrop-filter: blur(14px);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 50%, transparent) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08) !important;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .toggle-wrapper {
+        background: #e2e8f0;
+        border-radius: 99px;
+        width: 44px;
+        height: 24px;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .toggle-wrapper.active {
+        background: var(--brand);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .toggle-handle {
+        width: 18px;
+        height: 18px;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
