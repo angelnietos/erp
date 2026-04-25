@@ -772,12 +772,14 @@ interface PersonalGridCell {
 
     .technician-list {
       display: flex; flex-direction: column; gap: 0.85rem;
-      max-height: calc(100vh - 400px); overflow-y: auto;
-      padding-right: 0.5rem;
+      max-height: calc(100vh - 400px); 
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0.5rem;
     }
 
     .tech-card {
-      width: 100%; display: flex; align-items: center; gap: 1.25rem;
+      display: flex; align-items: center; gap: 1.25rem;
       padding: 1rem 1.25rem; background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255,255,255,0.06); border-radius: 20px;
       cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -785,7 +787,7 @@ interface PersonalGridCell {
       backdrop-filter: blur(10px);
     }
     .tech-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent); opacity: 0; transition: opacity 0.3s ease; }
-    .tech-card:hover { transform: translateX(6px) scale(1.02); border-color: rgba(var(--brand-rgb), 0.4); background: rgba(255,255,255,0.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .tech-card:hover { transform: scale(1.02); border-color: rgba(var(--brand-rgb), 0.4); background: rgba(255,255,255,0.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
     .tech-card:hover::before { opacity: 1; }
     .tech-card.selected { background: rgba(var(--brand-rgb), 0.1); border-color: var(--brand); box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.2), inset 0 0 0 1px var(--brand); }
     .tech-card.selected .tech-name { color: var(--brand); }
