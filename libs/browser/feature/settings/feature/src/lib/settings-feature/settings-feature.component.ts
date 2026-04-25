@@ -1955,7 +1955,10 @@ interface PluginDescriptor {
         display: grid;
         grid-template-columns: 280px 1fr;
         height: 100vh;
-        margin: -2rem;
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+        margin: 0;
         background: transparent;
       }
 
@@ -2058,7 +2061,10 @@ interface PluginDescriptor {
       .settings-content {
         padding: 5rem 6rem;
         overflow-y: auto;
+        overflow-x: hidden;
         background: rgba(255, 255, 255, 0.05);
+        scrollbar-width: thin;
+        scrollbar-color: var(--brand) transparent;
       }
 
       .content-section {
@@ -2099,8 +2105,9 @@ interface PluginDescriptor {
 
       .grid-config {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+        gap: 1.75rem;
+        width: 100%;
       }
 
       /* Cards & Controls */
@@ -2175,57 +2182,49 @@ interface PluginDescriptor {
         flex-shrink: 0;
       }
 
-      .bot-feature {
-        height: 28px;
-        background: color-mix(in srgb, var(--surface) 80%, white 5%);
-        border-radius: 100px;
+      /* Toggles & Swatches */
+      .toggle-wrapper {
+        width: 48px;
+        height: 24px;
+        background: rgba(15, 23, 42, 0.15);
+        border-radius: 99px;
         position: relative;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        flex-shrink: 0;
       }
 
       .toggle-handle {
         position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 20px;
-        height: 20px;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
         background: #fff;
         border-radius: 50%;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-      }
-
-      .toggle-wrapper:hover {
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
 
       .toggle-wrapper.active {
         background: var(--brand);
-        border-color: rgba(255, 255, 255, 0.25);
-        box-shadow: 
-          0 0 20px color-mix(in srgb, var(--brand) 40%, transparent),
-          inset 0 1px 0 rgba(255,255,255,0.1);
+        border-color: rgba(0, 0, 0, 0.1);
       }
+
       .toggle-wrapper.active .toggle-handle {
-        left: 31px;
-        background: var(--text-on-brand, #fff);
-        transform: scale(1.1);
+        left: 26px;
       }
-      .toggle-wrapper.active.premium {
+
+      .toggle-wrapper.premium.active {
         background: linear-gradient(135deg, #facc15, #eab308);
-        box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+        box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
       }
 
       .premium-text {
-        background: linear-gradient(135deg, #fef08a, #facc15);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 900 !important;
-        filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.3));
+        color: #eab308;
+        font-weight: 800;
+        letter-spacing: -0.01em;
       }
 
       /* Buddy Customizer */
