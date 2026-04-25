@@ -80,6 +80,15 @@ interface PluginDescriptor {
             </button>
             <button
               type="button"
+              class="nav-item beauty-nav-item"
+              [class.active]="activeTab() === 'appearance'"
+              (click)="activeTab.set('appearance')"
+            >
+              <lucide-icon name="sparkles" size="18" aria-hidden="true"></lucide-icon>
+              <span>Apariencia</span>
+            </button>
+            <button
+              type="button"
               class="nav-item"
               [class.active]="activeTab() === 'general'"
               (click)="activeTab.set('general')"
@@ -1720,6 +1729,119 @@ interface PluginDescriptor {
                   </div>
                 </div>
               </ui-card>
+            </section>
+          }
+
+          @if (activeTab() === 'appearance') {
+            <section class="content-section animate-slide-up">
+              <div class="section-title">
+                <h2>Atmósfera y Estilo</h2>
+                <p>Configura la experiencia visual "Luxe" y la identidad del sistema</p>
+              </div>
+
+              <div class="grid-config">
+                <ui-card variant="glass" class="prefs-card appearance-main-card">
+                  <div class="pref-header">
+                    <lucide-icon name="sparkles" size="20" aria-hidden="true"></lucide-icon>
+                    <h3>Luxe Design Engine</h3>
+                  </div>
+
+                  <div class="pref-row mt-6">
+                    <div class="pref-text">
+                      <h4 class="premium-text">Luxe Mode (Raytracing Simulado)</h4>
+                      <p>Habilita reflejos dinámicos y sombras suaves de alta fidelidad</p>
+                    </div>
+                    <div class="toggle-wrapper premium" 
+                         [class.active]="premiumExperience()"
+                         (click)="togglePremium()">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+
+                  <div class="custom-controls-grid mt-6">
+                    <div class="control-item">
+                      <div class="control-label-row">
+                        <span class="form-label">Intensidad Crystal Blur</span>
+                        <span class="val-badge">14px</span>
+                      </div>
+                      <input type="range" class="luxe-range" min="0" max="40" value="14">
+                    </div>
+
+                    <div class="control-item">
+                      <div class="control-label-row">
+                        <span class="form-label">Ambient Glow (Brand)</span>
+                        <span class="val-badge">8%</span>
+                      </div>
+                      <input type="range" class="luxe-range" min="0" max="30" value="8">
+                    </div>
+
+                    <div class="control-item">
+                      <div class="control-label-row">
+                        <span class="form-label">Haptic Intensity (Simulado)</span>
+                        <span class="val-badge">Medio</span>
+                      </div>
+                      <input type="range" class="luxe-range" min="0" max="100" value="50">
+                    </div>
+                  </div>
+                </ui-card>
+
+                <ui-card variant="glass" class="prefs-card">
+                  <div class="pref-header">
+                    <lucide-icon name="volume-2" size="20" aria-hidden="true"></lucide-icon>
+                    <h3>Audio Cinematográfico</h3>
+                  </div>
+
+                  <div class="pref-row mt-6">
+                    <div class="pref-text">
+                      <h4>Efectos de Sonido Espacial</h4>
+                      <p>Habilita sonidos ambientales y Feedback al interactuar con cristales</p>
+                    </div>
+                    <div class="toggle-wrapper active">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+
+                  <div class="pref-row">
+                    <div class="pref-text">
+                      <h4>Voz de Asistente (Buddy)</h4>
+                      <p>Sintetiza voz premium para las respuestas de IA</p>
+                    </div>
+                    <div class="toggle-wrapper">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+                </ui-card>
+
+                <ui-card variant="glass" class="prefs-card">
+                  <div class="pref-header">
+                    <lucide-icon name="palette" size="20" aria-hidden="true"></lucide-icon>
+                    <h3>Identidad Visual</h3>
+                  </div>
+                  
+                  <div class="form-group mt-6">
+                    <span class="form-label">Color de Marca Institucional</span>
+                    <div class="color-picker-grid">
+                       @for (c of [{m: '#facc15', n: 'Gold'}, {m: '#e60012', n: 'Royal Red'}, {m: '#10b981', n: 'Emerald'}, {m: '#8b5cf6', n: 'Violet'}, {m: '#0ea5e9', n: 'Sky'}]; track c.n) {
+                         <button type="button" class="color-swatch-item" 
+                              [class.active]="themeService.currentThemeData().primary === c.m"
+                              (click)="themeService.updatePrimaryColor(c.m)">
+                           <div class="color-swatch" [style.background]="c.m"></div>
+                         </button>
+                       }
+                    </div>
+                  </div>
+
+                  <div class="pref-row mt-6">
+                    <div class="pref-text">
+                      <h4>Modo Oscuro Profundo</h4>
+                      <p>Utiliza negros puros para mejorar el contraste en paneles OLED</p>
+                    </div>
+                    <div class="toggle-wrapper active">
+                      <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+                </ui-card>
+              </div>
             </section>
           }
         </main>
@@ -3573,87 +3695,117 @@ interface PluginDescriptor {
       :host-context(html[data-erp-tenant='babooni']) .settings-layout {
         background: transparent;
         display: grid;
-        grid-template-columns: 280px 1fr;
+        grid-template-columns: 320px 1fr;
         gap: 0;
+        height: 100vh;
+        margin: -2rem; /* Pull back from shell padding */
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-sidebar {
-        background: rgba(255, 255, 255, 0.4);
-        backdrop-filter: blur(20px);
-        border-right: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
-        padding: 2rem 1.5rem;
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(40px);
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 4rem 2rem;
+        border-radius: 0;
+        box-shadow: 20px 0 80px rgba(0, 0, 0, 0.03);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .sidebar-header h1 {
-        font-size: 1.5rem;
-        font-weight: 850;
-        color: #0f172a;
-        text-shadow: none;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--brand);
+        text-shadow: 0 4px 15px rgba(var(--brand-rgb), 0.2);
+        letter-spacing: -0.04em;
+        text-transform: none;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item {
-        border-radius: 12px;
-        margin-bottom: 0.35rem;
-        padding: 0.75rem 1rem;
+        border-radius: 16px;
+        margin-bottom: 0.5rem;
+        padding: 1rem 1.25rem;
         background: transparent;
-        color: var(--text-muted);
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        font-weight: 600;
-        font-size: 0.85rem;
+        color: #64748b;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        font-weight: 700;
+        font-size: 0.95rem;
+        border: none !important;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item:hover {
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.8);
         color: var(--brand);
-        transform: translateX(4px);
+        transform: translateX(6px);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item.active {
         background: #ffffff;
         color: var(--brand);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transform: translateX(4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        transform: translateX(10px);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .nav-item.active::after {
+        display: none;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-content {
-        padding: 3rem 4rem;
-        background: rgba(255, 255, 255, 0.1);
+        padding: 5rem 6rem;
+        background: rgba(255, 255, 255, 0.15);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .content-section h2 {
-        font-size: 1.75rem;
-        font-weight: 900;
-        letter-spacing: -0.02em;
+        font-size: 2.5rem;
+        font-weight: 950;
+        letter-spacing: -0.04em;
         color: #0f172a;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .id-card,
       :host-context(html[data-erp-tenant='babooni']) .prefs-card,
       :host-context(html[data-erp-tenant='babooni']) .plugin-card,
-      :host-context(html[data-erp-tenant='babooni']) .ai-bot-card {
-        background: rgba(255, 255, 255, 0.65) !important;
-        backdrop-filter: blur(14px);
-        border: 1px solid color-mix(in srgb, var(--border-soft) 50%, transparent) !important;
-        border-radius: 20px !important;
-        box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08) !important;
+      :host-context(html[data-erp-tenant='babooni']) .ai-bot-card,
+      :host-context(html[data-erp-tenant='babooni']) .ai-global-config-card {
+        background: rgba(255, 255, 255, 0.75) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-radius: 32px !important;
+        box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.08) !important;
+        padding: 2.5rem !important;
       }
 
-      :host-context(html[data-erp-tenant='babooni']) .toggle-wrapper {
+      :host-context(html[data-erp-tenant='babooni']) .luxe-range {
+        width: 100%;
+        height: 6px;
+        -webkit-appearance: none;
         background: #e2e8f0;
         border-radius: 99px;
-        width: 44px;
-        height: 24px;
+        margin-top: 1rem;
       }
 
-      :host-context(html[data-erp-tenant='babooni']) .toggle-wrapper.active {
+      :host-context(html[data-erp-tenant='babooni']) .luxe-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
         background: var(--brand);
+        border: 4px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(var(--brand-rgb), 0.3);
+        cursor: pointer;
       }
 
-      :host-context(html[data-erp-tenant='babooni']) .toggle-handle {
-        width: 18px;
-        height: 18px;
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      :host-context(html[data-erp-tenant='babooni']) .val-badge {
+        font-size: 0.7rem;
+        font-weight: 900;
+        background: rgba(var(--brand-rgb), 0.1);
+        color: var(--brand);
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .control-label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     `,
   ],
@@ -3685,6 +3837,7 @@ export class SettingsFeatureComponent {
     | 'roles'
     | 'labs'
     | 'profile'
+    | 'appearance'
   >('profile');
   readonly managingBotId = signal<string | null>(null);
 
