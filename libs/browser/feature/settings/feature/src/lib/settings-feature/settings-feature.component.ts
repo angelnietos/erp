@@ -59,7 +59,7 @@ interface PluginDescriptor {
     UiFeaturePageShellComponent,
   ],
   template: `
-    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true" [fillHost]="true">
+    <ui-feature-page-shell [fadeIn]="true" [fillHost]="true">
       <div class="settings-layout">
         <!-- Sidebar Navigation -->
         <aside class="settings-sidebar">
@@ -1954,13 +1954,13 @@ interface PluginDescriptor {
       .settings-layout {
         display: grid;
         grid-template-columns: 280px 1fr;
-        height: 100vh;
-        width: 100%;
-        max-width: 100vw;
-        overflow-x: hidden;
-        margin: 0;
+        min-height: calc(100vh - 64px);
         background: transparent;
+        min-width: 0;
+        box-sizing: border-box;
       }
+
+      * { box-sizing: border-box; }
 
       /* Navigation Sidebar */
       .settings-sidebar {
@@ -2059,17 +2059,17 @@ interface PluginDescriptor {
 
       /* Main Content */
       .settings-content {
-        padding: 5rem 6rem;
+        padding: 3rem 4rem;
         overflow-y: auto;
-        overflow-x: hidden;
         background: rgba(255, 255, 255, 0.05);
         scrollbar-width: thin;
         scrollbar-color: var(--brand) transparent;
+        min-width: 0;
       }
 
       .content-section {
-        max-width: 1000px;
-        margin: 0 auto;
+        width: 100%;
+        margin-bottom: 5rem;
       }
 
       .section-breadcrumb {
@@ -2230,14 +2230,14 @@ interface PluginDescriptor {
       /* Buddy Customizer */
       .buddy-customizer {
         display: grid;
-        grid-template-columns: 350px 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 2rem;
         align-items: start;
       }
 
       .buddy-preview-card {
         position: relative;
-        height: 380px;
+        min-height: 380px;
         display: flex;
         align-items: center;
         justify-content: center;
