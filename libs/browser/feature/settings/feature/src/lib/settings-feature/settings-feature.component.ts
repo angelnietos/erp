@@ -3068,10 +3068,10 @@ interface PluginDescriptor {
       :host-context(html[data-erp-tenant='babooni']) .settings-layout {
         background: transparent;
         display: grid;
-        grid-template-columns: 320px 1fr;
+        grid-template-columns: 280px 1fr;
         gap: 0;
-        height: 100vh;
-        margin: -2rem; /* Pull back from shell padding */
+        min-height: 100%;
+        overflow-x: hidden;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-sidebar {
@@ -3151,8 +3151,10 @@ interface PluginDescriptor {
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-content {
-        padding: 5rem 6rem;
+        padding: 3rem 2.5rem;
         background: rgba(255, 255, 255, 0.15);
+        overflow-x: hidden;
+        min-width: 0;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .content-section h2 {
