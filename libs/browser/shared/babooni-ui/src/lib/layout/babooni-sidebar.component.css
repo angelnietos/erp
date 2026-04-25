@@ -143,39 +143,34 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--bb-radius-md);
+  padding: 10px 14px;
+  border-radius: 12px;
   color: var(--bb-ink-secondary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.35;
-  transition:
-    background 0.18s ease,
-    color 0.18s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid transparent;
 }
 
 .bb-nav-link:hover {
-  background: var(--bb-surface);
+  background: color-mix(in srgb, var(--bb-ink-muted) 8%, transparent);
   color: var(--text-primary, var(--bio-gray-900));
-  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 18%, var(--bio-gray-200));
+  transform: translateX(2px);
 }
 
 .bb-nav-link:focus-visible {
   outline: none;
-  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 8%, var(--bb-surface));
-  color: var(--text-primary, var(--bio-gray-900));
-  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 35%, var(--bio-gray-200));
   box-shadow: 0 0 0 2px var(--bb-focus-ring);
 }
 
 .bb-nav-link.is-active {
-  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 6%, transparent);
-  color: var(--text-primary, var(--bio-gray-900));
-  font-weight: 600;
-  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 22%, var(--bio-gray-200));
-  box-shadow: inset 3px 0 0 0 var(--brand, var(--bio-primary));
+  background: color-mix(in srgb, var(--brand, var(--bio-primary)) 12%, transparent);
+  color: var(--brand, var(--bio-primary));
+  font-weight: 700;
+  border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 20%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand, var(--bio-primary)) 8%, transparent);
 }
 
 .bb-nav-link--btn {
