@@ -487,6 +487,57 @@ interface QuickAction {
     :host-context(html[data-theme-is-light='true']) .item-title {
       color: var(--text-primary);
     }
+
+    /* BABOONI LUXE DASHBOARD OVERRIDES */
+    :host-context(html[data-erp-tenant='babooni']) .dashboard-hero {
+      background: linear-gradient(180deg, rgba(var(--brand-rgb), 0.08) 0%, transparent 100%);
+      padding: 6rem 3rem 4rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .display-xl {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--brand);
+      text-shadow: 0 4px 20px rgba(var(--brand-rgb), 0.15);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .glass-panel {
+      background: rgba(255, 255, 255, 0.7) !important;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4) !important;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px -20px rgba(0,0,0,0.06);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .panel-header h3 {
+      font-weight: 900;
+      color: var(--brand);
+      opacity: 0.8;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .progress-track {
+      height: 8px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 99px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .progress-fill {
+      box-shadow: 0 0 15px rgba(var(--brand-rgb), 0.3);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .action-btn {
+      border-radius: 16px;
+      padding: 1.25rem !important;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.03);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

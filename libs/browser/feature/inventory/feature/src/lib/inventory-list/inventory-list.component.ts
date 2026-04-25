@@ -295,7 +295,30 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         justify-content: center;
       }
 
-    `,
+      /* BABOONI LUXE INVENTORY OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .product-meta {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(0,0,0,0.03);
+        display: inline-block;
+        margin-top: 0.75rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .sku {
+        color: var(--brand);
+        font-weight: 850;
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .selection-header {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+      }
+     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

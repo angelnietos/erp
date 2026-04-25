@@ -575,6 +575,51 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
           grid-template-columns: 1fr;
         }
       }
+
+      /* BABOONI LUXE FLEET OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .advanced-filters {
+        background: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(14px);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08);
+        margin: 1.5rem 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .bulk-actions-bar {
+        background: #ffffff;
+        border: 1px solid var(--brand);
+        border-radius: 16px;
+        padding: 1rem 2rem;
+        box-shadow: 0 12px 32px -8px rgba(var(--brand-rgb), 0.15);
+        margin: 1.5rem 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .selection-header {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        border-bottom: none;
+        margin-bottom: 1rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .maintenance-badge,
+      :host-context(html[data-erp-tenant='babooni']) .in-use-badge,
+      :host-context(html[data-erp-tenant='babooni']) .available-badge {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 0.35rem 0.85rem;
+        border-radius: 8px;
+        font-weight: 850;
+        font-size: 0.65rem;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.02);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .maintenance-badge { color: #f59e0b; }
+      :host-context(html[data-erp-tenant='babooni']) .in-use-badge { color: #3b82f6; }
+      :host-context(html[data-erp-tenant='babooni']) .available-badge { color: #10b981; }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -185,6 +185,39 @@ html[data-erp-tenant='babooni'] ::selection {
   color: var(--brand);
 }
 
+/* BABOONI CINEMATIC ATMOSPHERE */
+html[data-erp-tenant='babooni'] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+  mix-blend-mode: overlay;
+}
+
+html[data-erp-tenant='babooni'] ::-webkit-scrollbar {
+  width: 10px;
+}
+
+html[data-erp-tenant='babooni'] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 60%, black) 100%);
+  border: 3px solid var(--bg-primary);
+  border-radius: 20px;
+}
+
+html[data-erp-tenant='babooni'] ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+html[data-erp-tenant='babooni'] .ui-glass-premium {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.08);
+}
+
 
 /* Light Theme Overrides */
 [data-theme="pearl"],

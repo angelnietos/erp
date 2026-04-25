@@ -400,6 +400,47 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
           grid-template-columns: 1fr;
         }
       }
+
+      /* BABOONI LUXE FORM OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .page-container {
+        padding: 4rem 2rem;
+        max-width: 1000px;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .page-title {
+        font-size: 2.25rem;
+        font-weight: 850;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .form-section {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(14px);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .section-title {
+        font-size: 1.15rem;
+        font-weight: 850;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--brand);
+        opacity: 0.85;
+        margin-bottom: 2rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .form-grid {
+        gap: 2rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .form-actions {
+        border-top: none;
+        padding-top: 3rem;
+      }
     `,
   ],
 })

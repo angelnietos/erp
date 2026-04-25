@@ -633,6 +633,48 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         display: flex;
         justify-content: center;
       }
+
+      /* BABOONI LUXE BUDGETS OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .advanced-filters {
+        background: rgba(255, 255, 255, 0.55);
+        backdrop-filter: blur(14px);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08);
+        margin: 1.5rem 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .bulk-actions-bar {
+        background: #ffffff;
+        border: 1px solid var(--brand);
+        border-radius: 16px;
+        padding: 1rem 2rem;
+        box-shadow: 0 12px 32px -8px rgba(var(--brand-rgb), 0.15);
+        margin: 1.5rem 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .bulk-info {
+        color: var(--brand);
+        font-weight: 850;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .selection-header {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        border-bottom: none;
+        margin-bottom: 1rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .budget-extra-actions {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 4px;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.03);
+        display: flex;
+        gap: 2px;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
