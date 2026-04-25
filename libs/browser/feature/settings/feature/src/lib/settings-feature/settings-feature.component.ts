@@ -456,9 +456,14 @@ interface PluginDescriptor {
                   <div class="hologram-ring"></div>
                   <div class="hologram-glow"></div>
                   @if (aiBotStore.getBotByFeature(aiBotStore.activeBotFeature()); as activeBot) {
-                    <ui-mascot 
-                      [type]="activeBot.mascotType" 
-                      [color]="activeBot.color" 
+                    <ui-mascot
+                      [type]="activeBot.mascotType"
+                      [color]="activeBot.color"
+                      [secondaryColor]="activeBot.secondaryColor"
+                      [personality]="activeBot.personality"
+                      [bodyShape]="activeBot.bodyShape"
+                      [eyesType]="activeBot.eyesType"
+                      [mouthType]="mascotMouthFor(activeBot)"
                       class="identity-mascot"
                     />
                   }
@@ -476,7 +481,15 @@ interface PluginDescriptor {
                     </div>
 
                     <div class="bot-view-area py-6 flex items-center justify-center">
-                      <ui-mascot [type]="bot.mascotType" [color]="bot.color" />
+                      <ui-mascot
+                        [type]="bot.mascotType"
+                        [color]="bot.color"
+                        [secondaryColor]="bot.secondaryColor"
+                        [personality]="bot.personality"
+                        [bodyShape]="bot.bodyShape"
+                        [eyesType]="bot.eyesType"
+                        [mouthType]="mascotMouthFor(bot)"
+                      />
                     </div>
 
                     <h3 class="text-lg font-bold mb-1">{{ bot.name }}</h3>
@@ -511,7 +524,222 @@ interface PluginDescriptor {
                             priorizar este agente en el ERP.
                           </p>
                         }
-                        <p class="bot-manage-section-title">Habilidades del agente</p>
+
+                        <p class="bot-manage-section-title">Identidad y aspecto</p>
+                        <p class="bot-manage-section-lead">
+                          Misma lógica que «Compañeros»: nombre, avatar y rasgos visuales; se guardan en este navegador.
+                        </p>
+
+                        <div class="api-bot-mascot-preview-wrap" aria-hidden="true">
+                          <ui-mascot
+                            [type]="bot.mascotType"
+                            [color]="bot.color"
+                            [secondaryColor]="bot.secondaryColor"
+                            [personality]="bot.personality"
+                            [bodyShape]="bot.bodyShape"
+                            [eyesType]="bot.eyesType"
+                            [mouthType]="mascotMouthFor(bot)"
+                            class="api-bot-preview-mascot"
+                          />
+                        </div>
+
+                        <div class="api-bot-appearance-form">
+                          <div class="form-group mb-4">
+                            <ui-input
+                              label="Nombre visible"
+                              [ngModel]="aiBotStore.getBotDisplayName(bot.feature)"
+                              (ngModelChange)="aiBotStore.updateBotName(bot.feature, $event)"
+                              [placeholder]="'Ej. ' + bot.name"
+                            ></ui-input>
+                          </div>
+
+                          <div class="companion-form-grid">
+                            <div class="form-group mb-4">
+                              <ui-select
+                                label="Mascota (accesorio)"
+                                [options]="[
+                                  { value: 'inventory', label: 'Cubo Invernadero' },
+                                  { value: 'projects', label: 'Hexágono Proyectos' },
+                                  { value: 'budget', label: 'Cápsula Fiscal' },
+                                  { value: 'clients', label: 'Esfera Social' },
+                                  { value: 'fleet', label: 'Vehículo Drive' },
+                                  { value: 'rentals', label: 'Cubo Alquiler' },
+                                  { value: 'audit', label: 'Domo Auditor' },
+                                  { value: 'dashboard', label: 'Panel de Control' },
+                                  { value: 'universal', label: 'Droide Universal' },
+                                ]"
+                                [ngModel]="bot.mascotType"
+                                (ngModelChange)="
+                                  aiBotStore.updateBotSkin(bot.feature, { mascotType: $event })
+                                "
+                              ></ui-select>
+                            </div>
+
+                            <div class="form-group mb-4">
+                              <ui-select
+                                label="Personalidad"
+                                [options]="[
+                                  { value: 'tech', label: 'Tecnocrático' },
+                                  { value: 'worker', label: 'Productor' },
+                                  { value: 'happy', label: 'Optimista' },
+                                  { value: 'mystic', label: 'Místico / oculto' },
+                                  { value: 'explorer', label: 'Explorador' },
+                                  { value: 'ninja', label: 'Sigiloso / ninja' },
+                                  { value: 'queen', label: 'Regio / reina' },
+                                ]"
+                                [ngModel]="bot.personality"
+                                (ngModelChange)="
+                                  aiBotStore.updateBotSkin(bot.feature, { personality: $event })
+                                "
+                              ></ui-select>
+                            </div>
+                          </div>
+
+                          <div class="form-group mb-4">
+                            <span class="form-label">Color principal</span>
+                            <div class="color-picker-grid">
+                              @for (
+                                c of [
+                                  { m: '#facc15', s: '#ca8a04', n: 'Dorado' },
+                                  { m: '#f43f5e', s: '#9f1239', n: 'Cereza' },
+                                  { m: '#10b981', s: '#059669', n: 'Esmeralda' },
+                                  { m: '#8b5cf6', s: '#6d28d9', n: 'Místico' },
+                                  { m: '#3b82f6', s: '#1d4ed8', n: 'Aqua' },
+                                  { m: '#1e293b', s: '#0f172a', n: 'Stealth' },
+                                ];
+                                track c.n
+                              ) {
+                                <div
+                                  class="color-swatch-item"
+                                  [class.active]="bot.color === c.m"
+                                  (click)="
+                                    aiBotStore.updateBotSkin(bot.feature, {
+                                      color: c.m,
+                                      secondaryColor: c.s,
+                                    })
+                                  "
+                                  (keydown.enter)="
+                                    aiBotStore.updateBotSkin(bot.feature, {
+                                      color: c.m,
+                                      secondaryColor: c.s,
+                                    })
+                                  "
+                                  (keydown.space)="
+                                    aiBotStore.updateBotSkin(bot.feature, {
+                                      color: c.m,
+                                      secondaryColor: c.s,
+                                    })
+                                  "
+                                  tabindex="0"
+                                  role="button"
+                                  [attr.aria-label]="'Color ' + c.n"
+                                >
+                                  <div class="color-swatch" [style.background]="c.m"></div>
+                                </div>
+                              }
+                            </div>
+                            <div class="companion-custom-primary">
+                              <label class="form-label form-label-sub" [attr.for]="'api-color-' + bot.feature"
+                                >Cualquier color</label
+                              >
+                              <input
+                                [id]="'api-color-' + bot.feature"
+                                type="color"
+                                class="color-input color-input-primary"
+                                [value]="bot.color"
+                                (input)="
+                                  setCompanionPrimaryFromPicker(
+                                    bot.feature,
+                                    colorHexFromInput($event)
+                                  )
+                                "
+                                title="Color principal"
+                              />
+                              <span class="color-hex-hint">{{ bot.color }}</span>
+                            </div>
+                          </div>
+
+                          <div class="form-group mb-4 companion-secondary-row">
+                            <label class="form-label" [attr.for]="'api-secondary-' + bot.feature"
+                              >Color secundario</label
+                            >
+                            <input
+                              [id]="'api-secondary-' + bot.feature"
+                              type="color"
+                              class="color-input"
+                              [value]="bot.secondaryColor"
+                              (input)="
+                                aiBotStore.updateBotSkin(bot.feature, {
+                                  secondaryColor: colorHexFromInput($event),
+                                })
+                              "
+                              title="Color secundario"
+                            />
+                          </div>
+
+                          <div class="form-group mb-4">
+                            <ui-select
+                              label="Forma del cuerpo"
+                              [options]="[
+                                { value: 'round', label: 'Esfera gordita' },
+                                { value: 'square', label: 'Cubo bloque' },
+                                { value: 'capsule', label: 'Cápsula' },
+                                { value: 'tri', label: 'Triángulo' },
+                                { value: 'star', label: 'Estrella' },
+                                { value: 'mushroom-cap', label: 'Seta (sombrero)' },
+                                { value: 'mushroom-full', label: 'Seta completa' },
+                                {
+                                  value: 'mushroom-luminescent',
+                                  label: 'Seta bioluminiscente',
+                                },
+                                { value: 'mushroom-morel', label: 'Seta colmenilla' },
+                                { value: 'bonsai', label: 'Bonsái zen' },
+                                { value: 'bonsai-sakura', label: 'Bonsái sakura' },
+                                { value: 'bonsai-maple', label: 'Bonsái arce' },
+                              ]"
+                              [ngModel]="bot.bodyShape"
+                              (ngModelChange)="
+                                aiBotStore.updateBotSkin(bot.feature, { bodyShape: $event })
+                              "
+                            ></ui-select>
+                          </div>
+
+                          <div class="form-group mb-4">
+                            <ui-select
+                              label="Ojos"
+                              [options]="[
+                                { value: 'joy', label: 'Feliz / kawaii' },
+                                { value: 'dots', label: 'Puntos simples' },
+                                { value: 'shades', label: 'Gafas de sol' },
+                                { value: 'glow', label: 'Brillo neón' },
+                                { value: 'angry', label: 'Cejudo / serio' },
+                              ]"
+                              [ngModel]="bot.eyesType"
+                              (ngModelChange)="
+                                aiBotStore.updateBotSkin(bot.feature, { eyesType: $event })
+                              "
+                            ></ui-select>
+                          </div>
+
+                          <div class="form-group mb-4">
+                            <ui-select
+                              label="Boca"
+                              [options]="[
+                                { value: 'smile', label: 'Sonrisa' },
+                                { value: 'line', label: 'Neutra (línea)' },
+                                { value: 'o', label: 'Boca en O' },
+                                { value: 'grin', label: 'Sonrisa ancha' },
+                                { value: 'none', label: 'Discreta / mínima' },
+                              ]"
+                              [ngModel]="bot.mouthType"
+                              (ngModelChange)="
+                                aiBotStore.updateBotSkin(bot.feature, { mouthType: $event })
+                              "
+                            ></ui-select>
+                          </div>
+                        </div>
+
+                        <p class="bot-manage-section-title bot-manage-skills-heading">Habilidades del agente</p>
                         <p class="bot-manage-section-lead">
                           Activa o desactiva competencias; se guardan en este navegador.
                         </p>
@@ -2242,6 +2470,38 @@ interface PluginDescriptor {
         margin-top: 1rem;
         padding-top: 1rem;
         border-top: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+        max-height: min(72vh, 780px);
+        overflow-y: auto;
+        padding-right: 0.25rem;
+      }
+
+      .api-bot-mascot-preview-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 140px;
+        margin: 0 0 1rem;
+        padding: 1rem;
+        border-radius: 16px;
+        background: radial-gradient(
+          circle at 50% 40%,
+          color-mix(in srgb, var(--brand) 12%, transparent),
+          transparent 72%
+        );
+        border: 1px solid color-mix(in srgb, var(--border-soft) 60%, transparent);
+      }
+
+      .api-bot-preview-mascot {
+        width: 120px;
+        height: 120px;
+      }
+
+      .api-bot-appearance-form {
+        margin-bottom: 0.5rem;
+      }
+
+      .bot-manage-skills-heading {
+        margin-top: 1.25rem;
       }
 
       .bot-manage-hint {
