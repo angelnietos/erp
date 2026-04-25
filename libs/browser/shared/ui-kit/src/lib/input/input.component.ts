@@ -203,16 +203,26 @@ export type InputVariant = string;
     input:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* Babooni: campos claros (misma línea que ui-select / theme-input-bg) */
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper.input-shape-auto,
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper.input-shape-glass,
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper.input-shape-flat {
-      --input-bg: color-mix(in srgb, var(--theme-surface, #fffefe) 93%, var(--fld-brand) 7%);
-      --input-border: var(--border-soft, rgba(8, 8, 8, 0.12));
-      --input-color: var(--text-primary, #080808);
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 70%, transparent);
+      border-radius: 9999px;
+      color: var(--text-primary, #080808);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+      backdrop-filter: blur(12px);
+      color-scheme: light;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input:focus-visible {
+      background: #ffffff;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input {
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 1px 2px rgba(8, 8, 8, 0.06);
+    :host-context(html[data-erp-tenant='babooni']) .hint {
+      color: var(--text-muted);
+      opacity: 0.8;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .input-wrapper input::placeholder {

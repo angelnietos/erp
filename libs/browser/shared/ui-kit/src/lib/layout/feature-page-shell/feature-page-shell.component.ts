@@ -26,6 +26,18 @@ export type UiFeaturePageShellVariant =
       :host {
         display: block;
         width: 100%;
+        animation: bbPageEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      @keyframes bbPageEntry {
+        from {
+          opacity: 0;
+          transform: scale(0.99) translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
       }
     `,
   ],

@@ -102,6 +102,32 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
+    :host-context(html[data-erp-tenant='babooni']) .loader-container.overlay {
+      background: rgba(255, 255, 255, 0.7);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .spinner {
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-top: 1px solid var(--brand);
+      border-right: 1px solid var(--brand);
+      box-shadow: none;
+      width: 28px;
+      height: 28px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .spinner::after {
+      top: 4px; left: 4px; right: 4px; bottom: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      border-bottom: 1px solid color-mix(in srgb, var(--brand) 40%, transparent);
+      border-left: 1px solid color-mix(in srgb, var(--brand) 40%, transparent);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .message {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .spinner,
       .spinner::after {

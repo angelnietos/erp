@@ -155,8 +155,22 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     }
 
     :host-context(html[data-erp-tenant='babooni']) .badge {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.65rem;
+      border-radius: 6px;
+      letter-spacing: 0.01em;
+      border-width: 1px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .dot {
+      width: 4px;
+      height: 4px;
     }
 
     @media (prefers-reduced-motion: reduce) {

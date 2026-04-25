@@ -139,6 +139,24 @@
   gap: 2px;
 }
 
+/* Staggered Nav Animation */
+.bb-sidebar__list > li {
+  animation: bbNavSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes bbNavSlide {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.bb-sidebar__list > li:nth-child(1) { animation-delay: 0.1s; }
+.bb-sidebar__list > li:nth-child(2) { animation-delay: 0.15s; }
+.bb-sidebar__list > li:nth-child(3) { animation-delay: 0.2s; }
+.bb-sidebar__list > li:nth-child(4) { animation-delay: 0.25s; }
+.bb-sidebar__list > li:nth-child(5) { animation-delay: 0.3s; }
+.bb-sidebar__list > li:nth-child(6) { animation-delay: 0.35s; }
+.bb-sidebar__list > li:nth-child(n+7) { animation-delay: 0.4s; }
+
 .bb-nav-link {
   display: flex;
   align-items: center;
