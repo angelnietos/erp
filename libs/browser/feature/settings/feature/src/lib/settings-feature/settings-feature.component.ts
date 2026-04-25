@@ -1752,9 +1752,9 @@ interface PluginDescriptor {
       }
 
       .hero-title {
-        font-size: 3.5rem;
+        font-size: 2.75rem;
         font-weight: 950;
-        letter-spacing: -0.06em;
+        letter-spacing: -0.05em;
         color: #0f172a;
         margin: 0;
         line-height: 0.9;
@@ -1798,17 +1798,18 @@ interface PluginDescriptor {
         background: rgba(255, 255, 255, 0.35) !important;
         backdrop-filter: blur(50px);
         border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        border-radius: 40px !important;
-        padding: 4rem;
+        border-radius: 32px !important;
+        padding: 2.5rem 3rem;
         display: flex;
-        gap: 5rem;
+        gap: 3rem;
         box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.04) !important;
         align-items: center;
+        flex-wrap: wrap;
       }
 
       .avatar-projection-area {
-        width: 240px;
-        height: 240px;
+        width: 180px;
+        height: 180px;
         position: relative;
         display: flex;
         align-items: center;
@@ -2071,9 +2072,10 @@ interface PluginDescriptor {
       /* Grid Controls */
       .grid-config {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+        gap: 1.5rem;
         width: 100%;
+        overflow: hidden;
       }
 
       /* Bot Crystal Cards (AI Grid) */
@@ -2727,11 +2729,12 @@ interface PluginDescriptor {
 
       .roles-layout-grid {
         display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 2.5rem;
+        grid-template-columns: 260px 1fr;
+        gap: 1.5rem;
         align-items: flex-start;
         width: 100%;
-        position: relative;
+        min-width: 0;
+        overflow: hidden;
       }
 
       .roles-selector-card {
@@ -2744,6 +2747,7 @@ interface PluginDescriptor {
         max-height: 800px;
         box-shadow: 0 25px 60px -15px rgba(0,0,0,.5);
         overflow: hidden;
+        min-width: 0;
       }
 
       .selector-header {
@@ -2869,6 +2873,7 @@ interface PluginDescriptor {
         display: flex;
         flex-direction: column;
         gap: 2rem;
+        overflow: hidden;
       }
 
       .role-config-card {
