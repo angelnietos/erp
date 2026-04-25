@@ -207,12 +207,22 @@ interface PluginDescriptor {
                   <div class="avatar-projection-area">
                     <div class="hologram-ring"></div>
                     <div class="hologram-glow"></div>
-                    <ui-mascot
-                      [type]="aiBotStore.getBotByFeature('buddy')?.mascotType || 'universal'"
-                      [color]="aiBotStore.getBotByFeature('buddy')?.color || '#facc15'"
-                      [personality]="'happy'"
-                      class="identity-mascot"
-                    />
+                    @if (aiBotStore.getBotByFeature(aiBotStore.activeBotFeature()); as profileBot) {
+                      <ui-mascot
+                        [type]="profileBot.mascotType"
+                        [color]="profileBot.color"
+                        [personality]="profileBot.personality"
+                        [bodyShape]="profileBot.bodyShape"
+                        class="identity-mascot"
+                      />
+                    } @else {
+                      <ui-mascot
+                        type="universal"
+                        color="#8b5cf6"
+                        personality="happy"
+                        class="identity-mascot"
+                      />
+                    }
                     <button class="edit-avatar-btn" title="Actualizar Visualización">
                       <lucide-icon name="camera" size="18"></lucide-icon>
                     </button>
@@ -1843,8 +1853,14 @@ interface PluginDescriptor {
 
       .identity-mascot {
         z-index: 2;
-        filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.35));
-        transform: scale(1.1) translateY(-10px);
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.25));
+        transform: scale(1.05) translateY(-8px);
+        animation: mascotAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      @keyframes mascotAppear {
+        from { opacity: 0; transform: scale(0.85) translateY(10px); }
+        to { opacity: 1; transform: scale(1.05) translateY(-8px); }
       }
 
       .edit-avatar-btn {
@@ -2190,7 +2206,7 @@ interface PluginDescriptor {
 
       /* Animations */
       .animate-slide-up {
-        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       @keyframes slideUp {
