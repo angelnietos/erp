@@ -181,160 +181,98 @@ interface PluginDescriptor {
         <!-- Main Content Area -->
         <main class="settings-content">
           @if (activeTab() === 'profile') {
-            <section class="content-section animate-slide-up">
+            <section class="content-section animate-slide-up profile-hub">
               <div class="section-breadcrumb">
                 <span>Cuenta</span>
                 <lucide-icon name="chevron-right" size="12"></lucide-icon>
-                <span class="current">Mi Perfil</span>
+                <span class="current">Identidad Digital</span>
               </div>
-              <div class="section-title">
-                <h2>Ajustes de Perfil</h2>
-                <p>Gestiona tu identidad y presencia en la plataforma</p>
+              
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Ajustes de <span>Perfil</span></h2>
+                  <p class="hero-subtitle">Gestión de identidad soberana y presencia en la plataforma</p>
+                </div>
+                <div class="hero-right">
+                  <div class="security-badge">
+                    <lucide-icon name="shield-check" size="16"></lucide-icon>
+                    <span>Seguridad Bio-Digital: OK</span>
+                  </div>
+                </div>
               </div>
 
-              <div class="profile-layout">
-                <div class="profile-main">
-                  <ui-card variant="glass" class="id-card">
-                    <div class="user-id-header">
-                      <div class="avatar-manager">
-                         <ui-mascot 
-                           [type]="_authStore.user()?.id ? (((_authStore.user()?.id?.length ?? 0) % 2 === 0) ? 'universal' : 'dashboard') : 'universal'" 
-                           [color]="themeService.currentThemeData().primary"
-                           size="lg">
-                         </ui-mascot>
-                         <button type="button" class="edit-avatar-btn" aria-label="Editar avatar"><lucide-icon name="pencil" size="14" aria-hidden="true"></lucide-icon></button>
-                      </div>
-                      <div class="user-names">
-                        <h3>{{ _authStore.user()?.firstName || 'Usuario' }} {{ _authStore.user()?.lastName || '' }}</h3>
-                        <p>{{ _authStore.user()?.email }}</p>
-                        <ui-badge variant="success">{{ _authStore.user()?.roles?.[0] || 'Miembro' }}</ui-badge>
-                      </div>
+              <div class="identity-grid">
+                <!-- Avatar & Core Identity -->
+                <div class="identity-main-card">
+                  <div class="avatar-projection-area">
+                    <div class="hologram-ring"></div>
+                    <div class="hologram-glow"></div>
+                    <ui-mascot
+                      [type]="aiBotStore.getBotByFeature('buddy')?.mascotType || 'universal'"
+                      [color]="aiBotStore.getBotByFeature('buddy')?.color || '#facc15'"
+                      [personality]="'happy'"
+                      class="identity-mascot"
+                    />
+                    <button class="edit-avatar-btn" title="Actualizar Visualización">
+                      <lucide-icon name="camera" size="18"></lucide-icon>
+                    </button>
+                  </div>
+
+                  <div class="identity-form">
+                    <div class="luxe-input-group">
+                      <label>Identificador Nominal</label>
+                      <input type="text" [value]="_authStore.user()?.firstName + ' ' + _authStore.user()?.lastName" class="luxe-underlined-input" readonly>
                     </div>
-
-                    <div class="profile-fields mt-6">
-                      <div class="form-grid">
-                        <ui-input label="Nombre" [ngModel]="_authStore.user()?.firstName" placeholder="Nombre"></ui-input>
-                        <ui-input label="Apellidos" [ngModel]="_authStore.user()?.lastName" placeholder="Apellidos"></ui-input>
-                      </div>
-                      <ui-input label="Email de contacto" [ngModel]="_authStore.user()?.email" icon="mail" [disabled]="true"></ui-input>
+                    <div class="luxe-input-group">
+                      <label>Canal de Comunicación</label>
+                      <input type="email" [value]="_authStore.user()?.email" class="luxe-underlined-input" readonly>
+                    </div>
+                    <div class="luxe-input-group">
+                      <label>Descriptor de Rol</label>
+                      <input type="text" [value]="_authStore.user()?.roles?.[0] || 'Miembro Plataforma'" class="luxe-underlined-input" readonly>
                     </div>
                     
-                    <div class="card-actions mt-4">
-                      <ui-button
-                        variant="filled"
-                        (clicked)="onSaveProfileClick()"
-                      >
-                        Guardar Cambios
-                      </ui-button>
+                    <div class="form-footer mt-8">
+                      <ui-button variant="filled" size="lg" (clicked)="onSaveProfileClick()">Sincronizar Cambios</ui-button>
                     </div>
-                  </ui-card>
+                  </div>
                 </div>
 
-                <div class="profile-side">
-                  <ui-card variant="glass" class="id-token-card">
-                    <h4 class="small-title">Identificador de Usuario</h4>
-                    <code>{{ _authStore.user()?.id }}</code>
-                    <div class="meta-info mt-4">
-                      <div class="meta-item">
-                        <span class="label">Último Acceso</span>
-                        <span class="val">Hoy, 14:20</span>
+                <!-- Secondary Info & Security -->
+                <div class="identity-sidebar-cards">
+                  <ui-card variant="glass" class="id-badge-card">
+                    <div class="badge-header">
+                      <span class="category-tag">PLATFORM CORE ID</span>
+                      <lucide-icon name="fingerprint" size="20" class="text-brand"></lucide-icon>
+                    </div>
+                    <div class="id-code">{{ _authStore.user()?.id }}</div>
+                    <div class="last-access-row">
+                      <span class="label">ÚLTIMO ACCESO REGISTRADO</span>
+                      <span class="value">Hace instantes • Sesión Encriptada</span>
+                    </div>
+                  </ui-card>
+
+                  <ui-card variant="glass" class="role-status-card">
+                    <div class="role-info">
+                      <div class="role-icon">
+                        <lucide-icon name="crown" size="28" *ngIf="canSeeRolesAdmin()"></lucide-icon>
+                        <lucide-icon name="user" size="28" *ngIf="!canSeeRolesAdmin()"></lucide-icon>
+                      </div>
+                      <div class="role-text">
+                        <h3>{{ _authStore.user()?.roles?.[0] }}</h3>
+                        <p>Nivel de acceso autorizado</p>
                       </div>
                     </div>
+                    <div class="active-pulse mt-6">
+                      <div class="pulse-dot"></div>
+                      <span>CONEXIÓN SEGURA ACTIVA</span>
+                    </div>
                   </ui-card>
                 </div>
               </div>
             </section>
           }
 
-          @if (activeTab() === 'general') {
-            <section class="content-section animate-slide-up">
-              <div class="section-title">
-                <h2>Experiencia General</h2>
-                <p>Personaliza tu entorno de trabajo y el estilo visual global</p>
-              </div>
-
-              <div class="prefs-container grid-config">
-                <ui-card variant="glass" class="prefs-card">
-                   <div class="pref-header">
-                     <lucide-icon name="palette" size="18" aria-hidden="true"></lucide-icon>
-                     <h3>Identidad de Marca</h3>
-                   </div>
-                   
-                   <div class="form-group mt-4">
-                     <span class="form-label">Color Primario del Sistema</span>
-                     <div class="color-picker-grid">
-                       @for (c of [{m: '#facc15', n: 'Amber'}, {m: '#f43f5e', n: 'Rose'}, {m: '#10b981', n: 'Emerald'}, {m: '#8b5cf6', n: 'Violet'}, {m: '#3b82f6', n: 'Blue'}, {m: '#0ea5e9', n: 'Sky'}]; track c.n) {
-                         <button type="button" class="color-swatch-item" 
-                              [class.active]="themeService.currentThemeData().primary === c.m"
-                              (click)="themeService.updatePrimaryColor(c.m)"
-                              [attr.aria-label]="'Seleccionar color ' + c.n">
-                           <div class="color-swatch" [style.background]="c.m"></div>
-                         </button>
-                       }
-                       <div class="custom-color-picker">
-                         <input type="color" [value]="themeService.currentThemeData().primary" (input)="onThemePrimaryFreeInput($event)">
-                       </div>
-                     </div>
-                     <p class="config-desc mt-2">Este color define el tono base de botones, estados y efectos de brillo en toda la aplicación.</p>
-                   </div>
-
-                   <hr class="divider">
-
-                   <div class="form-group">
-                    <ui-select
-                      label="Idioma de Interfaz"
-                      [options]="[
-                        { value: 'es', label: 'Español (Castellano)' },
-                        { value: 'en', label: 'English (US)' },
-                        { value: 'fr', label: 'Français' }
-                      ]"
-                      [ngModel]="aiBotStore.language()"
-                      (ngModelChange)="aiBotStore.language.set($event)"
-                    ></ui-select>
-                  </div>
-                </ui-card>
-
-                <ui-card variant="glass" class="prefs-card">
-                  <div class="pref-header">
-                     <lucide-icon name="layout" size="18" aria-hidden="true"></lucide-icon>
-                     <h3>Interfaz Despejada</h3>
-                   </div>
-
-                  <div class="pref-row mt-4">
-                    <div class="pref-text">
-                      <h4>Modo Compacto</h4>
-                      <p>Reduce márgenes y tamaños de botones para ver más datos</p>
-                    </div>
-                    <div class="toggle-wrapper" 
-                         tabindex="0"
-                         role="checkbox"
-                         [attr.aria-checked]="aiBotStore.compactMode()"
-                         (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())" 
-                         (keydown.enter)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
-                         [class.active]="aiBotStore.compactMode()">
-                      <div class="toggle-handle"></div>
-                    </div>
-                  </div>
-
-                  <div class="pref-row">
-                    <div class="pref-text">
-                      <h4 class="premium-text">Luxe Experience (Global)</h4>
-                      <p>Habilita trazado de rayos simulado y efectos cinematográficos avanzados</p>
-                    </div>
-                    <div class="toggle-wrapper premium" 
-                         tabindex="0"
-                         role="checkbox"
-                         [attr.aria-checked]="premiumExperience()"
-                         (click)="togglePremium()" 
-                         (keydown.enter)="togglePremium()"
-                         [class.active]="premiumExperience()">
-                      <div class="toggle-handle"></div>
-                    </div>
-                  </div>
-                </ui-card>
-              </div>
-            </section>
-          }
 
           @if (activeTab() === 'plugins') {
             <section class="content-section animate-slide-up">
@@ -450,354 +388,101 @@ interface PluginDescriptor {
           @if (activeTab() === 'ai') {
             <section class="content-section animate-slide-up">
               <div class="section-breadcrumb">
-                <span>IA Hub</span>
+                <span>Inteligencia</span>
                 <lucide-icon name="chevron-right" size="12"></lucide-icon>
-                <span class="current">Agentes (API)</span>
+                <span class="current">Núcleo de Inferencia</span>
               </div>
-              <div class="section-title">
-                <h2>AI Assistant Hub</h2>
-                <p>
-                  Mascotas inteligentes con habilidades especializadas por
-                  módulo
-                </p>
-              </div>
-
-              <!-- NUEVO: Panel global de configuración del LLM - Rediseño Premium -->
-              <ui-card variant="glass" class="ai-global-config-card mb-8">
-                <div class="config-header">
-                  <div class="config-title">
-                    <div class="title-icon-wrapper">
-                       <lucide-icon name="cpu" size="24" aria-hidden="true"></lucide-icon>
-                    </div>
-                    <div>
-                      <h3>Motor de Inferencia (LLM)</h3>
-                      <p class="config-subtitle-text">Configura el núcleo de pensamiento de tus asistentes</p>
-                    </div>
-                  </div>
-                  <ui-badge
-                    [variant]="
-                      aiBotStore.providerApiKey() ? 'success' : 'warning'
-                    "
-                    class="status-badge-premium"
-                  >
-                    <div class="status-dot" [class.online]="aiBotStore.providerApiKey()"></div>
-                    {{
-                      aiBotStore.providerApiKey()
-                        ? 'NÚCLEO CONECTADO'
-                        : 'SIN CREDENCIALES'
-                    }}
-                  </ui-badge>
+              
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Motor de <span>IA</span></h2>
+                  <p class="hero-subtitle">Configura el núcleo de pensamiento y la orquestación de agentes</p>
                 </div>
+                <div class="hero-right">
+                  <div class="security-badge" [class.online]="aiBotStore.providerApiKey()">
+                    <lucide-icon name="cpu" size="16"></lucide-icon>
+                    <span>{{ aiBotStore.providerApiKey() ? 'NÚCLEO CONECTADO' : 'SIN CREDENCIALES' }}</span>
+                  </div>
+                </div>
+              </div>
 
-                <div class="config-body-wrapper">
-                  <div class="config-body">
-                    <div class="form-group">
+              <div class="identity-main-card mb-12">
+                <div class="identity-form pr-12">
+                  <div class="grid grid-cols-2 gap-6">
+                    <div class="luxe-input-group">
+                      <label>Proveedor Base</label>
                       <ui-select
-                        label="Proveedor de IA Base"
                         [options]="aiBotStore.aiModelOptions()"
                         [ngModel]="aiBotStore.selectedModelId()"
                         (ngModelChange)="aiBotStore.setAIModel($event)"
                       ></ui-select>
-                      <button
-                        class="ollama-refresh-btn"
-                        (click)="aiBotStore.checkOllamaAvailability(true)"
-                      >
-                        <lucide-icon name="refresh-cw" size="14" aria-hidden="true"></lucide-icon>
-                        ACTUALIZAR MODELOS OLLAMA
-                      </button>
                     </div>
-
-                    <div class="form-group">
+                    <div class="luxe-input-group">
+                      <label>Agente Principal</label>
                       <ui-select
-                        label="Agente Principal Activo"
                         [options]="botOptions()"
                         [ngModel]="aiBotStore.activeBotFeature()"
                         (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
                       ></ui-select>
                     </div>
-
-                    @if (aiBotStore.needsApiKey()) {
-                      <div class="form-group full-width">
-                        <ui-input
-                          label="Clave de Autenticación API (Token)"
-                          type="password"
-                          placeholder="Introduce tu token privado (ej. AIzaSy... o sk-...)"
-                          hint="Este token se utiliza de forma segura para orquestar los agentes dentro del ERP."
-                          [ngModel]="aiBotStore.providerApiKey()"
-                          (ngModelChange)="aiBotStore.providerApiKey.set($event)"
-                        ></ui-input>
-                      </div>
-                    }
                   </div>
+
+                  @if (aiBotStore.needsApiKey()) {
+                    <div class="luxe-input-group mt-8">
+                      <label>Token de Acceso Seguro (API KEY)</label>
+                      <input type="password" [ngModel]="aiBotStore.providerApiKey()" (ngModelChange)="aiBotStore.providerApiKey.set($event)" class="luxe-underlined-input" placeholder="AIzaSy... •••••">
+                    </div>
+                  }
                   
-                <div class="config-visual-decoration">
+                  <div class="form-footer mt-8 flex flex-wrap gap-4">
+                    <ui-button variant="outline" size="sm" (click)="aiBotStore.checkOllamaAvailability(true)">
+                      <lucide-icon name="refresh-cw" size="14" class="mr-2"></lucide-icon>
+                      Sincronizar Modelos Locales
+                    </ui-button>
+                  </div>
+                </div>
+                
+                <div class="avatar-projection-area">
+                  <div class="hologram-ring"></div>
+                  <div class="hologram-glow"></div>
                   @if (aiBotStore.getBotByFeature(aiBotStore.activeBotFeature()); as activeBot) {
                     <ui-mascot 
                       [type]="activeBot.mascotType" 
                       [color]="activeBot.color" 
-                      [secondaryColor]="activeBot.secondaryColor"
-                      [personality]="activeBot.personality"
-                      [bodyShape]="activeBot.bodyShape"
-                      [mouthType]="mascotMouthFor(activeBot)"
-                      [eyesType]="activeBot.eyesType"
-                      [rageMode]="aiBotStore.rageMode()"
-                      [rageStyle]="aiBotStore.rageStyle()"
-                    ></ui-mascot>
+                      class="identity-mascot"
+                    />
                   }
                 </div>
-                </div>
-              </ui-card>
+              </div>
 
-              <div class="ai-grid">
+              <div class="grid-config">
                 @for (bot of aiBotStore.bots(); track bot.id) {
-                  <ui-card
-                    variant="glass"
-                    class="ai-bot-card"
-                    [class.inactive]="bot.status === 'inactive'"
-                  >
-                    <div class="bot-visual">
-                      <ui-mascot
-                        [type]="bot.mascotType"
-                        [color]="bot.color"
-                        [secondaryColor]="bot.secondaryColor"
-                        [personality]="bot.personality"
-                        [bodyShape]="bot.bodyShape"
-                        [eyesType]="bot.eyesType"
-                        [mouthType]="mascotMouthFor(bot)"
-                      ></ui-mascot>
+                  <ui-card variant="glass" class="bot-crystal-card">
+                    <div class="badge-header">
+                      <span class="category-tag">{{ bot.feature }}</span>
+                      @if (aiBotStore.activeBotFeature() === bot.feature) {
+                        <ui-badge variant="success">CORE</ui-badge>
+                      }
                     </div>
 
-                    <div class="bot-info">
-                      <div class="bot-header">
-                        <div class="bot-name-edit">
-                          <ui-input
-                            [ngModel]="bot.name"
-                            (ngModelChange)="
-                              aiBotStore.updateBotName(bot.feature, $event)
-                            "
-                            size="sm"
-                            placeholder="Nombre del Bot"
-                          ></ui-input>
-                        </div>
-                        <div class="bot-labels">
-                          @if (aiBotStore.activeBotFeature() === bot.feature) {
-                            <ui-badge variant="success" class="mr-2"
-                              >AGENTE PRINCIPAL</ui-badge
-                            >
-                          }
-                          <ui-badge
-                            [variant]="
-                              bot.status === 'active' ? 'success' : 'neutral'
-                            "
-                          >
-                            {{
-                              bot.status === 'active'
-                                ? 'SUSCRIPCIÓN ACTIVA'
-                                : 'SaaS INACTIVO'
-                            }}
-                          </ui-badge>
-                        </div>
+                    <div class="bot-view-area py-6 flex items-center justify-center">
+                      <ui-mascot [type]="bot.mascotType" [color]="bot.color" />
+                    </div>
+
+                    <h3 class="text-lg font-bold mb-1">{{ bot.name }}</h3>
+                    <p class="text-xs text-slate-500 mb-6 line-clamp-2 h-8">{{ bot.description }}</p>
+
+                    <div class="pref-row">
+                      <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Estado SaaS</span>
+                      <div class="toggle-wrapper" [class.active]="bot.status === 'active'" (click)="aiBotStore.toggleBotStatus(bot.feature)">
+                        <div class="toggle-handle"></div>
                       </div>
-                      <p class="bot-feature">{{ bot.feature }}</p>
-                      <p class="bot-desc">{{ bot.description }}</p>
-
-                      <!-- Personalidad y Estética -->
-                      <div class="bot-meta-config row mb-4">
-                        <ui-select
-                          label="Mascota"
-                          size="sm"
-                          [options]="[
-                            { value: 'inventory', label: 'Cubo Invernadero' },
-                            { value: 'projects', label: 'Hexágono Proyectos' },
-                            { value: 'budget', label: 'Cápsula Fiscal' },
-                            { value: 'clients', label: 'Esfera Social' },
-                            { value: 'fleet', label: 'Vehículo Drive' },
-                            { value: 'rentals', label: 'Cubo Alquiler' },
-                            { value: 'audit', label: 'Domo Auditor' },
-                            { value: 'dashboard', label: 'Panel de Control' },
-                            { value: 'universal', label: 'Droide Universal' },
-                          ]"
-                          [ngModel]="bot.mascotType"
-                          (ngModelChange)="
-                            aiBotStore.updateBotSkin(bot.feature, {
-                              mascotType: $event,
-                            })
-                          "
-                        ></ui-select>
-
-                        <ui-select
-                          label="Personalidad"
-                          size="sm"
-                          [options]="[
-                            { value: 'tech', label: 'Tecnocrático' },
-                            { value: 'worker', label: 'Productor' },
-                            { value: 'happy', label: 'Optimista' },
-                            { value: 'mystic', label: 'Místico/Oculto' },
-                            { value: 'explorer', label: 'Explorador' },
-                            { value: 'ninja', label: 'Sigiloso/Ninja' },
-                          ]"
-                          [ngModel]="bot.personality"
-                          (ngModelChange)="
-                            aiBotStore.updateBotSkin(bot.feature, {
-                              personality: $event,
-                            })
-                          "
-                        ></ui-select>
-
-                        <ui-select
-                          label="Forma del Cuerpo"
-                          size="sm"
-                          [options]="[
-                            { value: 'round', label: 'Redonda' },
-                            { value: 'square', label: 'Cuadrada' },
-                            { value: 'capsule', label: 'Cápsula' },
-                            { value: 'tri', label: 'Triangular' },
-                            { value: 'mushroom-cap', label: 'Seta (Sombrero clásico)' },
-                            { value: 'mushroom-full', label: 'Seta Completa' },
-                            { value: 'mushroom-luminescent', label: 'Seta Bioluminiscente' },
-                            { value: 'mushroom-morel', label: 'Seta Colmenilla (Morel)' },
-                            { value: 'bonsai', label: 'Bonsái Zen (Pino)' },
-                            { value: 'bonsai-sakura', label: 'Bonsái Sakura (Cerezo)' },
-                            { value: 'bonsai-maple', label: 'Bonsái Maple (Arce Rojo)' },
-                          ]"
-                          [ngModel]="bot.bodyShape"
-                          (ngModelChange)="
-                            aiBotStore.updateBotSkin(bot.feature, {
-                              bodyShape: $event,
-                            })
-                          "
-                        ></ui-select>
-
-                        <div class="form-group">
-                          <label class="form-label" [attr.for]="'color-' + bot.feature">Color Principal</label>
-                          <input
-                            [id]="'color-' + bot.feature"
-                            type="color"
-                            class="color-input"
-                            [value]="bot.color"
-                            (input)="
-                              aiBotStore.updateBotSkin(bot.feature, {
-                                color: colorHexFromInput($event),
-                              })
-                            "
-                          />
-                        </div>
-
-                        <div class="form-group">
-                          <label class="form-label" [attr.for]="'secondary-color-' + bot.feature">Color Secundario</label>
-                          <input
-                            [id]="'secondary-color-' + bot.feature"
-                            type="color"
-                            class="color-input"
-                            [value]="bot.secondaryColor"
-                            (input)="
-                              aiBotStore.updateBotSkin(bot.feature, {
-                                secondaryColor: colorHexFromInput($event),
-                              })
-                            "
-                          />
-                        </div>
-                      </div>
-
-                      <div class="skills-list">
-                        @for (skill of bot.activeSkills; track skill) {
-                          <div class="skill-tag">
-                            <lucide-icon
-                              name="circle-check-big"
-                              size="12"
-                              aria-hidden="true"
-                            ></lucide-icon>
-                            <span>{{ skill }}</span>
-                          </div>
-                        }
-                      </div>
-
-                      <div class="bot-actions-row">
-                        <ui-button
-                          [variant]="
-                            bot.status === 'active' ? 'outline' : 'filled'
-                          "
-                          size="sm"
-                          (click)="aiBotStore.toggleBotStatus(bot.feature)"
-                        >
-                          {{
-                            bot.status === 'active'
-                              ? 'CANCELAR SaaS'
-                              : 'ACTIVAR (SaaS)'
-                          }}
-                        </ui-button>
-
-                        @if (bot.status === 'active') {
-                          <ui-button
-                            [variant]="
-                              managingBotId() === bot.feature
-                                ? 'filled'
-                                : 'outline'
-                            "
-                            size="sm"
-                            (click)="
-                              managingBotId.set(
-                                managingBotId() === bot.feature
-                                  ? null
-                                  : bot.feature
-                              )
-                            "
-                          >
-                            {{
-                              managingBotId() === bot.feature
-                                ? 'CERRAR PANEL'
-                                : 'GESTIONAR SKILLS'
-                            }}
-                          </ui-button>
-
-                          @if (aiBotStore.activeBotFeature() !== bot.feature) {
-                            <ui-button
-                              variant="outline"
-                              size="sm"
-                              (click)="
-                                aiBotStore.activeBotFeature.set(bot.feature)
-                              "
-                            >
-                              USAR COMO PRINCIPAL
-                            </ui-button>
-                          }
-                        }
-                      </div>
-
-                      @if (managingBotId() === bot.feature) {
-                        <div class="inline-skills-panel animate-slide-down">
-                          <h4>Configuración de Habilidades Activas</h4>
-                          <div class="skills-config-list">
-                            @for (skill of bot.skills; track skill) {
-                              <div class="skill-config-item">
-                                <div class="skill-info">
-                                  <span class="skill-name">{{ skill }}</span>
-                                  <p class="skill-desc">
-                                    Habilita esta capacidad de IA.
-                                  </p>
-                                </div>
-                                <div
-                                  class="toggle-wrapper"
-                                  [class.active]="
-                                    isSkillActive(bot.feature, skill)
-                                  "
-                                  (click)="
-                                    aiBotStore.toggleSkill(bot.feature, skill)
-                                  "
-                                  (keydown.enter)="aiBotStore.toggleSkill(bot.feature, skill)"
-                                  (keydown.space)="aiBotStore.toggleSkill(bot.feature, skill)"
-                                  tabindex="0"
-                                  role="switch"
-                                  [attr.aria-checked]="isSkillActive(bot.feature, skill)"
-                                  [attr.aria-label]="'Alternar ' + skill"
-                                >
-                                  <div class="toggle-handle"></div>
-                                </div>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      }
+                    </div>
+                    
+                    <div class="flex gap-2 mt-4">
+                      <ui-button variant="outline" size="sm" class="flex-1" (click)="managingBotId.set(managingBotId() === bot.feature ? null : bot.feature)">
+                        {{ managingBotId() === bot.feature ? 'Cerrar' : 'Personalizar' }}
+                      </ui-button>
                     </div>
                   </ui-card>
                 }
@@ -1350,80 +1035,64 @@ interface PluginDescriptor {
 
           @if (activeTab() === 'general') {
             <section class="content-section animate-slide-up">
-              <div class="section-title">
-                <h2>General</h2>
-                <p>
-                  Personaliza tu experiencia de usuario y el entorno de trabajo
-                </p>
+              <div class="section-breadcrumb">
+                <span>Plataforma</span>
+                <lucide-icon name="chevron-right" size="12"></lucide-icon>
+                <span class="current">Motor de Experiencia</span>
+              </div>
+              
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Ajustes <span>Núcleo</span></h2>
+                  <p class="hero-subtitle">Parámetros operativos y preferencias globales de interacción</p>
+                </div>
               </div>
 
-              <div class="prefs-container grid-config">
-                <ui-card variant="glass" class="prefs-card">
-                  <h3 class="config-subtitle">
-                    <lucide-icon name="globe" size="16" aria-hidden="true"></lucide-icon> Idioma y
-                    Localización
-                  </h3>
-                  <div class="form-group mb-4">
+              <div class="grid-config">
+                <ui-card variant="glass">
+                  <div class="pref-header">
+                    <lucide-icon name="languages" size="20" class="text-brand"></lucide-icon>
+                    <h3>Idioma y Localización</h3>
+                  </div>
+                  <div class="form-group mt-6">
                     <ui-select
-                      label="Idioma del Sistema"
+                      label="Idioma Global del Sistema"
                       [options]="[
                         { value: 'es', label: 'Español (Castellano)' },
                         { value: 'en', label: 'English (US)' },
-                        { value: 'fr', label: 'Français' },
+                        { value: 'fr', label: 'Français (Beta)' }
                       ]"
                       [ngModel]="aiBotStore.language()"
                       (ngModelChange)="aiBotStore.language.set($event)"
                     ></ui-select>
                   </div>
+                  <p class="config-desc mt-4">Afecta tanto a la interfaz como al razonamiento de los agentes de IA.</p>
                 </ui-card>
 
-                <ui-card variant="glass" class="prefs-card">
-                  <h3 class="config-subtitle">
-                    <lucide-icon name="layout" size="16" aria-hidden="true"></lucide-icon> Interfaz
-                    y Diseño
-                  </h3>
-                  <div class="pref-row">
+                <ui-card variant="glass">
+                  <div class="pref-header">
+                    <lucide-icon name="zap" size="20" class="text-brand"></lucide-icon>
+                    <h3>Optimización de Interfaz</h3>
+                  </div>
+                  <div class="pref-row mt-6">
                     <div class="pref-text">
                       <h4>Modo Compacto</h4>
-                      <p>
-                        Reduce márgenes y tamaños de botones para ver más datos
-                      </p>
+                      <p>Priorizar densidad de datos en lugar de aire visual</p>
                     </div>
-                    <div
-                      class="toggle-wrapper"
-                      (click)="
-                        aiBotStore.compactMode.set(!aiBotStore.compactMode())
-                      "
-                      (keydown.enter)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
-                      (keydown.space)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
-                      [class.active]="aiBotStore.compactMode()"
-                      tabindex="0"
-                      role="switch"
-                      [attr.aria-checked]="aiBotStore.compactMode()"
-                      aria-label="Modo compacto"
-                    >
+                    <div class="toggle-wrapper" 
+                         [class.active]="aiBotStore.compactMode()"
+                         (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())">
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
-
                   <div class="pref-row">
                     <div class="pref-text">
-                      <h4 class="premium-text">Luxe Experience</h4>
-                      <p>
-                        Efectos cinematográficos y trazado de rayos simulado
-                      </p>
+                      <h4 class="premium-text">Luxe Engine V2</h4>
+                      <p>Habilitar renderizado de alta fidelidad para cristales</p>
                     </div>
-                    <div
-                      class="toggle-wrapper premium"
-                      (click)="togglePremium()"
-                      (keydown.enter)="togglePremium()"
-                      (keydown.space)="togglePremium()"
-                      [class.active]="premiumExperience()"
-                      tabindex="0"
-                      role="switch"
-                      [attr.aria-checked]="premiumExperience()"
-                      aria-label="Experiencia premium"
-                    >
+                    <div class="toggle-wrapper premium" 
+                         [class.active]="premiumExperience()"
+                         (click)="togglePremium()">
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
@@ -1437,60 +1106,53 @@ interface PluginDescriptor {
               <div class="section-breadcrumb">
                 <span>Cuenta</span>
                 <lucide-icon name="chevron-right" size="12"></lucide-icon>
-                <span class="current">Notificaciones</span>
+                <span class="current">Comunicaciones</span>
               </div>
-              <div class="section-title">
-                <h2>Notificaciones</h2>
-                <p>Gestiona cómo y cuándo quieres recibir avisos</p>
+              
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Alertas & <span>Flujos</span></h2>
+                  <p class="hero-subtitle">Define tus canales de recepción y la intensidad de los avisos</p>
+                </div>
               </div>
 
-              <ui-card variant="glass" class="prefs-card">
-                <div class="pref-row">
-                  <div class="pref-text">
-                    <h4>Notificaciones Globales</h4>
-                    <p>Habilitar el sistema de alertas de escritorio y push</p>
+              <div class="grid-config">
+                <ui-card variant="glass">
+                  <div class="pref-header">
+                    <lucide-icon name="bell-ring" size="20" class="text-brand"></lucide-icon>
+                    <h3>Centro de Alertas</h3>
                   </div>
-                  <div
-                    class="toggle-wrapper"
-                    (click)="
-                      aiBotStore.notificationsEnabled.set(
-                        !aiBotStore.notificationsEnabled()
-                      )
-                    "
-                    (keydown.enter)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
-                    (keydown.space)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
-                    [class.active]="aiBotStore.notificationsEnabled()"
-                    tabindex="0"
-                    role="switch"
-                    [attr.aria-checked]="aiBotStore.notificationsEnabled()"
-                    aria-label="Notificaciones globales"
-                  >
-                    <div class="toggle-handle"></div>
+                  <div class="pref-row mt-6">
+                    <div class="pref-text">
+                      <h4>Notificaciones Globales</h4>
+                      <p>Push en tiempo real y alertas de escritorio</p>
+                    </div>
+                    <div class="toggle-wrapper" 
+                         [class.active]="aiBotStore.notificationsEnabled()"
+                         (click)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())">
+                      <div class="toggle-handle"></div>
+                    </div>
                   </div>
-                </div>
+                </ui-card>
 
-                <div class="pref-row">
-                  <div class="pref-text">
-                    <h4>Efectos de Sonido</h4>
-                    <p>Alertas sonoras para interacciones de bot y eventos</p>
+                <ui-card variant="glass">
+                  <div class="pref-header">
+                    <lucide-icon name="volume-2" size="20" class="text-brand"></lucide-icon>
+                    <h3>Feedback Auditivo</h3>
                   </div>
-                  <div
-                    class="toggle-wrapper"
-                    (click)="
-                      aiBotStore.soundEffects.set(!aiBotStore.soundEffects())
-                    "
-                    (keydown.enter)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
-                    (keydown.space)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
-                    [class.active]="aiBotStore.soundEffects()"
-                    tabindex="0"
-                    role="switch"
-                    [attr.aria-checked]="aiBotStore.soundEffects()"
-                    aria-label="Efectos de sonido"
-                  >
-                    <div class="toggle-handle"></div>
+                  <div class="pref-row mt-6">
+                    <div class="pref-text">
+                      <h4>Efectos de Sonido</h4>
+                      <p>Confirmaciones acústicas para acciones clave</p>
+                    </div>
+                    <div class="toggle-wrapper" 
+                         [class.active]="aiBotStore.soundEffects()"
+                         (click)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())">
+                      <div class="toggle-handle"></div>
+                    </div>
                   </div>
-                </div>
-              </ui-card>
+                </ui-card>
+              </div>
             </section>
           }
 
@@ -1721,53 +1383,56 @@ interface PluginDescriptor {
               <div class="section-breadcrumb">
                 <span>Organización</span>
                 <lucide-icon name="chevron-right" size="12"></lucide-icon>
-                <span class="current">Labs</span>
-              </div>
-              <div class="section-title">
-                <h2>Laboratorio Experimental</h2>
-                <p>
-                  Prueba funciones en desarrollo antes que nadie. Cuidado:
-                  pueden ser inestables.
-                </p>
+                <span class="current">Laboratorio</span>
               </div>
 
-              <ui-card variant="glass" class="labs-card">
-                <div class="labs-header">
-                  <lucide-icon
-                    name="flask-conical"
-                    size="32"
-                    class="labs-icon"
-                    aria-hidden="true"
-                  ></lucide-icon>
-                  <div>
-                    <h3 class="experimental-title">Josanz Genesis Engine</h3>
-                    <p>Activa el motor de razonamiento autónomo profundo</p>
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Genesis <span>Engine</span></h2>
+                  <p class="hero-subtitle">Features experimentales de próxima generación bajo protocolo de acceso controlado</p>
+                </div>
+                <div class="hero-right">
+                  <div class="security-badge">
+                    <lucide-icon name="flask-conical" size="16"></lucide-icon>
+                    <span>ACCESO EARLY ADOPTER</span>
                   </div>
                 </div>
-                <div class="pref-row mt-4">
-                  <div class="pref-text">
-                    <h4>Habilitar Funciones Beta</h4>
-                    <p>Permite el acceso a herramientas experimentales de IA</p>
+              </div>
+
+              <div class="grid-config">
+                <ui-card variant="glass">
+                  <div class="badge-header mb-6">
+                    <span class="category-tag">MOTOR NÚCLEO</span>
+                    <lucide-icon name="cpu" size="18" class="text-brand"></lucide-icon>
                   </div>
-                  <div
-                    class="toggle-wrapper labs-toggle"
-                    (click)="
-                      aiBotStore.experimentalFeatures.set(
-                        !aiBotStore.experimentalFeatures()
-                      )
-                    "
-                    (keydown.enter)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
-                    (keydown.space)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
-                    [class.active]="aiBotStore.experimentalFeatures()"
-                    tabindex="0"
-                    role="switch"
-                    [attr.aria-checked]="aiBotStore.experimentalFeatures()"
-                    aria-label="Habilitar funciones beta"
-                  >
-                    <div class="toggle-handle"></div>
+                  <div class="pref-row">
+                    <div class="pref-text">
+                      <h4>Josanz Genesis Engine</h4>
+                      <p>Motor de razonamiento autónomo profundo con inferencia multi-paso</p>
+                    </div>
+                    <div
+                      class="toggle-wrapper"
+                      (click)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
+                      [class.active]="aiBotStore.experimentalFeatures()"
+                      tabindex="0" role="switch"
+                      [attr.aria-checked]="aiBotStore.experimentalFeatures()"
+                      aria-label="Habilitar funciones beta"
+                    >
+                      <div class="toggle-handle"></div>
+                    </div>
                   </div>
-                </div>
-              </ui-card>
+                </ui-card>
+
+                <ui-card variant="glass">
+                  <div class="badge-header mb-6">
+                    <span class="category-tag">PROTOCOLO</span>
+                    <lucide-icon name="shield-check" size="18" class="text-brand"></lucide-icon>
+                  </div>
+                  <p class="text-sm text-slate-500 leading-relaxed">
+                    Las funciones Beta son inestables por definición. Actívalas sólo si aceptas que el comportamiento puede diferir de la versión estable y que los datos generados pueden no persistir entre versiones.
+                  </p>
+                </ui-card>
+              </div>
             </section>
           }
 
@@ -1778,93 +1443,62 @@ interface PluginDescriptor {
                 <lucide-icon name="chevron-right" size="12"></lucide-icon>
                 <span class="current">Atmósfera</span>
               </div>
-              <div class="section-title">
-                <h2>Atmósfera y Estilo</h2>
-                <p>Configura la experiencia visual "Luxe" y la identidad del sistema</p>
+
+              <div class="profile-hero">
+                <div class="hero-left">
+                  <h2 class="hero-title">Diseño <span>Luxe</span></h2>
+                  <p class="hero-subtitle">Renderizado de alta fidelidad, identidad cromática y feedback sensorial inmersivo</p>
+                </div>
               </div>
 
               <div class="grid-config">
-                <ui-card variant="glass" class="prefs-card appearance-main-card">
-                  <div class="pref-header">
-                    <lucide-icon name="sparkles" size="20" aria-hidden="true"></lucide-icon>
-                    <h3>Luxe Design Engine</h3>
+                <ui-card variant="glass">
+                  <div class="pref-header mb-6">
+                    <lucide-icon name="sparkles" size="20" class="text-brand" aria-hidden="true"></lucide-icon>
+                    <h3>Motor Crystal</h3>
                   </div>
 
-                  <div class="pref-row mt-6">
+                  <div class="pref-row">
                     <div class="pref-text">
-                      <h4 class="premium-text">Luxe Mode (Raytracing Simulado)</h4>
-                      <p>Habilita reflejos dinámicos y sombras suaves de alta fidelidad</p>
+                      <h4 class="text-brand">Luxe Mode V2</h4>
+                      <p>Glassmorphism, reflejos dinámicos y sombras de alta fidelidad</p>
                     </div>
-                    <div class="toggle-wrapper premium" 
-                         [class.active]="premiumExperience()"
-                         (click)="togglePremium()">
-                      <div class="toggle-handle"></div>
-                    </div>
-                  </div>
-
-                  <div class="custom-controls-grid mt-6">
-                    <div class="control-item">
-                      <div class="control-label-row">
-                        <span class="form-label">Intensidad Crystal Blur</span>
-                        <span class="val-badge">14px</span>
-                      </div>
-                      <input type="range" class="luxe-range" min="0" max="40" value="14">
-                    </div>
-
-                    <div class="control-item">
-                      <div class="control-label-row">
-                        <span class="form-label">Ambient Glow (Brand)</span>
-                        <span class="val-badge">8%</span>
-                      </div>
-                      <input type="range" class="luxe-range" min="0" max="30" value="8">
-                    </div>
-
-                    <div class="control-item">
-                      <div class="control-label-row">
-                        <span class="form-label">Haptic Intensity (Simulado)</span>
-                        <span class="val-badge">Medio</span>
-                      </div>
-                      <input type="range" class="luxe-range" min="0" max="100" value="50">
-                    </div>
-                  </div>
-                </ui-card>
-
-                <ui-card variant="glass" class="prefs-card">
-                  <div class="pref-header">
-                    <lucide-icon name="volume-2" size="20" aria-hidden="true"></lucide-icon>
-                    <h3>Audio Cinematográfico</h3>
-                  </div>
-
-                  <div class="pref-row mt-6">
-                    <div class="pref-text">
-                      <h4>Efectos de Sonido Espacial</h4>
-                      <p>Habilita sonidos ambientales y Feedback al interactuar con cristales</p>
-                    </div>
-                    <div class="toggle-wrapper active">
+                    <div class="toggle-wrapper premium" [class.active]="premiumExperience()" (click)="togglePremium()">
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
 
                   <div class="pref-row">
                     <div class="pref-text">
-                      <h4>Voz de Asistente (Buddy)</h4>
-                      <p>Sintetiza voz premium para las respuestas de IA</p>
+                      <h4>Modo Compacto</h4>
+                      <p>Mayor densidad de datos, menos espacio en blanco</p>
                     </div>
-                    <div class="toggle-wrapper">
+                    <div class="toggle-wrapper" [class.active]="aiBotStore.compactMode()" (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())">
                       <div class="toggle-handle"></div>
+                    </div>
+                  </div>
+
+                  <div class="mt-6">
+                    <div class="luxe-input-group mb-4">
+                      <label>Intensidad Crystal Blur</label>
+                      <input type="range" class="luxe-range" min="0" max="40" value="14">
+                    </div>
+                    <div class="luxe-input-group">
+                      <label>Ambient Glow Intensity</label>
+                      <input type="range" class="luxe-range" min="0" max="30" value="8">
                     </div>
                   </div>
                 </ui-card>
 
-                <ui-card variant="glass" class="prefs-card">
-                  <div class="pref-header">
-                    <lucide-icon name="palette" size="20" aria-hidden="true"></lucide-icon>
-                    <h3>Identidad Visual</h3>
+                <ui-card variant="glass">
+                  <div class="pref-header mb-6">
+                    <lucide-icon name="palette" size="20" class="text-brand" aria-hidden="true"></lucide-icon>
+                    <h3>Identidad Cromática</h3>
                   </div>
                   
-                  <div class="form-group mt-6">
+                  <div class="form-group mb-6">
                     <span class="form-label">Color de Marca Institucional</span>
-                    <div class="color-picker-grid">
+                    <div class="color-picker-grid mt-3">
                        @for (c of [{m: '#facc15', n: 'Gold'}, {m: '#e60012', n: 'Royal Red'}, {m: '#10b981', n: 'Emerald'}, {m: '#8b5cf6', n: 'Violet'}, {m: '#0ea5e9', n: 'Sky'}]; track c.n) {
                          <button type="button" class="color-swatch-item" 
                               [class.active]="themeService.currentThemeData().primary === c.m"
@@ -1875,14 +1509,35 @@ interface PluginDescriptor {
                     </div>
                   </div>
 
-                  <div class="pref-row mt-6">
+                  <div class="pref-row">
                     <div class="pref-text">
                       <h4>Modo Oscuro Profundo</h4>
-                      <p>Utiliza negros puros para mejorar el contraste en paneles OLED</p>
+                      <p>Negros OLED puros para máximo contraste</p>
                     </div>
                     <div class="toggle-wrapper active">
                       <div class="toggle-handle"></div>
                     </div>
+                  </div>
+                </ui-card>
+
+                <ui-card variant="glass">
+                  <div class="pref-header mb-6">
+                    <lucide-icon name="volume-2" size="20" class="text-brand" aria-hidden="true"></lucide-icon>
+                    <h3>Feedback Sensorial</h3>
+                  </div>
+                  <div class="pref-row">
+                    <div class="pref-text">
+                      <h4>Efectos de Sonido Espacial</h4>
+                      <p>Feedback acústico al interactuar con superficies cristal</p>
+                    </div>
+                    <div class="toggle-wrapper active"><div class="toggle-handle"></div></div>
+                  </div>
+                  <div class="pref-row">
+                    <div class="pref-text">
+                      <h4>Voz del Asistente</h4>
+                      <p>Síntesis de voz premium para respuestas de IA</p>
+                    </div>
+                    <div class="toggle-wrapper"><div class="toggle-handle"></div></div>
                   </div>
                 </ui-card>
               </div>
@@ -1996,13 +1651,13 @@ interface PluginDescriptor {
       }
 
       .nav-section-label {
-        font-size: 0.625rem;
+        font-size: 0.65rem;
         font-weight: 800;
         color: #94a3b8;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
-        margin: 1.75rem 0 0.5rem 1rem;
-        opacity: 0.6;
+        letter-spacing: 0.1em;
+        margin: 1.5rem 0 0.5rem 1rem;
+        opacity: 0.8;
       }
 
       .settings-nav {
@@ -2016,12 +1671,12 @@ interface PluginDescriptor {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.7rem 1rem;
-        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
         color: #475569;
-        font-size: 0.85rem;
+        font-size: 0.88rem;
         font-weight: 600;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         cursor: pointer;
         border: none;
         background: transparent;
@@ -2029,7 +1684,7 @@ interface PluginDescriptor {
       }
 
       .nav-item:hover {
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.6);
         color: var(--brand);
         transform: translateX(4px);
       }
@@ -2057,7 +1712,7 @@ interface PluginDescriptor {
         color: #64748b;
       }
 
-      /* Main Content */
+      /* Main Content Area */
       .settings-content {
         padding: 3rem 4rem;
         overflow-y: auto;
@@ -2076,110 +1731,307 @@ interface PluginDescriptor {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        margin-bottom: 0.75rem;
-        font-size: 0.65rem;
-        font-weight: 800;
+        margin-bottom: 1.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
         color: #94a3b8;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.05em;
       }
 
       .section-breadcrumb .current {
         color: var(--brand);
       }
 
-      .section-title h2 {
-        font-size: 2rem;
-        font-weight: 900;
-        letter-spacing: -0.04em;
+      /* Profile Hub & Identity */
+      .profile-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 4rem;
+      }
+
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 950;
+        letter-spacing: -0.06em;
         color: #0f172a;
         margin: 0;
+        line-height: 0.9;
       }
 
-      .section-title p {
-        font-size: 0.95rem;
-        color: #64748b;
-        margin: 0.5rem 0 2.5rem 0;
+      .hero-title span {
+        color: var(--brand);
+        opacity: 0.8;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
         font-weight: 500;
+        color: #64748b;
+        margin-top: 1rem;
+        max-width: 480px;
       }
 
-      .grid-config {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-        gap: 1.75rem;
-        width: 100%;
-      }
-
-      /* Cards & Controls */
-      ui-card[variant="glass"] {
-        background: rgba(255, 255, 255, 0.4) !important;
-        backdrop-filter: blur(40px);
-        border: 1px solid rgba(255, 255, 255, 0.6) !important;
-        border-radius: 20px !important;
-        box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.04) !important;
-        padding: 2rem !important;
-        transition: transform 0.3s ease;
-      }
-
-      ui-card[variant="glass"]:hover {
-        transform: translateY(-2px);
-      }
-
-      .pref-header {
+      .security-badge {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        color: #0f172a;
-      }
-
-      .pref-header h3 {
-        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border-radius: 99px;
+        font-size: 0.75rem;
         font-weight: 800;
-        letter-spacing: -0.01em;
-        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border: 1px solid rgba(16, 185, 129, 0.2);
       }
 
-      .pref-row {
+      .identity-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 2.5rem;
+      }
+
+      .identity-main-card {
+        background: rgba(255, 255, 255, 0.35) !important;
+        backdrop-filter: blur(50px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 40px !important;
+        padding: 4rem;
+        display: flex;
+        gap: 5rem;
+        box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.04) !important;
+        align-items: center;
+      }
+
+      .avatar-projection-area {
+        width: 240px;
+        height: 240px;
+        position: relative;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 1.25rem 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.04);
+        justify-content: center;
+        flex-shrink: 0;
       }
 
-      .pref-text h4 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #334155;
-        margin: 0;
+      .hologram-ring {
+        position: absolute;
+        inset: -15px;
+        border: 1.5px solid var(--brand);
+        border-radius: 50%;
+        opacity: 0.12;
+        animation: spin-slow 30s linear infinite;
       }
 
-      .pref-text p {
-        font-size: 0.75rem;
-        color: #64748b;
-        margin: 0.2rem 0 0 0;
-        line-height: 1.4;
+      .hologram-glow {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        background: var(--brand);
+        filter: blur(60px);
+        opacity: 0.18;
+        border-radius: 50%;
       }
 
-      .divider {
-        height: 1px;
-        background: rgba(0, 0, 0, 0.05);
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      .identity-mascot {
+        z-index: 2;
+        filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.35));
+        transform: scale(1.1) translateY(-10px);
+      }
+
+      .edit-avatar-btn {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        width: 44px;
+        height: 44px;
+        background: #fff;
         border: none;
-        margin: 2rem 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        cursor: pointer;
+        z-index: 5;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
 
-      /* AI Bot Specifics */
-      .ai-bot-card {
+      .edit-avatar-btn:hover {
+        transform: scale(1.15) rotate(15deg);
+        background: var(--brand);
+        color: #fff;
+      }
+
+      .identity-form {
+        flex: 1;
         display: flex;
-        gap: 2rem;
+        flex-direction: column;
+        gap: 2.5rem;
+      }
+
+      .luxe-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: relative;
+      }
+
+      .luxe-input-group label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #94a3b8;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
+
+      .luxe-underlined-input {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+        padding: 0.75rem 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #0f172a;
+        transition: all 0.4s ease;
+      }
+
+      .luxe-underlined-input:focus {
+        outline: none;
+        border-color: var(--brand);
+        padding-left: 0.5rem;
+        background: linear-gradient(90deg, rgba(var(--brand-rgb), 0.02), transparent);
+      }
+
+      .identity-sidebar-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .id-badge-card {
+        padding: 2.5rem !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      .badge-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1.5rem;
       }
 
-      .bot-visual {
-        width: 100px;
-        height: 100px;
-        flex-shrink: 0;
+      .category-tag {
+        font-size: 0.6rem;
+        font-weight: 900;
+        color: #94a3b8;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      .id-code {
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.9rem;
+        color: #475569;
+        background: rgba(15, 23, 42, 0.04);
+        padding: 1.25rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        word-break: break-all;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+      }
+
+      .last-access-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .last-access-row .label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: #94a3b8;
+      }
+
+      .last-access-row .value {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .role-status-card {
+        background: linear-gradient(135deg, var(--brand), color-mix(in srgb, var(--brand) 85%, black 15%)) !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: 0 20px 40px rgba(var(--brand-rgb), 0.2) !important;
+      }
+
+      .role-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .role-icon {
+        width: 54px;
+        height: 54px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
+
+      .role-text h3 {
+        color: #fff !important;
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.02em;
+      }
+
+      .role-text p {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.85rem;
+        margin: 0;
+        font-weight: 500;
+      }
+
+      .active-pulse {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.65rem;
+        font-weight: 900;
+        background: rgba(0, 0, 0, 0.25);
+        width: fit-content;
+        padding: 0.5rem 1rem;
+        border-radius: 99px;
+        letter-spacing: 0.05em;
+      }
+
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #4ade80;
+        border-radius: 50%;
+        box-shadow: 0 0 12px #4ade80;
+        animation: pulse-ring 2s infinite cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes pulse-ring {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.6); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
       }
 
       /* Toggles & Swatches */
@@ -2216,15 +2068,102 @@ interface PluginDescriptor {
         left: 26px;
       }
 
-      .toggle-wrapper.premium.active {
-        background: linear-gradient(135deg, #facc15, #eab308);
-        box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
+      /* Grid Controls */
+      .grid-config {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+        gap: 2rem;
+        width: 100%;
       }
 
-      .premium-text {
-        color: #eab308;
+      /* Bot Crystal Cards (AI Grid) */
+      .bot-crystal-card {
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+      }
+
+      .bot-crystal-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      .pref-text {
+        flex: 1;
+        padding-right: 2rem;
+      }
+
+      .pref-text h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.35rem;
+        line-height: 1.3;
+      }
+
+      .pref-text p {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .pref-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #0f172a;
+      }
+
+      .pref-header h3 {
+        font-size: 1rem;
         font-weight: 800;
-        letter-spacing: -0.01em;
+        margin: 0;
+        color: #0f172a;
+      }
+
+      .companion-selector {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .security-badge.online {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border-color: rgba(16, 185, 129, 0.2);
+      }
+
+      .security-badge:not(.online) {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border-color: rgba(245, 158, 11, 0.2);
+      }
+
+      .inline-config-panel {
+        animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .text-brand {
+        color: var(--brand);
+      }
+
+      ui-card[variant="glass"] {
+        background: rgba(255, 255, 255, 0.4) !important;
+        backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.04) !important;
+        padding: 2rem !important;
+        transition: transform 0.3s ease;
+      }
+
+      .pref-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
       }
 
       /* Buddy Customizer */
@@ -2237,62 +2176,31 @@ interface PluginDescriptor {
 
       .buddy-preview-card {
         position: relative;
-        min-height: 380px;
+        min-height: 420px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--brand) 12%, transparent), transparent 75%);
-        border-radius: 32px;
-        border: 1px solid rgba(255,255,255,0.05);
+        background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--brand) 15%, transparent), transparent 75%);
+        border-radius: 40px;
+        border: 1px solid rgba(255,255,255,0.1);
         overflow: hidden;
       }
 
-      .preview-glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 240px;
-        height: 240px;
-        background: var(--brand);
-        opacity: 0.25;
-        filter: blur(50px);
-        border-radius: 50%;
-        animation: glow-breathe 6s infinite ease-in-out;
+      /* Animations */
+      .animate-slide-up {
+        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
-      @keyframes glow-breathe {
-        0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(1); }
-        50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.2); }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
-      .buddy-preview-card ui-mascot {
-        width: 200px;
-        height: 200px;
-        transform: scale(1.6);
-        filter: drop-shadow(0 30px 60px rgba(0,0,0,0.8));
-        animation: preview-float 8s infinite ease-in-out;
+      :host-context(html[data-erp-tenant='babooni']) {
+        --brand-rgb: 0, 100, 255;
       }
-
-      @keyframes preview-float {
-        0%, 100% { transform: scale(1.6) translateY(0); }
-        50% { transform: scale(1.6) translateY(-20px); }
-      }
-
-      .buddy-options-card,
-      .buddy-skills-card {
-        padding: 1.5rem;
-        min-height: 320px;
-      }
-
-      .buddy-options-card h3,
-      .buddy-skills-card h3 {
-        font-size: 1.1rem;
-        font-weight: 800;
-        margin: 0 0 1.5rem 0;
-        color: #fff;
-      }
-
+    `,
+    `
       .form-label {
         display: block;
         font-size: 0.75rem;
