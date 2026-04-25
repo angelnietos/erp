@@ -364,7 +364,7 @@ interface PluginDescriptor {
                         <ui-button
                           variant="outline"
                           size="sm"
-                          (click)="onRequestDeactivateModule(plugin.id)"
+                          (clicked)="onRequestDeactivateModule(plugin.id)"
                         >
                           Desactivar
                         </ui-button>
@@ -373,7 +373,7 @@ interface PluginDescriptor {
                           <ui-button
                             variant="filled"
                             size="sm"
-                            (click)="onRequestActivateModule(plugin.id)"
+                            (clicked)="onRequestActivateModule(plugin.id)"
                           >
                             Activar
                           </ui-button>
@@ -445,7 +445,7 @@ interface PluginDescriptor {
                   }
                   
                   <div class="form-footer mt-8 flex flex-wrap gap-4">
-                    <ui-button variant="outline" size="sm" (click)="aiBotStore.checkOllamaAvailability(true)">
+                    <ui-button variant="outline" size="sm" (clicked)="aiBotStore.checkOllamaAvailability(true)">
                       <lucide-icon name="refresh-cw" size="14" class="mr-2"></lucide-icon>
                       Sincronizar Modelos Locales
                     </ui-button>
@@ -490,10 +490,52 @@ interface PluginDescriptor {
                     </div>
                     
                     <div class="flex gap-2 mt-4">
-                      <ui-button variant="outline" size="sm" class="flex-1" (click)="managingBotId.set(managingBotId() === bot.feature ? null : bot.feature)">
+                      <ui-button
+                        variant="outline"
+                        size="sm"
+                        class="flex-1"
+                        (clicked)="managingBotId.set(managingBotId() === bot.feature ? null : bot.feature)"
+                      >
                         {{ managingBotId() === bot.feature ? 'Cerrar' : 'Personalizar' }}
                       </ui-button>
                     </div>
+                    @if (managingBotId() === bot.feature) {
+                      <div
+                        class="bot-manage-panel inline-config-panel"
+                        role="region"
+                        [attr.aria-label]="'Personalización de ' + bot.name"
+                      >
+                        @if (bot.status !== 'active') {
+                          <p class="bot-manage-hint">
+                            El módulo está <strong>inactivo</strong>. Activa «Estado SaaS» en esta tarjeta para
+                            priorizar este agente en el ERP.
+                          </p>
+                        }
+                        <p class="bot-manage-section-title">Habilidades del agente</p>
+                        <p class="bot-manage-section-lead">
+                          Activa o desactiva competencias; se guardan en este navegador.
+                        </p>
+                        <ul class="bot-skills-manage-list">
+                          @for (skill of bot.skills; track skill) {
+                            <li>
+                              <button
+                                type="button"
+                                class="bot-skill-row"
+                                [class.is-on]="bot.activeSkills.includes(skill)"
+                                (click)="aiBotStore.toggleSkill(bot.feature, skill)"
+                              >
+                                <lucide-icon
+                                  [name]="bot.activeSkills.includes(skill) ? 'check-circle' : 'circle'"
+                                  size="16"
+                                  aria-hidden="true"
+                                ></lucide-icon>
+                                <span>{{ skill }}</span>
+                              </button>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
                   </ui-card>
                 }
               </div>
@@ -1003,7 +1045,7 @@ interface PluginDescriptor {
                             <ui-button
                               variant="outline"
                               size="sm"
-                              (click)="
+                              (clicked)="
                                 aiBotStore.addUserAgentPromptPreset(
                                   'dashboard'
                                 )
@@ -1273,7 +1315,7 @@ interface PluginDescriptor {
                   <h2>Gestión de Roles y Permisos</h2>
                   <p>Define quién puede hacer qué en cada módulo del sistema</p>
                 </div>
-                <ui-button variant="filled" size="sm" (click)="createNewRole()">
+                <ui-button variant="filled" size="sm" (clicked)="createNewRole()">
                   <lucide-icon name="plus" size="16" aria-hidden="true"></lucide-icon> Nuevo Rol
                 </ui-button>
               </div>
@@ -1354,7 +1396,7 @@ interface PluginDescriptor {
                           ></ui-input>
                           <div class="role-actions-btns">
                             @if (!isSelectedRoleSuperAdmin()) {
-                              <ui-button variant="outline" size="sm" (click)="deleteRole(role.id)">
+                              <ui-button variant="outline" size="sm" (clicked)="deleteRole(role.id)">
                                 <lucide-icon name="trash-2" size="14" aria-hidden="true"></lucide-icon> Eliminar Rol
                               </ui-button>
                             }
@@ -1629,18 +1671,18 @@ interface PluginDescriptor {
         }
         <div modal-footer>
           @if (deactivateModalMode() === 'terms') {
-            <ui-button variant="outline" (click)="closeDeactivatePluginModal()">
+            <ui-button variant="outline" (clicked)="closeDeactivatePluginModal()">
               Cancelar
             </ui-button>
             <ui-button
               variant="filled"
               [disabled]="!moduleDisableTermsAccepted()"
-              (click)="confirmPluginDisable()"
+              (clicked)="confirmPluginDisable()"
             >
               Aceptar y desactivar
             </ui-button>
           } @else {
-            <ui-button variant="filled" (click)="closeDeactivatePluginModal()">
+            <ui-button variant="filled" (clicked)="closeDeactivatePluginModal()">
               Entendido
             </ui-button>
           }
@@ -2194,6 +2236,75 @@ interface PluginDescriptor {
 
       .inline-config-panel {
         animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .bot-manage-panel {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+      }
+
+      .bot-manage-hint {
+        font-size: 0.75rem;
+        line-height: 1.45;
+        margin: 0 0 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--warning, #f59e0b) 12%, transparent);
+        color: var(--text-primary);
+      }
+
+      .bot-manage-section-title {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 0.35rem;
+      }
+
+      .bot-manage-section-lead {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin: 0 0 0.75rem;
+        line-height: 1.4;
+      }
+
+      .bot-skills-manage-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+
+      .bot-skill-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        text-align: left;
+        font-size: 0.72rem;
+        line-height: 1.3;
+        padding: 0.5rem 0.6rem;
+        border-radius: 10px;
+        border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
+        background: color-mix(in srgb, var(--surface) 92%, transparent);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: border-color 0.2s ease, background 0.2s ease;
+      }
+
+      .bot-skill-row:hover {
+        border-color: color-mix(in srgb, var(--brand) 35%, var(--border-soft));
+      }
+
+      .bot-skill-row.is-on {
+        border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+        background: color-mix(in srgb, var(--brand) 10%, var(--surface));
       }
 
       .text-brand {
