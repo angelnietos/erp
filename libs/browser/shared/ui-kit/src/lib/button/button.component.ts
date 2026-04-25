@@ -176,6 +176,37 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
     @keyframes rotate { to { transform: rotate(360deg); } }
 
+    :host-context(html[data-erp-tenant='babooni']) .btn {
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-weight: 600;
+      border-radius: 10px;
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-solid,
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto {
+      background: #0a0a0a;
+      color: #ffffff;
+      border: 1px solid #111111;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-solid:hover,
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto:hover {
+      background: #1a1a1a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost {
+      color: var(--text-muted);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:hover {
+      background: color-mix(in srgb, var(--brand) 6%, transparent);
+      color: var(--brand);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .btn {
         transition-duration: 0.15s;

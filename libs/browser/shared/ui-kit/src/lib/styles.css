@@ -214,6 +214,46 @@ h6 {
   }
 }
 
+/**
+ * Babooni Global SaaS Overrides
+ */
+html[data-erp-tenant='babooni'] {
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f9fbff;
+  --text-primary: #0a0a0a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --surface: #ffffff;
+  --border-soft: #e2e8f0;
+  --border-vibrant: #cbd5e1;
+  color-scheme: light;
+}
+
+html[data-erp-tenant='babooni'] body {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+  color: var(--text-primary);
+}
+
+html[data-erp-tenant='babooni'] ::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  opacity: 0.3;
+}
+
+html[data-erp-tenant='babooni'] ::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+html[data-erp-tenant='babooni'] h1, 
+html[data-erp-tenant='babooni'] h2, 
+html[data-erp-tenant='babooni'] h3 {
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
 /** Texto solo lectores (Storybook / demos) — mismo patrón que `apps/frontend` */
 .erp-sr-only {
   position: absolute;

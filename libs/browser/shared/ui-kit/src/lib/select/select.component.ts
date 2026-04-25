@@ -317,28 +317,26 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     }
 
     :host-context(html[data-erp-tenant='babooni']) select {
-      background:
-        var(--fld-surface-soft),
-        color-mix(in srgb, var(--theme-surface, #fffefe) 94%, var(--fld-brand) 6%);
-      border: 1px solid var(--border-soft, rgba(8, 8, 8, 0.1));
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 70%, transparent);
+      border-radius: 9999px;
       color: var(--text-primary, #080808);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.85) inset,
-        0 1px 2px rgba(8, 8, 8, 0.06);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+      backdrop-filter: blur(12px);
       color-scheme: light;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     :host-context(html[data-erp-tenant='babooni']) select:not(:disabled):hover {
-      border-color: color-mix(in srgb, var(--fld-brand) 32%, rgba(8, 8, 8, 0.12));
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.92) inset,
-        0 2px 10px rgba(8, 8, 8, 0.06);
+      border-color: color-mix(in srgb, var(--fld-brand) 40%, transparent);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     :host-context(html[data-erp-tenant='babooni']) select:focus-visible {
-      background: color-mix(in srgb, var(--theme-surface, #fffefe) 82%, var(--fld-brand) 10%);
-      border-color: var(--fld-border-brand);
-      box-shadow: var(--fld-ring-brand), 0 6px 20px rgba(8, 8, 8, 0.08);
+      background: #ffffff;
+      border-color: var(--fld-brand);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--fld-brand) 15%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .select-filled,

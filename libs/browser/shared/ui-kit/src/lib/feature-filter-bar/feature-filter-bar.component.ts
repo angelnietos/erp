@@ -117,15 +117,16 @@ import type { SearchVariant } from '../search/search.component';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .feature-filter-bar--framed {
-      background: var(--theme-surface, #fffefe);
-      border-color: rgba(8, 8, 8, 0.08);
-      border-radius: 14px;
-      padding: 0.65rem 1rem;
-      box-shadow: 0 1px 2px rgba(8, 8, 8, 0.04);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      gap: 1rem 1.5rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .feature-filter-bar {
-      margin-bottom: 1.25rem;
+      margin-bottom: 2rem;
     }
   `],
 })

@@ -168,15 +168,28 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .page-title {
-      font-size: clamp(1.2rem, 1.1vw + 0.85rem, 1.5rem);
+      font-size: clamp(1.5rem, 1.2vw + 1rem, 2rem);
       font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.02em;
       text-shadow: none !important;
       -webkit-text-fill-color: var(--text-primary);
       color: var(--text-primary);
+      margin-bottom: 0.15rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      gap: 6px;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb-single span {
-      font-size: 0.8125rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: none;
     }
 
     .feature-header {

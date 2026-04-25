@@ -288,55 +288,78 @@ import { UiBadgeComponent } from '../../badge/badge.component';
        .footer-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
     }
 
-    /* Babooni: tarjetas tipo Figma Biosstel (borde #d1d1d1, sombra suave) */
+    /* Babooni: tarjetas tipo Figma Biosstel (borde flotante, sombra sutil suave, redondeo premium) */
     :host-context(html[data-erp-tenant='babooni']) .feature-card {
-      border-radius: 10px;
-      border: 1px solid #d1d1d1;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
+      box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .feature-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
-      border-color: #b8b8b8;
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px color-mix(in srgb, var(--brand) 15%, transparent);
+      border-color: color-mix(in srgb, var(--brand) 25%, transparent);
+      background: rgba(255, 255, 255, 0.95);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .avatar-bg {
-      border-radius: 10px;
-      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .item-name {
-      font-size: clamp(1rem, 0.8vw + 0.65rem, 1.125rem);
-      font-weight: 600;
-      color: var(--text-primary);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0c0c0c;
+      letter-spacing: -0.01em;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .subtitle {
-      font-size: 0.8125rem;
+      font-size: 0.8rem;
+      font-weight: 500;
       color: var(--text-muted);
+      opacity: 0.85;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-header {
+      padding: 1.25rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-body {
+      padding: 0 1.25rem 1rem 1.25rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .card-footer {
-      background: var(--bg-secondary, #f9f9f9);
-      border-top-color: var(--border-soft, #e6e6e6);
+      padding: 0.85rem 1.25rem;
+      background: rgba(0, 0, 0, 0.02);
+      border-top: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+      min-height: auto;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .footer-item {
-      text-transform: none;
-      letter-spacing: 0.01em;
-      font-size: 0.8125rem;
-      font-weight: 500;
+      font-size: 0.75rem;
+      font-weight: 600;
       color: var(--text-muted);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 8px;
       color: var(--text-muted) !important;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost:hover {
-      color: var(--text-primary) !important;
+      color: var(--brand) !important;
       background: color-mix(in srgb, var(--brand) 8%, transparent) !important;
     }
 
