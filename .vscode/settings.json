@@ -2,5 +2,6 @@
   "terminal.integrated.env.windows": {
     "NX_ISOLATE_PLUGINS": "false"
   },
+  "nxConsole.nxWorkspacePath": ".",
   "nxConsole.disableFileWatching": false
 }
