@@ -96,14 +96,27 @@ body {
   background-color: var(--bg-primary);
   /* Cinematic Lighting Overlay */
   background-image:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"),
     radial-gradient(ellipse 150% 100% at 0% -20%, var(--brand-ambient-strong), transparent 60%),
     radial-gradient(ellipse 80% 60% at 100% 0%, rgba(0, 190, 239, 0.12), transparent 50%),
     radial-gradient(circle at 50% 110%, var(--brand-ambient), transparent 70%);
-  background-blend-mode: overlay, normal, normal, normal;
   color: var(--text-primary);
   font-family: var(--font-main);
   line-height: 1.6;
+  position: relative;
+}
+
+/* Global Cinematic Grain Overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 99999;
+  mix-blend-mode: overlay;
 }
 
 /* Scrollbar Style — Nintendo Switch Red */

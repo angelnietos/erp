@@ -56,98 +56,78 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
   styles: [`
     .pagination {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
       align-items: center;
-      padding: 0.65rem 0.35rem;
+      padding: 1rem 0.5rem;
       width: 100%;
-      flex-wrap: wrap;
     }
 
     .pages-group {
       display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-      justify-content: center;
+      gap: 8px;
     }
 
     .page-btn {
-      min-height: 2.1rem;
-      min-width: 2.1rem;
-      padding: 0 0.65rem;
+      min-height: 2.5rem;
+      min-width: 2.5rem;
+      padding: 0 0.8rem;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
-      color: var(--text-secondary);
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: none;
-      letter-spacing: 0.02em;
-      line-height: 1.3;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 800;
       cursor: pointer;
-      transition:
-        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-        background 0.25s ease,
-        border-color 0.25s ease,
-        color 0.25s ease,
-        box-shadow 0.28s ease;
-      font-family: var(--font-main);
+      transition: all 0.4s var(--transition-spring);
+      font-family: var(--font-display);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
     }
 
     .page-btn:not(:disabled):hover {
-      background: color-mix(in srgb, var(--surface-hover, var(--bg-secondary)) 88%, var(--brand) 6%);
+      background: var(--brand-ambient);
       color: #fff;
-      border-color: color-mix(in srgb, var(--brand) 45%, var(--border-soft));
+      border-color: var(--brand);
       transform: translateY(-2px);
-      box-shadow: 0 8px 22px -10px var(--brand-glow);
+      box-shadow: 0 10px 20px -10px var(--brand-glow);
     }
 
     .page-btn:not(:disabled):active {
-      transform: translateY(0) scale(0.97);
-    }
-
-    .page-btn:focus-visible {
-      outline: 2px solid var(--ring-focus);
-      outline-offset: 2px;
+      transform: translateY(2px) scale(0.96);
     }
 
     .page-btn.active {
       background: var(--brand);
       border-color: var(--brand);
       color: #fff;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.15) inset,
-        0 6px 22px -6px var(--brand-glow);
+      box-shadow: 
+        0 10px 25px -5px var(--brand-glow),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
     }
 
     .page-btn:disabled {
-      opacity: 0.35;
+      opacity: 0.25;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
     }
 
-    .nav-btn { font-size: 0.65rem; letter-spacing: 0.02em; font-weight: 600; }
-    .nav-btn lucide-icon { width: 1.1rem; height: 1.1rem; }
-
-    /* Variants */
-    .pagination-minimal .pages-group { display: none; }
+    .nav-btn { 
+      font-size: 0.7rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.15em; 
+    }
     
-    .pagination-glass .page-btn {
-      background: color-mix(in srgb, var(--surface, rgba(255, 255, 255, 0.04)) 70%, transparent);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
+    .nav-btn lucide-icon { width: 1.2rem; height: 1.2rem; }
 
-    @media (prefers-reduced-motion: reduce) {
-      .page-btn:not(:disabled):hover {
-        transform: none;
-      }
+    /* Glass Variant */
+    .pagination-glass .page-btn {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px) saturate(1.5);
+      border-color: rgba(255, 255, 255, 0.08);
     }
   `],
 })

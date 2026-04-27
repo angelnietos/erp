@@ -55,132 +55,99 @@ export type TabsVariant =
       .tabs {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
-        padding: 4px;
-        border-radius: var(--radius-md);
-        background: color-mix(in srgb, var(--surface) 80%, var(--brand) 3%);
+        gap: 8px;
+        padding: 6px;
+        border-radius: var(--radius-lg);
+        background: var(--bg-tertiary);
         border: 1px solid var(--border-soft);
         width: fit-content;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.04),
-          var(--shadow-sm);
+        box-shadow: var(--shadow-md);
       }
 
       .tab-item {
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 0.5rem 0.85rem;
+        gap: 10px;
+        padding: 0.75rem 1.25rem;
         background: transparent;
         border: none;
         border-radius: var(--radius-md);
-        font-size: 0.62rem;
-        font-weight: 700;
+        font-size: 0.75rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.055em;
-        line-height: 1.35;
+        letter-spacing: 0.15em;
         cursor: pointer;
-        transition:
-          color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-          background 0.28s ease,
-          transform 0.25s ease,
-          box-shadow 0.28s ease;
-        color: var(--text-secondary);
-        font-family: var(--font-main);
+        transition: all 0.4s var(--transition-spring);
+        color: var(--text-muted);
+        font-family: var(--font-display);
         position: relative;
         overflow: hidden;
       }
 
       .tab-item:hover {
         color: var(--text-primary);
-        background: color-mix(in srgb, var(--brand) 8%, var(--surface));
-      }
-
-      .tab-item:focus-visible {
-        outline: 2px solid var(--ring-focus);
-        outline-offset: 2px;
+        background: var(--brand-ambient);
+        transform: translateY(-1px);
       }
 
       .tab-item.active {
         color: #fff;
-        background: linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--brand) 88%, #fff) 0%,
-          color-mix(in srgb, var(--brand) 92%, #000) 100%
-        );
-        box-shadow:
-          0 1px 0 rgba(255, 255, 255, 0.25) inset,
-          0 10px 30px -10px var(--brand-glow);
-        transform: translateY(-2px);
-      }
-
-      .tab-item:active:not(.active) {
-        transform: scale(0.98);
-      }
-
-      .tab-label {
-        position: relative;
-        z-index: 10;
+        background: var(--brand);
+        box-shadow: 
+          0 10px 25px -5px var(--brand-glow),
+          inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        transform: scale(1.02);
       }
 
       .tab-icon {
-        width: 1.1rem;
-        height: 1.1rem;
+        width: 1.2rem;
+        height: 1.2rem;
         color: currentColor;
-        position: relative;
-        z-index: 10;
       }
 
       .tab-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
+        background: var(--brand-ambient-strong);
+        padding: 2px 10px;
         border-radius: 100px;
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         font-weight: 900;
         color: #fff;
-        margin-left: 4px;
-        position: relative;
-        z-index: 10;
+        margin-left: 6px;
       }
 
-      /* Underline Variant */
+      /* Underline Variant — Modern Sleek */
       .tabs-underline {
         background: transparent;
         border: none;
         padding: 0;
-        gap: 12px;
-        border-bottom: 1px solid var(--border-soft);
+        gap: 24px;
+        border-bottom: 2px solid var(--border-soft);
         border-radius: 0;
-        width: fit-content;
       }
 
       .tabs-underline .tab-item {
         border-radius: 0;
-        padding: 0.5rem 0.35rem;
+        padding: 0.75rem 0.5rem;
         background: transparent !important;
-        color: var(--text-secondary);
         box-shadow: none !important;
-      }
-
-      .tabs-underline .tab-item:hover {
-        color: var(--text-primary);
       }
 
       .tabs-underline .tab-item.active {
         color: var(--brand);
-        background: transparent !important;
+        transform: none;
       }
 
       .tabs-underline .active-indicator {
         position: absolute;
-        bottom: 0;
+        bottom: -2px;
         left: 0;
         width: 100%;
         height: 3px;
         background: var(--brand);
         transform: scaleX(0);
-        transition: var(--transition-spring);
-        box-shadow: 0 0 10px var(--brand-glow);
+        transition: transform 0.4s var(--transition-spring);
+        box-shadow: 0 0 15px var(--brand-glow);
+        border-radius: 2px 2px 0 0;
       }
 
       .tabs-underline .tab-item.active .active-indicator {
