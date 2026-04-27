@@ -59,27 +59,28 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-radius: inherit;
     }
 
-    /* Base — Professional Style */
+    /* Base — Professional Standard Select */
     select {
       width: 100%;
       padding: 0.75rem 3rem 0.75rem 1.25rem;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: var(--radius-md, 6px);
+      color: #0f172a !important;
       font-size: 0.9rem;
       font-weight: 600;
       line-height: 1.4;
       transition: all 0.3s ease;
       outline: none;
-      font-family: var(--font-main);
+      font-family: var(--font-main, sans-serif);
       appearance: none;
       cursor: pointer;
+      color-scheme: light !important;
     }
 
     select:not(:disabled):hover {
-      border-color: var(--brand);
-      background: var(--bg-tertiary);
+      border-color: #94a3b8 !important;
+      background: #f8fafc !important;
     }
 
     .select-sm {
@@ -88,18 +89,13 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     }
 
     select:focus {
-      background: #fff;
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px var(--brand-glow);
-    }
-
-    .select-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
+      background: #ffffff !important;
+      border-color: var(--brand, #3b82f6) !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
     }
 
     select.invalid {
-      border-color: var(--danger) !important;
+      border-color: #ef4444 !important;
     }
     
     select:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -110,8 +106,8 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       top: 50%;
       width: 0.5rem;
       height: 0.5rem;
-      border-right: 2px solid var(--text-muted);
-      border-bottom: 2px solid var(--text-muted);
+      border-right: 2px solid #64748b;
+      border-bottom: 2px solid #64748b;
       transform: translateY(-60%) rotate(45deg);
       pointer-events: none;
       transition: transform 0.3s ease;
@@ -126,11 +122,6 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       color: #0f172a !important;
       font-weight: 500;
       padding: 0.5rem 1rem;
-    }
-
-    :host-context(html[data-theme-is-light='false']) option {
-      background-color: #1e293b !important;
-      color: #ffffff !important;
     }
 }
 
