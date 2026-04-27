@@ -225,38 +225,45 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
   private animate = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const root = document.documentElement;
+    const isBabooniTenant = root.getAttribute('data-erp-tenant') === 'babooni';
+    
     const themeKey = this.themeService.currentTheme();
     const cfg = this.themeService.themes[themeKey];
     
-    const isLight = cfg.background === '#ffffff' || cfg.background.toLowerCase() === '#f7f7f7' || cfg.background.toLowerCase() === '#f8fafc';
+    // Read the actual applied CSS background, which handles tenant overrides
+    const actualBg = getComputedStyle(root).getPropertyValue('--bg-primary').trim() || cfg.background;
+    const isLight = isBabooniTenant || actualBg === '#ffffff' || actualBg.toLowerCase() === '#f7f7f7' || actualBg.toLowerCase() === '#f8fafc';
     
     this.time += 0.016;
     this.ctx.clearRect(0, 0, w, h);
 
     if (isLight) {
-      this.ctx.fillStyle = '#ffffff';
+      this.ctx.fillStyle = actualBg || '#ffffff';
       this.ctx.fillRect(0, 0, w, h);
     } else {
       // Draw base background for dark themes
-      this.ctx.fillStyle = cfg.background;
+      this.ctx.fillStyle = actualBg;
       this.ctx.fillRect(0, 0, w, h);
 
       // Subtle atmospheric glow for dark themes
       const g = this.ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, cfg.bgTertiary);
-      g.addColorStop(1, cfg.background);
+      g.addColorStop(1, actualBg);
       this.ctx.fillStyle = g;
       this.ctx.fillRect(0, 0, w, h);
     }
 
-    // Draw active style
-    switch (cfg.bgStyle) {
-      case 'matrix': this.drawMatrixStyle(w, h, cfg); break;
-      case 'nebula': this.drawNebulaStyle(w, h, cfg); break;
-      case 'aurora': this.drawAuroraStyle(w, h, cfg); break;
-      case 'bokeh': this.drawBokehStyle(w, h, cfg); break;
-      case 'spot': this.drawSpotStyle(w, h, cfg); break;
-      case 'grid': this.drawGridStyle(w, h, cfg); break;
+    // Draw gaming styles (matrix, nebula, etc.) 
+    if (!isBabooniTenant) {
+      switch (cfg.bgStyle) {
+        case 'matrix': this.drawMatrixStyle(w, h, cfg); break;
+        case 'nebula': this.drawNebulaStyle(w, h, cfg); break;
+        case 'aurora': this.drawAuroraStyle(w, h, cfg); break;
+        case 'bokeh': this.drawBokehStyle(w, h, cfg); break;
+        case 'spot': this.drawSpotStyle(w, h, cfg); break;
+        case 'grid': this.drawGridStyle(w, h, cfg); break;
+      }
     }
 
     this.drawParticles(w, h, cfg);

@@ -258,16 +258,18 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       }
 
       .top-nav {
-        height: 48px;
-        background: var(--bg-primary);
+        height: 42px;
+        background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+        backdrop-filter: blur(18px) saturate(1.15);
+        -webkit-backdrop-filter: blur(18px) saturate(1.15);
         border-bottom: 1px solid var(--border-soft);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 20px;
+        padding: 0 16px;
         flex-shrink: 0;
         z-index: 5000;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 4px 24px color-mix(in srgb, var(--bg-primary) 40%, transparent);
       }
 
       .search-container {
@@ -279,18 +281,18 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         position: relative;
         display: flex;
         align-items: center;
-        background: var(--bg-secondary);
-        border-radius: 8px;
-        padding: 0 12px;
-        height: 36px;
-        transition: all 0.2s ease;
-        border: 1px solid var(--border-soft);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 6px;
+        padding: 0 10px;
+        height: 30px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.04);
         cursor: pointer;
       }
 
       .search-box:hover {
-        background: var(--surface-hover);
-        border-color: var(--border-vibrant);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
       }
 
       .search-box:focus-within {
@@ -331,19 +333,22 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .search-box input::placeholder {
         color: var(--text-muted);
-        font-size: 0.8rem;
-        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.58rem;
+        font-weight: 600;
       }
 
       .search-shortcut {
-        background: var(--bg-primary);
+        background: rgba(255, 255, 255, 0.08);
         color: var(--text-muted);
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 2px 6px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 8px;
         border-radius: 4px;
-        border: 1px solid var(--border-soft);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         pointer-events: none;
+        font-family: var(--font-display);
       }
 
       .actions-container {
@@ -370,12 +375,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .icon-btn {
         position: relative;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-soft);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         color: var(--text-secondary);
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -384,9 +389,11 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       }
 
       .icon-btn:hover {
-        background: var(--surface-hover);
-        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
         border-color: var(--brand);
+        box-shadow: 0 0 10px var(--brand-glow);
+        transform: translateY(-1px);
       }
 
       .icon-btn:focus-visible,
@@ -429,7 +436,8 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .theme-btn:hover {
         border-color: var(--brand);
-        color: var(--brand);
+        color: #fff;
+        transform: scale(1.05);
       }
 
       .theme-menu {
@@ -573,8 +581,11 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .user-name {
         font-weight: 700;
-        font-size: 0.85rem;
-        color: var(--text-primary);
+        font-size: 0.68rem;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-family: var(--font-main);
         max-width: 140px;
         overflow: hidden;
         text-overflow: ellipsis;
