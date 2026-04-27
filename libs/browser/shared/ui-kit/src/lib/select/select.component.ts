@@ -42,15 +42,15 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
     label { 
       font-size: 0.7rem; 
       font-weight: 900; 
       text-transform: uppercase; 
-      letter-spacing: 0.2em; 
+      letter-spacing: 0.25em; 
       color: var(--text-muted); 
-      margin-left: 12px; 
-      font-family: var(--font-display);
+      margin-left: 14px; 
+      font-family: var(--font-gaming);
     }
     .select-wrapper {
       position: relative;
@@ -59,84 +59,82 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-radius: inherit;
     }
 
-    /* Base — Console Style */
+    /* Base — Cinema Style */
     select {
       width: 100%;
-      padding: 1.15rem 3rem 1.15rem 1.5rem;
-      background: var(--bg-secondary);
+      padding: 1.25rem 3.5rem 1.25rem 1.75rem;
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 0.9rem;
-      font-weight: 600;
-      line-height: 1.35;
-      transition: all 0.4s var(--transition-spring);
+      border-radius: var(--radius-lg);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      transition: all 0.5s var(--transition-spring);
       outline: none;
-      font-family: inherit;
+      font-family: var(--font-main);
       appearance: none;
       cursor: pointer;
-      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(20px);
     }
 
     select:not(:disabled):hover {
+      background: rgba(255, 255, 255, 0.05);
       border-color: var(--brand);
-      box-shadow: 
-        0 0 20px color-mix(in srgb, var(--brand) 15%, transparent),
-        inset 0 2px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 25px var(--brand-ambient);
+      transform: translateY(-2px);
     }
 
     .select-sm {
-      padding: 0.65rem 2.5rem 0.65rem 1rem !important;
-      font-size: 0.8rem !important;
-      border-radius: 10px !important;
+      padding: 0.75rem 2.75rem 0.75rem 1.25rem !important;
+      font-size: 0.85rem !important;
     }
 
     select:focus {
-      background: color-mix(in srgb, var(--bg-secondary) 70%, var(--brand) 5%);
+      background: rgba(255, 255, 255, 0.08);
       border-color: var(--brand);
-      box-shadow: 
-        0 0 25px color-mix(in srgb, var(--brand) 25%, transparent),
-        inset 0 2px 10px rgba(0, 0, 0, 0.2);
-      transform: translateY(-1px);
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 30px var(--brand-ambient);
+      transform: translateY(-2px);
     }
 
     .select-glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px) saturate(1.5);
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(35px) saturate(2);
       border-color: rgba(255, 255, 255, 0.08);
     }
 
     .select-theme {
-      background: linear-gradient(135deg, var(--brand-ambient-strong), transparent);
+      background: var(--brand-ambient);
       border-color: var(--brand);
-      box-shadow: 0 0 20px var(--brand-glow);
+      box-shadow: 0 0 30px var(--brand-glow);
     }
 
     select.invalid {
       border-color: var(--danger) !important;
-      box-shadow: 0 0 15px color-mix(in srgb, var(--danger) 30%, transparent) !important;
+      box-shadow: 0 0 20px rgba(255, 59, 48, 0.2) !important;
     }
     
-    select:disabled { opacity: 0.4; cursor: not-allowed; }
+    select:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .chevron {
       position: absolute;
-      right: 1.25rem;
+      right: 1.5rem;
       top: 50%;
-      width: 0.6rem;
-      height: 0.6rem;
+      width: 0.75rem;
+      height: 0.75rem;
       border-right: 2px solid var(--text-muted);
       border-bottom: 2px solid var(--text-muted);
       transform: translateY(-60%) rotate(45deg);
       pointer-events: none;
-      transition: all 0.4s var(--transition-spring);
+      transition: all 0.5s var(--transition-spring);
     }
 
     select:focus + .chevron {
       border-color: var(--brand);
       transform: translateY(-20%) rotate(225deg);
-      filter: drop-shadow(0 0 10px var(--brand));
+      filter: drop-shadow(0 0 12px var(--brand));
     }
+}
 
     option {
       background-color: var(--bg-tertiary);

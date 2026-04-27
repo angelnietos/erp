@@ -98,14 +98,32 @@ export type ModalVariant = string;
       z-index: -1;
     }
 
+    /* Scanline Effect on Header */
+    .modal-header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 4px, 3px 100%;
+      pointer-events: none;
+      opacity: 0.3;
+      z-index: 5;
+    }
+
     /* Nintendo Switch Style Side Accent */
     .modal-content::after {
       content: '';
       position: absolute;
       left: 0; top: 0; bottom: 0; width: 6px;
       background: var(--modal-accent);
-      box-shadow: 0 0 20px var(--modal-accent);
+      box-shadow: 0 0 30px var(--modal-accent);
       z-index: 10;
+      animation: modalIndicatorPulse 3s infinite;
+    }
+
+    @keyframes modalIndicatorPulse {
+      0%, 100% { opacity: 1; filter: brightness(1); }
+      50% { opacity: 0.6; filter: brightness(1.5); }
     }
 
     .modal-color-danger { --modal-accent: var(--danger); }
@@ -114,9 +132,9 @@ export type ModalVariant = string;
     .modal-color-info { --modal-accent: var(--info); }
     
     .modal-shape-glass {
-      background: rgba(20, 22, 30, 0.6);
-      backdrop-filter: blur(50px) saturate(2);
-      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(10, 10, 15, 0.4);
+      backdrop-filter: blur(60px) saturate(2.5);
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     /* Header — Console Menu Style */
@@ -124,20 +142,21 @@ export type ModalVariant = string;
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 2.5rem 3rem;
+      padding: 3rem;
       background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
     }
 
     .modal-header h3 {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.3em;
       color: #fff;
-      font-family: var(--font-display);
-      text-shadow: 0 0 15px var(--modal-accent);
+      font-family: var(--font-gaming);
+      text-shadow: 0 0 20px var(--modal-accent);
     }
 
     .close-btn {

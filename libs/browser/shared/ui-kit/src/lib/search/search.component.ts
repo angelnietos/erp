@@ -38,9 +38,9 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       position: relative;
       display: flex;
       align-items: center;
-      border-radius: var(--radius-md);
-      transition: all 0.4s var(--transition-base);
-      background: rgba(255, 255, 255, 0.02);
+      border-radius: var(--radius-lg);
+      transition: all 0.5s var(--transition-spring);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-soft);
       overflow: hidden;
       width: 100%;
@@ -49,55 +49,52 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     .search-wrapper.focused {
       border-color: var(--brand);
-      background: var(--brand-ambient);
-      box-shadow: 0 0 20px var(--brand-ambient);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px var(--brand-ambient);
+      transform: translateY(-2px);
     }
 
     .search-icon { 
       position: absolute; 
-      left: 1.1rem; 
-      width: 1rem; 
-      height: 1rem; 
+      left: 1.25rem; 
+      width: 1.15rem; 
+      height: 1.15rem; 
       color: var(--text-muted);
-      transition: all 0.3s var(--transition-spring);
+      transition: all 0.4s var(--transition-spring);
       pointer-events: none;
     }
 
     .search-wrapper.focused .search-icon {
       color: var(--brand);
-      transform: scale(1.2);
-      filter: drop-shadow(0 0 5px var(--brand-glow));
+      transform: scale(1.3) rotate(-5deg);
+      filter: drop-shadow(0 0 10px var(--brand-glow));
     }
 
     input {
       width: 100%; 
-      padding: 0.75rem 2.5rem 0.75rem 2.5rem; 
+      padding: 1rem 3rem 1rem 3.25rem; 
       background: transparent;
       border: none; 
-      font-size: 0.85rem; 
-      font-weight: 600;
+      font-size: 0.95rem; 
+      font-weight: 700;
       outline: none; 
       font-family: var(--font-main);
-      color: var(--text-primary);
+      color: #fff;
     }
 
     input::placeholder {
       color: var(--text-muted);
-      opacity: 0.5;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
+      opacity: 0.6;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-    }
-
-    .search-default {
-      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-      border: 1px solid var(--border-soft);
+      font-family: var(--font-gaming);
     }
 
     .search-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(30px) saturate(1.8);
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     .focus-indicator {
@@ -105,66 +102,28 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 3px;
+      height: 4px;
       background: var(--brand);
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow: 0 0 25px var(--brand);
       transform: scaleX(0);
-      transition: var(--transition-spring);
+      transition: transform 0.5s var(--transition-spring);
     }
 
     .search-wrapper.focused .focus-indicator { transform: scaleX(1); }
 
-    /* Dentro de ui-search-toolbar (barra cápsula unificada) */
     .search-wrapper.search-dock {
       border: none !important;
       box-shadow: none !important;
       background: transparent !important;
       border-radius: 0;
     }
-
-    .search-wrapper.search-dock .focus-indicator {
-      border-radius: 0 0 4px 4px;
-    }
-
-    /**
-     * Búsqueda empotrada en ui-search-toolbar: misma jerarquía visual que la barra global
-     * (tipografía legible, placeholder sin micro–MAYÚSCULAS forzadas en todo el ERP).
-     */
+    
     .search-wrapper.search-dock input {
-      color: var(--text-primary);
-      font-size: 0.875rem;
-      font-weight: 500;
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-      padding-left: 2.5rem;
+      padding: 0.75rem 2.5rem 0.75rem 3rem;
     }
-
-    .search-wrapper.search-dock input::placeholder {
-      color: var(--text-muted);
-      font-size: 0.8125rem;
-      font-weight: 500;
-      text-transform: none;
-      letter-spacing: 0.01em;
-      opacity: 0.88;
-    }
-
+    
     .search-wrapper.search-dock .search-icon {
-      left: 0.85rem;
-      width: 1rem;
-      height: 1rem;
-      color: var(--text-muted);
-    }
-
-    .search-wrapper.search-dock.focused .search-icon {
-      color: var(--brand);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock .search-icon {
-      color: var(--text-muted, #747474);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.search-dock.focused .search-icon {
-      color: var(--brand, #004b93);
+      left: 1rem;
     }
 
     @media (prefers-reduced-motion: reduce) {

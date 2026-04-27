@@ -56,32 +56,32 @@ import type { SearchVariant } from '../search/search.component';
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 1rem 1.5rem;
+      gap: 1.5rem 2rem;
       width: 100%;
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
     }
 
     .feature-filter-bar--framed {
       justify-content: space-between;
-      background: var(--surface);
-      padding: 0.5rem 1.25rem;
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px) saturate(1.5);
+      padding: 0.75rem 1.75rem;
+      border-radius: var(--radius-lg);
       border: 1px solid var(--border-soft);
-      gap: 1.25rem 1.75rem;
-      transition:
-        border-color 0.28s ease,
-        box-shadow 0.28s ease;
+      gap: 1.5rem 2.5rem;
+      transition: all 0.4s var(--transition-spring);
+      box-shadow: var(--shadow-md);
     }
 
     .feature-filter-bar--framed:focus-within {
-      border-color: color-mix(in srgb, var(--brand) 32%, var(--border-soft));
-      box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--brand) 14%, transparent),
-        0 10px 36px -14px rgba(0, 0, 0, 0.35);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--brand);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 25px var(--brand-ambient);
+      transform: translateY(-2px);
     }
 
     .feature-filter-bar--plain {
-      gap: 1rem 1.25rem;
+      gap: 1.25rem 1.75rem;
     }
 
     .feature-filter-bar__states {
@@ -90,20 +90,20 @@ import type { SearchVariant } from '../search/search.component';
       max-width: 100%;
     }
 
-    /* Sin pestañas/chips proyectados: no reservamos hueco */
     .feature-filter-bar__states:not(:has(*)) {
       display: none;
     }
 
     .feature-filter-bar__search {
-      flex: 1 1 300px;
-      min-width: 250px;
+      flex: 1 1 400px;
+      min-width: 300px;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1024px) {
       .feature-filter-bar--framed {
         flex-direction: column;
         align-items: stretch;
+        padding: 1.5rem;
       }
 
       .feature-filter-bar__states {
@@ -114,19 +114,6 @@ import type { SearchVariant } from '../search/search.component';
         flex-basis: auto;
         width: 100%;
       }
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .feature-filter-bar--framed {
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      padding: 0;
-      box-shadow: none;
-      gap: 1rem 1.5rem;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .feature-filter-bar {
-      margin-bottom: 2rem;
     }
   `],
 })

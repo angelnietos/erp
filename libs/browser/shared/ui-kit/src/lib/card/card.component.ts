@@ -45,10 +45,10 @@ export type CardVariant = string;
     
     .card {
       border-radius: var(--radius-lg);
-      background: var(--surface);
-      border: 1px solid var(--border-vibrant);
-      box-shadow: var(--shadow-md), var(--shadow-inset-shine);
-      transition: all 0.5s var(--ease-out-expo);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-md);
+      transition: all 0.6s var(--transition-spring);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -56,66 +56,65 @@ export type CardVariant = string;
       isolation: isolate;
     }
 
-    /* Cinematic Noise Texture Layer */
-    .card::after {
+    /* Nintendo Side Accent for Color Variants */
+    .card::before {
       content: '';
       position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-      opacity: 0.03;
-      pointer-events: none;
-      z-index: 0;
-      mix-blend-mode: overlay;
+      left: 0; top: 0; bottom: 0; width: 0;
+      background: var(--brand);
+      transition: width 0.4s var(--transition-spring);
+      z-index: 10;
     }
 
+    .card-color-primary::before, .card-color-brand::before { width: 4px; }
+
     .card-header {
-      padding: 1.25rem 1.5rem;
+      padding: 1.5rem 2rem;
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
+      background: linear-gradient(to right, rgba(255,255,255,0.03), transparent);
       position: relative;
       z-index: 1;
     }
 
     .card-header h3 {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 900;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: #fff;
       margin: 0;
+      font-family: var(--font-display);
     }
 
     .card-body {
-      padding: 1.5rem;
+      padding: 2rem;
       flex: 1;
       position: relative;
       z-index: 1;
     }
 
-    .hover-effect { cursor: pointer; }
     .hover-effect:hover {
-      transform: translateY(-10px) scale(1.01);
-      box-shadow: var(--shadow-lg), 0 0 40px var(--brand-ambient);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* COLOR THEMATIC TOKENS */
-    .card-color-primary { --border-vibrant: color-mix(in srgb, var(--brand) 40%, transparent); }
-    .card-color-brand { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-muted) 100%); border: none; }
-
-    /* SHAPES */
-    .card-shape-glass {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-
-    .card-shape-solid {
+      transform: translateY(-12px) scale(1.02);
       background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
+      border-color: var(--brand);
+      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6), 0 0 30px var(--brand-ambient);
+    }
+    
+    .hover-effect:hover::before { width: 8px; }
+
+    .card-color-brand {
+      background: linear-gradient(135deg, var(--brand), var(--brand-muted));
+      border: none;
+    }
+    .card-color-brand h3 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.3); }
+
+    .card-shape-glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(30px) saturate(2);
+      border-color: rgba(255, 255, 255, 0.08);
     }
   `],
 })

@@ -15,158 +15,80 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
   `,
   styles: [`
     .alert {
-      padding: 1rem 1.25rem;
+      padding: 1.25rem 1.75rem;
       border-radius: var(--radius-md);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       margin-bottom: 1.5rem;
       display: flex;
-      align-items: flex-start;
-      gap: 0.85rem;
-      animation: alertSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid transparent;
-      font-weight: 600;
-      text-transform: none;
-      letter-spacing: 0.02em;
-      line-height: 1.5;
+      align-items: center;
+      gap: 1rem;
+      animation: alertSlideIn 0.5s var(--transition-spring);
+      backdrop-filter: blur(25px) saturate(2);
+      -webkit-backdrop-filter: blur(25px) saturate(2);
+      border: 1px solid var(--border-soft);
+      font-weight: 700;
+      line-height: 1.4;
       font-family: var(--font-main);
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Side Accent */
+    .alert::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 5px;
+      background: currentColor;
+      box-shadow: 0 0 15px currentColor;
     }
 
     @keyframes alertSlideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
-    /* Variants */
     .alert-error {
-      background: rgba(239, 68, 68, 0.08);
-      color: #ff5555;
-      border-color: rgba(239, 68, 68, 0.3);
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+      background: rgba(255, 59, 48, 0.05);
+      color: var(--danger);
+      border-color: rgba(255, 59, 48, 0.2);
+      animation: alertSlideIn 0.5s var(--transition-spring), alertPulse 2s infinite;
     }
 
     .alert-success {
-      background: rgba(16, 185, 129, 0.08);
-      color: #00ffaa;
-      border-color: rgba(16, 185, 129, 0.3);
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+      background: rgba(0, 255, 170, 0.05);
+      color: var(--success);
+      border-color: rgba(0, 255, 170, 0.2);
     }
 
     .alert-warning {
-      background: rgba(245, 158, 11, 0.08);
-      color: #ffaa00;
-      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(255, 204, 0, 0.05);
+      color: var(--warning);
+      border-color: rgba(255, 204, 0, 0.2);
     }
 
     .alert-info {
-      background: rgba(59, 130, 246, 0.08);
-      color: #00ccff;
-      border-color: rgba(59, 130, 246, 0.3);
+      background: rgba(0, 212, 255, 0.05);
+      color: var(--info);
+      border-color: rgba(0, 212, 255, 0.2);
     }
 
-    .alert-primary {
-      background: rgba(240, 62, 62, 0.08);
+    .alert-primary, .alert-theme {
+      background: var(--brand-ambient);
       color: var(--brand);
-      border-color: var(--brand);
-      box-shadow: 0 0 20px var(--brand-glow);
+      border-color: var(--brand-border-soft);
+      box-shadow: 0 0 30px var(--brand-ambient);
+      animation: alertSlideIn 0.5s var(--transition-spring), alertPulse 3s infinite;
     }
 
-    .alert-secondary {
-      background: rgba(34, 211, 238, 0.08);
-      color: #00f2ff;
-      border-color: rgba(34, 211, 238, 0.3);
+    @keyframes alertPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,0,0,0.2); }
+      50% { box-shadow: 0 0 40px currentColor; }
     }
 
     .alert-dark {
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       color: #fff;
-      border-color: var(--border-soft);
-    }
-
-    .alert-ghost {
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text-primary);
-      border: 1px solid transparent;
-    }
-
-    .alert-outline {
-      background: transparent;
-      color: var(--text-primary);
-      border: 1px solid var(--border-soft);
-    }
-
-    /* Additional color variants */
-    .alert-purple {
-      background: rgba(168, 85, 247, 0.08);
-      color: #a855f7;
-      border-color: rgba(168, 85, 247, 0.3);
-      box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
-    }
-
-    .alert-indigo {
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
-      border-color: rgba(99, 102, 241, 0.3);
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
-    }
-
-    .alert-teal {
-      background: rgba(20, 184, 166, 0.08);
-      color: #14b8a6;
-      border-color: rgba(20, 184, 166, 0.3);
-      box-shadow: 0 0 15px rgba(20, 184, 166, 0.1);
-    }
-
-    .alert-orange {
-      background: rgba(249, 115, 22, 0.08);
-      color: #f97316;
-      border-color: rgba(249, 115, 22, 0.3);
-      box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
-    }
-
-    .alert-pink {
-      background: rgba(236, 72, 153, 0.08);
-      color: #ec4899;
-      border-color: rgba(236, 72, 153, 0.3);
-      box-shadow: 0 0 15px rgba(236, 72, 153, 0.1);
-    }
-
-    .alert-rose {
-      background: rgba(244, 63, 94, 0.08);
-      color: #f43f5e;
-      border-color: rgba(244, 63, 94, 0.3);
-      box-shadow: 0 0 15px rgba(244, 63, 94, 0.1);
-    }
-
-    .alert-violet {
-      background: rgba(139, 92, 246, 0.08);
-      color: #8b5cf6;
-      border-color: rgba(139, 92, 246, 0.3);
-      box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
-    }
-
-    .alert-fuchsia {
-      background: rgba(217, 70, 239, 0.08);
-      color: #d946ef;
-      border-color: rgba(217, 70, 239, 0.3);
-      box-shadow: 0 0 15px rgba(217, 70, 239, 0.1);
-    }
-
-    .alert-theme {
-      background: var(--bg-tertiary);
-      color: var(--brand);
-      border-color: var(--brand);
-      box-shadow: 0 0 20px var(--brand-glow);
-    }
-
-    /* App variant - uses current theme's primary color */
-    .alert-app {
-      background: rgba(var(--theme-primary-rgb, 79, 70, 229), 0.08);
-      color: var(--theme-primary, var(--brand));
-      border-color: rgba(var(--theme-primary-rgb, 79, 70, 229), 0.3);
-      box-shadow: 0 0 15px rgba(var(--theme-primary-rgb, 79, 70, 229), 0.1);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .alert {

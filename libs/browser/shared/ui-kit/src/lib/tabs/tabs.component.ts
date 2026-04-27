@@ -56,9 +56,10 @@ export type TabsVariant =
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        padding: 6px;
-        border-radius: var(--radius-lg);
-        background: var(--bg-tertiary);
+        padding: 8px;
+        border-radius: var(--radius-xl);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
         border: 1px solid var(--border-soft);
         width: fit-content;
         box-shadow: var(--shadow-md);
@@ -67,87 +68,91 @@ export type TabsVariant =
       .tab-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 0.75rem 1.25rem;
+        gap: 12px;
+        padding: 1rem 1.75rem;
         background: transparent;
         border: none;
-        border-radius: var(--radius-md);
-        font-size: 0.75rem;
-        font-weight: 800;
+        border-radius: var(--radius-lg);
+        font-size: 0.8rem;
+        font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.2em;
         cursor: pointer;
-        transition: all 0.4s var(--transition-spring);
+        transition: all 0.5s var(--transition-spring);
         color: var(--text-muted);
-        font-family: var(--font-display);
+        font-family: var(--font-gaming);
         position: relative;
         overflow: hidden;
       }
 
       .tab-item:hover {
         color: var(--text-primary);
-        background: var(--brand-ambient);
-        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-2px);
       }
 
       .tab-item.active {
         color: #fff;
         background: var(--brand);
         box-shadow: 
-          0 10px 25px -5px var(--brand-glow),
-          inset 0 1px 1px rgba(255, 255, 255, 0.2);
-        transform: scale(1.02);
+          0 15px 35px -10px var(--brand-glow),
+          0 0 15px var(--brand-ambient);
+        transform: scale(1.05);
       }
 
       .tab-icon {
-        width: 1.2rem;
-        height: 1.2rem;
+        width: 1.25rem;
+        height: 1.25rem;
         color: currentColor;
+        transition: transform 0.4s var(--transition-spring);
       }
+      .tab-item:hover .tab-icon { transform: scale(1.2); }
 
       .tab-badge {
-        background: var(--brand-ambient-strong);
-        padding: 2px 10px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 3px 12px;
         border-radius: 100px;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 900;
         color: #fff;
-        margin-left: 6px;
+        margin-left: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      /* Underline Variant — Modern Sleek */
+      /* Underline Variant — Cinema Style */
       .tabs-underline {
         background: transparent;
         border: none;
         padding: 0;
-        gap: 24px;
-        border-bottom: 2px solid var(--border-soft);
+        gap: 32px;
+        border-bottom: 1px solid var(--border-soft);
         border-radius: 0;
+        box-shadow: none;
       }
 
       .tabs-underline .tab-item {
         border-radius: 0;
-        padding: 0.75rem 0.5rem;
+        padding: 1rem 0.5rem;
         background: transparent !important;
         box-shadow: none !important;
       }
 
       .tabs-underline .tab-item.active {
         color: var(--brand);
-        transform: none;
+        transform: translateY(-2px);
       }
 
       .tabs-underline .active-indicator {
         position: absolute;
-        bottom: -2px;
+        bottom: 0;
         left: 0;
         width: 100%;
-        height: 3px;
+        height: 4px;
         background: var(--brand);
         transform: scaleX(0);
-        transition: transform 0.4s var(--transition-spring);
-        box-shadow: 0 0 15px var(--brand-glow);
-        border-radius: 2px 2px 0 0;
+        transition: transform 0.5s var(--transition-spring);
+        box-shadow: 0 0 25px var(--brand);
+        border-radius: 4px 4px 0 0;
       }
 
       .tabs-underline .tab-item.active .active-indicator {

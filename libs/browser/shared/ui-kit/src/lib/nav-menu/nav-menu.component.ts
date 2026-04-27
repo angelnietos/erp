@@ -74,84 +74,104 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
     .nav-link {
       display: flex; 
       align-items: center; 
-      gap: 12px; 
-      padding: 10px 16px;
-      border-radius: var(--radius-md); 
+      gap: 14px; 
+      padding: 12px 20px;
+      border-radius: var(--radius-lg); 
       text-decoration: none; 
       color: var(--text-muted);
-      transition: all 0.4s var(--transition-spring); 
-      font-size: 0.7rem; 
+      transition: all 0.5s var(--transition-spring); 
+      font-size: 0.75rem; 
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       position: relative;
-      font-family: var(--font-display);
-      border: 1px solid transparent;
+      font-family: var(--font-gaming);
       overflow: hidden;
       isolation: isolate;
     }
     
+    /* Holographic Glow Layer */
     .nav-link::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, var(--brand-ambient-strong), transparent);
+      background: linear-gradient(90deg, var(--brand-ambient-strong), transparent 80%);
       transform: translateX(-100%);
-      transition: transform 0.4s var(--transition-spring);
+      transition: transform 0.6s var(--transition-spring);
       z-index: -1;
+      opacity: 0.5;
     }
 
-    .nav-link.child { padding-left: 44px; font-size: 0.65rem; opacity: 0.7; }
-    .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.4s var(--transition-spring); color: var(--text-muted); }
-    .nav-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-link.child { padding-left: 48px; font-size: 0.7rem; opacity: 0.8; }
+    .nav-icon { 
+      width: 24px; 
+      height: 24px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      flex-shrink: 0; 
+      transition: all 0.5s var(--transition-spring); 
+      color: var(--text-muted); 
+    }
     
     .nav-badge {
       font-family: var(--font-gaming);
-      font-size: 0.6rem; 
+      font-size: 0.65rem; 
       font-weight: 900; 
-      padding: 2px 8px;
-      border-radius: 4px; 
+      padding: 3px 10px;
+      border-radius: 100px; 
       background: var(--brand); 
       color: white;
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow: 0 0 20px var(--brand-glow);
     }
 
     /* Interactions */
     .nav-link:hover {
       color: #fff;
-      transform: translateX(5px);
-      background: rgba(255, 255, 255, 0.02);
+      transform: translateX(8px) scale(1.02);
+      background: rgba(255, 255, 255, 0.03);
     }
     
     .nav-link:hover .nav-icon {
       color: var(--brand);
-      transform: scale(1.2) rotate(-5deg);
+      transform: scale(1.3) rotate(-8deg);
+      filter: drop-shadow(0 0 10px var(--brand-glow));
     }
 
+    /* Active State — Nintendo-Ubisoft Style */
     .nav-link.active {
-      background: var(--brand-ambient-strong); 
       color: #fff; 
-      border-left: 4px solid var(--brand);
-      box-shadow: inset 4px 0 15px var(--brand-glow);
-      transform: translateX(8px);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 
+        inset 0 0 20px var(--brand-ambient),
+        0 10px 30px -10px rgba(0,0,0,0.5);
+      transform: translateX(12px) scale(1.05);
     }
-    
+
+    /* Active Indicator (Vertical Bar) */
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 15%; bottom: 15%; width: 5px;
+      background: var(--brand);
+      border-radius: 0 4px 4px 0;
+      box-shadow: 0 0 20px var(--brand);
+      animation: navIndicatorPulse 2s infinite;
+    }
+
+    @keyframes navIndicatorPulse {
+      0%, 100% { height: 70%; opacity: 1; }
+      50% { height: 40%; opacity: 0.7; }
+    }
+
     .nav-link.active .nav-icon {
       color: var(--brand);
-      filter: drop-shadow(0 0 8px var(--brand-glow));
-      transform: scale(1.2);
+      transform: scale(1.3);
+      filter: drop-shadow(0 0 12px var(--brand));
     }
 
     .nav-link.active::before {
       transform: translateX(0);
-    }
-
-    /* Variant Modifiers */
-    .nav-menu-primary .nav-link.active { 
-      background: linear-gradient(90deg, var(--brand), var(--brand-muted));
-      color: white; 
-      border: none;
-      box-shadow: 0 4px 15px var(--brand-ambient-strong);
     }
   `]
 })

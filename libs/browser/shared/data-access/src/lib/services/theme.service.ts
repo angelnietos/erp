@@ -82,6 +82,10 @@ export type Theme =
   | 'sandstone-day'
   | 'nocturne-slate'
   /** Paleta oficial Babooni / Biosstel (kit); el resto de temas son variantes de acento sobre este kit en tenant `babooni`. */
+  | 'rayman-vibrant'
+  | 'nintendo-neon'
+  | 'cyberpunk-edge'
+  | 'rockstar-vintage'
   | 'babooni';
 
 function hexToRgbTriplet(hex: string): string {
@@ -1516,6 +1520,86 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     info: '#5966F4',
     uiVariant: 'glass',
   },
+  'rayman-vibrant': {
+    name: 'Rayman Vibrant',
+    primary: '#ffdd00',
+    secondary: '#ff00ff',
+    background: '#1a0033',
+    surface: '#2d0059',
+    text: '#ffffff',
+    textMuted: '#cc99ff',
+    border: 'rgba(255, 0, 255, 0.2)',
+    brand: '#ffdd00',
+    brandGlow: 'rgba(255, 221, 0, 0.5)',
+    bgSecondary: '#240046',
+    bgTertiary: '#330066',
+    bgStyle: 'bokeh',
+    success: '#3cfc00',
+    warning: '#ffcc00',
+    danger: '#ff3b30',
+    info: '#00beef',
+    uiVariant: 'glass',
+  },
+  'nintendo-neon': {
+    name: 'Nintendo Neon',
+    primary: '#e60012',
+    secondary: '#00beef',
+    background: '#0b0b0d',
+    surface: '#16161a',
+    text: '#ffffff',
+    textMuted: '#9494a3',
+    border: 'rgba(230, 0, 18, 0.25)',
+    brand: '#e60012',
+    brandGlow: 'rgba(230, 0, 18, 0.4)',
+    bgSecondary: '#0f0f12',
+    bgTertiary: '#1c1c21',
+    bgStyle: 'grid',
+    success: '#3cfc00',
+    warning: '#fff000',
+    danger: '#e60012',
+    info: '#00beef',
+    uiVariant: 'glass',
+  },
+  'cyberpunk-edge': {
+    name: 'Cyberpunk Edge',
+    primary: '#fcee0a',
+    secondary: '#00f0ff',
+    background: '#000000',
+    surface: '#0d0d0d',
+    text: '#ffffff',
+    textMuted: '#666666',
+    border: 'rgba(252, 238, 10, 0.3)',
+    brand: '#fcee0a',
+    brandGlow: 'rgba(252, 238, 10, 0.6)',
+    bgSecondary: '#050505',
+    bgTertiary: '#121212',
+    bgStyle: 'matrix',
+    success: '#00ffaa',
+    warning: '#fcee0a',
+    danger: '#ff003c',
+    info: '#00f0ff',
+    uiVariant: 'glass',
+  },
+  'rockstar-vintage': {
+    name: 'Rockstar Vintage',
+    primary: '#f5c518',
+    secondary: '#ffffff',
+    background: '#050505',
+    surface: '#111111',
+    text: '#ffffff',
+    textMuted: '#888888',
+    border: 'rgba(255, 255, 255, 0.1)',
+    brand: '#f5c518',
+    brandGlow: 'rgba(245, 197, 24, 0.4)',
+    bgSecondary: '#0a0a0a',
+    bgTertiary: '#1a1a1a',
+    bgStyle: 'spot',
+    success: '#4caf50',
+    warning: '#ff9800',
+    danger: '#f44336',
+    info: '#2196f3',
+    uiVariant: 'solid',
+  },
 };
 
 /** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
@@ -1596,6 +1680,10 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
     id: 'gaming',
     label: 'Inspiración videojuegos',
     keys: [
+      'rayman-vibrant',
+      'nintendo-neon',
+      'cyberpunk-edge',
+      'rockstar-vintage',
       'assassin-creed',
       'rainbow_six',
       'zelda-legend',
@@ -1839,6 +1927,7 @@ export class ThemeService {
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-ui-variant', variant);
     root.setAttribute('data-theme-is-light', isLight ? 'true' : 'false');
+    root.setAttribute('data-bg-style', config.bgStyle || 'aurora');
 
     // ── STRUCTURAL TOKENS ──────────────────────────────────────────────
     // Apply variant-specific tokens directly via inline style to bypass
