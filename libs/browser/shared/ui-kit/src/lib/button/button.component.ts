@@ -51,121 +51,86 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   styles: [`
     .btn {
       position: relative;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
       display: inline-flex;
       justify-content: center;
       align-items: center;
       gap: 12px;
-      transition: all 0.4s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+      transition: all 0.4s var(--transition-spring);
       font-family: var(--font-display, inherit);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.15em;
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
-      border-radius: var(--radius-md, 12px);
+      border-radius: var(--radius-md);
       border: 1px solid transparent;
       overflow: hidden;
       user-select: none;
+      isolation: isolate;
     }
 
-    .btn::after {
+    /* Physical Feel Layer */
+    .btn::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+      background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
       opacity: 0;
       transition: opacity 0.3s;
+      z-index: 1;
     }
 
-    .btn:hover::after { opacity: 1; }
-
-    .btn:focus-visible {
-      outline: 2px solid var(--ring-focus, #fff);
-      outline-offset: 3px;
+    .btn:hover::before { opacity: 1; }
+    
+    .btn:active {
+      transform: scale(0.96) translateY(2px);
+      filter: brightness(0.9);
     }
 
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      filter: grayscale(0.8);
-      transform: none !important;
+    .btn-sm { padding: 0.75rem 1.5rem; font-size: 0.7rem; }
+    .btn-md { padding: 1rem 2rem; font-size: 0.75rem; }
+    .btn-lg { padding: 1.25rem 3rem; font-size: 0.85rem; }
+
+    /* CORE COLOR TOKENS — Vibrant Ubisoft Gradients */
+    .btn-color-primary { 
+      --btn-accent: var(--brand); 
+      background: linear-gradient(135deg, #ff0055 0%, var(--brand) 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .btn-color-danger { 
+      --btn-accent: var(--danger); 
+      background: linear-gradient(135deg, #ff5e6c 0%, var(--danger) 100%);
+      color: #fff;
+    }
+    .btn-color-success { 
+      --btn-accent: var(--success); 
+      background: linear-gradient(135deg, #00ffaa 0%, #10b981 100%);
+      color: #000; /* High contrast for neon green */
+      font-weight: 900;
     }
 
-    .btn-sm { padding: 0.6rem 1.15rem; font-size: 0.65rem; gap: 8px; }
-    .btn-md { padding: 0.8rem 1.75rem; font-size: 0.75rem; }
-    .btn-lg { padding: 1rem 2.25rem; font-size: 0.85rem; }
-
-    /* CORE COLOR TOKENS */
-    .btn-color-primary { --btn-accent: var(--brand, #e60012); --btn-text: var(--text-on-brand, #fff); }
-    .btn-color-danger { --btn-accent: var(--danger, #ef4444); --btn-text: var(--text-on-brand, #fff); }
-    .btn-color-success { --btn-accent: var(--success, #10b981); --btn-text: var(--text-on-brand, #fff); }
-    .btn-color-warning { --btn-accent: var(--warning, #f59e0b); --btn-text: var(--text-on-brand, #fff); }
-    .btn-color-secondary { --btn-accent: var(--bg-tertiary, #334155); --btn-text: var(--text-primary); }
-    .btn-color-info { --btn-accent: var(--info, #3b82f6); --btn-text: var(--text-on-brand, #fff); }
-    .btn-color-app { --btn-accent: var(--brand, #e60012); --btn-text: var(--text-on-brand, #fff); }
-    .btn-color-default { --btn-accent: var(--surface-secondary, rgba(255, 255, 255, 0.1)); --btn-text: var(--text-primary); }
-
-    /* SHAPES */
-    .btn-shape-solid, .btn-shape-auto {
-      background: linear-gradient(135deg, var(--btn-accent) 0%, color-mix(in srgb, var(--btn-accent), #000 15%) 100%);
-      color: var(--btn-text);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 
-        0 4px 15px -4px color-mix(in srgb, var(--btn-accent) 50%, transparent),
-        inset 0 1px 0 rgba(255,255,255,0.2);
-    }
-    .btn-shape-solid:hover, .btn-shape-auto:hover {
-       transform: translateY(-2px);
-       box-shadow: 
-         0 12px 24px -8px color-mix(in srgb, var(--btn-accent) 60%, transparent),
-         0 0 20px color-mix(in srgb, var(--btn-accent) 30%, transparent);
-       filter: brightness(1.1);
+    .btn-shape-solid:hover {
+       transform: translateY(-4px);
+       box-shadow: 0 15px 30px var(--brand-ambient-strong), 0 0 20px var(--brand-glow);
     }
 
     .btn-shape-glass {
-      background: color-mix(in srgb, var(--btn-accent) 12%, transparent);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border-color: rgba(255, 255, 255, 0.1);
       color: #fff;
-      border: 1px solid color-mix(in srgb, var(--btn-accent) 30%, rgba(255,255,255,0.1));
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
     .btn-shape-glass:hover {
-      background: color-mix(in srgb, var(--btn-accent) 22%, transparent);
-      border-color: var(--btn-accent);
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px -5px var(--btn-accent);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #fff;
+      transform: translateY(-4px);
     }
 
-    .btn-shape-outline {
-      background: transparent;
-      color: var(--btn-accent);
-      border: 2px solid var(--btn-accent);
-    }
-    .btn-shape-outline:hover {
-      background: color-mix(in srgb, var(--btn-accent) 8%, transparent);
-      border-color: var(--btn-accent);
-      color: var(--btn-accent);
-      box-shadow: 0 0 25px -5px color-mix(in srgb, var(--btn-accent) 40%, transparent);
-    }
-
-    .btn-shape-ghost {
-      background: transparent;
-      color: var(--btn-accent);
-    }
-    .btn-shape-ghost:hover {
-      background: color-mix(in srgb, var(--btn-accent) 12%, transparent);
-      color: var(--btn-accent);
-      filter: brightness(1.2);
-    }
-
-    .btn-shape-link {
-        text-decoration: underline; text-underline-offset: 4px;
-        color: var(--btn-accent); background: transparent; padding: 0;
-    }
-
-    .btn-icon { width: 1.25rem; height: 1.25rem; transition: transform 0.3s; }
-    .btn:hover .btn-icon { transform: scale(1.1); }
+    .btn-icon { width: 1.2rem; height: 1.2rem; transition: transform 0.4s var(--transition-spring); position: relative; z-index: 2; }
+    .btn:hover .btn-icon { transform: scale(1.2) rotate(5deg); }
 
     .spinner {
       width: 1.25rem; height: 1.25rem;

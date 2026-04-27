@@ -37,99 +37,85 @@ import { LucideAngularModule } from 'lucide-angular';
         display: block;
       }
       .stat-card {
-        padding: 1.5rem 1.75rem;
-        border-radius: 20px;
+        padding: 2rem;
+        border-radius: var(--radius-lg);
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
         position: relative;
         overflow: hidden;
         cursor: pointer;
-        transition: all 0.4s var(--ease-out-expo);
+        transition: all 0.5s var(--transition-spring);
         background: var(--surface);
         border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Scanline Effect */
+      .stat-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.03) 50%, transparent 50%);
+        background-size: 100% 4px;
+        pointer-events: none;
+        opacity: 0.5;
       }
 
       .stat-card:hover {
-        transform: translateY(-8px);
+        transform: translateY(-12px) scale(1.02);
         background: var(--surface-hover);
         border-color: var(--brand);
-        box-shadow: var(--shadow-md), 0 0 20px -5px var(--brand-glow);
-      }
-
-      .stat-header {
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
+        box-shadow: var(--shadow-lg), 0 0 30px var(--brand-glow);
       }
 
       .stat-icon-wrapper {
-        width: 3.5rem;
-        height: 3.5rem;
-        background: var(--brand-ambient);
-        border: 1px solid var(--border-soft);
+        width: 3rem;
+        height: 3rem;
+        background: var(--brand-ambient-strong);
+        border: 1px solid var(--brand-border-soft);
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: var(--brand);
-        transition: all 0.4s var(--ease-out-expo);
+        transition: all 0.4s var(--transition-spring);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
       }
 
       .stat-card:hover .stat-icon-wrapper {
         background: var(--brand);
         color: #fff;
-        transform: rotate(-8deg) scale(1.1);
-        box-shadow: 0 0 20px var(--brand-glow);
-      }
-
-      .stat-content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        transform: rotate(-12deg) scale(1.2);
+        box-shadow: 0 0 25px var(--brand-glow);
       }
 
       .stat-label {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 900;
         color: var(--text-muted);
-        letter-spacing: 0.15em;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
-      }
-
-      .stat-value-row {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
+        font-family: var(--font-display);
       }
 
       .stat-value {
-        font-size: 2.2rem;
+        font-size: 2.75rem;
         font-weight: 900;
         margin: 0;
-        letter-spacing: -0.02em;
-        color: var(--text-primary);
-        font-family: var(--font-gaming, inherit);
+        letter-spacing: -0.05em;
+        color: #fff;
+        font-family: var(--font-gaming);
+        filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
       }
 
       .stat-trend {
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 900;
-        padding: 0.25rem 0.75rem;
+        padding: 0.35rem 0.85rem;
         border-radius: 50px;
-        backdrop-filter: blur(4px);
+        font-family: var(--font-gaming);
       }
-
-      .stat-trend.up { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
-      .stat-trend.down { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
-
-      .accent-line {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
-        background: var(--brand); box-shadow: 0 0 15px var(--brand-glow);
-        transform: scaleX(0); transition: transform 0.4s; transform-origin: left;
-      }
-      .stat-card:hover .accent-line { transform: scaleX(1); }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
         border-radius: 14px;

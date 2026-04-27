@@ -1,67 +1,69 @@
-/* Essential styles for UI Kit components in Storybook */
+/* Premium styles for UI Kit components — Nintendo Switch, Ubisoft & Rockstar inspiration */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Press+Start+2P&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Premium "launcher" tokens — Switch clarity + cinematic depth + crisp accents */
-  --bg-primary: #050608;
-  --bg-secondary: #0c0d12;
-  --bg-tertiary: #12141c;
+  /* Premium "Launcher" tokens — Nintendo Switch clarity + Rockstar cinematic depth */
+  --bg-primary: #020305;
+  --bg-secondary: #08090d;
+  --bg-tertiary: #0e1017;
 
-  --surface: rgba(18, 20, 28, 0.76);
-  --surface-hover: rgba(26, 30, 42, 0.92);
+  /* Nintendo Switch Joy-Con Inspired Colors */
+  --switch-red: #e60012;
+  --switch-blue: #00beef;
+  --switch-neon-green: #3cfc00;
+  --switch-neon-yellow: #fff000;
 
-  --brand: #e60012;
+  --brand: var(--switch-red);
   --brand-muted: color-mix(in srgb, var(--brand) 65%, #000);
-  --brand-glow: rgba(230, 0, 18, 0.38);
+  --brand-glow: rgba(230, 0, 18, 0.45);
   --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
   --brand-border-soft: color-mix(in srgb, var(--brand) 38%, transparent);
-  --brand-ambient: rgba(230, 0, 18, 0.08);
-  --brand-ambient-strong: rgba(230, 0, 18, 0.16);
+  --brand-ambient: rgba(230, 0, 18, 0.12);
+  --brand-ambient-strong: rgba(230, 0, 18, 0.22);
 
   --accent: #ffffff;
   --accent-muted: #94a3b8;
 
-  --success: #00f2ad;
-  --warning: #ffca3a;
-  --danger: #ff5e6c;
-  --info: #3fc1ff;
+  --success: #00ffaa; /* Rayman vibrant green */
+  --warning: #ffcc00;
+  --danger: #ff3b30;
+  --info: #00d4ff;
 
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.82);
-  --text-muted: rgba(255, 255, 255, 0.66);
+  --text-secondary: rgba(255, 255, 255, 0.88);
+  --text-muted: rgba(255, 255, 255, 0.6);
 
+  --surface: rgba(20, 22, 30, 0.8);
+  --surface-hover: rgba(30, 34, 48, 0.95);
   --border-soft: rgba(255, 255, 255, 0.08);
-  --border-vibrant: rgba(255, 255, 255, 0.15);
+  --border-vibrant: rgba(255, 255, 255, 0.18);
   --ring-focus: var(--brand);
 
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 32px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-xl: 40px;
 
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 32px 64px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 30px var(--brand-glow);
-  --shadow-inset-shine: inset 0 1.5px 0 rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 40px 80px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 40px var(--brand-glow);
+  --shadow-inset-shine: inset 0 1px 1px rgba(255, 255, 255, 0.12);
 
-  --font-main: 'Nunito', 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'DM Sans', 'Outfit', system-ui, sans-serif;
-  --font-gaming: 'Orbitron', 'Rajdhani', 'Share Tech Mono', monospace;
-  --font-retro: 'Press Start 2P', 'Courier New', monospace;
+  --font-main: 'Inter', 'Nunito', system-ui, sans-serif;
+  --font-display: 'Outfit', 'DM Sans', sans-serif;
+  --font-gaming: 'Orbitron', 'Rajdhani', sans-serif;
+  --font-retro: 'Press Start 2P', monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: 150ms var(--ease-out-expo);
-  --transition-base: 300ms var(--ease-out-expo);
-  --transition-spring: 450ms cubic-bezier(0.175, 0.885, 0.32, 1.25);
+  --transition-base: 350ms var(--ease-out-expo);
+  --transition-slow: 600ms var(--ease-out-expo);
+  --transition-spring: 500ms cubic-bezier(0.3, 1.4, 0.4, 1);
 
   --text-on-brand: #ffffff;
-  --surface-secondary: rgba(255, 255, 255, 0.03);
-
-  --focus-ring-width: 2px;
-  --focus-ring-offset: 3px;
-  --tap-target-min: 44px;
 }
 
 *,
@@ -73,196 +75,159 @@
 }
 
 html {
-  font-size: 13px;
+  font-size: 14px;
   scroll-behavior: smooth;
   overflow-x: hidden;
-  color-scheme: dark; /* Asegura que los desplegables y controles nativos usen el tema oscuro del sistema */
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--bg-primary);
+  /* Cinematic Lighting Overlay */
   background-image:
-    radial-gradient(
-      ellipse 140% 100% at 0% -20%,
-      var(--brand-ambient-strong),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 80% 60% at 100% 0%,
-      rgba(100, 150, 255, 0.06),
-      transparent 48%
-    ),
-    radial-gradient(
-      ellipse 70% 50% at 85% 100%,
-      rgba(255, 180, 120, 0.04),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 90% 70% at 50% 115%,
-      var(--brand-ambient),
-      transparent 60%
-    );
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 150% 100% at 0% -20%, var(--brand-ambient-strong), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(0, 190, 239, 0.12), transparent 50%),
+    radial-gradient(circle at 50% 110%, var(--brand-ambient), transparent 70%);
+  background-blend-mode: overlay, normal, normal, normal;
   color: var(--text-primary);
   font-family: var(--font-main);
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* Scrollbar Style — Nintendo Switch Red */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--brand);
-  opacity: 0.5;
-  border-radius: 20px;
+  border-radius: 10px;
+  border: 2px solid var(--bg-primary);
 }
+::-webkit-scrollbar-thumb:hover { background: var(--text-primary); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand);
-  opacity: 1;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
   margin: 0;
+  line-height: 1.1;
 }
 
-/* Typography classes */
-.text-uppercase {
+.display-xl {
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.65rem;
-  font-weight: 800;
-}
-
-.text-brand {
-  color: var(--brand);
-}
-
-.text-success {
-  color: var(--success);
-}
-
-.text-danger {
-  color: var(--danger);
-}
-
-.text-warning {
-  color: var(--warning);
-}
-
-.text-info {
-  color: var(--info);
+  letter-spacing: -0.05em;
+  background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
 }
 
 .glow-text {
-  color: var(--text-primary);
-  text-shadow: 0 0 15px color-mix(in srgb, var(--brand-glow) 40%, transparent);
+  text-shadow: 0 0 20px var(--brand-glow), 0 0 40px var(--brand-ambient);
 }
 
-.font-gaming {
-  font-family: var(--font-gaming);
-}
-
-.font-retro {
-  font-family: var(--font-retro);
-}
-
-/* UI Utilities */
+/* Premium Glass Container */
 .ui-glass {
   background: var(--surface);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--border-vibrant);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md), var(--shadow-inset-shine);
+  box-shadow: var(--shadow-lg), var(--shadow-inset-shine);
+  transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
-.ui-filled {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
+.ui-glass:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(255, 255, 255, 0.05);
 }
 
-.ui-accent {
-  border-left: 4px solid var(--brand) !important;
-  background: linear-gradient(90deg, var(--brand-ambient) 0%, transparent 100%);
+/* Ubisoft-style vibrant gradients */
+.bg-vibrant-red { background: linear-gradient(135deg, #ff0055, #e60012); }
+.bg-vibrant-blue { background: linear-gradient(135deg, #00d4ff, #00beef); }
+.bg-vibrant-gold { background: linear-gradient(135deg, #ffcc00, #ff9500); }
+
+/* Rockstar-style cinematic noise overlay utility */
+.cinematic-noise {
+  position: relative;
+  overflow: hidden;
+}
+.cinematic-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 1;
 }
 
-:focus-visible {
-  outline: var(--focus-ring-width) solid var(--ring-focus);
-  outline-offset: var(--focus-ring-offset);
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-@media (prefers-contrast: more) {
-  :root {
-    --focus-ring-width: 3px;
-    --focus-ring-offset: 4px;
-  }
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+@keyframes shine {
+  from { transform: translateX(-100%) skewX(-15deg); }
+  to { transform: translateX(200%) skewX(-15deg); }
+}
+
+.hover-shine {
+  position: relative;
+  overflow: hidden;
+}
+.hover-shine::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 30%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+  transition: 0.7s;
+}
+.hover-shine:hover::after {
+  animation: shine 1s var(--ease-out-expo);
 }
 
 /**
- * Babooni Global SaaS Overrides
+ * Babooni LUXE Overrides — Premium White Theme
  */
 html[data-erp-tenant='babooni'] {
-  --bg-primary: #f5f7fa;
+  --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f9fbff;
-  --text-primary: #0a0a0a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --surface: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --surface: rgba(255, 255, 255, 0.85);
   --border-soft: #e2e8f0;
   --border-vibrant: #cbd5e1;
+  --brand: #000000;
   color-scheme: light;
 }
 
 html[data-erp-tenant='babooni'] body {
-  background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
-  color: var(--text-primary);
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(var(--brand-rgb, 0,0,0), 0.05) 0px, transparent 50%);
+  background-blend-mode: normal;
 }
 
-html[data-erp-tenant='babooni'] ::-webkit-scrollbar-thumb {
-  background: var(--brand);
-  opacity: 0.3;
+html[data-erp-tenant='babooni'] .ui-glass {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
 }
 
-html[data-erp-tenant='babooni'] ::-webkit-scrollbar-thumb:hover {
-  opacity: 0.8;
-}
-
-html[data-erp-tenant='babooni'] h1, 
-html[data-erp-tenant='babooni'] h2, 
-html[data-erp-tenant='babooni'] h3 {
-  color: #0f172a;
-  letter-spacing: -0.02em;
-}
-
-/** Texto solo lectores (Storybook / demos) — mismo patrón que `apps/frontend` */
-.erp-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+html[data-erp-tenant='babooni'] .display-xl {
+  background: linear-gradient(180deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
