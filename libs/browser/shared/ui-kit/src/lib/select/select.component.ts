@@ -59,28 +59,27 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-radius: inherit;
     }
 
-    /* Base — Professional Standard Select */
+    /* Base — Theme Aware Style */
     select {
       width: 100%;
       padding: 0.75rem 3rem 0.75rem 1.25rem;
-      background: #ffffff !important;
-      border: 1px solid #cbd5e1 !important;
-      border-radius: var(--radius-md, 6px);
-      color: #0f172a !important;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
       font-size: 0.9rem;
       font-weight: 600;
       line-height: 1.4;
       transition: all 0.3s ease;
       outline: none;
-      font-family: var(--font-main, sans-serif);
+      font-family: var(--font-main);
       appearance: none;
       cursor: pointer;
-      color-scheme: light !important;
     }
 
     select:not(:disabled):hover {
-      border-color: #94a3b8 !important;
-      background: #f8fafc !important;
+      border-color: var(--brand);
+      background: var(--bg-tertiary);
     }
 
     .select-sm {
@@ -89,13 +88,18 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     }
 
     select:focus {
-      background: #ffffff !important;
-      border-color: var(--brand, #3b82f6) !important;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+      background: var(--bg-primary);
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-glow);
+    }
+
+    .select-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
     }
 
     select.invalid {
-      border-color: #ef4444 !important;
+      border-color: var(--danger) !important;
     }
     
     select:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -106,8 +110,8 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       top: 50%;
       width: 0.5rem;
       height: 0.5rem;
-      border-right: 2px solid #64748b;
-      border-bottom: 2px solid #64748b;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
       transform: translateY(-60%) rotate(45deg);
       pointer-events: none;
       transition: transform 0.3s ease;
@@ -117,11 +121,17 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       transform: translateY(-20%) rotate(225deg);
     }
 
+    /* Standard options follow the theme colors to ensure contrast and integration */
     option {
-      background-color: #ffffff !important;
-      color: #0f172a !important;
+      background-color: var(--bg-primary, #1e293b);
+      color: var(--text-primary, #ffffff);
       font-weight: 500;
       padding: 0.5rem 1rem;
+    }
+
+    :host-context(html[data-theme-is-light='true']) option {
+      background-color: var(--bg-primary, #ffffff);
+      color: var(--text-primary, #0f172a);
     }
 }
 

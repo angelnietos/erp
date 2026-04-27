@@ -76,19 +76,17 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       background: transparent;
       border: none; 
       font-size: 0.95rem; 
-      font-weight: 700;
+      font-weight: 600;
       outline: none; 
       font-family: var(--font-main);
-      color: #fff;
+      color: var(--text-primary);
     }
 
     input::placeholder {
       color: var(--text-muted);
-      opacity: 0.6;
-      font-size: 0.8rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      font-family: var(--font-gaming);
+      opacity: 0.7;
+      font-size: 0.85rem;
+      font-weight: 500;
     }
 
     .search-glass {

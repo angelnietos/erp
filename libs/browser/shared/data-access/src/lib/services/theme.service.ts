@@ -1927,6 +1927,7 @@ export class ThemeService {
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-ui-variant', variant);
     root.setAttribute('data-theme-is-light', isLight ? 'true' : 'false');
+    root.style.colorScheme = isLight ? 'light' : 'dark';
     root.setAttribute('data-bg-style', config.bgStyle || 'aurora');
 
     // ── STRUCTURAL TOKENS ──────────────────────────────────────────────
