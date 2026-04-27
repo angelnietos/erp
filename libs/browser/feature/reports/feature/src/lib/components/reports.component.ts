@@ -217,7 +217,7 @@ interface Report {
                       type="date"
                       [(ngModel)]="filters.dateFrom"
                       name="dateFrom"
-                      required
+                      [required]="true"
                     />
 
                     <ui-input
@@ -225,7 +225,7 @@ interface Report {
                       type="date"
                       [(ngModel)]="filters.dateTo"
                       name="dateTo"
-                      required
+                      [required]="true"
                     />
 
                     @if (

@@ -213,8 +213,8 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 label="Ingresos mínimos (€)"
                 type="number"
                 placeholder="0"
-                min="0"
-                step="0.01"
+                [min]="0"
+                [step]="0.01"
                 [ngModel]="revenueMinFilter()"
                 (ngModelChange)="
                   revenueMinFilter.set($event ? +$event : null);
@@ -230,8 +230,8 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                 label="Ingresos máximos (€)"
                 type="number"
                 placeholder="Sin límite"
-                min="0"
-                step="0.01"
+                [min]="0"
+                [step]="0.01"
                 [ngModel]="revenueMaxFilter()"
                 (ngModelChange)="
                   revenueMaxFilter.set($event ? +$event : null);
@@ -387,13 +387,17 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         flex: 1;
       }
 
-      .client-rating {
+       .client-rating {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
-        font-size: 0.75rem;
+        gap: 0.125rem;
+        font-size: 0.55rem;
         color: var(--text-muted);
         font-weight: 600;
+      }
+      .client-rating .filled {
+        color: #fbbf24;
+        fill: currentColor;
       }
 
       .client-rating .filled {
@@ -405,34 +409,34 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         flex: 1;
       }
 
-      .pagination-footer {
-        margin-top: 3rem;
+       .pagination-footer {
+        margin-top: 1rem;
         display: flex;
         justify-content: center;
       }
 
       /* Advanced Filters */
-      .advanced-filters {
-        margin: 1rem 0;
-        padding: 1.5rem;
+       .advanced-filters {
+        margin: 0.5rem 0;
+        padding: 0.75rem;
         background: var(--surface);
-        border-radius: 16px;
+        border-radius: 8px;
         border: 1px solid var(--border-soft);
         box-shadow: 0 8px 32px -14px rgba(8, 8, 8, 0.09);
       }
       .filters-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.5rem;
         align-items: end;
       }
-      .filter-group {
+       .filter-group {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.25rem;
       }
       .filter-label {
-        font-size: 0.75rem;
+        font-size: 0.55rem;
         font-weight: 700;
         color: var(--text-muted);
         text-transform: uppercase;
@@ -440,12 +444,12 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       }
       .filter-select,
       .filter-input {
-        padding: 0.75rem;
+        padding: 0.375rem 0.5rem;
         border: 1px solid var(--border-soft);
-        border-radius: 8px;
+        border-radius: 6px;
         background: var(--background);
         color: var(--text);
-        font-size: 0.875rem;
+        font-size: 0.7rem;
       }
       .filter-select:focus,
       .filter-input:focus {
@@ -455,54 +459,55 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       }
 
       /* Bulk Actions */
-      .bulk-actions-bar {
+       .bulk-actions-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.5rem;
+        padding: 0.5rem 0.75rem;
         background: var(--warning-light);
         border: 1px solid var(--warning);
-        border-radius: 12px;
-        margin: 1rem 0;
+        border-radius: 8px;
+        margin: 0.5rem 0;
       }
       .bulk-info {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.25rem;
         font-weight: 600;
         color: var(--warning-dark);
+        font-size: 0.65rem;
       }
       .bulk-buttons {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.375rem;
         align-items: center;
       }
 
       /* Selection */
-      .selection-header {
+       .selection-header {
         grid-column: 1 / -1;
         display: flex;
         justify-content: flex-end;
-        padding: 1rem;
+        padding: 0.5rem;
         border-bottom: 1px solid var(--border-soft);
       }
       .checkbox-label {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
+        gap: 0.25rem;
+        font-size: 0.65rem;
         font-weight: 500;
         cursor: pointer;
       }
       .selection-checkbox {
-        width: 16px;
-        height: 16px;
+        width: 12px;
+        height: 12px;
         accent-color: var(--primary);
       }
       .card-selection {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
+        top: 0.5rem;
+        right: 0.5rem;
       }
 
       /* Active state for filters button */

@@ -70,7 +70,7 @@ interface ServiceForm {
               label="Nombre"
               [(ngModel)]="form.name"
               name="name"
-              required
+              [required]="true"
             />
 
             <ui-textarea
@@ -84,7 +84,6 @@ interface ServiceForm {
               [(ngModel)]="form.type"
               name="type"
               [options]="serviceTypes"
-              required
             />
 
             <ui-input
@@ -92,7 +91,7 @@ interface ServiceForm {
               type="number"
               [(ngModel)]="form.basePrice"
               name="basePrice"
-              required
+              [required]="true"
             />
 
             <ui-input

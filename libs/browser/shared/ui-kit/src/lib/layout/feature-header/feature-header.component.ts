@@ -108,22 +108,22 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     }
 
     .page-hero-header .page-title {
-      margin: 0 0 0.35rem 0;
-      font-size: clamp(1.5rem, 2vw, 2rem);
+      margin: 0 0 0.25rem 0;
+      font-size: clamp(1.25rem, 1.5vw, 1.5rem);
       font-weight: 800;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       font-family: var(--font-display, var(--font-main));
     }
 
     .page-hero-header .breadcrumb {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
+      gap: 6px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
       color: var(--text-muted);
-      margin-top: 0.35rem;
+      margin-top: 0.25rem;
       text-transform: uppercase;
     }
 
@@ -136,12 +136,12 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     }
 
     .page-hero-header .hero-subtitle {
-      margin: 0.45rem 0 0 0;
-      font-size: 0.875rem;
+      margin: 0.25rem 0 0 0;
+      font-size: 0.75rem;
       font-weight: 500;
       color: var(--text-secondary);
-      letter-spacing: 0.02em;
-      line-height: 1.45;
+      letter-spacing: 0.01em;
+      line-height: 1.4;
       max-width: 52rem;
     }
 
@@ -156,7 +156,7 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     .page-hero-header .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 
@@ -193,23 +193,23 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     }
 
     .feature-header {
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .header-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 2rem;
+      padding: 1rem 1.5rem;
       background: var(--surface);
-      border-radius: 16px;
+      border-radius: 12px;
       border: 1px solid var(--border-soft);
       box-shadow:
-        0 8px 32px -12px rgba(0, 0, 0, 0.45),
+        0 4px 16px -8px rgba(0, 0, 0, 0.4),
         0 0 0 1px color-mix(in srgb, var(--brand) 10%, transparent),
         inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(14px) saturate(1.12);
-      -webkit-backdrop-filter: blur(14px) saturate(1.12);
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
       position: relative;
       overflow: hidden;
     }
@@ -234,36 +234,36 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     .title-section {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1rem;
     }
 
     .icon-box {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       box-shadow:
-        0 8px 28px -10px var(--brand-glow),
+        0 6px 20px -8px var(--brand-glow),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
       border: 1px solid color-mix(in srgb, #fff 18%, transparent);
       flex-shrink: 0;
       transition:
-        transform 0.35s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
-        box-shadow 0.35s ease;
+        transform 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+        box-shadow 0.3s ease;
     }
 
     .header-content:hover .icon-box {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
       box-shadow:
-        0 14px 36px -12px var(--brand-glow),
+        0 10px 24px -8px var(--brand-glow),
         inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
 
     .main-title {
-      font-size: 2.25rem;
+      font-size: 1.5rem;
       font-weight: 800;
       margin: 0;
       color: var(--text-primary);
@@ -271,15 +271,15 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
     }
 
     .subtitle {
-      font-size: 1rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      margin: 0.25rem 0 0 0;
+      margin: 0.15rem 0 0 0;
       font-weight: 500;
-      line-height: 1.55;
+      line-height: 1.4;
       max-width: 48rem;
     }
 

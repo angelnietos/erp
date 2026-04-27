@@ -63,7 +63,7 @@ export interface ResourceItem {
       padding-bottom: 0.75rem;
     }
 
-    .monitor-header h3 { font-size: 0.8rem; color: var(--text-secondary); opacity: 0.8; }
+    .monitor-header h3 { font-size: 0.65rem; color: var(--text-secondary); opacity: 0.8; }
 
     .status-indicator {
       font-size: 0.6rem;
@@ -76,16 +76,16 @@ export interface ResourceItem {
     .status-indicator.warning { color: var(--warning); background: rgba(255, 184, 0, 0.05); }
     .status-indicator.error { color: var(--danger); background: rgba(255, 75, 75, 0.05); }
 
-    .resource-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .resource-list { display: flex; flex-direction: column; gap: 0.75rem; }
 
-    .resource-item { display: flex; flex-direction: column; gap: 0.5rem; }
+    .resource-item { display: flex; flex-direction: column; gap: 0.25rem; }
 
     .item-info { display: flex; justify-content: space-between; align-items: baseline; }
     
-    .item-label-group { display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary); }
-    .item-name { font-size: 0.8rem; font-weight: 700; }
+    .item-label-group { display: flex; align-items: center; gap: 0.375rem; color: var(--text-primary); }
+    .item-name { font-size: 0.7rem; font-weight: 700; }
     
-    .item-status-text { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+    .item-status-text { font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }
     .item-status-text.ok { color: var(--success); }
     .item-status-text.warning { color: var(--warning); }
     .item-status-text.error { color: var(--danger); }

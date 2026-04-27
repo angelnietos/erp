@@ -41,6 +41,13 @@
   box-shadow: 0 4px 20px -10px rgba(0, 0, 0, 0.04);
 }
 
+@media (max-width: 768px) {
+  .bb-topbar {
+    padding: 0 16px;
+    height: calc(var(--bb-topbar-height) - 8px);
+  }
+}
+
 .bb-search {
   flex: 1;
   max-width: 440px;
@@ -371,6 +378,12 @@
   padding: 16px 20px 120px;
   max-width: var(--bb-content-max);
   margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .bb-content {
+    padding: 12px 16px 100px;
+  }
 }
 
 .bb-premium {

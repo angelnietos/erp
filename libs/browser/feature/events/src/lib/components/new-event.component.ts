@@ -127,10 +127,11 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
 
                   <div class="form-grid">
                     <ui-input
-                      label="Título del Evento"
-                      placeholder="Ingrese el título del evento"
-                      formControlName="title"
-                      required
+                      label="Costo"
+                      type="number"
+                      [step]="0.01"
+                      placeholder="0.00"
+                      formControlName="cost"
                     ></ui-input>
 
                     <ui-textarea
@@ -160,11 +161,11 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
                   <h2 class="section-title">Fecha y Hora</h2>
 
                   <div class="form-grid">
-                    <ui-input label="Fecha" type="date" formControlName="date" required>
+                    <ui-input label="Fecha" type="date" formControlName="date" [required]="true">
                       <lucide-icon [img]="CalendarIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
-                    <ui-input label="Hora de Inicio" type="time" formControlName="startTime" required>
+                    <ui-input label="Hora de Inicio" type="time" formControlName="startTime" [required]="true">
                       <lucide-icon [img]="ClockIcon" size="16" slot="prefix" aria-hidden="true"></lucide-icon>
                     </ui-input>
 
@@ -207,7 +208,7 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
 
                     <ui-input label="Contacto" placeholder="Email o teléfono de contacto" formControlName="contact"></ui-input>
 
-                    <ui-input label="Costo" type="number" step="0.01" placeholder="0.00" formControlName="cost"></ui-input>
+                    <ui-input label="Costo" type="number" [step]="0.01" placeholder="0.00" formControlName="cost"></ui-input>
 
                     <ui-select
                       label="Moneda"

@@ -12,12 +12,15 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <button 
-      [type]="type" 
+    <button
+      [type]="type"
       class="btn"
       [attr.aria-label]="ariaLabel ?? null"
+      [attr.aria-describedby]="hint ? hintId : null"
       [attr.title]="title ?? null"
-      [attr.aria-busy]="loading ? true : null"
+      [attr.aria-busy]="loading ? 'true' : null"
+      [attr.aria-pressed]="pressed ?? null"
+      [attr.role]="role ?? null"
       [class.btn-sm]="size === 'sm'"
       [class.btn-md]="size === 'md'"
       [class.btn-lg]="size === 'lg'"
@@ -37,16 +40,21 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       [class.btn-auto-overrides]="shape === 'auto'"
       [disabled]="disabled || loading"
       (click)="clicked.emit($event)"
+      (keydown.enter)="handleKeyDown($event)"
+      (keydown.space)="handleKeyDown($event)"
     >
       @if (loading) {
         <span class="spinner"></span>
       } @else {
         <ng-content></ng-content>
-        @if (getIconName()) { 
-          <lucide-icon [name]="getIconName()!" class="btn-icon" aria-hidden="true"></lucide-icon> 
+        @if (getIconName()) {
+          <lucide-icon [name]="getIconName()!" class="btn-icon" aria-hidden="true"></lucide-icon>
         }
       }
     </button>
+    @if (hint) {
+      <span [id]="hintId" class="sr-only">{{ hint }}</span>
+    }
   `,
   styles: [`
     .btn {
@@ -64,7 +72,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
-      border-radius: var(--radius-md, 12px);
+       border-radius: var(--radius-lg);
       border: 1px solid transparent;
       overflow: hidden;
       user-select: none;
@@ -82,8 +90,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn:hover::after { opacity: 1; }
 
     .btn:focus-visible {
-      outline: 2px solid var(--ring-focus, #fff);
-      outline-offset: 3px;
+      outline: 2px solid var(--ring-focus);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--ring-focus) 25%, transparent);
     }
 
     .btn:disabled {
@@ -93,9 +102,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       transform: none !important;
     }
 
-    .btn-sm { padding: 0.6rem 1.15rem; font-size: 0.65rem; gap: 8px; }
-    .btn-md { padding: 0.8rem 1.75rem; font-size: 0.75rem; }
-    .btn-lg { padding: 1rem 2.25rem; font-size: 0.85rem; }
+    .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.7rem; gap: 0.375rem; min-height: var(--tap-target-min); }
+    .btn-md { padding: 0.5rem 1rem; font-size: 0.8rem; min-height: var(--tap-target-min); }
+    .btn-lg { padding: 0.625rem 1.25rem; font-size: 0.85rem; min-height: calc(var(--tap-target-min) + 0.25rem); }
 
     /* CORE COLOR TOKENS */
     .btn-color-primary { --btn-accent: var(--brand, #e60012); --btn-text: var(--text-on-brand, #fff); }
@@ -111,30 +120,35 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-shape-solid, .btn-shape-auto {
       background: linear-gradient(135deg, var(--btn-accent) 0%, color-mix(in srgb, var(--btn-accent), #000 15%) 100%);
       color: var(--btn-text);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 
-        0 4px 15px -4px color-mix(in srgb, var(--btn-accent) 50%, transparent),
-        inset 0 1px 0 rgba(255,255,255,0.2);
+      border: 1px solid color-mix(in srgb, var(--btn-accent), rgba(255, 255, 255, 0.2) 20%);
+      box-shadow:
+        0 2px 8px -2px color-mix(in srgb, var(--btn-accent) 40%, transparent),
+        inset 0 1px 0 rgba(255,255,255,0.15);
     }
     .btn-shape-solid:hover, .btn-shape-auto:hover {
-       transform: translateY(-2px);
-       box-shadow: 
-         0 12px 24px -8px color-mix(in srgb, var(--btn-accent) 60%, transparent),
-         0 0 20px color-mix(in srgb, var(--btn-accent) 30%, transparent);
-       filter: brightness(1.1);
+       transform: translateY(-1px);
+       box-shadow:
+         0 8px 20px -4px color-mix(in srgb, var(--btn-accent) 50%, transparent),
+         0 0 15px color-mix(in srgb, var(--btn-accent) 20%, transparent),
+         inset 0 1px 0 rgba(255,255,255,0.25);
+       filter: brightness(1.05);
     }
 
     .btn-shape-glass {
-      background: color-mix(in srgb, var(--btn-accent) 12%, transparent);
-      color: #fff;
-      border: 1px solid color-mix(in srgb, var(--btn-accent) 30%, rgba(255,255,255,0.1));
+      background: color-mix(in srgb, var(--btn-accent) 10%, rgba(255, 255, 255, 0.05));
+      color: var(--btn-accent);
+      border: 1px solid color-mix(in srgb, var(--btn-accent) 25%, rgba(255,255,255,0.1));
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--btn-accent) 20%, transparent);
     }
     .btn-shape-glass:hover {
-      background: color-mix(in srgb, var(--btn-accent) 22%, transparent);
+      background: color-mix(in srgb, var(--btn-accent) 15%, rgba(255, 255, 255, 0.08));
       border-color: var(--btn-accent);
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px -5px var(--btn-accent);
+      transform: translateY(-1px);
+      box-shadow:
+        0 4px 16px -2px color-mix(in srgb, var(--btn-accent) 30%, transparent),
+        0 0 20px -5px var(--btn-accent);
+      color: var(--btn-accent);
     }
 
     .btn-shape-outline {
@@ -164,17 +178,46 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
         color: var(--btn-accent); background: transparent; padding: 0;
     }
 
-    .btn-icon { width: 1.25rem; height: 1.25rem; transition: transform 0.3s; }
-    .btn:hover .btn-icon { transform: scale(1.1); }
+    .btn-icon { width: 1rem; height: 1rem; transition: transform 0.3s; }
+    .btn:hover .btn-icon { transform: scale(1.05); }
 
     .spinner {
       width: 1.25rem; height: 1.25rem;
-      border: 3px solid rgba(255,255,255,0.2);
-      border-top-color: #fff;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
       border-radius: 50%;
-      animation: rotate 0.8s infinite linear;
+      animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     }
-    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    /* Loading state improvements */
+    .btn[aria-busy="true"] {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn[aria-busy="true"] .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--btn-text);
+    }
+
+    .btn[aria-busy="true"] .btn-icon,
+    .btn[aria-busy="true"] ng-content {
+      opacity: 0;
+    }
 
     :host-context(html[data-erp-tenant='babooni']) .btn {
       text-transform: none;
@@ -223,6 +266,47 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
         transform: none;
       }
     }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Mobile touch improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .btn {
+        /* Remove hover effects on touch devices */
+        transform: none !important;
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+        transition-duration: 0.1s;
+      }
+
+      .btn-shape-solid:active,
+      .btn-shape-auto:active,
+      .btn-shape-glass:active {
+        box-shadow:
+          0 2px 8px -2px color-mix(in srgb, var(--btn-accent) 40%, transparent),
+          inset 0 1px 0 rgba(255,255,255,0.1);
+      }
+    }
+
+    /* Improve focus visibility on mobile */
+    @media (max-width: 768px) {
+      .btn:focus-visible {
+        outline: 3px solid var(--ring-focus);
+        outline-offset: 4px;
+      }
+    }
   `],
 })
 export class UiButtonComponent {
@@ -234,6 +318,12 @@ export class UiButtonComponent {
   @Input({ alias: 'aria-label' }) ariaLabel: string | null | undefined = undefined;
   /** Tooltip nativo del botón. */
   @Input() title: string | null | undefined = undefined;
+  /** Additional hint text for screen readers */
+  @Input() hint: string | null = null;
+  /** ARIA role for the button */
+  @Input() role: string | null = null;
+  /** ARIA pressed state for toggle buttons */
+  @Input() pressed: boolean | null = null;
   @Input() icon: string | { name: string } = '';
   
   @Input() color: ButtonColor = 'app';
@@ -258,9 +348,22 @@ export class UiButtonComponent {
 
   @Output() clicked = new EventEmitter<Event>();
 
+  /** Unique ID for hint text */
+  hintId = `btn-hint-${Math.random().toString(36).substr(2, 9)}`;
+
   getIconName(): string | undefined {
     if (!this.icon) return undefined;
     if (typeof this.icon === 'string') return this.icon;
     return this.icon.name || undefined;
+  }
+
+  handleKeyDown(event: Event): void {
+    const keyboardEvent = event as KeyboardEvent;
+    if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+      keyboardEvent.preventDefault();
+      if (!this.disabled && !this.loading) {
+        this.clicked.emit(event);
+      }
+    }
   }
 }

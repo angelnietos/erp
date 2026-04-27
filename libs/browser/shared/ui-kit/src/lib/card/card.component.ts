@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type CardColor = 'default' | 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info' | 'brand';
@@ -16,6 +16,12 @@ export type CardVariant = string;
       [class.card-auto-overrides]="shape === 'auto'"
       [class.hover-effect]="hover || interactive"
       [class.ui-neon]="hover"
+      [attr.role]="interactive ? 'button' : null"
+      [attr.tabindex]="interactive ? '0' : null"
+      [attr.aria-label]="interactive && title ? title : null"
+      (click)="interactive ? handleCardInteraction($event) : null"
+      (keydown.enter)="interactive ? handleCardInteraction($event) : null"
+      (keydown.space)="interactive ? handleCardInteraction($event) : null"
     >
       @if (title) {
         <div class="card-header">
@@ -143,30 +149,39 @@ export type CardVariant = string;
     }
 
     .card-header {
-      padding: 0.875rem 1.25rem;
+      padding: var(--space-3) var(--space-4);
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: color-mix(in srgb, var(--surface) 70%, var(--brand) 4%);
     }
+    .card-body {
+      padding: var(--space-3);
+      flex: 1;
+    }
+    .card-footer {
+      padding: var(--space-3) var(--space-4);
+      background: color-mix(in srgb, var(--surface) 60%, transparent);
+      border-top: 1px solid var(--border-soft);
+    }
 
     .header-main { display: flex; flex-direction: column; gap: 0.25rem; }
 
     .card-header h3 {
-      font-size: 0.58rem; /* Reduced from 0.62rem */
+      font-size: 0.6rem;
       letter-spacing: 0.08em;
       color: var(--text-secondary);
       margin: 0;
     }
 
     .card-body {
-      padding: 0.875rem; /* Reduced from 1.25rem */
+      padding: var(--space-4);
       flex: 1;
     }
 
     .card-footer {
-      padding: 0.875rem 1.25rem;
+      padding: var(--space-4) var(--space-5);
       background: color-mix(in srgb, var(--surface) 60%, transparent);
       border-top: 1px solid var(--border-soft);
     }
@@ -184,6 +199,43 @@ export type CardVariant = string;
       opacity: 1;
       height: 3px;
     }
+
+    /* Mobile touch improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .hover-effect {
+        transform: none !important;
+        box-shadow: var(--shadow-sm) !important;
+      }
+
+      .hover-effect:active {
+        transform: scale(0.98);
+        transition-duration: 0.1s;
+      }
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .card {
+        margin-bottom: var(--space-3);
+      }
+
+      .card-header {
+        padding: var(--space-3) var(--space-4);
+      }
+
+      .card-body {
+        padding: var(--space-3);
+      }
+
+      .card-footer {
+        padding: var(--space-3) var(--space-4);
+      }
+
+      .hover-effect:focus-visible {
+        outline: 3px solid var(--brand);
+        outline-offset: 4px;
+      }
+    }
   `],
 })
 export class UiCardComponent {
@@ -191,6 +243,8 @@ export class UiCardComponent {
   @Input() hover = false;
   @Input() footer = false;
   @Input() interactive = false;
+
+  @Output() cardClick = new EventEmitter<Event>();
 
   @Input() color: CardColor = 'default';
   @Input() shape: CardShape = 'auto';
@@ -211,6 +265,13 @@ export class UiCardComponent {
       this.color = 'default';
       this.shape = 'auto';
     }
+  }
+
+  handleCardInteraction(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+    this.cardClick.emit(event);
   }
 
 }

@@ -36,12 +36,12 @@ import { LucideAngularModule } from 'lucide-angular';
       :host {
         display: block;
       }
-      .stat-card {
-        padding: 1.5rem 1.75rem;
-        border-radius: 20px;
+       .stat-card {
+        padding: 1rem 1.25rem;
+        border-radius: 16px;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
         position: relative;
         overflow: hidden;
         cursor: pointer;
@@ -52,7 +52,7 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       .stat-card:hover {
-        transform: translateY(-8px);
+        transform: translateY(-4px);
         background: var(--surface-hover);
         border-color: var(--brand);
         box-shadow: var(--shadow-md), 0 0 20px -5px var(--brand-glow);
@@ -65,11 +65,11 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       .stat-icon-wrapper {
-        width: 3.5rem;
-        height: 3.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
         background: var(--brand-ambient);
         border: 1px solid var(--border-soft);
-        border-radius: 12px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -80,18 +80,18 @@ import { LucideAngularModule } from 'lucide-angular';
       .stat-card:hover .stat-icon-wrapper {
         background: var(--brand);
         color: #fff;
-        transform: rotate(-8deg) scale(1.1);
-        box-shadow: 0 0 20px var(--brand-glow);
+        transform: rotate(-4deg) scale(1.05);
+        box-shadow: 0 0 15px var(--brand-glow);
       }
 
       .stat-content {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.125rem;
       }
 
       .stat-label {
-        font-size: 0.65rem;
+        font-size: 0.55rem;
         font-weight: 900;
         color: var(--text-muted);
         letter-spacing: 0.15em;
@@ -105,7 +105,7 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       .stat-value {
-        font-size: 2.2rem;
+        font-size: 1.5rem;
         font-weight: 900;
         margin: 0;
         letter-spacing: -0.02em;
@@ -114,9 +114,9 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       .stat-trend {
-        font-size: 0.72rem;
+        font-size: 0.55rem;
         font-weight: 900;
-        padding: 0.25rem 0.75rem;
+        padding: 0.125rem 0.5rem;
         border-radius: 50px;
         backdrop-filter: blur(4px);
       }

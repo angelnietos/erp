@@ -30,31 +30,46 @@ export type InputVariant = string;
         [class.has-error]="error" 
       >
         @if (icon) { <lucide-icon [name]="icon" class="field-icon" aria-hidden="true"></lucide-icon> }
-        <input 
-          [id]="id" 
-          [type]="type" 
-          [placeholder]="placeholder" 
+        <input
+          [id]="id"
+          [type]="type"
+          [placeholder]="placeholder"
           [value]="value"
+          [attr.aria-invalid]="error ? 'true' : null"
+          [attr.aria-describedby]="error || hint ? getDescribedBy() : null"
+          [required]="required"
+          [attr.autocomplete]="autocomplete"
+          [attr.inputmode]="inputmode"
+          [attr.pattern]="pattern"
+          [attr.minlength]="minlength"
+          [attr.maxlength]="maxlength"
+          [min]="min"
+          [max]="max"
+          [step]="step"
           (input)="onInput($event)"
           (blur)="onBlur()"
+          (focus)="onFocus()"
           [disabled]="disabled"
         >
         <div class="focus-ring"></div>
       </div>
       
-      @if (hint) {
-        <span class="hint" [class.error]="error">{{ hint }}</span>
+      @if (error && errorMessage) {
+        <span [id]="errorId" class="hint error" role="alert" aria-live="polite">{{ errorMessage }}</span>
+      }
+      @if (hint && !error) {
+        <span [id]="hintId" class="hint">{{ hint }}</span>
       }
     </div>
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
+    .form-group { display: flex; flex-direction: column; gap: var(--space-2); width: 100%; position: relative; }
 
     .label {
-      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 0.15em; color: var(--text-muted, #888);
-      margin-left: 8px; font-family: inherit;
+      font-size: var(--text-xs); font-weight: var(--font-bold); text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--text-muted);
+      margin-left: var(--space-1); font-family: inherit;
     }
 
     .input-wrapper { 
@@ -160,12 +175,12 @@ export type InputVariant = string;
 
     /* ELEMENT BASE RULES */
     input {
-      width: 100%; padding: 0.9rem 1.25rem;
+      width: 100%; padding: var(--space-2) var(--space-3);
       background: var(--input-bg);
       border: 1px solid var(--input-border);
       border-radius: var(--input-radius);
       color: var(--input-color);
-      font-size: 0.85rem; font-weight: 600;
+      font-size: var(--text-base); font-weight: var(--font-medium);
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none; font-family: inherit;
       box-shadow: var(--fld-shine-subtle), var(--theme-input-shadow, inset 0 2px 5px rgba(0, 0, 0, 0.25));
@@ -188,9 +203,9 @@ export type InputVariant = string;
       font-weight: 500;
     }
     
-    .has-icon input { padding-left: 3rem; }
-    .field-icon { 
-      position: absolute; left: 1.15rem; width: 1.2rem; height: 1.2rem; 
+    .has-icon input { padding-left: calc(var(--space-6) + var(--space-2)); }
+    .field-icon {
+      position: absolute; left: var(--space-4); width: var(--text-base); height: var(--text-base);
       color: var(--text-muted); pointer-events: none; transition: all 0.3s;
       filter: drop-shadow(0 0 5px transparent);
     }
@@ -229,8 +244,55 @@ export type InputVariant = string;
       opacity: 0.72;
     }
 
-    .hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; margin-left: 8px; font-weight: 600; letter-spacing: 0.02em; }
-    .hint.error { color: var(--fld-danger); text-transform: uppercase; font-size: 0.6rem; }
+    /* Mobile touch improvements */
+    @media (hover: none) and (pointer: coarse) {
+      input {
+        /* Ensure adequate touch target */
+        min-height: var(--tap-target-min);
+        padding-top: var(--space-3);
+        padding-bottom: var(--space-3);
+      }
+
+      input:focus-visible {
+        /* Enhanced focus ring for touch */
+        outline: 3px solid var(--input-accent);
+        outline-offset: 2px;
+      }
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .form-group {
+        margin-bottom: var(--space-4);
+      }
+
+      input {
+        font-size: var(--text-base); /* Slightly larger for mobile */
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .has-icon input {
+        padding-left: calc(var(--space-8) + var(--space-2));
+      }
+
+      .field-icon {
+        left: var(--space-3);
+      }
+
+      .label {
+        font-size: var(--text-sm);
+        margin-left: var(--space-3);
+      }
+
+      .hint {
+        margin-left: var(--space-3);
+        margin-top: var(--space-2);
+        font-size: var(--text-sm);
+      }
+    }
+
+    .hint { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-1); margin-left: var(--space-1); font-weight: var(--font-medium); letter-spacing: 0.02em; }
+    .hint.error { color: var(--fld-danger); text-transform: uppercase; font-size: var(--text-xs); }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {
@@ -241,7 +303,17 @@ export class UiInputComponent implements ControlValueAccessor {
   @Input() icon = '';
   @Input() hint?: string;
   @Input() error = false;
+  @Input() errorMessage?: string;
   @Input() size: 'sm' | 'md' = 'md';
+  @Input() required = false;
+  @Input() autocomplete: string | null = null;
+  @Input() inputmode: string | null = null;
+  @Input() pattern: string | null = null;
+  @Input() minlength: number | null = null;
+  @Input() maxlength: number | null = null;
+  @Input() min: number | null = null;
+  @Input() max: number | null = null;
+  @Input() step: number | null = null;
 
   @Input() color: InputColor = 'default';
   @Input() shape: InputShape = 'auto';
@@ -267,6 +339,10 @@ export class UiInputComponent implements ControlValueAccessor {
   onChange: (value: string) => void = () => { /* empty */ };
   onTouched = () => { /* empty */ };
 
+  /** Unique IDs for accessibility */
+  hintId = `input-hint-${Math.random().toString(36).substr(2, 9)}`;
+  errorId = `input-error-${Math.random().toString(36).substr(2, 9)}`;
+
   writeValue(value: string | null | undefined): void {
     this.value = value == null || value === 'undefined' ? '' : String(value);
   }
@@ -274,10 +350,25 @@ export class UiInputComponent implements ControlValueAccessor {
   registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
+  getDescribedBy(): string {
+    const ids: string[] = [];
+    if (this.error && this.hint) {
+      ids.push(this.errorId, this.hintId);
+    } else if (this.error) {
+      ids.push(this.errorId);
+    } else if (this.hint) {
+      ids.push(this.hintId);
+    }
+    return ids.join(' ');
+  }
+
   onInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.value = val;
     this.onChange(val);
   }
+
   onBlur(): void { this.onTouched(); }
+
+  onFocus(): void { /* Focus event can be used for analytics or additional logic */ }
 }
