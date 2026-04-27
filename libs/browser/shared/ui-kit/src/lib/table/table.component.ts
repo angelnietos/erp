@@ -130,49 +130,43 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       th {
-        padding: 0.65rem 0.7rem;
-        font-size: 0.52rem;
-        font-weight: 800;
+        padding: 1.25rem 1rem;
+        font-size: 0.7rem;
+        font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--text-muted);
-        border-bottom: 1px solid var(--border-soft);
+        letter-spacing: 0.2em;
+        color: var(--brand);
+        border-bottom: 2px solid var(--brand-border-soft);
         font-family: var(--font-display);
-        background: color-mix(in srgb, var(--surface) 80%, var(--brand) 3%);
+        background: linear-gradient(to bottom, var(--brand-ambient), transparent);
         user-select: none;
-        line-height: 1.2;
+        backdrop-filter: blur(10px);
       }
 
       td {
-        padding: 0.65rem 0.7rem;
-        font-size: 0.72rem;
+        padding: 1rem;
+        font-size: 0.85rem;
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
-        transition: var(--transition-fast);
-        vertical-align: top;
-        font-weight: 500;
-        line-height: 1.4;
+        transition: all 0.2s ease;
+        vertical-align: middle;
+        font-weight: 600;
       }
 
       .table-row {
-        transition: var(--transition-base);
+        transition: all 0.3s var(--transition-spring);
         position: relative;
         background: transparent;
       }
 
-      .table-row:hover td,
-      .virt-row.table-row:hover .virt-td {
-        background: color-mix(in srgb, var(--brand) 4%, transparent);
-        color: var(--text-primary);
+      .table-row:hover td {
+        background: var(--brand-ambient);
+        color: #fff;
+        transform: scale(1.002);
       }
 
-      .table-row:hover td:first-child,
-      .virt-row.table-row:hover .virt-td:first-child {
-        box-shadow: inset 3px 0 0 var(--brand);
-      }
-
-      .table-row {
-        transition: background 0.18s ease;
+      .table-row:hover td:first-child {
+        box-shadow: inset 6px 0 0 var(--brand);
       }
 
       .table-row:last-child td {

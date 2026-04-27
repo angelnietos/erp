@@ -24,103 +24,75 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 0.25rem 0.75rem;
-      border-radius: var(--badge-radius, 100px);
-      font-size: 0.6875rem;
-      font-weight: 600;
-      text-transform: none;
-      letter-spacing: 0.03em;
-      font-family: var(--font-main);
-      border: var(--badge-border-width, 1px) solid var(--badge-border, transparent);
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-display);
+      border: 1px solid transparent;
       white-space: nowrap;
-      transition:
-        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.25s ease,
-        background 0.25s ease;
+      transition: all 0.3s var(--transition-spring);
       background: var(--badge-bg, transparent);
       color: var(--badge-color, var(--text-primary));
-      box-shadow: var(--badge-shadow, none);
     }
     
     .badge:hover {
-      transform: scale(1.06) translateY(-2px);
-      background: color-mix(in srgb, var(--badge-bg) 85%, #fff 15%);
-      box-shadow: 
-        0 10px 25px -5px color-mix(in srgb, var(--badge-color, var(--brand)) 45%, transparent),
-        0 0 15px color-mix(in srgb, var(--badge-color, var(--brand)) 25%, transparent);
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3), 0 0 15px var(--badge-color);
+      filter: brightness(1.2);
     }
 
     .dot {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 8px currentColor;
+      box-shadow: 0 0 10px currentColor;
+      animation: pulse 2s infinite;
     }
 
-    /* THEMATIC COLOR TOKENS */
-    .badge-color-default { --badge-bg: var(--surface); --badge-color: var(--text-secondary); --badge-border: var(--border-soft); }
-    .badge-color-primary { --badge-bg: var(--brand-ambient-strong, color-mix(in srgb, var(--brand) 15%, transparent)); --badge-color: var(--brand); --badge-border: color-mix(in srgb, var(--brand) 30%, transparent); }
-    .badge-color-success { --badge-bg: rgba(16, 185, 129, 0.12); --badge-color: var(--success); --badge-border: rgba(16, 185, 129, 0.25); }
-    .badge-color-warning { --badge-bg: rgba(245, 158, 11, 0.12); --badge-color: var(--warning); --badge-border: rgba(245, 158, 11, 0.25); }
-    .badge-color-danger { --badge-bg: rgba(239, 68, 68, 0.12); --badge-color: var(--danger); --badge-border: rgba(239, 68, 68, 0.25); }
-    .badge-color-info { --badge-bg: rgba(59, 130, 246, 0.12); --badge-color: var(--info); --badge-border: rgba(59, 130, 246, 0.25); }
-
-    /* Extended Legacy Colors */
-    .badge-color-purple { --badge-bg: rgba(168, 85, 247, 0.1); --badge-color: #a855f7; --badge-border: rgba(168, 85, 247, 0.2); }
-    .badge-color-indigo { --badge-bg: rgba(99, 102, 241, 0.1); --badge-color: #6366f1; --badge-border: rgba(99, 102, 241, 0.2); }
-    .badge-color-teal { --badge-bg: rgba(20, 184, 166, 0.1); --badge-color: #14b8a6; --badge-border: rgba(20, 184, 166, 0.2); }
-    .badge-color-orange { --badge-bg: rgba(249, 115, 22, 0.1); --badge-color: #f97316; --badge-border: rgba(249, 115, 22, 0.2); }
-    .badge-color-pink { --badge-bg: rgba(236, 72, 153, 0.1); --badge-color: #ec4899; --badge-border: rgba(236, 72, 153, 0.2); }
-    .badge-color-rose { --badge-bg: rgba(244, 63, 94, 0.1); --badge-color: #f43f5e; --badge-border: rgba(244, 63, 94, 0.2); }
-    .badge-color-violet { --badge-bg: rgba(139, 92, 246, 0.1); --badge-color: #8b5cf6; --badge-border: rgba(139, 92, 246, 0.2); }
-    .badge-color-fuchsia { --badge-bg: rgba(217, 70, 239, 0.1); --badge-color: #d946ef; --badge-border: rgba(217, 70, 239, 0.2); }
+    /* THEMATIC COLOR TOKENS — Vibrant Ubisoft/Nintendo Palette */
+    .badge-color-default { 
+      --badge-bg: var(--brand-ambient); 
+      --badge-color: var(--brand); 
+      --badge-border: var(--brand-border-soft); 
+    }
+    .badge-color-primary { 
+      --badge-bg: var(--brand); 
+      --badge-color: #fff; 
+      --badge-shadow: 0 0 15px var(--brand-glow);
+    }
+    .badge-color-success { 
+      --badge-bg: #00ffaa; 
+      --badge-color: #013220; 
+      --badge-shadow: 0 0 15px rgba(0, 255, 170, 0.4);
+    }
+    .badge-color-warning { 
+      --badge-bg: #ffcc00; 
+      --badge-color: #422006; 
+    }
+    .badge-color-danger { 
+      --badge-bg: #ff3b30; 
+      --badge-color: #fff; 
+    }
+    .badge-color-info { 
+      --badge-bg: #00d4ff; 
+      --badge-color: #fff; 
+    }
 
     /* STRUCTURAL SHAPES */
-    .badge-shape-auto {
-      /* HTML overrides via global CSS root variables natively apply */
+    .badge-shape-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      --badge-bg: rgba(255, 255, 255, 0.05);
     }
     
     .badge-shape-solid {
       --badge-bg: var(--badge-color);
-      --badge-color: var(--text-on-brand, #fff);
-      --badge-border-width: 0px;
-      --badge-shadow: 0 4px 10px color-mix(in srgb, var(--badge-bg) 40%, transparent);
-    }
-
-    .badge-shape-glass {
-      --badge-bg: color-mix(in srgb, var(--badge-color) 14%, var(--surface));
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      --badge-border: color-mix(in srgb, var(--badge-color) 40%, transparent);
-    }
-
-    .badge-shape-outline {
-      --badge-bg: transparent;
-      --badge-border-width: 1px;
-      --badge-border: var(--badge-color);
-    }
-
-    .badge-shape-flat {
-      --badge-border-width: 0px;
-    }
-
-    .badge-shape-ghost {
-      --badge-bg: transparent;
-      --badge-border-width: 0px;
-    }
-
-    .badge-shape-neumorphic {
-      --badge-bg: var(--bg-primary);
-      --badge-border-width: 0px;
-      --badge-radius: 6px;
-      --badge-shadow: -2px -2px 5px rgba(255,255,255,0.02), 2px 2px 5px rgba(0,0,0,0.4);
-    }
-
-    .badge-shape-minimal {
-      --badge-bg: transparent;
-      --badge-border-width: 0px;
-      --badge-radius: 0px;
-      padding-left: 0; padding-right: 0;
+      --badge-color: #fff;
     }
 
     /* Babooni: badges con contraste sobre superficie clara + tokens de tema */
