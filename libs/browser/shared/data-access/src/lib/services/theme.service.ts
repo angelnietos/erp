@@ -88,6 +88,8 @@ export type Theme =
   | 'rockstar-vintage'
   | 'babooni';
 
+export type Density = 'compact' | 'standard' | 'spacious';
+
 function hexToRgbTriplet(hex: string): string {
   return hexToRgbTripletString(hex);
 }
@@ -1755,6 +1757,7 @@ export class ThemeService {
   readonly currentTheme = signal<Theme>('light');
   readonly currentThemeData = computed(() => THEMES[this.currentTheme()]);
   readonly currentVariant = signal<string>('glass');
+  readonly currentDensity = signal<Density>('standard');
   readonly themes = THEMES;
   private readonly isHighPerf = signal<boolean>(false);
 
@@ -1782,10 +1785,14 @@ export class ThemeService {
         : '';
     const initialTheme = stored || (tenant === 'babooni' ? 'babooni' : 'light');
     const initialVariant = storedVariant || THEMES[initialTheme].uiVariant || 'glass';
+    const initialDensity = this.getStoredDensity() || 'standard';
     
     this.currentTheme.set(initialTheme);
     this.currentVariant.set(initialVariant);
+    this.currentDensity.set(initialDensity);
+    
     this.applyTheme(initialTheme, initialVariant);
+    this.applyDensity(initialDensity);
 
     effect(() => {
       const theme = this.currentTheme();
@@ -1808,6 +1815,12 @@ export class ThemeService {
     effect(() => {
       this.applyPerformanceMode(this.isHighPerf());
     });
+
+    effect(() => {
+      const density = this.currentDensity();
+      this.applyDensity(density);
+      this.storeDensity(density);
+    });
   }
 
   setTheme(theme: Theme) {
@@ -1816,6 +1829,10 @@ export class ThemeService {
 
   setVariant(variant: 'glass' | 'solid' | 'flat' | 'neumorphic' | 'minimal') {
     this.currentVariant.set(variant);
+  }
+
+  setDensity(density: Density) {
+    this.currentDensity.set(density);
   }
 
   /**
@@ -2348,6 +2365,60 @@ export class ThemeService {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('ui-variant');
       if (stored && isUiVariantKey(stored)) {
+        return stored;
+      }
+    }
+    return null;
+  }
+
+  private applyDensity(density: Density) {
+    const root = document.documentElement;
+    root.setAttribute('data-density', density);
+
+    switch (density) {
+      case 'compact':
+        root.style.setProperty('--feature-page-padding', '0.75rem');
+        root.style.setProperty('--feature-page-gap', '0.75rem');
+        root.style.setProperty('--card-padding', '1rem');
+        root.style.setProperty('--stat-card-padding', '1rem');
+        root.style.setProperty('--input-padding', '0.5rem 0.75rem');
+        root.style.setProperty('--btn-padding-sm', '0.5rem 1rem');
+        root.style.setProperty('--btn-padding-md', '0.75rem 1.25rem');
+        root.style.setProperty('--font-size-base', '12px');
+        break;
+      case 'spacious':
+        root.style.setProperty('--feature-page-padding', '2.5rem');
+        root.style.setProperty('--feature-page-gap', '2.5rem');
+        root.style.setProperty('--card-padding', '2.5rem');
+        root.style.setProperty('--stat-card-padding', '2.5rem');
+        root.style.setProperty('--input-padding', '1.25rem 1.5rem');
+        root.style.setProperty('--btn-padding-sm', '1rem 2rem');
+        root.style.setProperty('--btn-padding-md', '1.5rem 2.5rem');
+        root.style.setProperty('--font-size-base', '14px');
+        break;
+      default: // standard
+        root.style.setProperty('--feature-page-padding', '1.5rem');
+        root.style.setProperty('--feature-page-gap', '1.5rem');
+        root.style.setProperty('--card-padding', '1.5rem');
+        root.style.setProperty('--stat-card-padding', '1.5rem 2rem');
+        root.style.setProperty('--input-padding', '0.75rem 1rem');
+        root.style.setProperty('--btn-padding-sm', '0.75rem 1.5rem');
+        root.style.setProperty('--btn-padding-md', '1rem 2rem');
+        root.style.setProperty('--font-size-base', '13px');
+        break;
+    }
+  }
+
+  private storeDensity(density: Density) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('ui-density', density);
+    }
+  }
+
+  private getStoredDensity(): Density | null {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('ui-density') as Density;
+      if (['compact', 'standard', 'spacious'].includes(stored)) {
         return stored;
       }
     }

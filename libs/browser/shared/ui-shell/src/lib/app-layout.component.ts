@@ -158,6 +158,40 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                       }
                     </div>
                   }
+
+                  <!-- Density Selector -->
+                  <div class="theme-section density-section" role="group" aria-label="Densidad de interfaz">
+                    <div class="theme-section-label">Densidad de interfaz</div>
+                    <div class="density-options">
+                      <button 
+                        type="button" 
+                        class="density-btn"
+                        [class.active]="themeService.currentDensity() === 'compact'"
+                        (click)="themeService.setDensity('compact')"
+                      >
+                        <lucide-icon name="shrink" size="14"></lucide-icon>
+                        Compacta
+                      </button>
+                      <button 
+                        type="button" 
+                        class="density-btn"
+                        [class.active]="themeService.currentDensity() === 'standard'"
+                        (click)="themeService.setDensity('standard')"
+                      >
+                        <lucide-icon name="maximize-2" size="14"></lucide-icon>
+                        Normal
+                      </button>
+                      <button 
+                        type="button" 
+                        class="density-btn"
+                        [class.active]="themeService.currentDensity() === 'spacious'"
+                        (click)="themeService.setDensity('spacious')"
+                      >
+                        <lucide-icon name="expand" size="14"></lucide-icon>
+                        Amplia
+                      </button>
+                    </div>
+                  </div>
                 </div>
               }
             </div>
@@ -500,6 +534,51 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         text-transform: uppercase;
         color: var(--text-muted);
         opacity: 0.9;
+      }
+      .theme-option.active .theme-option-name {
+        color: var(--brand);
+        font-weight: 700;
+      }
+
+      .density-section {
+        border-top: 1px solid var(--border-soft);
+        padding-top: 12px !important;
+        margin-top: 8px;
+      }
+
+      .density-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .density-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 4px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .density-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--brand-border-soft);
+        color: var(--text-primary);
+      }
+
+      .density-btn.active {
+        background: var(--brand-surface);
+        border-color: var(--brand);
+        color: var(--brand);
       }
 
       .theme-option-name {

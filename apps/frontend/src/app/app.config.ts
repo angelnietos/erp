@@ -171,6 +171,9 @@ import {
   CircleX,
   CircleCheckBig,
   BrainCircuit,
+  Shrink,
+  Maximize2,
+  Expand,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 import { environment } from '../environments/environment';
@@ -405,6 +408,9 @@ export const appConfig: ApplicationConfig = {
         CircleX,
         CircleCheckBig,
         BrainCircuit,
+        Shrink,
+        Maximize2,
+        Expand,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },

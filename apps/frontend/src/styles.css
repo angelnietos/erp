@@ -267,7 +267,7 @@ html[data-erp-tenant='babooni'] .ui-glass-premium {
 }
 
 html {
-  font-size: 13px; /* Global scale reduction for better fit */
+  font-size: var(--font-size-base, 13px);
   scroll-behavior: smooth;
   overflow-x: hidden;
 }

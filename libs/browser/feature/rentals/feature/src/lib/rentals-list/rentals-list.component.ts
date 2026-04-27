@@ -1465,8 +1465,6 @@ export class RentalsListComponent
     if (!val) return;
     this.bulkChangeStatus({ target: { value: val } } as any);
   }
-}
-
   toggleSort() {
     if (this.sortField() === 'clientName') {
       this.sortField.set('totalAmount');
