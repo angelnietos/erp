@@ -81,6 +81,15 @@ html {
   color-scheme: dark;
 }
 
+/* Instant Theme Switching — Prevents transition lag when changing variables */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;

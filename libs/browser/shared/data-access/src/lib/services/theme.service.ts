@@ -1702,9 +1702,19 @@ export class ThemeService {
     effect(() => {
       const theme = this.currentTheme();
       const variant = this.currentVariant();
+      
+      // Fast theme switch: disable transitions temporarily to avoid "seconds" of lag
+      const root = document.documentElement;
+      root.classList.add('theme-switching');
+      
       this.applyTheme(theme, variant);
       this.storeTheme(theme);
       this.storeVariant(variant);
+
+      // Restore transitions after styles have settled
+      setTimeout(() => {
+        root.classList.remove('theme-switching');
+      }, 50);
     });
 
     effect(() => {

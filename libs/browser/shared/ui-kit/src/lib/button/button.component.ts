@@ -57,7 +57,12 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       justify-content: center;
       align-items: center;
       gap: 12px;
-      transition: all 0.4s var(--transition-spring);
+      transition: 
+        transform 0.4s var(--transition-spring),
+        filter 0.3s ease,
+        box-shadow 0.4s var(--transition-spring),
+        background-color 0.2s ease,
+        border-color 0.2s ease;
       font-family: var(--font-display, inherit);
       text-transform: uppercase;
       letter-spacing: 0.15em;
