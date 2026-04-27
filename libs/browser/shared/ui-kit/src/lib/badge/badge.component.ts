@@ -23,25 +23,24 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 0.35rem 0.85rem;
+      gap: 6px;
+      padding: 0.35rem 0.75rem;
       border-radius: var(--radius-sm);
-      font-size: 0.7rem;
-      font-weight: 900;
+      font-size: 0.65rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       font-family: var(--font-display);
       border: 1px solid transparent;
       white-space: nowrap;
-      transition: all 0.3s var(--transition-spring);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       background: var(--badge-bg, transparent);
       color: var(--badge-color, var(--text-primary));
     }
     
     .badge:hover {
-      transform: scale(1.1) translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3), 0 0 15px var(--badge-color);
-      filter: brightness(1.2);
+      transform: translateY(-1px);
+      filter: brightness(1.1);
     }
 
     .dot {

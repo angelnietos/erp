@@ -56,13 +56,13 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature {
-      border-radius: 999px;
+      border-radius: 12px;
       border: 1px solid var(--toolbar-bar-border);
-      background: var(--toolbar-bar-bg);
-      backdrop-filter: blur(25px) saturate(2);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
       box-shadow: var(--shadow-md);
       overflow: hidden;
-      transition: all 0.4s var(--transition-spring);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .search-toolbar--feature:focus-within {

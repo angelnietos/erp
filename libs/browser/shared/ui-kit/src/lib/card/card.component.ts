@@ -80,11 +80,10 @@ export type CardVariant = string;
     }
 
     .card-header h3 {
-      font-size: 0.75rem;
-      font-weight: 900;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
       margin: 0;
       font-family: var(--font-display);
     }

@@ -37,23 +37,60 @@ import { LucideAngularModule } from 'lucide-angular';
         display: block;
       }
       .stat-card {
-        padding: 1.5rem 2rem;
+        padding: var(--stat-card-padding, 1.5rem 2rem);
         font-family: var(--font-main);
-        background: var(--surface-secondary);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
         border: 1px solid var(--border-soft);
         border-radius: var(--radius-lg);
-        transition: all 0.3s var(--transition-spring);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
       }
 
       .stat-card:hover {
-        transform: translateY(-4px);
-        background: var(--surface);
+        transform: translateY(-6px);
+        background: rgba(255, 255, 255, 0.06);
         border-color: var(--brand);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
       }
 
-      .stat-trend.up { color: var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); }
-      .stat-trend.down { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+      .stat-icon-wrapper {
+        width: var(--avatar-size, 44px);
+        height: var(--avatar-size, 44px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--brand-surface);
+        border-radius: 12px;
+        color: var(--brand);
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover .stat-icon-wrapper {
+        background: var(--brand);
+        color: #fff;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px var(--brand-glow);
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        display: block;
+        margin-bottom: 4px;
+        letter-spacing: 0.02em;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
         border-radius: 14px;
