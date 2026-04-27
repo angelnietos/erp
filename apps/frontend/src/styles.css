@@ -5,77 +5,70 @@
 @import './babooni-biosstel-pages.css';
 
 :root {
-  /* Premium “launcher” tokens — Switch clarity + cinematic depth + crisp accents */
-  --bg-primary: #050608;
-  --bg-secondary: #0c0d12;
-  --bg-tertiary: #12141c;
+  /* Clean Professional Tokens */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
 
-  --surface: rgba(18, 20, 28, 0.76);
-  --surface-hover: rgba(26, 30, 42, 0.92);
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
 
-  --brand: #e60012;
-  --brand-muted: color-mix(in srgb, var(--brand) 65%, #000);
-  --brand-glow: rgba(230, 0, 18, 0.38);
-  --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
-  --brand-border-soft: color-mix(in srgb, var(--brand) 38%, transparent);
-  --brand-ambient: rgba(230, 0, 18, 0.08);
-  --brand-ambient-strong: rgba(230, 0, 18, 0.16);
+  --brand: #004B93;
+  --brand-muted: #185C80;
+  --brand-glow: rgba(0, 75, 147, 0.1);
+  --brand-surface: rgba(0, 75, 147, 0.05);
+  --brand-border-soft: rgba(0, 75, 147, 0.1);
+  --brand-ambient: rgba(0, 75, 147, 0.02);
+  --brand-ambient-strong: rgba(0, 75, 147, 0.05);
 
-  --accent: #ffffff;
-  --accent-muted: #94a3b8;
+  --accent: #0f172a;
+  --accent-muted: #64748b;
 
-  --success: #00f2ad;
-  --warning: #ffca3a;
-  --danger: #ff5e6c;
-  /* Alias usado en componentes (mensajes de error) */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
   --error: var(--danger);
-  --info: #3fc1ff;
+  --info: #3b82f6;
 
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.82);
-  --text-muted: rgba(255, 255, 255, 0.66);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
 
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --border-vibrant: rgba(255, 255, 255, 0.15);
+  --border-soft: #e2e8f0;
+  --border-vibrant: #cbd5e1;
   --ring-focus: var(--brand);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 32px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
 
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 32px 64px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 30px var(--brand-glow);
-  --shadow-inset-shine: inset 0 1.5px 0 rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-glow: none;
+  --shadow-inset-shine: none;
 
-  --font-main: 'Nunito', 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'DM Sans', 'Outfit', system-ui, sans-serif;
-  --font-gaming: 'Orbitron', 'Rajdhani', 'Share Tech Mono', monospace;
-  --font-retro: 'Press Start 2P', 'Courier New', monospace;
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-gaming: 'Inter', sans-serif;
+  --font-retro: 'Inter', sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-fast: 150ms var(--ease-out-expo);
-  --transition-base: 300ms var(--ease-out-expo);
-  --transition-spring: 450ms cubic-bezier(0.175, 0.885, 0.32, 1.25);
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-spring: 300ms ease;
 
-  /* Columna principal de vistas feature (lista, dashboard, formularios largos) */
   --feature-page-max-width: 1400px;
-  --feature-page-padding: 2rem;
-  --feature-page-gap: 2rem;
+  --feature-page-padding: 1.5rem;
+  --feature-page-gap: 1.5rem;
 
-  /* Checkboxes, radios y barras de rango nativas */
   accent-color: var(--brand);
-
-  /* Foco visible (WCAG 2.4.7) — alineado con ThemeService `--ring-focus` */
   --focus-ring-width: 2px;
-  --focus-ring-offset: 3px;
-  /** Mínimo recomendado tactil / WCAG 2.5.5 (referencia para componentes) */
+  --focus-ring-offset: 2px;
   --tap-target-min: 44px;
 
-  /* Hasta que ThemeService fija `data-theme-is-light` (FOUC mínimo en controles nativos) */
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html[data-theme-is-light='true'] {
@@ -187,14 +180,7 @@ html[data-erp-tenant='babooni'] ::selection {
 
 /* BABOONI CINEMATIC ATMOSPHERE */
 html[data-erp-tenant='babooni'] body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.015;
-  background-image: url("https://www.transparenttextures.com/patterns/p6.png");
-  mix-blend-mode: overlay;
+  display: none;
 }
 
 html[data-erp-tenant='babooni'] ::-webkit-scrollbar {
@@ -553,29 +539,7 @@ h6 {
 /* These rules overload the baseline :root tokens dynamically based on the theme loaded */
 
 html[data-ui-variant='glass'] {
-  --variant-blur: 32px;
-  --noise-opacity: 0.05;
-}
-html[data-ui-variant='glass'] body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(
-      rgba(18, 16, 16, 0) 50%,
-      rgba(0, 0, 0, 0.25) 50%
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255, 0, 0, 0.06),
-      rgba(0, 255, 0, 0.02),
-      rgba(0, 0, 255, 0.06)
-    );
-  background-size:
-    100% 2px,
-    3px 100%;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.15;
+  --variant-blur: 10px;
 }
 
 html[data-ui-variant='solid'] {

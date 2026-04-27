@@ -59,89 +59,80 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-radius: inherit;
     }
 
-    /* Base — Cinema Style */
+    /* Base — Professional Style */
     select {
       width: 100%;
-      padding: 1.25rem 3.5rem 1.25rem 1.75rem;
-      background: rgba(255, 255, 255, 0.03);
+      padding: 0.75rem 3rem 0.75rem 1.25rem;
+      background: var(--bg-secondary);
       border: 1px solid var(--border-soft);
-      border-radius: var(--radius-lg);
-      color: #fff;
-      font-size: 0.95rem;
-      font-weight: 700;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 600;
       line-height: 1.4;
-      transition: all 0.5s var(--transition-spring);
+      transition: all 0.3s ease;
       outline: none;
       font-family: var(--font-main);
       appearance: none;
       cursor: pointer;
-      backdrop-filter: blur(20px);
     }
 
     select:not(:disabled):hover {
-      background: rgba(255, 255, 255, 0.05);
       border-color: var(--brand);
-      box-shadow: 0 0 25px var(--brand-ambient);
-      transform: translateY(-2px);
+      background: var(--bg-tertiary);
     }
 
     .select-sm {
-      padding: 0.75rem 2.75rem 0.75rem 1.25rem !important;
-      font-size: 0.85rem !important;
+      padding: 0.5rem 2.5rem 0.5rem 1rem !important;
+      font-size: 0.8rem !important;
     }
 
     select:focus {
-      background: rgba(255, 255, 255, 0.08);
+      background: #fff;
       border-color: var(--brand);
-      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 30px var(--brand-ambient);
-      transform: translateY(-2px);
+      box-shadow: 0 0 0 3px var(--brand-glow);
     }
 
     .select-glass {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(35px) saturate(2);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .select-theme {
-      background: var(--brand-ambient);
-      border-color: var(--brand);
-      box-shadow: 0 0 30px var(--brand-glow);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
     }
 
     select.invalid {
       border-color: var(--danger) !important;
-      box-shadow: 0 0 20px rgba(255, 59, 48, 0.2) !important;
     }
     
-    select:disabled { opacity: 0.3; cursor: not-allowed; }
+    select:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .chevron {
       position: absolute;
-      right: 1.5rem;
+      right: 1.25rem;
       top: 50%;
-      width: 0.75rem;
-      height: 0.75rem;
+      width: 0.5rem;
+      height: 0.5rem;
       border-right: 2px solid var(--text-muted);
       border-bottom: 2px solid var(--text-muted);
       transform: translateY(-60%) rotate(45deg);
       pointer-events: none;
-      transition: all 0.5s var(--transition-spring);
+      transition: transform 0.3s ease;
     }
 
     select:focus + .chevron {
-      border-color: var(--brand);
       transform: translateY(-20%) rotate(225deg);
-      filter: drop-shadow(0 0 12px var(--brand));
     }
-}
 
     option {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      font-weight: 600;
-      padding: 0.75rem 1rem;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
     }
+
+    :host-context(html[data-theme-is-light='false']) option {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+    }
+}
 
     /**
      * Babooni: el select base asume campo “oscuro” (texto claro + color-scheme dark).

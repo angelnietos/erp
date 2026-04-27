@@ -106,41 +106,30 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
       }
 
       /* ======================================================
-         SIDEBAR — ALWAYS DARK, INDEPENDENT OF ACTIVE THEME
+         SIDEBAR — Responsive & Professional
          ====================================================== */
       .sidebar-container {
-        width: 185px; /* Reduced from 210px */
-        min-width: 185px;
+        width: 220px;
+        min-width: 220px;
         height: 100%;
-        background: linear-gradient(
-          165deg,
-          #0d0d12 0%,
-          #0a0a0f 48%,
-          #08080c 100%
-        );
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
-        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border-soft);
         display: flex;
         flex-direction: column;
-        transition:
-          width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-          min-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        color: rgba(255, 255, 255, 0.66);
+        transition: width 0.3s ease;
+        color: var(--text-secondary);
         overflow: hidden;
         position: relative;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
       }
 
-      /* Brand-colored neon edge */
+      /* Brand indicator edge */
       .sidebar-container::after {
         content: '';
         position: absolute;
         top: 0; right: 0; bottom: 0;
-        width: 1px;
-        background: linear-gradient(to bottom, transparent, var(--brand), transparent);
-        opacity: 0.25;
-        box-shadow: 0 0 8px var(--brand-glow);
+        width: 2px;
+        background: var(--brand);
+        opacity: 0.1;
       }
 
       .sidebar-container.collapsed {
@@ -187,13 +176,10 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 
       .logo-text {
         font-weight: 800;
-        font-size: 0.95rem; /* Reduced from 1.05rem */
-        letter-spacing: 0.16em;
-        font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
-        background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.66));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 1rem;
+        letter-spacing: 0.12em;
+        font-family: var(--font-display, 'Inter', system-ui, sans-serif);
+        color: var(--text-primary);
       }
 
       .toggle-control {
@@ -241,21 +227,19 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
         gap: 4px;
       }
 
-      /* All nav links — hardcoded dark text, never inherits theme */
+      /* All nav links — theme-aware */
       .nav-link {
         display: flex;
         align-items: center;
-        padding: 6px 12px; /* Reduced padding from 7/10 */
+        padding: 8px 12px;
         border-radius: 6px;
         text-decoration: none;
-        color: rgba(255, 255, 255, 0.66);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
         position: relative;
-        min-height: 38px; /* Reduced from 42px */
-        font-weight: 700;
-        font-size: 0.64rem; /* Reduced from 0.68rem */
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
+        min-height: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
         border: 1px solid transparent;
         background: transparent;
         width: 100%;
@@ -268,9 +252,8 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
       }
 
       .nav-link:hover {
-        background: rgba(255, 255, 255, 0.07);
-        color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.08);
+        background: var(--surface-hover);
+        color: var(--text-primary);
         transform: translateX(4px);
       }
 

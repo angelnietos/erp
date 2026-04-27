@@ -228,19 +228,26 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     const themeKey = this.themeService.currentTheme();
     const cfg = this.themeService.themes[themeKey];
     
+    const isLight = cfg.background === '#ffffff' || cfg.background.toLowerCase() === '#f7f7f7' || cfg.background.toLowerCase() === '#f8fafc';
+    
     this.time += 0.016;
     this.ctx.clearRect(0, 0, w, h);
 
-    // Draw base background
-    this.ctx.fillStyle = cfg.background;
-    this.ctx.fillRect(0, 0, w, h);
+    if (isLight) {
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.fillRect(0, 0, w, h);
+    } else {
+      // Draw base background for dark themes
+      this.ctx.fillStyle = cfg.background;
+      this.ctx.fillRect(0, 0, w, h);
 
-    // Subtle atmospheric glow
-    const g = this.ctx.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, cfg.bgTertiary);
-    g.addColorStop(1, cfg.background);
-    this.ctx.fillStyle = g;
-    this.ctx.fillRect(0, 0, w, h);
+      // Subtle atmospheric glow for dark themes
+      const g = this.ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, cfg.bgTertiary);
+      g.addColorStop(1, cfg.background);
+      this.ctx.fillStyle = g;
+      this.ctx.fillRect(0, 0, w, h);
+    }
 
     // Draw active style
     switch (cfg.bgStyle) {
