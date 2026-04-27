@@ -100,8 +100,8 @@ import { LucideAngularModule } from 'lucide-angular';
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(var(--stat-grid-min-width, 280px), 1fr));
+      gap: var(--feature-page-gap, 1.5rem);
       min-height: 0;
       padding: 0.5rem 0;
     }
@@ -133,8 +133,8 @@ import { LucideAngularModule } from 'lucide-angular';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .stats-grid {
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--feature-page-gap, 1rem);
+      grid-template-columns: repeat(auto-fit, minmax(var(--stat-grid-min-width, 240px), 1fr));
     }
 
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn {

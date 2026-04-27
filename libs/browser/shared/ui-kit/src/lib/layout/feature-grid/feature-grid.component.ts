@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   styles: [`
     .feature-grid {
       display: grid;
-      gap: 1.5rem;
+      gap: var(--feature-page-gap, 1.5rem);
       margin-top: 1rem;
     }
 
@@ -54,5 +54,5 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class UiFeatureGridComponent {
-  @Input() columns = 'repeat(auto-fill, minmax(380px, 1fr))';
+  @Input() columns = 'repeat(auto-fill, minmax(var(--grid-min-col-width, 380px), 1fr))';
 }

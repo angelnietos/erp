@@ -332,9 +332,9 @@ import { UiBadgeComponent } from '../../badge/badge.component';
 
     :host-context(html[data-erp-tenant='babooni']) .avatar-bg {
       border-radius: 12px;
-      width: 48px;
-      height: 48px;
-      font-size: 1.1rem;
+      width: var(--avatar-size, 48px);
+      height: var(--avatar-size, 48px);
+      font-size: calc(var(--avatar-size, 48px) * 0.22);
       font-weight: 800;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
@@ -354,15 +354,15 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .card-header {
-      padding: 1.25rem;
+      padding: var(--card-padding, 1.25rem);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .card-body {
-      padding: 0 1.25rem 1rem 1.25rem;
+      padding: 0 var(--card-padding, 1.25rem) calc(var(--card-padding, 1.25rem) * 0.8) var(--card-padding, 1.25rem);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .card-footer {
-      padding: 0.85rem 1.25rem;
+      padding: calc(var(--card-padding, 1.25rem) * 0.6) var(--card-padding, 1.25rem);
       background: rgba(0, 0, 0, 0.02);
       border-top: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
       min-height: auto;

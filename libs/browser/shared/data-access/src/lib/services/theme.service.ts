@@ -2377,24 +2377,32 @@ export class ThemeService {
 
     switch (density) {
       case 'compact':
-        root.style.setProperty('--feature-page-padding', '0.75rem');
-        root.style.setProperty('--feature-page-gap', '0.75rem');
-        root.style.setProperty('--card-padding', '1rem');
-        root.style.setProperty('--stat-card-padding', '1rem');
-        root.style.setProperty('--input-padding', '0.5rem 0.75rem');
-        root.style.setProperty('--btn-padding-sm', '0.5rem 1rem');
-        root.style.setProperty('--btn-padding-md', '0.75rem 1.25rem');
-        root.style.setProperty('--font-size-base', '12px');
+        root.style.setProperty('--feature-page-padding', '0.4rem');
+        root.style.setProperty('--feature-page-gap', '0.4rem');
+        root.style.setProperty('--card-padding', '0.65rem');
+        root.style.setProperty('--stat-card-padding', '0.6rem 0.8rem');
+        root.style.setProperty('--input-padding', '0.35rem 0.5rem');
+        root.style.setProperty('--btn-padding-sm', '0.35rem 0.65rem');
+        root.style.setProperty('--btn-padding-md', '0.5rem 0.8rem');
+        root.style.setProperty('--font-size-base', '11.2px');
+        root.style.setProperty('--grid-min-col-width', '220px');
+        root.style.setProperty('--stat-grid-min-width', '180px');
+        root.style.setProperty('--avatar-size', '28px');
+        root.style.setProperty('--icon-size-md', '14px');
         break;
       case 'spacious':
-        root.style.setProperty('--feature-page-padding', '2.5rem');
-        root.style.setProperty('--feature-page-gap', '2.5rem');
-        root.style.setProperty('--card-padding', '2.5rem');
-        root.style.setProperty('--stat-card-padding', '2.5rem');
-        root.style.setProperty('--input-padding', '1.25rem 1.5rem');
-        root.style.setProperty('--btn-padding-sm', '1rem 2rem');
-        root.style.setProperty('--btn-padding-md', '1.5rem 2.5rem');
-        root.style.setProperty('--font-size-base', '14px');
+        root.style.setProperty('--feature-page-padding', '3.5rem');
+        root.style.setProperty('--feature-page-gap', '3rem');
+        root.style.setProperty('--card-padding', '3rem');
+        root.style.setProperty('--stat-card-padding', '3rem 3.5rem');
+        root.style.setProperty('--input-padding', '1.4rem 1.6rem');
+        root.style.setProperty('--btn-padding-sm', '1.2rem 2.2rem');
+        root.style.setProperty('--btn-padding-md', '1.6rem 2.8rem');
+        root.style.setProperty('--font-size-base', '15px');
+        root.style.setProperty('--grid-min-col-width', '440px');
+        root.style.setProperty('--stat-grid-min-width', '320px');
+        root.style.setProperty('--avatar-size', '64px');
+        root.style.setProperty('--icon-size-md', '26px');
         break;
       default: // standard
         root.style.setProperty('--feature-page-padding', '1.5rem');
@@ -2405,6 +2413,10 @@ export class ThemeService {
         root.style.setProperty('--btn-padding-sm', '0.75rem 1.5rem');
         root.style.setProperty('--btn-padding-md', '1rem 2rem');
         root.style.setProperty('--font-size-base', '13px');
+        root.style.setProperty('--grid-min-col-width', '360px');
+        root.style.setProperty('--stat-grid-min-width', '260px');
+        root.style.setProperty('--avatar-size', '44px');
+        root.style.setProperty('--icon-size-md', '20px');
         break;
     }
   }
