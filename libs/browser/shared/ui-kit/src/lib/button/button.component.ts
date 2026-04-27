@@ -142,15 +142,15 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
 
     .btn-shape-glass {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       color: #fff;
     }
     .btn-shape-glass:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--brand-ambient-strong);
       border-color: var(--brand);
-      box-shadow: 0 0 20px var(--brand-ambient-strong);
+      box-shadow: 0 0 20px var(--brand-glow);
       transform: translateY(-4px);
     }
 
@@ -160,13 +160,20 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       color: var(--text-secondary);
     }
     .btn-shape-ghost:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.1);
+      background: var(--brand-ambient);
+      color: var(--brand);
+      border-color: var(--brand-border-soft);
+      transform: translateY(-2px);
     }
 
     .btn-icon { width: 1.2rem; height: 1.2rem; transition: transform 0.4s var(--transition-spring); position: relative; z-index: 2; }
     .btn:hover .btn-icon { transform: scale(1.2) rotate(5deg); color: inherit; }
+    
+    /* Ensure icons in ghost buttons are vibrant on hover */
+    .btn-shape-ghost:hover .btn-icon {
+      color: var(--brand);
+      filter: drop-shadow(0 0 5px var(--brand-glow));
+    }
 
     .spinner {
       width: 1.25rem; height: 1.25rem;

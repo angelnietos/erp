@@ -39,11 +39,8 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       display: flex;
       align-items: center;
       border-radius: var(--radius-md);
-      transition:
-        border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-        background 0.3s ease,
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      background: var(--surface);
+      transition: all 0.4s var(--transition-base);
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-soft);
       overflow: hidden;
       width: 100%;
@@ -51,33 +48,34 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     .search-wrapper.focused {
-      border-color: var(--fld-border-brand);
-      background: color-mix(in srgb, var(--surface) 92%, var(--fld-brand) 8%);
-      box-shadow: var(--fld-ring-brand), var(--fld-shadow-brand);
+      border-color: var(--brand);
+      background: var(--brand-ambient);
+      box-shadow: 0 0 20px var(--brand-ambient);
     }
 
     .search-icon { 
       position: absolute; 
       left: 1.1rem; 
-      width: 1.1rem; 
-      height: 1.1rem; 
+      width: 1rem; 
+      height: 1rem; 
       color: var(--text-muted);
-      transition: var(--transition-base);
+      transition: all 0.3s var(--transition-spring);
       pointer-events: none;
     }
 
     .search-wrapper.focused .search-icon {
-      color: var(--fld-brand);
-      transform: scale(1.1);
+      color: var(--brand);
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 5px var(--brand-glow));
     }
 
     input {
       width: 100%; 
-      padding: 0.55rem 2.5rem 0.55rem 2.35rem; 
+      padding: 0.75rem 2.5rem 0.75rem 2.5rem; 
       background: transparent;
       border: none; 
-      font-size: 0.72rem; 
-      font-weight: 500;
+      font-size: 0.85rem; 
+      font-weight: 600;
       outline: none; 
       font-family: var(--font-main);
       color: var(--text-primary);
@@ -85,63 +83,21 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     input::placeholder {
       color: var(--text-muted);
-      text-transform: none;
-      letter-spacing: 0.04em;
-      font-size: 0.62rem;
-      font-weight: 600;
-      font-family: var(--font-main);
-      opacity: 0.62;
+      opacity: 0.5;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
-
-    .clear-btn {
-      position: absolute; 
-      right: 0.75rem; 
-      background: color-mix(in srgb, var(--border-soft) 60%, transparent);
-      border: 1px solid var(--border-soft);
-      border-radius: 50%;
-      width: 1.5rem;
-      height: 1.5rem;
-      cursor: pointer;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-fast);
-      padding: 0;
-    }
-
-    .clear-btn:hover {
-      background: var(--fld-danger);
-      color: white;
-      border-color: var(--fld-danger);
-      transform: scale(1.1);
-    }
-
-    .clear-btn:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--fld-brand) 45%, transparent);
-    }
-
-    .clear-btn lucide-icon { width: 0.8rem; height: 0.8rem; }
 
     .search-default {
-      background: linear-gradient(180deg, color-mix(in srgb, var(--surface, #0f1016) 100%, #1e293b) 0%, #0c0d12 100%);
-      border: 1px solid color-mix(in srgb, var(--fld-brand) 12%, var(--border-soft));
-      box-shadow: var(--fld-shine-subtle), var(--shadow-sm, 0 4px 14px rgba(0, 0, 0, 0.4));
-    }
-
-    .search-filled {
-      background: var(--fld-surface-deep);
-      border: 1px solid var(--fld-border-brand);
-      box-shadow: var(--fld-shine-top), var(--fld-shadow-brand);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+      border: 1px solid var(--border-soft);
     }
 
     .search-glass {
-      background: var(--fld-glass);
-      border: 1px solid color-mix(in srgb, #fff 16%, transparent);
-      backdrop-filter: blur(20px) saturate(1.25);
-      -webkit-backdrop-filter: blur(20px) saturate(1.25);
-      box-shadow: var(--fld-shine-top), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .focus-indicator {
@@ -149,11 +105,11 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--fld-brand), transparent);
+      height: 3px;
+      background: var(--brand);
+      box-shadow: 0 0 15px var(--brand-glow);
       transform: scaleX(0);
       transition: var(--transition-spring);
-      transform-origin: center;
     }
 
     .search-wrapper.focused .focus-indicator { transform: scaleX(1); }
