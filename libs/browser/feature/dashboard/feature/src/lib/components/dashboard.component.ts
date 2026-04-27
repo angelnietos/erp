@@ -839,3 +839,6 @@ export class DashboardComponent implements OnInit {
 
   goToRoute(event: Event, route: string) {
     event.stopPropagation();
+    this.router.navigate([route]);
+  }
+}
