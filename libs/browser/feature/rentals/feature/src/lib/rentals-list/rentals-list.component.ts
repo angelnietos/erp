@@ -26,6 +26,7 @@ import {
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
+  UiSelectComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -66,6 +67,7 @@ import {
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
+    UiSelectComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -168,21 +170,18 @@ import {
       @if (showAdvancedFilters()) {
         <div class="advanced-filters">
           <div class="filters-grid">
-            <div class="filter-group">
-              <label class="filter-label" for="status-filter">Estado</label>
-              <select
+              <ui-select
                 id="status-filter"
-                class="filter-select"
-                [(ngModel)]="statusFilter"
-                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="DRAFT">Borrador</option>
-                <option value="ACTIVE">Activo</option>
-                <option value="COMPLETED">Completado</option>
-                <option value="CANCELLED">Cancelado</option>
-              </select>
-            </div>
+                label="Estado"
+                [options]="[
+                  { label: 'Todos los estados', value: 'all' },
+                  { label: 'Borrador', value: 'DRAFT' },
+                  { label: 'Activo', value: 'ACTIVE' },
+                  { label: 'Completado', value: 'COMPLETED' },
+                  { label: 'Cancelado', value: 'CANCELLED' }
+                ]"
+                [(ngModel)]="statusFilterSignal"
+              ></ui-select>
             <div class="filter-group">
               <label class="filter-label" for="date-from-filter"
                 >Fecha desde</label
@@ -265,16 +264,17 @@ import {
             >
           </div>
           <div class="bulk-buttons">
-            <select
-              class="bulk-status-select"
-              (change)="bulkChangeStatus($event)"
-            >
-              <option value="">Cambiar estado</option>
-              <option value="DRAFT">Marcar como borrador</option>
-              <option value="ACTIVE">Marcar como activo</option>
-              <option value="COMPLETED">Marcar como completado</option>
-              <option value="CANCELLED">Marcar como cancelado</option>
-            </select>
+            <ui-select
+              variant="minimal"
+              placeholder="Cambiar estado"
+              [options]="[
+                { label: 'Marcar como borrador', value: 'DRAFT' },
+                { label: 'Marcar como activo', value: 'ACTIVE' },
+                { label: 'Marcar como completado', value: 'COMPLETED' },
+                { label: 'Marcar como cancelado', value: 'CANCELLED' }
+              ]"
+              (ngModelChange)="bulkChangeStatusFromSelect($event)"
+            ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
               <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
@@ -1451,6 +1451,21 @@ export class RentalsListComponent
   onPageChange(page: number) {
     this.currentPage.set(page);
   }
+
+  get statusFilterSignal() {
+    return this.statusFilter();
+  }
+
+  set statusFilterSignal(val: string) {
+    this.statusFilter.set(val);
+    this.currentPage.set(1);
+  }
+
+  bulkChangeStatusFromSelect(val: string) {
+    if (!val) return;
+    this.bulkChangeStatus({ target: { value: val } } as any);
+  }
+}
 
   toggleSort() {
     if (this.sortField() === 'clientName') {

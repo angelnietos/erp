@@ -44,13 +44,13 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
   styles: [`
     .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
     label { 
-      font-size: 0.7rem; 
-      font-weight: 900; 
+      font-size: 0.75rem; 
+      font-weight: 700; 
       text-transform: uppercase; 
-      letter-spacing: 0.25em; 
+      letter-spacing: 0.1em; 
       color: var(--text-muted); 
-      margin-left: 14px; 
-      font-family: var(--font-gaming);
+      margin-left: 4px; 
+      font-family: var(--font-main);
     }
     .select-wrapper {
       position: relative;
@@ -62,19 +62,20 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
     /* Base — Theme Aware Style */
     select {
       width: 100%;
-      padding: 0.75rem 3rem 0.75rem 1.25rem;
-      background: var(--bg-secondary);
+      padding: 0.75rem 3rem 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
       color: var(--text-primary);
       font-size: 0.9rem;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 1.4;
       transition: all 0.3s ease;
       outline: none;
       font-family: var(--font-main);
       appearance: none;
       cursor: pointer;
+      color-scheme: dark light;
     }
 
     select:not(:disabled):hover {
@@ -123,15 +124,14 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
 
     /* Standard options follow the theme colors to ensure contrast and integration */
     option {
-      background-color: var(--bg-primary, #1e293b);
-      color: var(--text-primary, #ffffff);
-      font-weight: 500;
-      padding: 0.5rem 1rem;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      padding: 10px;
     }
 
     :host-context(html[data-theme-is-light='true']) option {
-      background-color: var(--bg-primary, #ffffff);
-      color: var(--text-primary, #0f172a);
+      background-color: #ffffff;
+      color: #000000;
     }
 }
 

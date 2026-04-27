@@ -40,11 +40,11 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       align-items: center;
       border-radius: var(--radius-lg);
       transition: all 0.5s var(--transition-spring);
-      background: transparent;
+      background: none !important;
       border: 1px solid var(--border-soft);
       overflow: hidden;
       width: 100%;
-      box-shadow: var(--shadow-sm);
+      box-shadow: none !important;
     }
 
     .search-wrapper.focused {
@@ -57,8 +57,8 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     .search-icon { 
       position: absolute; 
       left: 1.25rem; 
-      width: 1.25rem !important; 
-      height: 1.25rem !important; 
+      width: 1rem !important; 
+      height: 1rem !important; 
       color: var(--text-muted);
       transition: all 0.4s var(--transition-spring);
       pointer-events: none;
@@ -73,16 +73,18 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     input {
       flex: 1;
       min-width: 0;
-      padding: 1rem 1rem 1rem 3.25rem; 
-      background: none !important;
+      padding: 0.75rem 1rem 0.75rem 2.75rem; 
+      background: transparent !important;
+      background-color: transparent !important;
       border: none !important; 
-      font-size: 0.95rem; 
-      font-weight: 500;
+      font-size: 0.9rem; 
+      font-weight: 400;
       outline: none !important; 
       font-family: var(--font-main);
       color: var(--text-primary);
       text-transform: none !important;
       box-shadow: none !important;
+      -webkit-appearance: none;
     }
 
     input::placeholder {
