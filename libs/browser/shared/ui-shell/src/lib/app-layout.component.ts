@@ -265,12 +265,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
 
-        <!-- The Companion: One persistent bot that travels with you -->
+        <!-- Buddy: global companion always present -->
         <ui-ai-assistant
-          [feature]="routeDomain() || aiBotStore.activeBotFeature()"
+          [feature]="aiBotStore.activeBotFeature()"
           assistantRole="buddy"
           #mainAssistant
         ></ui-ai-assistant>
+        <!-- Domain specialist: the bot for the current feature -->
+        @if (routeDomain() && routeDomain() !== aiBotStore.activeBotFeature()) {
+          <ui-ai-assistant
+            [feature]="routeDomain()"
+            assistantRole="domain"
+          ></ui-ai-assistant>
+        }
       </div>
     </div>
   `,

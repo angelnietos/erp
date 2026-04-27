@@ -11,10 +11,7 @@
     class="mascot-trigger"
     [class.open]="isOpen()"
     cdkDrag
-    cdkDragBoundary="body"
-    [style.transform]="
-      'translate3d(' + botPosition().x + 'px, ' + botPosition().y + 'px, 0)'
-    "
+    [cdkDragFreeDragPosition]="botPosition()"
     role="button"
     tabindex="0"
     (click)="toggleChat()"
