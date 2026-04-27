@@ -42,14 +42,15 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     label { 
-      font-size: 0.65rem; 
+      font-size: 0.7rem; 
       font-weight: 900; 
       text-transform: uppercase; 
-      letter-spacing: 0.15em; 
-      color: var(--text-muted, #888); 
-      margin-left: 8px; 
+      letter-spacing: 0.2em; 
+      color: var(--text-muted); 
+      margin-left: 12px; 
+      font-family: var(--font-display);
     }
     .select-wrapper {
       position: relative;
@@ -58,242 +59,90 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       border-radius: inherit;
     }
 
-    /* Base — relieve suave + coherencia con marca */
+    /* Base — Console Style */
     select {
       width: 100%;
-      padding: 0.9rem 2.5rem 0.9rem 1.25rem;
-      background:
-        var(--fld-surface-soft),
-        color-mix(in srgb, var(--theme-input-bg, #12141c) 94%, var(--fld-brand) 6%);
-      border: 1px solid var(--fld-border-muted);
-      border-radius: var(--theme-input-radius, 14px);
-      color: var(--text-primary, #fff);
-      font-size: 0.85rem;
+      padding: 1.15rem 3rem 1.15rem 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.9rem;
       font-weight: 600;
       line-height: 1.35;
-      letter-spacing: 0.01em;
-      transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease,
-        transform 0.15s ease;
+      transition: all 0.4s var(--transition-spring);
       outline: none;
       font-family: inherit;
       appearance: none;
       cursor: pointer;
-      box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.28);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     select:not(:disabled):hover {
-      border-color: color-mix(in srgb, var(--fld-brand) 38%, var(--fld-border-muted));
-      box-shadow:
-        var(--fld-shine-subtle),
-        inset 0 2px 6px rgba(0, 0, 0, 0.22),
-        0 4px 14px -6px color-mix(in srgb, var(--fld-brand) 25%, transparent);
-    }
-
-    :host-context(html[data-theme-is-light='true']) select {
-      color-scheme: light;
-      box-shadow: var(--fld-shine-subtle), inset 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-
-    :host-context(html[data-theme-is-light='false']) select {
-      color-scheme: dark;
+      border-color: var(--brand);
+      box-shadow: 
+        0 0 20px color-mix(in srgb, var(--brand) 15%, transparent),
+        inset 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     .select-sm {
-      padding: 0.55rem 2.35rem 0.55rem 0.95rem !important;
-      font-size: 0.78rem !important;
-      border-radius: 12px !important;
+      padding: 0.65rem 2.5rem 0.65rem 1rem !important;
+      font-size: 0.8rem !important;
+      border-radius: 10px !important;
     }
 
-    select:focus-visible {
-      background: color-mix(in srgb, var(--theme-input-bg, #12141c) 78%, #fff 8%);
-      border-color: var(--fld-border-brand);
+    select:focus {
+      background: color-mix(in srgb, var(--bg-secondary) 70%, var(--brand) 5%);
+      border-color: var(--brand);
       box-shadow: 
-        0 0 0 4px color-mix(in srgb, var(--fld-brand) 15%, transparent),
-        0 15px 35px -12px color-mix(in srgb, var(--fld-brand) 45%, transparent),
-        var(--fld-shine-top);
-      outline: none;
+        0 0 25px color-mix(in srgb, var(--brand) 25%, transparent),
+        inset 0 2px 10px rgba(0, 0, 0, 0.2);
       transform: translateY(-1px);
     }
 
-    .select-default {
-      /* hereda base */
-    }
-
-    .select-filled {
-      background: var(--fld-surface-deep);
-      border-color: var(--fld-border-brand);
-      box-shadow: var(--fld-shine-top), inset 0 4px 14px rgba(0, 0, 0, 0.45);
-    }
-
-    .select-outlined {
-      background: transparent;
-      border-width: 2px;
-      border-color: color-mix(in srgb, var(--fld-brand) 35%, rgba(148, 163, 184, 0.45));
-      box-shadow: none;
-    }
-
-    .select-ghost {
-      background: transparent;
-      border-color: transparent;
-      border-bottom: 2px solid color-mix(in srgb, var(--fld-brand) 28%, rgba(255, 255, 255, 0.12));
-      border-radius: 0;
-      box-shadow: none;
-    }
-
-    .select-dark {
-      background: linear-gradient(180deg, #0a0b10 0%, #050508 100%);
-      border-color: rgba(255, 255, 255, 0.07);
-      box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.6);
-    }
-
-    .select-light {
-      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
-      border-color: color-mix(in srgb, var(--fld-brand) 18%, #cbd5e1);
-      color: #0f172a;
-      box-shadow: var(--fld-shine-top), 0 4px 18px rgba(15, 23, 42, 0.08);
-      color-scheme: light;
-    }
-
-    .select-light option {
-      background: #f8fafc;
-      color: #0f172a;
-    }
-
-    .select-error {
-      border-color: color-mix(in srgb, var(--fld-danger) 72%, transparent) !important;
-      background: color-mix(in srgb, var(--fld-danger) 9%, #14161f) !important;
-      box-shadow: var(--fld-glow-danger);
-    }
-
-    .select-success {
-      border-color: color-mix(in srgb, var(--fld-success) 62%, transparent);
-      background: color-mix(in srgb, var(--fld-success) 7%, #12141c);
-      box-shadow: var(--fld-glow-success);
-    }
-
-    .select-warning {
-      border-color: color-mix(in srgb, var(--fld-warning) 58%, transparent);
-      background: color-mix(in srgb, var(--fld-warning) 8%, #12141c);
-      box-shadow: var(--fld-glow-warning);
-    }
-
-    .select-info {
-      border-color: color-mix(in srgb, var(--fld-info) 58%, transparent);
-      background: color-mix(in srgb, var(--fld-info) 8%, #12141c);
-      box-shadow: var(--fld-glow-info);
-    }
-
-    .select-primary {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--fld-brand) 32%, #1a0a0c) 0%,
-        color-mix(in srgb, var(--fld-brand) 12%, #0f1016) 100%
-      );
-      border-color: color-mix(in srgb, var(--fld-brand) 58%, rgba(255, 255, 255, 0.1));
-      box-shadow: var(--fld-shine-top), var(--fld-shadow-float);
-    }
-
-    .select-secondary {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
-      border-color: rgba(255, 255, 255, 0.18);
-      box-shadow: var(--fld-shine-subtle), 0 8px 28px rgba(0, 0, 0, 0.2);
+    .select-glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px) saturate(1.5);
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     .select-theme {
-      background: linear-gradient(
-        125deg,
-        color-mix(in srgb, var(--fld-brand) 22%, transparent) 0%,
-        rgba(255, 255, 255, 0.06) 45%,
-        rgba(0, 0, 0, 0.2) 100%
-      );
-      border-color: var(--fld-border-brand);
-      box-shadow: var(--fld-shine-top), 0 12px 36px -14px color-mix(in srgb, var(--fld-brand) 45%, transparent);
-    }
-
-    .select-transparent {
-      background: transparent;
-      border-style: dashed;
-      border-color: color-mix(in srgb, var(--fld-brand) 25%, rgba(255, 255, 255, 0.2));
-      box-shadow: none;
-    }
-
-    .select-minimal {
-      padding-top: 0.65rem;
-      padding-bottom: 0.65rem;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--fld-border-muted);
-      font-size: 0.8rem;
-    }
-
-    .select-rounded {
-      border-radius: 999px;
-    }
-
-    .select-soft {
-      background: var(--fld-glass);
-      border-color: rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: var(--fld-shine-top), var(--fld-shadow-float);
-    }
-
-    .select-soft:not(:disabled):hover {
-      border-color: color-mix(in srgb, var(--fld-brand) 42%, rgba(255, 255, 255, 0.12));
-    }
-
-    .select-glass {
-      background: var(--fld-glass);
-      backdrop-filter: blur(16px) saturate(1.15);
-      -webkit-backdrop-filter: blur(16px) saturate(1.15);
-      border-color: color-mix(in srgb, #fff 16%, transparent);
-      box-shadow: var(--fld-shine-top), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      background: linear-gradient(135deg, var(--brand-ambient-strong), transparent);
+      border-color: var(--brand);
+      box-shadow: 0 0 20px var(--brand-glow);
     }
 
     select.invalid {
-      border-color: var(--fld-danger) !important;
-      box-shadow: var(--fld-glow-danger) !important;
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 15px color-mix(in srgb, var(--danger) 30%, transparent) !important;
     }
+    
     select:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .chevron {
       position: absolute;
-      right: 1rem;
+      right: 1.25rem;
       top: 50%;
-      width: 0.55rem;
-      height: 0.55rem;
-      border-right: 2.5px solid var(--text-muted, #888);
-      border-bottom: 2.5px solid var(--text-muted, #888);
-      transform: translateY(-55%) rotate(45deg);
+      width: 0.6rem;
+      height: 0.6rem;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
+      transform: translateY(-60%) rotate(45deg);
       pointer-events: none;
-      transition:
-        border-color 0.2s ease,
-        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-        filter 0.2s ease;
-      opacity: 0.92;
+      transition: all 0.4s var(--transition-spring);
     }
 
-    select:focus-visible + .chevron {
-      border-right-color: var(--fld-brand);
-      border-bottom-color: var(--fld-brand);
-      transform: translateY(-30%) rotate(225deg);
-      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--fld-brand) 45%, transparent));
-    }
-
-    .select-wrapper:hover .chevron {
-      opacity: 1;
-      border-right-color: color-mix(in srgb, var(--fld-brand) 55%, var(--text-muted));
-      border-bottom-color: color-mix(in srgb, var(--fld-brand) 55%, var(--text-muted));
+    select:focus + .chevron {
+      border-color: var(--brand);
+      transform: translateY(-20%) rotate(225deg);
+      filter: drop-shadow(0 0 10px var(--brand));
     }
 
     option {
-      background-color: var(--theme-input-bg, #12141c);
-      color: var(--text-primary, #ffffff);
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
       font-weight: 600;
-      padding: 0.45rem 0.65rem;
+      padding: 0.75rem 1rem;
     }
 
     /**

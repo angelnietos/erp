@@ -55,108 +55,108 @@ export type ModalVariant = string;
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       display: flex; align-items: center;
       justify-content: center;
-      /* Por encima de cabecera shell (≈5k) y toasts (3k) */
       z-index: 20000;
-      animation: modalFadeIn 0.35s ease-out;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(12px) saturate(1.2);
-      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+      animation: modalFadeIn 0.4s var(--ease-out-expo);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px) saturate(1.5);
     }
 
-    @keyframes modalFadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(12px); } }
-    @keyframes modalSlideUp { 
-      from { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(4px); } 
-      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
+    @keyframes modalFadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(20px); } }
+    @keyframes modalSpringUp { 
+      0% { opacity: 0; transform: translateY(100px) scale(0.9) rotateX(10deg); } 
+      100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); } 
     }
 
-    /* Modal Content Base */
+    /* Modal Content Base — Rockstar + Nintendo */
     .modal-content {
-      --modal-radius: 28px;
-      --modal-bg: var(--bg-secondary, #111);
-      --modal-border: var(--border-soft, rgba(255, 255, 255, 0.1));
-      --modal-border-width: 1px;
-      --modal-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
-      --modal-header-color: var(--text-primary, #fff);
-      --modal-accent: var(--brand, #3b82f6);
+      --modal-radius: var(--radius-lg);
+      --modal-bg: var(--bg-secondary);
+      --modal-border: var(--border-soft);
+      --modal-accent: var(--brand);
       
       border-radius: var(--modal-radius); 
-      min-width: 520px;
+      min-width: 580px;
       max-width: 95vw; 
-      max-height: 92vh; 
+      max-height: 90vh; 
       overflow: hidden;
       background: var(--modal-bg);
-      border: var(--modal-border-width) solid var(--modal-border);
-      box-shadow:
-        var(--modal-shadow),
-        0 0 0 1px color-mix(in srgb, var(--modal-accent) 15%, transparent),
-        0 0 40px -10px color-mix(in srgb, var(--modal-accent) 25%, transparent);
-      animation: modalSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid var(--modal-border);
+      box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: modalSpringUp 0.6s var(--transition-spring);
       position: relative;
+      isolation: isolate;
     }
 
-    /* COLORS & GLOWS */
-    .modal-color-default { --modal-accent: var(--brand); }
-    .modal-color-primary { --modal-accent: var(--brand); }
-    .modal-color-danger { --modal-accent: var(--danger, #ef4444); }
-    .modal-color-success { --modal-accent: var(--success, #10b981); }
-    .modal-color-warning { --modal-accent: var(--warning, #f59e0b); }
-    .modal-color-info { --modal-accent: var(--info, #3b82f6); }
-
-    .modal-color-primary, .modal-color-danger, .modal-color-success, .modal-color-warning, .modal-color-info {
-       --modal-header-color: var(--modal-accent);
+    /* Cinematic Noise Layer */
+    .modal-content::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: -1;
     }
+
+    /* Nintendo Switch Style Side Accent */
+    .modal-content::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0; width: 6px;
+      background: var(--modal-accent);
+      box-shadow: 0 0 20px var(--modal-accent);
+      z-index: 10;
+    }
+
+    .modal-color-danger { --modal-accent: var(--danger); }
+    .modal-color-success { --modal-accent: var(--success); }
+    .modal-color-warning { --modal-accent: var(--warning); }
+    .modal-color-info { --modal-accent: var(--info); }
     
     .modal-shape-glass {
-      --modal-bg: color-mix(in srgb, var(--bg-secondary, #111) 68%, transparent);
-      backdrop-filter: blur(40px) saturate(1.8); -webkit-backdrop-filter: blur(40px) saturate(1.8);
-      --modal-border: color-mix(in srgb, var(--modal-accent) 30%, rgba(255,255,255,0.1));
-      box-shadow: 
-        var(--modal-shadow),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-        0 0 50px -15px color-mix(in srgb, var(--modal-accent) 40%, transparent);
+      background: rgba(20, 22, 30, 0.6);
+      backdrop-filter: blur(50px) saturate(2);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
-    .modal-shape-solid { --modal-radius: 16px; --modal-border-width: 2px; }
-
-    /* Header & Action Refinement */
+    /* Header — Console Menu Style */
     .modal-header {
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 1.75rem 2.5rem;
-      background: linear-gradient(to bottom, color-mix(in srgb, var(--modal-accent) 8%, transparent), transparent);
-      border-bottom: 1px solid var(--modal-border);
+      padding: 2.5rem 3rem;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .modal-header h3 {
       margin: 0;
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--modal-header-color);
-      font-family: inherit;
-      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--modal-accent) 40%, transparent));
+      letter-spacing: 0.2em;
+      color: #fff;
+      font-family: var(--font-display);
+      text-shadow: 0 0 15px var(--modal-accent);
     }
 
     .close-btn {
-      width: 2.5rem; height: 2.5rem;
+      width: 3rem; height: 3rem;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--modal-border);
-      border-radius: 12px;
-      font-size: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      font-size: 1.2rem;
       cursor: pointer;
-      color: var(--text-muted, #888);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      color: var(--text-muted);
+      transition: all 0.4s var(--transition-spring);
     }
 
     .close-btn:hover {
       color: #fff;
-      background: color-mix(in srgb, var(--modal-accent) 25%, transparent);
-      border-color: var(--modal-accent);
-      transform: rotate(180deg) scale(1.15);
-      box-shadow: 0 0 25px -5px var(--modal-accent);
+      background: var(--brand);
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 0 30px var(--brand-glow);
     }
 
     .close-btn:focus-visible {
@@ -167,38 +167,25 @@ export type ModalVariant = string;
     }
 
     .modal-body {
-      padding: 2rem 2.5rem;
+      padding: 3rem;
       max-height: 70vh;
       overflow-y: auto;
-      scrollbar-gutter: stable;
     }
 
     .modal-footer {
-      padding: 1.5rem 2.5rem;
+      padding: 2rem 3rem;
       display: flex;
       justify-content: flex-end;
-      gap: 1rem;
-      background: rgba(0, 0, 0, 0.2);
-      border-top: 1px solid var(--modal-border);
+      gap: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
     }
-
-    /* Form Specific Spacing inside Modal Body */
-    ::ng-content .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    ::ng-content .form-section { margin-bottom: 2.5rem; }
-    ::ng-content .section-title { 
-      font-size: 0.75rem; font-weight: 900; color: var(--modal-accent);
-      text-transform: uppercase; letter-spacing: 0.2em;
-      margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;
-    }
-    ::ng-content .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--modal-border), transparent); }
 
     /* Custom Scrollbar */
-    .modal-body::-webkit-scrollbar { width: 4px; }
-    .modal-body::-webkit-scrollbar-track { background: transparent; }
+    .modal-body::-webkit-scrollbar { width: 6px; }
     .modal-body::-webkit-scrollbar-thumb { 
-      background: var(--modal-border); 
+      background: rgba(255, 255, 255, 0.1); 
       border-radius: 10px; 
-      transition: background 0.3s;
     }
     .modal-body::-webkit-scrollbar-thumb:hover { background: var(--modal-accent); }
 

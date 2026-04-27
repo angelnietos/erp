@@ -49,188 +49,92 @@ export type InputVariant = string;
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 0.15em; color: var(--text-muted, #888);
-      margin-left: 8px; font-family: inherit;
+      font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.2em; color: var(--text-muted);
+      margin-left: 12px; font-family: var(--font-display);
+      transition: color 0.3s ease;
     }
 
     .input-wrapper { 
       position: relative; display: flex; align-items: center; 
-      --input-bg: var(--theme-input-bg, rgba(255, 255, 255, 0.05));
-      --input-border: var(--theme-input-border, rgba(255, 255, 255, 0.1));
-      --input-radius: var(--theme-input-radius, 14px);
-      --input-color: var(--text-primary, #fff);
-      --input-accent: var(--fld-brand);
+      --input-bg: var(--bg-secondary);
+      --input-border: var(--border-soft);
+      --input-radius: var(--radius-md);
+      --input-color: var(--text-primary);
+      --input-accent: var(--brand);
     }
+
+    .input-wrapper:focus-within .label { color: var(--input-accent); }
 
     /* THEMATIC COLOR TOKENS */
-    .input-color-default { --input-accent: var(--fld-brand); }
-    .input-color-primary { --input-accent: var(--fld-brand); }
-    .input-color-danger { --input-accent: var(--fld-danger); }
-    .input-color-success { --input-accent: var(--fld-success); }
-    .input-color-warning { --input-accent: var(--fld-warning); }
-    .input-color-info { --input-accent: var(--fld-info); }
+    .input-color-danger { --input-accent: var(--danger); }
+    .input-color-success { --input-accent: var(--success); }
+    .input-color-warning { --input-accent: var(--warning); }
+    .input-color-info { --input-accent: var(--info); }
 
-    .input-wrapper.has-error { --input-border: var(--fld-danger); --input-accent: var(--fld-danger); }
+    .input-wrapper.has-error { --input-border: var(--danger); --input-accent: var(--danger); }
 
     .input-shape-glass {
-      --input-bg: color-mix(in srgb, rgba(255, 255, 255, 0.06) 40%, transparent);
-      --input-border: color-mix(in srgb, var(--fld-brand) 22%, rgba(255, 255, 255, 0.1));
-      backdrop-filter: blur(14px) saturate(1.1);
-      -webkit-backdrop-filter: blur(14px) saturate(1.1);
-    }
-
-    /* Shapes — sin esto, auto/solid/outline/etc. se ven idénticos */
-    .input-wrapper.input-shape-auto {
-      --input-bg: color-mix(in srgb, var(--theme-input-bg, rgba(255,255,255,0.05)) 88%, var(--input-accent) 12%);
-      --input-border: color-mix(in srgb, var(--input-accent) 22%, var(--theme-input-border, rgba(255,255,255,0.1)));
+      --input-bg: rgba(255, 255, 255, 0.03);
+      --input-border: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px) saturate(1.5);
     }
 
     .input-wrapper.input-shape-solid {
-      --input-bg: linear-gradient(180deg, color-mix(in srgb, var(--input-accent) 14%, #151722) 0%, #0e0f14 100%);
-      --input-border: color-mix(in srgb, var(--input-accent) 38%, rgba(255, 255, 255, 0.08));
-      --input-radius: 12px;
-    }
-
-    .input-wrapper.input-shape-outline {
-      --input-bg: transparent;
-      --input-border: color-mix(in srgb, var(--input-accent) 55%, rgba(255,255,255,0.15));
-      --input-radius: 14px;
-    }
-
-    .input-wrapper.input-shape-outline input {
-      border-width: 2px;
-    }
-
-    .input-wrapper.input-shape-flat {
-      --input-bg: color-mix(in srgb, var(--fld-brand) 8%, rgba(255, 255, 255, 0.07));
-      --input-border: var(--fld-border-muted);
-      --input-radius: 10px;
-    }
-
-    .input-wrapper.input-shape-flat input {
-      box-shadow: var(--fld-shine-subtle), inset 0 2px 6px rgba(0, 0, 0, 0.22);
-    }
-
-    .input-wrapper.input-shape-neumorphic {
-      --input-bg: linear-gradient(145deg, #1a1c26 0%, #12141a 100%);
-      --input-border: color-mix(in srgb, var(--input-accent) 15%, rgba(255, 255, 255, 0.06));
-      --input-radius: 16px;
-    }
-
-    .input-wrapper.input-shape-neumorphic input {
-      box-shadow:
-        8px 8px 18px rgba(0, 0, 0, 0.5),
-        -6px -6px 14px rgba(255, 255, 255, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    }
-
-    .input-wrapper.input-shape-underline {
-      --input-bg: transparent;
-      --input-border: transparent;
-      --input-radius: 0;
-    }
-
-    .input-wrapper.input-shape-underline input {
-      border: none;
-      border-bottom: 2px solid color-mix(in srgb, var(--input-accent) 50%, transparent);
-      border-radius: 0 !important;
-      box-shadow: none;
-      padding-left: 0.25rem;
-    }
-
-    .input-wrapper.input-shape-minimal {
-      --input-bg: rgba(255, 255, 255, 0.04);
-      --input-border: rgba(255, 255, 255, 0.07);
-      --input-radius: 8px;
-    }
-
-    .input-wrapper.input-shape-minimal input {
-      padding-top: 0.65rem;
-      padding-bottom: 0.65rem;
-      font-size: 0.8rem;
-    }
-
-    .input-wrapper.input-shape-rounded {
-      --input-radius: 999px;
+      --input-bg: var(--bg-tertiary);
+      --input-border: var(--border-soft);
     }
 
     /* ELEMENT BASE RULES */
     input {
-      width: 100%; padding: 0.9rem 1.25rem;
+      width: 100%; padding: 1.15rem 1.5rem;
       background: var(--input-bg);
       border: 1px solid var(--input-border);
       border-radius: var(--input-radius);
       color: var(--input-color);
-      font-size: 0.85rem; font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      font-size: 0.9rem; font-weight: 600;
+      transition: all 0.4s var(--transition-spring);
       outline: none; font-family: inherit;
-      box-shadow: var(--fld-shine-subtle), var(--theme-input-shadow, inset 0 2px 5px rgba(0, 0, 0, 0.25));
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
-    /* FOCUS STATES — anillo fuerte solo con teclado (:focus-visible) */
-    input:focus-visible {
-      background: color-mix(in srgb, var(--input-bg) 82%, #fff 10%);
+    /* FOCUS STATES */
+    input:focus {
+      background: color-mix(in srgb, var(--input-bg) 70%, var(--input-accent) 5%);
       border-color: var(--input-accent);
-      box-shadow:
-        0 0 0 4px color-mix(in srgb, var(--input-accent) 15%, transparent),
-        0 15px 35px -12px color-mix(in srgb, var(--input-accent) 45%, transparent),
-        var(--fld-shine-top);
+      box-shadow: 
+        0 0 25px color-mix(in srgb, var(--input-accent) 25%, transparent),
+        inset 0 2px 10px rgba(0, 0, 0, 0.2);
       transform: translateY(-1px);
     }
 
     input::placeholder {
-      color: var(--text-muted); padding-left: 2px;
-      opacity: 0.5;
+      color: var(--text-muted);
+      opacity: 0.4;
       font-weight: 500;
     }
     
-    .has-icon input { padding-left: 3rem; }
+    .has-icon input { padding-left: 3.5rem; }
     .field-icon { 
-      position: absolute; left: 1.15rem; width: 1.2rem; height: 1.2rem; 
+      position: absolute; left: 1.4rem; width: 1.3rem; height: 1.3rem; 
       color: var(--text-muted); pointer-events: none; transition: all 0.3s;
-      filter: drop-shadow(0 0 5px transparent);
     }
-    input:focus-visible ~ .field-icon { 
+    input:focus ~ .field-icon { 
        color: var(--input-accent);
-       transform: scale(1.1);
-       filter: drop-shadow(0 0 8px color-mix(in srgb, var(--input-accent) 60%, transparent));
+       transform: scale(1.15);
+       filter: drop-shadow(0 0 10px var(--input-accent));
     }
 
     input:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Babooni: campos claros (misma línea que ui-select / theme-input-bg) */
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input {
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 70%, transparent);
-      border-radius: 9999px;
-      color: var(--text-primary, #080808);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
-      backdrop-filter: blur(12px);
-      color-scheme: light;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    .hint { 
+      font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; margin-left: 12px; 
+      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
     }
-    
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input:focus-visible {
-      background: #ffffff;
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .hint {
-      color: var(--text-muted);
-      opacity: 0.8;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .input-wrapper input::placeholder {
-      opacity: 0.72;
-    }
-
-    .hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 6px; margin-left: 8px; font-weight: 600; letter-spacing: 0.02em; }
-    .hint.error { color: var(--fld-danger); text-transform: uppercase; font-size: 0.6rem; }
+    .hint.error { color: var(--danger); }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {
