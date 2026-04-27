@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -251,6 +251,8 @@ export class UiSelectComponent implements ControlValueAccessor {
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: SelectVariant = 'default';
 
+  @Output() change = new EventEmitter<string>();
+
   value: unknown = '';
   disabled = false;
   onChange: (value: unknown) => void = () => {
@@ -269,6 +271,7 @@ export class UiSelectComponent implements ControlValueAccessor {
     const val = (event.target as HTMLSelectElement).value;
     this.value = val;
     this.onChange(val);
+    this.change.emit(val);
   }
   onBlur(): void { this.onTouched(); }
 }

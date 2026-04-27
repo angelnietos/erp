@@ -273,7 +273,7 @@ import {
                 { label: 'Marcar como completado', value: 'COMPLETED' },
                 { label: 'Marcar como cancelado', value: 'CANCELLED' }
               ]"
-              (ngModelChange)="bulkChangeStatusFromSelect($event)"
+              (change)="bulkChangeStatusFromSelect($event)"
             ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
               <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
