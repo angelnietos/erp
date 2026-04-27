@@ -95,8 +95,8 @@ import type { SearchVariant } from '../search/search.component';
     }
 
     .feature-filter-bar__search {
-      flex: 1 1 500px;
-      min-width: 350px;
+      flex: 1 1 600px;
+      min-width: 380px;
     }
 
     @media (max-width: 1024px) {
