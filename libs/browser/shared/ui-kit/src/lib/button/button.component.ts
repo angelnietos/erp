@@ -132,6 +132,13 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       color: #fff;
     }
 
+    .btn-color-warning {
+      --btn-accent: var(--warning);
+      background: linear-gradient(135deg, #ffe08a 0%, var(--warning) 100%);
+      color: #1a1200;
+      font-weight: 800;
+    }
+
     .btn-color-default { 
       --btn-accent: rgba(255, 255, 255, 0.1); 
       background: rgba(255, 255, 255, 0.05);
@@ -157,6 +164,65 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       border-color: var(--brand);
       box-shadow: 0 0 20px var(--brand-glow);
       transform: translateY(-4px);
+    }
+
+    /* Glass + color: el .btn-shape-glass genérico venía después y dejaba todo gris; respetar acentos. */
+    .btn-color-primary.btn-shape-glass,
+    .btn-color-app.btn-shape-glass {
+      background: color-mix(in srgb, var(--brand) 26%, rgba(0, 0, 0, 0.3));
+      border: 1px solid color-mix(in srgb, var(--brand) 42%, rgba(255, 255, 255, 0.14));
+      color: #fff;
+      box-shadow: 0 4px 22px -6px color-mix(in srgb, var(--brand) 45%, transparent);
+    }
+    .btn-color-primary.btn-shape-glass:hover,
+    .btn-color-app.btn-shape-glass:hover {
+      background: color-mix(in srgb, var(--brand) 38%, rgba(0, 0, 0, 0.2));
+      border-color: var(--brand);
+      box-shadow: 0 8px 28px -6px color-mix(in srgb, var(--brand) 55%, transparent);
+    }
+
+    .btn-color-success.btn-shape-glass {
+      background: color-mix(in srgb, var(--success) 30%, rgba(0, 0, 0, 0.25));
+      border: 1px solid color-mix(in srgb, var(--success) 48%, rgba(255, 255, 255, 0.12));
+      color: #021910;
+    }
+    .btn-color-success.btn-shape-glass:hover {
+      background: color-mix(in srgb, var(--success) 45%, rgba(0, 0, 0, 0.18));
+      border-color: var(--success);
+      box-shadow: 0 0 24px color-mix(in srgb, var(--success) 40%, transparent);
+    }
+
+    .btn-color-warning.btn-shape-glass {
+      background: color-mix(in srgb, var(--warning) 34%, rgba(0, 0, 0, 0.2));
+      border: 1px solid color-mix(in srgb, var(--warning) 52%, rgba(255, 255, 255, 0.1));
+      color: #1f1600;
+    }
+    .btn-color-warning.btn-shape-glass:hover {
+      background: color-mix(in srgb, var(--warning) 48%, rgba(0, 0, 0, 0.12));
+      border-color: var(--warning);
+      box-shadow: 0 0 22px color-mix(in srgb, var(--warning) 45%, transparent);
+    }
+
+    .btn-color-secondary.btn-shape-glass {
+      background: color-mix(in srgb, var(--switch-blue, #00beef) 28%, rgba(0, 0, 0, 0.3));
+      border: 1px solid color-mix(in srgb, var(--switch-blue) 50%, rgba(255, 255, 255, 0.12));
+      color: #ecfeff;
+    }
+    .btn-color-secondary.btn-shape-glass:hover {
+      background: color-mix(in srgb, var(--switch-blue) 40%, rgba(0, 0, 0, 0.22));
+      border-color: var(--switch-blue);
+      box-shadow: 0 0 22px color-mix(in srgb, var(--switch-blue) 35%, transparent);
+    }
+
+    .btn-color-danger.btn-shape-glass {
+      background: color-mix(in srgb, var(--danger) 26%, rgba(0, 0, 0, 0.3));
+      border: 1px solid color-mix(in srgb, var(--danger) 45%, rgba(255, 255, 255, 0.1));
+      color: #fff;
+    }
+    .btn-color-danger.btn-shape-glass:hover {
+      background: color-mix(in srgb, var(--danger) 40%, rgba(0, 0, 0, 0.2));
+      border-color: var(--danger);
+      box-shadow: 0 0 24px color-mix(in srgb, var(--danger) 40%, transparent);
     }
 
     .btn-shape-ghost {

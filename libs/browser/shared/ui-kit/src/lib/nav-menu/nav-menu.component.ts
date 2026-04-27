@@ -74,104 +74,66 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
     .nav-link {
       display: flex; 
       align-items: center; 
-      gap: 14px; 
-      padding: 12px 20px;
-      border-radius: var(--radius-lg); 
+      gap: 12px; 
+      padding: 10px 16px;
+      border-radius: var(--radius-md); 
       text-decoration: none; 
       color: var(--text-muted);
-      transition: all 0.5s var(--transition-spring); 
-      font-size: 0.75rem; 
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
+      transition: all 0.3s ease; 
+      font-size: 0.85rem; 
+      font-weight: 600;
       position: relative;
-      font-family: var(--font-gaming);
-      overflow: hidden;
-      isolation: isolate;
     }
     
-    /* Holographic Glow Layer */
-    .nav-link::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, var(--brand-ambient-strong), transparent 80%);
-      transform: translateX(-100%);
-      transition: transform 0.6s var(--transition-spring);
-      z-index: -1;
-      opacity: 0.5;
-    }
-
-    .nav-link.child { padding-left: 48px; font-size: 0.7rem; opacity: 0.8; }
+    .nav-link.child { padding-left: 44px; font-size: 0.8rem; }
     .nav-icon { 
-      width: 24px; 
-      height: 24px; 
+      width: 20px; 
+      height: 20px; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
       flex-shrink: 0; 
-      transition: all 0.5s var(--transition-spring); 
+      transition: color 0.3s ease; 
       color: var(--text-muted); 
     }
     
     .nav-badge {
-      font-family: var(--font-gaming);
       font-size: 0.65rem; 
-      font-weight: 900; 
-      padding: 3px 10px;
+      font-weight: 700; 
+      padding: 2px 8px;
       border-radius: 100px; 
       background: var(--brand); 
       color: white;
-      box-shadow: 0 0 20px var(--brand-glow);
     }
 
     /* Interactions */
     .nav-link:hover {
-      color: #fff;
-      transform: translateX(8px) scale(1.02);
-      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+      background: rgba(var(--brand-rgb), 0.05);
     }
     
     .nav-link:hover .nav-icon {
       color: var(--brand);
-      transform: scale(1.3) rotate(-8deg);
-      filter: drop-shadow(0 0 10px var(--brand-glow));
     }
 
-    /* Active State — Nintendo-Ubisoft Style */
+    /* Active State */
     .nav-link.active {
-      color: #fff; 
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 
-        inset 0 0 20px var(--brand-ambient),
-        0 10px 30px -10px rgba(0,0,0,0.5);
-      transform: translateX(12px) scale(1.05);
+      color: var(--brand); 
+      background: rgba(var(--brand-rgb), 0.08);
+      font-weight: 700;
     }
 
-    /* Active Indicator (Vertical Bar) */
+    /* Active Indicator */
     .nav-link.active::after {
       content: '';
       position: absolute;
-      left: 0; top: 15%; bottom: 15%; width: 5px;
+      left: 0; top: 20%; bottom: 20%; width: 3px;
       background: var(--brand);
       border-radius: 0 4px 4px 0;
-      box-shadow: 0 0 20px var(--brand);
-      animation: navIndicatorPulse 2s infinite;
-    }
-
-    @keyframes navIndicatorPulse {
-      0%, 100% { height: 70%; opacity: 1; }
-      50% { height: 40%; opacity: 0.7; }
     }
 
     .nav-link.active .nav-icon {
       color: var(--brand);
-      transform: scale(1.3);
-      filter: drop-shadow(0 0 12px var(--brand));
-    }
-
-    .nav-link.active::before {
-      transform: translateX(0);
     }
   `]
 })

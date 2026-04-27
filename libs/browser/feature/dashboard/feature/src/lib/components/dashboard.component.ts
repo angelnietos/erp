@@ -227,21 +227,29 @@ interface QuickAction {
                <lucide-icon name="zap" size="18" aria-hidden="true"></lucide-icon>
                <h3>Acciones Flash</h3>
             </div>
-            <div class="actions-list">
+            <div class="actions-list" role="list">
               @for (action of quickActions(); track action.title) {
-                <ui-button 
-                  [color]="action.color" 
-                  variant="glass" 
-                  class="action-btn"
+                <ui-button
+                  [color]="action.color"
+                  variant="glass"
+                  size="md"
+                  class="action-btn flash-action"
                   (clicked)="goToRoute($event, action.route)"
                 >
-                  <div class="action-btn-content">
-                     <lucide-icon [name]="action.icon" size="18" aria-hidden="true"></lucide-icon>
-                     <div class="action-btn-text">
-                        <span class="a-title">{{ action.title }}</span>
-                        <span class="a-desc">{{ action.description }}</span>
-                     </div>
-                  </div>
+                  <span class="flash-action__inner">
+                    <span class="flash-action__icon-wrap" aria-hidden="true">
+                      <lucide-icon
+                        [name]="action.icon"
+                        class="flash-action__icon"
+                        size="20"
+                        aria-hidden="true"
+                      ></lucide-icon>
+                    </span>
+                    <span class="flash-action__copy">
+                      <span class="a-title">{{ action.title }}</span>
+                      <span class="a-desc">{{ action.description }}</span>
+                    </span>
+                  </span>
                 </ui-button>
               }
             </div>
@@ -401,24 +409,65 @@ interface QuickAction {
     }
 
     .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
       padding: 1.75rem 2rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    .panel-header h3 { font-size: 0.75rem; font-weight: 900; letter-spacing: 0.2em; }
+    .panel-header h3 {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+    }
+
+    .panel-header > ui-button {
+      margin-left: auto;
+      flex: 0 0 auto;
+    }
 
     /* Analytics Bars */
     .analytics-content { padding: 2rem; gap: 3rem; }
     
-    .data-row { grid-template-columns: 160px 1fr 120px; gap: 2rem; margin-bottom: 1.5rem; }
+    .data-row { display: grid; grid-template-columns: 160px 1fr 120px; gap: 2rem; margin-bottom: 1.5rem; }
     .row-name { font-size: 0.85rem; font-weight: 700; }
     .row-value { font-family: var(--font-gaming); font-size: 0.9rem; color: #fff; }
     
-    .progress-track { height: 10px; background: rgba(255,255,255,0.03); border-radius: 20px; }
-    .progress-fill { border-radius: 20px; box-shadow: 0 0 20px var(--brand-glow); }
+    .progress-track {
+      height: 10px;
+      background: color-mix(in srgb, var(--text-muted) 12%, rgba(255, 255, 255, 0.06));
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      min-width: 2%;
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--brand) 80%, #fff 20%),
+        var(--brand)
+      );
+      box-shadow: 0 0 20px var(--brand-glow);
+    }
+    .progress-fill.primary {
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--success) 70%, var(--brand) 30%),
+        var(--success)
+      );
+      box-shadow: 0 0 16px color-mix(in srgb, var(--success) 50%, transparent);
+    }
 
     /* Activity Feed */
     .feed-item {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
       padding: 1.5rem 2rem;
       border-bottom: 1px solid rgba(255,255,255,0.02);
     }
@@ -426,13 +475,77 @@ interface QuickAction {
 
     .item-icon {
       width: 44px; height: 44px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05);
     }
 
-    /* Actions Sidebar */
-    .actions-list { gap: 1rem; padding: 2rem; }
-    .action-btn { border-radius: var(--radius-md) !important; }
-    .a-title { font-size: 0.85rem; font-weight: 900; }
-    .a-desc { font-size: 0.7rem; opacity: 0.6; }
+    /* Acciones flash — mismo ancho, altura fija, lectura clara */
+    .actions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.5rem 1.5rem 1.75rem;
+    }
+    .action-btn {
+      display: block;
+      width: 100%;
+    }
+    .action-btn ::ng-deep .btn {
+      width: 100%;
+      min-height: 4.25rem;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
+      border-radius: 16px;
+      padding: 0.8rem 1rem;
+      line-height: 1.2;
+      text-transform: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .flash-action__inner {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      width: 100%;
+      min-width: 0;
+    }
+    .flash-action__icon-wrap {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 14px;
+      background: color-mix(in srgb, #fff 14%, transparent);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .flash-action__icon {
+      color: currentColor;
+    }
+    .flash-action__copy {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      gap: 0.2rem;
+      min-width: 0;
+      flex: 1;
+    }
+    .a-title {
+      font-size: 0.81rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .a-desc {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      opacity: 0.86;
+    }
 
     .info-teaser {
        margin-top: 1.5rem; padding: 2rem; border-radius: var(--radius-lg);
@@ -449,7 +562,6 @@ interface QuickAction {
     @media (max-width: 768px) {
       .sidebar-col { grid-template-columns: 1fr; }
       .hero-content { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-      .hero-meta { text-align: left; }
     }
 
     :host-context(html[data-theme-is-light='true']) .glass-panel {
@@ -505,17 +617,17 @@ interface QuickAction {
       box-shadow: 0 0 15px rgba(var(--brand-rgb), 0.3);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .action-btn {
-      border-radius: 16px;
-      padding: 1.25rem !important;
-      background: #ffffff;
-      border: 1px solid rgba(0,0,0,0.03);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    :host-context(html[data-erp-tenant='babooni']) .actions-list {
+      gap: 0.65rem;
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    :host-context(html[data-erp-tenant='babooni']) .flash-action__icon-wrap {
+      background: color-mix(in srgb, #fff 22%, rgba(0, 0, 0, 0.12));
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .a-desc {
+      color: color-mix(in srgb, currentColor 50%, #1a1a1a 50%);
+      opacity: 0.92;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -727,6 +839,3 @@ export class DashboardComponent implements OnInit {
 
   goToRoute(event: Event, route: string) {
     event.stopPropagation();
-    this.router.navigate([route]);
-  }
-}
