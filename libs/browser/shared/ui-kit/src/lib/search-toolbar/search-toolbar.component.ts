@@ -87,7 +87,7 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature .search-toolbar__field {
-      padding: 0 1.25rem;
+      padding: 0 0.75rem 0 1.25rem;
     }
 
     .search-toolbar__divider {

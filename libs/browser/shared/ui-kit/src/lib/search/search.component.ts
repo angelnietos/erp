@@ -75,18 +75,21 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       padding: 1rem 3rem 1rem 3.25rem; 
       background: transparent;
       border: none; 
-      font-size: 0.95rem; 
+      font-size: 1rem; 
       font-weight: 600;
       outline: none; 
       font-family: var(--font-main);
       color: var(--text-primary);
+      text-transform: none !important;
     }
 
     input::placeholder {
       color: var(--text-muted);
       opacity: 0.7;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 500;
+      text-transform: none !important;
+      letter-spacing: normal !important;
     }
 
     .search-glass {
@@ -135,7 +138,7 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
   `],
 })
 export class UiSearchComponent {
-  @Input() placeholder = 'BUSCAR...';
+  @Input() placeholder = 'Buscar...';
   @Input() value = '';
   @Input() variant: SearchVariant = 'default';
   /** Integrado en barra unificada: sin marco propio (usa el del toolbar). */
