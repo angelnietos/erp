@@ -95,21 +95,24 @@ interface QuickAction {
       [extraClass]="'dashboard-wrapper'"
     >
       <!-- Premium Hero Header -->
-      <section class="dashboard-hero">
+      <section class="dashboard-hero animate-fade-in">
         <div class="hero-content">
           <div class="hero-text">
+            <div class="hero-badge">SISTEMA OPERATIVO v2.1</div>
             <h1 class="display-xl glow-text">Panel Central</h1>
-            <p class="body-lg text-secondary">Resumen ejecutivo y control de operaciones en tiempo real</p>
+            <p class="body-lg hero-subtitle">Gestión ejecutiva y monitoreo de operaciones en tiempo real</p>
           </div>
           <div class="hero-meta">
             <div class="live-status">
+               <div class="pulse-ring"></div>
                <span class="pulse-dot"></span>
-               <span class="status-label">STREAMING OPERATIVO</span>
+               <span class="status-label">EN LÍNEA</span>
             </div>
             <div class="system-date">{{ currentDate() }}</div>
           </div>
         </div>
-        <div class="hero-glow"></div>
+        <div class="hero-glow-layer layer-1"></div>
+        <div class="hero-glow-layer layer-2"></div>
       </section>
 
       <!-- Key Metrics -->
@@ -400,29 +403,145 @@ interface QuickAction {
       margin: 0 auto;
     }
 
+    .dashboard-hero {
+      position: relative;
+      padding: 3.5rem 2.5rem 3rem;
+      margin-bottom: 2rem;
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .hero-badge {
+      font-size: 0.58rem;
+      font-weight: 900;
+      color: var(--brand);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .hero-subtitle {
+      color: var(--text-secondary);
+      font-weight: 500;
+      max-width: 500px;
+      margin-top: 0.5rem;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 1rem;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      opacity: 0.4;
+      animation: ringPulse 2s infinite ease-out;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .status-label {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--success);
+    }
+
+    .system-date {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .hero-glow-layer {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .hero-glow-layer.layer-1 {
+      top: -100px;
+      right: -50px;
+      width: 300px;
+      height: 300px;
+      background: color-mix(in srgb, var(--brand) 25%, transparent);
+      opacity: 0.4;
+    }
+
+    .hero-glow-layer.layer-2 {
+      bottom: -150px;
+      left: -50px;
+      width: 400px;
+      height: 400px;
+      background: color-mix(in srgb, var(--brand) 15%, transparent);
+      opacity: 0.2;
+    }
+
+    @keyframes ringPulse {
+      0% { transform: scale(1); opacity: 0.4; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
     .glass-panel {
-      margin-bottom: 3rem;
-      background: rgba(255, 255, 255, 0.01) !important;
-      border: 1px solid rgba(255, 255, 255, 0.05) !important;
-      backdrop-filter: blur(30px);
-      border-radius: var(--radius-lg) !important;
+      margin-bottom: 2rem;
+      background: rgba(255, 255, 255, 0.015) !important;
+      border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      backdrop-filter: blur(35px);
+      border-radius: 20px !important;
+      box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-panel:hover {
+      background: rgba(255, 255, 255, 0.025) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
     }
 
     .panel-header {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      padding: 1.75rem 2rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      gap: 0.85rem;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     .panel-header h3 {
-      flex: 1 1 auto;
-      min-width: 0;
-      font-size: 0.75rem;
-      font-weight: 900;
-      letter-spacing: 0.2em;
+      flex: 1;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
     }
 
     .panel-header > ui-button {

@@ -44,38 +44,42 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
   styles: [`
     .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
     label { 
-      font-size: 0.75rem; 
+      font-size: 0.65rem; 
       font-weight: 700; 
       text-transform: uppercase; 
-      letter-spacing: 0.1em; 
+      letter-spacing: 0.15em; 
       color: var(--text-muted); 
-      margin-left: 4px; 
+      margin-left: 8px; 
       font-family: var(--font-main);
+      opacity: 0.9;
     }
     .select-wrapper {
       position: relative;
       display: flex;
       align-items: stretch;
-      border-radius: inherit;
+      border-radius: 12px;
+      --select-padding-v: calc(var(--page-gap, 1.5rem) * 0.5 + 0.2rem);
+      --select-padding-h: calc(var(--page-gap, 1.5rem) * 0.7 + 0.3rem);
     }
 
     /* Base — Theme Aware Style */
     select {
       width: 100%;
-      padding: 0.75rem 3rem 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.03);
+      padding: var(--select-padding-v) 3rem var(--select-padding-v) var(--select-padding-h);
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
+      border-radius: 12px;
       color: var(--text-primary);
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.85rem;
+      font-weight: 600;
       line-height: 1.4;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
       font-family: var(--font-main);
       appearance: none;
       cursor: pointer;
       color-scheme: dark light;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     select:not(:disabled):hover {

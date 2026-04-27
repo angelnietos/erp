@@ -38,13 +38,14 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       position: relative;
       display: flex;
       align-items: center;
-      border-radius: var(--radius-lg);
-      transition: all 0.5s var(--transition-spring);
+      border-radius: 24px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       background: none !important;
       border: 1px solid var(--border-soft);
       overflow: hidden;
       width: 100%;
       box-shadow: none !important;
+      --search-padding-v: calc(var(--page-gap, 1.5rem) * 0.4 + 0.15rem);
     }
 
     .search-wrapper.focused {
@@ -73,12 +74,12 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     input {
       flex: 1;
       min-width: 0;
-      padding: 0.75rem 1rem 0.75rem 2.75rem; 
+      padding: var(--search-padding-v) 1rem var(--search-padding-v) 2.75rem; 
       background: transparent !important;
       background-color: transparent !important;
       border: none !important; 
-      font-size: 0.9rem; 
-      font-weight: 400;
+      font-size: 0.85rem; 
+      font-weight: 500;
       outline: none !important; 
       font-family: var(--font-main);
       color: var(--text-primary);

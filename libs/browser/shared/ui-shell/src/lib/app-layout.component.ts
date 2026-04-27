@@ -6,6 +6,7 @@ import {
   signal,
   computed,
   HostListener,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -81,6 +82,18 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 <span>{{ tenantName }}</span>
               </div>
             }
+
+            <!-- Companion Presence -->
+            <button 
+              type="button" 
+              class="icon-btn companion-presence"
+              [class.active]="aiBotStore.activeBotFeature()"
+              (click)="toggleAssistant()"
+              [title]="'Hablar con ' + aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature())"
+            >
+              <div class="buddy-mini-glow"></div>
+              <lucide-icon name="bot" size="20" aria-hidden="true"></lucide-icon>
+            </button>
 
             <button
               type="button"
@@ -252,17 +265,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
           </div>
         </main>
 
-        <!-- Agente principal (sustituye a Buddy si eliges otro, p. ej. JAIME/dashboard) + especialista del módulo -->
+        <!-- The Companion: One persistent bot that travels with you -->
         <ui-ai-assistant
-          [feature]="aiBotStore.activeBotFeature()"
+          [feature]="routeDomain() || aiBotStore.activeBotFeature()"
           assistantRole="buddy"
+          #mainAssistant
         ></ui-ai-assistant>
-        @if (routeDomain() !== aiBotStore.activeBotFeature()) {
-          <ui-ai-assistant
-            [feature]="routeDomain()"
-            assistantRole="domain"
-          ></ui-ai-assistant>
-        }
       </div>
     </div>
   `,
@@ -407,19 +415,25 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         box-shadow: 0 0 10px var(--brand-glow);
       }
 
-      .icon-btn {
-        position: relative;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        color: var(--text-secondary);
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
+      .companion-presence {
+        color: var(--brand);
+        border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+        background: color-mix(in srgb, var(--brand) 8%, transparent);
+      }
+
+      .companion-presence:hover {
+        background: color-mix(in srgb, var(--brand) 15%, transparent);
+        box-shadow: 0 0 20px var(--brand-glow);
+      }
+
+      .buddy-mini-glow {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(circle at 50% 50%, var(--brand), transparent 70%);
+        opacity: 0.15;
+        filter: blur(4px);
+        animation: pulse 2s infinite alternate;
       }
 
       .icon-btn:hover {
@@ -854,6 +868,7 @@ export class AppLayoutComponent {
   private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
   readonly aiBotStore = inject(AIBotStore);
+  readonly mainAssistant = viewChild.required<UIAIChatComponent>('mainAssistant');
   readonly premiumExperience = computed(() => !this.pluginStore.highPerformanceMode());
 
   @HostListener('window:keydown', ['$event'])
@@ -882,6 +897,10 @@ export class AppLayoutComponent {
 
   toggleUserMenu() {
     this.showUserMenu.update((v) => !v);
+  }
+
+  toggleAssistant() {
+    this.mainAssistant().toggleChat();
   }
 
   logout() {

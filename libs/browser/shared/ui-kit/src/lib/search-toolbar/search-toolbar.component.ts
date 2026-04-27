@@ -51,25 +51,25 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
       display: flex;
       align-items: stretch;
       width: 100%;
-      min-height: 3.25rem;
+      min-height: calc(var(--page-gap, 1.5rem) * 1.5 + 1rem);
       gap: 0;
     }
 
     .search-toolbar--feature {
-      border-radius: 12px;
+      border-radius: 24px;
       border: 1px solid var(--toolbar-bar-border);
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px);
-      box-shadow: var(--shadow-md);
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(35px);
+      box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.3);
       overflow: hidden;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .search-toolbar--feature:focus-within {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       border-color: var(--brand);
-      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5), 0 0 20px var(--brand-ambient);
-      transform: translateY(-1px);
+      box-shadow: 0 15px 45px -12px rgba(0, 0, 0, 0.5), 0 0 25px var(--brand-glow);
+      transform: translateY(-2px);
     }
 
     .search-toolbar--minimal {

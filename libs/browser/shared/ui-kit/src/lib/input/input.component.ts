@@ -52,22 +52,25 @@ export type InputVariant = string;
     .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 0.2em; color: var(--text-muted);
-      margin-left: 12px; font-family: var(--font-display);
-      transition: color 0.3s ease;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--text-muted);
+      margin-left: 8px; font-family: var(--font-main);
+      transition: all 0.3s ease;
+      opacity: 0.9;
     }
 
     .input-wrapper { 
       position: relative; display: flex; align-items: center; 
       --input-bg: var(--bg-secondary);
       --input-border: var(--border-soft);
-      --input-radius: var(--radius-md);
+      --input-radius: 12px;
       --input-color: var(--text-primary);
       --input-accent: var(--brand);
+      --input-padding-v: calc(var(--page-gap, 1.5rem) * 0.5 + 0.2rem);
+      --input-padding-h: calc(var(--page-gap, 1.5rem) * 0.7 + 0.3rem);
     }
 
-    .input-wrapper:focus-within .label { color: var(--input-accent); }
+    .input-wrapper:focus-within .label { color: var(--input-accent); opacity: 1; }
 
     /* THEMATIC COLOR TOKENS */
     .input-color-danger { --input-accent: var(--danger); }
@@ -78,9 +81,9 @@ export type InputVariant = string;
     .input-wrapper.has-error { --input-border: var(--danger); --input-accent: var(--danger); }
 
     .input-shape-glass {
-      --input-bg: rgba(255, 255, 255, 0.03);
-      --input-border: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px) saturate(1.5);
+      --input-bg: rgba(255, 255, 255, 0.02);
+      --input-border: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(25px) saturate(1.2);
     }
 
     .input-wrapper.input-shape-solid {
@@ -90,14 +93,15 @@ export type InputVariant = string;
 
     /* ELEMENT BASE RULES */
     input {
-      width: 100%; padding: 1.15rem 1.5rem;
+      width: 100%; 
+      padding: var(--input-padding-v) var(--input-padding-h);
       background: var(--input-bg);
       border: 1px solid var(--input-border);
       border-radius: var(--input-radius);
       color: var(--input-color);
-      font-size: 0.9rem; font-weight: 600;
-      transition: all 0.4s var(--transition-spring);
-      outline: none; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none; font-family: var(--font-main);
       box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
