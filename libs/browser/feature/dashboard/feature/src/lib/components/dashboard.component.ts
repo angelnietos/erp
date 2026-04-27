@@ -586,11 +586,10 @@ interface QuickAction {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .display-xl {
-      font-size: 3.5rem;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      color: var(--brand);
-      text-shadow: 0 4px 20px rgba(var(--brand-rgb), 0.15);
+      font-size: 3.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .glass-panel {
@@ -602,9 +601,9 @@ interface QuickAction {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .panel-header h3 {
-      font-weight: 900;
-      color: var(--brand);
-      opacity: 0.8;
+      font-weight: 700;
+      color: var(--text-primary);
+      opacity: 0.9;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .progress-track {

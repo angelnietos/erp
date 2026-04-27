@@ -51,21 +51,21 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   styles: [`
     .btn {
       position: relative;
-      font-weight: 900;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       transition: 
         transform 0.4s var(--transition-spring),
         filter 0.3s ease,
         box-shadow 0.4s var(--transition-spring),
         background-color 0.2s ease,
         border-color 0.2s ease;
-      font-family: var(--font-display, inherit);
+      font-family: var(--font-main, inherit);
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.08em;
       white-space: nowrap;
       outline: none;
       box-sizing: border-box;
@@ -101,10 +101,10 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     /* CORE COLOR TOKENS — Vibrant Nintendo/Ubisoft Palette */
     .btn-color-primary, .btn-color-app { 
       --btn-accent: var(--brand); 
-      background: linear-gradient(135deg, #ff0055 0%, var(--brand) 100%);
+      background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 80%, black) 100%);
       color: #fff;
-      box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255,255,255,0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
     
     .btn-color-secondary {

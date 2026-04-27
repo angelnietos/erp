@@ -37,9 +37,19 @@ import { LucideAngularModule } from 'lucide-angular';
         display: block;
       }
       .stat-card {
-        padding: 2.5rem;
-        font-family: var(--font-gaming);
-        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem 2rem;
+        font-family: var(--font-main);
+        background: var(--surface-secondary);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        transition: all 0.3s var(--transition-spring);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        background: var(--surface);
+        border-color: var(--brand);
+        box-shadow: var(--shadow-md);
       }
 
       .stat-trend.up { color: var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); }

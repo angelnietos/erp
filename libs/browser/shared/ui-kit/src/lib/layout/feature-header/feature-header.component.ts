@@ -19,7 +19,7 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       >
         <div class="header-breadcrumb">
           <h1
-            class="page-title text-uppercase glow-text"
+            class="page-title glow-text"
             [style.text-shadow]="'0 0 20px ' + theme().primary + '44'"
           >
             {{ title }}
@@ -108,10 +108,10 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
     }
 
     .page-hero-header .page-title {
-      margin: 0 0 0.35rem 0;
-      font-size: clamp(1.5rem, 2vw, 2rem);
-      font-weight: 800;
-      letter-spacing: 0.04em;
+      margin: 0 0 0.25rem 0;
+      font-size: clamp(1.75rem, 2.5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
       font-family: var(--font-display, var(--font-main));
     }
 
