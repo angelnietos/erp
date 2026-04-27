@@ -72,6 +72,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
          <div class="footer-actions">
             @if (showDuplicate) {
             <ui-button
+              class="action-btn action-btn--duplicate"
               variant="ghost"
               size="sm"
               icon="Copy"
@@ -82,22 +83,22 @@ import { UiBadgeComponent } from '../../badge/badge.component';
             }
             @if (showEdit) {
             <ui-button
+              class="action-btn action-btn--edit edit-btn"
               variant="ghost"
               size="sm"
               icon="Pencil"
               (click)="$event.stopPropagation(); editClicked.emit()"
-              class="edit-btn"
               [title]="name ? 'Editar ' + name : 'Editar'"
               [aria-label]="name ? 'Editar ' + name : 'Editar elemento'"
             ></ui-button>
             }
             @if (showDelete) {
             <ui-button
+              class="action-btn action-btn--delete delete-btn"
               variant="ghost"
               size="sm"
               icon="Trash2"
               (click)="$event.stopPropagation(); deleteClicked.emit()"
-              class="delete-btn"
               [title]="name ? 'Eliminar ' + name : 'Eliminar'"
               [aria-label]="name ? 'Eliminar ' + name : 'Eliminar elemento'"
             ></ui-button>
@@ -274,13 +275,36 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       transition: all 0.2s ease;
     }
 
-    .delete-btn:hover {
-      color: var(--danger) !important;
-      background: color-mix(in srgb, var(--danger) 10%, transparent) !important;
+    /* Iconos alineados con tokens de tema (no gris fijo) */
+    .footer-actions ::ng-deep .action-btn .btn.btn-shape-ghost {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+      padding: 0;
+      border-radius: 8px;
+      color: color-mix(in srgb, var(--brand) 78%, var(--text-primary) 22%) !important;
+      background: color-mix(in srgb, var(--brand) 7%, var(--surface-secondary) 93%) !important;
+      border: 1px solid color-mix(in srgb, var(--brand) 16%, var(--border-soft) 84%) !important;
     }
 
-    .edit-btn:hover {
+    .footer-actions ::ng-deep .action-btn--delete .btn.btn-shape-ghost {
+      color: color-mix(in srgb, var(--danger) 78%, var(--text-primary) 22%) !important;
+      background: color-mix(in srgb, var(--danger) 7%, var(--surface-secondary) 93%) !important;
+      border-color: color-mix(in srgb, var(--danger) 18%, var(--border-soft) 82%) !important;
+    }
+
+    .footer-actions ::ng-deep .action-btn--duplicate .btn.btn-shape-ghost:hover,
+    .footer-actions ::ng-deep .action-btn--edit .btn.btn-shape-ghost:hover {
       color: var(--brand) !important;
+      background: color-mix(in srgb, var(--brand) 12%, transparent) !important;
+      border-color: color-mix(in srgb, var(--brand) 28%, var(--border-soft) 72%) !important;
+    }
+
+    .footer-actions ::ng-deep .action-btn--delete .btn.btn-shape-ghost:hover {
+      color: var(--danger) !important;
+      background: color-mix(in srgb, var(--danger) 12%, transparent) !important;
+      border-color: color-mix(in srgb, var(--danger) 30%, var(--border-soft) 70%) !important;
     }
 
     @media (max-width: 480px) {
@@ -348,19 +372,6 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-muted);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      border-radius: 8px;
-      color: var(--text-muted) !important;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .footer-actions ::ng-deep .btn-shape-ghost:hover {
-      color: var(--brand) !important;
-      background: color-mix(in srgb, var(--brand) 8%, transparent) !important;
     }
 
     @media (prefers-reduced-motion: reduce) {

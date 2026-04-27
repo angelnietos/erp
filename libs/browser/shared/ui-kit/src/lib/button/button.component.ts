@@ -93,44 +93,80 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-md { padding: 1rem 2rem; font-size: 0.75rem; }
     .btn-lg { padding: 1.25rem 3rem; font-size: 0.85rem; }
 
-    /* CORE COLOR TOKENS — Vibrant Ubisoft Gradients */
-    .btn-color-primary { 
+    /* CORE COLOR TOKENS — Vibrant Nintendo/Ubisoft Palette */
+    .btn-color-primary, .btn-color-app { 
       --btn-accent: var(--brand); 
       background: linear-gradient(135deg, #ff0055 0%, var(--brand) 100%);
       color: #fff;
       box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255,255,255,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
+    
+    .btn-color-secondary {
+      --btn-accent: var(--switch-blue, #00beef);
+      background: linear-gradient(135deg, #00d4ff 0%, var(--switch-blue) 100%);
+      color: #fff;
+    }
+
     .btn-color-danger { 
       --btn-accent: var(--danger); 
       background: linear-gradient(135deg, #ff5e6c 0%, var(--danger) 100%);
       color: #fff;
     }
+
     .btn-color-success { 
       --btn-accent: var(--success); 
       background: linear-gradient(135deg, #00ffaa 0%, #10b981 100%);
-      color: #000; /* High contrast for neon green */
+      color: #013220; /* Deep green for contrast */
       font-weight: 900;
     }
 
-    .btn-shape-solid:hover {
+    .btn-color-info {
+      --btn-accent: var(--info);
+      background: linear-gradient(135deg, #3fc1ff 0%, var(--info) 100%);
+      color: #fff;
+    }
+
+    .btn-color-default { 
+      --btn-accent: rgba(255, 255, 255, 0.1); 
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-shape-solid:hover, .btn-shape-auto:hover {
        transform: translateY(-4px);
        box-shadow: 0 15px 30px var(--brand-ambient-strong), 0 0 20px var(--brand-glow);
+       filter: brightness(1.2) saturate(1.2);
     }
 
     .btn-shape-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: #fff;
     }
     .btn-shape-glass:hover {
       background: rgba(255, 255, 255, 0.1);
-      border-color: #fff;
+      border-color: var(--brand);
+      box-shadow: 0 0 20px var(--brand-ambient-strong);
       transform: translateY(-4px);
     }
 
+    .btn-shape-ghost {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+    }
+    .btn-shape-ghost:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
     .btn-icon { width: 1.2rem; height: 1.2rem; transition: transform 0.4s var(--transition-spring); position: relative; z-index: 2; }
-    .btn:hover .btn-icon { transform: scale(1.2) rotate(5deg); }
+    .btn:hover .btn-icon { transform: scale(1.2) rotate(5deg); color: inherit; }
 
     .spinner {
       width: 1.25rem; height: 1.25rem;
@@ -163,13 +199,25 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost {
-      color: var(--text-muted);
+    :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:not(.btn-color-danger) {
+      /* Sustituye el gris fijo: icono alineado con texto + marca según tema. */
+      color: color-mix(in srgb, var(--text-primary) 70%, var(--brand) 30%);
+      background: color-mix(in srgb, var(--brand) 4%, transparent);
     }
-    
-    :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:hover {
-      background: color-mix(in srgb, var(--brand) 6%, transparent);
+
+    :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:not(.btn-color-danger):hover {
+      background: color-mix(in srgb, var(--brand) 10%, transparent);
       color: var(--brand);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-danger.btn-shape-ghost {
+      color: color-mix(in srgb, var(--text-primary) 50%, var(--danger) 50%);
+      background: color-mix(in srgb, var(--danger) 4%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-danger.btn-shape-ghost:hover {
+      color: #fff;
+      background: color-mix(in srgb, var(--danger) 16%, transparent);
     }
 
     @media (prefers-reduced-motion: reduce) {
