@@ -299,6 +299,8 @@ interface PersonalGridCell {
             }
           </div>
          </aside>
+         }
+
          @if (sidebarCollapsed()) {
            <button 
              type="button" 
@@ -310,7 +312,6 @@ interface PersonalGridCell {
               <lucide-icon name="chevron-right" size="18" aria-hidden="true"></lucide-icon>
              <span>Operarios</span>
            </button>
-         }
          }
 
          <!-- MAIN CALENDAR / TEAM BOARD -->
