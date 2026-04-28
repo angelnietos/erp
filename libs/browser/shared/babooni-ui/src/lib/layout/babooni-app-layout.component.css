@@ -28,7 +28,7 @@
 /* Barra superior: superficie blanca, borde minimalista */
 .bb-topbar {
   height: var(--bb-topbar-height);
-  background: rgba(255, 255, 255, 0.85); /* Slightly transparent for soft glass effect */
+  background: color-mix(in srgb, var(--surface) 85%, transparent); /* Slightly transparent for soft glass effect */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid color-mix(in srgb, var(--bb-border) 50%, transparent);
@@ -175,7 +175,7 @@
   top: 100%;
   right: 0;
   margin-top: 10px;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid color-mix(in srgb, var(--bb-border) 60%, transparent);
@@ -322,7 +322,7 @@
   top: 100%;
   right: 0;
   margin-top: 10px;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid color-mix(in srgb, var(--bb-border) 60%, transparent);

@@ -351,7 +351,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       border-radius: 20px;
       border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
       box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
-      background: rgba(255, 255, 255, 0.8);
+      background: color-mix(in srgb, var(--surface) 80%, transparent);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -361,7 +361,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       transform: translateY(-5px);
       box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px color-mix(in srgb, var(--brand) 15%, transparent);
       border-color: color-mix(in srgb, var(--brand) 25%, transparent);
-      background: rgba(255, 255, 255, 0.95);
+      background: color-mix(in srgb, var(--surface) 95%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .avatar-bg {
@@ -376,7 +376,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     :host-context(html[data-erp-tenant='babooni']) .item-name {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #0c0c0c;
+      color: var(--text-primary);
       letter-spacing: -0.01em;
     }
 

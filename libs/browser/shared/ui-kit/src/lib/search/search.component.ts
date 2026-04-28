@@ -178,7 +178,7 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-wrapper.focused {
-      background: rgba(255, 255, 255, 0.9);
+      background: color-mix(in srgb, var(--surface) 90%, transparent);
       box-shadow: 0 8px 18px -14px rgba(0, 0, 0, 0.2);
     }
 

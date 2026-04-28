@@ -282,7 +282,7 @@ export type TabsVariant =
       }
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-underline {
-        background: rgba(255, 255, 255, 0.68);
+        background: color-mix(in srgb, var(--surface) 68%, transparent);
         border-color: color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 85%, transparent);
         box-shadow: 0 4px 10px -10px rgba(0, 0, 0, 0.2);
       }
