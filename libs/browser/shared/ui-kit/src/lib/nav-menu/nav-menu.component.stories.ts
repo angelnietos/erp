@@ -1,20 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/angular';
-import { bindStoryProps } from '../../../.storybook/bind-story-props';
-import { sbSelect, sbHideData } from '../../../.storybook/story-arg-types';
-import { NavMenuComponent } from './nav-menu.component';
 
-const meta: Meta<NavMenuComponent> = {
-  component: NavMenuComponent,
-  title: 'NavMenuComponent',
-  tags: ['autodocs'],
-  argTypes: {
-    variant: sbSelect(
-      ['default', 'dark', 'light', 'primary', 'ghost', 'bordered', 'compact'] as const,
-      'Variante',
-    ),
-    items: sbHideData,
-  },
-};
 export default meta;
 type Story = StoryObj<NavMenuComponent>;
 

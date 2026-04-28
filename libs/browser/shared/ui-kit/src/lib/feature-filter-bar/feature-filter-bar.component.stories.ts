@@ -1,21 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/angular';
-import { bindStoryProps } from '../../../.storybook/bind-story-props';
-import { sbSelect } from '../../../.storybook/story-arg-types';
-import { UiButtonComponent } from '../button/button.component';
-import { UiTabsComponent } from '../tabs/tabs.component';
-import { UiFeatureFilterBarComponent } from './feature-filter-bar.component';
 
-const meta: Meta<UiFeatureFilterBarComponent> = {
-  component: UiFeatureFilterBarComponent,
-  title: 'UiFeatureFilterBarComponent',
-  tags: ['autodocs'],
-  argTypes: {
-    framed: { control: 'boolean', description: 'Tarjeta con fondo/borde' },
-    appearance: sbSelect(['feature', 'minimal'] as const, 'Barra de búsqueda'),
-    searchVariant: sbSelect(['default', 'filled', 'glass'] as const, 'Campo búsqueda'),
-    placeholder: { control: 'text' },
-  },
-};
 export default meta;
 type Story = StoryObj<UiFeatureFilterBarComponent>;
 

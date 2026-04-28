@@ -1,19 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/angular';
-import { bindStoryProps } from '../../../.storybook/bind-story-props';
-import { sbSelect } from '../../../.storybook/story-arg-types';
-import { UiButtonComponent } from '../button/button.component';
-import { UiSearchToolbarComponent } from './search-toolbar.component';
 
-const meta: Meta<UiSearchToolbarComponent> = {
-  component: UiSearchToolbarComponent,
-  title: 'UiSearchToolbarComponent',
-  tags: ['autodocs'],
-  argTypes: {
-    appearance: sbSelect(['feature', 'minimal'] as const, 'Estilo de barra'),
-    searchVariant: sbSelect(['default', 'filled', 'glass'] as const, 'Campo de búsqueda'),
-    placeholder: { control: 'text' },
-  },
-};
 export default meta;
 type Story = StoryObj<UiSearchToolbarComponent>;
 
