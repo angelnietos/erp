@@ -22,6 +22,8 @@ import {
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
+  UiSelectComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -58,6 +60,8 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
+    UiSelectComponent,
+    UiInputComponent,
   ],
   template: `
     <ui-feature-page-shell [extraClass]="'budgets-container'">
@@ -152,96 +156,64 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         <div class="advanced-filters">
           <div class="filters-grid">
             <div class="filter-group">
-              <label class="filter-label" for="status-filter">Estado</label>
-              <select
+              <ui-select
                 id="status-filter"
-                class="filter-select"
+                label="Estado"
                 [(ngModel)]="statusFilter"
                 (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="DRAFT">Borrador</option>
-                <option value="SENT">Enviado</option>
-                <option value="ACCEPTED">Aceptado</option>
-                <option value="REJECTED">Rechazado</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'DRAFT', label: 'Borrador' },
+                  { value: 'SENT', label: 'Enviado' },
+                  { value: 'ACCEPTED', label: 'Aceptado' },
+                  { value: 'REJECTED', label: 'Rechazado' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="date-from-filter"
-                >Fecha desde</label
-              >
-              <input
+              <ui-input
                 id="date-from-filter"
+                label="Fecha desde"
                 type="date"
-                class="filter-input"
                 [(ngModel)]="dateFromFilter"
                 (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
-              />
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="date-to-filter"
-                >Fecha hasta</label
-              >
-              <input
+              <ui-input
                 id="date-to-filter"
+                label="Fecha hasta"
                 type="date"
-                class="filter-input"
                 [(ngModel)]="dateToFilter"
                 (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
-              />
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="amount-min-filter"
-                >Importe mínimo (€)</label
-              >
-              <input
+              <ui-input
                 id="amount-min-filter"
+                label="Importe mínimo (€)"
                 type="number"
-                class="filter-input"
                 placeholder="0"
-                min="0"
-                step="0.01"
+                min="0" step="0.01"
                 [(ngModel)]="amountMinFilter"
-                (ngModelChange)="
-                  amountMinFilter.set($event ? +$event : null);
-                  currentPage.set(1)
-                "
-              />
+                (ngModelChange)="amountMinFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="amount-max-filter"
-                >Importe máximo (€)</label
-              >
-              <input
+              <ui-input
                 id="amount-max-filter"
+                label="Importe máximo (€)"
                 type="number"
-                class="filter-input"
                 placeholder="Sin límite"
-                min="0"
-                step="0.01"
+                min="0" step="0.01"
                 [(ngModel)]="amountMaxFilter"
-                (ngModelChange)="
-                  amountMaxFilter.set($event ? +$event : null);
-                  currentPage.set(1)
-                "
-              />
-            </div>
-            <div class="filter-group">
-              <label class="filter-label" for="amount-max-filter"
-                >Importe máximo (€)</label
-              >
-              <input
-                type="number"
-                class="filter-input"
-                placeholder="Sin límite"
-                min="0"
-                step="0.01"
-                [(ngModel)]="amountMaxFilter"
-                (ngModelChange)="
-                  amountMaxFilter.set($event ? +$event : null);
-                  currentPage.set(1)
-                "
-              />
+                (ngModelChange)="amountMaxFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-actions">
               <ui-button variant="ghost" size="sm" (clicked)="clearFilters()">
@@ -269,23 +241,18 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
             >
           </div>
           <div class="bulk-buttons">
-            <select
+            <ui-select
               class="bulk-status-select"
-              [attr.aria-label]="
-                'Cambiar estado de ' +
-                selectedCount() +
-                (selectedCount() === 1
-                  ? ' presupuesto seleccionado'
-                  : ' presupuestos seleccionados')
-              "
-              (change)="bulkChangeStatus($event)"
-            >
-              <option value="">Cambiar estado</option>
-              <option value="DRAFT">Marcar como borrador</option>
-              <option value="SENT">Marcar como enviado</option>
-              <option value="ACCEPTED">Marcar como aceptado</option>
-              <option value="REJECTED">Marcar como rechazado</option>
-            </select>
+              placeholder="Cambiar estado"
+              [options]="[
+                { value: 'DRAFT', label: 'Marcar como borrador' },
+                { value: 'SENT', label: 'Marcar como enviado' },
+                { value: 'ACCEPTED', label: 'Marcar como aceptado' },
+                { value: 'REJECTED', label: 'Marcar como rechazado' }
+              ]"
+              (change)="bulkChangeStatusFromCustom($event)"
+              variant="glass" size="sm"
+            ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
               <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
@@ -1064,23 +1031,18 @@ export class BudgetListComponent
 
   bulkChangeStatus(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newStatus = target.value;
+    this.bulkChangeStatusFromCustom(target.value);
+    target.value = '';
+  }
 
+  bulkChangeStatusFromCustom(newStatus: string) {
     if (!newStatus) return;
 
     const selectedIds = Array.from(this.selectedBudgets());
     if (selectedIds.length === 0) return;
 
-    // Reset select
-    target.value = '';
-
-    // Simulate bulk update
     selectedIds.forEach((id) => {
-      const budget = this.store.budgets().find((b) => b.id === id);
-      if (budget) {
-        // In a real app, you'd call an API
-        console.log(`Changing status of ${id} to ${newStatus}`);
-      }
+      console.log(`Changing status of ${id} to ${newStatus}`);
     });
 
     this.toast.show(

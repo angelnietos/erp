@@ -34,32 +34,39 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .datepicker { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
+    .datepicker { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; position: relative; }
     .label {
-      font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
-      letter-spacing: 0.2em; color: var(--text-muted);
-      margin-left: 12px; font-family: var(--font-display);
+      font-size: 0.7rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
+      color: var(--text-muted); 
+      margin-left: 0.25rem;
+      font-family: var(--font-main);
     }
     .input-wrapper { position: relative; }
 
     input {
-      width: 100%; padding: 1.15rem 1.5rem;
-      background: var(--bg-secondary);
+      width: 100%; 
+      padding: 0.75rem 1rem;
+      background: var(--surface-vibrant, var(--bg-secondary));
       border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-md, 10px);
       color: var(--text-primary);
-      font-size: 0.9rem; font-weight: 600;
-      transition: all 0.4s var(--transition-spring);
-      outline: none; font-family: inherit;
-      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+      font-size: 0.9rem; 
+      font-weight: 500;
+      transition: all 0.25s ease;
+      outline: none; 
+      font-family: var(--font-main);
+      box-shadow: var(--shadow-sm);
     }
 
     input:focus {
-      background: color-mix(in srgb, var(--bg-secondary) 70%, var(--brand) 5%);
+      background: var(--surface-rich);
       border-color: var(--brand);
       box-shadow: 
-        0 0 25px color-mix(in srgb, var(--brand) 25%, transparent),
-        inset 0 2px 10px rgba(0, 0, 0, 0.2);
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md);
       transform: translateY(-1px);
     }
 
@@ -90,6 +97,31 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
     input:disabled { 
       opacity: 0.4; 
       cursor: not-allowed; 
+    }
+
+    /* Babooni Tenant Enhancements */
+    :host-context(html[data-erp-tenant='babooni']) input {
+      border-radius: 12px;
+      font-weight: 600;
+      border-color: color-mix(in srgb, var(--border-soft) 60%, transparent);
+      box-shadow: 
+        var(--shadow-sm),
+        inset 0 1px 0 var(--surface-glow, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) input:focus {
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md),
+        inset 0 1px 0 var(--surface-glow, transparent);
+    }
+ 
+    :host-context(html[data-erp-tenant='babooni']) .label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--brand);
     }
   `],
 })

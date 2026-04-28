@@ -23,6 +23,8 @@ import {
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
+  UiSelectComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -55,6 +57,8 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
+    UiSelectComponent,
+    UiInputComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -158,66 +162,58 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
         <div class="advanced-filters">
           <div class="filters-grid">
             <div class="filter-group">
-              <label class="filter-label" for="status-filter">Estado</label>
-              <select
+              <ui-select
                 id="status-filter"
-                class="filter-select"
+                label="Estado"
                 [(ngModel)]="statusFilter"
                 (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="available">Disponible</option>
-                <option value="in_use">En uso</option>
-                <option value="maintenance">Mantenimiento</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'available', label: 'Disponible' },
+                  { value: 'in_use', label: 'En uso' },
+                  { value: 'maintenance', label: 'Mantenimiento' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="type-filter">Tipo</label>
-              <select
+              <ui-select
                 id="type-filter"
-                class="filter-select"
+                label="Tipo"
                 [(ngModel)]="typeFilter"
                 (ngModelChange)="typeFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los tipos</option>
-                <option value="van">Furgoneta</option>
-                <option value="truck">Camión</option>
-                <option value="car">Coche</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los tipos' },
+                  { value: 'van', label: 'Furgoneta' },
+                  { value: 'truck', label: 'Camión' },
+                  { value: 'car', label: 'Coche' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="year-min-filter"
-                >Año mínimo</label
-              >
-              <input
+              <ui-input
                 id="year-min-filter"
+                label="Año mínimo"
                 type="number"
-                class="filter-input"
                 placeholder="2000"
-                min="1900"
-                max="2030"
+                min="1900" max="2030"
                 [(ngModel)]="yearMinFilter"
-                (ngModelChange)="
-                  yearMinFilter.set($event ? +$event : null); currentPage.set(1)
-                "
-              />
+                (ngModelChange)="yearMinFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="year-max-filter"
-                >Año máximo</label
-              >
-              <input
+              <ui-input
                 id="year-max-filter"
+                label="Año máximo"
                 type="number"
-                class="filter-input"
                 placeholder="2025"
-                min="1900"
-                max="2030"
+                min="1900" max="2030"
                 [(ngModel)]="yearMaxFilter"
-                (ngModelChange)="
-                  yearMaxFilter.set($event ? +$event : null); currentPage.set(1)
-                "
-              />
+                (ngModelChange)="yearMaxFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
           </div>
         </div>

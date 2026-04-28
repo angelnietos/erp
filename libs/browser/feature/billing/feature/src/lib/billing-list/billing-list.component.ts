@@ -24,6 +24,8 @@ import {
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
+  UiSelectComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -61,6 +63,8 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
+    UiSelectComponent,
+    UiInputComponent,
   ],
   template: `
     @if (!canAccess()) {
@@ -184,80 +188,65 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         <div class="advanced-filters">
           <div class="filters-grid">
             <div class="filter-group">
-              <label class="filter-label" for="status-filter">Estado</label>
-              <select
+              <ui-select
                 id="status-filter"
-                class="filter-select"
+                label="Estado"
                 [(ngModel)]="statusFilter"
                 (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="draft">Borrador</option>
-                <option value="pending">Pendiente</option>
-                <option value="paid">Pagada</option>
-                <option value="sent">Enviada</option>
-                <option value="cancelled">Cancelada</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'draft', label: 'Borrador' },
+                  { value: 'pending', label: 'Pendiente' },
+                  { value: 'paid', label: 'Pagada' },
+                  { value: 'sent', label: 'Enviada' },
+                  { value: 'cancelled', label: 'Cancelada' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="date-from-filter"
-                >Fecha desde</label
-              >
-              <input
+              <ui-input
                 id="date-from-filter"
+                label="Fecha desde"
                 type="date"
-                class="filter-input"
                 [(ngModel)]="dateFromFilter"
                 (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
-              />
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="date-to-filter"
-                >Fecha hasta</label
-              >
-              <input
+              <ui-input
                 id="date-to-filter"
+                label="Fecha hasta"
                 type="date"
-                class="filter-input"
                 [(ngModel)]="dateToFilter"
                 (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
-              />
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="amount-min-filter"
-                >Importe mínimo (€)</label
-              >
-              <input
+              <ui-input
                 id="amount-min-filter"
+                label="Importe mínimo (€)"
                 type="number"
-                class="filter-input"
                 placeholder="0"
-                min="0"
-                step="0.01"
+                min="0" step="0.01"
                 [(ngModel)]="amountMinFilter"
-                (ngModelChange)="
-                  amountMinFilter.set($event ? +$event : null);
-                  currentPage.set(1)
-                "
-              />
+                (ngModelChange)="amountMinFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="amount-max-filter"
-                >Importe máximo (€)</label
-              >
-              <input
+              <ui-input
                 id="amount-max-filter"
+                label="Importe máximo (€)"
                 type="number"
-                class="filter-input"
                 placeholder="Sin límite"
-                min="0"
-                step="0.01"
+                min="0" step="0.01"
                 [(ngModel)]="amountMaxFilter"
-                (ngModelChange)="
-                  amountMaxFilter.set($event ? +$event : null);
-                  currentPage.set(1)
-                "
-              />
+                (ngModelChange)="amountMaxFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
             </div>
           </div>
         </div>
@@ -276,17 +265,19 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
             >
           </div>
           <div class="bulk-buttons">
-            <select
+            <ui-select
               class="bulk-status-select"
-              (change)="bulkChangeStatus($event)"
-            >
-              <option value="">Cambiar estado</option>
-              <option value="draft">Marcar como borrador</option>
-              <option value="pending">Marcar como pendiente</option>
-              <option value="paid">Marcar como pagada</option>
-              <option value="sent">Marcar como enviada</option>
-              <option value="cancelled">Marcar como cancelada</option>
-            </select>
+              placeholder="Cambiar estado"
+              [options]="[
+                { value: 'draft', label: 'Marcar como borrador' },
+                { value: 'pending', label: 'Marcar como pendiente' },
+                { value: 'paid', label: 'Marcar como pagada' },
+                { value: 'sent', label: 'Marcar como enviada' },
+                { value: 'cancelled', label: 'Marcar como cancelada' }
+              ]"
+              (change)="bulkChangeStatusFromCustom($event)"
+              variant="glass" size="sm"
+            ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
               <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionadas
@@ -868,9 +859,10 @@ export class BillingListComponent
   amountMinFilter = signal<number | null>(null);
   amountMaxFilter = signal<number | null>(null);
 
-  // Bulk actions
+  // Bulk selection
   selectedInvoices = signal<Set<string>>(new Set());
 
+  // QR modal
   isVerifactuQrModalOpen = signal(false);
 
   private readonly router = inject(Router);
@@ -1235,23 +1227,17 @@ export class BillingListComponent
 
   bulkChangeStatus(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newStatus = target.value as
-      | 'pending'
-      | 'draft'
-      | 'sent'
-      | 'paid'
-      | 'cancelled';
+    this.bulkChangeStatusFromCustom(target.value);
+    target.value = '';
+  }
 
+  bulkChangeStatusFromCustom(newStatus: string) {
     if (!newStatus) return;
-
     const selectedIds = Array.from(this.selectedInvoices());
-    selectedIds.forEach((id) => {
-      this.facade.updateInvoice(id, { status: newStatus });
-    });
-
+    const status = newStatus as 'pending' | 'draft' | 'sent' | 'paid' | 'cancelled';
+    selectedIds.forEach((id) => this.facade.updateInvoice(id, { status }));
     this.selectedInvoices.set(new Set());
-    this.toast.show(`${selectedIds.length} facturas actualizadas`, 'success');
-    target.value = ''; // Reset select
+    this.toast.show(`${selectedIds.length} factura${selectedIds.length === 1 ? '' : 's'} actualizada${selectedIds.length === 1 ? '' : 's'}`, 'success');
   }
 
   bulkDelete() {

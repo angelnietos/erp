@@ -24,6 +24,8 @@ import {
   UiLoaderComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
+  UiSelectComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -59,6 +61,8 @@ import { Observable, of } from 'rxjs';
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
+    UiSelectComponent,
+    UiInputComponent,
   ],
   providers: [{ provide: FILTER_PROVIDER, useExisting: ProjectsListComponent }],
   template: `
@@ -174,42 +178,42 @@ import { Observable, of } from 'rxjs';
         <div class="advanced-filters">
           <div class="filters-grid">
             <div class="filter-group">
-              <label class="filter-label" for="status-filter">Estado</label>
-              <select
+              <ui-select
                 id="status-filter"
-                class="filter-select"
+                label="Estado"
                 [ngModel]="statusFilter()"
                 (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="ACTIVE">Activo</option>
-                <option value="COMPLETED">Completado</option>
-                <option value="CANCELLED">Cancelado</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'ACTIVE', label: 'Activo' },
+                  { value: 'COMPLETED', label: 'Completado' },
+                  { value: 'CANCELLED', label: 'Cancelado' }
+                ]"
+                variant="glass"
+                size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="date-from-filter"
-                >Fecha desde</label
-              >
-              <input
+              <ui-input
                 id="date-from-filter"
+                label="Fecha desde"
                 type="date"
-                class="filter-input"
                 [ngModel]="dateFromFilter()"
                 (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
-              />
+                shape="glass"
+                size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="date-to-filter"
-                >Fecha hasta</label
-              >
-              <input
+              <ui-input
                 id="date-to-filter"
+                label="Fecha hasta"
                 type="date"
-                class="filter-input"
                 [ngModel]="dateToFilter()"
                 (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
-              />
+                shape="glass"
+                size="sm"
+              ></ui-input>
             </div>
           </div>
         </div>
@@ -232,22 +236,18 @@ import { Observable, of } from 'rxjs';
             >
           </div>
           <div class="bulk-buttons">
-            <select
+            <ui-select
               class="bulk-status-select"
-              [attr.aria-label]="
-                'Cambiar estado de ' +
-                selectedCount() +
-                (selectedCount() === 1
-                  ? ' proyecto seleccionado'
-                  : ' proyectos seleccionados')
-              "
-              (change)="bulkChangeStatus($event)"
-            >
-              <option value="">Cambiar estado</option>
-              <option value="ACTIVE">Marcar como activo</option>
-              <option value="COMPLETED">Marcar como completado</option>
-              <option value="CANCELLED">Marcar como cancelado</option>
-            </select>
+              placeholder="Cambiar estado"
+              [options]="[
+                { value: 'ACTIVE', label: 'Marcar como activo' },
+                { value: 'COMPLETED', label: 'Marcar como completado' },
+                { value: 'CANCELLED', label: 'Marcar como cancelado' }
+              ]"
+              (change)="bulkChangeStatusFromCustom($event)"
+              variant="glass"
+              size="sm"
+            ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
               <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
@@ -741,13 +741,17 @@ export class ProjectsListComponent
 
   bulkChangeStatus(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newStatus = target.value as 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+    this.bulkChangeStatusFromCustom(target.value);
+    target.value = '';
+  }
 
+  bulkChangeStatusFromCustom(newStatus: string) {
     if (!newStatus) return;
+    const status = newStatus as 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
     const selectedIds = Array.from(this.selectedProjects());
     selectedIds.forEach((id) => {
-      this.facade.updateProject(id, { status: newStatus });
+      this.facade.updateProject(id, { status });
     });
 
     this.selectedProjects.set(new Set());
@@ -755,7 +759,6 @@ export class ProjectsListComponent
       `${selectedIds.length} proyecto${selectedIds.length === 1 ? '' : 's'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
       'success',
     );
-    target.value = '';
   }
 
   bulkDelete() {

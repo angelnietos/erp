@@ -23,6 +23,8 @@ import {
   UiFeatureCardComponent,
   UiFeatureAccessDeniedComponent,
   UiFeaturePageShellComponent,
+  UiSelectComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -56,6 +58,8 @@ import { ServicesStore, Service } from '../services.store';
     LucideAngularModule,
     UiFeatureAccessDeniedComponent,
     UiFeaturePageShellComponent,
+    UiSelectComponent,
+    UiInputComponent,
   ],
   template: `
     <ui-feature-page-shell [extraClass]="'services-container'">
@@ -174,42 +178,43 @@ import { ServicesStore, Service } from '../services.store';
         <div class="advanced-filters">
           <div class="filters-grid">
             <div class="filter-group">
-              <label class="filter-label" for="status-filter">Estado</label>
-              <select
+              <ui-select
                 id="status-filter"
-                class="filter-select"
+                label="Estado"
                 [(ngModel)]="statusFilter"
                 (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="active">Activos</option>
-                <option value="inactive">Inactivos</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'active', label: 'Activos' },
+                  { value: 'inactive', label: 'Inactivos' }
+                ]"
+                variant="glass"
+                size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="type-filter">Tipo</label>
-              <select
+              <ui-select
                 id="type-filter"
-                class="filter-select"
+                label="Tipo"
                 [(ngModel)]="typeFilter"
                 (ngModelChange)="typeFilter.set($event); currentPage.set(1)"
-              >
-                <option value="all">Todos los tipos</option>
-                <option value="STREAMING">Streaming</option>
-                <option value="PRODUCCIÓN">Producción</option>
-                <option value="LED">LED</option>
-                <option value="TRANSPORTE">Transporte</option>
-                <option value="PERSONAL_TÉCNICO">Personal Técnico</option>
-              </select>
+                [options]="[
+                  { value: 'all', label: 'Todos los tipos' },
+                  { value: 'STREAMING', label: 'Streaming' },
+                  { value: 'PRODUCCIÓN', label: 'Producción' },
+                  { value: 'LED', label: 'LED' },
+                  { value: 'TRANSPORTE', label: 'Transporte' },
+                  { value: 'PERSONAL_TÉCNICO', label: 'Personal Técnico' }
+                ]"
+                variant="glass"
+                size="sm"
+              ></ui-select>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="amount-min-filter"
-                >Precio mínimo (€)</label
-              >
-              <input
+              <ui-input
                 id="amount-min-filter"
+                label="Precio mínimo (€)"
                 type="number"
-                class="filter-input"
                 placeholder="0"
                 min="0"
                 step="0.01"
@@ -218,16 +223,15 @@ import { ServicesStore, Service } from '../services.store';
                   amountMinFilter.set($event ? +$event : null);
                   currentPage.set(1)
                 "
-              />
+                shape="glass"
+                size="sm"
+              ></ui-input>
             </div>
             <div class="filter-group">
-              <label class="filter-label" for="amount-max-filter"
-                >Precio máximo (€)</label
-              >
-              <input
+              <ui-input
                 id="amount-max-filter"
+                label="Precio máximo (€)"
                 type="number"
-                class="filter-input"
                 placeholder="Sin límite"
                 min="0"
                 step="0.01"
@@ -236,7 +240,9 @@ import { ServicesStore, Service } from '../services.store';
                   amountMaxFilter.set($event ? +$event : null);
                   currentPage.set(1)
                 "
-              />
+                shape="glass"
+                size="sm"
+              ></ui-input>
             </div>
             <div class="filter-actions">
               <ui-button variant="ghost" size="sm" (clicked)="clearFilters()">
@@ -260,14 +266,17 @@ import { ServicesStore, Service } from '../services.store';
             >
           </div>
           <div class="bulk-buttons">
-            <select
+            <ui-select
               class="bulk-status-select"
-              (change)="bulkChangeStatus($event)"
-            >
-              <option value="">Cambiar estado</option>
-              <option value="active">Activar</option>
-              <option value="inactive">Desactivar</option>
-            </select>
+              placeholder="Cambiar estado"
+              [options]="[
+                { value: 'active', label: 'Activar' },
+                { value: 'inactive', label: 'Desactivar' }
+              ]"
+              (change)="bulkChangeStatusFromCustom($event)"
+              variant="glass"
+              size="sm"
+            ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
               <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
               Eliminar seleccionados
@@ -932,24 +941,16 @@ export class ServicesListComponent
 
   bulkChangeStatus(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newStatus = target.value;
-
-    if (!newStatus) return;
-
-    const selectedIds = Array.from(this.selectedServices());
-    if (selectedIds.length === 0) return;
-
-    // Reset select
+    this.bulkChangeStatusFromCustom(target.value);
     target.value = '';
+  }
 
-    // Simulate bulk update
-    selectedIds.forEach((id) => {
-      const service = this.store.services().find((s) => s.id === id);
-      if (service) {
-        console.log(`Changing status of ${id} to ${newStatus}`);
-      }
-    });
-
+  bulkChangeStatusFromCustom(newStatus: string) {
+    if (!newStatus) return;
+    const isActive = newStatus === 'active';
+    const selectedIds = Array.from(this.selectedServices());
+    selectedIds.forEach((id) => this.store.update(id, { isActive }));
+    this.selectedServices.set(new Set());
     this.toast.show(
       `${selectedIds.length} servicio${selectedIds.length === 1 ? '' : 's'} actualizado${selectedIds.length === 1 ? '' : 's'}`,
       'success',

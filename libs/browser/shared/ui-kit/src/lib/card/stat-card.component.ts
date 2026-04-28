@@ -164,14 +164,40 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
-        background: var(--card-bg, var(--surface-vibrant, var(--surface)));
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 60%, transparent));
+        background: linear-gradient(135deg, 
+          var(--surface-vibrant, var(--surface)) 0%, 
+          color-mix(in srgb, var(--brand) 4%, var(--surface-rich, var(--surface))) 100%
+        );
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 40%, transparent));
         box-shadow: 
           var(--card-shadow, var(--shadow-sm)),
-          inset 0 1px 1px var(--surface-glow);
+          inset 0 1px 0 var(--surface-glow, transparent);
         padding: 1.25rem 1.5rem;
-        gap: 1.25rem;
+        gap: 0.75rem;
+      }
+
+      /* Glass Sheen Effect */
+      :host-context(html[data-erp-tenant='babooni']) .stat-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent 45%,
+          rgba(255, 255, 255, 0.03) 50%,
+          transparent 55%
+        );
+        transform: rotate(-45deg);
+        pointer-events: none;
+        transition: transform 0.6s ease;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card:hover::after {
+        transform: rotate(-45deg) translate(10%, 10%);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card:hover {
@@ -206,11 +232,12 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-value {
-        font-size: 2.25rem;
-        font-weight: 800;
+        font-size: 2.35rem;
+        font-weight: 900;
         font-family: var(--font-main, inherit);
-        letter-spacing: -0.03em;
+        letter-spacing: -0.04rem;
         color: var(--text-primary);
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-trend {

@@ -49,14 +49,17 @@ export type InputVariant = string;
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 10px; width: 100%; position: relative; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.15em; color: var(--text-muted);
-      margin-left: 8px; font-family: var(--font-main);
-      transition: all 0.3s ease;
-      opacity: 0.9;
+      font-size: 0.7rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
+      color: var(--text-muted); 
+      margin-left: 0.25rem;
+      font-family: var(--font-main);
+      transition: all 0.2s ease;
     }
 
     .input-wrapper { 
@@ -94,24 +97,30 @@ export type InputVariant = string;
     /* ELEMENT BASE RULES */
     input {
       width: 100%; 
-      padding: var(--input-padding-v) var(--input-padding-h);
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
+      padding: 0.75rem 1rem;
+      background: var(--surface-vibrant, var(--input-bg));
+      border: 1px solid var(--border-soft, var(--input-border));
       border-radius: var(--input-radius);
       color: var(--input-color);
-      font-size: 0.85rem; font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      outline: none; font-family: var(--font-main);
-      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+      font-size: 0.9rem; 
+      font-weight: 500;
+      transition: all 0.25s ease;
+      outline: none; 
+      font-family: var(--font-main);
+      box-shadow: var(--shadow-sm);
+    }
+ 
+    .has-icon input {
+      padding-left: 3rem;
     }
 
     /* FOCUS STATES */
     input:focus {
-      background: color-mix(in srgb, var(--input-bg) 70%, var(--input-accent) 5%);
+      background: var(--surface-rich);
       border-color: var(--input-accent);
       box-shadow: 
-        0 0 25px color-mix(in srgb, var(--input-accent) 25%, transparent),
-        inset 0 2px 10px rgba(0, 0, 0, 0.2);
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md);
       transform: translateY(-1px);
     }
 
@@ -135,10 +144,35 @@ export type InputVariant = string;
     input:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .hint { 
-      font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; margin-left: 12px; 
-      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; margin-left: 0.5rem; 
+      font-weight: 600; opacity: 0.8;
     }
-    .hint.error { color: var(--danger); }
+    .hint.error { color: var(--danger); opacity: 1; }
+
+    /* Babooni Tenant Enhancements */
+    :host-context(html[data-erp-tenant='babooni']) input {
+      border-radius: 10px;
+      font-weight: 600;
+      border-color: color-mix(in srgb, var(--border-soft) 60%, transparent);
+      box-shadow: 
+        var(--shadow-sm),
+        inset 0 1px 0 var(--surface-glow, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) input:focus {
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md),
+        inset 0 1px 0 var(--surface-glow, transparent);
+    }
+ 
+    :host-context(html[data-erp-tenant='babooni']) .label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--brand);
+    }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {

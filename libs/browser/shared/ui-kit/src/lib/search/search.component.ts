@@ -58,9 +58,12 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     .search-wrapper.focused {
-      border-color: color-mix(in srgb, var(--brand) 42%, var(--border-soft) 58%);
-      background: color-mix(in srgb, var(--theme-surface, #111623) 84%, var(--brand) 16%);
-      box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.35);
+      border-color: var(--brand);
+      background: var(--surface-rich, rgba(255, 255, 255, 0.08));
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md);
+      transform: translateY(-1px);
     }
 
     .search-icon { 
@@ -116,18 +119,10 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     .focus-indicator {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: var(--brand);
-      box-shadow: 0 0 25px var(--brand);
-      transform: scaleX(0);
-      transition: transform 0.5s var(--transition-spring);
+      display: none;
     }
 
-    .search-wrapper.focused .focus-indicator { transform: scaleX(1); }
+
 
     .search-wrapper.search-dock {
       border: none !important;
@@ -178,8 +173,15 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-wrapper.focused {
-      background: var(--surface);
-      box-shadow: 0 8px 18px -14px rgba(0, 0, 0, 0.2);
+      background: var(--surface-vibrant);
+      border-color: var(--brand);
+      box-shadow: 
+        0 8px 30px -10px color-mix(in srgb, var(--brand) 15%, transparent),
+        inset 0 1px 0 var(--surface-glow, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper:not(.focused) {
+      background: color-mix(in srgb, var(--surface-vibrant) 80%, transparent);
     }
 
     @media (prefers-reduced-motion: reduce) {
