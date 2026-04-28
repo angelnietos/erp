@@ -168,22 +168,46 @@ interface PersonalGridCell {
            </div>
            
            <div class="header-actions-extra">
-              <div class="calendar-legend">
-                <div class="legend-item AVAILABLE"><span class="dot AVAILABLE"></span><span>Disp.</span></div>
-                <div class="legend-item UNAVAILABLE"><span class="dot UNAVAILABLE"></span><span>Ocupado</span></div>
-                <div class="legend-item HOLIDAY"><span class="dot HOLIDAY"></span><span>Vacac.</span></div>
-                <div class="legend-item SICK_LEAVE"><span class="dot SICK_LEAVE"></span><span>Resto</span></div>
+              <div
+                class="calendar-legend"
+                role="group"
+                aria-label="Leyenda de colores: disponible, ocupado, vacaciones y otras incidencias"
+              >
+                <div class="legend-item AVAILABLE">
+                  <span class="dot AVAILABLE" aria-hidden="true"></span><span>Disp.</span>
+                </div>
+                <div class="legend-item UNAVAILABLE">
+                  <span class="dot UNAVAILABLE" aria-hidden="true"></span><span>Ocupado</span>
+                </div>
+                <div class="legend-item HOLIDAY">
+                  <span class="dot HOLIDAY" aria-hidden="true"></span><span>Vacac.</span>
+                </div>
+                <div class="legend-item SICK_LEAVE">
+                  <span class="dot SICK_LEAVE" aria-hidden="true"></span><span>Resto</span>
+                </div>
               </div>
-              <button type="button" class="nav-btn ripple" (click)="exportAvailabilityCsv()" title="Exportar CSV">
-                <lucide-icon name="download" size="18"></lucide-icon>
-              </button>
-              <button type="button" class="nav-btn ripple" (click)="loadMonth()" [class.animate-spin]="isLoading()" title="Sincronizar">
-                <lucide-icon name="rotate-cw" size="18"></lucide-icon>
-              </button>
-              <button type="button" class="request-days-btn" [routerLink]="['/users/availability', 'request']" [queryParams]="pedirDiasQueryParams()">
-                <lucide-icon name="calendar-plus" size="18"></lucide-icon>
-                Pedir días
-              </button>
+              <div class="header-toolbar-actions">
+                <button type="button" class="nav-btn ripple toolbar-icon-btn" (click)="exportAvailabilityCsv()" title="Exportar CSV">
+                  <lucide-icon name="download" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+                <button
+                  type="button"
+                  class="nav-btn ripple toolbar-icon-btn"
+                  (click)="loadMonth()"
+                  [class.animate-spin]="isLoading()"
+                  title="Sincronizar"
+                >
+                  <lucide-icon name="rotate-cw" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+                <a
+                  class="request-days-btn"
+                  [routerLink]="['/users/availability', 'request']"
+                  [queryParams]="pedirDiasQueryParams()"
+                >
+                  <lucide-icon name="calendar-plus" size="18" aria-hidden="true"></lucide-icon>
+                  Pedir días
+                </a>
+              </div>
            </div>
         </div>
       </header>
@@ -396,11 +420,23 @@ interface PersonalGridCell {
                       </p>
                     }
                   </div>
-                  <div class="calendar-legend team-board-legend">
-                    <div class="legend-item AVAILABLE"><span class="dot"></span><span>Disp.</span></div>
-                    <div class="legend-item UNAVAILABLE"><span class="dot"></span><span>Ocupado</span></div>
-                    <div class="legend-item HOLIDAY"><span class="dot"></span><span>Vacac.</span></div>
-                    <div class="legend-item SICK_LEAVE"><span class="dot"></span><span>Incid.</span></div>
+                  <div
+                    class="calendar-legend team-board-legend"
+                    role="group"
+                    aria-label="Leyenda de colores del cuadrante"
+                  >
+                    <div class="legend-item AVAILABLE">
+                      <span class="dot AVAILABLE" aria-hidden="true"></span><span>Disp.</span>
+                    </div>
+                    <div class="legend-item UNAVAILABLE">
+                      <span class="dot UNAVAILABLE" aria-hidden="true"></span><span>Ocupado</span>
+                    </div>
+                    <div class="legend-item HOLIDAY">
+                      <span class="dot HOLIDAY" aria-hidden="true"></span><span>Vacac.</span>
+                    </div>
+                    <div class="legend-item SICK_LEAVE">
+                      <span class="dot SICK_LEAVE" aria-hidden="true"></span><span>Incid.</span>
+                    </div>
                   </div>
                 </div>
 
@@ -691,38 +727,48 @@ interface PersonalGridCell {
     }
     .scope-btn:hover:not(.active), .toggle-btn:hover:not(.active) { background: rgba(0,0,0,0.05); color: var(--text-primary); }
 
+    a.request-days-btn,
     .request-days-btn {
-      background: var(--brand); 
-      color: #fff; 
+      background: var(--brand);
+      color: #fff;
       border: none;
-      padding: 0.75rem 1.75rem; 
-      border-radius: 16px;
-      font-size: 0.75rem; 
-      font-weight: 950; 
-      text-transform: uppercase; 
-      letter-spacing: 0.08em;
-      display: flex; 
-      align-items: center; 
-      gap: 0.75rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 8px 25px -5px color-mix(in srgb, var(--brand) 50%, transparent);
       cursor: pointer;
       position: relative;
       overflow: hidden;
+      text-decoration: none;
     }
 
+    a.request-days-btn::after,
     .request-days-btn::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-      opacity: 0; transition: opacity 0.3s ease;
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
-    .request-days-btn:hover { 
-      transform: translateY(-3px) scale(1.02); 
-      box-shadow: 0 15px 35px -8px color-mix(in srgb, var(--brand) 60%, transparent); 
-      filter: brightness(1.1);
+    a.request-days-btn:hover,
+    .request-days-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px -8px color-mix(in srgb, var(--brand) 60%, transparent);
+      filter: brightness(1.08);
     }
-    .request-days-btn:hover::after { opacity: 1; }
+    a.request-days-btn:hover::after,
+    .request-days-btn:hover::after {
+      opacity: 1;
+    }
 
     /* VIBRANT STATUSES - SOLID COLORS WITH GLOW */
     .status-marker.AVAILABLE { background: rgba(16, 185, 129, 0.08); border-left: 6px solid #10b981; }
@@ -736,15 +782,96 @@ interface PersonalGridCell {
     .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
     .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
 
-    .calendar-legend { display: flex !important; gap: 1.5rem !important; flex-wrap: wrap !important; flex-direction: row !important; align-items: center !important; }
-    .legend-item { 
-      display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.75rem; border-radius: 10px; 
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border-soft);
-      font-size: 0.65rem; font-weight: 950; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.08em; 
-      transition: all 0.2s ease;
+    .header-actions-extra {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem 1.1rem;
+      min-width: 0;
     }
-    .legend-item:hover { background: rgba(255,255,255,0.06); transform: translateY(-1px); }
-    .legend-item .dot { width: 8px; height: 8px; border-width: 1px; }
+
+    .header-toolbar-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .header-toolbar-actions .toolbar-icon-btn {
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 10px;
+    }
+
+    /* Un solo bloque segmentado (mejor que 4 cápsulas en fila). */
+    .calendar-legend {
+      display: inline-flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      flex: 0 1 auto;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      gap: 0;
+      padding: 0;
+      background: color-mix(in srgb, var(--surface) 75%, rgba(0, 0, 0, 0.15));
+      border: 1px solid color-mix(in srgb, var(--border-soft) 90%, transparent);
+      border-radius: 10px;
+    }
+
+    .calendar-legend::-webkit-scrollbar {
+      display: none;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0;
+      padding: 0.48rem 0.72rem;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      border-right: 1px solid color-mix(in srgb, var(--border-soft) 70%, rgba(255, 255, 255, 0.04));
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .legend-item:last-child {
+      border-right: none;
+    }
+
+    .legend-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: none;
+    }
+
+    .legend-item .dot {
+      width: 9px;
+      height: 9px;
+      border-width: 1px;
+      flex-shrink: 0;
+    }
+
+    .team-board-toolbar .calendar-legend {
+      max-width: min(420px, 100%);
+    }
+
+    .team-board-legend {
+      flex-shrink: 1;
+    }
 
     /* LAYOUT & SIDEBAR */
     .dashboard-layout {
@@ -931,13 +1058,20 @@ interface PersonalGridCell {
     .cell-notes { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; line-height: 1.3; margin-top: 0.5rem; opacity: 0.7; }
 
     /* TEAM BOARD MATRIX - PANORAMIC VIEW */
-    .team-board-toolbar { 
-      padding: 2rem 2.5rem; 
-      border-bottom: 1px solid rgba(255,255,255,0.06); 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      background: rgba(255,255,255,0.02); 
+    .team-board-toolbar {
+      padding: 2rem 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem 1.5rem;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .team-board-toolbar__meta {
+      flex: 1 1 220px;
+      min-width: 0;
     }
     .team-board-title { font-size: 1.75rem; font-weight: 950; color: var(--text-primary); letter-spacing: -0.03em; }
     .team-board-month { color: var(--brand); margin-left: 0.65rem; opacity: 0.9; }
@@ -1045,10 +1179,25 @@ interface PersonalGridCell {
       background: rgba(255, 255, 255, 0.5);
     }
 
+    :host-context(html[data-erp-tenant='babooni']) a.request-days-btn,
     :host-context(html[data-erp-tenant='babooni']) .request-days-btn {
       border-radius: 12px;
       padding: 0.65rem 1.25rem;
       box-shadow: 0 4px 12px rgba(var(--brand-rgb), 0.2);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .calendar-legend {
+      background: rgba(255, 255, 255, 0.45);
+      border-color: var(--avail-border);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .legend-item {
+      border-right-color: rgba(0, 0, 0, 0.06);
+      color: var(--text-primary);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .legend-item:hover {
+      background: rgba(255, 255, 255, 0.7);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card {
