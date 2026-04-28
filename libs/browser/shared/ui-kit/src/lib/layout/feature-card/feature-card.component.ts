@@ -19,6 +19,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       (keydown.space)="$event.preventDefault(); cardClicked.emit()"
     >
       <div class="card-header">
+        <ng-content select="[card-extra]"></ng-content>
         <div class="header-main">
           @if (avatarInitials) {
           <div class="item-avatar">
@@ -49,7 +50,6 @@ import { UiBadgeComponent } from '../../badge/badge.component';
              }
           </div>
         </div>
-        <ng-content select="[card-extra]"></ng-content>
       </div>
 
       <div class="card-body">
@@ -139,12 +139,11 @@ import { UiBadgeComponent } from '../../badge/badge.component';
 
     .card-header {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.75rem;
       padding: 1.5rem;
       position: relative;
-      /* Reservar carril fijo para selector en esquina derecha. */
-      padding-right: 6.1rem;
     }
 
     .header-main {
@@ -152,14 +151,27 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       gap: 1rem;
       align-items: center;
       flex: 1;
+      min-width: 0;
     }
 
     .card-header ::ng-deep [card-extra] {
-      position: absolute !important;
-      /* Pegado al borde superior de la cabecera: no comparte “línea” con el título. */
-      top: 0 !important;
-      right: 0.4rem !important;
-      z-index: 4;
+      position: static !important;
+      flex-shrink: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.5rem;
+    }
+
+    .card-header ::ng-deep [card-extra] .selection-checkbox,
+    .card-header ::ng-deep [card-extra] input[type='checkbox'] {
+      width: 1.125rem;
+      height: 1.125rem;
+      min-width: 1.125rem;
+      min-height: 1.125rem;
+      cursor: pointer;
+      accent-color: var(--brand);
     }
 
     .item-avatar {
