@@ -143,73 +143,76 @@ interface PersonalGridCell {
                 <lucide-icon name="calendar-check" size="16"></lucide-icon>
                 <span>Hoy</span>
               </button>
-           </div>
+            </div>
 
-           <div class="header-center-toggles" style="display: flex; gap: 0.75rem;">
-             @if (viewMode() === 'personal') {
-               <div class="personal-scope-toggle">
-                 <button type="button" class="scope-btn" [class.active]="personalCalendarScope() === 'month'" (click)="setPersonalCalendarScope('month')">Mes</button>
-                 <button type="button" class="scope-btn" [class.active]="personalCalendarScope() === 'week'" (click)="setPersonalCalendarScope('week')">Semana</button>
-               </div>
-             }
+            <div class="header-center-toggles" style="display: flex; gap: 0.75rem;">
+              @if (viewMode() === 'personal') {
+                <div class="personal-scope-toggle">
+                  <button type="button" class="scope-btn" [class.active]="personalCalendarScope() === 'month'" (click)="setPersonalCalendarScope('month')">Mes</button>
+                  <button type="button" class="scope-btn" [class.active]="personalCalendarScope() === 'week'" (click)="setPersonalCalendarScope('week')">Semana</button>
+                </div>
+              }
 
-             @if (canManageTeam()) {
-               <div class="view-toggle">
-                 <button type="button" class="toggle-btn" [class.active]="viewMode() === 'personal'" (click)="viewMode.set('personal')">
-                   <lucide-icon name="user" size="14" aria-hidden="true"></lucide-icon>
-                   Individual
-                 </button>
-                 <button type="button" class="toggle-btn" [class.active]="viewMode() === 'team'" (click)="viewMode.set('team')">
-                   <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
-                   Equipo
-                 </button>
+              @if (canManageTeam()) {
+                <div class="view-toggle">
+                  <button type="button" class="toggle-btn" [class.active]="viewMode() === 'personal'" (click)="viewMode.set('personal')">
+                    <lucide-icon name="user" size="14" aria-hidden="true"></lucide-icon>
+                    Individual
+                  </button>
+                  <button type="button" class="toggle-btn" [class.active]="viewMode() === 'team'" (click)="viewMode.set('team')">
+                    <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
+                    Equipo
+                  </button>
+                </div>
+              }
+            </div>
+            
+            <div class="header-actions-extra">
+               <div
+                 class="calendar-legend"
+                 role="group"
+                 aria-label="Leyenda de colores: disponible, ocupado, vacaciones y otras incidencias"
+               >
+                 <div class="legend-item AVAILABLE">
+                   <span class="dot AVAILABLE" aria-hidden="true"></span><span>Disp.</span>
+                 </div>
+                 <div class="legend-item UNAVAILABLE">
+                   <span class="dot UNAVAILABLE" aria-hidden="true"></span><span>Ocupado</span>
+                 </div>
+                 <div class="legend-item HOLIDAY">
+                   <span class="dot HOLIDAY" aria-hidden="true"></span><span>Vacac.</span>
+                 </div>
+                 <div class="legend-item SICK_LEAVE">
+                   <span class="dot SICK_LEAVE" aria-hidden="true"></span><span>Resto</span>
+                 </div>
                </div>
-             }
-           </div>
-           
-           <div class="header-actions-extra">
-              <div
-                class="calendar-legend"
-                role="group"
-                aria-label="Leyenda de colores: disponible, ocupado, vacaciones y otras incidencias"
-              >
-                <div class="legend-item AVAILABLE">
-                  <span class="dot AVAILABLE" aria-hidden="true"></span><span>Disp.</span>
-                </div>
-                <div class="legend-item UNAVAILABLE">
-                  <span class="dot UNAVAILABLE" aria-hidden="true"></span><span>Ocupado</span>
-                </div>
-                <div class="legend-item HOLIDAY">
-                  <span class="dot HOLIDAY" aria-hidden="true"></span><span>Vacac.</span>
-                </div>
-                <div class="legend-item SICK_LEAVE">
-                  <span class="dot SICK_LEAVE" aria-hidden="true"></span><span>Resto</span>
-                </div>
-              </div>
-              <div class="header-toolbar-actions">
-                <button type="button" class="nav-btn ripple toolbar-icon-btn" (click)="exportAvailabilityCsv()" title="Exportar CSV">
-                  <lucide-icon name="download" size="20" aria-hidden="true"></lucide-icon>
-                </button>
-                <button
-                  type="button"
-                  class="nav-btn ripple toolbar-icon-btn"
-                  (click)="loadMonth()"
-                  [class.animate-spin]="isLoading()"
-                  title="Sincronizar"
-                >
-                  <lucide-icon name="rotate-cw" size="20" aria-hidden="true"></lucide-icon>
-                </button>
-                <a
-                  class="request-days-btn"
-                  [routerLink]="['/users/availability', 'request']"
-                  [queryParams]="pedirDiasQueryParams()"
-                >
-                  <lucide-icon name="calendar-plus" size="20" aria-hidden="true" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2))"></lucide-icon>
-                  Pedir días
-                </a>
-              </div>
-           </div>
-        </div>
+               <div class="header-toolbar-actions">
+                 <button type="button" class="nav-btn ripple toolbar-icon-btn" (click)="exportAvailabilityCsv()" title="Exportar CSV">
+                   <lucide-icon name="download" size="20" aria-hidden="true"></lucide-icon>
+                 </button>
+                 <button
+                   type="button"
+                   class="nav-btn ripple toolbar-icon-btn"
+                   (click)="loadMonth()"
+                   [class.animate-spin]="isLoading()"
+                   title="Sincronizar"
+                 >
+                   <lucide-icon name="rotate-cw" size="20" aria-hidden="true"></lucide-icon>
+                 </button>
+                 <button type="button" class="nav-btn ripple toolbar-icon-btn" (click)="shortcutsHelpOpen.set(true)" title="Atajos de teclado">
+                   <lucide-icon name="help-circle" size="20" aria-hidden="true"></lucide-icon>
+                 </button>
+                 <a
+                   class="request-days-btn"
+                   [routerLink]="['/users/availability', 'request']"
+                   [queryParams]="pedirDiasQueryParams()"
+                 >
+                   <lucide-icon name="calendar-plus" size="20" aria-hidden="true" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2))"></lucide-icon>
+                   Pedir días
+                 </a>
+               </div>
+            </div>
+         </div>
       </header>
 
       @if (shortcutsHelpOpen()) {
@@ -235,7 +238,7 @@ interface PersonalGridCell {
         </div>
       }
 
-       <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'" [class.sidebar-collapsed]="sidebarCollapsed() && viewMode() === 'personal'">
+       <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'" [class.sidebar-collapsed]="sidebarCollapsed()">
           @if (viewMode() === 'personal') {
          <!-- Lista de operarios: solo vista individual (evita duplicar filas con el cuadrante de equipo) -->
          <aside class="team-sidebar animate-slide-right" [class.collapsed]="sidebarCollapsed()">
@@ -296,11 +299,11 @@ interface PersonalGridCell {
             }
           </div>
          </aside>
-         @if (sidebarCollapsed() && viewMode() === 'personal') {
+         @if (sidebarCollapsed()) {
            <button 
              type="button" 
              class="sidebar-expand-btn" 
-             (click)="sidebarCollapsed.set(false)"
+             (click)="sidebarCollapsed.update(v => !v)"
              title="Expandir panel"
              aria-label="Expandir panel de operarios"
            >
