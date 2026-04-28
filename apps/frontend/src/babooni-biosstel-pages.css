@@ -5,20 +5,23 @@
  */
 
 html[data-erp-tenant='babooni'] {
-  --babooni-ink: var(--text-primary, #000000);
-  --babooni-ink-soft: var(--text-primary, #080808);
-  --babooni-border: #d1d1d1;
+  --babooni-ink: #1e293b;
+  --babooni-ink-soft: #334155;
+  --babooni-border: #e2e8f0;
   --babooni-surface: #ffffff;
-  --babooni-muted: var(--text-muted, #747474);
-  --babooni-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --babooni-muted: #64748b;
+  --babooni-accent: #7c3aed;
+  --babooni-accent-muted: #a78bfa;
+  --babooni-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --babooni-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --babooni-glow: rgba(124, 58, 237, 0.08);
   /**
-   * ThemeService inyecta radios grandes (p. ej. variante neumorphic 40px) en estilo inline;
-   * con !important se fija un perfil más sobrio y legible (menos “burbuja”).
+   * Enhanced radius system for modern look with better proportions.
    */
   --radius-sm: 6px !important;
   --radius-md: 8px !important;
-  --radius-lg: 10px !important;
-  --radius-xl: 12px !important;
+  --radius-lg: 12px !important;
+  --radius-xl: 16px !important;
   --btn-radius: 8px !important;
   --input-radius: 8px !important;
   --modal-radius: 12px !important;
@@ -74,22 +77,28 @@ html[data-erp-tenant='babooni'] .prefs-container {
   box-sizing: border-box;
 }
 
-/* ── Cabecera de módulo (ui-feature-header) — plano, alto contraste ── */
+/* ── Enhanced Cabecera de módulo (ui-feature-header) — modern design ── */
 html[data-erp-tenant='babooni'] ui-feature-header .header-content {
   background: var(--babooni-surface) !important;
   border: 1px solid var(--babooni-border) !important;
   border-radius: 12px !important;
-  box-shadow: var(--babooni-shadow-soft) !important;
+  box-shadow: var(--babooni-shadow-medium) !important;
+  transition: box-shadow 0.3s ease !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-header .header-content:hover {
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .main-title {
-  background: none !important;
-  -webkit-text-fill-color: unset !important;
-  background-clip: unset !important;
-  color: var(--babooni-ink-soft) !important;
+  background: linear-gradient(135deg, var(--babooni-ink-soft), var(--babooni-accent)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
   font-weight: 700 !important;
   font-size: 1.65rem !important;
   letter-spacing: -0.03em !important;
+  text-shadow: 0 0 20px var(--babooni-glow) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .subtitle {
@@ -123,31 +132,56 @@ html[data-erp-tenant='babooni'] ui-feature-stats .stats-grid {
   gap: 1rem !important;
 }
 
-/* ── Tarjetas de estadística ── */
+/* ── Enhanced Tarjetas de estadística ── */
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card {
-  border-radius: 10px !important;
+  border-radius: 12px !important;
   background: var(--babooni-surface) !important;
   border: 1px solid var(--babooni-border) !important;
-  box-shadow: var(--babooni-shadow-soft) !important;
+  box-shadow: var(--babooni-shadow-medium) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+html[data-erp-tenant='babooni'] ui-stat-card .stat-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.03), transparent) !important;
+  transition: left 0.5s ease !important;
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover {
-  transform: translateY(-2px) !important;
-  border-color: #b8b8b8 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07) !important;
+  transform: translateY(-3px) scale(1.01) !important;
+  border-color: rgba(124, 58, 237, 0.2) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 20px var(--babooni-glow) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover::before {
+  left: 100% !important;
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-icon-wrapper {
   border-radius: 12px !important;
 }
 
-/* ── Fila filtros + barra búsqueda (ui-feature-filter-bar) ── */
+/* ── Enhanced Fila filtros + barra búsqueda (ui-feature-filter-bar) ── */
 html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--framed {
   background: var(--babooni-surface) !important;
   border: 1px solid var(--babooni-border) !important;
   border-radius: 12px !important;
-  box-shadow: var(--babooni-shadow-soft) !important;
-  padding: 0.65rem 1rem !important;
+  box-shadow: var(--babooni-shadow-medium) !important;
+  padding: 0.75rem 1.25rem !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  transition: box-shadow 0.3s ease !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--framed:hover {
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -1px rgba(0, 0, 0, 0.04) !important;
 }
 
 /*
@@ -206,14 +240,18 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active
   border-radius: 2px 2px 0 0;
 }
 
-/* ── Estados vacíos en grillas de módulo (no afecta celdas tabla sueltas) ── */
+/* ── Enhanced Estados vacíos en grillas de módulo ── */
 html[data-erp-tenant='babooni'] ui-feature-grid .empty-state {
   grid-column: 1 / -1;
   background: var(--babooni-surface) !important;
   border: 1px solid var(--babooni-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--babooni-shadow-soft) !important;
-  padding: 3.5rem 2rem !important;
+  border-radius: 16px !important;
+  box-shadow: var(--babooni-shadow-medium) !important;
+  padding: 4rem 2.5rem !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-style: dashed !important;
+  border-width: 2px !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-grid .empty-state h3 {
