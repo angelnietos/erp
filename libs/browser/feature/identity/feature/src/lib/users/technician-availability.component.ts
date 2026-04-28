@@ -1021,31 +1021,40 @@ interface PersonalGridCell {
      }
      
      .sidebar-toggle-btn {
-       position: absolute;
-       top: 50%;
-       right: -12px;
-       transform: translateY(-50%);
-       width: 24px;
-       height: 24px;
-       border-radius: 50%;
-       background: var(--brand);
-       color: #fff;
-       border: 2px solid var(--surface);
-       display: flex;
-       align-items: center;
-       justify-content: center;
-       cursor: pointer;
-       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-       z-index: 100;
-       box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-     }
-     .sidebar-toggle-btn:hover {
-       background: var(--brand-hover, #2563eb);
-       transform: translateY(-50%) scale(1.1);
-     }
-     .sidebar-toggle-btn:active {
-       transform: translateY(-50%) scale(0.95);
-     }
+        position: absolute;
+        top: 50%;
+        right: -14px;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        background: rgba(var(--brand-rgb), 0.9);
+        color: #fff;
+        border: 2px solid var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+      .sidebar-toggle-btn:hover {
+        background: var(--brand);
+        transform: translateY(-50%) scale(1.15) rotate(-90deg);
+        box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.4);
+      }
+      .sidebar-toggle-btn:active {
+        transform: translateY(-50%) scale(0.9);
+      }
+      
+      .sidebar-toggle-btn lucide-icon {
+        transition: transform 0.3s ease;
+      }
+      .sidebar-toggle-btn:hover lucide-icon {
+        transform: scale(1.1);
+      }
+
      .sidebar-toggle-btn.team-toggle {
        position: static;
        transform: none;
@@ -1442,9 +1451,18 @@ interface PersonalGridCell {
       box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
     }
     
-    :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn:hover {
+    :host-context(html[data-erp-tenant='babooni']) .sidebar-toggle-btn {
       background: #ffffff;
-      box-shadow: 8px 0 30px rgba(0, 0, 0, 0.08);
+      color: var(--brand);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .sidebar-toggle-btn:hover {
+      background: var(--brand);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(var(--brand-rgb), 0.2);
     }
   `]
 
