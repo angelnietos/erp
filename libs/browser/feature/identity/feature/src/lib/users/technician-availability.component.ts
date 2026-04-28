@@ -922,7 +922,8 @@ interface PersonalGridCell {
        align-items: start;
        transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
      }
-     .dashboard-layout.sidebar-collapsed {
+     .dashboard-layout.sidebar-collapsed,
+     .dashboard-layout--team {
         grid-template-columns: 1fr;
         gap: 0;
       }
