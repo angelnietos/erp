@@ -88,6 +88,8 @@ export type Theme =
   | 'rockstar-vintage'
   | 'galactic-void'
   | 'emerald-overdrive'
+  | 'cyber-noir'
+  | 'obsidian-gold'
   | 'babooni';
 
 export type Density = 'compact' | 'standard' | 'spacious';
@@ -1644,6 +1646,46 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     info: '#3b82f6',
     uiVariant: 'glass',
   },
+  'cyber-noir': {
+    name: 'Cyber Noir',
+    primary: '#06b6d4',
+    secondary: '#111827',
+    background: '#0a0a0a',
+    surface: '#171717',
+    text: '#ffffff',
+    textMuted: '#64748b',
+    border: 'rgba(6, 182, 212, 0.25)',
+    brand: '#06b6d4',
+    brandGlow: 'rgba(6, 182, 212, 0.4)',
+    bgSecondary: '#050505',
+    bgTertiary: '#1f2937',
+    bgStyle: 'grid',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4',
+    uiVariant: 'glass',
+  },
+  'obsidian-gold': {
+    name: 'Obsidian Gold',
+    primary: '#d4af37',
+    secondary: '#000000',
+    background: '#050505',
+    surface: '#121212',
+    text: '#f3f4f6',
+    textMuted: '#9ca3af',
+    border: 'rgba(212, 175, 55, 0.3)',
+    brand: '#d4af37',
+    brandGlow: 'rgba(212, 175, 55, 0.5)',
+    bgSecondary: '#000000',
+    bgTertiary: '#1a1a1a',
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    uiVariant: 'glass',
+  },
 };
 
 /** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
@@ -1661,12 +1703,16 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
       'aurora-veil',
       'nocturne-slate',
       'obsidian-rose',
+      'cyber-noir',
+      'obsidian-gold',
       'cyber-ocean',
       'blood-moon',
       'midnight-sun',
       'icy-phantom',
       'onyx-premium',
       'platinum-luxe',
+      'galactic-void',
+      'emerald-overdrive',
     ],
   },
   {

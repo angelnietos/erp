@@ -198,18 +198,19 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        text-transform: none;
-        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
+        font-size: 2.25rem;
+        font-weight: 800;
         font-family: var(--font-main, inherit);
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
+        color: var(--text-primary);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-trend {

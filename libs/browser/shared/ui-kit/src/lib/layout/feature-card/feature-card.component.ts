@@ -397,8 +397,8 @@ import { UiBadgeComponent } from '../../badge/badge.component';
 
     :host-context(html[data-erp-tenant='babooni']) .card-footer {
       padding: calc(var(--card-padding, 1.25rem) * 0.6) var(--card-padding, 1.25rem);
-      background: rgba(0, 0, 0, 0.02);
-      border-top: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+      background: color-mix(in srgb, var(--brand) 3%, transparent);
+      border-top: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
       min-height: auto;
     }
 
