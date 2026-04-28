@@ -164,10 +164,10 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
-        background: var(--card-bg, color-mix(in srgb, var(--surface) 70%, transparent));
+        background: var(--card-bg, var(--surface));
         backdrop-filter: blur(12px);
-        border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 50%, transparent));
-        box-shadow: var(--card-shadow, 0 4px 12px -2px rgba(0, 0, 0, 0.04));
+        border: 1px solid var(--card-border, var(--border-soft));
+        box-shadow: var(--card-shadow, var(--shadow-md));
         padding: 1.25rem 1.5rem;
         gap: 1.25rem;
       }

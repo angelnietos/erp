@@ -2016,14 +2016,15 @@ export class ThemeService {
       '--btn-radius',
       '--btn-shadow',
       '--btn-border-width',
+      '--surface-glass',
     ];
     structuralTokens.forEach((t) => root.style.removeProperty(t));
 
     // Core surface used by .ui-glass
-    root.style.setProperty(
-      '--surface',
-      hexToRgba(config.surface, isLight ? 0.94 : 0.78),
-    );
+    const surfaceAlpha = isLight ? 0.94 : 0.78;
+    const surfaceRgba = hexToRgba(config.surface, surfaceAlpha);
+    root.style.setProperty('--surface', surfaceRgba);
+    root.style.setProperty('--surface-glass', surfaceRgba);
 
     switch (variant) {
       case 'glass':

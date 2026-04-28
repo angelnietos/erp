@@ -5,12 +5,12 @@
  */
 
 html[data-erp-tenant='babooni'] {
-  --babooni-ink: #1e293b;
-  --babooni-ink-soft: #334155;
-  --babooni-border: #e2e8f0;
-  --babooni-surface: #ffffff;
-  --babooni-muted: #64748b;
-  --babooni-accent: #7c3aed;
+  --babooni-ink: var(--text-primary, #1e293b);
+  --babooni-ink-soft: var(--text-secondary, #334155);
+  --babooni-border: var(--card-border, var(--border-soft, #e2e8f0));
+  --babooni-surface: var(--card-bg, var(--surface, #ffffff));
+  --babooni-muted: var(--text-muted, #64748b);
+  --babooni-accent: var(--brand, #7c3aed);
   --babooni-accent-muted: #a78bfa;
   --babooni-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --babooni-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -114,7 +114,7 @@ html[data-erp-tenant='babooni'] ui-feature-header .icon-box {
 
 /* ── Métricas colapsables (ui-feature-stats) ── */
 html[data-erp-tenant='babooni'] ui-feature-stats .collapse-btn {
-  background: #f5f5f5 !important;
+  background: var(--bg-tertiary, #f5f5f5) !important;
   border: 1px solid var(--babooni-border) !important;
   color: var(--babooni-muted) !important;
   border-radius: 8px !important;
@@ -192,7 +192,7 @@ html[data-erp-tenant='babooni'] ui-feature-filter-bar .feature-filter-bar--frame
 
 /* Pestañas modo “pill” (variante default en filtros) */
 html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) {
-  background: #f3f3f3 !important;
+  background: var(--bg-tertiary, #f3f3f3) !important;
   border: 1px solid var(--babooni-border) !important;
   box-shadow: none !important;
 }
