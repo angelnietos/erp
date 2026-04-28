@@ -49,6 +49,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
              }
           </div>
         </div>
+        <ng-content select="[card-extra]"></ng-content>
       </div>
 
       <div class="card-body">
@@ -141,6 +142,9 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       justify-content: space-between;
       align-items: flex-start;
       padding: 1.5rem;
+      position: relative;
+      /* Reservar carril fijo para selector en esquina derecha. */
+      padding-right: 6.1rem;
     }
 
     .header-main {
@@ -148,6 +152,14 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       gap: 1rem;
       align-items: center;
       flex: 1;
+    }
+
+    .card-header ::ng-deep [card-extra] {
+      position: absolute !important;
+      /* Pegado al borde superior de la cabecera: no comparte “línea” con el título. */
+      top: 0 !important;
+      right: 0.4rem !important;
+      z-index: 4;
     }
 
     .item-avatar {
@@ -194,6 +206,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      min-width: 0;
     }
 
     .item-name {
@@ -205,6 +218,7 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .favorite-icon {

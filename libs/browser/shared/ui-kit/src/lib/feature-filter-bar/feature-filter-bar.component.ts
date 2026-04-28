@@ -53,22 +53,21 @@ import type { SearchVariant } from '../search/search.component';
     }
 
     .feature-filter-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: stretch;
+      gap: 0.85rem;
       width: 100%;
       margin-bottom: 2.5rem;
     }
 
     .feature-filter-bar--framed {
-      justify-content: space-between;
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px) saturate(1.5);
-      padding: 0.75rem 1.75rem;
+      padding: 0.8rem 1rem;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-soft);
-      gap: 1.5rem 2.5rem;
+      gap: 0.85rem;
       transition: all 0.4s var(--transition-spring);
       box-shadow: var(--shadow-md);
     }
@@ -77,17 +76,21 @@ import type { SearchVariant } from '../search/search.component';
       background: rgba(255, 255, 255, 0.05);
       border-color: var(--brand);
       box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 25px var(--brand-ambient);
-      transform: translateY(-2px);
     }
 
     .feature-filter-bar--plain {
-      gap: 1.25rem 1.75rem;
+      gap: 0.75rem;
     }
 
     .feature-filter-bar__states {
-      flex: 0 1 auto;
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
       min-width: 0;
       max-width: 100%;
+      overflow-x: auto;
+      padding-bottom: 0.1rem;
     }
 
     .feature-filter-bar__states:not(:has(*)) {
@@ -95,15 +98,13 @@ import type { SearchVariant } from '../search/search.component';
     }
 
     .feature-filter-bar__search {
-      flex: 1 1 600px;
-      min-width: 380px;
+      width: 100%;
+      min-width: 0;
     }
 
     @media (max-width: 1024px) {
       .feature-filter-bar--framed {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 1.5rem;
+        padding: 0.8rem;
       }
 
       .feature-filter-bar__states {

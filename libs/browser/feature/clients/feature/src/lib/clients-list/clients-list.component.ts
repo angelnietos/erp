@@ -500,9 +500,11 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
         accent-color: var(--primary);
       }
       .card-selection {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
+        /* La posición la aplica ui-feature-card [card-extra]. */
+        position: static;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       /* Active state for filters button */

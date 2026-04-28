@@ -118,42 +118,42 @@ export type TabsVariant =
 
       /* Underline Variant — Cinema Style */
       .tabs-underline {
-        background: transparent;
-        border: none;
-        padding: 0;
-        gap: 32px;
-        border-bottom: 1px solid var(--border-soft);
-        border-radius: 0;
-        box-shadow: none;
+        background: color-mix(in srgb, var(--theme-surface, #111623) 76%, transparent);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 82%, transparent);
+        padding: 0.3rem;
+        gap: 0.3rem;
+        border-radius: 999px;
+        box-shadow: 0 4px 14px -12px rgba(0, 0, 0, 0.28);
       }
 
       .tabs-underline .tab-item {
-        border-radius: 0;
-        padding: 1rem 0.5rem;
-        background: transparent !important;
-        box-shadow: none !important;
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
+        min-height: 2rem;
+        background: transparent;
+        box-shadow: none;
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
       }
 
       .tabs-underline .tab-item.active {
-        color: var(--brand);
-        transform: translateY(-2px);
+        color: var(--text-on-brand, #fff);
+        background: color-mix(in srgb, var(--brand) 78%, transparent);
+        border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent);
+        transform: none;
+      }
+
+      .tabs-underline .tab-item:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--brand) 10%, transparent);
       }
 
       .tabs-underline .active-indicator {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: var(--brand);
-        transform: scaleX(0);
-        transition: transform 0.5s var(--transition-spring);
-        box-shadow: 0 0 25px var(--brand);
-        border-radius: 4px 4px 0 0;
+        display: none;
       }
 
       .tabs-underline .tab-item.active .active-indicator {
-        transform: scaleX(1);
+        display: none;
       }
 
       /* Pills variant */
@@ -275,10 +275,22 @@ export type TabsVariant =
       }
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         font-weight: 600;
         text-transform: none;
         letter-spacing: 0.02em;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-underline {
+        background: rgba(255, 255, 255, 0.68);
+        border-color: color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 85%, transparent);
+        box-shadow: 0 4px 10px -10px rgba(0, 0, 0, 0.2);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item.active {
+        background: color-mix(in srgb, var(--brand) 18%, #fff);
+        border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+        color: color-mix(in srgb, var(--brand) 70%, var(--text-primary) 30%);
       }
     `,
   ],

@@ -38,7 +38,7 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       position: relative;
       display: flex;
       align-items: center;
-      border-radius: 24px;
+      border-radius: 14px;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       background: none !important;
       border: 1px solid var(--border-soft);
@@ -49,10 +49,9 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     .search-wrapper.focused {
-      border-color: var(--brand);
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px var(--brand-ambient);
-      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--brand) 42%, var(--border-soft) 58%);
+      background: color-mix(in srgb, var(--theme-surface, #111623) 84%, var(--brand) 16%);
+      box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.35);
     }
 
     .search-icon { 
@@ -67,8 +66,8 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
 
     .search-wrapper.focused .search-icon {
       color: var(--brand);
-      transform: scale(1.3) rotate(-5deg);
-      filter: drop-shadow(0 0 10px var(--brand-glow));
+      transform: none;
+      filter: none;
     }
 
     input {
@@ -86,6 +85,7 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       text-transform: none !important;
       box-shadow: none !important;
       -webkit-appearance: none;
+      line-height: 1.35;
     }
 
     input::placeholder {
@@ -131,6 +131,40 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     
     .search-wrapper.search-dock .search-icon {
       left: 1rem;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.65rem;
+      height: 1.65rem;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 82%, transparent);
+      background: color-mix(in srgb, var(--theme-surface, #131722) 92%, transparent);
+      border-radius: 999px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .clear-btn:hover {
+      color: var(--brand);
+      border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+      background: color-mix(in srgb, var(--brand) 12%, var(--theme-surface, #131722) 88%);
+    }
+
+    .clear-btn lucide-icon {
+      width: 0.85rem;
+      height: 0.85rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.focused {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 18px -14px rgba(0, 0, 0, 0.2);
     }
 
     @media (prefers-reduced-motion: reduce) {

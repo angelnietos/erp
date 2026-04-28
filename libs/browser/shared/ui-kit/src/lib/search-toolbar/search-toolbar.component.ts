@@ -56,20 +56,19 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature {
-      border-radius: 24px;
-      border: 1px solid var(--toolbar-bar-border);
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(35px);
-      box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.3);
+      border-radius: 18px;
+      border: 1px solid color-mix(in srgb, var(--toolbar-bar-border) 88%, transparent);
+      background: color-mix(in srgb, var(--theme-surface, #141722) 78%, transparent);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.35);
       overflow: hidden;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .search-toolbar--feature:focus-within {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: var(--brand);
-      box-shadow: 0 15px 45px -12px rgba(0, 0, 0, 0.5), 0 0 25px var(--brand-glow);
-      transform: translateY(-2px);
+      background: color-mix(in srgb, var(--theme-surface, #141722) 84%, var(--brand) 16%);
+      border-color: color-mix(in srgb, var(--brand) 40%, var(--border-soft) 60%);
+      box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.4);
     }
 
     .search-toolbar--minimal {
@@ -87,33 +86,47 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature .search-toolbar__field {
-      padding: 0 0.75rem 0 1.25rem;
+      padding: 0 0.55rem 0 0.95rem;
     }
 
     .search-toolbar__divider {
       width: 1px;
       align-self: stretch;
-      margin: 0.75rem 0;
-      background: linear-gradient(to bottom, transparent, var(--border-soft), transparent);
+      margin: 0.55rem 0;
+      background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--border-soft) 80%, transparent), transparent);
       flex-shrink: 0;
       transition: background 0.3s ease;
     }
     
     .search-toolbar--feature:focus-within .search-toolbar__divider {
-      background: linear-gradient(to bottom, transparent, var(--brand), transparent);
+      background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--brand) 55%, transparent), transparent);
     }
 
     .search-toolbar__actions {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.35rem;
       flex-shrink: 0;
-      padding: 0.4rem 1rem 0.4rem 0.5rem;
+      padding: 0.32rem 0.65rem 0.32rem 0.35rem;
     }
 
     .search-toolbar--feature .search-toolbar__actions ::ng-deep .btn {
       --btn-accent: var(--brand);
+      border-radius: 999px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature {
+      background: rgba(255, 255, 255, 0.64);
+      border-color: color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.12)) 85%, transparent);
+      box-shadow: 0 6px 18px -14px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(10px);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature:focus-within {
+      background: rgba(255, 255, 255, 0.86);
+      border-color: color-mix(in srgb, var(--brand) 34%, rgba(8, 8, 8, 0.12));
+      box-shadow: 0 8px 22px -14px rgba(0, 0, 0, 0.22);
     }
 
     @media (prefers-reduced-motion: reduce) {
