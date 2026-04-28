@@ -122,6 +122,15 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255,255,255,0.1);
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
+
+    /* CTA de módulo (NUEVO …): mismo criterio que primary; --brand sigue al tema activo. */
+    .btn-color-app.btn-shape-solid,
+    .btn-color-app.btn-shape-auto {
+      background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 80%, black) 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border: 1px solid color-mix(in srgb, var(--brand) 25%, rgba(255, 255, 255, 0.08));
+    }
     
     .btn-color-secondary {
       --btn-accent: var(--switch-blue, #00beef);
@@ -307,17 +316,20 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     
     :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-solid,
     :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto {
-      background: #0a0a0a;
-      color: #ffffff;
-      border: 1px solid #111111;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 72%, #0a0a0a) 100%);
+      color: #fff;
+      border: 1px solid color-mix(in srgb, var(--brand) 42%, rgba(255, 255, 255, 0.1));
+      box-shadow:
+        0 4px 18px color-mix(in srgb, var(--brand) 32%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
-    
+
     :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-solid:hover,
     :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto:hover {
-      background: #1a1a1a;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 95%, #fff) 0%, var(--brand) 100%);
+      filter: brightness(1.05);
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 22px color-mix(in srgb, var(--brand) 38%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:not(.btn-color-danger) {
