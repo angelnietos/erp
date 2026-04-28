@@ -255,15 +255,13 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     }
 
     // Draw gaming styles (matrix, nebula, etc.) 
-    if (!isBabooniTenant) {
-      switch (cfg.bgStyle) {
-        case 'matrix': this.drawMatrixStyle(w, h, cfg); break;
-        case 'nebula': this.drawNebulaStyle(w, h, cfg); break;
-        case 'aurora': this.drawAuroraStyle(w, h, cfg); break;
-        case 'bokeh': this.drawBokehStyle(w, h, cfg); break;
-        case 'spot': this.drawSpotStyle(w, h, cfg); break;
-        case 'grid': this.drawGridStyle(w, h, cfg); break;
-      }
+    switch (cfg.bgStyle) {
+      case 'matrix': this.drawMatrixStyle(w, h, cfg); break;
+      case 'nebula': this.drawNebulaStyle(w, h, cfg); break;
+      case 'aurora': this.drawAuroraStyle(w, h, cfg); break;
+      case 'bokeh': this.drawBokehStyle(w, h, cfg); break;
+      case 'spot': this.drawSpotStyle(w, h, cfg); break;
+      case 'grid': this.drawGridStyle(w, h, cfg); break;
     }
 
     this.drawParticles(w, h, cfg);
@@ -320,19 +318,20 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     const brandHue = this.getHue(cfg.brand);
     
     this.spirits.forEach((s) => {
-      s.x += s.vx;
-      s.y += s.vy;
+      s.x += s.vx * 1.5;
+      s.y += s.vy * 1.5;
       if (s.x < -s.radius) s.x = w + s.radius;
       if (s.x > w + s.radius) s.x = -s.radius;
       if (s.y < -s.radius) s.y = h + s.radius;
       if (s.y > h + s.radius) s.y = -s.radius;
 
-      const pulse = 1 + Math.sin(this.time * s.pulseSpeed + s.phase) * 0.2;
+      const pulse = 1 + Math.sin(this.time * s.pulseSpeed + s.phase) * 0.3;
       const r = s.radius * pulse;
       
       const g = this.ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
-      g.addColorStop(0, `hsla(${brandHue}, 80%, 40%, 0.12)`);
-      g.addColorStop(0.5, `hsla(${(brandHue + 30) % 360}, 80%, 30%, 0.04)`);
+      g.addColorStop(0, `hsla(${brandHue}, 80%, 45%, 0.18)`);
+      g.addColorStop(0.4, `hsla(${(brandHue + 40) % 360}, 75%, 35%, 0.08)`);
+      g.addColorStop(0.7, `hsla(${(brandHue + 80) % 360}, 70%, 25%, 0.02)`);
       g.addColorStop(1, 'transparent');
       
       this.ctx.fillStyle = g;
@@ -347,18 +346,19 @@ export class CrmBackgroundComponent implements AfterViewInit, OnDestroy {
     this.ctx.globalCompositeOperation = 'screen';
     const brandHue = this.getHue(cfg.brand);
     
-    for (let i = 0; i < 3; i++) {
-      const shift = i * 100;
+    for (let i = 0; i < 4; i++) {
+      const shift = i * 120;
       const g = this.ctx.createLinearGradient(0, 0, w, 0);
       g.addColorStop(0, 'transparent');
-      g.addColorStop(0.5, `hsla(${(brandHue + i * 20) % 360}, 80%, 50%, 0.05)`);
+      g.addColorStop(0.3, `hsla(${(brandHue + i * 25) % 360}, 85%, 55%, 0.08)`);
+      g.addColorStop(0.7, `hsla(${(brandHue - i * 25 + 360) % 360}, 80%, 45%, 0.06)`);
       g.addColorStop(1, 'transparent');
       
       this.ctx.fillStyle = g;
       this.ctx.beginPath();
-      this.ctx.moveTo(0, h * 0.2 + shift);
-      for (let x = 0; x <= w; x += 50) {
-        const y = h * 0.4 + Math.sin(x * 0.002 + this.time * 0.5 + i) * 150 + shift;
+      this.ctx.moveTo(0, h * 0.15 + shift);
+      for (let x = 0; x <= w; x += 40) {
+        const y = h * 0.35 + Math.sin(x * 0.0015 + this.time * 0.6 + i) * 180 + shift;
         this.ctx.lineTo(x, y);
       }
       this.ctx.lineTo(w, h);
