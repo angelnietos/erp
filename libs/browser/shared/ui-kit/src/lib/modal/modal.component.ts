@@ -56,32 +56,33 @@ export type ModalVariant = string;
       display: flex; align-items: center;
       justify-content: center;
       z-index: 20000;
-      animation: modalFadeIn 0.4s var(--ease-out-expo);
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(20px) saturate(1.5);
+      animation: modalFadeIn 0.5s var(--ease-out-expo);
+      background: rgba(2, 4, 8, 0.85);
+      backdrop-filter: blur(25px) saturate(1.8);
     }
 
-    @keyframes modalFadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(20px); } }
+    @keyframes modalFadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(25px); } }
     @keyframes modalSpringUp { 
-      0% { opacity: 0; transform: translateY(100px) scale(0.9) rotateX(10deg); } 
-      100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); } 
+      0% { opacity: 0; transform: translateY(60px) scale(0.95); } 
+      100% { opacity: 1; transform: translateY(0) scale(1); } 
     }
 
-    /* Modal Content Base — Rockstar + Nintendo */
+    /* Modal Content Base — Cyber-Luxe */
     .modal-content {
-      --modal-radius: var(--radius-lg);
-      --modal-bg: var(--bg-secondary);
-      --modal-border: var(--border-soft);
+      --modal-radius: var(--radius-xl);
+      --modal-bg: rgba(13, 18, 30, 0.95);
+      --modal-border: rgba(255, 255, 255, 0.1);
       --modal-accent: var(--brand);
       
       border-radius: var(--modal-radius); 
-      min-width: 580px;
-      max-width: 95vw; 
-      max-height: 90vh; 
+      min-width: 500px;
+      max-width: 90vw; 
+      max-height: 85vh; 
       overflow: hidden;
       background: var(--modal-bg);
+      backdrop-filter: blur(45px);
       border: 1px solid var(--modal-border);
-      box-shadow: 0 50px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
       animation: modalSpringUp 0.6s var(--transition-spring);
       position: relative;
       isolation: isolate;
@@ -92,38 +93,10 @@ export type ModalVariant = string;
       content: "";
       position: absolute;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.03;
       pointer-events: none;
       z-index: -1;
-    }
-
-    /* Scanline Effect on Header */
-    .modal-header::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-      background-size: 100% 4px, 3px 100%;
-      pointer-events: none;
-      opacity: 0.3;
-      z-index: 5;
-    }
-
-    /* Nintendo Switch Style Side Accent */
-    .modal-content::after {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0; width: 6px;
-      background: var(--modal-accent);
-      box-shadow: 0 0 30px var(--modal-accent);
-      z-index: 10;
-      animation: modalIndicatorPulse 3s infinite;
-    }
-
-    @keyframes modalIndicatorPulse {
-      0%, 100% { opacity: 1; filter: brightness(1); }
-      50% { opacity: 0.6; filter: brightness(1.5); }
     }
 
     .modal-color-danger { --modal-accent: var(--danger); }
@@ -132,17 +105,17 @@ export type ModalVariant = string;
     .modal-color-info { --modal-accent: var(--info); }
     
     .modal-shape-glass {
-      background: rgba(10, 10, 15, 0.4);
-      backdrop-filter: blur(60px) saturate(2.5);
-      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(10, 15, 25, 0.4);
+      backdrop-filter: blur(60px) saturate(2);
+      border-color: rgba(255, 255, 255, 0.12);
     }
 
-    /* Header — Console Menu Style */
+    /* Header — Cyber-Luxe Menu Style */
     .modal-header {
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 3rem;
+      padding: 2.25rem 3rem;
       background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       position: relative;
@@ -150,22 +123,22 @@ export type ModalVariant = string;
 
     .modal-header h3 {
       margin: 0;
-      font-size: 1.5rem;
-      font-weight: 900;
+      font-size: 1.25rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.3em;
+      letter-spacing: 0.15em;
       color: #fff;
-      font-family: var(--font-gaming);
+      font-family: var(--font-main);
       text-shadow: 0 0 20px var(--modal-accent);
     }
 
     .close-btn {
-      width: 3rem; height: 3rem;
+      width: 2.75rem; height: 2.75rem;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 50%;
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       cursor: pointer;
       color: var(--text-muted);
       transition: all 0.4s var(--transition-spring);
@@ -173,31 +146,28 @@ export type ModalVariant = string;
 
     .close-btn:hover {
       color: #fff;
-      background: var(--brand);
-      transform: rotate(90deg) scale(1.1);
-      box-shadow: 0 0 30px var(--brand-glow);
-    }
-
-    .close-btn:focus-visible {
-      outline: none;
-      color: var(--text-primary, #fff);
-      border-color: var(--modal-accent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--modal-accent) 45%, transparent);
+      background: rgba(var(--brand-rgb), 0.2);
+      border-color: var(--brand);
+      transform: rotate(90deg);
+      box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.3);
     }
 
     .modal-body {
       padding: 3rem;
-      max-height: 70vh;
+      max-height: 65vh;
       overflow-y: auto;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-primary);
     }
 
     .modal-footer {
-      padding: 2rem 3rem;
+      padding: 1.75rem 3rem;
       display: flex;
       justify-content: flex-end;
-      gap: 1.5rem;
-      background: rgba(0, 0, 0, 0.3);
-      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     /* Custom Scrollbar */

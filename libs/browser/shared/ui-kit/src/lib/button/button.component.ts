@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 export type ButtonColor = 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info' | 'app' | 'default';
 export type ButtonShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'ghost' | 'neumorphic' | 'gradient' | 'soft' | 'link';
@@ -18,9 +19,8 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       [attr.aria-label]="ariaLabel ?? null"
       [attr.title]="title ?? null"
       [attr.aria-busy]="loading ? true : null"
-      [class.btn-sm]="size === 'sm'"
-      [class.btn-md]="size === 'md'"
-      [class.btn-lg]="size === 'lg'"
+      [class.btn-compact]="actualDensity === 'compact'"
+      [class.btn-wide]="actualDensity === 'wide'"
       [class.btn-color-primary]="color === 'primary'"
       [class.btn-color-danger]="color === 'danger'"
       [class.btn-color-success]="color === 'success'"
@@ -42,8 +42,13 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
         <span class="spinner"></span>
       } @else {
         <ng-content></ng-content>
-        @if (getIconName()) { 
-          <lucide-icon [name]="getIconName()!" class="btn-icon" aria-hidden="true"></lucide-icon> 
+        @if (getIconName(); as iconName) {
+          <lucide-icon
+            [name]="iconName"
+            class="btn-icon"
+            [class.btn-icon-plus]="isAddIcon(iconName)"
+            aria-hidden="true"
+          ></lucide-icon>
         }
       }
     </button>
@@ -67,6 +72,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       text-transform: uppercase;
       letter-spacing: 0.08em;
       white-space: nowrap;
+      line-height: 1;
       outline: none;
       box-sizing: border-box;
       border-radius: var(--radius-md);
@@ -94,13 +100,23 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       filter: brightness(0.9);
     }
 
-    .btn-sm { padding: 0.75rem 1.5rem; font-size: 0.7rem; }
-    .btn-md { padding: 1rem 2rem; font-size: 0.75rem; }
-    .btn-lg { padding: 1.25rem 3rem; font-size: 0.85rem; }
+    .btn-sm { padding: 0.5rem 1rem; font-size: 0.7rem; }
+    .btn-md { padding: 0.875rem 1.75rem; font-size: 0.75rem; }
+    .btn-lg { padding: 1.25rem 2.5rem; font-size: 0.85rem; }
 
-    /* CORE COLOR TOKENS — Vibrant Nintendo/Ubisoft Palette */
-    .btn-color-primary, .btn-color-app { 
-      --btn-accent: var(--brand); 
+    /* Density Overrides */
+    .btn-compact { 
+      padding: 0.4rem 1rem !important; 
+      font-size: 0.7rem !important;
+      gap: 6px !important;
+    }
+    .btn-wide { 
+      padding: 1.5rem 3.5rem !important; 
+      font-size: 0.95rem !important;
+      gap: 12px !important;
+    }
+
+    .btn-color-primary {
       background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 80%, black) 100%);
       color: #fff;
       box-shadow: 0 4px 15px var(--brand-ambient-strong), inset 0 1px 0 rgba(255,255,255,0.1);
@@ -122,7 +138,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     .btn-color-success { 
       --btn-accent: var(--success); 
       background: linear-gradient(135deg, #00ffaa 0%, #10b981 100%);
-      color: #013220; /* Deep green for contrast */
+      color: #013220;
       font-weight: 900;
     }
 
@@ -166,7 +182,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       transform: translateY(-4px);
     }
 
-    /* Glass + color: el .btn-shape-glass genérico venía después y dejaba todo gris; respetar acentos. */
     .btn-color-primary.btn-shape-glass,
     .btn-color-app.btn-shape-glass {
       background: color-mix(in srgb, var(--brand) 26%, rgba(0, 0, 0, 0.3));
@@ -237,13 +252,41 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       transform: translateY(-2px);
     }
 
-    .btn-icon { width: 1.2rem; height: 1.2rem; transition: transform 0.4s var(--transition-spring); position: relative; z-index: 2; }
-    .btn:hover .btn-icon { transform: scale(1.2) rotate(5deg); color: inherit; }
+    .btn-icon {
+      width: 1rem;
+      height: 1rem;
+      min-width: 1rem;
+      min-height: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      transition: none;
+      position: relative;
+      z-index: 2;
+      color: inherit;
+    }
+    .btn-sm .btn-icon {
+      width: 0.95rem;
+      height: 0.95rem;
+      min-width: 0.95rem;
+      min-height: 0.95rem;
+    }
+    .btn-lg .btn-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+      min-width: 1.1rem;
+      min-height: 1.1rem;
+    }
+    .btn:hover .btn-icon { transform: none; color: inherit; }
+    .btn-icon-plus,
+    .btn:hover .btn-icon-plus {
+      transform: none;
+    }
     
-    /* Ensure icons in ghost buttons are vibrant on hover */
     .btn-shape-ghost:hover .btn-icon {
       color: var(--brand);
-      filter: drop-shadow(0 0 5px var(--brand-glow));
+      filter: none;
     }
 
     .spinner {
@@ -278,7 +321,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:not(.btn-color-danger) {
-      /* Sustituye el gris fijo: icono alineado con texto + marca según tema. */
       color: color-mix(in srgb, var(--text-primary) 70%, var(--brand) 30%);
       background: color-mix(in srgb, var(--brand) 4%, transparent);
     }
@@ -317,41 +359,54 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
   `],
 })
 export class UiButtonComponent {
-  @Input() type: 'button' | 'submit' = 'button';
+  @Input() type: 'button' | 'submit' | 'reset' = 'button';
+  @Input() color: ButtonColor = 'primary';
+  @Input() shape: ButtonShape = 'auto';
   @Input() size: ButtonSize = 'md';
   @Input() disabled = false;
   @Input() loading = false;
-  /** Nombre accesible del botón nativo (p. ej. solo icono). */
-  @Input({ alias: 'aria-label' }) ariaLabel: string | null | undefined = undefined;
-  /** Tooltip nativo del botón. */
-  @Input() title: string | null | undefined = undefined;
-  @Input() icon: string | { name: string } = '';
-  
-  @Input() color: ButtonColor = 'app';
-  @Input() shape: ButtonShape = 'auto';
+  @Input() icon?: string;
+  @Input() ariaLabel?: string;
+  @Input() title?: string;
 
-  // Backwards compatibility layer mapping legacy 'variant' attributes to the new Color/Shape architecture
+  private _variant: ButtonVariant = '';
   @Input() set variant(val: string) {
+    this._variant = val;
     if (['primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'].includes(val)) {
       this.color = val as ButtonColor;
-      this.shape = 'auto'; // Will inherit shape natively from active Theme
+      this.shape = 'auto';
     } else if (['glass', 'outline', 'ghost', 'gradient', 'soft', 'link', 'flat', 'neumorphic', 'solid'].includes(val)) {
       this.shape = val as ButtonShape;
-      // Keep existing color or default
-    } else if (val.startsWith('outline-')) {
+    } else if (val?.startsWith('outline-')) {
       this.shape = 'outline';
-      this.color = val.split('-')[1] as ButtonColor;
+      const parts = val.split('-');
+      if (parts.length > 1) this.color = parts[1] as ButtonColor;
     } else {
-      this.color = 'default';
+      // If it's not a known color or shape, treat it as an icon name (legacy)
       this.shape = 'auto';
     }
   }
+  get variant(): string { return this._variant; }
 
-  @Output() clicked = new EventEmitter<Event>();
+  @Output() clicked = new EventEmitter<MouseEvent>();
 
-  getIconName(): string | undefined {
-    if (!this.icon) return undefined;
-    if (typeof this.icon === 'string') return this.icon;
-    return this.icon.name || undefined;
+  private themeService = inject(ThemeService);
+
+  get actualDensity(): string {
+    return this.themeService.currentDensity();
+  }
+
+  getIconName(): string | null {
+    if (this.icon) return this.icon;
+    // Legacy support: if variant is not a known structural keyword, use it as icon name
+    if (this.variant && !['glass', 'solid', 'outline', 'ghost', 'link', 'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'].includes(this.variant)) {
+      return this.variant;
+    }
+    return null;
+  }
+
+  isAddIcon(iconName: string): boolean {
+    const normalized = iconName.toLowerCase();
+    return normalized === 'plus' || normalized.includes('plus');
   }
 }

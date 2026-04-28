@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type BadgeColor = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'indigo' | 'teal' | 'orange' | 'pink' | 'rose' | 'violet' | 'fuchsia';
@@ -27,10 +27,10 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
       padding: 0.35rem 0.75rem;
       border-radius: var(--radius-sm);
       font-size: 0.65rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-family: var(--font-display);
+      font-family: var(--font-main);
       border: 1px solid transparent;
       white-space: nowrap;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -83,10 +83,10 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
 
     /* STRUCTURAL SHAPES */
     .badge-shape-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      --badge-bg: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(25px) saturate(2);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      --badge-bg: rgba(255, 255, 255, 0.03);
     }
     
     .badge-shape-solid {
@@ -147,7 +147,6 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
     @media (prefers-reduced-motion: reduce) {
       .badge:hover {
         transform: none;
-        box-shadow: var(--badge-shadow, none);
       }
     }
   `],
@@ -155,6 +154,7 @@ export type BadgeVariant = BadgeColor | BadgeShape | 'error' | 'secondary' | 'da
 export class UiBadgeComponent {
   @Input() color: BadgeColor = 'default';
   @Input() shape: BadgeShape = 'auto';
+  @Output() clicked = new EventEmitter<MouseEvent>();
 
   // Legacy parser
   @Input() set variant(val: string) {

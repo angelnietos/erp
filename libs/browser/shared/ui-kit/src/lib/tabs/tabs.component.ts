@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 export interface TabItem {
   id: string;
@@ -26,7 +27,7 @@ export type TabsVariant =
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div [class]="'tabs tabs-' + variant">
+    <div [class]="'tabs tabs-' + variant" [style.--tab-padding]="tabPadding">
       @for (tab of tabs; track tab.id) {
         <button
           class="tab-item"
@@ -55,49 +56,45 @@ export type TabsVariant =
       .tabs {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
-        padding: 8px;
+        gap: 6px;
+        padding: 6px;
         border-radius: var(--radius-xl);
         background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(35px);
         border: 1px solid var(--border-soft);
         width: fit-content;
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--shadow-xl);
       }
 
       .tab-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 1rem 1.75rem;
+        gap: 10px;
+        padding: var(--tab-padding);
         background: transparent;
         border: none;
         border-radius: var(--radius-lg);
         font-size: 0.8rem;
-        font-weight: 900;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.1em;
         cursor: pointer;
-        transition: all 0.5s var(--transition-spring);
+        transition: all 0.4s var(--transition-spring);
         color: var(--text-muted);
-        font-family: var(--font-gaming);
+        font-family: var(--font-main);
         position: relative;
         overflow: hidden;
       }
 
       .tab-item:hover {
         color: var(--text-primary);
-        background: rgba(255, 255, 255, 0.05);
-        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.06);
       }
 
       .tab-item.active {
         color: #fff;
         background: var(--brand);
-        box-shadow: 
-          0 15px 35px -10px var(--brand-glow),
-          0 0 15px var(--brand-ambient);
-        transform: scale(1.05);
+        box-shadow: var(--shadow-brand);
       }
 
       .tab-icon {
@@ -291,6 +288,15 @@ export class UiTabsComponent {
   @Input() activeTab = '';
   @Input() variant: TabsVariant = 'default';
   @Output() tabChange = new EventEmitter<string>();
+
+  private themeService = inject(ThemeService);
+
+  get tabPadding(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '0.4rem 0.8rem';
+    if (density === 'spacious') return '1.25rem 2.25rem';
+    return '0.875rem 1.75rem';
+  }
 
   onTabSelect(id: string) {
     this.activeTab = id;

@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 export type PaginationVariant = 'default' | 'minimal' | 'glass';
 
@@ -14,6 +15,8 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
       [class]="'pagination-' + variant"
       role="navigation"
       aria-label="Paginación"
+      [style.--pg-gap]="pgGap"
+      [style.--pg-btn-size]="pgBtnSize"
     >
       <button 
         type="button"
@@ -56,7 +59,7 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
   styles: [`
     .pagination {
       display: flex;
-      gap: 12px;
+      gap: var(--pg-gap);
       justify-content: center;
       align-items: center;
       padding: 1rem 0.5rem;
@@ -65,69 +68,51 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
 
     .pages-group {
       display: flex;
-      gap: 8px;
+      gap: calc(var(--pg-gap) / 2);
     }
 
     .page-btn {
-      min-height: 2.5rem;
-      min-width: 2.5rem;
-      padding: 0 0.8rem;
-      background: var(--bg-tertiary);
+      height: var(--pg-btn-size);
+      min-width: var(--pg-btn-size);
+      padding: 0 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
       color: var(--text-muted);
-      font-size: 0.8rem;
-      font-weight: 800;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.4s var(--transition-spring);
-      font-family: var(--font-display);
+      font-family: var(--font-main);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      box-shadow: var(--shadow-sm);
+      gap: 8px;
     }
 
     .page-btn:not(:disabled):hover {
-      background: var(--brand-ambient);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
-      border-color: var(--brand);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px -10px var(--brand-glow);
-    }
-
-    .page-btn:not(:disabled):active {
-      transform: translateY(2px) scale(0.96);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .page-btn.active {
       background: var(--brand);
-      border-color: var(--brand);
       color: #fff;
-      box-shadow: 
-        0 10px 25px -5px var(--brand-glow),
-        inset 0 1px 1px rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
+      border-color: var(--brand);
+      box-shadow: var(--shadow-brand);
     }
 
     .page-btn:disabled {
-      opacity: 0.25;
+      opacity: 0.3;
       cursor: not-allowed;
     }
 
     .nav-btn { 
-      font-size: 0.7rem; 
+      font-size: 0.75rem; 
       text-transform: uppercase; 
-      letter-spacing: 0.15em; 
-    }
-    
-    .nav-btn lucide-icon { width: 1.2rem; height: 1.2rem; }
-
-    /* Glass Variant */
-    .pagination-glass .page-btn {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px) saturate(1.5);
-      border-color: rgba(255, 255, 255, 0.08);
+      letter-spacing: 0.1em; 
     }
   `],
 })
@@ -137,6 +122,22 @@ export class UiPaginationComponent {
   @Input() maxVisiblePages = 5;
   @Input() variant: PaginationVariant = 'default';
   @Output() pageChange = new EventEmitter<number>();
+
+  private themeService = inject(ThemeService);
+
+  get pgGap(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '6px';
+    if (density === 'spacious') return '16px';
+    return '12px';
+  }
+
+  get pgBtnSize(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '2.125rem';
+    if (density === 'spacious') return '2.75rem';
+    return '2.5rem';
+  }
 
   get visiblePages(): number[] {
     const pages: number[] = [];

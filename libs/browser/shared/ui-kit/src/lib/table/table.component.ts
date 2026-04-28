@@ -1,6 +1,7 @@
-import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
+import { Component, Input, ContentChild, TemplateRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 export type TableVariant = 'default' | 'striped' | 'glass';
 
@@ -12,6 +13,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
     <div
       [ngClass]="['table-container', 'table-' + variant]"
       [class.table-virtual-active]="useVirtual"
+      [style.--row-height]="actualRowHeight + 'px'"
+      [style.--cell-padding]="cellPadding"
     >
       @if (useVirtual && data.length === 0) {
         <div class="empty-state standalone">
@@ -102,9 +105,9 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         overflow-x: auto;
         border-radius: var(--radius-xl);
         background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(25px);
+        backdrop-filter: blur(35px);
         border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--shadow-xl);
         position: relative;
       }
 
@@ -113,7 +116,7 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         border-collapse: separate;
         border-spacing: 0;
         text-align: left;
-        min-width: 1200px;
+        min-width: 1000px;
       }
 
       thead {
@@ -123,28 +126,29 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       th {
-        padding: 1.5rem 1.25rem;
+        padding: 1.25rem var(--cell-padding);
         font-size: 0.75rem;
-        font-weight: 900;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.25em;
+        letter-spacing: 0.15em;
         color: #fff;
-        border-bottom: 2px solid var(--brand);
-        font-family: var(--font-gaming);
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(15px);
+        border-bottom: 1px solid var(--brand);
+        font-family: var(--font-main);
+        background: rgba(10, 15, 25, 0.95);
+        backdrop-filter: blur(20px);
         user-select: none;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        transition: background 0.3s ease;
       }
 
       td {
-        padding: 1.25rem;
+        padding: var(--cell-padding);
         font-size: 0.9rem;
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
         transition: all 0.4s var(--transition-spring);
         vertical-align: middle;
-        font-weight: 700;
+        font-weight: 600;
+        height: var(--row-height);
       }
 
       .table-row {
@@ -154,14 +158,12 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       }
 
       .table-row:hover td {
-        background: var(--brand-ambient);
+        background: rgba(var(--brand-rgb), 0.08);
         color: #fff;
-        transform: scale(1.005);
       }
 
-      /* Nintendo Side Accent */
       .table-row:hover td:first-child {
-        box-shadow: inset 8px 0 0 var(--brand), 0 0 15px var(--brand-ambient);
+        box-shadow: inset 4px 0 0 var(--brand);
       }
 
       .table-row:last-child td {
@@ -170,8 +172,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
 
       .table-glass {
         background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(35px) saturate(1.8);
-        border-color: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(40px) saturate(2);
+        border-color: rgba(255, 255, 255, 0.1);
       }
 
       .empty-state {
@@ -228,6 +230,22 @@ export class UiTableComponent {
   @Input() rowHeight = 56;
 
   @ContentChild('cellTemplate') cellTemplate!: TemplateRef<unknown>;
+
+  private themeService = inject(ThemeService);
+
+  get actualRowHeight(): number {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return 44;
+    if (density === 'spacious') return 72;
+    return this.rowHeight;
+  }
+
+  get cellPadding(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '0.5rem 1rem';
+    if (density === 'spacious') return '1.5rem 2rem';
+    return '1.25rem 1.5rem';
+  }
 
   get useVirtual(): boolean {
     return this.virtualScroll && this.data.length > 24;
