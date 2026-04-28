@@ -239,7 +239,7 @@ interface PersonalGridCell {
       }
 
        <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'" [class.sidebar-collapsed]="sidebarCollapsed()">
-          @if (viewMode() === 'personal') {
+         @if (viewMode() === 'personal') {
          <!-- Lista de operarios: solo vista individual (evita duplicar filas con el cuadrante de equipo) -->
          <aside class="team-sidebar animate-slide-right" [class.collapsed]="sidebarCollapsed()">
            <div class="sidebar-header">
@@ -311,7 +311,7 @@ interface PersonalGridCell {
              <span>Operarios</span>
            </button>
          }
-          }
+         }
 
          <!-- MAIN CALENDAR / TEAM BOARD -->
         <main class="main-content">
@@ -421,7 +421,7 @@ interface PersonalGridCell {
             </div>
            } @else {
              <!-- TEAM BOARD VIEW -->
-             <div class="availability-panel team-board-wrapper animate-slide-up">
+             <div class="availability-panel team-board-wrapper animate-slide-up" [class.board-tech-collapsed]="sidebarCollapsed()">
                <ui-card shape="auto" class="team-board-card">
                  <div class="team-board-toolbar">
                    <button 
@@ -433,9 +433,10 @@ interface PersonalGridCell {
                    >
                      <lucide-icon [name]="sidebarCollapsed() ? 'chevron-right' : 'chevron-left'" size="18" aria-hidden="true"></lucide-icon>
                      @if (sidebarCollapsed()) {
-                       <span>Mostrar panel</span>
+                       <span>Mostrar operarios</span>
                      }
                    </button>
+
                   <div class="team-board-toolbar__meta">
                     <span class="label">Vista equipo</span>
                     <h2 class="team-board-title">
@@ -930,6 +931,8 @@ interface PersonalGridCell {
         grid-template-columns: 1fr;
         gap: 0;
       }
+        gap: 0;
+      }
 
       .sidebar-expand-btn {
         position: fixed;
@@ -1310,7 +1313,21 @@ interface PersonalGridCell {
 
     .board-tech-info { 
       width: 280px; min-width: 280px; max-width: 280px; flex-shrink: 0; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; 
-      border-right: 2px solid rgba(255,255,255,0.08); background: inherit;
+      border-right: 2px solid rgba(255,255,255,0.08); background: inherit; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden;
+    }
+    
+    /* When board-tech is collapsed in team view */
+    .board-tech-collapsed .board-tech-info,
+    .board-tech-collapsed .sticky-col {
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      border-right: none !important;
+      opacity: 0;
+      pointer-events: none;
+    }
     }
     .mini-avatar { 
       width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
