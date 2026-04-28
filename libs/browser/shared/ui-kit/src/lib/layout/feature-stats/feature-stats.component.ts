@@ -104,6 +104,12 @@ import { LucideAngularModule } from 'lucide-angular';
       gap: var(--feature-page-gap, 1.5rem);
       min-height: 0;
       padding: 0.5rem 0;
+      /* Misma altura en cada fila = la del bloque más alto (estirar ui-stat-card). */
+      align-items: stretch;
+    }
+
+    .stats-grid > * {
+      min-height: 0;
     }
 
     .stats-wrapper.is-collapsed .stats-container {

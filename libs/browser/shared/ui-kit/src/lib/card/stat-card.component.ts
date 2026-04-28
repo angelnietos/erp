@@ -35,8 +35,16 @@ import { LucideAngularModule } from 'lucide-angular';
     `
       :host {
         display: block;
+        height: 100%;
+        min-height: 0;
       }
+
       .stat-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
         padding: var(--stat-card-padding, 1.5rem 2rem);
         font-family: var(--font-main);
         background: rgba(255, 255, 255, 0.03);
@@ -47,6 +55,32 @@ import { LucideAngularModule } from 'lucide-angular';
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
         overflow: hidden;
+      }
+
+      .stat-content {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-height: 0;
+      }
+
+      .stat-value-row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 2.35rem;
+      }
+
+      .accent-line {
+        margin-top: auto;
+        flex-shrink: 0;
+        height: 3px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--brand), transparent);
+        opacity: 0.85;
       }
 
       .stat-card.ui-glass {
@@ -90,11 +124,38 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       .stat-value {
+        margin: 0;
         font-size: 1.8rem;
         font-weight: 800;
         color: var(--text-primary);
         line-height: 1.1;
         letter-spacing: -0.02em;
+        min-width: 0;
+        flex: 1 1 auto;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .stat-trend {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+        color: var(--text-muted);
+      }
+
+      .stat-trend.up {
+        color: var(--success, #10b981);
+        background: color-mix(in srgb, var(--success, #10b981) 18%, transparent);
+      }
+
+      .stat-trend.down {
+        color: var(--danger, #ef4444);
+        background: color-mix(in srgb, var(--danger, #ef4444) 18%, transparent);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card,
