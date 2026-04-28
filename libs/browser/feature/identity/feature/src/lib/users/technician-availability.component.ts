@@ -1431,24 +1431,7 @@ interface PersonalGridCell {
     :host-context(html[data-erp-tenant='babooni']) .team-board-scroll-wrap {
       border: 1px solid rgba(255, 255, 255, 0.5);
       box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
-      border-radius: 20px;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .status-chip {
-      width: 32px;
-      height: 6px;
-      border-radius: 3px;
-      border: none;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .board-row:nth-child(even) {
-      background: rgba(0, 0, 0, 0.015);
-    }
-    
-    :host-context(html[data-erp-tenant='babooni']) .team-board-scroll-wrap {
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
-      border-radius: 20px;
+      border-radius: 24px;
     }
     :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn {
       background: rgba(255, 255, 255, 0.5);
