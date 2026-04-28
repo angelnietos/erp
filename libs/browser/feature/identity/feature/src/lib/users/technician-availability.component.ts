@@ -1127,7 +1127,7 @@ interface PersonalGridCell {
     .calendar-card {
       background: rgba(15, 23, 42, 0.6) !important;
       border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      border-radius: 32px !important;
+      border-radius: 40px !important;
       box-shadow: 0 30px 60px rgba(0,0,0,0.4);
       backdrop-filter: blur(35px);
       position: relative; 
@@ -1190,7 +1190,7 @@ interface PersonalGridCell {
       min-height: 130px; 
       background: rgba(255, 255, 255, 0.02); 
       border: 1px solid rgba(255, 255, 255, 0.04); 
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 1rem; 
       display: flex; 
       flex-direction: column; 
@@ -1407,7 +1407,7 @@ interface PersonalGridCell {
       background: rgba(255, 255, 255, 0.6) !important;
       backdrop-filter: blur(25px);
       border: 1px solid rgba(255, 255, 255, 0.6) !important;
-      border-radius: 28px !important;
+      border-radius: 36px !important;
       box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.1) !important;
     }
 
