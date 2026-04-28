@@ -411,11 +411,11 @@ import { EventItem, EventsStateService } from '../services/events-state.service'
         font-size: 2.25rem;
         font-weight: 850;
         letter-spacing: -0.02em;
-        color: #0f172a;
+        color: var(--text-primary);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .form-section {
-        background: rgba(255, 255, 255, 0.65);
+        background: color-mix(in srgb, var(--surface) 65%, transparent);
         backdrop-filter: blur(14px);
         border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
         border-radius: 20px;

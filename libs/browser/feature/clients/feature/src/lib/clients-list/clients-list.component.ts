@@ -522,7 +522,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
 
       /* BABOONI LUXE CLIENTS OVERRIDES */
       :host-context(html[data-erp-tenant='babooni']) .advanced-filters {
-        background: rgba(255, 255, 255, 0.55);
+        background: color-mix(in srgb, var(--surface) 55%, transparent);
         backdrop-filter: blur(14px);
         border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
         border-radius: 20px;
@@ -532,7 +532,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .bulk-actions-bar {
-        background: #ffffff;
+        background: var(--surface);
         border: 1px solid var(--brand);
         border-radius: 16px;
         padding: 1rem 2rem;
@@ -547,7 +547,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .selection-header {
-        background: rgba(255, 255, 255, 0.4);
+        background: color-mix(in srgb, var(--surface) 40%, transparent);
         border-radius: 12px;
         padding: 0.75rem 1.25rem;
         border-bottom: none;
@@ -555,7 +555,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .client-rating {
-        background: rgba(255, 255, 255, 0.8);
+        background: color-mix(in srgb, var(--surface) 80%, transparent);
         padding: 4px 10px;
         border-radius: 99px;
         border: 1px solid rgba(0,0,0,0.03);

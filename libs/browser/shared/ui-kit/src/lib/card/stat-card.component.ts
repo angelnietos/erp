@@ -164,7 +164,7 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
-        background: rgba(255, 255, 255, 0.7);
+        background: color-mix(in srgb, var(--surface) 70%, transparent);
         backdrop-filter: blur(12px);
         border: 1px solid color-mix(in srgb, var(--border-soft) 50%, transparent);
         box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
@@ -174,7 +174,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card:hover {
         transform: translateY(-4px);
-        background: #ffffff;
+        background: var(--surface);
         box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08);
         border-color: color-mix(in srgb, var(--brand) 25%, transparent);
       }
@@ -182,7 +182,7 @@ import { LucideAngularModule } from 'lucide-angular';
       :host-context(html[data-erp-tenant='babooni']) .stat-icon-wrapper {
         width: 3rem;
         height: 3rem;
-        background: color-mix(in srgb, var(--brand) 10%, #f9f9f9);
+        background: color-mix(in srgb, var(--brand) 10%, var(--surface));
         border-radius: 10px;
         color: var(--brand);
         border: none;
@@ -190,7 +190,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card:hover .stat-icon-wrapper {
         background: var(--brand);
-        color: #fff;
+        color: var(--text-on-brand, white);
         transform: scale(1.05);
         box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 25%, transparent);
       }

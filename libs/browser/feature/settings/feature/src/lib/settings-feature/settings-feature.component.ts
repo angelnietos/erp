@@ -3501,9 +3501,9 @@ interface PluginDescriptor {
       }
 
       :host-context(html[data-erp-tenant='babooni']) .settings-sidebar {
-        background: rgba(255, 255, 255, 0.25);
+        background: color-mix(in srgb, var(--surface) 25%, transparent);
         backdrop-filter: blur(60px);
-        border-right: 1px solid rgba(0, 0, 0, 0.04);
+        border-right: 1px solid color-mix(in srgb, var(--text-primary) 4%, transparent);
         padding: 3.5rem 1.75rem;
         border-radius: 0;
         box-shadow: 15px 0 60px rgba(0, 0, 0, 0.02);
@@ -3522,7 +3522,7 @@ interface PluginDescriptor {
       :host-context(html[data-erp-tenant='babooni']) .sidebar-header h1 {
         font-size: 1.5rem;
         font-weight: 900;
-        color: #0f172a;
+        color: var(--text-primary);
         letter-spacing: -0.04em;
         margin-bottom: 2rem;
         padding-left: 1rem;
@@ -3533,7 +3533,7 @@ interface PluginDescriptor {
         margin-bottom: 0.15rem;
         padding: 0.75rem 1rem;
         background: transparent;
-        color: #475569;
+        color: var(--text-secondary);
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         font-weight: 600;
         font-size: 0.88rem;
@@ -3544,13 +3544,13 @@ interface PluginDescriptor {
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item:hover {
-        background: rgba(255, 255, 255, 0.6);
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
         color: var(--brand);
         transform: translateX(4px);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .nav-item.active {
-        background: #ffffff;
+        background: var(--surface);
         color: var(--brand);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         transform: translateX(6px);
@@ -3578,7 +3578,7 @@ interface PluginDescriptor {
 
       :host-context(html[data-erp-tenant='babooni']) .settings-content {
         padding: 3rem 2.5rem;
-        background: rgba(255, 255, 255, 0.15);
+        background: color-mix(in srgb, var(--surface) 15%, transparent);
         overflow-x: hidden;
         min-width: 0;
       }
@@ -3587,7 +3587,7 @@ interface PluginDescriptor {
         font-size: 2.5rem;
         font-weight: 950;
         letter-spacing: -0.04em;
-        color: #0f172a;
+        color: var(--text-primary);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .id-card,
@@ -3595,9 +3595,9 @@ interface PluginDescriptor {
       :host-context(html[data-erp-tenant='babooni']) .plugin-card,
       :host-context(html[data-erp-tenant='babooni']) .ai-bot-card,
       :host-context(html[data-erp-tenant='babooni']) .ai-global-config-card {
-        background: rgba(255, 255, 255, 0.35) !important;
+        background: color-mix(in srgb, var(--surface) 35%, transparent) !important;
         backdrop-filter: blur(30px);
-        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent) !important;
         border-radius: 24px !important;
         box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.05) !important;
         padding: 2rem !important;
@@ -3607,7 +3607,7 @@ interface PluginDescriptor {
         width: 100%;
         height: 6px;
         -webkit-appearance: none;
-        background: #e2e8f0;
+        background: color-mix(in srgb, var(--text-primary) 12%, transparent);
         border-radius: 99px;
         margin-top: 1rem;
       }
@@ -3617,7 +3617,7 @@ interface PluginDescriptor {
         width: 20px;
         height: 20px;
         background: var(--brand);
-        border: 4px solid #fff;
+        border: 4px solid var(--surface);
         border-radius: 50%;
         box-shadow: 0 4px 10px rgba(var(--brand-rgb), 0.3);
         cursor: pointer;

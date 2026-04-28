@@ -297,7 +297,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
 
       /* BABOONI LUXE INVENTORY OVERRIDES */
       :host-context(html[data-erp-tenant='babooni']) .product-meta {
-        background: rgba(255, 255, 255, 0.85);
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
         padding: 4px 10px;
         border-radius: 6px;
         border: 1px solid rgba(0,0,0,0.03);
@@ -313,7 +313,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .selection-header {
-        background: rgba(255, 255, 255, 0.4);
+        background: color-mix(in srgb, var(--surface) 40%, transparent);
         border-radius: 12px;
         padding: 0.75rem 1.25rem;
         margin-bottom: 1rem;

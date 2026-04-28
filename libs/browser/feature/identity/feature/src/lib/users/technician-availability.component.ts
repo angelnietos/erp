@@ -1368,12 +1368,12 @@ interface PersonalGridCell {
 
     /* BABOONI / BIOSSTEL LUXE MODE OVERRIDES */
     :host-context(html[data-erp-tenant='babooni']) {
-      --avail-card-bg: rgba(255, 255, 255, 0.65);
+      --avail-card-bg: color-mix(in srgb, var(--surface) 65%, transparent);
       --avail-border: color-mix(in srgb, var(--border-soft) 50%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .dashboard-toolbar {
-      background: rgba(255, 255, 255, 0.7);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
       backdrop-filter: blur(16px);
       border: 1px solid var(--avail-border);
       border-radius: 20px;
@@ -1389,7 +1389,7 @@ interface PersonalGridCell {
     :host-context(html[data-erp-tenant='babooni']) .view-toggle {
       border-radius: 12px;
       border-color: var(--avail-border);
-      background: rgba(255, 255, 255, 0.5);
+      background: color-mix(in srgb, var(--surface) 50%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) a.request-days-btn,
@@ -1400,7 +1400,7 @@ interface PersonalGridCell {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .calendar-legend {
-      background: rgba(255, 255, 255, 0.45);
+      background: color-mix(in srgb, var(--surface) 45%, transparent);
       border-color: var(--avail-border);
     }
 
@@ -1410,20 +1410,20 @@ interface PersonalGridCell {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .legend-item:hover {
-      background: rgba(255, 255, 255, 0.7);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card {
-      background: rgba(255, 255, 255, 0.45);
+      background: color-mix(in srgb, var(--surface) 45%, transparent);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent);
       border-radius: 16px;
       box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
       padding: 0.85rem 1rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card.selected {
-      background: rgba(255, 255, 255, 0.9);
+      background: color-mix(in srgb, var(--surface) 90%, transparent);
       border-color: var(--brand);
       box-shadow: 0 8px 24px -12px rgba(var(--brand-rgb), 0.3);
       transform: scale(1.03) translateY(-1px);
@@ -1431,9 +1431,9 @@ interface PersonalGridCell {
 
     :host-context(html[data-erp-tenant='babooni']) .calendar-card,
     :host-context(html[data-erp-tenant='babooni']) .team-board-card {
-      background: rgba(255, 255, 255, 0.6) !important;
+      background: color-mix(in srgb, var(--surface) 60%, transparent) !important;
       backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      border: 1px solid color-mix(in srgb, var(--surface) 60%, transparent) !important;
       border-radius: 36px !important;
       box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.1) !important;
     }
@@ -1441,22 +1441,22 @@ interface PersonalGridCell {
     :host-context(html[data-erp-tenant='babooni']) .sidebar-header {
       padding: 0.65rem 1rem;
       padding-right: 2.75rem;
-      background: rgba(255, 255, 255, 0.35);
+      background: color-mix(in srgb, var(--surface) 35%, transparent);
       backdrop-filter: blur(8px);
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent);
       margin-bottom: 0.75rem;
       box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.05);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-avatar {
       border-radius: 12px;
-      border: 2px solid #fff;
+      border: 2px solid var(--surface);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .team-board-scroll-wrap {
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent);
       box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
       border-radius: 24px;
     }
@@ -1469,20 +1469,20 @@ interface PersonalGridCell {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .board-row:nth-child(even) {
-      background: rgba(0, 0, 0, 0.015);
+      background: color-mix(in srgb, var(--text-primary) 1.5%, transparent);
     }
     :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn {
-      background: rgba(255, 255, 255, 0.5);
+      background: color-mix(in srgb, var(--surface) 50%, transparent);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      border: 1px solid color-mix(in srgb, var(--surface) 60%, transparent);
       color: var(--brand);
       box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
     }
     
     :host-context(html[data-erp-tenant='babooni']) .sidebar-toggle-btn {
-      background: #ffffff;
+      background: var(--surface);
       color: var(--brand);
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      border: 1px solid color-mix(in srgb, var(--text-primary) 5%, transparent);
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }

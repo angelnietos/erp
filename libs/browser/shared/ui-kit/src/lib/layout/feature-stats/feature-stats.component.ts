@@ -144,18 +144,18 @@ import { LucideAngularModule } from 'lucide-angular';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn {
-      background: #0a0a0a;
-      border: 1px solid #111111;
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
       border-radius: 999px;
       padding: 6px 18px;
-      color: #ffffff;
+      color: var(--text-primary);
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.02em;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn:hover {
-      background: #1a1a1a;
+      background: var(--surface-hover, color-mix(in srgb, var(--surface) 90%, var(--text-primary)));
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }

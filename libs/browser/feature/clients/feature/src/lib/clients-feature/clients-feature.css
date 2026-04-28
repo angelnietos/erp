@@ -40,7 +40,7 @@
 .client-card .client-avatar {
   width: 4rem;
   height: 4rem;
-  background: linear-gradient(135deg, var(--brand-surface) 0%, rgba(255, 255, 255, 0.2) 100%);
+  background: linear-gradient(135deg, var(--brand-surface) 0%, color-mix(in srgb, var(--surface) 20%, transparent) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -162,7 +162,7 @@
 
 /* Client Detail View */
 .client-detail-header {
-  background: linear-gradient(135deg, var(--surface) 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb, var(--surface) 95%, var(--text-primary)) 100%);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-xl);
   padding: 3rem 2rem;
@@ -189,7 +189,7 @@
 .client-detail-avatar {
   width: 6rem;
   height: 6rem;
-  background: linear-gradient(135deg, var(--brand-surface) 0%, rgba(255, 255, 255, 0.3) 100%);
+  background: linear-gradient(135deg, var(--brand-surface) 0%, color-mix(in srgb, var(--surface) 30%, transparent) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -198,7 +198,7 @@
   font-weight: 700;
   color: var(--brand);
   margin-bottom: 1.5rem;
-  border: 3px solid rgba(255, 255, 255, 0.5);
+  border: 3px solid color-mix(in srgb, var(--surface) 50%, var(--text-primary));
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
@@ -255,7 +255,7 @@
 
 .client-tab-item.active {
   color: var(--brand);
-  background: rgba(0, 102, 204, 0.05);
+  background: color-mix(in srgb, var(--brand) 5%, transparent);
   border-bottom-color: var(--brand);
 }
 

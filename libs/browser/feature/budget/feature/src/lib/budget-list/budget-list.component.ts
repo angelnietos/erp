@@ -638,7 +638,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
       /* BABOONI LUXE BUDGETS OVERRIDES */
       :host-context(html[data-erp-tenant='babooni']) .advanced-filters {
-        background: rgba(255, 255, 255, 0.55);
+        background: color-mix(in srgb, var(--surface) 55%, transparent);
         backdrop-filter: blur(14px);
         border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
         border-radius: 20px;
@@ -648,7 +648,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .bulk-actions-bar {
-        background: #ffffff;
+        background: var(--surface);
         border: 1px solid var(--brand);
         border-radius: 16px;
         padding: 1rem 2rem;
@@ -662,7 +662,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .selection-header {
-        background: rgba(255, 255, 255, 0.4);
+        background: color-mix(in srgb, var(--surface) 40%, transparent);
         border-radius: 12px;
         padding: 0.75rem 1.25rem;
         border-bottom: none;
@@ -670,7 +670,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .budget-extra-actions {
-        background: rgba(255, 255, 255, 0.85);
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
         padding: 4px;
         border-radius: 12px;
         border: 1px solid rgba(0,0,0,0.03);

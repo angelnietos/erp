@@ -200,9 +200,9 @@
 }
 
 .bb-nav-link--btn:hover {
-  background: rgba(239, 68, 68, 0.06);
+  background: color-mix(in srgb, var(--bio-error) 8%, transparent);
   color: var(--bio-error);
-  border-color: rgba(239, 68, 68, 0.15);
+  border-color: color-mix(in srgb, var(--bio-error) 20%, transparent);
   box-shadow: none;
 }
 

@@ -607,9 +607,9 @@ interface QuickAction {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .glass-panel {
-      background: rgba(255, 255, 255, 0.7) !important;
+      background: color-mix(in srgb, var(--surface) 70%, transparent) !important;
       backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent) !important;
       border-radius: 36px;
       box-shadow: 0 20px 50px -20px rgba(0,0,0,0.08);
     }
@@ -622,7 +622,7 @@ interface QuickAction {
 
     :host-context(html[data-erp-tenant='babooni']) .progress-track {
       height: 8px;
-      background: rgba(0,0,0,0.04);
+      background: color-mix(in srgb, var(--text-primary) 4%, transparent);
       border-radius: 99px;
     }
 
@@ -635,11 +635,11 @@ interface QuickAction {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .flash-action__icon-wrap {
-      background: color-mix(in srgb, #fff 22%, rgba(0, 0, 0, 0.12));
+      background: color-mix(in srgb, var(--surface) 22%, color-mix(in srgb, var(--text-primary) 12%, transparent));
     }
 
     :host-context(html[data-erp-tenant='babooni']) .a-desc {
-      color: color-mix(in srgb, currentColor 50%, #1a1a1a 50%);
+      color: color-mix(in srgb, currentColor 50%, var(--text-primary) 50%);
       opacity: 0.92;
     }
   `],

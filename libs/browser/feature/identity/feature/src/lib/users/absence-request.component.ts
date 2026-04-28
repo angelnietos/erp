@@ -373,21 +373,15 @@ function enumerateDatesInclusive(startIso: string, endIso: string): string[] {
       .request-card.main-form-card {
         padding: 2rem 2.5rem !important;
         border-radius: 24px !important;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid color-mix(in srgb, var(--surface) 80%, transparent);
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
         backdrop-filter: blur(20px);
         box-shadow:
-          0 1px 0 rgba(255, 255, 255, 0.8) inset,
+          0 1px 0 color-mix(in srgb, var(--surface) 80%, transparent) inset,
           0 16px 48px -8px rgba(0, 0, 0, 0.06),
           0 4px 12px -2px rgba(0, 0, 0, 0.03);
       }
-      :host-context([data-theme='dark']) .request-card.main-form-card {
-        background: rgba(30, 41, 59, 0.6);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow: 
-          0 1px 0 rgba(255, 255, 255, 0.05) inset,
-          0 16px 48px -8px rgba(0, 0, 0, 0.4);
-      }
+
       .request-card ui-tabs {
         display: block;
         width: 100%;
