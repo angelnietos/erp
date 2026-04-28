@@ -983,10 +983,20 @@ interface PersonalGridCell {
      }
 
      .sidebar-header {
-       display: flex; justify-content: space-between; align-items: center;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
        position: relative;
+       padding-right: 2.25rem;
      }
-     .sidebar-header h3 { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+     .sidebar-header h3 { 
+       font-size: 0.85rem; 
+       font-weight: 950; 
+       text-transform: uppercase; 
+       letter-spacing: 0.1em; 
+       color: var(--text-muted); 
+       margin: 0;
+     }
      
      .sidebar-toggle-btn {
        position: absolute;
@@ -1003,9 +1013,9 @@ interface PersonalGridCell {
        align-items: center;
        justify-content: center;
        cursor: pointer;
-       transition: all 0.3s ease;
+       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
        z-index: 100;
-       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+       box-shadow: 0 4px 10px rgba(0,0,0,0.25);
      }
      .sidebar-toggle-btn:hover {
        background: var(--brand-hover, #2563eb);
@@ -1339,16 +1349,19 @@ interface PersonalGridCell {
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card {
-      background: rgba(255, 255, 255, 0.5);
-      border: 1px solid var(--avail-border);
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
+      padding: 0.85rem 1rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card.selected {
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.9);
       border-color: var(--brand);
-      box-shadow: 0 8px 24px -12px var(--brand);
+      box-shadow: 0 8px 24px -12px rgba(var(--brand-rgb), 0.3);
+      transform: scale(1.03) translateY(-1px);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .calendar-card,
