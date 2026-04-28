@@ -16,8 +16,9 @@
   pointer-events: auto;
 }
 
+/* Domain specialist sits slightly behind Buddy */
 .ai-assistant-wrapper.secondary {
-  z-index: 10000;
+  z-index: 99998;
 }
 
 .mascot-trigger {

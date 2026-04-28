@@ -379,12 +379,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   onMascotDragEnd(event: CdkDragEnd) {
-    // With cdkDragFreeDragPosition, the final position is the element's
-    // bounding rect relative to the viewport (top-left of the mascot bubble).
+    // getBoundingClientRect gives the true viewport position after dragging
     const rect = event.source.element.nativeElement.getBoundingClientRect();
-    const newPosition = { x: rect.left, y: rect.top };
-    this.aiBotStore.updateBotPosition(this.feature, newPosition);
-    // Reset CDK's internal drag offset so it doesn't stack on next drag
+    // Save the new absolute position so left/top CSS props update on next render
+    this.aiBotStore.updateBotPosition(this.feature, { x: rect.left, y: rect.top });
+    // Reset CDK's internal drag delta — position is now encoded in left/top CSS
     event.source.reset();
   }
 

@@ -513,24 +513,35 @@ export class AIBotStore {
     });
   }
 
+  private getViewport(): { w: number; h: number } {
+    if (typeof window !== 'undefined') {
+      return { w: window.innerWidth, h: window.innerHeight };
+    }
+    return { w: 1200, h: 800 };
+  }
+
+  private clampBotPosition(pos: { x: number; y: number }): { x: number; y: number } | null {
+    const { w, h } = this.getViewport();
+    const margin = 110; // mascot is 100px wide/tall + 10px padding
+    const isValid = pos.x >= 0 && pos.x <= w - margin && pos.y >= 0 && pos.y <= h - margin;
+    return isValid ? pos : null;
+  }
+
   updateBotPosition(feature: string, position: { x: number; y: number }) {
-    this._botPositions.update(c => ({ ...c, [feature]: position }));
+    const clamped = this.clampBotPosition(position) ?? position;
+    this._botPositions.update(c => ({ ...c, [feature]: clamped }));
   }
 
   getBotPosition(feature: string): { x: number; y: number } {
     const saved = this._botPositions()[feature];
-    if (saved) return saved;
+    // Validate saved position is still on-screen (window size may have changed or stale data)
+    if (saved && this.clampBotPosition(saved)) return saved;
 
-    let w = 1200;
-    let h = 800;
-    if (typeof window !== 'undefined') {
-      w = window.innerWidth;
-      h = window.innerHeight;
-    }
+    const { w, h } = this.getViewport();
     const baseX = Math.max(24, w - 160);
-    /** Misma esquina que el antiguo Buddy: burbuja del agente principal del shell. */
+    // Buddy (active feature) at bottom, domain bot slightly above
     const principal = this.activeBotFeature();
-    if (feature === principal) {
+    if (feature === principal || feature === 'buddy') {
       return { x: baseX, y: h - 140 };
     }
     return { x: baseX, y: h - 270 };

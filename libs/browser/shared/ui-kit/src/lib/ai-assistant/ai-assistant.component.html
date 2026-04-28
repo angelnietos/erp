@@ -3,7 +3,7 @@
   class="ai-assistant-wrapper"
   [class]="'feature-' + feature"
   [class.is-open]="isOpen()"
-  [class.secondary]="assistantRole === 'buddy'"
+  [class.secondary]="assistantRole === 'domain'"
   [attr.data-assistant-role]="assistantRole"
 >
   <!-- Floating Mascot Bubble -->
@@ -11,7 +11,10 @@
     class="mascot-trigger"
     [class.open]="isOpen()"
     cdkDrag
-    [cdkDragFreeDragPosition]="botPosition()"
+    cdkDragBoundary="body"
+    [cdkDragFreeDragPosition]="{ x: 0, y: 0 }"
+    [style.left.px]="botPosition().x"
+    [style.top.px]="botPosition().y"
     role="button"
     tabindex="0"
     (click)="toggleChat()"
