@@ -1,4 +1,11 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { UiFeatureHeaderComponent } from './feature-header.component';
 
+const meta: Meta<UiFeatureHeaderComponent> = {
+  component: UiFeatureHeaderComponent,
+  title: 'UI Kit / Feature Header',
+  tags: ['autodocs'],
+  argTypes: {
     layout: { control: { type: 'select', options: ['card', 'pageHero'] }, description: 'Diseño del header' },
     breadcrumbLead: { control: 'text', description: 'Texto principal del breadcrumb' },
     breadcrumbTail: { control: 'text', description: 'Texto secundario del breadcrumb' },
@@ -49,7 +56,7 @@ export const Card: Story = {
   args: {
     layout: 'card',
     title: 'Ventas del Mes',
-    subtitle: 'Resumen de transacciones completadas y pendientes',
+    subtitle: 'Resumen de transacciones completadas',
     icon: 'dollar-sign',
     iconBackground: 'linear-gradient(135deg, #10b981, #059669)',
     actionLabel: 'Ver Detalles',
@@ -122,73 +129,10 @@ export const CardWithCustomActions: Story = {
         [iconBackground]="iconBackground"
       >
         <div actions>
-          <ui-button [color]="'secondary'" [shape]="'outline'" [size]="'sm'">Exportar</ui-button>
-          <ui-button [color]="'primary'" [shape]="'solid'" [size]="'sm'" [icon]="'plus'">Nuevo</ui-button>
+          <button style="padding: 0.5rem 1rem; background: var(--border-soft); border: none; border-radius: 6px; cursor: pointer;">Exportar</button>
+          <button style="padding: 0.5rem 1rem; background: var(--brand); color: white; border: none; border-radius: 6px; cursor: pointer;">Nuevo</button>
         </div>
       </ui-feature-header>
     `,
-  }),
-};
-export default meta;
-type Story = StoryObj<UiFeatureHeaderComponent>;
-
-export const Default: Story = {
-  args: {
-    layout: 'card',
-    title: 'Dashboard',
-    subtitle: 'Overview of your system',
-    icon: 'layout',
-  },
-  render: (args) => ({
-    props: bindStoryProps(args),
-    template: `<ui-feature-header [layout]="layout" [title]="title" [subtitle]="subtitle" [icon]="icon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
-  }),
-};
-
-export const WithAction: Story = {
-  args: {
-    layout: 'card',
-    title: 'Projects',
-    subtitle: 'Manage your projects',
-    icon: 'folder',
-    actionLabel: 'New Project',
-    actionIcon: 'plus',
-  },
-  render: (args) => ({
-    props: bindStoryProps(args),
-    template: `<ui-feature-header [layout]="layout" [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
-  }),
-};
-
-export const Clients: Story = {
-  args: {
-    layout: 'card',
-    title: 'Clients',
-    subtitle: 'Client management',
-    icon: 'users',
-    actionLabel: 'Add Client',
-    actionIcon: 'user-plus',
-  },
-  render: (args) => ({
-    props: bindStoryProps(args),
-    template: `<ui-feature-header [layout]="layout" [title]="title" [subtitle]="subtitle" [icon]="icon" [actionLabel]="actionLabel" [actionIcon]="actionIcon" (actionClicked)="onActionClicked()"></ui-feature-header>`,
-  }),
-};
-
-export const PageHero: Story = {
-  args: {
-    layout: 'pageHero',
-    title: 'Sistema de Reportes',
-    breadcrumbLead: 'ANÁLISIS Y REPORTING',
-    breadcrumbTail: 'INFORMES EJECUTIVOS',
-  },
-  render: (args) => ({
-    props: bindStoryProps(args),
-    template: `<ui-feature-header
-      [layout]="layout"
-      [title]="title"
-      [breadcrumbLead]="breadcrumbLead"
-      [breadcrumbTail]="breadcrumbTail"
-    ></ui-feature-header>`,
   }),
 };

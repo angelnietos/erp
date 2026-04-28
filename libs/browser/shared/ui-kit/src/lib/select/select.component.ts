@@ -137,113 +137,6 @@ export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark'
       background-color: #ffffff;
       color: #000000;
     }
-}
-
-    /**
-     * Babooni: el select base asume campo “oscuro” (texto claro + color-scheme dark).
-     * En tenant Babooni el kit fija texto oscuro sobre superficies claras → contraste ilegible.
-     * Aquí alineamos fondo, texto, options y bordes con tokens de ThemeService (también con variantes premium).
-     */
-    :host-context(html[data-erp-tenant='babooni']) {
-      --fld-border-muted: color-mix(in srgb, var(--text-primary, #080808) 14%, transparent);
-      --fld-border-brand: color-mix(in srgb, var(--fld-brand) 52%, rgba(8, 8, 8, 0.14));
-      --fld-surface-soft: linear-gradient(
-        180deg,
-        var(--theme-surface, #fffefe) 0%,
-        color-mix(in srgb, var(--theme-surface, #fffefe) 88%, var(--bg-secondary, #f7f7f7)) 100%
-      );
-      --fld-glass: linear-gradient(
-        155deg,
-        color-mix(in srgb, var(--theme-surface, #fffefe) 92%, var(--fld-brand) 8%) 0%,
-        color-mix(in srgb, var(--bg-secondary, #f7f7f7) 94%, var(--fld-brand) 6%) 100%
-      );
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) select {
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 70%, transparent);
-      border-radius: 9999px;
-      color: var(--text-primary, #080808);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
-      backdrop-filter: blur(12px);
-      color-scheme: light;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) select:not(:disabled):hover {
-      border-color: color-mix(in srgb, var(--fld-brand) 40%, transparent);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-      background: rgba(255, 255, 255, 0.95);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) select:focus-visible {
-      background: #ffffff;
-      border-color: var(--fld-brand);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--fld-brand) 15%, transparent);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .select-filled,
-    :host-context(html[data-erp-tenant='babooni']) .select-soft,
-    :host-context(html[data-erp-tenant='babooni']) .select-glass,
-    :host-context(html[data-erp-tenant='babooni']) .select-secondary,
-    :host-context(html[data-erp-tenant='babooni']) .select-theme,
-    :host-context(html[data-erp-tenant='babooni']) .select-minimal {
-      background: color-mix(in srgb, var(--theme-surface, #fffefe) 92%, var(--fld-brand) 8%);
-      border-color: var(--border-soft, rgba(8, 8, 8, 0.1));
-      color: var(--text-primary);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 1px 3px rgba(8, 8, 8, 0.05);
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .select-soft:not(:disabled):hover {
-      background: color-mix(in srgb, var(--theme-surface, #fffefe) 86%, var(--fld-brand) 14%);
-      border-color: color-mix(in srgb, var(--fld-brand) 38%, rgba(8, 8, 8, 0.1));
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.95) inset,
-        0 4px 16px -4px color-mix(in srgb, var(--fld-brand) 22%, transparent);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .select-outlined {
-      background: transparent;
-      border-color: color-mix(in srgb, var(--fld-brand) 35%, rgba(8, 8, 8, 0.12));
-      color: var(--text-primary);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .select-ghost {
-      border-bottom-color: color-mix(in srgb, var(--fld-brand) 40%, rgba(8, 8, 8, 0.12));
-      color: var(--text-primary);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .select-primary {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--fld-brand) 22%, var(--theme-surface)) 0%,
-        color-mix(in srgb, var(--fld-brand) 10%, var(--bg-secondary)) 100%
-      );
-      border-color: color-mix(in srgb, var(--fld-brand) 45%, rgba(8, 8, 8, 0.12));
-      color: var(--text-primary);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .select-error,
-    :host-context(html[data-erp-tenant='babooni']) .select-success,
-    :host-context(html[data-erp-tenant='babooni']) .select-warning,
-    :host-context(html[data-erp-tenant='babooni']) .select-info {
-      color: var(--text-primary);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) option {
-      background-color: var(--theme-surface, #fffefe);
-      color: var(--text-primary, #080808);
-      font-weight: 500;
-      padding: 0.5rem 0.75rem;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .chevron {
-      border-right-color: var(--text-muted, #646464);
-      border-bottom-color: var(--text-muted, #646464);
-    }
-
   `],
 })
 export class UiSelectComponent implements ControlValueAccessor {
@@ -255,7 +148,8 @@ export class UiSelectComponent implements ControlValueAccessor {
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: SelectVariant = 'default';
 
-
+  @Output() change = new EventEmitter<string>();
+  @Output() valueChange = new EventEmitter<string>();
 
   value: unknown = '';
   disabled = false;
@@ -271,6 +165,13 @@ export class UiSelectComponent implements ControlValueAccessor {
   registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
+  onSelect(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    this.value = val;
+    this.onChange(val);
+    this.change.emit(val);
+    this.valueChange.emit(val);
+  }
 
   onBlur(): void { this.onTouched(); }
 }
