@@ -1,4 +1,19 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect, sbRadio } from '../../../.storybook/story-arg-types';
+import { UiInputComponent } from './input.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+const meta: Meta<UiInputComponent> = {
+  component: UiInputComponent,
+  title: 'UI Kit / Input',
+  tags: ['autodocs'],
+  decorators: [
+    (storyFn) => ({
+      standalone: true,
+      imports: [FormsModule, ReactiveFormsModule],
+      template: '<div style="padding: 1.5rem; max-width: 500px;">' + storyFn() + '</div>',
+    }),
+  ],
   argTypes: {
     label: { control: 'text', description: 'Etiqueta del campo' },
     placeholder: { control: 'text', description: 'Texto de placeholder' },
@@ -245,7 +260,7 @@ export const Hints: Story = {
       <div style="display: flex; flex-direction: column; gap: 1rem;">
         <ui-input [label]="'Usuario'" [placeholder]="'nombre.de.usuario'" [hint]="'Solo letras minúsculas y números'" [color]="color" [shape]="shape" [size]="size"></ui-input>
         <ui-input [label]="'Contraseña'" [type]="'password'" [placeholder]="'mínimo 8 caracteres'" [hint]="'Debe contener mayúscula, minúscula y número'" [color]="'primary'" [shape]="shape" [size]="size"></ui-input>
-        <ui-input [label]="'Email'" [type]="'email'" [placeholder]="'email@dominio.com'" [hint]="'Formato de correo válido requerido'" [color]="'info'" [shape]="shape" [size]="size"></ui-input>
+        <ui-input [label]="'Email'" [type]="'email'" [placeholder]="'email@ejemplo.com'" [hint]="'Formato de correo válido requerido'" [color]="'info'" [shape]="shape" [size]="size"></ui-input>
         <ui-input [label]="'Código'" [placeholder]="'ABC123'" [hint]="'Formato: 3 letras + 3 números'" [error]="true" [color]="'danger'" [shape]="shape" [size]="size"></ui-input>
       </div>
     `,
@@ -268,38 +283,9 @@ export const Combinations: Story = {
           <ui-input [label]="'Apellido'" [placeholder]="'Pérez'" [icon]="'user'" [color]="'primary'" [shape]="'solid'" [size]="'md'" style="flex: 1;"></ui-input>
         </div>
         <ui-input [label]="'Email'" [type]="'email'" [placeholder]="'juan.perez@ejemplo.com'" [icon]="'mail'" [color]="'info'" [shape]="'solid'" [size]="'md'"></ui-input>
-        <ui-input [label]="'Contraseña'" [type]="'password'" [placeholder]="'mínimo 8 caracteres'" [icon]="'lock'" [color]="'primary'" [shape]="'solid'" [size]="'md'"></ui-input>
+        <ui-input [label]="'Contraseña'" [type]="'password'" [placeholder]="'******'" [icon]="'lock'" [color]="'primary'" [shape]="'solid'" [size]="'md'"></ui-input>
         <ui-input [label]="'Teléfono'" [type]="'tel'" [placeholder]="'+34 123 456 789'" [icon]="'phone'" [color]="'success'" [shape]="'solid'" [size]="'md'"></ui-input>
       </div>
     `,
   }),
-};
-export default meta;
-type Story = StoryObj<UiInputComponent>;
-
-export const Default: Story = {
-  args: {
-    id: 'email',
-    label: 'E-mail',
-    placeholder: 'Introduce tu e-mail',
-    type: 'email',
-    icon: 'user',
-    error: false,
-  },
-};
-
-export const Error: Story = {
-  args: {
-    ...Default.args,
-    error: true,
-  },
-};
-
-export const Password: Story = {
-  args: {
-    ...Default.args,
-    label: 'Contraseña',
-    type: 'password',
-    icon: undefined,
-  },
 };

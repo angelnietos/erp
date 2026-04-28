@@ -255,7 +255,7 @@ export class UiSelectComponent implements ControlValueAccessor {
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: SelectVariant = 'default';
 
-  @Output() change = new EventEmitter<string>();
+
 
   value: unknown = '';
   disabled = false;
@@ -271,11 +271,6 @@ export class UiSelectComponent implements ControlValueAccessor {
   registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
-  onSelect(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
-    this.value = val;
-    this.onChange(val);
-    this.change.emit(val);
-  }
+
   onBlur(): void { this.onTouched(); }
 }

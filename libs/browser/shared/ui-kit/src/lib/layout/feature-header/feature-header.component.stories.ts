@@ -1,20 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/angular';
-import { UiFeatureHeaderComponent } from './feature-header.component';
-import { CommonModule } from '@angular/common';
-import { UiButtonComponent } from '../button/button.component';
 
-const meta: Meta<UiFeatureHeaderComponent> = {
-  component: UiFeatureHeaderComponent,
-  title: 'UI Kit / Feature Header',
-  tags: ['autodocs'],
-  decorators: [
-    (story) => ({
-      standalone: true,
-      imports: [CommonModule, UiButtonComponent],
-      template: '<div style="padding: 2rem; background: var(--bg-primary); min-height: 100vh;"><story/></div>',
-    }),
-  ],
-  argTypes: {
     layout: { control: { type: 'select', options: ['card', 'pageHero'] }, description: 'Diseño del header' },
     breadcrumbLead: { control: 'text', description: 'Texto principal del breadcrumb' },
     breadcrumbTail: { control: 'text', description: 'Texto secundario del breadcrumb' },

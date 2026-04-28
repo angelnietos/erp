@@ -1,4 +1,19 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect } from '../../../.storybook/story-arg-types';
+import { UiTextareaComponent } from './textarea.component';
+import { FormsModule } from '@angular/forms';
 
+const meta: Meta<UiTextareaComponent> = {
+  component: UiTextareaComponent,
+  title: 'UI Kit / Textarea',
+  tags: ['autodocs'],
+  decorators: [
+    (storyFn) => ({
+      standalone: true,
+      imports: [FormsModule],
+      template: '<div style="padding: 1.5rem; max-width: 600px;">' + storyFn() + '</div>',
+    }),
+  ],
   argTypes: {
     label: { control: 'text', description: 'Etiqueta del campo' },
     placeholder: { control: 'text', description: 'Texto de placeholder' },
@@ -178,79 +193,5 @@ export const Combinations: Story = {
         <ui-textarea [label]="'Notas adicionales'" [placeholder]="'Información extra'" [hint]="'Opcional'" [variant]="'outlined'" [rows]="4"></ui-textarea>
       </div>
     `,
-  }),
-};
-export default meta;
-type Story = StoryObj<UiTextareaComponent>;
-
-export const Default: Story = {
-  args: {
-    label: 'Description',
-    placeholder: 'Enter your description',
-  },
-  render: (args) => ({
-    props: args,
-    template: `<ui-textarea [label]="label" [placeholder]="placeholder"></ui-textarea>`,
-  }),
-};
-
-export const WithHint: Story = {
-  args: {
-    label: 'Message',
-    placeholder: 'Type your message',
-    hint: 'Maximum 500 characters',
-  },
-  render: (args) => ({
-    props: args,
-    template: `<ui-textarea [label]="label" [placeholder]="placeholder" [hint]="hint"></ui-textarea>`,
-  }),
-};
-
-export const Error: Story = {
-  args: {
-    label: 'Feedback',
-    placeholder: 'Enter feedback',
-    error: true,
-    hint: 'This field is required',
-  },
-  render: (args) => ({
-    props: args,
-    template: `<ui-textarea [label]="label" [placeholder]="placeholder" [error]="error" [hint]="hint"></ui-textarea>`,
-  }),
-};
-
-export const GlassVariant: Story = {
-  args: {
-    label: 'Comment',
-    placeholder: 'Add a comment',
-    variant: 'glass',
-  },
-  render: (args) => ({
-    props: args,
-    template: `<ui-textarea [label]="label" [placeholder]="placeholder" [variant]="variant"></ui-textarea>`,
-  }),
-};
-
-export const MinimalVariant: Story = {
-  args: {
-    label: 'Note',
-    placeholder: 'Quick note',
-    variant: 'minimal',
-  },
-  render: (args) => ({
-    props: args,
-    template: `<ui-textarea [label]="label" [placeholder]="placeholder" [variant]="variant"></ui-textarea>`,
-  }),
-};
-
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Field',
-    placeholder: 'Cannot edit',
-    disabled: true,
-  },
-  render: (args) => ({
-    props: args,
-    template: `<ui-textarea [label]="label" [placeholder]="placeholder" [disabled]="disabled"></ui-textarea>`,
   }),
 };

@@ -10,29 +10,7 @@ import { UiBadgeComponent } from '../badge/badge.component';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
-const meta: Meta = {
-  title: 'UI Kit / Kitchen Sink',
-  tags: ['autodocs'],
-  decorators: [
-    (story) => ({
-      standalone: true,
-      imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        FormsModule,
-        UiButtonComponent,
-        UiInputComponent,
-        UiSelectComponent,
-        UiTextareaComponent,
-        UiModalComponent,
-        UiTableComponent,
-        UiCardComponent,
-        UiBadgeComponent,
-      ],
-      template: '<div style="padding: 2rem; background: var(--bg-primary); min-height: 100vh;"><story/></div>',
-    }),
-  ],
-};
+
 export default meta;
 type Story = StoryObj;
 
@@ -124,17 +102,7 @@ export const Dashboard: Story = {
             <ui-button [color]="'primary'" [shape]="'ghost'" [size]="'sm'">Ver Todas</ui-button>
           </div>
           <ui-table [columns]="columns" [data]="tableData" variant="striped">
-            <ng-template #cellTemplate let-item let-key="key">
-              <ng-container *ngIf="key === 'status'; else defaultCell">
-                <ui-badge [color]="item[key] === 'Completado' ? 'success' : item[key] === 'Pendiente' ? 'warning' : 'danger'" [shape]="'soft'">
-                  {{ item[key] }}
-                </ui-badge>
-              </ng-container>
-              <ng-container *ngIf="key === 'monto'; else defaultCell">
-                ${{ item[key] }}
-              </ng-container>
-              <ng-template #defaultCell>{{ item[key] }}</ng-template>
-            </ng-template>
+
           </ui-table>
         </ui-card>
       </div>
