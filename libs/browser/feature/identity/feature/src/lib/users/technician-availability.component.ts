@@ -924,6 +924,7 @@ interface PersonalGridCell {
        grid-template-columns: 300px minmax(0, 1fr);
        gap: 2rem;
        align-items: start;
+       position: relative;
        transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
      }
      .dashboard-layout.sidebar-collapsed,
@@ -934,11 +935,15 @@ interface PersonalGridCell {
         gap: 0;
       }
 
+      @keyframes expandBtnEnter {
+        0% { opacity: 0; transform: translateX(-100%) translateY(-50%); }
+        100% { opacity: 1; transform: translateX(0) translateY(-50%); }
+      }
+
       .sidebar-expand-btn {
-        position: fixed;
+        position: absolute;
         top: 50%;
         left: 0;
-        transform: translateY(-50%);
         width: 32px;
         height: 120px;
         border-radius: 0 16px 16px 0;
@@ -953,9 +958,9 @@ interface PersonalGridCell {
         justify-content: center;
         gap: 0.75rem;
         cursor: pointer;
-        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 2000;
         box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        animation: expandBtnEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
       }
       .sidebar-expand-btn::before {
         content: '';
