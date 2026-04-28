@@ -764,16 +764,16 @@ interface PersonalGridCell {
 
     a.request-days-btn,
     .request-days-btn {
-      background: var(--brand);
-      color: #000; /* Forzar contraste alto para marcas amarillas/claras */
-      mix-blend-mode: normal;
-      border: none;
+      background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), var(--brand);
+      color: #ffffff !important;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
       padding: 0.75rem 1.75rem;
       border-radius: 12px;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 950;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       display: inline-flex;
       align-items: center;
       gap: 0.65rem;
