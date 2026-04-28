@@ -188,7 +188,7 @@ interface PersonalGridCell {
               </div>
               <div class="header-toolbar-actions">
                 <button type="button" class="nav-btn ripple toolbar-icon-btn" (click)="exportAvailabilityCsv()" title="Exportar CSV">
-                  <lucide-icon name="download" size="18" aria-hidden="true"></lucide-icon>
+                  <lucide-icon name="download" size="20" aria-hidden="true"></lucide-icon>
                 </button>
                 <button
                   type="button"
@@ -197,14 +197,14 @@ interface PersonalGridCell {
                   [class.animate-spin]="isLoading()"
                   title="Sincronizar"
                 >
-                  <lucide-icon name="rotate-cw" size="18" aria-hidden="true"></lucide-icon>
+                  <lucide-icon name="rotate-cw" size="20" aria-hidden="true"></lucide-icon>
                 </button>
                 <a
                   class="request-days-btn"
                   [routerLink]="['/users/availability', 'request']"
                   [queryParams]="pedirDiasQueryParams()"
                 >
-                  <lucide-icon name="calendar-plus" size="18" aria-hidden="true"></lucide-icon>
+                  <lucide-icon name="calendar-plus" size="20" aria-hidden="true" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2))"></lucide-icon>
                   Pedir días
                 </a>
               </div>
@@ -304,7 +304,7 @@ interface PersonalGridCell {
              title="Expandir panel"
              aria-label="Expandir panel de operarios"
            >
-             <lucide-icon name="chevron-right" size="16" aria-hidden="true"></lucide-icon>
+              <lucide-icon name="chevron-right" size="18" aria-hidden="true"></lucide-icon>
              <span>Operarios</span>
            </button>
          }
@@ -428,7 +428,7 @@ interface PersonalGridCell {
                      [attr.aria-label]="sidebarCollapsed() ? 'Expandir panel' : 'Colapsar panel'"
                      [title]="sidebarCollapsed() ? 'Expandir panel' : 'Colapsar panel'"
                    >
-                     <lucide-icon [name]="sidebarCollapsed() ? 'chevron-right' : 'chevron-left'" size="16" aria-hidden="true"></lucide-icon>
+                     <lucide-icon [name]="sidebarCollapsed() ? 'chevron-right' : 'chevron-left'" size="18" aria-hidden="true"></lucide-icon>
                      @if (sidebarCollapsed()) {
                        <span>Mostrar panel</span>
                      }
@@ -765,12 +765,13 @@ interface PersonalGridCell {
     a.request-days-btn,
     .request-days-btn {
       background: var(--brand);
-      color: #fff;
+      color: #000; /* Forzar contraste alto para marcas amarillas/claras */
+      mix-blend-mode: normal;
       border: none;
       padding: 0.75rem 1.75rem;
       border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 850;
+      font-size: 0.78rem;
+      font-weight: 950;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       display: inline-flex;
@@ -811,11 +812,16 @@ interface PersonalGridCell {
     .status-marker.HOLIDAY { background: rgba(59, 130, 246, 0.08); border-left: 6px solid #3b82f6; }
     .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.08); border-left: 6px solid #f59e0b; }
 
-    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; border: 1.5px solid #fff; transition: transform 0.3s var(--transition-spring); }
-    .dot.AVAILABLE { background: #10b981 !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
-    .dot.UNAVAILABLE { background: #ef4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-    .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-    .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+    .dot { 
+      width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; 
+      border: 2px solid rgba(255,255,255,0.4); 
+      transition: all 0.3s var(--transition-spring);
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .dot.AVAILABLE { background: #10b981 !important; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
+    .dot.UNAVAILABLE { background: #ef4444 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
+    .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 12px rgba(59, 130, 246, 0.6); }
+    .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
 
     .header-actions-extra {
       display: flex;
@@ -969,11 +975,12 @@ interface PersonalGridCell {
       .sidebar-expand-btn span {
         writing-mode: vertical-rl;
         text-orientation: mixed;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 950;
         text-transform: uppercase;
-        letter-spacing: 0.15em;
-        opacity: 0.8;
+        letter-spacing: 0.2em;
+        opacity: 0.9;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
 
      .team-sidebar {
@@ -1459,10 +1466,9 @@ interface PersonalGridCell {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
     
-    :host-context(html[data-erp-tenant='babooni']) .sidebar-toggle-btn:hover {
+    :host-context(html[data-erp-tenant='babooni']) .request-days-btn {
+      color: #fff !important; /* En Babooni el brand suele ser oscuro/azul */
       background: var(--brand);
-      color: #ffffff;
-      box-shadow: 0 8px 20px rgba(var(--brand-rgb), 0.2);
     }
   `]
 
