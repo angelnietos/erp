@@ -123,8 +123,8 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature {
-      background: var(--input-bg, var(--surface));
-      border-color: var(--input-border, var(--border-soft));
+      background: var(--input-bg, var(--surface-vibrant, var(--surface)));
+      border-color: var(--input-border, color-mix(in srgb, var(--border-soft) 40%, transparent));
       box-shadow: var(--input-shadow, var(--shadow-sm));
       backdrop-filter: blur(10px);
     }

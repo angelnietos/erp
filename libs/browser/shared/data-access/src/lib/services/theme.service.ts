@@ -144,16 +144,16 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   dark: {
     name: 'Elevated Midnight',
     primary: '#818cf8',
-    secondary: '#94a3b8',
-    background: '#0f172a',
-    surface: '#1e293b',
+    secondary: '#c7d2fe',
+    background: '#0b0f1a',
+    surface: '#151b2b',
     text: '#f8fafc',
     textMuted: '#94a3b8',
-    border: 'rgba(255, 255, 255, 0.12)',
+    border: 'rgba(129, 140, 248, 0.2)',
     brand: '#818cf8',
     brandGlow: 'rgba(129, 140, 248, 0.35)',
-    bgSecondary: '#141e33',
-    bgTertiary: '#243354',
+    bgSecondary: '#0f1422',
+    bgTertiary: '#1e2538',
     bgStyle: 'nebula',
     success: '#34d399',
     warning: '#fbbf24',
@@ -243,18 +243,18 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   rose: {
     name: 'Cyber-Rose',
-    primary: '#f43f5e',
-    secondary: '#64748B',
+    primary: '#ff007f',
+    secondary: '#ff7eb9',
     background: '#0a0005',
     surface: '#1a000d',
     text: '#fff1f2',
     textMuted: '#fb7185',
-    border: '#f43f5e33',
-    brand: '#f43f5e',
-    brandGlow: 'rgba(244, 63, 94, 0.4)',
-    bgSecondary: '#1a000d',
-    bgTertiary: '#2d0016',
-    bgStyle: 'bokeh',
+    border: 'rgba(255, 0, 127, 0.25)',
+    brand: '#ff007f',
+    brandGlow: 'rgba(255, 0, 127, 0.4)',
+    bgSecondary: '#120008',
+    bgTertiary: '#240012',
+    bgStyle: 'aurora',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#f43f5e',
@@ -343,23 +343,23 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   teal: {
     name: 'Abyss-Teal',
-    primary: '#14b8a6',
-    secondary: '#64748B',
-    background: '#020807',
-    surface: '#0a1f1c',
+    primary: '#2dd4bf',
+    secondary: '#99f6e4',
+    background: '#020d0c',
+    surface: '#081e1c',
     text: '#f0fdfa',
     textMuted: '#5eead4',
-    border: '#14b8a633',
-    brand: '#14b8a6',
-    brandGlow: 'rgba(20, 184, 166, 0.45)',
-    bgSecondary: '#0a1f1c',
-    bgTertiary: '#0f2e29',
+    border: 'rgba(45, 212, 191, 0.2)',
+    brand: '#2dd4bf',
+    brandGlow: 'rgba(45, 212, 191, 0.4)',
+    bgSecondary: '#051413',
+    bgTertiary: '#0f2b28',
     bgStyle: 'nebula',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#14b8a6',
-    uiVariant: 'minimal',
+    uiVariant: 'glass',
   },
   amber: {
     name: 'Forge-Amber',
@@ -2017,6 +2017,8 @@ export class ThemeService {
       '--btn-shadow',
       '--btn-border-width',
       '--surface-glass',
+      '--surface-vibrant',
+      '--surface-rich',
     ];
     structuralTokens.forEach((t) => root.style.removeProperty(t));
 
@@ -2025,6 +2027,8 @@ export class ThemeService {
     const surfaceRgba = hexToRgba(config.surface, surfaceAlpha);
     root.style.setProperty('--surface', surfaceRgba);
     root.style.setProperty('--surface-glass', surfaceRgba);
+    root.style.setProperty('--surface-vibrant', `color-mix(in srgb, ${surfaceRgba} 92%, ${config.primary} 8%)`);
+    root.style.setProperty('--surface-rich', `color-mix(in srgb, ${surfaceRgba} 82%, ${config.primary} 18%)`);
 
     switch (variant) {
       case 'glass':
