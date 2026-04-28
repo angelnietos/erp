@@ -11,7 +11,7 @@ import {
   UiCardComponent,
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { ToastService } from '@josanz-erp/shared-data-access';
+import { PluginStore, ThemeService, ToastService } from '@josanz-erp/shared-data-access';
 
 interface ServiceForm {
   name: string;
@@ -36,84 +36,97 @@ interface ServiceForm {
     UiFeaturePageShellComponent,
   ],
   template: `
-    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
-    <div class="services-detail__inner">
-      <header class="page-header">
-        <div class="header-actions">
-          <ui-button
-            variant="ghost"
-            icon="arrow-left"
-            (click)="goBack()"
-          >
-            Volver
-          </ui-button>
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="
+        'services-detail-page' + (pluginStore.highPerformanceMode() ? ' perf-optimized' : '')
+      "
+    >
+      <div class="services-detail__stack">
+        <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
+          <div class="header-actions">
+            <ui-button
+              variant="ghost"
+              icon="arrow-left"
+              (clicked)="goBack()"
+              [aria-label]="'Volver al listado de servicios'"
+            >
+              Volver
+            </ui-button>
+          </div>
+          <div class="header-breadcrumb">
+            <h1 class="page-title text-uppercase glow-text">
+              {{ isNew ? 'NUEVO SERVICIO' : 'EDITAR SERVICIO' }}
+            </h1>
+            <div class="breadcrumb">
+              <span class="active" [style.color]="currentTheme().primary">CATÁLOGO</span>
+              <span class="separator">/</span>
+              <span>SERVICIOS</span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <ui-button variant="secondary" icon="x" (clicked)="goBack()"> Cancelar </ui-button>
+            <ui-button variant="primary" icon="save" (clicked)="onSave()"> Guardar </ui-button>
+          </div>
+        </header>
+
+        <div class="content-section">
+          <ui-card shape="auto" class="form-card">
+            <div class="card-section">
+              <div class="section-info">
+                <h3 class="section-title">Datos del servicio</h3>
+                <p class="section-desc">Información usada en catálogo, presupuestos y ofertas.</p>
+              </div>
+              <form class="form-grid">
+                <ui-input
+                  label="Nombre"
+                  [(ngModel)]="form.name"
+                  name="name"
+                  required
+                />
+                <ui-textarea
+                  label="Descripción"
+                  [(ngModel)]="form.description"
+                  name="description"
+                />
+                <ui-select
+                  label="Tipo de Servicio"
+                  [(ngModel)]="form.type"
+                  name="type"
+                  [options]="serviceTypes"
+                  required
+                />
+                <ui-input
+                  label="Precio Base (€)"
+                  type="number"
+                  [(ngModel)]="form.basePrice"
+                  name="basePrice"
+                  required
+                />
+                <ui-input
+                  label="Tarifa Horaria (€)"
+                  type="number"
+                  [(ngModel)]="form.hourlyRate"
+                  name="hourlyRate"
+                />
+              </form>
+            </div>
+          </ui-card>
         </div>
-        <div class="header-content">
-          <h1 class="page-title">
-            {{ isNew ? 'NUEVO SERVICIO' : 'EDITAR SERVICIO' }}
-          </h1>
-        </div>
-        <div class="header-actions">
-          <ui-button variant="secondary" icon="x" (click)="goBack()">
-            Cancelar
-          </ui-button>
-          <ui-button variant="primary" icon="save" (click)="onSave()">
-            Guardar
-          </ui-button>
-        </div>
-      </header>
-
-      <div class="content-section">
-        <ui-card>
-          <form class="form-grid">
-            <ui-input
-              label="Nombre"
-              [(ngModel)]="form.name"
-              name="name"
-              required
-            />
-
-            <ui-textarea
-              label="Descripción"
-              [(ngModel)]="form.description"
-              name="description"
-            />
-
-            <ui-select
-              label="Tipo de Servicio"
-              [(ngModel)]="form.type"
-              name="type"
-              [options]="serviceTypes"
-              required
-            />
-
-            <ui-input
-              label="Precio Base (€)"
-              type="number"
-              [(ngModel)]="form.basePrice"
-              name="basePrice"
-              required
-            />
-
-            <ui-input
-              label="Tarifa Horaria (€)"
-              type="number"
-              [(ngModel)]="form.hourlyRate"
-              name="hourlyRate"
-            />
-          </form>
-        </ui-card>
       </div>
-    </div>
     </ui-feature-page-shell>
   `,
   styles: [
     `
-      .services-detail__inner {
-        padding: 1.5rem;
-        max-width: 800px;
-        margin: 0 auto;
+      .services-detail__stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
         width: 100%;
+        max-width: var(--feature-page-max-width, 1400px);
+        margin: 0 auto;
+        padding: 0 var(--feature-page-padding, 1.5rem) 2rem;
         box-sizing: border-box;
       }
 
@@ -121,32 +134,118 @@ interface ServiceForm {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 0;
+        padding: 1.5rem 0 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
 
-      .header-content h1 {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 600;
-        color: #111827;
+      .header-breadcrumb {
+        flex: 1;
+        min-width: 12rem;
+      }
+
+      .page-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.75rem;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        font-family: var(--font-display);
+        background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .breadcrumb {
+        display: flex;
+        gap: 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+        margin-top: 0.35rem;
+        text-transform: uppercase;
+      }
+
+      .breadcrumb .active {
+        opacity: 1;
+      }
+
+      .separator {
+        opacity: 0.5;
+      }
+
+      .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
       }
 
       .content-section {
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        /* Sin caja clara flotante: el surface lo aporta ui-card. */
+        background: transparent;
+      }
+
+      .form-card {
+        padding: 0;
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+      }
+
+      .card-section {
+        padding: 1.75rem 2rem 2rem;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 2.5rem;
+        align-items: start;
+      }
+
+      .section-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .section-desc {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0;
       }
 
       .form-grid {
         display: grid;
-        gap: 1.5rem;
         grid-template-columns: 1fr 1fr;
+        gap: 1.25rem 1.5rem;
       }
 
       .form-grid ui-textarea {
         grid-column: 1 / -1;
+      }
+
+      @media (max-width: 920px) {
+        .card-section {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+          padding: 1.25rem 1.25rem 1.5rem;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
       }
     `,
   ],
@@ -155,6 +254,10 @@ export class ServicesDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
+  readonly themeService = inject(ThemeService);
+  readonly pluginStore = inject(PluginStore);
+
+  readonly currentTheme = this.themeService.currentThemeData;
 
   isNew = false;
   form: ServiceForm = {
@@ -183,7 +286,7 @@ export class ServicesDetailComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/services']);
+    void this.router.navigate(['/services']);
   }
 
   onSave() {

@@ -42,10 +42,15 @@ import { LucideAngularModule } from 'lucide-angular';
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(16px);
         border: 1px solid var(--border-soft);
-        border-radius: var(--radius-lg);
+        /* Fijo: no usar --radius-lg (p. ej. 40px en neumorfismo / variantes UI). */
+        border-radius: var(--stat-card-radius, 10px);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
         overflow: hidden;
+      }
+
+      .stat-card.ui-glass {
+        border-radius: var(--stat-card-radius, 10px) !important;
       }
 
       .stat-card:hover {
@@ -92,8 +97,12 @@ import { LucideAngularModule } from 'lucide-angular';
         letter-spacing: -0.02em;
       }
 
+      :host-context(html[data-erp-tenant='babooni']) .stat-card,
+      :host-context(html[data-erp-tenant='babooni']) .stat-card.ui-glass {
+        border-radius: 12px;
+      }
+
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
-        border-radius: 14px;
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(12px);
         border: 1px solid color-mix(in srgb, var(--border-soft) 50%, transparent);
