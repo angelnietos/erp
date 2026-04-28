@@ -1094,7 +1094,7 @@ interface PersonalGridCell {
     .tech-card {
       display: flex; align-items: center; gap: 1.25rem;
       padding: 1rem 1.25rem; background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
       cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: left; position: relative; overflow: hidden;
       backdrop-filter: blur(10px);
@@ -1432,6 +1432,17 @@ interface PersonalGridCell {
       border: 1px solid rgba(255, 255, 255, 0.5);
       box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
       border-radius: 24px;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .status-chip {
+      width: 32px;
+      height: 6px;
+      border-radius: 3px;
+      border: none;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .board-row:nth-child(even) {
+      background: rgba(0, 0, 0, 0.015);
     }
     :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn {
       background: rgba(255, 255, 255, 0.5);
