@@ -15,6 +15,8 @@ import { CommonModule } from '@angular/common';
       display: grid;
       gap: var(--feature-page-gap, 1.5rem);
       margin-top: 1rem;
+      /* Misma altura de fila = la del item más alto (stretch + hijos al 100%). */
+      align-items: stretch;
     }
 
     @media (max-width: 640px) {
@@ -30,6 +32,7 @@ import { CommonModule } from '@angular/common';
 
     /* Cinematic staggered entry animation */
     .feature-grid > * {
+      min-height: 0;
       animation: bbSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 

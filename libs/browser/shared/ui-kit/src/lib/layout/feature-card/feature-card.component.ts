@@ -110,6 +110,12 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      height: 100%;
+      min-height: 0;
+    }
+
     .feature-card {
       background: var(--surface);
       border-radius: 16px;
@@ -121,6 +127,8 @@ import { UiBadgeComponent } from '../../badge/badge.component';
       display: flex;
       flex-direction: column;
       position: relative;
+      height: 100%;
+      min-height: 0;
     }
 
     .feature-card:hover {
