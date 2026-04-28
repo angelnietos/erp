@@ -21,19 +21,31 @@ export type SelectVariant =
   }],
   template: `
     <div class="form-group" [class.disabled]="disabled">
-      @if (label) { <label [for]="id">{{ label }}</label> }
+      @if (label) { <label [id]="id + '-label'" [for]="id">{{ label }}</label> }
       <div
         #triggerRef
+        [id]="id || null"
         class="select-wrapper"
         [class.is-open]="isOpen"
         [class.select-sm]="size === 'sm'"
-        (click)="toggleDropdown()"
+        role="combobox"
+        [attr.aria-expanded]="isOpen"
+        [attr.aria-disabled]="disabled"
+        [attr.aria-controls]="isOpen ? listboxPanelId : null"
+        [attr.aria-haspopup]="'listbox'"
+        [attr.aria-labelledby]="label ? id + '-label' : null"
+        [attr.aria-label]="!label ? (placeholder || 'Seleccionar opción') : null"
+        [attr.tabindex]="disabled ? -1 : 0"
+        (click)="onTriggerClick($event)"
+        (keydown.enter)="onTriggerKeydown($event, 'enter')"
+        (keydown.space)="onTriggerKeydown($event, 'space')"
+        (keydown.escape)="onTriggerKeydown($event, 'escape')"
       >
         <div class="select-trigger" [class.invalid]="error">
           <span class="placeholder-text" [class.hidden]="!!selectedLabel">{{ placeholder }}</span>
           <span class="selected-text">{{ selectedLabel }}</span>
         </div>
-        <div class="chevron"></div>
+        <div class="chevron" aria-hidden="true"></div>
       </div>
     </div>
   `,
@@ -110,7 +122,8 @@ export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: SelectVariant = 'default';
 
-  @Output() change = new EventEmitter<string>();
+  /** Emite el valor elegido (string). Evita el nombre `change` (evento nativo + ESLint). */
+  @Output() selectionChange = new EventEmitter<string>();
   @Output() valueChange = new EventEmitter<string>();
 
   @ViewChild('triggerRef') triggerRef!: ElementRef<HTMLElement>;
@@ -119,7 +132,11 @@ export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
   disabled = false;
   isOpen = false;
 
+  /** ID del listbox en portal (aria-controls en el combobox). */
+  readonly listboxPanelId = `ui-select-lb-${Math.random().toString(36).slice(2, 11)}`;
+
   private overlayEl: HTMLDivElement | null = null;
+  private repositionCleanup: (() => void) | null = null;
   private readonly elementRef = inject(ElementRef);
   private readonly zone = inject(NgZone);
 
@@ -131,28 +148,77 @@ export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
   onDocumentClick(event: MouseEvent): void {
     const inHost = this.elementRef.nativeElement.contains(event.target);
     const inOverlay = this.overlayEl?.contains(event.target as Node);
-    if (!inHost && !inOverlay) this.closeDropdown();
+    if (!inHost && !inOverlay) {
+      this.closeDropdown();
+    }
   }
 
-  @HostListener('window:scroll', ['$event'])
-  @HostListener('window:resize')
-  onViewChange(_e?: Event): void {
-    if (this.isOpen) this.positionOverlay();
+  onTriggerClick(event: MouseEvent): void {
+    event.preventDefault();
+    this.toggleDropdown();
+  }
+
+  /** El template tipa `$event` en keydown como `Event` (strict templates). */
+  onTriggerKeydown(event: Event, key: 'enter' | 'space' | 'escape'): void {
+    if (this.disabled) {
+      return;
+    }
+    if (key === 'escape') {
+      if (this.isOpen) {
+        event.preventDefault();
+        this.closeDropdown();
+      }
+      return;
+    }
+    event.preventDefault();
+    this.toggleDropdown();
   }
 
   toggleDropdown(): void {
-    if (this.disabled) return;
-    this.isOpen ? this.closeDropdown() : this.openDropdown();
+    if (this.disabled) {
+      return;
+    }
+    if (this.isOpen) {
+      this.closeDropdown();
+    } else {
+      this.openDropdown();
+    }
   }
 
   private openDropdown(): void {
     this.isOpen = true;
     this.buildOverlay();
+    this.attachRepositionListeners();
   }
 
   private closeDropdown(): void {
     this.isOpen = false;
+    this.detachRepositionListeners();
     this.destroyOverlay();
+  }
+
+  /**
+   * Scroll en contenedores (main, modales) no dispara `window:scroll`. Capturing en `document`
+   * mantiene el overlay alineado al trigger con `position: fixed`.
+   */
+  private attachRepositionListeners(): void {
+    this.detachRepositionListeners();
+    const reposition = () => {
+      if (this.isOpen) {
+        this.positionOverlay();
+      }
+    };
+    document.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    this.repositionCleanup = () => {
+      document.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }
+
+  private detachRepositionListeners(): void {
+    this.repositionCleanup?.();
+    this.repositionCleanup = null;
   }
 
   // ── Body-portal overlay ────────────────────────────────────────────────────
@@ -162,6 +228,8 @@ export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
 
     const el = document.createElement('div');
     el.className = 'ui-select-portal';
+    el.id = this.listboxPanelId;
+    el.setAttribute('role', 'listbox');
 
     // Get computed CSS variables from the host element for theming
     const hostStyle = getComputedStyle(document.documentElement);
@@ -207,6 +275,8 @@ export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
     this.options.forEach(option => {
       const item = document.createElement('div');
       const isSelected = option.value === this.value;
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
       item.textContent = option.label;
       item.style.cssText = [
         'padding:0.7rem 1rem',
@@ -279,15 +349,19 @@ export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
   }
 
   private selectValue(option: { label: string; value: unknown }): void {
+    const s = String(option.value);
     this.value = option.value;
     this.onChange(option.value);
-    this.change.emit(String(option.value));
-    this.valueChange.emit(String(option.value));
+    this.selectionChange.emit(s);
+    this.valueChange.emit(s);
     this.closeDropdown();
     this.onTouched();
   }
 
-  ngOnDestroy(): void { this.destroyOverlay(); }
+  ngOnDestroy(): void {
+    this.detachRepositionListeners();
+    this.destroyOverlay();
+  }
 
   // ── ControlValueAccessor ───────────────────────────────────────────────────
   onChange: (v: unknown) => void = () => { /* stub */ };
