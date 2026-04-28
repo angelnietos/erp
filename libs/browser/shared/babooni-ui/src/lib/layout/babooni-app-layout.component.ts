@@ -131,6 +131,43 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
                       }
                     </div>
                   }
+ 
+                  <!-- Density Selector -->
+                  <div class="bb-theme-section bb-density-section" role="group" aria-label="Densidad de interfaz">
+                    <div class="bb-theme-section-label">Densidad de interfaz</div>
+                    <div class="bb-density-options">
+                      <button 
+                        type="button" 
+                        class="bb-density-btn"
+                        [class.is-active]="themeService.currentDensity() === 'compact'"
+                        (click)="themeService.setDensity('compact')"
+                        aria-label="Densidad compacta"
+                      >
+                        <lucide-icon name="shrink" size="14" aria-hidden="true"></lucide-icon>
+                        <span>Compacta</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="bb-density-btn"
+                        [class.is-active]="themeService.currentDensity() === 'standard'"
+                        (click)="themeService.setDensity('standard')"
+                        aria-label="Densidad normal"
+                      >
+                        <lucide-icon name="maximize-2" size="14" aria-hidden="true"></lucide-icon>
+                        <span>Normal</span>
+                      </button>
+                      <button 
+                        type="button" 
+                        class="bb-density-btn"
+                        [class.is-active]="themeService.currentDensity() === 'spacious'"
+                        (click)="themeService.setDensity('spacious')"
+                        aria-label="Densidad amplia"
+                      >
+                        <lucide-icon name="expand" size="14" aria-hidden="true"></lucide-icon>
+                        <span>Amplia</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               }
             </div>
