@@ -917,7 +917,8 @@ interface PersonalGridCell {
        transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
      }
      .dashboard-layout.sidebar-collapsed {
-       grid-template-columns: 0 minmax(0, 1fr);
+       grid-template-columns: 1fr;
+       gap: 0;
      }
      .sidebar-expand-btn {
        position: sticky;
@@ -1366,80 +1367,34 @@ interface PersonalGridCell {
 
     :host-context(html[data-erp-tenant='babooni']) .calendar-card,
     :host-context(html[data-erp-tenant='babooni']) .team-board-card {
-      background: rgba(255, 255, 255, 0.5) !important;
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--avail-border) !important;
-      border-radius: 20px !important;
-      box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08) !important;
+      background: rgba(255, 255, 255, 0.6) !important;
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      border-radius: 28px !important;
+      box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.1) !important;
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .calendar-grid-header {
-      border-bottom: 2px solid rgba(0, 0, 0, 0.04);
-      margin-bottom: 1.5rem;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .grid-day-label {
-      border-bottom: none;
-      color: var(--text-muted);
-      font-weight: 800;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .calendar-cell {
-      background: rgba(255, 255, 255, 0.4);
-      border: 1px solid rgba(0, 0, 0, 0.03);
+    :host-context(html[data-erp-tenant='babooni']) .sidebar-header {
+      padding: 0.65rem 1rem;
+      padding-right: 2.75rem;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(8px);
       border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.75rem;
+      box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.05);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .calendar-cell.today {
-      background: #ffffff;
-      border: 2px solid var(--brand);
-      box-shadow: 0 12px 32px -8px rgba(var(--brand-rgb), 0.15);
+    :host-context(html[data-erp-tenant='babooni']) .tech-avatar {
+      border-radius: 12px;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .status-badge {
-      background: #ffffff;
-      color: var(--text-primary);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      border-radius: 6px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .summary-card {
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .team-board-toolbar {
-      background: rgba(255, 255, 255, 0.2);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-      padding: 1.5rem;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .board-header {
-      background: rgba(255, 255, 255, 0.8) !important;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .persona-col,
-    :host-context(html[data-erp-tenant='babooni']) .board-tech-info {
-      border-right: 1px solid rgba(0, 0, 0, 0.05);
-      width: 240px;
-      min-width: 240px;
-      max-width: 240px;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .day-header-col {
-      border-right: 1px solid rgba(0, 0, 0, 0.03);
-      width: 48px;
-      min-width: 48px;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .board-day-cell {
-      border-right: 1px solid rgba(0, 0, 0, 0.025);
-      width: 48px;
-      min-width: 48px;
+    :host-context(html[data-erp-tenant='babooni']) .team-board-scroll-wrap {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
+      border-radius: 20px;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .status-chip {
@@ -1454,8 +1409,9 @@ interface PersonalGridCell {
     }
     
     :host-context(html[data-erp-tenant='babooni']) .team-board-scroll-wrap {
-      border: 1px solid var(--avail-border);
-      box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
+      border-radius: 20px;
     }
   `]
 
