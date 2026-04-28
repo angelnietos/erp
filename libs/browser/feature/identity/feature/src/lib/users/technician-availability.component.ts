@@ -235,14 +235,25 @@ interface PersonalGridCell {
         </div>
       }
 
-      <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'">
-        @if (viewMode() === 'personal') {
-        <!-- Lista de operarios: solo vista individual (evita duplicar filas con el cuadrante de equipo) -->
-        <aside class="team-sidebar animate-slide-right">
-          <div class="sidebar-header">
-            <h3>Operarios AV</h3>
-            <ui-badge variant="info" class="count-badge">{{ personalSidebarTechnicians().length }}</ui-badge>
-          </div>
+       <div class="dashboard-layout" [class.dashboard-layout--team]="viewMode() === 'team'" [class.sidebar-collapsed]="sidebarCollapsed() && viewMode() === 'personal'">
+          @if (viewMode() === 'personal') {
+         <!-- Lista de operarios: solo vista individual (evita duplicar filas con el cuadrante de equipo) -->
+         <aside class="team-sidebar animate-slide-right" [class.collapsed]="sidebarCollapsed()">
+           <div class="sidebar-header">
+             @if (!sidebarCollapsed()) {
+               <h3>Operarios AV</h3>
+               <ui-badge variant="info" class="count-badge">{{ personalSidebarTechnicians().length }}</ui-badge>
+             }
+             <button 
+               type="button" 
+               class="sidebar-toggle-btn" 
+               (click)="sidebarCollapsed.update(v => !v)"
+               [attr.aria-label]="sidebarCollapsed() ? 'Expandir panel' : 'Colapsar panel'"
+               [title]="sidebarCollapsed() ? 'Expandir panel' : 'Colapsar panel'"
+             >
+               <lucide-icon [name]="sidebarCollapsed() ? 'chevron-right' : 'chevron-left'" size="16" aria-hidden="true"></lucide-icon>
+             </button>
+           </div>
           <div class="sidebar-search">
             <ui-feature-filter-bar
               [framed]="true"
@@ -284,10 +295,22 @@ interface PersonalGridCell {
               </div>
             }
           </div>
-        </aside>
-        }
+         </aside>
+         @if (sidebarCollapsed() && viewMode() === 'personal') {
+           <button 
+             type="button" 
+             class="sidebar-expand-btn" 
+             (click)="sidebarCollapsed.set(false)"
+             title="Expandir panel"
+             aria-label="Expandir panel de operarios"
+           >
+             <lucide-icon name="chevron-right" size="16" aria-hidden="true"></lucide-icon>
+             <span>Operarios</span>
+           </button>
+         }
+          }
 
-        <!-- MAIN CALENDAR / TEAM BOARD -->
+         <!-- MAIN CALENDAR / TEAM BOARD -->
         <main class="main-content">
           @if (viewMode() === 'personal') {
             <div class="availability-panel animate-slide-up">
@@ -393,33 +416,45 @@ interface PersonalGridCell {
                 </div>
               }
             </div>
-          } @else {
-            <!-- TEAM BOARD VIEW -->
-            <div class="availability-panel team-board-wrapper animate-slide-up">
-              <ui-card shape="auto" class="team-board-card">
-                <div class="team-board-toolbar">
+           } @else {
+             <!-- TEAM BOARD VIEW -->
+             <div class="availability-panel team-board-wrapper animate-slide-up">
+               <ui-card shape="auto" class="team-board-card">
+                 <div class="team-board-toolbar">
+                   <button 
+                     type="button" 
+                     class="sidebar-toggle-btn team-toggle" 
+                     (click)="sidebarCollapsed.update(v => !v)"
+                     [attr.aria-label]="sidebarCollapsed() ? 'Expandir panel' : 'Colapsar panel'"
+                     [title]="sidebarCollapsed() ? 'Expandir panel' : 'Colapsar panel'"
+                   >
+                     <lucide-icon [name]="sidebarCollapsed() ? 'chevron-right' : 'chevron-left'" size="16" aria-hidden="true"></lucide-icon>
+                     @if (sidebarCollapsed()) {
+                       <span>Mostrar panel</span>
+                     }
+                   </button>
                   <div class="team-board-toolbar__meta">
                     <span class="label">Vista equipo</span>
                     <h2 class="team-board-title">
                       Cuadrante
                       <span class="team-board-month">{{ getMonthName() }} {{ currentYear() }}</span>
                     </h2>
-                    <p class="team-board-hint">
-                      <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
-                      {{ teamBoardHintCounts() }} · vista mensual completa del equipo
-                    </p>
-                    @if (!isCompactTeamNav()) {
-                      <p class="team-board-scroll-hint-desktop" aria-live="polite">
-                        <lucide-icon name="calendar-days" size="14" aria-hidden="true"></lucide-icon>
-                        Día {{ teamScrollLabel().center }} de {{ teamScrollLabel().total }}
-                        @if (teamScrollLabel().from !== teamScrollLabel().to) {
-                          <span class="team-board-scroll-hint-desktop__range">
-                            · visible {{ teamScrollLabel().from }}–{{ teamScrollLabel().to }}
-                          </span>
-                        }
-                      </p>
-                    }
-                  </div>
+                     <p class="team-board-hint">
+                       <lucide-icon name="users" size="14" aria-hidden="true"></lucide-icon>
+                       {{ teamBoardHintCounts() }} · vista mensual completa del equipo
+                     </p>
+                     @if (!isCompactTeamNav()) {
+                       <p class="team-board-scroll-hint-desktop" aria-live="polite">
+                         <lucide-icon name="calendar-days" size="14" aria-hidden="true"></lucide-icon>
+                         Día {{ teamScrollLabel().center }} de {{ teamScrollLabel().total }}
+                         @if (teamScrollLabel().from !== teamScrollLabel().to) {
+                           <span class="team-board-scroll-hint-desktop__range">
+                             · visible {{ teamScrollLabel().from }}–{{ teamScrollLabel().to }}
+                           </span>
+                         }
+                       </p>
+                     }
+                     </div>
                   <div
                     class="calendar-legend team-board-legend"
                     role="group"
@@ -437,10 +472,10 @@ interface PersonalGridCell {
                     <div class="legend-item SICK_LEAVE">
                       <span class="dot SICK_LEAVE" aria-hidden="true"></span><span>Incid.</span>
                     </div>
-                  </div>
-                </div>
+                   </div>
+                 </div>
 
-                <div class="team-board-toolbar-search">
+                 <div class="team-board-toolbar-search">
                   <div class="availability-filter-slot">
                     <ui-feature-filter-bar
                       [framed]="true"
@@ -503,10 +538,10 @@ interface PersonalGridCell {
                         <lucide-icon name="chevron-right" size="18" aria-hidden="true"></lucide-icon>
                       </button>
                     </div>
-                  </div>
-                }
+                   </div>
+                 }
 
-                @let hScroll = teamHScrollUi();
+                 @let hScroll = teamHScrollUi();
                 <div class="team-board-scroll-wrap">
                   <div
                     class="team-board-scroll custom-scrollbar-h"
@@ -873,29 +908,132 @@ interface PersonalGridCell {
       flex-shrink: 1;
     }
 
-    /* LAYOUT & SIDEBAR */
-    .dashboard-layout {
-      display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
-      gap: 2rem;
-      align-items: start;
-    }
-    .dashboard-layout--team {
-      grid-template-columns: 1fr !important;
-    }
+     /* LAYOUT & SIDEBAR */
+     .dashboard-layout {
+       display: grid;
+       grid-template-columns: 300px minmax(0, 1fr);
+       gap: 2rem;
+       align-items: start;
+       transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+     }
+     .dashboard-layout.sidebar-collapsed {
+       grid-template-columns: 0 minmax(0, 1fr);
+     }
+     .sidebar-expand-btn {
+       position: sticky;
+       top: 50%;
+       left: 0;
+       transform: translateY(-50%);
+       width: 28px;
+       height: 40px;
+       border-radius: 0 8px 8px 0;
+       background: var(--brand);
+       color: #fff;
+       border: 1px solid rgba(255,255,255,0.2);
+       border-left: none;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+       gap: 2px;
+       cursor: pointer;
+       transition: all 0.3s ease;
+       z-index: 50;
+       font-size: 0.6rem;
+       font-weight: 800;
+       letter-spacing: 0.05em;
+       box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+     }
+     .sidebar-expand-btn:hover {
+       background: var(--brand-hover, #2563eb);
+       transform: translateY(-50%) scale(1.05);
+       width: 32px;
+     }
+     .sidebar-expand-btn span {
+       writing-mode: vertical-rl;
+       text-orientation: mixed;
+     }
 
-    .team-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      position: sticky;
-      top: 1.5rem;
-    }
+     .team-sidebar {
+       display: flex;
+       flex-direction: column;
+       gap: 1.5rem;
+       position: sticky;
+       top: 1.5rem;
+       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+       width: 300px;
+       min-width: 300px;
+     }
+     .team-sidebar.collapsed {
+       width: 0;
+       min-width: 0;
+       padding: 0;
+       margin: 0;
+       overflow: hidden;
+       opacity: 0;
+       pointer-events: none;
+     }
+     .team-sidebar.collapsed .sidebar-header,
+     .team-sidebar.collapsed .sidebar-search,
+     .team-sidebar.collapsed .technician-list {
+       display: none;
+     }
+     .dashboard-layout--team .team-sidebar.collapsed {
+       display: none;
+     }
 
-    .sidebar-header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .sidebar-header h3 { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+     .sidebar-header {
+       display: flex; justify-content: space-between; align-items: center;
+       position: relative;
+     }
+     .sidebar-header h3 { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+     
+     .sidebar-toggle-btn {
+       position: absolute;
+       top: 50%;
+       right: -12px;
+       transform: translateY(-50%);
+       width: 24px;
+       height: 24px;
+       border-radius: 50%;
+       background: var(--brand);
+       color: #fff;
+       border: 2px solid var(--surface);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       cursor: pointer;
+       transition: all 0.3s ease;
+       z-index: 100;
+       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+     }
+     .sidebar-toggle-btn:hover {
+       background: var(--brand-hover, #2563eb);
+       transform: translateY(-50%) scale(1.1);
+     }
+     .sidebar-toggle-btn:active {
+       transform: translateY(-50%) scale(0.95);
+     }
+     .sidebar-toggle-btn.team-toggle {
+       position: static;
+       transform: none;
+       margin-left: 0.5rem;
+       width: auto;
+       height: 28px;
+       padding: 0 0.75rem;
+       border-radius: 8px;
+       font-size: 0.7rem;
+       font-weight: 800;
+       display: inline-flex;
+       align-items: center;
+       gap: 0.4rem;
+       background: rgba(255,255,255,0.1);
+       border: 1px solid rgba(255,255,255,0.2);
+     }
+     .sidebar-toggle-btn.team-toggle:hover {
+       background: rgba(255,255,255,0.2);
+       transform: none;
+     }
 
     .technician-list {
       display: flex; flex-direction: column; gap: 0.85rem;
@@ -1579,6 +1717,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
 
   viewMode = signal<'personal' | 'team'>('personal');
   selectedTechId = signal<string>('me');
+  sidebarCollapsed = signal<boolean>(false);
 
   teamAvailability = signal<Record<string, Record<number, string>>>({});
   /** Cobertura por fecha ISO (YYYY-MM-DD) para celdas fuera del mes o vista semanal. */
@@ -1688,7 +1827,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
       },
       { allowSignalWrites: true },
     );
-    effect(() => {
+     effect(() => {
       if (this.viewMode() === 'team') {
         queueMicrotask(() => {
           requestAnimationFrame(() =>
@@ -1697,19 +1836,14 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy, Filte
         });
       }
     });
-    effect(
-      () => {
-        if (this.viewMode() !== 'personal') {
-          return;
-        }
-        const list = this.personalSidebarTechnicians();
-        const id = this.selectedTechId();
-        if (list.length > 0 && !list.some((t) => t.id === id)) {
-          this.selectedTechId.set(list[0].id);
-        }
-      },
-      { allowSignalWrites: true },
-    );
+    // Auto-collapse en pantallas pequeñas
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      const mql = window.matchMedia('(max-width: 1200px)');
+      this.sidebarCollapsed.set(mql.matches);
+      mql.addEventListener('change', (e) => {
+        this.sidebarCollapsed.set(e.matches);
+      });
+    }
   }
 
   ngOnInit() {
