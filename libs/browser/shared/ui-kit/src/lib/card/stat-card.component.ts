@@ -164,10 +164,10 @@ import { LucideAngularModule } from 'lucide-angular';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card {
-        background: color-mix(in srgb, var(--surface) 70%, transparent);
+        background: var(--card-bg, color-mix(in srgb, var(--surface) 70%, transparent));
         backdrop-filter: blur(12px);
-        border: 1px solid color-mix(in srgb, var(--border-soft) 50%, transparent);
-        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+        border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 50%, transparent));
+        box-shadow: var(--card-shadow, 0 4px 12px -2px rgba(0, 0, 0, 0.04));
         padding: 1.25rem 1.5rem;
         gap: 1.25rem;
       }
@@ -182,10 +182,10 @@ import { LucideAngularModule } from 'lucide-angular';
       :host-context(html[data-erp-tenant='babooni']) .stat-icon-wrapper {
         width: 3rem;
         height: 3rem;
-        background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+        background: color-mix(in srgb, var(--brand) 12%, transparent);
         border-radius: 10px;
         color: var(--brand);
-        border: none;
+        border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .stat-card:hover .stat-icon-wrapper {

@@ -123,15 +123,15 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature {
-      background: color-mix(in srgb, var(--surface) 64%, transparent);
-      border-color: color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.12)) 85%, transparent);
-      box-shadow: 0 6px 18px -14px rgba(0, 0, 0, 0.28);
+      background: var(--input-bg, color-mix(in srgb, var(--surface) 64%, transparent));
+      border-color: var(--input-border, color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.12)) 85%, transparent));
+      box-shadow: var(--input-shadow, 0 6px 18px -14px rgba(0, 0, 0, 0.28));
       backdrop-filter: blur(10px);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature:focus-within {
-      background: color-mix(in srgb, var(--surface) 86%, transparent);
-      border-color: color-mix(in srgb, var(--brand) 34%, rgba(8, 8, 8, 0.12));
+      background: color-mix(in srgb, var(--surface) 90%, var(--brand) 10%);
+      border-color: color-mix(in srgb, var(--brand) 40%, transparent);
       box-shadow: 0 8px 22px -14px rgba(0, 0, 0, 0.22);
     }
 

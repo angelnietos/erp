@@ -36,11 +36,11 @@
   --bb-radius-xl: 10px;
 
   --bb-page-bg: var(--bg-primary, var(--bio-gray-100));
-  --bb-surface: var(--theme-surface, var(--bio-white));
-  --bb-border: var(--theme-border, var(--bio-border-ui));
+  --bb-surface: var(--card-bg, var(--theme-surface, var(--surface)));
+  --bb-border: var(--card-border, var(--theme-border, var(--bio-border-ui)));
   --bb-sidebar-bg: var(--bg-secondary, var(--bio-gray-100));
-  --bb-sidebar-border: var(--theme-border, var(--bio-gray-200));
-  --bb-topbar-bg: var(--theme-surface, var(--bio-white));
+  --bb-sidebar-border: var(--border-soft, var(--bio-gray-200));
+  --bb-topbar-bg: var(--surface, var(--bio-white));
   --bb-content-max: 100%;
 
   /* Puente con ThemeService / ui-kit: respeta modo claro u oscuro sin romper Biosstel “solo luz”. */

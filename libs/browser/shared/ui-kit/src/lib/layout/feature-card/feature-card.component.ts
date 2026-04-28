@@ -349,9 +349,9 @@ import { UiBadgeComponent } from '../../badge/badge.component';
     /* Babooni: tarjetas tipo Figma Biosstel (borde flotante, sombra sutil suave, redondeo premium) */
     :host-context(html[data-erp-tenant='babooni']) .feature-card {
       border-radius: 20px;
-      border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
-      box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
-      background: color-mix(in srgb, var(--surface) 80%, transparent);
+      border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 40%, transparent));
+      box-shadow: var(--card-shadow, 0 4px 14px -2px rgba(0, 0, 0, 0.03));
+      background: var(--card-bg, color-mix(in srgb, var(--surface) 80%, transparent));
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -359,9 +359,9 @@ import { UiBadgeComponent } from '../../badge/badge.component';
 
     :host-context(html[data-erp-tenant='babooni']) .feature-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px color-mix(in srgb, var(--brand) 15%, transparent);
-      border-color: color-mix(in srgb, var(--brand) 25%, transparent);
-      background: color-mix(in srgb, var(--surface) 95%, transparent);
+      box-shadow: var(--card-shadow-hover, 0 20px 40px -12px rgba(0, 0, 0, 0.08));
+      border-color: var(--brand);
+      background: var(--surface);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .avatar-bg {

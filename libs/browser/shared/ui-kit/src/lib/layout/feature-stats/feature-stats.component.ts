@@ -144,8 +144,9 @@ import { LucideAngularModule } from 'lucide-angular';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn {
-      background: var(--surface);
-      border: 1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--surface) 80%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 60%, transparent);
       border-radius: 999px;
       padding: 6px 18px;
       color: var(--text-primary);
