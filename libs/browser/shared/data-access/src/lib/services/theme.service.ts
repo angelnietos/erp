@@ -86,6 +86,8 @@ export type Theme =
   | 'nintendo-neon'
   | 'cyberpunk-edge'
   | 'rockstar-vintage'
+  | 'galactic-void'
+  | 'emerald-overdrive'
   | 'babooni';
 
 export type Density = 'compact' | 'standard' | 'spacious';
@@ -1602,6 +1604,46 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     info: '#2196f3',
     uiVariant: 'solid',
   },
+  'galactic-void': {
+    name: 'Galactic Void',
+    primary: '#a855f7',
+    secondary: '#3b82f6',
+    background: '#030014',
+    surface: '#0f0035',
+    text: '#ffffff',
+    textMuted: '#a855f7',
+    border: 'rgba(168, 85, 247, 0.3)',
+    brand: '#a855f7',
+    brandGlow: 'rgba(168, 85, 247, 0.5)',
+    bgSecondary: '#050010',
+    bgTertiary: '#14002e',
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    uiVariant: 'glass',
+  },
+  'emerald-overdrive': {
+    name: 'Emerald Overdrive',
+    primary: '#10b981',
+    secondary: '#064e3b',
+    background: '#020d08',
+    surface: '#062014',
+    text: '#ffffff',
+    textMuted: '#10b981',
+    border: 'rgba(16, 185, 129, 0.3)',
+    brand: '#10b981',
+    brandGlow: 'rgba(16, 185, 129, 0.5)',
+    bgSecondary: '#020805',
+    bgTertiary: '#0a1f12',
+    bgStyle: 'matrix',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    uiVariant: 'glass',
+  },
 };
 
 /** Agrupa el selector del shell: paleta base, corporativo e inspiración gaming. */
@@ -2044,44 +2086,44 @@ export class ThemeService {
 
     switch (variant) {
       case 'glass':
-        root.style.setProperty('--variant-blur', isLight ? '12px' : '28px');
-        root.style.setProperty('--radius-lg', '16px');
-        root.style.setProperty('--radius-md', '10px');
-        root.style.setProperty('--radius-xl', '24px');
+        root.style.setProperty('--variant-blur', isLight ? '16px' : '40px');
+        root.style.setProperty('--radius-lg', '24px');
+        root.style.setProperty('--radius-md', '14px');
+        root.style.setProperty('--radius-xl', '32px');
         root.style.setProperty(
           '--border-vibrant',
+          isLight
+            ? `rgba(${hexToRgbTriplet(config.brand)}, 0.4)`
+            : `rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
+        );
+        root.style.setProperty(
+          '--shadow-inset-shine',
+          isLight
+            ? 'inset 0 1px 0 rgba(255,255,255,0.9)'
+            : 'inset 0 1px 1px rgba(255,255,255,0.12)',
+        );
+        root.style.setProperty(
+          '--shadow-md',
+          isLight
+            ? '0 10px 40px rgba(0,0,0,0.06)'
+            : '0 10px 40px rgba(0,0,0,0.45)',
+        );
+        // Card
+        root.style.setProperty(
+          '--card-bg',
+          `color-mix(in srgb, ${config.surface} ${isLight ? '92%' : '65%'}, transparent)`,
+        );
+        root.style.setProperty(
+          '--card-border',
           isLight
             ? `rgba(${hexToRgbTriplet(config.brand)}, 0.35)`
             : `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`,
         );
         root.style.setProperty(
-          '--shadow-inset-shine',
-          isLight
-            ? 'inset 0 1px 0 rgba(255,255,255,0.8)'
-            : 'inset 0 1px 0 rgba(255,255,255,0.08)',
-        );
-        root.style.setProperty(
-          '--shadow-md',
-          isLight
-            ? '0 8px 32px rgba(0,0,0,0.08)'
-            : '0 8px 32px rgba(0,0,0,0.4)',
-        );
-        // Card
-        root.style.setProperty(
-          '--card-bg',
-          `color-mix(in srgb, ${config.surface} ${isLight ? '95%' : '70%'}, transparent)`,
-        );
-        root.style.setProperty(
-          '--card-border',
-          isLight
-            ? `rgba(${hexToRgbTriplet(config.brand)}, 0.3)`
-            : `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`,
-        );
-        root.style.setProperty(
           '--card-shadow',
           isLight
-            ? '0 8px 32px rgba(0,0,0,0.08)'
-            : '0 8px 32px rgba(0,0,0,0.4)',
+            ? '0 12px 48px rgba(0,0,0,0.05)'
+            : '0 12px 48px rgba(0,0,0,0.5)',
         );
         // Input
         root.style.setProperty(
