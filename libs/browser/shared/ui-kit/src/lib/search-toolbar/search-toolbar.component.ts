@@ -79,14 +79,20 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar__field {
-      flex: 1 1 auto;
+      flex: 1 1 0;
       min-width: 0;
       display: flex;
       align-items: center;
     }
 
+    .search-toolbar__field > ui-search {
+      flex: 1 1 0;
+      min-width: 0;
+      width: 100%;
+    }
+
     .search-toolbar--feature .search-toolbar__field {
-      padding: 0 0.55rem 0 0.95rem;
+      padding: 0 0.2rem 0 0.85rem;
     }
 
     .search-toolbar__divider {

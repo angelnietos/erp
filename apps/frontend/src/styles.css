@@ -274,21 +274,26 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg-primary);
-  background-image:
+  background:
+    linear-gradient(135deg, var(--bg-primary) 0%, color-mix(in srgb, var(--bg-primary) 98%, var(--brand-ambient)) 100%),
     radial-gradient(
-      ellipse 80% 50% at 20% 0%,
+      ellipse 120% 80% at 10% -10%,
       var(--brand-ambient-strong),
-      transparent 50%
+      transparent 40%
     ),
     radial-gradient(
-      ellipse 60% 40% at 80% 20%,
+      ellipse 100% 60% at 90% 10%,
       var(--brand-ambient),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse 90% 70% at 50% 110%,
+      var(--brand-surface),
       transparent 50%
     ),
     radial-gradient(
-      ellipse 70% 60% at 50% 100%,
-      var(--brand-surface),
+      ellipse 60% 40% at 70% 80%,
+      rgba(var(--brand-rgb, 0, 102, 204), 0.02),
       transparent 60%
     );
   color: var(--text-primary);
@@ -298,6 +303,21 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.01) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Custom Scrollbar Premium */
@@ -388,107 +408,195 @@ h6 {
   letter-spacing: 0.02em;
 }
 
-/* Enhanced Text Effects */
+/* Advanced Text Effects */
 .text-gradient-primary {
-  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.text-gradient-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.1;
+  filter: blur(1px);
+  z-index: -1;
+}
+
+.text-gradient-sophisticated {
+  background: linear-gradient(
+    135deg,
+    var(--brand) 0%,
+    var(--accent) 25%,
+    var(--brand-muted) 50%,
+    var(--accent) 75%,
+    var(--brand) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 4s ease-in-out infinite;
 }
 
 .text-gradient-rainbow {
   background: linear-gradient(
     135deg,
-    #ff6b35,
-    #f7931e,
-    #ffdd00,
-    #00f2ad,
-    #3fc1ff,
-    #8b5cf6,
-    #f43f5e
+    #ff6b35 0%,
+    #f7931e 14%,
+    #ffdd00 28%,
+    #00f2ad 42%,
+    #3fc1ff 57%,
+    #8b5cf6 71%,
+    #f43f5e 85%,
+    #ff6b35 100%
   );
+  background-size: 300% 300%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: rainbow-shift 3s ease-in-out infinite;
+  animation: rainbow-shift 4s ease-in-out infinite;
 }
 
 .text-glow-brand {
   text-shadow:
-    0 0 10px var(--brand-glow),
-    0 0 20px var(--brand-glow),
-    0 0 30px var(--brand-glow);
+    0 0 8px var(--brand-glow),
+    0 0 16px var(--brand-glow),
+    0 0 24px var(--brand-glow),
+    0 0 32px var(--brand-glow);
+  position: relative;
+}
+
+.text-glow-brand::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: currentColor;
+  opacity: 0.05;
+  filter: blur(2px);
+  z-index: -1;
 }
 
 .text-glow-rainbow {
   text-shadow:
-    0 0 5px #ff6b35,
-    0 0 10px #f7931e,
-    0 0 15px #ffdd00,
+    0 0 8px #ff6b35,
+    0 0 12px #f7931e,
+    0 0 16px #ffdd00,
     0 0 20px #00f2ad,
-    0 0 25px #3fc1ff;
+    0 0 24px #3fc1ff,
+    0 0 28px #8b5cf6,
+    0 0 32px #f43f5e;
+  animation: rainbow-glow 3s ease-in-out infinite;
 }
 
 .text-outline {
   -webkit-text-stroke: 1px var(--text-primary);
   -webkit-text-fill-color: transparent;
+  text-shadow:
+    -1px -1px 0 var(--bg-primary),
+    1px -1px 0 var(--bg-primary),
+    -1px 1px 0 var(--bg-primary),
+    1px 1px 0 var(--bg-primary);
 }
 
-/* Typography Hierarchy Enhancements (Standardized for ERP) */
+.text-3d {
+  text-shadow:
+    1px 1px 0px rgba(0, 0, 0, 0.3),
+    2px 2px 0px rgba(0, 0, 0, 0.2),
+    3px 3px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Typography Hierarchy (Modern ERP Design System) */
 .display-xl {
-  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  font-size: clamp(2rem, 3vw, 2.8rem);
   font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .display-lg {
-  font-size: clamp(1.5rem, 2vw, 1.8rem);
+  font-size: clamp(1.75rem, 2.5vw, 2.2rem);
   font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.display-md {
+  font-size: clamp(1.5rem, 2vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.heading-xl {
+  font-size: clamp(1.375rem, 1.5vw, 1.5rem);
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
 
-.display-md {
-  font-size: clamp(1.25rem, 1.5vw, 1.5rem);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.heading-xl {
-  font-size: clamp(1.15rem, 1.25vw, 1.35rem);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 .heading-lg {
-  font-size: clamp(1rem, 1vw, 1.15rem);
+  font-size: clamp(1.25rem, 1.25vw, 1.375rem);
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
 }
 
 .heading-md {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.heading-sm {
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
+  letter-spacing: 0.005em;
+}
+
+.body-xl {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .body-lg {
   font-size: 1.125rem;
-  line-height: 1.6;
+  line-height: 1.65;
   font-weight: 400;
+  letter-spacing: 0.005em;
 }
 
 .body-md {
   font-size: 1rem;
   line-height: 1.6;
   font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .body-sm {
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.55;
   font-weight: 400;
+  letter-spacing: 0.015em;
 }
 
 .caption {
@@ -496,8 +604,40 @@ h6 {
   line-height: 1.4;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
 }
+
+.label {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.lead {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  opacity: 0.9;
+}
+
+/* Typography Utilities */
+.font-light { font-weight: 300; }
+.font-regular { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-extrabold { font-weight: 800; }
+.font-black { font-weight: 900; }
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.tracking-widest { letter-spacing: 0.1em; }
 
 /* --- PERFORMANCE & QUALITY MODES --- */
 
@@ -1170,6 +1310,60 @@ main .content a:not(.nav-link):not(.theme-option):not(.menu-item):hover {
   }
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes rainbow-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 8px #ff6b35,
+      0 0 12px #f7931e,
+      0 0 16px #ffdd00,
+      0 0 20px #00f2ad,
+      0 0 24px #3fc1ff,
+      0 0 28px #8b5cf6,
+      0 0 32px #f43f5e;
+  }
+  25% {
+    text-shadow:
+      0 0 12px #f7931e,
+      0 0 16px #ffdd00,
+      0 0 20px #00f2ad,
+      0 0 24px #3fc1ff,
+      0 0 28px #8b5cf6,
+      0 0 32px #f43f5e,
+      0 0 36px #ff6b35;
+  }
+  50% {
+    text-shadow:
+      0 0 16px #ffdd00,
+      0 0 20px #00f2ad,
+      0 0 24px #3fc1ff,
+      0 0 28px #8b5cf6,
+      0 0 32px #f43f5e,
+      0 0 36px #ff6b35,
+      0 0 40px #f7931e;
+  }
+  75% {
+    text-shadow:
+      0 0 20px #00f2ad,
+      0 0 24px #3fc1ff,
+      0 0 28px #8b5cf6,
+      0 0 32px #f43f5e,
+      0 0 36px #ff6b35,
+      0 0 40px #f7931e,
+      0 0 44px #ffdd00;
   }
 }
 

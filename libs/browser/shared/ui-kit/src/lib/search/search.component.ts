@@ -34,6 +34,13 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
+    :host {
+      display: block;
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+
     .search-wrapper {
       position: relative;
       display: flex;
@@ -42,8 +49,10 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       background: none !important;
       border: 1px solid var(--border-soft);
+      /* El texto del input/placeholder se recorta si el padre fuerza ancho: permitir compresión en flex. */
       overflow: hidden;
       width: 100%;
+      min-width: 0;
       box-shadow: none !important;
       --search-padding-v: calc(var(--page-gap, 1.5rem) * 0.4 + 0.15rem);
     }
@@ -71,31 +80,33 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
 
     input {
-      flex: 1;
+      flex: 1 1 0;
       min-width: 0;
-      padding: var(--search-padding-v) 1rem var(--search-padding-v) 2.75rem; 
+      width: 0;
+      padding: var(--search-padding-v) 0.9rem var(--search-padding-v) 2.75rem;
       background: transparent !important;
       background-color: transparent !important;
-      border: none !important; 
-      font-size: 0.85rem; 
+      border: none !important;
+      font-size: 0.875rem;
       font-weight: 500;
-      outline: none !important; 
+      outline: none !important;
       font-family: var(--font-main);
       color: var(--text-primary);
       text-transform: none !important;
       box-shadow: none !important;
       -webkit-appearance: none;
-      line-height: 1.35;
+      line-height: 1.4;
     }
+
+    /* width:0 + flex-grow hace que el <input> use todo el ancho útil (evita corte "a la mitad" en toolbars). */
 
     input::placeholder {
       color: var(--text-muted);
-      opacity: 0.6;
-      font-size: 0.85rem;
+      opacity: 0.7;
+      font-size: 0.875rem;
       font-weight: 400;
       text-transform: none !important;
-      letter-spacing: normal !important;
-      white-space: nowrap;
+      letter-spacing: 0.01em;
     }
 
     .search-glass {
@@ -126,16 +137,20 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
     }
     
     .search-wrapper.search-dock input {
-      padding: 0.75rem 2.5rem 0.75rem 3rem;
+      padding: 0.7rem 2.75rem 0.7rem 2.85rem;
     }
     
     .search-wrapper.search-dock .search-icon {
       left: 1rem;
     }
 
+    .search-wrapper:has(.clear-btn) input {
+      padding-right: 2.35rem;
+    }
+
     .clear-btn {
       position: absolute;
-      right: 0.55rem;
+      right: 0.45rem;
       top: 50%;
       transform: translateY(-50%);
       width: 1.65rem;
