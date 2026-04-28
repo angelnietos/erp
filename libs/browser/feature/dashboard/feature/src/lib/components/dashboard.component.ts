@@ -340,18 +340,19 @@ interface QuickAction {
     /* Hero Styling — Rockstar Cinematic + Nintendo Launch */
     .dashboard-hero {
       position: relative;
-      padding: 6rem 2rem 4rem;
-      margin-bottom: 3rem;
-      border-radius: 0 0 60px 60px;
+      padding: 5rem 3rem 4rem;
+      margin-bottom: 2.5rem;
+      border-radius: 0 0 48px 48px;
       overflow: hidden;
-      background: linear-gradient(180deg, rgba(230,0,18,0.12) 0%, transparent 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: linear-gradient(180deg, rgba(var(--brand-rgb), 0.12) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 40px -20px rgba(0, 0, 0, 0.5);
     }
 
     .hero-content {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
       position: relative;
       z-index: 2;
       max-width: 1400px;
@@ -422,12 +423,13 @@ interface QuickAction {
     }
 
     .hero-badge {
-      font-size: 0.58rem;
-      font-weight: 900;
+      font-size: 0.65rem;
+      font-weight: 950;
       color: var(--brand);
-      letter-spacing: 0.15em;
+      letter-spacing: 0.25em;
       margin-bottom: 0.75rem;
-      opacity: 0.8;
+      opacity: 0.9;
+      text-transform: uppercase;
     }
 
     .hero-subtitle {
@@ -511,13 +513,13 @@ interface QuickAction {
     }
 
     .glass-panel {
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
       background: rgba(255, 255, 255, 0.015) !important;
       border: 1px solid rgba(255, 255, 255, 0.06) !important;
       backdrop-filter: blur(35px);
-      border-radius: 20px !important;
+      border-radius: 36px !important;
       box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .glass-panel:hover {
@@ -611,15 +613,15 @@ interface QuickAction {
     }
     .action-btn ::ng-deep .btn {
       width: 100%;
-      min-height: 4.25rem;
+      min-height: 4.5rem;
       align-items: center;
       justify-content: flex-start;
       text-align: left;
-      border-radius: 16px;
-      padding: 0.8rem 1rem;
+      border-radius: 20px;
+      padding: 0.8rem 1.25rem;
       line-height: 1.2;
       text-transform: none;
-      font-weight: 600;
+      font-weight: 650;
       letter-spacing: 0.02em;
     }
     .flash-action__inner {
@@ -713,10 +715,10 @@ interface QuickAction {
 
     :host-context(html[data-erp-tenant='babooni']) .glass-panel {
       background: rgba(255, 255, 255, 0.7) !important;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.4) !important;
-      border-radius: 24px;
-      box-shadow: 0 20px 50px -20px rgba(0,0,0,0.06);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.5) !important;
+      border-radius: 36px;
+      box-shadow: 0 20px 50px -20px rgba(0,0,0,0.08);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .panel-header h3 {
