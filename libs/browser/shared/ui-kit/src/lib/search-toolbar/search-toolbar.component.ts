@@ -125,7 +125,9 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature {
       background: var(--input-bg, var(--surface-vibrant, var(--surface)));
       border-color: var(--input-border, color-mix(in srgb, var(--border-soft) 40%, transparent));
-      box-shadow: var(--input-shadow, var(--shadow-sm));
+      box-shadow: 
+        var(--input-shadow, var(--shadow-sm)),
+        inset 0 1px 0 var(--surface-glow);
       backdrop-filter: blur(10px);
     }
 

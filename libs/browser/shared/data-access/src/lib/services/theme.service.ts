@@ -1183,41 +1183,41 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   'league-legends': {
     name: 'Summoner Rift',
-    primary: '#c5a059',
-    secondary: '#0a1428',
-    background: '#091428',
-    surface: '#0a323c',
-    text: '#ffffff',
-    textMuted: '#005a82',
-    border: 'rgba(197, 160, 89, 0.3)',
-    brand: '#c5a059',
-    brandGlow: 'rgba(197, 160, 89, 0.5)',
-    bgSecondary: '#0a1428',
+    primary: '#c8aa6e',
+    secondary: '#010a13',
+    background: '#010a13',
+    surface: '#091428',
+    text: '#f0e6d2',
+    textMuted: '#a09b8c',
+    border: 'rgba(200, 170, 110, 0.3)',
+    brand: '#c8aa6e',
+    brandGlow: 'rgba(200, 170, 110, 0.4)',
+    bgSecondary: '#091428',
     bgTertiary: '#0a323c',
-    bgStyle: 'aurora',
+    bgStyle: 'nebula',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#3b82f6',
+    info: '#005a82',
     uiVariant: 'glass',
   },
   'valorant-spike': {
     name: 'Tactical Spike',
     primary: '#ff4655',
-    secondary: '#0f1923',
+    secondary: '#ece8e1',
     background: '#0f1923',
-    surface: '#1f2937',
+    surface: '#1a232e',
     text: '#ece8e1',
-    textMuted: '#ff4655',
-    border: 'rgba(255, 70, 85, 0.3)',
+    textMuted: '#7b8085',
+    border: 'rgba(255, 70, 85, 0.25)',
     brand: '#ff4655',
-    brandGlow: 'rgba(255, 70, 85, 0.5)',
+    brandGlow: 'rgba(255, 70, 85, 0.4)',
     bgSecondary: '#0f1923',
     bgTertiary: '#1f2937',
     bgStyle: 'grid',
-    success: '#10b981',
+    success: '#00ad7c',
     warning: '#f59e0b',
-    danger: '#ef4444',
+    danger: '#ff4655',
     info: '#3b82f6',
     uiVariant: 'minimal',
   },
@@ -1285,20 +1285,20 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Neon Pink',
     primary: '#ff00ff',
     secondary: '#00ffff',
-    background: '#050505',
-    surface: '#121212',
+    background: '#050005',
+    surface: '#120012',
     text: '#ffffff',
-    textMuted: '#ff00ff',
-    border: 'rgba(255, 0, 255, 0.3)',
+    textMuted: '#f9a8d4',
+    border: 'rgba(255, 0, 255, 0.35)',
     brand: '#ff00ff',
-    brandGlow: 'rgba(255, 0, 255, 0.5)',
-    bgSecondary: '#000000',
-    bgTertiary: '#121212',
+    brandGlow: 'rgba(255, 0, 255, 0.6)',
+    bgSecondary: '#0a000a',
+    bgTertiary: '#1a001a',
     bgStyle: 'matrix',
-    success: '#10b981',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-    info: '#3b82f6',
+    success: '#00ffaa',
+    warning: '#fcee0a',
+    danger: '#ff003c',
+    info: '#00ffff',
     uiVariant: 'glass',
   },
   'onyx-premium': {
@@ -2019,6 +2019,7 @@ export class ThemeService {
       '--surface-glass',
       '--surface-vibrant',
       '--surface-rich',
+      '--surface-glow',
     ];
     structuralTokens.forEach((t) => root.style.removeProperty(t));
 
@@ -2027,8 +2028,19 @@ export class ThemeService {
     const surfaceRgba = hexToRgba(config.surface, surfaceAlpha);
     root.style.setProperty('--surface', surfaceRgba);
     root.style.setProperty('--surface-glass', surfaceRgba);
-    root.style.setProperty('--surface-vibrant', `color-mix(in srgb, ${surfaceRgba} 92%, ${config.primary} 8%)`);
-    root.style.setProperty('--surface-rich', `color-mix(in srgb, ${surfaceRgba} 82%, ${config.primary} 18%)`);
+    
+    // Vibrant variant (hint of primary color)
+    const vibrancy = isLight ? '92%' : '86%';
+    const primaryMix = isLight ? '8%' : '14%';
+    root.style.setProperty('--surface-vibrant', `color-mix(in srgb, ${surfaceRgba} ${vibrancy}, ${config.primary} ${primaryMix})`);
+    
+    // Rich variant (more saturated)
+    root.style.setProperty('--surface-rich', `color-mix(in srgb, ${surfaceRgba} ${isLight ? '85%' : '75%'}, ${config.primary} ${isLight ? '15%' : '25%'})`);
+    
+    // Inner glow for depth
+    root.style.setProperty('--surface-glow', isLight 
+      ? 'rgba(255, 255, 255, 0.4)' 
+      : `color-mix(in srgb, ${config.primary} 10%, transparent)`);
 
     switch (variant) {
       case 'glass':

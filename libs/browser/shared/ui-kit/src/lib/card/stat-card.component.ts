@@ -167,7 +167,9 @@ import { LucideAngularModule } from 'lucide-angular';
         background: var(--card-bg, var(--surface-vibrant, var(--surface)));
         backdrop-filter: blur(12px);
         border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 60%, transparent));
-        box-shadow: var(--card-shadow, var(--shadow-sm));
+        box-shadow: 
+          var(--card-shadow, var(--shadow-sm)),
+          inset 0 1px 1px var(--surface-glow);
         padding: 1.25rem 1.5rem;
         gap: 1.25rem;
       }
