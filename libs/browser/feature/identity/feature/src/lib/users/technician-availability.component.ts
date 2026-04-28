@@ -917,43 +917,64 @@ interface PersonalGridCell {
        transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
      }
      .dashboard-layout.sidebar-collapsed {
-       grid-template-columns: 1fr;
-       gap: 0;
-     }
-     .sidebar-expand-btn {
-       position: sticky;
-       top: 50%;
-       left: 0;
-       transform: translateY(-50%);
-       width: 28px;
-       height: 40px;
-       border-radius: 0 8px 8px 0;
-       background: var(--brand);
-       color: #fff;
-       border: 1px solid rgba(255,255,255,0.2);
-       border-left: none;
-       display: flex;
-       flex-direction: column;
-       align-items: center;
-       justify-content: center;
-       gap: 2px;
-       cursor: pointer;
-       transition: all 0.3s ease;
-       z-index: 50;
-       font-size: 0.6rem;
-       font-weight: 800;
-       letter-spacing: 0.05em;
-       box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-     }
-     .sidebar-expand-btn:hover {
-       background: var(--brand-hover, #2563eb);
-       transform: translateY(-50%) scale(1.05);
-       width: 32px;
-     }
-     .sidebar-expand-btn span {
-       writing-mode: vertical-rl;
-       text-orientation: mixed;
-     }
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .sidebar-expand-btn {
+        position: fixed;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 120px;
+        border-radius: 0 16px 16px 0;
+        background: rgba(var(--brand-rgb), 0.15);
+        backdrop-filter: blur(12px);
+        color: var(--brand);
+        border: 1px solid rgba(var(--brand-rgb), 0.3);
+        border-left: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 2000;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      }
+      .sidebar-expand-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(var(--brand-rgb), 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .sidebar-expand-btn:hover {
+        width: 42px;
+        background: rgba(var(--brand-rgb), 0.25);
+        box-shadow: 10px 0 40px rgba(var(--brand-rgb), 0.15);
+      }
+      .sidebar-expand-btn:hover::before {
+        opacity: 1;
+      }
+      .sidebar-expand-btn lucide-icon {
+        transition: transform 0.4s var(--transition-spring);
+      }
+      .sidebar-expand-btn:hover lucide-icon {
+        transform: translateX(4px) scale(1.2);
+      }
+      .sidebar-expand-btn span {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-size: 0.65rem;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        opacity: 0.8;
+      }
 
      .team-sidebar {
        display: flex;
@@ -1412,6 +1433,18 @@ interface PersonalGridCell {
       border: 1px solid rgba(255, 255, 255, 0.5);
       box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
       border-radius: 20px;
+    }
+    :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn {
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: var(--brand);
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn:hover {
+      background: #ffffff;
+      box-shadow: 8px 0 30px rgba(0, 0, 0, 0.08);
     }
   `]
 
