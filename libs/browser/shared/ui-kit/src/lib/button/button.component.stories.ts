@@ -1,6 +1,9 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect, sbRadio } from '../../../.storybook/story-arg-types';
+import { UiButtonComponent } from './button.component';
 
-
-const meta: Meta<UiButtonComponent> = {
+/** `label` y otros son props de story (plantilla), no @Input del componente — tipado amplio para CSF. */
+const meta = {
   component: UiButtonComponent,
   title: 'UI Kit / Botón',
   tags: ['autodocs'],
@@ -29,9 +32,9 @@ const meta: Meta<UiButtonComponent> = {
     target: { control: 'text', description: 'Target del enlace (_blank, _self, etc.)' },
     ariaLabel: { control: 'text', description: 'Etiqueta ARIA para accesibilidad' },
   },
-};
+} as Meta;
 export default meta;
-type Story = StoryObj<UiButtonComponent>;
+type Story = StoryObj;
 
 const baseArgs = {
   label: 'Botón',

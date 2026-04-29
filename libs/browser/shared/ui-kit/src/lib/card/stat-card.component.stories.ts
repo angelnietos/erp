@@ -1,3 +1,18 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { UiStatCardComponent } from './stat-card.component';
+
+const meta: Meta<UiStatCardComponent> = {
+  component: UiStatCardComponent,
+  title: 'UI Kit / Stat card',
+  tags: ['autodocs'],
+  argTypes: {
+    label: { control: 'text' },
+    value: { control: 'text' },
+    icon: { control: 'text' },
+    trend: { control: 'number' },
+    accent: { control: 'boolean' },
+  },
+};
 
 export default meta;
 type Story = StoryObj<UiStatCardComponent>;

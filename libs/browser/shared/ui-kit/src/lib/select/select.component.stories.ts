@@ -1,3 +1,27 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect, sbRadio } from '../../../.storybook/story-arg-types';
+import { UiSelectComponent } from './select.component';
+
+const meta: Meta<UiSelectComponent> = {
+  component: UiSelectComponent,
+  title: 'UI Kit / Select',
+  tags: ['autodocs'],
+  argTypes: {
+    label: { control: 'text' },
+    placeholder: { control: 'text' },
+    id: { control: 'text' },
+    error: { control: 'boolean' },
+    disabled: { control: 'boolean' },
+    size: sbRadio(['sm', 'md'] as const, 'Tamaño'),
+    variant: sbSelect(
+      [
+        'default', 'filled', 'outlined', 'ghost', 'dark', 'light', 'error', 'success', 'warning',
+        'info', 'theme', 'primary', 'secondary', 'transparent', 'minimal', 'rounded', 'glass', 'soft',
+      ] as const,
+      'Variante',
+    ),
+  },
+};
 
 export default meta;
 type Story = StoryObj<UiSelectComponent>;

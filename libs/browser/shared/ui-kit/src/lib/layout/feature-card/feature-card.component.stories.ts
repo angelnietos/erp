@@ -1,3 +1,22 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../../.storybook/bind-story-props';
+import { UiFeatureCardComponent } from './feature-card.component';
+
+const meta: Meta<UiFeatureCardComponent> = {
+  component: UiFeatureCardComponent,
+  title: 'UI Kit / Feature card',
+  tags: ['autodocs'],
+  argTypes: {
+    name: { control: 'text' },
+    subtitle: { control: 'text' },
+    avatarInitials: { control: 'text' },
+    badgeLabel: { control: 'text' },
+    badgeVariant: { control: 'text' },
+    isFavorite: { control: 'boolean' },
+    showEdit: { control: 'boolean' },
+    showDelete: { control: 'boolean' },
+  },
+};
 
 export default meta;
 type Story = StoryObj<UiFeatureCardComponent>;

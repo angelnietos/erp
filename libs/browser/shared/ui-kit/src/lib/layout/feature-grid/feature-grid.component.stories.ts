@@ -1,3 +1,14 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { UiFeatureGridComponent } from './feature-grid.component';
+
+const meta: Meta<UiFeatureGridComponent> = {
+  component: UiFeatureGridComponent,
+  title: 'UI Kit / Feature grid',
+  tags: ['autodocs'],
+  argTypes: {
+    columns: { control: 'text' },
+  },
+};
 
 export default meta;
 type Story = StoryObj<UiFeatureGridComponent>;

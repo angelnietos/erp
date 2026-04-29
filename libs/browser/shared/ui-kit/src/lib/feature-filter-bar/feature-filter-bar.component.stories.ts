@@ -1,3 +1,20 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { bindStoryProps } from '../../../.storybook/bind-story-props';
+import { UiFeatureFilterBarComponent } from './feature-filter-bar.component';
+import { UiButtonComponent } from '../button/button.component';
+import { UiTabsComponent } from '../tabs/tabs.component';
+
+const meta: Meta<UiFeatureFilterBarComponent> = {
+  component: UiFeatureFilterBarComponent,
+  title: 'UI Kit / Feature filter bar',
+  tags: ['autodocs'],
+  argTypes: {
+    framed: { control: 'boolean' },
+    appearance: { control: 'text' },
+    searchVariant: { control: 'text' },
+    placeholder: { control: 'text' },
+  },
+};
 
 export default meta;
 type Story = StoryObj<UiFeatureFilterBarComponent>;
