@@ -21,6 +21,19 @@ const meta: Meta<UiAlertComponent> = {
 export default meta;
 type Story = StoryObj<UiAlertComponent>;
 
+/**
+ * Un solo lienzo con `[variant]`: el control y Autodocs reflejan la API real.
+ */
+export const Playground: Story = {
+  args: {
+    variant: 'info' as const,
+  },
+  render: (args) => ({
+    props: args,
+    template: `<ui-alert [variant]="variant">Mensaje de alerta. Cambia <code>variant</code> en los controles.</ui-alert>`,
+  }),
+};
+
 export const Error: Story = {
   args: {
     variant: 'error',

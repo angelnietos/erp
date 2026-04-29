@@ -1,17 +1,17 @@
+import { importProvidersFrom } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { applicationConfig } from '@storybook/angular';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { sbSelect, sbRadio } from '../../../.storybook/story-arg-types';
 import { UiInputComponent } from './input.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const meta: Meta<UiInputComponent> = {
   component: UiInputComponent,
   title: 'UI Kit / Input',
   tags: ['autodocs'],
   decorators: [
-    (storyFn) => ({
-      standalone: true,
-      imports: [FormsModule, ReactiveFormsModule],
-      template: '<div style="padding: 1.5rem; max-width: 500px;">' + storyFn() + '</div>',
+    applicationConfig({
+      providers: [importProvidersFrom(FormsModule, ReactiveFormsModule)],
     }),
   ],
   argTypes: {
@@ -65,6 +65,7 @@ export const Playground: Story = {
   render: (args) => ({
     props: args,
     template: `
+      <div style="padding: 1.5rem; max-width: 500px">
       <ui-input
         [label]="label"
         [placeholder]="placeholder"
@@ -78,6 +79,7 @@ export const Playground: Story = {
         [size]="size"
         [id]="id"
       ></ui-input>
+      </div>
     `,
   }),
 };

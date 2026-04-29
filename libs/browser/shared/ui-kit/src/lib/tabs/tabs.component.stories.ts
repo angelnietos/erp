@@ -5,7 +5,7 @@ import { UiTabsComponent } from './tabs.component';
 
 const meta: Meta<UiTabsComponent> = {
   component: UiTabsComponent,
-  title: 'UiTabsComponent',
+  title: 'UI Kit / Tabs',
   tags: ['autodocs'],
   argTypes: {
     variant: sbSelect(

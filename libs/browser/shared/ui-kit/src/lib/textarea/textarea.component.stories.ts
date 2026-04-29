@@ -1,17 +1,17 @@
+import { importProvidersFrom } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { applicationConfig } from '@storybook/angular';
+import { FormsModule } from '@angular/forms';
 import { sbSelect } from '../../../.storybook/story-arg-types';
 import { UiTextareaComponent } from './textarea.component';
-import { FormsModule } from '@angular/forms';
 
 const meta: Meta<UiTextareaComponent> = {
   component: UiTextareaComponent,
   title: 'UI Kit / Textarea',
   tags: ['autodocs'],
   decorators: [
-    (storyFn) => ({
-      standalone: true,
-      imports: [FormsModule],
-      template: '<div style="padding: 1.5rem; max-width: 600px;">' + storyFn() + '</div>',
+    applicationConfig({
+      providers: [importProvidersFrom(FormsModule)],
     }),
   ],
   argTypes: {
@@ -57,6 +57,7 @@ export const Playground: Story = {
   render: (args) => ({
     props: args,
     template: `
+      <div style="padding: 0; max-width: 600px;">
       <ui-textarea
         [label]="label"
         [placeholder]="placeholder"
@@ -65,8 +66,9 @@ export const Playground: Story = {
         [rows]="rows"
         [disabled]="disabled"
         [error]="error"
-        [value]="value"
+        [(ngModel)]="value"
       ></ui-textarea>
+      </div>
     `,
   }),
 };

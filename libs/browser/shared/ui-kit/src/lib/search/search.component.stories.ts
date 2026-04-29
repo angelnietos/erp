@@ -5,7 +5,7 @@ import { UiSearchComponent } from './search.component';
 
 const meta: Meta<UiSearchComponent> = {
   component: UiSearchComponent,
-  title: 'UiSearchComponent',
+  title: 'UI Kit / Search',
   tags: ['autodocs'],
   argTypes: {
     variant: sbSelect(['default', 'filled', 'glass'] as const, 'Variante'),

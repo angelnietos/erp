@@ -28,12 +28,17 @@ type Story = StoryObj<UiCardComponent>;
 export const Default: Story = {
   args: {
     title: 'Card Title',
+    color: 'default' as const,
+    shape: 'auto' as const,
+    hover: false,
+    footer: false,
+    interactive: false,
   },
   render: (args) => ({
     props: args,
     template: `
-      <ui-card [title]="title">
-        <p>This is the card content.</p>
+      <ui-card [title]="title" [color]="color" [shape]="shape" [hover]="hover" [footer]="footer" [interactive]="interactive">
+        <p>Contenido. Los controles actualizan color, forma, hover, footer e interactive.</p>
       </ui-card>
     `,
   }),
