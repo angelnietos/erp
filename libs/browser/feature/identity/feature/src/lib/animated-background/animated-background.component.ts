@@ -10,10 +10,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type BackgroundTheme = 
-  | 'josanz-classic' | 'cyber-neon' | 'golden-vintage' | 'deep-abyss' 
-  | 'digital-matrix' | 'audio-rhythm' | 'grid-sketch' | 'bokeh-blur' 
-  | 'spot-scan' | 'nebula-cosmos';
+export type BackgroundTheme =
+  | 'josanz-classic' | 'cyber-neon' | 'golden-vintage' | 'deep-abyss'
+  | 'digital-matrix' | 'audio-rhythm' | 'grid-sketch' | 'bokeh-blur'
+  | 'spot-scan' | 'nebula-cosmos' | 'babooni';
 
 @Component({
   selector: 'lib-animated-background',
@@ -102,6 +102,30 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     '🎚️',
   ];
 
+  /** Pool para tema Babooni */
+  private readonly babooniSymbolPool = [
+    '🐒',
+    '🦍',
+    '🌴',
+    '🌿',
+    '🐾',
+    '🌺',
+    '🍌',
+    '🏞️',
+    '🐅',
+    '🦁',
+    '🦒',
+    '🌳',
+    '🍃',
+    '🌸',
+    '🐘',
+    '🦏',
+    '🌞',
+    '⭐',
+    '🌙',
+    '☀️',
+  ];
+
   private readonly crewPhrases = [
     '¡Hola!',
     'ROLL 🎬',
@@ -111,6 +135,126 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     'TIC… TAC',
     '¡PLATÓ!',
     'STUDIO',
+  ];
+
+  private readonly babooniPhrases = [
+    '¡Hola!',
+    '¡Vamos!',
+    'BABOONI',
+    'ACTION!',
+    '¡Rodando!',
+    '¡Corte!',
+    'STUDIO',
+    '¡Listos!',
+  ];
+
+  /** Símbolos + frases por variante de fondo (login) — ThemeConfigInternal exige `symbols` y `phrases`. */
+  private readonly loginSymsJosanz = ['🎬', '🎥', '✨', '💡', '🎤', '🎧', '📹', '🎞️', '🍿', '🎭', '📼', '🎚️'];
+  private readonly loginPhrJosanz = [
+    'JOSANZ',
+    'ROLL 🎬',
+    'ACTION!',
+    'STUDIO',
+    '¡PLATÓ!',
+    'TIC… TAC',
+    'QUIETO',
+    '¡Hola!',
+  ];
+
+  private readonly loginSymsCyber = ['💎', '⚡', '✦', '◇', '⬡', '🔷', '✧', '◆', '☍', '⌁', '⎔', '※'];
+  private readonly loginPhrCyber = [
+    'NEON',
+    'SYNC',
+    'LINK',
+    'ONLINE',
+    '0xLIVE',
+    'PING',
+    'DATA',
+    'FLOW',
+  ];
+
+  private readonly loginSymsVintage = ['🎞️', '📽', '🪶', '✴︎', '◌', '⏱', '☼', '✦', '❋', '⌛', '✶', '❈'];
+  private readonly loginPhrVintage = [
+    'ÉPOCA',
+    'ORO',
+    'LÚZ',
+    'FAD',
+    'RIZO',
+    'FOTO',
+    'CINE',
+    'CITA',
+  ];
+
+  private readonly loginSymsAbyss = ['◆', '◇', '✧', '⬡', '⊹', '◎', '○', '◯', '⊘', '⊖', '⊕', '⊗'];
+  private readonly loginPhrAbyss = [
+    'VOID',
+    'DEEP',
+    'ECHO',
+    'SLOW',
+    'DARK',
+    'CALM',
+    'FLOT',
+    'AQUA',
+  ];
+
+  private readonly loginSymsMatrix = ['0', '1', '⌁', '⊢', '⊣', '⊤', '⊥', '⊼', '⊽', '⊸', '⊶', '⊷'];
+  private readonly loginPhrMatrix = [
+    'RUN',
+    'LOAD',
+    'NULL',
+    'MEM',
+    'SYS',
+    'HEX',
+    'BIN',
+    'NEX',
+  ];
+
+  private readonly loginSymsAudio = ['♩', '♪', '♫', '♬', '𝄞', '𝄡', '𝄢', '⏦', '⌧', '⌤', '⌥', '⌦'];
+  private readonly loginPhrAudio = [
+    'BEAT',
+    'BPM',
+    'GAIN',
+    'DUB',
+    'PAN',
+    'AUX',
+    'MUX',
+    'LIV',
+  ];
+
+  private readonly loginSymsGrid = ['⊞', '⊡', '⊟', '⊠', '▦', '◫', '◧', '◨', '◩', '◪', '◦', '□'];
+  private readonly loginPhrGrid = [
+    'PX',
+    'GRD',
+    'VEC',
+    'DRW',
+    'CMP',
+    'SNP',
+    'RUL',
+    'MAP',
+  ];
+
+  private readonly loginSymsBokeh = ['◎', '○', '●', '◐', '◑', '◒', '◓', '◔', '◕', '⦿', '⦾', '⦽'];
+  private readonly loginPhrBokeh = [
+    'BOKE',
+    'F/1.4',
+    'GLOW',
+    'SOFT',
+    'BOK',
+    'HUE',
+    'LUX',
+    'DOP',
+  ];
+
+  private readonly loginSymsSpot = ['☀', '✺', '✹', '✸', '✶', '✣', '✢', '✡', '⍟', '※', '⁂', '※'];
+  private readonly loginPhrSpot = [
+    'KEY',
+    'FILL',
+    'HOT',
+    'GEL',
+    'DIM',
+    'TILT',
+    'SPOT',
+    'BARN',
   ];
 
   private readonly boundResize = () => this.resizeCanvas();
@@ -169,7 +313,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#dc2626', highlight: '#ef4444', feet: '#b91c1c' },
         sidekick: { body: '#0d9488', highlight: '#14b8a6', feet: '#0f766e' },
         fog: [210, 260],
-        lumenHues: [42, 52, 195, 210, 265, 175, 310, 125, 45, 85]
+        lumenHues: [42, 52, 195, 210, 265, 175, 310, 125, 45, 85],
+        symbols: this.loginSymsJosanz,
+        phrases: this.loginPhrJosanz,
       },
       'cyber-neon': {
         style: 'aurora',
@@ -180,7 +326,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#06b6d4', highlight: '#22d3ee', feet: '#0891b2' },
         sidekick: { body: '#d946ef', highlight: '#f0abfc', feet: '#c026d3' },
         fog: [180, 300],
-        lumenHues: [180, 200, 280, 300, 320, 190, 220, 210]
+        lumenHues: [180, 200, 280, 300, 320, 190, 220, 210],
+        symbols: this.loginSymsCyber,
+        phrases: this.loginPhrCyber,
       },
       'golden-vintage': {
         style: 'aurora',
@@ -191,7 +339,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#d97706', highlight: '#fbbf24', feet: '#b45309' },
         sidekick: { body: '#71717a', highlight: '#a1a1aa', feet: '#52525b' },
         fog: [40, 30],
-        lumenHues: [40, 45, 50, 35, 55, 42, 38, 48]
+        lumenHues: [40, 45, 50, 35, 55, 42, 38, 48],
+        symbols: this.loginSymsVintage,
+        phrases: this.loginPhrVintage,
       },
       'deep-abyss': {
         style: 'aurora',
@@ -202,7 +352,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#1e3a8a', highlight: '#2563eb', feet: '#1e3a8a' },
         sidekick: { body: '#111827', highlight: '#1f2937', feet: '#111827' },
         fog: [200, 180],
-        lumenHues: [180, 190, 200, 210, 175, 205, 195, 220]
+        lumenHues: [180, 190, 200, 210, 175, 205, 195, 220],
+        symbols: this.loginSymsAbyss,
+        phrases: this.loginPhrAbyss,
       },
       'digital-matrix': {
         style: 'matrix',
@@ -213,7 +365,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#10b981', highlight: '#34d399', feet: '#065f46' },
         sidekick: { body: '#047857', highlight: '#10b981', feet: '#064e3b' },
         fog: [140, 120],
-        lumenHues: [140, 160, 150, 170]
+        lumenHues: [140, 160, 150, 170],
+        symbols: this.loginSymsMatrix,
+        phrases: this.loginPhrMatrix,
       },
       'audio-rhythm': {
         style: 'audio',
@@ -224,7 +378,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#8b5cf6', highlight: '#a78bfa', feet: '#5b21b6' },
         sidekick: { body: '#4c1d95', highlight: '#8b5cf6', feet: '#2e1065' },
         fog: [280, 310],
-        lumenHues: [280, 300, 320, 260]
+        lumenHues: [280, 300, 320, 260],
+        symbols: this.loginSymsAudio,
+        phrases: this.loginPhrAudio,
       },
       'grid-sketch': {
         style: 'grid',
@@ -235,7 +391,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#3b82f6', highlight: '#60a5fa', feet: '#1d4ed8' },
         sidekick: { body: '#1e40af', highlight: '#3b82f6', feet: '#1e3a8a' },
         fog: [205, 195],
-        lumenHues: [200, 210, 220, 190]
+        lumenHues: [200, 210, 220, 190],
+        symbols: this.loginSymsGrid,
+        phrases: this.loginPhrGrid,
       },
       'bokeh-blur': {
         style: 'bokeh',
@@ -246,7 +404,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#f43f5e', highlight: '#fb7185', feet: '#e11d48' },
         sidekick: { body: '#881337', highlight: '#f43f5e', feet: '#4c0519' },
         fog: [10, 355],
-        lumenHues: [10, 20, 340, 350]
+        lumenHues: [10, 20, 340, 350],
+        symbols: this.loginSymsBokeh,
+        phrases: this.loginPhrBokeh,
       },
       'spot-scan': {
         style: 'spot',
@@ -257,7 +417,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#facc15', highlight: '#fef08a', feet: '#eab308' },
         sidekick: { body: '#451a03', highlight: '#f59e0b', feet: '#422006' },
         fog: [210, 55],
-        lumenHues: [210, 48, 220, 52]
+        lumenHues: [210, 48, 220, 52],
+        symbols: this.loginSymsSpot,
+        phrases: this.loginPhrSpot,
       },
       'nebula-cosmos': {
         style: 'nebula',
@@ -268,10 +430,40 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         mascot: { body: '#a855f7', highlight: '#c084fc', feet: '#7e22ce' },
         sidekick: { body: '#4c1d95', highlight: '#a855f7', feet: '#2e1065' },
         fog: [300, 280],
-        lumenHues: [280, 300, 320, 260, 340, 240]
+        lumenHues: [280, 300, 320, 260, 340, 240],
+        symbols: this.avSymbolPool,
+        phrases: this.crewPhrases
+      },
+      'babooni': {
+        style: 'jungle',
+        sky: [120, 140, 160, 180],
+        aurora: [],
+        particles: [120, 140],
+        spirits: [120, 140, 160],
+        mascot: { body: '#8B4513', highlight: '#A0522D', feet: '#654321' },
+        sidekick: { body: '#228B22', highlight: '#32CD32', feet: '#006400' },
+        fog: [120, 140],
+        lumenHues: [120, 140, 160, 100, 80, 60, 40],
+        symbols: this.babooniSymbolPool,
+        phrases: this.babooniPhrases
       }
     };
     return themes[this.theme] || themes['josanz-classic'];
+  }
+
+  /** Símbolo aleatorio del tema (glifos efímeros, halos, pool Rayman). */
+  private pickThemeSymbol(): string {
+    const pool = this.getThemeConfig().symbols;
+    if (!pool.length) {
+      return '✨';
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  /** Frases de las burbujas del mini crew según el fondo elegido. */
+  private getThemePhrases(): readonly string[] {
+    const p = this.getThemeConfig().phrases;
+    return p.length > 0 ? p : this.crewPhrases;
   }
 
   /** Capas: fondo mueve poco, primer plano más (efecto profundidad). */
@@ -489,7 +681,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.32,
         vy: (Math.random() - 0.5) * 0.22,
-        symbol: this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)],
+        symbol: this.pickThemeSymbol(),
         size: Math.random() * 12 + 15,
         rotation: Math.random() * Math.PI * 2,
         rotSpeed: (Math.random() - 0.5) * 0.012,
@@ -504,7 +696,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     const lumenCount = 16;
     const lumenHues = cfg.lumenHues;
     for (let i = 0; i < lumenCount; i++) {
-      const label = this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)];
+      const label = this.pickThemeSymbol();
       this.avLumens.push({
         label,
         hue: lumenHues[i % lumenHues.length] + Math.random() * 20,
@@ -989,7 +1181,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       const alpha = 0.07 + 0.4 * wave * wave;
 
       if (wave < -0.82 && !g.swapLock) {
-        g.symbol = this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)];
+        g.symbol = this.pickThemeSymbol();
         g.swapLock = true;
       }
       if (wave > 0.15) {
@@ -1271,7 +1463,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       this.ephemeralLumens.push({
         x: 0, y: 0, vx: 0, vy: 0, size: 0, hue: 0, phase: 0, life: 0, maxLife: 0,
         active: false, spawnDelay: 0, pulsePhase: 0, wiggleAmp: 0, wiggleFreq: 0,
-        label: this.avSymbolPool[Math.floor(Math.random() * this.avSymbolPool.length)],
+        label: this.pickThemeSymbol(),
         trailCooldown: 0
       });
     }
@@ -1323,6 +1515,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     lumen.wiggleAmp = 1.5 + Math.random() * 2.5;
     lumen.wiggleFreq = 1.2 + Math.random() * 1;
     lumen.trailCooldown = 0;
+    lumen.label = this.pickThemeSymbol();
   }
 
   private spawnLumenParticle(x: number, y: number, hue: number) {
@@ -1956,18 +2149,20 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   }
 
   private drawCrewSpeech(w: number, h: number) {
+    const phrases = this.getThemePhrases();
+    const n = phrases.length;
     const sn = this.shiftNear(w, h);
     const bounce1 = Math.sin(this.time * 5.2) * 7;
     const cx1 = w * 0.14 + sn.x * 1.14;
     const cy1 = h * 0.73 + bounce1 + sn.y * 1.06;
-    const i1 = Math.floor(this.time / 2.6) % this.crewPhrases.length;
-    this.drawSpeechBubble(cx1 + 48, cy1 - 88, this.crewPhrases[i1], 'rgba(255, 248, 252, 0.94)');
+    const i1 = Math.floor(this.time / 2.6) % n;
+    this.drawSpeechBubble(cx1 + 48, cy1 - 88, phrases[i1] ?? '', 'rgba(255, 248, 252, 0.94)');
 
     const bounce2 = Math.sin(this.time * 4.5 + 1.2) * 5.5;
     const cx2 = w * 0.84 + sn.x * 1.14;
     const cy2 = h * 0.72 + bounce2 + sn.y * 1.06;
-    const i2 = Math.floor(this.time / 3.1 + 2) % this.crewPhrases.length;
-    this.drawSpeechBubble(cx2 - 52, cy2 - 82, this.crewPhrases[i2], 'rgba(236, 253, 250, 0.92)');
+    const i2 = Math.floor(this.time / 3.1 + 2) % n;
+    this.drawSpeechBubble(cx2 - 52, cy2 - 82, phrases[i2] ?? '', 'rgba(236, 253, 250, 0.92)');
   }
 
   private drawForegroundGlow(w: number, h: number) {
@@ -2149,7 +2344,7 @@ interface LumenRing {
 }
 
 interface ThemeConfigInternal {
-  style: 'aurora' | 'matrix' | 'audio' | 'grid' | 'bokeh' | 'spot' | 'nebula' | 'cyber' | 'glitch' | 'blueprint';
+  style: 'aurora' | 'matrix' | 'audio' | 'grid' | 'bokeh' | 'spot' | 'nebula' | 'cyber' | 'glitch' | 'blueprint' | 'jungle';
   sky: number[];
   aurora: number[];
   particles: number[];
@@ -2158,6 +2353,8 @@ interface ThemeConfigInternal {
   sidekick: { body: string; highlight: string; feet: string };
   fog: number[];
   lumenHues: number[];
+  symbols: string[];
+  phrases: string[];
 }
 
 interface MatrixCode {
