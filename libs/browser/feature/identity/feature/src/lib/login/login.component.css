@@ -212,6 +212,24 @@
 
 .logo-icon { width: 32px; height: 32px; }
 
+.logo-circle--babooni {
+  background: linear-gradient(135deg, #1e6b3a, #3d8b4a, #2d4a1c);
+  box-shadow:
+    0 10px 28px -6px rgba(30, 107, 58, 0.5),
+    0 0 30px rgba(45, 74, 28, 0.35);
+  animation: pulse-glow-babooni 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-babooni {
+  0%,
+  100% {
+    box-shadow: 0 10px 28px -6px rgba(30, 107, 58, 0.5), 0 0 30px rgba(45, 74, 28, 0.35);
+  }
+  50% {
+    box-shadow: 0 10px 40px -4px rgba(30, 107, 58, 0.7), 0 0 45px rgba(50, 120, 60, 0.45);
+  }
+}
+
 .brand-tag {
   margin: 0 0 8px;
   font-size: 0.65rem;

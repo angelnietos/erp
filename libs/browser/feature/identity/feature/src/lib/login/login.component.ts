@@ -17,14 +17,41 @@ import {
 } from '@josanz-erp/identity-data-access';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
-import { LucideAngularModule, User, Lock, ArrowRight, Sparkles, Palette, Zap, Waves, Cpu, Volume2, Grid, Aperture, Search, Moon } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  User,
+  Lock,
+  ArrowRight,
+  Sparkles,
+  Palette,
+  Zap,
+  Waves,
+  Cpu,
+  Volume2,
+  Grid,
+  Aperture,
+  Search,
+  Moon,
+  Banana,
+} from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-background/animated-background.component';
 
 interface BackgroundThemeOption {
   id: BackgroundTheme;
   name: string;
-  icon: typeof Palette | typeof Zap | typeof Sparkles | typeof Waves | typeof Cpu | typeof Volume2 | typeof Grid | typeof Aperture | typeof Search | typeof Moon;
+  icon:
+    | typeof Palette
+    | typeof Zap
+    | typeof Sparkles
+    | typeof Waves
+    | typeof Cpu
+    | typeof Volume2
+    | typeof Grid
+    | typeof Aperture
+    | typeof Search
+    | typeof Moon
+    | typeof Banana;
   color: string;
 }
 
@@ -62,8 +89,23 @@ export class LoginComponent implements OnInit {
   // Get dynamically generated HTML for the 'login' feature
   readonly dynamicHtml = computed(() => this.aiBotStore.dynamicCanvas()?.['login'] || '');
 
-  readonly icons = { User, Lock, ArrowRight, Sparkles, Palette, Zap, Waves, Cpu, Volume2, Grid, Aperture, Search, Moon };
-  
+  readonly icons = {
+    User,
+    Lock,
+    ArrowRight,
+    Sparkles,
+    Palette,
+    Zap,
+    Waves,
+    Cpu,
+    Volume2,
+    Grid,
+    Aperture,
+    Search,
+    Moon,
+    Banana,
+  };
+
   readonly backgroundTheme = signal<BackgroundTheme>('josanz-classic');
   
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
@@ -78,7 +120,19 @@ export class LoginComponent implements OnInit {
     return known[slug] ?? slug;
   });
 
-  readonly themes: BackgroundThemeOption[] = [
+  /** Subtítulo de la tarjeta: según tenant, no fijo a Josanz. */
+  readonly brandTagline = computed(() =>
+    this.tenantSlug() === 'babooni' ? 'Babooni Technologies' : 'Josanz Audiovisuales'
+  );
+
+  private readonly babooniThemeEntry: BackgroundThemeOption = {
+    id: 'babooni',
+    name: 'Selva Babooni',
+    icon: Banana,
+    color: '#1e6b3a',
+  };
+
+  private readonly josanzThemeList: BackgroundThemeOption[] = [
     { id: 'josanz-classic', name: 'Josanz Classic', icon: Palette, color: '#dc2626' },
     { id: 'cyber-neon', name: 'Cyber Neon', icon: Zap, color: '#06b6d4' },
     { id: 'golden-vintage', name: 'Golden Vintage', icon: Sparkles, color: '#f59e0b' },
@@ -88,8 +142,16 @@ export class LoginComponent implements OnInit {
     { id: 'grid-sketch', name: 'Grid Sketch', icon: Grid, color: '#3b82f6' },
     { id: 'bokeh-blur', name: 'Bokeh Blur', icon: Aperture, color: '#f43f5e' },
     { id: 'spot-scan', name: 'Spot Scan', icon: Search, color: '#facc15' },
-    { id: 'nebula-cosmos', name: 'Nebula Cosmos', icon: Moon, color: '#6366f1' }
+    { id: 'nebula-cosmos', name: 'Nebula Cosmos', icon: Moon, color: '#6366f1' },
   ];
+
+  /** Fondo Babooni primero si el org es babooni; en Josanz, la selva al final. */
+  readonly backgroundThemes = computed<BackgroundThemeOption[]>(() => {
+    if (this.tenantSlug() === 'babooni') {
+      return [this.babooniThemeEntry, ...this.josanzThemeList];
+    }
+    return [...this.josanzThemeList, this.babooniThemeEntry];
+  });
 
   setBackgroundTheme(theme: BackgroundTheme) {
     this.backgroundTheme.set(theme);
@@ -108,6 +170,9 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.tenantSlug.set(slug);
+    if (slug === 'babooni') {
+      this.backgroundTheme.set('babooni');
+    }
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     }

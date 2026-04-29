@@ -1,5 +1,8 @@
 <div class="auth-wrapper">
-  <lib-animated-background [theme]="backgroundTheme()"></lib-animated-background>
+  <lib-animated-background
+    [theme]="backgroundTheme()"
+    [tenantSlug]="selectedSlug() || ''"
+  ></lib-animated-background>
 
   <div class="auth-card glass">
     <div class="auth-header">

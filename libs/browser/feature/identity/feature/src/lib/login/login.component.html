@@ -1,5 +1,8 @@
 <div class="auth-wrapper">
-  <lib-animated-background [theme]="backgroundTheme()"></lib-animated-background>
+  <lib-animated-background
+    [theme]="backgroundTheme()"
+    [tenantSlug]="tenantSlug()"
+  ></lib-animated-background>
   <ui-dynamic-canvas
     [htmlRef]="dynamicHtml()"
     [autoClearAfterMs]="loginBuddyCanvasTtlMs"
@@ -8,10 +11,16 @@
 
   <div class="auth-card glass">
     <div class="auth-header">
-      <div class="logo-circle animate-in stagger-1">
-        <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
+      <div
+        class="logo-circle animate-in stagger-1"
+        [class.logo-circle--babooni]="tenantSlug() === 'babooni'">
+        @if (tenantSlug() === 'babooni') {
+          <lucide-icon [name]="icons.Banana" class="logo-icon"></lucide-icon>
+        } @else {
+          <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
+        }
       </div>
-      <p class="brand-tag text-uppercase animate-in stagger-2">Josanz Audiovisuales</p>
+      <p class="brand-tag text-uppercase animate-in stagger-2">{{ brandTagline() }}</p>
       <h1 class="animate-in stagger-2">Acceso ERP</h1>
     </div>
 
@@ -33,7 +42,7 @@
         <span>Estilo de Fondo</span>
       </div>
       <div class="theme-options">
-        @for (t of themes; track t.id) {
+        @for (t of backgroundThemes(); track t.id) {
           <button 
             type="button"
             class="theme-opt"

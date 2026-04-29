@@ -28,6 +28,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   /** Current theme of the background */
   @Input() theme: BackgroundTheme = 'josanz-classic';
 
+  /** Resuelve desde el login (`?tenant=babooni`); aplica piel/criptoselva aunque el estilo visual sea p. ej. “spot”. */
+  @Input() tenantSlug = '';
+
   private ctx!: CanvasRenderingContext2D;
   private animationId = 0;
   private time = 0;
@@ -120,6 +123,13 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     '🌸',
     '🐘',
     '🦏',
+    '🪵',
+    '🥥',
+    '🦜',
+    '🐢',
+    '🦎',
+    '🪲',
+    '🪻',
     '🌞',
     '⭐',
     '🌙',
@@ -138,14 +148,16 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   ];
 
   private readonly babooniPhrases = [
-    '¡Hola!',
-    '¡Vamos!',
-    'BABOONI',
-    'ACTION!',
-    '¡Rodando!',
-    '¡Corte!',
-    'STUDIO',
-    '¡Listos!',
+    '¡BABOONI!',
+    'BABOON!',
+    'JUNGLA',
+    '¡CÓRTALO!',
+    'A JUGAR',
+    'MANDRIL',
+    'BOSQUE',
+    'FOLLAJE',
+    'BANANAS',
+    '¡AÚPA!',
   ];
 
   /** Símbolos + frases por variante de fondo (login) — ThemeConfigInternal exige `symbols` y `phrases`. */
@@ -284,7 +296,9 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['theme'] && !changes['theme'].firstChange) {
+    const th = changes['theme'];
+    const te = changes['tenantSlug'];
+    if ((th && !th.firstChange) || (te && !te.firstChange)) {
       this.initAllElements();
     }
   }
@@ -436,19 +450,68 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       },
       'babooni': {
         style: 'jungle',
-        sky: [120, 140, 160, 180],
-        aurora: [],
-        particles: [120, 140],
-        spirits: [120, 140, 160],
-        mascot: { body: '#8B4513', highlight: '#A0522D', feet: '#654321' },
-        sidekick: { body: '#228B22', highlight: '#32CD32', feet: '#006400' },
-        fog: [120, 140],
-        lumenHues: [120, 140, 160, 100, 80, 60, 40],
+        sky: [95, 42, 115, 75],
+        aurora: [95, 125, 80],
+        particles: [32, 110],
+        spirits: [100, 85, 45],
+        /** Mandril / marrón + acento azul mejilla, referencia de marca */
+        mascot: { body: '#5c4a32', highlight: '#4a9eff', feet: '#3a2618' },
+        sidekick: { body: '#6b5a40', highlight: '#e8a77c', feet: '#2d1f0f' },
+        fog: [100, 55],
+        lumenHues: [95, 100, 110, 32, 45, 25, 140, 60, 75, 20],
         symbols: this.babooniSymbolPool,
-        phrases: this.babooniPhrases
-      }
+        phrases: this.babooniPhrases,
+      },
     };
-    return themes[this.theme] || themes['josanz-classic'];
+    const base = themes[this.theme] ?? themes['josanz-classic'];
+    return this.applyBabooniSkinIfNeeded(base, themes);
+  }
+
+  /** Apariencia criptoselva Babooni sobre el estilo AV elegido (spot, matrix, etc.). */
+  private applyBabooniSkinIfNeeded(
+    base: ThemeConfigInternal,
+    all: Record<BackgroundTheme, ThemeConfigInternal>
+  ): ThemeConfigInternal {
+    if (!this.isBabooniLogin()) {
+      return base;
+    }
+    if (this.theme === 'babooni') {
+      return base;
+    }
+    const b = all['babooni'];
+    const t = 0.42;
+    return {
+      ...base,
+      mascot: b.mascot,
+      sidekick: b.sidekick,
+      symbols: b.symbols,
+      phrases: b.phrases,
+      sky: this.blendHueList(base.sky, b.sky, t),
+      lumenHues: this.blendHueList(base.lumenHues, b.lumenHues, t * 0.9),
+      fog: this.blendHueList(base.fog, b.fog, t),
+      particles: this.blendHueList(base.particles, b.particles, t),
+      spirits: this.blendHueList(base.spirits, b.spirits, t),
+      aurora:
+        base.aurora.length > 0 && b.aurora.length > 0
+          ? this.blendHueList(base.aurora, b.aurora, t)
+          : b.aurora.length > 0
+            ? [...b.aurora]
+            : [...base.aurora],
+    };
+  }
+
+  private isBabooniLogin(): boolean {
+    return (this.tenantSlug || '').trim().toLowerCase() === 'babooni';
+  }
+
+  private blendHueList(a: number[], b: number[], amount: number): number[] {
+    if (!a.length) {
+      return [...b];
+    }
+    if (!b.length) {
+      return [...a];
+    }
+    return a.map((h, i) => Math.round(h * (1 - amount) + b[i % b.length] * amount) % 360);
   }
 
   /** Símbolo aleatorio del tema (glifos efímeros, halos, pool Rayman). */
@@ -723,9 +786,11 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     // === RING EFFECT POOL ===
     this.initRingPool();
 
-    // === Mini crew plató ===
-    const palHues = [195, 210, 175, 265, 40, 220, 155, 48, 300, 185];
-    const palCount = 10;
+    // === Mini crew plató (más “bichos” en tenant Babooni) ===
+    const palHuesJos = [195, 210, 175, 265, 40, 220, 155, 48, 300, 185];
+    const palHuesBab = [32, 38, 100, 115, 25, 45, 18, 85, 55, 95, 70, 42, 120, 28, 60, 75, 48, 88];
+    const palHues = this.isBabooniLogin() ? palHuesBab : palHuesJos;
+    const palCount = this.isBabooniLogin() ? 20 : 10;
     for (let i = 0; i < palCount; i++) {
       this.tinyPals.push({
         x: (w / (palCount + 1)) * (i + 1) + (Math.random() - 0.5) * 36,
@@ -734,7 +799,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         hue: palHues[i % palHues.length] + Math.random() * 12,
         phase: Math.random() * Math.PI * 2,
         r: 7.5 + Math.random() * 5.5,
-        kind: i % 4,
+        kind: this.isBabooniLogin() ? i % 6 : i % 4,
       });
     }
 
@@ -771,7 +836,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     // Draw everything in layers (back to front)
     this.drawSky(w, h);
     
-    if (cfg.style === 'aurora') {
+    if (cfg.style === 'aurora' || cfg.style === 'jungle') {
       this.drawStars(w, h);
       this.drawShootingStars(w, h);
       this.drawAurora(w, h);
@@ -823,7 +888,10 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     g.addColorStop(0.35, `hsl(${cfg.sky[1] + Math.sin(t * 0.35) * 8}, 55%, ${35 + Math.sin(t * 0.2) * 6}%)`);
     g.addColorStop(0.6, `hsl(${cfg.sky[2] + Math.sin(t * 0.3) * 6}, 50%, ${25 + Math.sin(t * 0.15) * 5}%)`);
     g.addColorStop(0.85, `hsl(${cfg.sky[3] + Math.sin(t * 0.25) * 5}, 45%, ${18 + Math.sin(t * 0.1) * 4}%)`);
-    g.addColorStop(1, this.theme === 'golden-vintage' ? '#4a3210' : '#1e293b');
+    g.addColorStop(
+      1,
+      this.theme === 'golden-vintage' ? '#4a3210' : this.theme === 'babooni' ? '#0c1410' : '#1e293b'
+    );
     
     this.ctx.fillStyle = g;
     this.ctx.fillRect(0, 0, w, h);
@@ -1702,8 +1770,45 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   }
 
 
+  /** Siluetas de suelo (selva) en lugar de cámaras / mesa al mezclar, tenant Babooni. */
+  private drawJungleFloorSilhouettes(w: number, h: number, sn: { x: number; y: number }) {
+    const base = h * 0.88 + sn.y * 0.55;
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(8, 22, 12, 0.92)';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h + 4);
+    this.ctx.lineTo(0, base - 6);
+    for (let x = 0; x <= w; x += 40) {
+      this.ctx.lineTo(
+        x + 20 * Math.sin(this.time * 0.2 + x * 0.01),
+        base - 8 - Math.sin(this.time * 0.15 + x * 0.012) * 4
+      );
+    }
+    this.ctx.lineTo(w, h + 4);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    for (let i = 0; i < 6; i++) {
+      const tx = w * (0.08 + i * 0.16) + sn.x * 0.6;
+      this.ctx.fillStyle = 'rgba(5, 18, 8, 0.88)';
+      this.ctx.fillRect(tx - 5, base - 120 - (i % 2) * 20, 10, 130);
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 2, base - 130 - (i % 2) * 20, 22, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+    this.ctx.fillStyle = 'rgba(20, 45, 22, 0.45)';
+    this.ctx.beginPath();
+    this.ctx.ellipse(w * 0.75 + sn.x, base - 80, 90, 30, 0, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+  }
+
   private drawGearSilhouettes(w: number, h: number) {
     const sn = this.shiftNear(w, h);
+    if (this.isBabooniLogin()) {
+      this.drawJungleFloorSilhouettes(w, h, sn);
+      return;
+    }
     const base = h * 0.88 + sn.y * 0.55;
     this.ctx.fillStyle = 'rgba(18, 14, 38, 0.92)';
     this.ctx.strokeStyle = 'rgba(50, 42, 82, 0.95)';
@@ -1856,6 +1961,20 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.ctx.arc(bx + 14, by + 32, 9, 0, Math.PI * 2);
     this.ctx.arc(bx + 71, by + 32, 9, 0, Math.PI * 2);
     this.ctx.fill();
+
+    if (this.isBabooniLogin()) {
+      this.ctx.globalAlpha = 0.75;
+      this.ctx.fillStyle = 'rgba(75, 165, 255, 0.5)';
+      this.ctx.beginPath();
+      this.ctx.ellipse(bx + 16, by + 32, 11, 9, 0.25, 0, Math.PI * 2);
+      this.ctx.ellipse(bx + 68, by + 32, 11, 9, -0.25, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.fillStyle = 'rgba(232, 150, 120, 0.45)';
+      this.ctx.beginPath();
+      this.ctx.ellipse(bx + bodyW * 0.5, by + 40, 16, 11, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.globalAlpha = 1;
+    }
 
     const isMatrix = this.theme === 'digital-matrix';
     if (isMatrix) {
@@ -2055,6 +2174,21 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
           this.ctx.fillStyle = 'rgba(255,255,255,0.35)';
           this.ctx.fillRect(k * pal.r * 0.35 - 1.5, -pal.r * 1.35, 3, 5);
         }
+      } else if (pal.kind === 4) {
+        // Hoja (tenant Babooni)
+        this.ctx.fillStyle = 'hsla(115, 55%, 32%, 0.92)';
+        this.ctx.beginPath();
+        this.ctx.ellipse(0, -pal.r * 0.2, pal.r * 0.7, pal.r * 0.4, 0.4, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.strokeStyle = 'hsla(95, 50%, 22%, 0.5)';
+        this.ctx.stroke();
+      } else if (pal.kind === 5) {
+        // Isquiones / “callos” violeta, guiño a mandril
+        this.ctx.fillStyle = 'rgba(150, 90, 180, 0.5)';
+        this.ctx.beginPath();
+        this.ctx.arc(-pal.r * 0.35, pal.r * 0.38, pal.r * 0.2, 0, Math.PI * 2);
+        this.ctx.arc(pal.r * 0.35, pal.r * 0.38, pal.r * 0.2, 0, Math.PI * 2);
+        this.ctx.fill();
       } else {
         // kind 0: pértiga / boom
         this.ctx.strokeStyle = 'rgba(255,255,255,0.45)';

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -48,9 +49,13 @@ export class TenantSelectComponent {
     },
   ];
 
-  readonly backgroundTheme = signal<BackgroundTheme>('josanz-classic');
   readonly customSlug = signal('');
   readonly selectedSlug = signal<string | null>(null);
+
+  /** Previsualizar selva al elegir babooni en el grid. */
+  readonly backgroundTheme = computed<BackgroundTheme>(() =>
+    this.selectedSlug() === 'babooni' ? 'babooni' : 'josanz-classic'
+  );
 
   selectTenant(slug: string): void {
     const s = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
