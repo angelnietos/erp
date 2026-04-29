@@ -33,6 +33,10 @@ import {
   Search,
   Moon,
   Banana,
+  LayoutGrid,
+  Landmark,
+  LeafyGreen,
+  MemoryStick,
 } from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-background/animated-background.component';
@@ -51,7 +55,11 @@ interface BackgroundThemeOption {
     | typeof Aperture
     | typeof Search
     | typeof Moon
-    | typeof Banana;
+    | typeof Banana
+    | typeof LayoutGrid
+    | typeof Landmark
+    | typeof LeafyGreen
+    | typeof MemoryStick;
   color: string;
 }
 
@@ -104,6 +112,10 @@ export class LoginComponent implements OnInit {
     Search,
     Moon,
     Banana,
+    LayoutGrid,
+    Landmark,
+    LeafyGreen,
+    MemoryStick,
   };
 
   readonly backgroundTheme = signal<BackgroundTheme>('josanz-classic');
@@ -125,12 +137,14 @@ export class LoginComponent implements OnInit {
     this.tenantSlug() === 'babooni' ? 'Babooni Technologies' : 'Josanz Audiovisuales'
   );
 
-  private readonly babooniThemeEntry: BackgroundThemeOption = {
-    id: 'babooni',
-    name: 'Selva Babooni',
-    icon: Banana,
-    color: '#1e6b3a',
-  };
+  /** Fondos temáticos estilo videojuego (Babooni). */
+  private readonly babooniOnlyThemes: BackgroundThemeOption[] = [
+    { id: 'babooni-platform', name: 'Plataforma 2D', icon: LayoutGrid, color: '#2d7a3e' },
+    { id: 'babooni-arcade', name: 'Modo arcade', icon: MemoryStick, color: '#16a34a' },
+    { id: 'babooni-ruins', name: 'Ruinas', icon: Landmark, color: '#854d0e' },
+    { id: 'babooni-mist', name: 'Niebla', icon: LeafyGreen, color: '#64748b' },
+    { id: 'babooni', name: 'Selva clásica', icon: Banana, color: '#1e6b3a' },
+  ];
 
   private readonly josanzThemeList: BackgroundThemeOption[] = [
     { id: 'josanz-classic', name: 'Josanz Classic', icon: Palette, color: '#dc2626' },
@@ -148,9 +162,9 @@ export class LoginComponent implements OnInit {
   /** Fondo Babooni primero si el org es babooni; en Josanz, la selva al final. */
   readonly backgroundThemes = computed<BackgroundThemeOption[]>(() => {
     if (this.tenantSlug() === 'babooni') {
-      return [this.babooniThemeEntry, ...this.josanzThemeList];
+      return [...this.babooniOnlyThemes, ...this.josanzThemeList];
     }
-    return [...this.josanzThemeList, this.babooniThemeEntry];
+    return [...this.josanzThemeList, ...this.babooniOnlyThemes];
   });
 
   setBackgroundTheme(theme: BackgroundTheme) {
@@ -171,7 +185,7 @@ export class LoginComponent implements OnInit {
     }
     this.tenantSlug.set(slug);
     if (slug === 'babooni') {
-      this.backgroundTheme.set('babooni');
+      this.backgroundTheme.set('babooni-platform');
     }
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);

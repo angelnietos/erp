@@ -250,7 +250,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
                 { value: 'ACCEPTED', label: 'Marcar como aceptado' },
                 { value: 'REJECTED', label: 'Marcar como rechazado' }
               ]"
-              (change)="bulkChangeStatusFromCustom($event)"
+              (selectionChange)="bulkChangeStatusFromCustom($event)"
               variant="glass" size="sm"
             ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">

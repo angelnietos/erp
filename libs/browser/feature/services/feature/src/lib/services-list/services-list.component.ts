@@ -273,7 +273,7 @@ import { ServicesStore, Service } from '../services.store';
                 { value: 'active', label: 'Activar' },
                 { value: 'inactive', label: 'Desactivar' }
               ]"
-              (change)="bulkChangeStatusFromCustom($event)"
+              (selectionChange)="bulkChangeStatusFromCustom($event)"
               variant="glass"
               size="sm"
             ></ui-select>

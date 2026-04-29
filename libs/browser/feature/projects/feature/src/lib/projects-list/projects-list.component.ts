@@ -244,7 +244,7 @@ import { Observable, of } from 'rxjs';
                 { value: 'COMPLETED', label: 'Marcar como completado' },
                 { value: 'CANCELLED', label: 'Marcar como cancelado' }
               ]"
-              (change)="bulkChangeStatusFromCustom($event)"
+              (selectionChange)="bulkChangeStatusFromCustom($event)"
               variant="glass"
               size="sm"
             ></ui-select>

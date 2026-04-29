@@ -13,7 +13,8 @@ import { CommonModule } from '@angular/common';
 export type BackgroundTheme =
   | 'josanz-classic' | 'cyber-neon' | 'golden-vintage' | 'deep-abyss'
   | 'digital-matrix' | 'audio-rhythm' | 'grid-sketch' | 'bokeh-blur'
-  | 'spot-scan' | 'nebula-cosmos' | 'babooni';
+  | 'spot-scan' | 'nebula-cosmos' | 'babooni'
+  | 'babooni-platform' | 'babooni-ruins' | 'babooni-mist' | 'babooni-arcade';
 
 @Component({
   selector: 'lib-animated-background',
@@ -158,6 +159,50 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     'FOLLAJE',
     'BANANAS',
     '¡AÚPA!',
+  ];
+
+  private readonly babooniGamePhrases = [
+    'WORLD 1-1',
+    '1UP',
+    'BONUS',
+    'CHECK',
+    'LIANA',
+    'COINS',
+    'BOUNCE',
+    'GOT IT!',
+  ];
+
+  private readonly babooniRuinPhrases = [
+    'Templo',
+    'Mítico',
+    'Cofre',
+    '¡Cuidado!',
+    'Antigüedad',
+    'Sigilo',
+    'Húmedo',
+    'Ecos',
+  ];
+
+  private readonly babooniMistPhrases = [
+    'Bruma',
+    'Hondo',
+    'Misterio',
+    'Niebla',
+    'Sigilo',
+    'Tranquilo',
+    'Caverna',
+    'Eco…',
+  ];
+
+  private readonly babooniArcadePhrases = [
+    'CREDIT 00',
+    'HI-SCORE',
+    'READY?',
+    'INSERT JUNGLE',
+    '1 COIN = 1 BAN',
+    'PIXEL',
+    'GREEN PLS',
+    'GGA',
   ];
 
   /** Símbolos + frases por variante de fondo (login) — ThemeConfigInternal exige `symbols` y `phrases`. */
@@ -462,6 +507,62 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
         symbols: this.babooniSymbolPool,
         phrases: this.babooniPhrases,
       },
+      /** Plataforma 2D: colinas, cielo carto, bloques (inspiración clásica de jungla). */
+      'babooni-platform': {
+        style: 'jungle-platform',
+        sky: [195, 205, 175, 85],
+        aurora: [110, 85, 125],
+        particles: [100, 55, 32],
+        spirits: [90, 110, 70],
+        mascot: { body: '#5c4a32', highlight: '#4a9eff', feet: '#3a2618' },
+        sidekick: { body: '#6b5a40', highlight: '#e8a77c', feet: '#2d1f0f' },
+        fog: [95, 100],
+        lumenHues: [95, 110, 75, 45, 32, 130, 20],
+        symbols: this.babooniSymbolPool,
+        phrases: this.babooniGamePhrases,
+      },
+      /** Ruinas / templo: siluetas, bruma, oro. */
+      'babooni-ruins': {
+        style: 'jungle-ruins',
+        sky: [32, 38, 25, 45],
+        aurora: [50, 38, 42],
+        particles: [35, 30],
+        spirits: [40, 32, 48],
+        mascot: { body: '#5c4a32', highlight: '#4a9eff', feet: '#3a2618' },
+        sidekick: { body: '#6b5a40', highlight: '#d4a574', feet: '#2d1f0f' },
+        fog: [32, 28],
+        lumenHues: [48, 38, 42, 32, 55, 30],
+        symbols: this.babooniSymbolPool,
+        phrases: this.babooniRuinPhrases,
+      },
+      /** Nivel con niebla: más atmósfera, menos contraste. */
+      'babooni-mist': {
+        style: 'jungle-mist',
+        sky: [200, 185, 160, 140],
+        aurora: [160, 170, 150],
+        particles: [180, 160],
+        spirits: [175, 165, 150],
+        mascot: { body: '#5a4830', highlight: '#4a8eef', feet: '#3a2618' },
+        sidekick: { body: '#655440', highlight: '#d8a0a0', feet: '#2d1f0f' },
+        fog: [190, 170],
+        lumenHues: [170, 180, 160, 90, 75],
+        symbols: this.babooniSymbolPool,
+        phrases: this.babooniMistPhrases,
+      },
+      /** Arcade: matrix verde + “CRT” (estética 8/16 bits en selva). */
+      'babooni-arcade': {
+        style: 'matrix',
+        sky: [120, 135, 100, 95],
+        aurora: [],
+        particles: [120, 110],
+        spirits: [115, 100],
+        mascot: { body: '#4a3d28', highlight: '#3ae0a0', feet: '#2a2015' },
+        sidekick: { body: '#3a3225', highlight: '#22c57a', feet: '#1a1510' },
+        fog: [100, 120],
+        lumenHues: [120, 130, 100, 110, 90],
+        symbols: this.babooniSymbolPool,
+        phrases: this.babooniArcadePhrases,
+      },
     };
     const base = themes[this.theme] ?? themes['josanz-classic'];
     return this.applyBabooniSkinIfNeeded(base, themes);
@@ -475,7 +576,7 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     if (!this.isBabooniLogin()) {
       return base;
     }
-    if (this.theme === 'babooni') {
+    if (this.isNativeBabooniBackgroundTheme()) {
       return base;
     }
     const b = all['babooni'];
@@ -502,6 +603,11 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
 
   private isBabooniLogin(): boolean {
     return (this.tenantSlug || '').trim().toLowerCase() === 'babooni';
+  }
+
+  /** Tema de fondo propio de Babooni (no mezclar otra piel encima). */
+  private isNativeBabooniBackgroundTheme(): boolean {
+    return (this.theme || '').startsWith('babooni');
   }
 
   private blendHueList(a: number[], b: number[], amount: number): number[] {
@@ -835,8 +941,21 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
 
     // Draw everything in layers (back to front)
     this.drawSky(w, h);
+
+    if (cfg.style === 'jungle-platform') {
+      this.drawJunglePlatformParallax(w, h);
+    } else if (cfg.style === 'jungle-ruins') {
+      this.drawJungleRuinsLayer(w, h);
+    }
     
-    if (cfg.style === 'aurora' || cfg.style === 'jungle') {
+    const isJungleStack =
+      cfg.style === 'aurora' ||
+      cfg.style === 'jungle' ||
+      cfg.style === 'jungle-platform' ||
+      cfg.style === 'jungle-ruins' ||
+      cfg.style === 'jungle-mist';
+
+    if (isJungleStack) {
       this.drawStars(w, h);
       this.drawShootingStars(w, h);
       this.drawAurora(w, h);
@@ -852,8 +971,14 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
       this.drawLumenParticles(w, h);
       this.drawSparkles(w, h);
       this.drawRings(w, h);
+      if (cfg.style === 'jungle-mist') {
+        this.drawJungleMistOverlay(w, h);
+      }
     } else if (cfg.style === 'matrix') {
       this.drawMatrixStyle(w, h);
+      if (this.theme === 'babooni-arcade') {
+        this.drawBabooniArcadeScreenFx(w, h);
+      }
     } else if (cfg.style === 'audio') {
       this.drawAudioStyle(w, h);
     } else if (cfg.style === 'grid') {
@@ -890,7 +1015,13 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     g.addColorStop(0.85, `hsl(${cfg.sky[3] + Math.sin(t * 0.25) * 5}, 45%, ${18 + Math.sin(t * 0.1) * 4}%)`);
     g.addColorStop(
       1,
-      this.theme === 'golden-vintage' ? '#4a3210' : this.theme === 'babooni' ? '#0c1410' : '#1e293b'
+      this.theme === 'golden-vintage'
+        ? '#4a3210'
+        : this.isNativeBabooniBackgroundTheme()
+          ? this.theme === 'babooni-ruins'
+            ? '#0a0c0a'
+            : '#0c1410'
+          : '#1e293b'
     );
     
     this.ctx.fillStyle = g;
@@ -1769,6 +1900,109 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     this.ctx.globalCompositeOperation = 'source-over';
   }
 
+  /** Colinas y plataformas tipo juego de plataformas (parallax suave). */
+  private drawJunglePlatformParallax(w: number, h: number) {
+    const s0 = this.shiftBack(w, h);
+    const s1 = this.shiftMid(w, h);
+    const t = this.time * 0.12;
+    this.ctx.save();
+    const layers: { y: number; par: number; col: string; amp: number }[] = [
+      { y: 0.58, par: 0.25, col: 'rgba(22, 75, 38, 0.55)', amp: 0.04 },
+      { y: 0.68, par: 0.45, col: 'rgba(16, 58, 28, 0.72)', amp: 0.055 },
+      { y: 0.78, par: 0.7, col: 'rgba(10, 42, 18, 0.88)', amp: 0.07 },
+    ];
+    layers.forEach((L, idx) => {
+      const px = s0.x * L.par + s1.x * (0.15 + idx * 0.08);
+      const baseY = h * L.y;
+      this.ctx.fillStyle = L.col;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, h + 2);
+      for (let x = 0; x <= w + 20; x += 18) {
+        const y =
+          baseY +
+          Math.sin(t * 1.1 + x * 0.006 + idx) * h * L.amp +
+          px * 0.15;
+        this.ctx.lineTo(x + px, y);
+      }
+      this.ctx.lineTo(w + 20, h + 2);
+      this.ctx.closePath();
+      this.ctx.fill();
+    });
+    // “Bloques” flotantes
+    for (let i = 0; i < 5; i++) {
+      const x = ((i * 0.22 + 0.08) * w + Math.sin(t + i) * 28 + s1.x * 0.4) % (w + 80);
+      const y = h * (0.38 + (i % 3) * 0.06) + Math.sin(t * 1.4 + i) * 10;
+      const block = i % 2 === 0 ? 'rgba(180, 120, 40, 0.88)' : 'rgba(55, 120, 55, 0.9)';
+      this.roundRect2(x - 32, y, 64, 18, 4, block);
+      this.ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(x - 32, y, 64, 18);
+    }
+    this.ctx.restore();
+  }
+
+  private drawJungleRuinsLayer(w: number, h: number) {
+    const sn = this.shiftBack(w, h);
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(6, 8, 5, 0.55)';
+    this.ctx.fillRect(0, h * 0.45, w, h * 0.55);
+    for (let i = 0; i < 9; i++) {
+      const x = (w / 10) * (i + 0.5) + sn.x * 0.4 + Math.sin(this.time * 0.3 + i) * 6;
+      const bw = 24 + (i % 3) * 10;
+      const bh = h * (0.25 + (i % 4) * 0.04);
+      this.ctx.fillStyle = 'rgba(10, 12, 9, 0.88)';
+      this.ctx.fillRect(x - bw / 2, h * 0.5 - bh, bw, bh);
+      this.ctx.fillStyle = 'rgba(255, 200, 80, 0.12)';
+      this.ctx.fillRect(x - bw / 2 + 4, h * 0.5 - bh + 8, bw - 8, 8);
+    }
+    this.ctx.fillStyle = 'rgba(255, 190, 60, 0.22)';
+    this.ctx.beginPath();
+    this.ctx.arc(w * 0.2 + sn.x, h * 0.62, 45, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+  }
+
+  /** Capa extra de niebla para el preset “mist”. */
+  private drawJungleMistOverlay(w: number, h: number) {
+    const sn = this.shiftMid(w, h);
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = 'screen';
+    for (let i = 0; i < 4; i++) {
+      const cx = w * (0.2 + i * 0.22) + sn.x * 0.3;
+      const cy = h * (0.45 + (i % 2) * 0.1) + sn.y * 0.2;
+      const g = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, h * 0.35);
+      g.addColorStop(0, 'rgba(220, 230, 240, 0.12)');
+      g.addColorStop(0.5, 'rgba(180, 200, 210, 0.05)');
+      g.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = g;
+      this.ctx.beginPath();
+      this.ctx.arc(cx, cy, h * 0.35, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+    this.ctx.globalAlpha = 0.45;
+    this.ctx.fillStyle = 'rgba(200, 210, 220, 0.2)';
+    this.ctx.fillRect(0, 0, w, h);
+    this.ctx.globalAlpha = 1;
+    this.ctx.globalCompositeOperation = 'source-over';
+    this.ctx.restore();
+  }
+
+  /** Líneas de escaneo + viñeta para estética arcade. */
+  private drawBabooniArcadeScreenFx(w: number, h: number) {
+    this.ctx.save();
+    for (let y = 0; y < h; y += 4) {
+      const a = 0.03 + Math.sin(this.time * 2 + y * 0.04) * 0.02;
+      this.ctx.fillStyle = `rgba(0, 0, 0, ${a})`;
+      this.ctx.fillRect(0, y, w, 2);
+    }
+    const g = this.ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h) * 0.65);
+    g.addColorStop(0, 'transparent');
+    g.addColorStop(0.7, 'rgba(0, 0, 0, 0.1)');
+    g.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
+    this.ctx.fillStyle = g;
+    this.ctx.fillRect(0, 0, w, h);
+    this.ctx.restore();
+  }
 
   /** Siluetas de suelo (selva) en lugar de cámaras / mesa al mezclar, tenant Babooni. */
   private drawJungleFloorSilhouettes(w: number, h: number, sn: { x: number; y: number }) {
@@ -2478,7 +2712,21 @@ interface LumenRing {
 }
 
 interface ThemeConfigInternal {
-  style: 'aurora' | 'matrix' | 'audio' | 'grid' | 'bokeh' | 'spot' | 'nebula' | 'cyber' | 'glitch' | 'blueprint' | 'jungle';
+  style:
+    | 'aurora'
+    | 'matrix'
+    | 'audio'
+    | 'grid'
+    | 'bokeh'
+    | 'spot'
+    | 'nebula'
+    | 'cyber'
+    | 'glitch'
+    | 'blueprint'
+    | 'jungle'
+    | 'jungle-platform'
+    | 'jungle-ruins'
+    | 'jungle-mist';
   sky: number[];
   aurora: number[];
   particles: number[];

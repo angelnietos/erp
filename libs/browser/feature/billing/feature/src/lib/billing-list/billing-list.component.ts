@@ -275,7 +275,7 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                 { value: 'sent', label: 'Marcar como enviada' },
                 { value: 'cancelled', label: 'Marcar como cancelada' }
               ]"
-              (change)="bulkChangeStatusFromCustom($event)"
+              (selectionChange)="bulkChangeStatusFromCustom($event)"
               variant="glass" size="sm"
             ></ui-select>
             <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
