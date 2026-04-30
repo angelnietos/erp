@@ -1,0 +1,722 @@
+---
+config:
+  layout: elk
+---
+flowchart LR
+
+%% =======================================================
+%%  FASE 0 — LEYENDA Y ÁMBITO
+%% =======================================================
+subgraph F0["🧭 Fase 0 — Leyenda y ámbito"]
+  L1["Hecho / base en proyecto"]
+  L2["Obligatorio: ISO + RGPD (cifrado, trazas, mínima exposición, SDLC)"]
+  L3["Opcional o fase posterior"]
+  L4["Muy recomendable: PII duro, forense, claves de alto impacto"]
+  T0["Ámbito: plataforma CAE (datos personales y económicos)<br/>Azure SQL / API Express / Entra ID / ecosistema Azure"]
+  T0 --- L1 & L2 & L3 & L4
+end
+class L1 g1; class L2 g2; class L3 g3; class L4 g4; class T0 gn
+
+%% =======================================================
+%%  FASE 1 — USUARIO Y DISPOSITIVO
+%% =======================================================
+subgraph F1["👤 Fase 1 — Usuarios y dispositivo"]
+  U["Usuarios: web, móvil, API"]
+  DVC["Señal de postura / cumplimiento (Entra)"]
+  SESS["Gestión de sesión (revocación, TTL, cookies seguras)"]
+  U --> DVC --> SESS
+end
+class U g1; class DVC g4; class SESS g4
+
+%% =======================================================
+%%  FASE 2 — PERÍMETRO
+%% =======================================================
+subgraph F2["🌐 Fase 2 — Perímetro (borde)"]
+  FE["Frontend: TLS, sesión, CSP"]
+  AFD["Azure Front Door"]
+  WAF["WAF OWASP"]
+  DD["Protección DDoS"]
+  BOT["Bot/abuso (según riesgo)"]
+  FE --> AFD --> WAF --> DD --> BOT
+end
+class FE g1; class AFD,WAF,DD g2; class BOT g3
+
+%% =======================================================
+%%  FASE 3 — IDENTIDAD
+%% =======================================================
+subgraph F3["🟢 Fase 3 — Identidad (Microsoft Entra ID)"]
+  EID["Entra ID: IdP"]
+  MFA["MFA"]
+  CA["Conditional Access (riesgo, localización)"]
+  RSK["Riesgo inicio sesión / IdP"]
+  PIM["Privileged Identity Management (admin)"]
+  JWT["JWT: issuer, audience, expiración"]
+  EID --> MFA --> CA --> RSK --> JWT
+  PIM --> EID
+end
+class EID,MFA,CA,RSK,JWT g4; class PIM g2
+
+%% =======================================================
+%%  FASE 4 — API / GATEWAY
+%% =======================================================
+subgraph F4["🚪 Fase 4 — API Express – capa de política"]
+  GWAY["API Gateway Express"]
+  RLIM["Rate limit (IP, usuario, ruta)"]
+  AUTHM["Auth (valida JWT y claims)"]
+  RBAC["Autorización RBAC/ABAC"]
+  VALD["Validación de entrada / Anti-inyección"]
+  GWAY-->RLIM-->AUTHM-->RBAC-->VALD
+end
+class GWAY,RLIM,AUTHM,RBAC,VALD g1
+
+%% =======================================================
+%%  FASE 5 — DLP EN APLICACIÓN
+%% =======================================================
+subgraph F5["🧩 Fase 5 — DLP en aplicación"]
+  PAG["Listados: paginación / topes"]
+  EXPX["Export: cuotas / aprobación"]
+  TDATA["Datos sintéticos en test"]
+  ABN["Reglas fijas: volumen / frecuencia"]
+  PAG --- EXPX
+  TDATA --- ABN
+end
+class PAG,EXPX,TDATA,ABN g2
+
+%% =======================================================
+%%  FASE 6 — DECISION ENGINE
+%% =======================================================
+subgraph F6["⚙️ Fase 6 — Decision Engine determinista"]
+  SIGI["Señales: IdP · roles · dispositivo"]
+  RULE["Motor de reglas versionado"]
+  RSCR["Score 0–100 (fórmula fija)"]
+  POLD["Umbrales: DENY / STEP-UP / ALLOW"]
+  DECK["Decisión + ruleId + policyVersion → Log"]
+  SIGI --> RULE --> RSCR --> POLD --> DECK
+end
+class SIGI,RULE,POLD,DECK g2; class RSCR g3
+
+%% =======================================================
+%%  FASE 7 — DOMINIO Y MÍNIMA EXPOSICIÓN
+%% =======================================================
+subgraph F7["🟣 Fase 7 — Dominio / mínima exposición"]
+  APP["Servicios de aplicación"]
+  BZ["Lógica de negocio"]
+  MRUN["Enmascaramiento en DTO/UI"]
+  APP-->BZ-->MRUN
+end
+class APP,BZ g1; class MRUN g2
+
+%% =======================================================
+%%  FASE 8 — DAL Y TRAZAS
+%% =======================================================
+subgraph F8["📜 Fase 8 — DAL y trazas de aplicación"]
+  DAL["Repositorio SQL parametrizado"]
+  LST["Logs estructurados sin PII"]
+  DAL-->LST
+end
+class DAL,LST g4
+
+%% =======================================================
+%%  FASE 9 — BASE DE DATOS
+%% =======================================================
+subgraph F9["💾 Fase 9 — Base de datos (A.8.10 · A.8.11 · A.8.24)"]
+  SQL["Azure SQL / motor BD"]
+  TDE["TDE (reposo)"]
+  TLSQ["TLS hacia motor"]
+  DDMK["Dynamic Data Masking"]
+  RLSX["Row Level Security"]
+  BENC["Backups cifrados + retención"]
+  QAUD["Auditoría motor"]
+  CLE2["Always Encrypted (opc.)"]
+  HSM2["HSM / clave dura"]
+  SQL --> TDE & TLSQ & DDMK & RLSX & BENC & QAUD & CLE2
+  CLE2 --> HSM2
+end
+class SQL gn; class TDE,TLSQ,DDMK,RLSX,BENC,QAUD g2; class CLE2,HSM2 g4
+
+%% =======================================================
+%%  FASE 10 — CLAVES / SECRETOS
+%% =======================================================
+subgraph F10["🔐 Fase 10 — Claves y secretos"]
+  MID["Managed Identity"]
+  KV2["Key Vault: secretos, certs, rotación"]
+  TDE2["Apoyo a cifrado servicio"]
+  HSM2a["HSM: según riesgo / normativa"]
+  MID-->KV2-->TDE2
+  HSM2a-->KV2
+end
+class MID,KV2,TDE2 g2; class HSM2a g4
+
+%% =======================================================
+%%  FASE 11 — REGISTRO Y EVIDENCIA
+%% =======================================================
+subgraph F11["📁 Fase 11 — Registro / correlación / evidencia"]
+  EVC["Eventos críticos: login · export · admin"]
+  COR2["Correlación"]
+  IMM2["Inmutabilidad (WORM / cifrado append-only)"]
+  EVD["Evidencia 33/34 / auditoría"]
+  EVC-->COR2-->IMM2-->EVD
+end
+class EVC g2; class COR2,IMM2 g4; class EVD g2
+
+%% =======================================================
+%%  FASE 12 — MONITORIZACIÓN / SIEM
+%% =======================================================
+subgraph F12["📊 Fase 12 — Monitorización / SIEM"]
+  AINS["Application Insights / OTel"]
+  AMON["Monitor: alertas y métricas"]
+  LWA["Log Analytics"]
+  SEN["Sentinel"]
+  UEBA["UEBA (opcional)"]
+  SOAR["SOAR (muy recomendable)"]
+  AINS-->AMON-->LWA-->SEN
+  SEN-->UEBA
+  SEN-->SOAR
+end
+class AINS,AMON,LWA,SEN g2; class UEBA g3; class SOAR g4
+
+%% =======================================================
+%%  FASE 13 — SDLC / CI-CD
+%% =======================================================
+subgraph F13["🛠️ Fase 13 — SDLC, CI/CD y despliegue"]
+  GIT2["Repositorio Git + revisión"]
+  SAST2["SAST + secretos en PR"]
+  SCA2["SCA / SBOM"]
+  BLD2["Build atribuido a commit"]
+  IAC2["Infraestructura como código"]
+  IMGB["Imágenes mínimas"]
+  SCIM["Escáner de imagen (recomendado)"]
+  SINJ2["Inyección secretos a KeyVault / MI"]
+  DEP2["Despliegue por entorno"]
+  GIT2-->SAST2-->SCA2-->BLD2-->IAC2-->DEP2
+  BLD2-->IMGB-->SCIM-->DEP2
+  SCA2-->SINJ2-->DEP2
+end
+class GIT2,BLD2,DEP2 g1; class SAST2,SCA2,IAC2,SINJ2 g2; class IMGB,SCIM g4
+
+%% =======================================================
+%%  LINKS ENTRE FASES (LINEAL)
+%% =======================================================
+F0 --> F1 --> F2 --> F3 --> F4 --> F5 --> F6 --> F7 --> F8 --> F9 --> F10 --> F11 --> F12 --> F13
+
+%% =======================================================
+%%  CLASES COMUNES
+%% =======================================================
+classDef g1 fill:#e8f5e9,stroke:#2e7d32,color:#0d3b0d,stroke-width:2px
+classDef g2 fill:#ffebee,stroke:#c62828,color:#3e0000,stroke-width:2px
+classDef g3 fill:#fff8e1,stroke:#f9a825,color:#4a3c00,stroke-width:1px
+classDef g4 fill:#ffe0b2,stroke:#e65100,color:#3e1a00,stroke-width:2px
+classDef gn fill:#f5f5f5,stroke:#9e9e9e,color:#212121,stroke-width:1px
+
+
+
+
+---
+config:
+  layout: elk
+---
+flowchart TB
+
+  subgraph LEGEND["Leyenda (propuesta al cliente)"]
+    L1["Hecho / en marcha hoy (mantener)"]
+    L2["Obligatorio: ISO 27001 Anexo A + RGPD 25·32 (y 33·34 si aplica)"]
+    L3["Opcional o fase 2+"]
+    L4["Muy recomendable: PII/DA fuerte o auditoría dura"]
+  end
+  class L1 gDone
+  class L2 gMust
+  class L3 gOpt
+  class L4 gRec
+
+  TITLE["<b>CAE / datos personales y económicos</b><br/>Cifrado · mínima exposición · trazas · SDLC seguro<br/><i>Decision engine determinista. Sin agente. Sin MLOps.</i>"]
+  class TITLE gNeutral
+
+  subgraph LEGAL["Contexto (negocio)"]
+    RGPD["<b>RGPD</b> art. 25 · 32 · 33-34 (si aplica)"]
+  end
+  class RGPD gMust
+
+  subgraph USER["Usuarios, dispositivo, sesión"]
+    U["Usuario: web / móvil / API"]
+    DVC["Postura de dispositivo (compliance)"]
+    SESS["Sesión / revocación / tiempo de vida"]
+  end
+  class U gDone
+  class DVC,SESS gRec
+
+  subgraph EDGE["Perímetro (Internet → aplicación)"]
+    FE["Frontend: TLS, cookies, CSRF según diseño"]
+    AFD["Azure Front Door"]
+    WAF["WAF OWASP"]
+    DDOS["DDoS"]
+    BOT["Protección bot / abuse (si aplica)"]
+  end
+  class FE gDone
+  class AFD,WAF,DDOS gMust
+  class BOT gOpt
+
+  subgraph IDENTITY["Identidad (Entra)"]
+    ENTRA["Microsoft Entra ID (IdP)"]
+    MFA["MFA (accesos sensibles)"]
+    CA["Conditional Access"]
+    PIM["PIM o equivalente (privilegiados)"]
+    IDRISK["Riesgo inicio de sesión (IdP)"]
+    JWT["JWT: issuer, aud, validez, rotación"]
+  end
+  class ENTRA,MFA,CA,IDRISK,JWT gRec
+  class PIM gMust
+
+  subgraph API["API Express (punto único)"]
+    GWAY["Gateway Express"]
+    RATE["Rate limit + anti-abuse"]
+    AUTHZ["AuthN: valida JWT"]
+    AUTHR["RBAC / ABAC"]
+    VALI["Validación de entrada"]
+    CORS["CORS + headers"]
+  end
+  class GWAY,RATE,AUTHZ,AUTHR,VALI gDone
+  class CORS gRec
+
+  subgraph DLP["A.8.12 Prevención de fuga (app)"]
+    PAG["Paginación + topes (no listados masivos)"]
+    EXP["Control export CSV/PDF, aprobación, registro"]
+    SAMP["Datos prueba anonimizados (no PII en dev/test)"]
+    BULK["Patrones: volumen, frecuencia (reglas)"]
+  end
+  class PAG,EXP,SAMP,BULK gMust
+
+  subgraph DE["<b>Decision engine determinista</b> (sin agente, sin ML)"]
+    CTX["<b>Contexto</b>: señales para esta petición"]
+    WRE["<b>Reglas ponderadas</b> + matriz fija + lógica booleana<br/>policy vX.Y versionable en log"]
+    RSC["<b>Puntuación 0–100</b>: suma de pesos fijos (rol, dispositivo, sensibilidad, geo…)"]
+    THR["<b>Umbrales fijos</b> (doc. de política): ej. score alto → DENY; medio → STEP-UP; bajo → ALLOW"]
+    DCN["<b>Decisión</b> + ruleId + policyVersion → A.8.15"]
+  end
+  class CTX,WRE,RSC,THR,DCN gRec
+
+  subgraph DOMAIN["Dominio"]
+    APS["Application services"]
+    BIZ["Lógica de negocio"]
+    DMR["Reglas dominio + dato en claro solo si procede"]
+  end
+  class APS,BIZ gDone
+  class DMR gRec
+
+  subgraph SENS["A.8.11 Enmascaramiento (runtime)"]
+    MRUN["Enmascaramiento en UI / DTO"]
+    MREP["Reporting vistas o rol restringido"]
+  end
+  class MRUN,MREP gMust
+
+  subgraph DAL2["DAL + logs app"]
+    DALY["Repositorio, SQL parametrizado"]
+    STRLOG["Logs estructurados, request-id, sin PII de más"]
+  end
+  class DALY,STRLOG gRec
+
+  subgraph DBSG["A.8.10 / A.8.24 Base de datos"]
+    SQL[("Azure SQL / SQL Server")]
+    TDE["TDE (reposo)"]
+    CLE["Always Encrypted (alto riesgo)"]
+    TLS13["TLS cliente → servidor BD"]
+    DDM["Dynamic Data Masking"]
+    RLSN["Row Level Security"]
+    BENCR["Backups cifrados + retención"]
+    SQLAUD["Auditoría de motor (SQL/Threat)"]
+  end
+  class TDE,TLS13,DDM,RLSN,BENCR,SQLAUD gMust
+  class CLE gRec
+  class SQL gNeutral
+
+  subgraph KEYS["A.8.24 Claves y secretos"]
+    MI["Managed Identities"]
+    AKV["Key Vault: secretos, claves, cert, rotación"]
+    HSMK["HSM (Premium) según riesgo"]
+  end
+  class MI,AKV gMust
+  class HSMK gRec
+
+  subgraph AUDF["A.8.15-16 Eventos, correlación, evidencia"]
+    EVT["Canal de eventos unificado"]
+    CORR["Correlación (usuario, ventana, entidad)"]
+    IMM["WORM lógico o append-only cifrado"]
+    EVD2["Evidencia para 33-34 / auditor"]
+  end
+  class EVT gMust
+  class CORR,IMM,EVD2 gRec
+
+  subgraph MONSG["A.8.16 Monitorización"]
+    AINS["App Insights / OpenTelemetry"]
+    AMON["Monitor + alertas"]
+    LAW["Log Analytics"]
+    SEN["Microsoft Sentinel (SIEM)"]
+    UEBA["UEBA (opc. producto)"]
+  end
+  class AINS,AMON,LAW,SEN gMust
+  class UEBA gOpt
+
+  SOAR["SOAR / playbooks (muy recomendable)"]
+  class SOAR gRec
+
+  subgraph ANLY["Solo lectura: analítica (fuera de enforcement)"]
+    BI["KPIs, informes agregados: no afecta allow/deny"]
+  end
+  class ANLY,BI gOpt
+
+  subgraph SDLC["A.8.25 SDLC + suministro"]
+    REPO["Git, ramas, code review"]
+    SAST["SAST + secretos en PR"]
+    SCA["SCA + SBOM (según alcance)"]
+    BUILD["Build reproducible"]
+    IAC2["IaC, revisión, drift"]
+    DEP["Despliegue dev / stage / prod"]
+  end
+  class REPO,BUILD,DEP gDone
+  class SAST,SCA,IAC2 gMust
+
+  subgraph CNT["Contenerización (si aplica)"]
+    CIMG["Imagen mínima, parches"]
+    CSCAN["Escaneo de imagen (CVE)"]
+  end
+  class CIMG,CSCAN gRec
+
+  subgraph SECP["Secretos: no en Git"]
+    SINJ["Pipeline → Key Vault; runtime con MI"]
+  end
+  class SINJ gMust
+
+  U --> DVC --> SESS --> FE --> AFD --> WAF --> DDOS
+  BOT --> GWAY
+  U --> ENTRA
+  ENTRA --> MFA --> CA --> IDRISK --> JWT
+  PIM -.-> ENTRA
+
+  WAF --> GWAY --> RATE --> AUTHZ --> AUTHR --> VALI --> CORS
+  AUTHZ --> JWT
+  CORS --> CTX
+  DVC --> CTX
+  IDRISK --> CTX
+  JWT --> CTX
+  AUTHR --> CTX
+  GWAY --> CTX
+  CTX --> WRE --> RSC --> THR --> DCN
+
+  DCN -->|permitir / acotar| APS
+  DCN -->|deny| GWAY
+  DCN -->|step-up| MFA
+  DCN -->|mascar| MRUN
+
+  GWAY --> PAG
+  APS --> EXP
+  APS --> BULK
+  BIZ --> DALY
+  BIZ --> MRUN
+  BIZ --> MREP
+  BIZ --> STRLOG
+  DALY --> SAMP
+  DALY --> SQL
+  SQL --> TDE
+  SQL --> CLE
+  SQL --> DDM
+  SQL --> RLSN
+  SQL --> BENCR
+  SQL --> SQLAUD
+  MI --> SQL
+  MI --> AKV
+  AKV --> TDE
+  CLE --> HSMK
+  MREP --> DDM
+  DALY --> RLSN
+
+  GWAY --> EVT
+  AUTHR --> EVT
+  EXP --> EVT
+  THR --> EVT
+  DCN --> EVT
+  DALY --> EVT
+  SQL --> EVT
+  EVT --> CORR
+  CORR --> AINS
+  AINS --> AMON
+  AMON --> SEN
+  SEN --> UEBA
+  SEN --> SOAR
+  SEN --> LAW
+  CORR --> IMM
+  IMM --> EVD2
+  EVD2 --> RGPD
+  LAW -.->|solo lectura| BI
+
+  REPO --> SAST
+  SAST --> SCA
+  SCA --> BUILD
+  BUILD --> CIMG
+  CIMG --> CSCAN
+  SCA --> SINJ
+  SINJ --> AKV
+  BUILD --> SINJ
+  BUILD --> IAC2
+  IAC2 --> DEP
+  CSCAN --> DEP
+  DEP --> FE
+  DEP --> GWAY
+  DEP --> SQL
+
+  APS --> GWAY
+  GWAY --> FE --> U
+
+  classDef gDone fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20,stroke-width:2px
+  classDef gMust fill:#ffebee,stroke:#b71c1c,color:#8b0000,stroke-width:2px
+  classDef gOpt  fill:#fff8e1,stroke:#f9a825,color:#6d4c41,stroke-width:1px
+  classDef gRec  fill:#ffe0b2,stroke:#e65100,color:#bf360c,stroke-width:2px
+  classDef gNeutral fill:#f5f5f5,stroke:#9e9e9e,color:#424242,stroke-width:1px
+
+
+
+  
+```
+
+
+
+flowchart TB
+
+%% =========================================================
+%% TITLE
+%% =========================================================
+TITLE["ENTERPRISE ZERO TRUST ARCHITECTURE<br/>CAE · ISO 27001 · RGPD · DETERMINISTIC SECURITY ENGINE"]
+
+%% =========================================================
+%% USERS + DEVICE POSTURE
+%% =========================================================
+subgraph USER["👤 USERS & DEVICE TRUST"]
+  U["Usuario Final<br/>Web / Mobile / API"]
+  DEVICE["Device Posture (Entra / Intune)<br/>Compliant / Non-Compliant"]
+  SESSION["Session Management<br/>TTL · Revocation · Secure Cookies"]
+end
+
+%% =========================================================
+%% EDGE SECURITY
+%% =========================================================
+subgraph EDGE["🌐 EDGE SECURITY"]
+  FE["Frontend Application"]
+  AFD["Azure Front Door"]
+  WAF["WAF OWASP Rules"]
+  DDOS["DDoS Protection"]
+  BOT["Bot / Abuse Protection"]
+end
+
+%% =========================================================
+%% IDENTITY
+%% =========================================================
+subgraph IDENTITY["🟢 IDENTITY (Microsoft Entra ID)"]
+  ENTRA["Entra ID (Identity Provider)"]
+  MFA["Multi-Factor Authentication"]
+  CA["Conditional Access Policies"]
+  RISK["Identity Risk Signals"]
+  JWT["JWT Token (issuer · aud · exp)"]
+  PIM["Privileged Identity Management"]
+end
+
+%% =========================================================
+%% API LAYER
+%% =========================================================
+subgraph API["🚪 API LAYER (Express Gateway)"]
+  GW["API Gateway (Express)"]
+  RATE["Rate Limiting"]
+  AUTHN["Authentication (JWT Validation)"]
+  AUTHZ["Authorization (RBAC / ABAC)"]
+  VALID["Input Validation / Anti-Injection"]
+end
+
+%% =========================================================
+%% POLICY ENGINE (NO AI / FULL DETERMINISTIC)
+%% =========================================================
+subgraph POLICY["⚙️ DETERMINISTIC DECISION ENGINE (NO AI)"]
+
+  CTX["Context Builder<br/>Identity + Role + Device + Location + Session"]
+
+  RULES["Rule Engine (Versioned Policies)<br/>Static rules + matrices"]
+
+  SCORE["Risk Score 0–100<br/>Fixed formula (no learning)"]
+
+  THRESH["Thresholds<br/>DENY · STEP-UP · ALLOW"]
+
+  DECISION["Decision Output<br/>ALLOW / DENY / MASK / STEP-UP"]
+
+end
+
+%% =========================================================
+%% DOMAIN LAYER
+%% =========================================================
+subgraph DOMAIN["💡 DOMAIN LAYER"]
+  APP["Application Services"]
+  BUSINESS["Business Logic"]
+  MASK["Data Masking (DTO / UI)"]
+  EXPORT["Export Control (DLP Rules)"]
+end
+
+%% =========================================================
+%% DATA ACCESS
+%% =========================================================
+subgraph DATA["📜 DATA ACCESS LAYER"]
+  DAL["Data Access Layer (Parameterized SQL)"]
+  LOGS["Structured Logs (Request ID · No PII leakage)"]
+end
+
+%% =========================================================
+%% DATABASE
+%% =========================================================
+subgraph DB["💾 AZURE SQL DATABASE"]
+  SQL[(Azure SQL)]
+
+  TDE["TDE Encryption"]
+  TLS["TLS in Transit"]
+  RLS["Row Level Security"]
+  DDM["Dynamic Data Masking"]
+  CLE["Always Encrypted (Sensitive Columns)"]
+  BACKUP["Encrypted Backups"]
+  AUDIT["DB Audit Logs"]
+end
+
+%% =========================================================
+%% KEY & SECRET MANAGEMENT
+%% =========================================================
+subgraph KEY["🔐 KEY MANAGEMENT"]
+  MI["Managed Identity"]
+  KV["Azure Key Vault"]
+  HSM["HSM (High Security Keys)"]
+end
+
+%% =========================================================
+%% AUDIT & EVIDENCE
+%% =========================================================
+subgraph AUDIT["📁 AUDIT & FORENSICS"]
+  EVENTS["Event Stream (All Actions)"]
+  CORR["Correlation Engine"]
+  IMMUT["Immutable Store (WORM / Append-only)"]
+  EVIDENCE["Audit Evidence Builder"]
+end
+
+%% =========================================================
+%% MONITORING / SIEM
+%% =========================================================
+subgraph OBS["📊 OBSERVABILITY & SIEM"]
+  AINS["Application Insights"]
+  MON["Azure Monitor"]
+  LOGA["Log Analytics"]
+  SENT["Microsoft Sentinel"]
+  SOAR["SOAR Automation"]
+end
+
+%% =========================================================
+%% SDLC / PIPELINE
+%% =========================================================
+subgraph CICD["🛠️ SECURE SDLC PIPELINE"]
+  GIT["Git Repository"]
+  SAST["SAST Security Scan"]
+  SCA["Dependency Scan (SBOM)"]
+  BUILD["Reproducible Build"]
+  IMAGE["Container Build"]
+  SCAN["Image Vulnerability Scan"]
+  INFRA["Infrastructure as Code"]
+  DEPLOY["Deployment (Dev / Stage / Prod)"]
+  SECRETS["Secrets Injection (Key Vault)"]
+end
+
+%% =========================================================
+%% FLOWS — USERS TO EDGE
+%% =========================================================
+U --> DEVICE --> FE --> AFD --> WAF --> DDOS --> BOT --> GW
+
+%% =========================================================
+%% IDENTITY FLOW
+%% =========================================================
+ENTRA --> MFA --> CA --> RISK --> JWT
+JWT --> AUTHN
+PIM --> ENTRA
+
+%% =========================================================
+%% API FLOW
+%% =========================================================
+GW --> RATE --> AUTHN --> AUTHZ --> VALID --> CTX
+
+%% =========================================================
+%% POLICY ENGINE FLOW (DETERMINISTIC)
+%% =========================================================
+CTX --> RULES --> SCORE --> THRESH --> DECISION
+
+%% =========================================================
+%% DECISION ACTIONS
+%% =========================================================
+DECISION -->|ALLOW| APP
+DECISION -->|DENY| GW
+DECISION -->|STEP-UP| MFA
+DECISION -->|MASK| MASK
+DECISION -->|EXPORT| EXPORT
+
+%% =========================================================
+%% DOMAIN FLOW
+%% =========================================================
+APP --> BUSINESS --> DAL
+MASK --> BUSINESS
+EXPORT --> BUSINESS
+
+%% =========================================================
+%% DATA ACCESS FLOW
+%% =========================================================
+DAL --> SQL
+DAL --> LOGS
+
+SQL --> TDE
+SQL --> TLS
+SQL --> RLS
+SQL --> DDM
+SQL --> CLE
+SQL --> BACKUP
+SQL --> AUDIT
+
+MI --> KV --> SQL
+MI --> KV --> APP
+HSM --> KV
+
+%% =========================================================
+%% AUDIT FLOW
+%% =========================================================
+GW --> EVENTS
+AUTHZ --> EVENTS
+DECISION --> EVENTS
+DAL --> EVENTS
+SQL --> EVENTS
+
+EVENTS --> CORR --> IMMUT --> EVIDENCE
+
+%% =========================================================
+%% MONITORING FLOW
+%% =========================================================
+EVENTS --> AINS --> MON --> LOGA --> SENT --> SOAR
+
+%% =========================================================
+%% SDLC FLOW
+%% =========================================================
+GIT --> SAST --> SCA --> BUILD --> IMAGE --> SCAN --> INFRA --> SECRETS --> DEPLOY
+
+SECRETS --> KV
+
+DEPLOY --> FE
+DEPLOY --> GW
+DEPLOY --> SQL
+
+%% =========================================================
+%% STYLES
+%% =========================================================
+classDef core fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+classDef req fill:#ffebee,stroke:#c62828,color:#b71c1c
+classDef opt fill:#fff8e1,stroke:#f9a825,color:#f57f17
+classDef rec fill:#ffe0b2,stroke:#e65100,color:#bf360c
+classDef neutral fill:#f5f5f5,stroke:#9e9e9e,color:#424242
+
+class U,FE,GW,APP,BUSINESS,VALID,AUTHN,AUTHZ core
+class AFD,WAF,DDOS,SQL,TDE,TLS,RLS,DDM,CLE req
+class BOT,IMAGE,SCAN opt
+class SOAR,HSM rec
+class CTX,RULES,SCORE,THRESH,DECISION neutral
