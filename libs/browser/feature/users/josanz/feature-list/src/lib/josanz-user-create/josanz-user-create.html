@@ -1,16 +1,17 @@
 <josanz-modal title="Nuevo Usuari@" (close)="onCancel()">
   
-  <div class="flex flex-col gap-8 w-full max-w-[619px] mx-auto">
+  <div class="flex flex-col gap-10 w-full max-w-[619px] mx-auto">
     <!-- Avatar Section (Figma: 64x64) -->
     <div class="flex justify-start">
       <div 
-        class="w-[64px] h-[64px] min-w-[64px] min-h-[64px] rounded-full border-2 border-[#DEEDFF] bg-cover bg-center bg-no-repeat"
-        [style.background-image]="'url(https://api.dicebear.com/7.x/avataaars/svg?seed=Felix)'">
+        style="width: 64px; height: 64px; min-width: 64px; min-height: 64px; background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'); background-size: cover; background-position: center;"
+        class="rounded-full border-2 border-[#DEEDFF] bg-no-repeat flex-shrink-0"
+      >
       </div>
     </div>
 
     <!-- Form Fields -->
-    <div class="grid grid-cols-1 gap-5 w-full">
+    <div class="grid grid-cols-1 gap-6 w-full">
       <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
       <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
       <josanz-input label="Email" placeholder="email@email.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
@@ -20,7 +21,7 @@
     </div>
   </div>
 
-  <!-- Footer Actions (Aligned 280x48 buttons) -->
+  <!-- Footer Actions (Strictly 280x48 buttons) -->
   <div footer-actions class="flex items-center gap-8">
     <josanz-button 
       label="Cancelar" 
