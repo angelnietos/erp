@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 // import { NxWelcome } from './nx-welcome';
-import { JosanzUiComponent } from '@josanz-erp/josanz-ui';
+import { JosanzUiComponent, MainTemplateCardComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
-  imports: [ RouterModule, JosanzUiComponent],
+  imports: [ RouterModule, JosanzUiComponent, MainTemplateCardComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
