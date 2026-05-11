@@ -6,33 +6,84 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 animate-in fade-in duration-300">
-      <div 
-        class="bg-white rounded-[12px] shadow-[0px_10px_24px_rgba(0,0,0,0.2)] w-[712px] max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300 relative"
-      >
+    <div style="
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.80);
+      padding: 24px;
+    ">
+      <div style="
+        background: #FFFFFF;
+        width: 712px;
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 8px;
+        box-shadow: 0px 10px 24px rgba(97, 97, 97, 0.4);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      ">
         <!-- Close Button -->
-        <button (click)="onClose()" class="absolute top-8 right-8 text-[#1A1A1A] hover:opacity-50 transition-opacity z-20">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <button
+          (click)="onClose()"
+          style="
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 10;
+            opacity: 0.6;
+            line-height: 1;
+          "
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
 
-        <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto p-12 scrollbar-none">
-          <h2 class="text-[32px] font-bold text-[#1A1A1A] mb-8">{{ title }}</h2>
-          <div class="modal-body">
-            <ng-content></ng-content>
-          </div>
+        <!-- Scrollable Body -->
+        <div class="modal-scroll-body" style="
+          flex: 1;
+          overflow-y: auto;
+          padding: 48px 56px 24px 56px;
+        ">
+          <h2 style="
+            font-size: 32px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin: 0 0 32px 0;
+            padding-right: 32px;
+          ">{{ title }}</h2>
+          <ng-content></ng-content>
         </div>
 
         <!-- Footer -->
-        <div class="px-12 pb-12 pt-4 flex justify-center items-center gap-8 bg-white rounded-b-[12px]">
+        <div style="
+          padding: 24px 56px 32px 56px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 32px;
+          background: #FFFFFF;
+          flex-shrink: 0;
+        ">
           <ng-content select="[footer-actions]"></ng-content>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .scrollbar-none::-webkit-scrollbar { display: none; }
-    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    .modal-scroll-body::-webkit-scrollbar { display: none; }
+    .modal-scroll-body { -ms-overflow-style: none; scrollbar-width: none; }
   `]
 })
 export class ModalComponent {
