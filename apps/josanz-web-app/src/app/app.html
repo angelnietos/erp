@@ -1,20 +1,27 @@
-<div class="min-h-screen bg-[#F8F9FA] p-10">
+<div class="flex min-h-screen bg-[#F8F9FA]">
   
-  <josanz-main-list-layout 
-    title="Clientes" 
-    primaryBtnLabel="Añadir Cliente">
+  <!-- Sidebar -->
+  <josanz-sidebar></josanz-sidebar>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-10 overflow-y-auto">
+    <josanz-main-list-layout 
+      title="Clientes" 
+      primaryBtnLabel="Añadir Cliente">
+      
+      <josanz-main-template-card></josanz-main-template-card>
+      <josanz-main-template-card></josanz-main-template-card>
+      <josanz-main-template-card></josanz-main-template-card>
+      <josanz-main-template-card></josanz-main-template-card>
+      <josanz-main-template-card></josanz-main-template-card>
+      
+    </josanz-main-list-layout>
     
-    <josanz-main-template-card></josanz-main-template-card>
-    <josanz-main-template-card></josanz-main-template-card>
-    <josanz-main-template-card></josanz-main-template-card>
-    <josanz-main-template-card></josanz-main-template-card>
-    <josanz-main-template-card></josanz-main-template-card>
+    <div class="mt-10">
+      <josanz-ui-root></josanz-ui-root>
+    </div>
     
-  </josanz-main-list-layout>
-  
-  <div class="mt-10">
-    <josanz-ui-root></josanz-ui-root>
-  </div>
-  
-  <router-outlet></router-outlet>
+    <router-outlet></router-outlet>
+  </main>
+
 </div>
