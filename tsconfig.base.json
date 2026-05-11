@@ -287,6 +287,18 @@
       ],
       "@josanz-erp/shell": [
         "libs/browser/feature/clients/josanz/shell/src/index.ts"
+      ],
+      "@josanz-erp/josanz-users-feature-list": [
+        "libs/browser/feature/users/josanz/feature-list/src/index.ts"
+      ],
+      "@josanz-erp/josanz-users-shell": [
+        "libs/browser/feature/users/josanz/shell/src/index.ts"
+      ],
+      "@josanz-erp/josanz-stock-feature-list": [
+        "libs/browser/feature/stock/josanz/feature-list/src/index.ts"
+      ],
+      "@josanz-erp/josanz-stock-shell": [
+        "libs/browser/feature/stock/josanz/shell/src/index.ts"
       ]
     }
   },

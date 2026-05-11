@@ -7,16 +7,24 @@
 
   <!-- Filters and Actions -->
   <div class="flex justify-between items-center w-full mt-2">
-    <josanz-filter-tabs 
-      [options]="filterOptions" 
-      (selectionChange)="onFilterChange($event)">
-    </josanz-filter-tabs>
+    <div class="flex flex-col gap-4">
+      <josanz-filter-tabs 
+        [options]="filterOptions" 
+        (selectionChange)="onFilterChange($event)">
+      </josanz-filter-tabs>
+      <!-- Slot for extra filters if needed (like in Stock) -->
+      <ng-content select="[extra-filters]"></ng-content>
+    </div>
     
     <div class="flex gap-4 items-center">
       <josanz-secondary-button 
         label="Excel" 
         (btnClick)="onExcelAction()">
       </josanz-secondary-button>
+      
+      <!-- Slot for extra action buttons -->
+      <ng-content select="[extra-actions]"></ng-content>
+
       <josanz-button 
         [label]="primaryBtnLabel" 
         (btnClick)="onPrimaryAction()">

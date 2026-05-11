@@ -1,0 +1,14 @@
+<josanz-main-list-layout 
+  [title]="title" 
+  [primaryBtnLabel]="primaryBtnLabel"
+  [filterOptions]="filterOptions"
+  (primaryAction)="onAdd()"
+  (filterChange)="onFilter($event)"
+  (excelAction)="onExcel()">
+  
+  <josanz-main-template-card></josanz-main-template-card>
+  <josanz-main-template-card></josanz-main-template-card>
+  <josanz-main-template-card></josanz-main-template-card>
+  <josanz-main-template-card></josanz-main-template-card>
+
+</josanz-main-list-layout>
