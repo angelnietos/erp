@@ -7,3 +7,5 @@ export * from './lib/components/button';
 export * from './lib/components/secondary-button';
 
 export * from './lib/components/filter-tabs';
+
+export * from './lib/components/main-list-layout';
