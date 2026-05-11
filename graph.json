@@ -113,12 +113,68 @@
           "implicitDependencies": []
         }
       },
-      "data-access": {
-        "name": "data-access",
+      "delivery-data-access": {
+        "name": "delivery-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/browser/data-access/delivery/data-access",
+          "name": "delivery-data-access",
+          "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/delivery/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:delivery",
+            "type:data-access"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/delivery/data-access/jest.config.cts",
+                "tsConfig": "libs/delivery/data-access/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "identity-data-access": {
+        "name": "identity-data-access",
         "type": "lib",
         "data": {
           "root": "libs/browser/data-access/identity/data-access",
-          "name": "data-access",
+          "name": "identity-data-access",
           "tags": [
             "npm:public",
             "scope:identity",
@@ -199,47 +255,46 @@
           "implicitDependencies": []
         }
       },
-      "delivery-data-access": {
-        "name": "delivery-data-access",
+      "projects-data-access": {
+        "name": "projects-data-access",
         "type": "lib",
         "data": {
-          "root": "libs/browser/data-access/delivery/data-access",
-          "name": "delivery-data-access",
-          "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/delivery/data-access/src",
+          "root": "libs/browser/data-access/projects/data-access",
+          "name": "projects-data-access",
+          "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/browser/data-access/projects/data-access/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
-            "scope:delivery",
+            "scope:browser",
             "type:data-access"
           ],
           "targets": {
-            "test": {
-              "executor": "@nx/jest:jest",
+            "build": {
+              "executor": "@nx/angular:package",
               "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}"
+                "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/delivery/data-access/jest.config.cts",
-                "tsConfig": "libs/delivery/data-access/tsconfig.spec.json",
-                "passWithNoTests": true
+                "tsConfig": "libs/browser/data-access/projects/data-access/tsconfig.lib.json"
               },
-              "configurations": {
-                "ci": {
-                  "ci": true,
-                  "codeCoverage": true
-                }
-              },
+              "outputPath": "dist/libs/browser/data-access/projects/data-access",
+              "configurations": {},
               "parallelism": true,
               "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
               "inputs": [
-                "default",
-                "^production",
-                "{workspaceRoot}/jest.preset.js"
+                "production",
+                "^production"
               ]
             },
             "lint": {
               "executor": "@nx/eslint:lint",
+              "outputs": [
+                "{workspaceRoot}/reports/eslint/{projectName}.json"
+              ],
               "configurations": {},
               "options": {},
               "parallelism": true,
@@ -249,6 +304,28 @@
                 "{workspaceRoot}/.eslintrc.json",
                 "{workspaceRoot}/.eslintignore",
                 "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "options": {
+                "passWithNoTests": true
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
               ]
             }
           },
@@ -367,6 +444,59 @@
           "implicitDependencies": []
         }
       },
+      "document-generator-backend": {
+        "name": "document-generator-backend",
+        "type": "lib",
+        "data": {
+          "root": "libs/node/backend/document-generator-backend",
+          "name": "document-generator-backend",
+          "tags": [
+            "npm:private",
+            "scope:document-generator",
+            "type:backend"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/document-generator-backend",
+              "packageVersion": "0.0.1",
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "targets": {
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/node/backend/document-generator-backend",
+                "tsConfig": "libs/node/backend/document-generator-backend/tsconfig.json",
+                "packageJson": "libs/node/backend/document-generator-backend/package.json",
+                "main": "libs/node/backend/document-generator-backend/src/index.ts",
+                "assets": [
+                  "libs/node/backend/document-generator-backend/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            }
+          },
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/node/backend/document-generator-backend/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
       "rentals-data-access": {
         "name": "rentals-data-access",
         "type": "lib",
@@ -406,6 +536,38 @@
                 "{workspaceRoot}/jest.preset.js"
               ]
             },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "budget-data-access": {
+        "name": "budget-data-access",
+        "type": "lib",
+        "data": {
+          "root": "libs/browser/data-access/budget/data-access",
+          "name": "budget-data-access",
+          "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/browser/data-access/budget/data-access/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:budget",
+            "type:data-access"
+          ],
+          "targets": {
             "lint": {
               "executor": "@nx/eslint:lint",
               "configurations": {},
@@ -548,6 +710,62 @@
               ],
               "options": {
                 "jestConfig": "libs/shared/integrations/storage/jest.config.cts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "document-generator-feature": {
+        "name": "document-generator-feature",
+        "type": "lib",
+        "data": {
+          "root": "libs/browser/feature/document-generator",
+          "name": "document-generator-feature",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/browser/feature/document-generator/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:document-generator",
+            "type:feature"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/browser/feature/document-generator/jest.config.cts",
+                "tsConfig": "libs/browser/feature/document-generator/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -941,6 +1159,10 @@
           "sourceRoot": "libs/browser/feature/projects/feature/src",
           "prefix": "lib",
           "projectType": "library",
+          "implicitDeps": [
+            "projects-data-access",
+            "clients-data-access"
+          ],
           "tags": [
             "scope:projects",
             "type:feature"
@@ -1485,7 +1707,7 @@
           "root": "libs/node/backend/inventory/backend",
           "name": "inventory-backend",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/inventory/backend/src",
+          "sourceRoot": "libs/node/backend/inventory/backend/src",
           "projectType": "library",
           "tags": [
             "scope:inventory",
@@ -1498,9 +1720,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/inventory/backend",
-                "main": "libs/inventory/backend/src/index.ts",
-                "tsConfig": "libs/inventory/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/inventory/backend",
+                "main": "libs/node/backend/inventory/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/inventory/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -1510,7 +1732,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/inventory/backend/**/*.ts"
+                  "libs/node/backend/inventory/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -1526,11 +1748,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/inventory/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/inventory/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/inventory/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/inventory/backend"
               ],
               "configurations": {
                 "ci": {
@@ -1577,9 +1799,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/inventory/domain",
-                "main": "libs/inventory/domain/src/index.ts",
-                "tsConfig": "libs/inventory/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/inventory/core",
+                "main": "libs/isomorphic/core/inventory/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/inventory/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -1589,7 +1811,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/inventory/domain/**/*.ts"
+                  "libs/isomorphic/core/inventory/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -1605,11 +1827,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/inventory/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/inventory/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/inventory/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/inventory/core"
               ],
               "configurations": {
                 "ci": {
@@ -1627,7 +1849,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/inventory/domain/src",
+          "sourceRoot": "libs/isomorphic/core/inventory/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -1657,7 +1879,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/verifactu/core/**/*.ts"
+                  "libs/isomorphic/core/verifactu/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -1673,11 +1895,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/verifactu/core/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/verifactu/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/verifactu/core"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/verifactu/core"
               ],
               "configurations": {
                 "ci": {
@@ -1695,7 +1917,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/verifactu/domain/src",
+          "sourceRoot": "libs/isomorphic/core/verifactu/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -1763,7 +1985,7 @@
           "root": "libs/browser/shell/dashboard/shell",
           "name": "dashboard-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/dashboard/shell/src",
+          "sourceRoot": "libs/browser/shell/dashboard/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -1777,8 +1999,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/dashboard/shell/jest.config.cts",
-                "tsConfig": "libs/dashboard/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/dashboard/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/dashboard/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -1819,7 +2041,7 @@
           "root": "libs/node/backend/delivery/backend",
           "name": "delivery-backend",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/delivery/backend/src",
+          "sourceRoot": "libs/node/backend/delivery/backend/src",
           "projectType": "library",
           "tags": [
             "scope:delivery",
@@ -1835,9 +2057,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/delivery/backend",
-                "main": "libs/delivery/backend/src/index.ts",
-                "tsConfig": "libs/delivery/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/delivery/backend",
+                "main": "libs/node/backend/delivery/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/delivery/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -1847,7 +2069,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/delivery/backend/**/*.ts"
+                  "libs/node/backend/delivery/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -1863,11 +2085,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/delivery/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/delivery/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/delivery/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/delivery/backend"
               ],
               "configurations": {
                 "ci": {
@@ -1913,9 +2135,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/delivery/domain",
-                "main": "libs/delivery/domain/src/index.ts",
-                "tsConfig": "libs/delivery/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/delivery/core",
+                "main": "libs/isomorphic/core/delivery/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/delivery/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -1925,7 +2147,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/delivery/domain/**/*.ts"
+                  "libs/isomorphic/core/delivery/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -1941,11 +2163,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/delivery/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/delivery/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/delivery/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/delivery/core"
               ],
               "configurations": {
                 "ci": {
@@ -1963,7 +2185,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/delivery/domain/src",
+          "sourceRoot": "libs/isomorphic/core/delivery/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2059,9 +2281,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/identity/backend",
-                "main": "libs/identity/backend/src/index.ts",
-                "tsConfig": "libs/identity/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/identity/backend",
+                "main": "libs/node/backend/identity/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/identity/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -2071,7 +2293,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/identity/backend/**/*.ts"
+                  "libs/node/backend/identity/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2087,11 +2309,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/identity/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/identity/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/identity/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/identity/backend"
               ],
               "configurations": {
                 "ci": {
@@ -2109,7 +2331,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/identity/backend/src",
+          "sourceRoot": "libs/node/backend/identity/backend/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2203,7 +2425,7 @@
           "root": "libs/browser/shell/inventory/shell",
           "name": "inventory-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/inventory/shell/src",
+          "sourceRoot": "libs/browser/shell/inventory/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -2217,8 +2439,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/inventory/shell/jest.config.cts",
-                "tsConfig": "libs/inventory/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/inventory/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/inventory/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -2287,9 +2509,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/projects/backend",
-                "main": "libs/projects/backend/src/index.ts",
-                "tsConfig": "libs/projects/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/projects/backend",
+                "main": "libs/node/backend/projects/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/projects/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -2299,7 +2521,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/projects/backend/**/*.ts"
+                  "libs/node/backend/projects/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2315,11 +2537,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/projects/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/projects/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/projects/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/projects/backend"
               ],
               "configurations": {
                 "ci": {
@@ -2337,7 +2559,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/projects/backend/src",
+          "sourceRoot": "libs/node/backend/projects/backend/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2369,9 +2591,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/projects/domain",
-                "main": "libs/projects/domain/src/index.ts",
-                "tsConfig": "libs/projects/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/projects/core",
+                "main": "libs/isomorphic/core/projects/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/projects/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -2381,7 +2603,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/projects/domain/**/*.ts"
+                  "libs/isomorphic/core/projects/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2397,11 +2619,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/projects/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/projects/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/projects/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/projects/core"
               ],
               "configurations": {
                 "ci": {
@@ -2419,7 +2641,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/projects/domain/src",
+          "sourceRoot": "libs/isomorphic/core/projects/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2456,12 +2678,12 @@
             "build": {
               "executor": "@nx/rollup:rollup",
               "outputs": [
-                "{workspaceRoot}/dist/libs/receipts/backend"
+                "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/services/backend",
-                "main": "libs/services/backend/src/index.ts",
-                "tsConfig": "libs/services/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/receipts/backend",
+                "main": "libs/node/backend/receipts/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/receipts/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -2471,7 +2693,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/services/backend/**/*.ts"
+                  "libs/node/backend/receipts/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2487,11 +2709,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/services/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/receipts/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/services/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/receipts/backend"
               ],
               "configurations": {
                 "ci": {
@@ -2509,7 +2731,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/receipts/backend/src",
+          "sourceRoot": "libs/node/backend/receipts/backend/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2631,9 +2853,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/services/backend",
-                "main": "libs/services/backend/src/index.ts",
-                "tsConfig": "libs/services/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/services/backend",
+                "main": "libs/node/backend/services/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/services/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -2643,7 +2865,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/services/backend/**/*.ts"
+                  "libs/node/backend/services/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2659,11 +2881,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/services/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/services/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/services/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/services/backend"
               ],
               "configurations": {
                 "ci": {
@@ -2681,7 +2903,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/services/backend/src",
+          "sourceRoot": "libs/node/backend/services/backend/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2775,7 +2997,7 @@
           "root": "libs/browser/shell/verifactu/shell",
           "name": "verifactu-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/verifactu/shell/src",
+          "sourceRoot": "libs/browser/shell/verifactu/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -2789,8 +3011,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/verifactu/shell/jest.config.cts",
-                "tsConfig": "libs/verifactu/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/verifactu/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/verifactu/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -2828,35 +3050,61 @@
         "name": "billing-backend",
         "type": "lib",
         "data": {
-          "root": "libs/node/backend/billing/backend",
+          "root": "libs/node/backend/billing-backend",
           "name": "billing-backend",
-          "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/billing/backend/src",
-          "projectType": "library",
           "tags": [
+            "npm:public",
             "scope:billing",
             "type:backend"
           ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "billing-backend",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
           "targets": {
-            "build": {
-              "executor": "@nx/rollup:rollup",
-              "outputs": [
-                "{workspaceRoot}/dist/{projectRoot}"
+            "nx-release-publish": {
+              "executor": "@nx/js:release-publish",
+              "dependsOn": [
+                "^nx-release-publish"
               ],
-              "options": {
-                "outputPath": "dist/libs/billing/backend",
-                "main": "libs/billing/backend/src/index.ts",
-                "tsConfig": "libs/billing/backend/tsconfig.lib.json",
-                "assets": []
-              },
+              "options": {},
               "configurations": {},
               "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/node/backend/billing-backend",
+                "tsConfig": "libs/node/backend/billing-backend/tsconfig.lib.json",
+                "packageJson": "libs/node/backend/billing-backend/package.json",
+                "main": "libs/node/backend/billing-backend/src/index.ts",
+                "assets": [
+                  "libs/node/backend/billing-backend/*.md"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
             },
             "lint": {
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/billing/backend/**/*.ts"
+                  "libs/node/backend/billing-backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2872,11 +3120,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/billing/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/billing-backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/billing/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/billing-backend"
               ],
               "configurations": {
                 "ci": {
@@ -2893,6 +3141,9 @@
               ]
             }
           },
+          "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/node/backend/billing-backend/src",
+          "projectType": "library",
           "implicitDependencies": []
         }
       },
@@ -2923,9 +3174,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/billing/core",
-                "main": "libs/billing/core/src/index.ts",
-                "tsConfig": "libs/billing/core/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/billing/core",
+                "main": "libs/isomorphic/core/billing/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/billing/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -2935,7 +3186,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/billing/core/**/*.ts"
+                  "libs/isomorphic/core/billing/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -2951,11 +3202,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/billing/core/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/billing/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/billing/core"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/billing/core"
               ],
               "configurations": {
                 "ci": {
@@ -2973,7 +3224,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/billing/core/src",
+          "sourceRoot": "libs/isomorphic/core/billing/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -2985,7 +3236,7 @@
           "root": "libs/node/backend/clients/backend",
           "name": "clients-backend",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/clients/backend/src",
+          "sourceRoot": "libs/node/backend/clients/backend/src",
           "projectType": "library",
           "tags": [
             "scope:clients",
@@ -2998,9 +3249,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/clients/backend",
-                "main": "libs/clients/backend/src/index.ts",
-                "tsConfig": "libs/clients/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/clients/backend",
+                "main": "libs/node/backend/clients/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/clients/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -3010,7 +3261,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/clients/backend/**/*.ts"
+                  "libs/node/backend/clients/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -3026,11 +3277,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/clients/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/clients/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/clients/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/clients/backend"
               ],
               "configurations": {
                 "ci": {
@@ -3077,9 +3328,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/clients/domain",
-                "main": "libs/clients/domain/src/index.ts",
-                "tsConfig": "libs/clients/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/clients/core",
+                "main": "libs/isomorphic/core/clients/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/clients/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -3089,7 +3340,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/clients/domain/**/*.ts"
+                  "libs/isomorphic/core/clients/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -3105,11 +3356,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/clients/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/clients/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/clients/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/clients/core"
               ],
               "configurations": {
                 "ci": {
@@ -3127,7 +3378,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/clients/domain/src",
+          "sourceRoot": "libs/isomorphic/core/clients/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -3139,7 +3390,7 @@
           "root": "libs/browser/shell/delivery/shell",
           "name": "delivery-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/delivery/shell/src",
+          "sourceRoot": "libs/browser/shell/delivery/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3153,8 +3404,64 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/delivery/shell/jest.config.cts",
-                "tsConfig": "libs/delivery/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/delivery/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/delivery/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "identity-shell": {
+        "name": "identity-shell",
+        "type": "lib",
+        "data": {
+          "root": "libs/browser/shell/identity/shell",
+          "name": "identity-shell",
+          "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/browser/shell/identity/shell/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "scope:identity",
+            "type:shell"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/browser/shell/identity/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/identity/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -3262,7 +3569,7 @@
           "root": "libs/browser/shell/projects/shell",
           "name": "projects-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/projects/shell/src",
+          "sourceRoot": "libs/browser/shell/projects/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3276,8 +3583,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/projects/shell/jest.config.cts",
-                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/projects/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/projects/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -3318,7 +3625,7 @@
           "root": "libs/browser/shell/receipts/shell",
           "name": "receipts-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/receipts/shell/src",
+          "sourceRoot": "libs/browser/shell/receipts/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3332,8 +3639,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/receipts/shell/jest.config.cts",
-                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/receipts/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/receipts/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -3374,7 +3681,7 @@
           "root": "libs/node/backend/rentals/backend",
           "name": "rentals-backend",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/rentals/backend/src",
+          "sourceRoot": "libs/node/backend/rentals/backend/src",
           "projectType": "library",
           "tags": [
             "scope:rentals",
@@ -3390,9 +3697,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/rentals/backend",
-                "main": "libs/rentals/backend/src/index.ts",
-                "tsConfig": "libs/rentals/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/rentals/backend",
+                "main": "libs/node/backend/rentals/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/rentals/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -3402,7 +3709,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/rentals/backend/**/*.ts"
+                  "libs/node/backend/rentals/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -3418,11 +3725,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/rentals/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/rentals/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/rentals/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/rentals/backend"
               ],
               "configurations": {
                 "ci": {
@@ -3468,9 +3775,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/rentals/domain",
-                "main": "libs/rentals/domain/src/index.ts",
-                "tsConfig": "libs/rentals/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/rentals/core",
+                "main": "libs/isomorphic/core/rentals/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/rentals/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -3480,7 +3787,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/rentals/domain/**/*.ts"
+                  "libs/isomorphic/core/rentals/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -3496,11 +3803,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/rentals/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/rentals/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/rentals/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/rentals/core"
               ],
               "configurations": {
                 "ci": {
@@ -3518,7 +3825,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/rentals/domain/src",
+          "sourceRoot": "libs/isomorphic/core/rentals/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -3530,7 +3837,7 @@
           "root": "libs/browser/shell/services/shell",
           "name": "services-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/services/shell/src",
+          "sourceRoot": "libs/browser/shell/services/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3544,8 +3851,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/services/shell/jest.config.cts",
-                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/services/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/services/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -3586,7 +3893,7 @@
           "root": "libs/browser/shell/settings/shell",
           "name": "settings-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/settings/shell/src",
+          "sourceRoot": "libs/browser/shell/settings/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3594,62 +3901,6 @@
             "type:shell"
           ],
           "targets": {
-            "lint": {
-              "executor": "@nx/eslint:lint",
-              "configurations": {},
-              "options": {},
-              "parallelism": true,
-              "cache": true,
-              "inputs": [
-                "default",
-                "{workspaceRoot}/.eslintrc.json",
-                "{workspaceRoot}/.eslintignore",
-                "{workspaceRoot}/eslint.config.mjs"
-              ]
-            }
-          },
-          "implicitDependencies": []
-        }
-      },
-      "shell": {
-        "name": "shell",
-        "type": "lib",
-        "data": {
-          "root": "libs/browser/shell/identity/shell",
-          "name": "shell",
-          "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/identity/shell/src",
-          "prefix": "lib",
-          "projectType": "library",
-          "tags": [
-            "scope:identity",
-            "type:shell"
-          ],
-          "targets": {
-            "test": {
-              "executor": "@nx/jest:jest",
-              "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}"
-              ],
-              "options": {
-                "jestConfig": "libs/identity/shell/jest.config.cts",
-                "tsConfig": "libs/identity/shell/tsconfig.spec.json",
-                "passWithNoTests": true
-              },
-              "configurations": {
-                "ci": {
-                  "ci": true,
-                  "codeCoverage": true
-                }
-              },
-              "parallelism": true,
-              "cache": true,
-              "inputs": [
-                "default",
-                "^production",
-                "{workspaceRoot}/jest.preset.js"
-              ]
-            },
             "lint": {
               "executor": "@nx/eslint:lint",
               "configurations": {},
@@ -3730,7 +3981,7 @@
           "root": "libs/browser/shell/billing/shell",
           "name": "billing-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/billing/shell/src",
+          "sourceRoot": "libs/browser/shell/billing/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3744,8 +3995,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/billing/shell/jest.config.cts",
-                "tsConfig": "libs/billing/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/billing/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/billing/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -3786,7 +4037,7 @@
           "root": "libs/node/backend/budget/backend",
           "name": "budget-backend",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/budget/backend/src",
+          "sourceRoot": "libs/node/backend/budget/backend/src",
           "projectType": "library",
           "tags": [
             "scope:budget",
@@ -3799,9 +4050,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/budget/backend",
-                "main": "libs/budget/backend/src/index.ts",
-                "tsConfig": "libs/budget/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/budget/backend",
+                "main": "libs/node/backend/budget/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/budget/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -3811,7 +4062,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/budget/backend/**/*.ts"
+                  "libs/node/backend/budget/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -3827,11 +4078,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/budget/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/budget/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/budget/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/budget/backend"
               ],
               "configurations": {
                 "ci": {
@@ -3878,9 +4129,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/budget/domain",
-                "main": "libs/budget/domain/src/index.ts",
-                "tsConfig": "libs/budget/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/budget/core",
+                "main": "libs/isomorphic/core/budget/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/budget/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -3890,7 +4141,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/budget/domain/**/*.ts"
+                  "libs/isomorphic/core/budget/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -3906,11 +4157,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/budget/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/budget/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/budget/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/budget/core"
               ],
               "configurations": {
                 "ci": {
@@ -3928,7 +4179,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/budget/domain/src",
+          "sourceRoot": "libs/isomorphic/core/budget/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -3940,7 +4191,7 @@
           "root": "libs/browser/shell/clients/shell",
           "name": "clients-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/clients/shell/src",
+          "sourceRoot": "libs/browser/shell/clients/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -3954,8 +4205,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/clients/shell/jest.config.cts",
-                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/clients/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/clients/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -4083,12 +4334,9 @@
                 "{options.outputPath}"
               ],
               "options": {
-                "outputPath": "dist/libs/identity/api",
-                "main": "libs/identity/api/src/index.ts",
-                "tsConfig": "libs/identity/api/tsconfig.lib.json",
-                "assets": [
-                  "libs/identity/api/*.md"
-                ]
+                "outputPath": "dist/libs/isomorphic/api/identity/api",
+                "main": "libs/isomorphic/api/identity/api/src/index.ts",
+                "tsConfig": "libs/isomorphic/api/identity/api/tsconfig.lib.json"
               },
               "configurations": {},
               "parallelism": true
@@ -4099,7 +4347,7 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/identity/api/jest.config.cts",
+                "jestConfig": "libs/isomorphic/api/identity/api/jest.config.cts",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -4118,7 +4366,7 @@
             }
           },
           "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/identity/api/src",
+          "sourceRoot": "libs/isomorphic/api/identity/api/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -4258,7 +4506,7 @@
           "root": "libs/browser/shell/rentals/shell",
           "name": "rentals-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/rentals/shell/src",
+          "sourceRoot": "libs/browser/shell/rentals/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -4272,8 +4520,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/rentals/shell/jest.config.cts",
-                "tsConfig": "libs/rentals/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/rentals/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/rentals/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -4314,7 +4562,7 @@
           "root": "libs/browser/shell/reports/shell",
           "name": "reports-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/reports/shell/src",
+          "sourceRoot": "libs/browser/shell/reports/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -4328,8 +4576,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/reports/shell/jest.config.cts",
-                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/reports/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/reports/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -4501,7 +4749,7 @@
           "root": "libs/browser/shell/budget/shell",
           "name": "budget-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/budget/shell/src",
+          "sourceRoot": "libs/browser/shell/budget/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -4515,8 +4763,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/budget/shell/jest.config.cts",
-                "tsConfig": "libs/budget/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/budget/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/budget/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -4679,7 +4927,7 @@
           "root": "libs/node/backend/fleet/backend",
           "name": "fleet-backend",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/fleet/backend/src",
+          "sourceRoot": "libs/node/backend/fleet/backend/src",
           "projectType": "library",
           "tags": [
             "scope:fleet",
@@ -4695,9 +4943,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/fleet/backend",
-                "main": "libs/fleet/backend/src/index.ts",
-                "tsConfig": "libs/fleet/backend/tsconfig.lib.json",
+                "outputPath": "dist/libs/node/backend/fleet/backend",
+                "main": "libs/node/backend/fleet/backend/src/index.ts",
+                "tsConfig": "libs/node/backend/fleet/backend/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -4707,7 +4955,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/fleet/backend/**/*.ts"
+                  "libs/node/backend/fleet/backend/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -4723,11 +4971,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/fleet/backend/jest.config.cts",
+                "jestConfig": "libs/node/backend/fleet/backend/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/fleet/backend"
+                "{workspaceRoot}/coverage/libs/node/backend/fleet/backend"
               ],
               "configurations": {
                 "ci": {
@@ -4773,9 +5021,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/fleet/domain",
-                "main": "libs/fleet/domain/src/index.ts",
-                "tsConfig": "libs/fleet/domain/tsconfig.lib.json",
+                "outputPath": "dist/libs/isomorphic/core/fleet/core",
+                "main": "libs/isomorphic/core/fleet/core/src/index.ts",
+                "tsConfig": "libs/isomorphic/core/fleet/core/tsconfig.lib.json",
                 "assets": []
               },
               "configurations": {},
@@ -4785,7 +5033,7 @@
               "executor": "@nx/eslint:lint",
               "options": {
                 "lintFilePatterns": [
-                  "libs/fleet/domain/**/*.ts"
+                  "libs/isomorphic/core/fleet/core/**/*.ts"
                 ]
               },
               "configurations": {},
@@ -4801,11 +5049,11 @@
             "test": {
               "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "libs/fleet/domain/jest.config.cts",
+                "jestConfig": "libs/isomorphic/core/fleet/core/jest.config.cts",
                 "passWithNoTests": true
               },
               "outputs": [
-                "{workspaceRoot}/coverage/libs/fleet/domain"
+                "{workspaceRoot}/coverage/libs/isomorphic/core/fleet/core"
               ],
               "configurations": {
                 "ci": {
@@ -4823,7 +5071,7 @@
             }
           },
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/fleet/domain/src",
+          "sourceRoot": "libs/isomorphic/core/fleet/core/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -4921,12 +5169,9 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "outputPath": "dist/libs/shared/data-access",
-                "main": "libs/shared/data-access/src/index.ts",
-                "tsConfig": "libs/shared/data-access/tsconfig.lib.json",
-                "assets": [
-                  "libs/shared/data-access/*.md"
-                ]
+                "outputPath": "dist/libs/browser/shared/data-access",
+                "main": "libs/browser/shared/data-access/src/index.ts",
+                "tsConfig": "libs/browser/shared/data-access/tsconfig.lib.json"
               },
               "configurations": {},
               "parallelism": true
@@ -4937,7 +5182,7 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/shared/data-access/jest.config.cts",
+                "jestConfig": "libs/browser/shared/data-access/jest.config.cts",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -4969,7 +5214,7 @@
             }
           },
           "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/shared/data-access/src",
+          "sourceRoot": "libs/browser/shared/data-access/src",
           "projectType": "library",
           "implicitDependencies": []
         }
@@ -5064,7 +5309,7 @@
           "root": "libs/browser/shell/audit/shell",
           "name": "audit-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/audit/shell/src",
+          "sourceRoot": "libs/browser/shell/audit/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -5078,8 +5323,64 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/audit/shell/jest.config.cts",
-                "tsConfig": "libs/clients/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/audit/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/audit/shell/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "babooni-ui": {
+        "name": "babooni-ui",
+        "type": "lib",
+        "data": {
+          "root": "libs/browser/shared/babooni-ui",
+          "name": "babooni-ui",
+          "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/browser/shared/babooni-ui/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "tags": [
+            "type:shell",
+            "type:ui"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/browser/shared/babooni-ui/jest.config.cts",
+                "tsConfig": "libs/browser/shared/babooni-ui/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -5187,7 +5488,7 @@
           "root": "libs/browser/shell/fleet/shell",
           "name": "fleet-shell",
           "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/fleet/shell/src",
+          "sourceRoot": "libs/browser/shell/fleet/shell/src",
           "prefix": "lib",
           "projectType": "library",
           "tags": [
@@ -5201,8 +5502,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/fleet/shell/jest.config.cts",
-                "tsConfig": "libs/fleet/shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shell/fleet/shell/jest.config.cts",
+                "tsConfig": "libs/browser/shell/fleet/shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -5515,7 +5816,7 @@
           "name": "shared-ui-shell",
           "tags": [
             "npm:public",
-            "scope:shared",
+            "type:shell",
             "type:ui"
           ],
           "metadata": {
@@ -5542,7 +5843,7 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "tsConfig": "libs/shared/ui-shell/tsconfig.lib.json"
+                "tsConfig": "libs/browser/shared/ui-shell/tsconfig.lib.json"
               },
               "configurations": {},
               "parallelism": true,
@@ -5561,8 +5862,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/shared/ui-shell/jest.config.cts",
-                "tsConfig": "libs/shared/ui-shell/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shared/ui-shell/jest.config.cts",
+                "tsConfig": "libs/browser/shared/ui-shell/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -5594,7 +5895,7 @@
             }
           },
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/shared/ui-shell/src",
+          "sourceRoot": "libs/browser/shared/ui-shell/src",
           "prefix": "lib",
           "projectType": "library",
           "implicitDependencies": []
@@ -5760,7 +6061,7 @@
                 "{workspaceRoot}/dist/{projectRoot}"
               ],
               "options": {
-                "tsConfig": "libs/shared/ui-kit/tsconfig.lib.json"
+                "tsConfig": "libs/browser/shared/ui-kit/tsconfig.lib.json"
               },
               "configurations": {},
               "parallelism": true,
@@ -5779,8 +6080,8 @@
                 "{workspaceRoot}/coverage/{projectRoot}"
               ],
               "options": {
-                "jestConfig": "libs/shared/ui-kit/jest.config.cts",
-                "tsConfig": "libs/shared/ui-kit/tsconfig.spec.json",
+                "jestConfig": "libs/browser/shared/ui-kit/jest.config.cts",
+                "tsConfig": "libs/browser/shared/ui-kit/tsconfig.spec.json",
                 "passWithNoTests": true
               },
               "configurations": {
@@ -5814,8 +6115,9 @@
               "executor": "@storybook/angular:start-storybook",
               "options": {
                 "port": 4400,
-                "configDir": "libs/shared/ui-kit/.storybook",
-                "browserTarget": "ui-kit:build-storybook",
+                "configDir": "libs/browser/shared/ui-kit/.storybook",
+                "browserTarget": "ui-kit:build",
+                "tsConfig": "libs/browser/shared/ui-kit/.storybook/tsconfig.json",
                 "compodoc": false
               },
               "configurations": {
@@ -5832,8 +6134,9 @@
               ],
               "options": {
                 "outputDir": "dist/storybook/ui-kit",
-                "configDir": "libs/shared/ui-kit/.storybook",
-                "browserTarget": "ui-kit:build-storybook",
+                "configDir": "libs/browser/shared/ui-kit/.storybook",
+                "browserTarget": "ui-kit:build",
+                "tsConfig": "libs/browser/shared/ui-kit/.storybook/tsconfig.json",
                 "compodoc": false
               },
               "configurations": {
@@ -5853,7 +6156,7 @@
             "test-storybook": {
               "executor": "nx:run-commands",
               "options": {
-                "command": "test-storybook -c libs/shared/ui-kit/.storybook --url=http://localhost:4400"
+                "command": "test-storybook -c libs/browser/shared/ui-kit/.storybook --url=http://localhost:4400"
               },
               "configurations": {},
               "parallelism": true
@@ -5878,7 +6181,105 @@
             }
           },
           "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/shared/ui-kit/src",
+          "sourceRoot": "libs/browser/shared/ui-kit/src",
+          "prefix": "lib",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "theme-manager": {
+        "name": "theme-manager",
+        "type": "lib",
+        "data": {
+          "root": "libs/shared/theme-manager",
+          "name": "theme-manager",
+          "tags": [
+            "npm:public"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@josanz-erp/theme-manager",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
+          "targets": {
+            "nx-release-publish": {
+              "executor": "@nx/js:release-publish",
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "options": {},
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/angular:ng-packagr-lite",
+              "outputs": [
+                "{workspaceRoot}/dist/{projectRoot}"
+              ],
+              "options": {
+                "project": "libs/shared/theme-manager/ng-package.json",
+                "tsConfig": "libs/shared/theme-manager/tsconfig.lib.json"
+              },
+              "configurations": {
+                "production": {
+                  "tsConfig": "libs/shared/theme-manager/tsconfig.lib.prod.json"
+                },
+                "development": {}
+              },
+              "defaultConfiguration": "production",
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "libs/shared/theme-manager/jest.config.cts",
+                "tsConfig": "libs/shared/theme-manager/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            }
+          },
+          "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/shared/theme-manager/src",
           "prefix": "lib",
           "projectType": "library",
           "implicitDependencies": []
@@ -5966,6 +6367,181 @@
             }
           },
           "implicitDependencies": []
+        }
+      },
+      "document-generator": {
+        "name": "document-generator",
+        "type": "app",
+        "data": {
+          "root": "apps/document-generator",
+          "name": "document-generator",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "prefix": "app",
+          "sourceRoot": "apps/document-generator/src",
+          "tags": [
+            "scope:document-generator",
+            "type:app"
+          ],
+          "implicitDependencies": [],
+          "targets": {
+            "build": {
+              "executor": "@angular/build:application",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "dependsOn": [],
+              "options": {
+                "outputPath": "dist/apps/document-generator",
+                "browser": "apps/document-generator/src/main.ts",
+                "polyfills": [
+                  "zone.js"
+                ],
+                "tsConfig": "apps/document-generator/tsconfig.app.json",
+                "allowedCommonJsDependencies": [
+                  "class-validator",
+                  "class-transformer",
+                  "class-transformer/storage",
+                  "dexie"
+                ],
+                "assets": [
+                  {
+                    "glob": "**/*",
+                    "input": "apps/document-generator/public"
+                  }
+                ],
+                "styles": [
+                  "apps/document-generator/src/styles.css"
+                ],
+                "budgets": [
+                  {
+                    "type": "initial",
+                    "maximumWarning": "720kb",
+                    "maximumError": "1.25mb"
+                  },
+                  {
+                    "type": "anyComponentStyle",
+                    "maximumWarning": "16kb",
+                    "maximumError": "24kb"
+                  }
+                ]
+              },
+              "configurations": {
+                "production": {
+                  "fileReplacements": [
+                    {
+                      "replace": "apps/document-generator/src/environments/environment.ts",
+                      "with": "apps/document-generator/src/environments/environment.prod.ts"
+                    }
+                  ],
+                  "outputHashing": "all",
+                  "budgets": [
+                    {
+                      "type": "initial",
+                      "maximumWarning": "720kb",
+                      "maximumError": "1.25mb"
+                    },
+                    {
+                      "type": "anyComponentStyle",
+                      "maximumWarning": "16kb",
+                      "maximumError": "24kb"
+                    }
+                  ]
+                },
+                "development": {
+                  "optimization": false,
+                  "extractLicenses": false,
+                  "sourceMap": true,
+                  "budgets": [
+                    {
+                      "type": "initial",
+                      "maximumWarning": "3mb",
+                      "maximumError": "5mb"
+                    },
+                    {
+                      "type": "anyComponentStyle",
+                      "maximumWarning": "20kb",
+                      "maximumError": "32kb"
+                    }
+                  ]
+                }
+              },
+              "defaultConfiguration": "production",
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@angular/build:dev-server",
+              "options": {
+                "port": 4210,
+                "host": "localhost"
+              },
+              "configurations": {
+                "production": {
+                  "buildTarget": "document-generator:build:production"
+                },
+                "development": {
+                  "buildTarget": "document-generator:build:development"
+                }
+              },
+              "defaultConfiguration": "development",
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "apps/document-generator/jest.config.cts",
+                "tsConfig": "apps/document-generator/tsconfig.spec.json",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              },
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js"
+              ]
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "document-generator:build",
+                "port": 4210,
+                "staticFilePath": "dist/apps/document-generator/browser",
+                "spa": true
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          }
         }
       },
       "verifactu-worker": {
@@ -6084,6 +6660,129 @@
                 "^production",
                 "{workspaceRoot}/jest.preset.js"
               ]
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "saas-platform": {
+        "name": "saas-platform",
+        "type": "app",
+        "data": {
+          "root": "apps/saas-platform",
+          "name": "saas-platform",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "prefix": "app",
+          "sourceRoot": "apps/saas-platform/src",
+          "tags": [
+            "scope:frontend",
+            "type:app",
+            "scope:saas-platform"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@angular/build:application",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/apps/saas-platform",
+                "browser": "apps/saas-platform/src/main.ts",
+                "tsConfig": "apps/saas-platform/tsconfig.app.json",
+                "assets": [
+                  {
+                    "glob": "**/*",
+                    "input": "apps/saas-platform/public"
+                  }
+                ],
+                "styles": [
+                  "apps/saas-platform/src/styles.css"
+                ],
+                "polyfills": [
+                  "zone.js"
+                ]
+              },
+              "configurations": {
+                "production": {
+                  "fileReplacements": [
+                    {
+                      "replace": "apps/saas-platform/src/environments/environment.ts",
+                      "with": "apps/saas-platform/src/environments/environment.prod.ts"
+                    }
+                  ],
+                  "budgets": [
+                    {
+                      "type": "initial",
+                      "maximumWarning": "500kb",
+                      "maximumError": "1mb"
+                    },
+                    {
+                      "type": "anyComponentStyle",
+                      "maximumWarning": "8kb",
+                      "maximumError": "12kb"
+                    }
+                  ],
+                  "outputHashing": "all"
+                },
+                "development": {
+                  "optimization": false,
+                  "extractLicenses": false,
+                  "sourceMap": true
+                }
+              },
+              "defaultConfiguration": "development",
+              "parallelism": true,
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ]
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@angular/build:dev-server",
+              "options": {
+                "port": 4300
+              },
+              "configurations": {
+                "production": {
+                  "buildTarget": "saas-platform:build:production"
+                },
+                "development": {
+                  "buildTarget": "saas-platform:build:development"
+                }
+              },
+              "defaultConfiguration": "development",
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "{workspaceRoot}/.eslintrc.json",
+                "{workspaceRoot}/.eslintignore",
+                "{workspaceRoot}/eslint.config.mjs"
+              ]
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "saas-platform:build",
+                "port": 4300,
+                "staticFilePath": "dist/apps/saas-platform/browser",
+                "spa": true
+              },
+              "configurations": {},
+              "parallelism": true
             }
           },
           "implicitDependencies": []
@@ -6229,6 +6928,81 @@
           "targets": {}
         }
       },
+      "storybook-static": {
+        "name": "storybook-static",
+        "type": "lib",
+        "data": {
+          "root": "storybook-static",
+          "name": "storybook-static",
+          "generatedAt": 1775868201754,
+          "userSince": 1771327657414,
+          "hasCustomBabel": false,
+          "hasCustomWebpack": false,
+          "hasStaticDirs": false,
+          "hasStorybookEslint": false,
+          "refCount": 0,
+          "knownPackages": {
+            "testPackages": {
+              "@nx/playwright": "22.6.2",
+              "@playwright/test": "1.59.1",
+              "eslint-plugin-playwright": "1.8.3",
+              "jest": "30.3.0",
+              "playwright": "1.59.1"
+            },
+            "stylingPackages": {
+              "autoprefixer": "^10.4.0",
+              "postcss": "^8.4.5",
+              "tailwindcss": "^3.0.2"
+            }
+          },
+          "hasRouterPackage": true,
+          "monorepo": "Nx",
+          "packageManager": {
+            "type": "pnpm",
+            "agent": "pnpm",
+            "nodeLinker": "undefined"
+          },
+          "typescriptOptions": {
+            "check": false,
+            "checkOptions": {},
+            "reactDocgen": "react-docgen-typescript",
+            "reactDocgenTypescriptOptions": {
+              "shouldExtractLiteralValuesFromEnum": true
+            }
+          },
+          "preview": {
+            "usesGlobals": false
+          },
+          "framework": {
+            "name": "@storybook/angular",
+            "options": {}
+          },
+          "builder": "@storybook/builder-webpack5",
+          "renderer": "@storybook/angular",
+          "portableStoriesFileCount": 0,
+          "applicationFileCount": 0,
+          "storybookVersion": "10.3.3",
+          "storybookVersionSpecifier": "10.3.3",
+          "language": "typescript",
+          "storybookPackages": {
+            "@nx/storybook": {
+              "version": "22.6.2"
+            },
+            "@storybook/angular": {
+              "version": "10.3.3"
+            },
+            "storybook": {}
+          },
+          "addons": {
+            "@storybook/addon-essentials": {},
+            "@storybook/addon-interactions": {}
+          },
+          "packageJsonType": "unknown",
+          "implicitDependencies": [],
+          "targets": {},
+          "tags": []
+        }
+      },
       "frontend": {
         "name": "frontend",
         "type": "app",
@@ -6255,7 +7029,8 @@
             "services-shell",
             "reports-shell",
             "audit-shell",
-            "receipts-shell"
+            "receipts-shell",
+            "projects-data-access"
           ],
           "targets": {
             "build": {
@@ -6293,8 +7068,8 @@
                   },
                   {
                     "type": "anyComponentStyle",
-                    "maximumWarning": "16kb",
-                    "maximumError": "24kb"
+                    "maximumWarning": "44kb",
+                    "maximumError": "48kb"
                   }
                 ]
               },
@@ -6315,8 +7090,8 @@
                     },
                     {
                       "type": "anyComponentStyle",
-                      "maximumWarning": "16kb",
-                      "maximumError": "24kb"
+                      "maximumWarning": "44kb",
+                      "maximumError": "48kb"
                     }
                   ]
                 },
@@ -6327,13 +7102,13 @@
                   "budgets": [
                     {
                       "type": "initial",
-                      "maximumWarning": "3mb",
+                      "maximumWarning": "3.1mb",
                       "maximumError": "5mb"
                     },
                     {
                       "type": "anyComponentStyle",
-                      "maximumWarning": "20kb",
-                      "maximumError": "32kb"
+                      "maximumWarning": "44kb",
+                      "maximumError": "48kb"
                     }
                   ]
                 }
@@ -6349,6 +7124,9 @@
             "serve": {
               "continuous": true,
               "executor": "@angular/build:dev-server",
+              "options": {
+                "proxyConfig": "apps/frontend/proxy.conf.json"
+              },
               "configurations": {
                 "production": {
                   "buildTarget": "frontend:build:production"
@@ -6358,7 +7136,6 @@
                 }
               },
               "defaultConfiguration": "development",
-              "options": {},
               "parallelism": true
             },
             "lint": {
@@ -6546,10 +7323,893 @@
           "projectType": "application",
           "implicitDependencies": []
         }
+      },
+      "@josanz-erp/source": {
+        "name": "@josanz-erp/source",
+        "type": "app",
+        "data": {
+          "root": ".",
+          "name": "@josanz-erp/source",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {
+              "NPM Scripts": [
+                "postinstall",
+                "seed:backend",
+                "db:seed",
+                "kill:node",
+                "kill:backend",
+                "kill:inspector",
+                "prisma",
+                "dev:backend",
+                "dev:frontend",
+                "dev:saas-platform",
+                "services:up",
+                "docker:build:backend",
+                "docker:build:frontend",
+                "docker:prod:up",
+                "docker:prod:pull",
+                "services:down",
+                "backend:dev:full",
+                "backend:dev:3001",
+                "backend:build:prod",
+                "backend:copy-workspace-modules",
+                "backend:start:prod",
+                "backend:prod",
+                "backend:prod:3001",
+                "db:up",
+                "db:down",
+                "db:migrate",
+                "db:migrate:deploy",
+                "db:generate",
+                "db:studio",
+                "db:reset",
+                "db:link",
+                "db:setup",
+                "verifactu:db:up",
+                "verifactu:db:down",
+                "verifactu:db:migrate",
+                "verifactu:db:push",
+                "verifactu:db:generate",
+                "verifactu:db:reset",
+                "verifactu:db:seed",
+                "verifactu-worker:serve",
+                "verifactu-worker:serve:unix",
+                "nx:reset",
+                "test",
+                "lint",
+                "build",
+                "lint:frontend",
+                "build:frontend",
+                "test:frontend",
+                "build:backend",
+                "test:backend",
+                "build:verifactu-api",
+                "test:verifactu-api",
+                "build:verifactu-worker",
+                "test:verifactu-worker",
+                "prisma:seed",
+                "docs:frontend",
+                "storybook",
+                "storybook:fresh",
+                "build-storybook",
+                "storybook:static",
+                "storybook:serve",
+                "dev:docs",
+                "build:docs",
+                "analyze:docs",
+                "perf:docs"
+              ]
+            },
+            "js": {
+              "packageName": "@josanz-erp/source",
+              "packageVersion": "0.0.0",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "targets": {
+            "postinstall": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "postinstall"
+              },
+              "metadata": {
+                "scriptContent": "node scripts/fix-json-schema-meta.cjs && npx prisma generate --schema=apps/backend/prisma/schema.prisma && node scripts/link-prisma-generated.cjs",
+                "runCommand": "pnpm run postinstall"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "seed:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "seed:backend"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- npx prisma db seed --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run seed:backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:seed": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:seed"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- npx prisma db seed --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run db:seed"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "kill:node": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "kill:node"
+              },
+              "metadata": {
+                "scriptContent": "taskkill /IM node.exe /F",
+                "runCommand": "pnpm run kill:node"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "kill:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "kill:backend"
+              },
+              "metadata": {
+                "scriptContent": "for /f \"tokens=5\" %a in ('netstat -aon ^| find \":3100\" ^| find \"LISTENING\"') do taskkill /PID %a /F",
+                "runCommand": "pnpm run kill:backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "kill:inspector": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "kill:inspector"
+              },
+              "metadata": {
+                "scriptContent": "for /f \"tokens=5\" %a in ('netstat -aon ^| find \":9229\" ^| find \"LISTENING\"') do taskkill /PID %a /F",
+                "runCommand": "pnpm run kill:inspector"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prisma": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "prisma"
+              },
+              "metadata": {
+                "scriptContent": "npx prisma studio --port 5555",
+                "runCommand": "pnpm run prisma"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:backend"
+              },
+              "metadata": {
+                "scriptContent": "nx serve backend",
+                "runCommand": "pnpm run dev:backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:frontend"
+              },
+              "metadata": {
+                "scriptContent": "nx serve frontend",
+                "runCommand": "pnpm run dev:frontend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev:saas-platform": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:saas-platform"
+              },
+              "metadata": {
+                "scriptContent": "nx serve saas-platform",
+                "runCommand": "pnpm run dev:saas-platform"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "services:up": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "services:up"
+              },
+              "metadata": {
+                "scriptContent": "docker compose up -d postgres redis",
+                "runCommand": "pnpm run services:up"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:build:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docker:build:backend"
+              },
+              "metadata": {
+                "scriptContent": "docker build -f docker/backend/Dockerfile -t josanz-backend:local .",
+                "runCommand": "pnpm run docker:build:backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:build:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docker:build:frontend"
+              },
+              "metadata": {
+                "scriptContent": "docker build -f docker/frontend/Dockerfile -t josanz-frontend:local .",
+                "runCommand": "pnpm run docker:build:frontend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:prod:up": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docker:prod:up"
+              },
+              "metadata": {
+                "scriptContent": "docker compose -f docker-compose.prod.yml --env-file deploy/.env up -d",
+                "runCommand": "pnpm run docker:prod:up"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:prod:pull": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docker:prod:pull"
+              },
+              "metadata": {
+                "scriptContent": "docker compose -f docker-compose.prod.yml --env-file deploy/.env pull && docker compose -f docker-compose.prod.yml --env-file deploy/.env up -d",
+                "runCommand": "pnpm run docker:prod:pull"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "services:down": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "services:down"
+              },
+              "metadata": {
+                "scriptContent": "docker compose down",
+                "runCommand": "pnpm run services:down"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:dev:full": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:dev:full"
+              },
+              "metadata": {
+                "scriptContent": "npm run services:up && npx dotenv -o -e apps/backend/.env -- nx serve backend",
+                "runCommand": "pnpm run backend:dev:full"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:dev:3001": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:dev:3001"
+              },
+              "metadata": {
+                "scriptContent": "set PORT=3001&& npm run backend:dev:full",
+                "runCommand": "pnpm run backend:dev:3001"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:build:prod": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:build:prod"
+              },
+              "metadata": {
+                "scriptContent": "nx run backend:build:production",
+                "runCommand": "pnpm run backend:build:prod"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:copy-workspace-modules": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:copy-workspace-modules"
+              },
+              "metadata": {
+                "scriptContent": "nx run backend:copy-workspace-modules --outputPath=dist/apps/backend",
+                "runCommand": "pnpm run backend:copy-workspace-modules"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:start:prod": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:start:prod"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- node dist/apps/backend/main.js",
+                "runCommand": "pnpm run backend:start:prod"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:prod": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:prod"
+              },
+              "metadata": {
+                "scriptContent": "npm run services:up && npm run backend:build:prod && npm run backend:start:prod",
+                "runCommand": "pnpm run backend:prod"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "backend:prod:3001": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "backend:prod:3001"
+              },
+              "metadata": {
+                "scriptContent": "set PORT=3001&& npm run backend:prod",
+                "runCommand": "pnpm run backend:prod:3001"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:up": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:up"
+              },
+              "metadata": {
+                "scriptContent": "docker-compose up -d",
+                "runCommand": "pnpm run db:up"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:down": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:down"
+              },
+              "metadata": {
+                "scriptContent": "docker-compose down",
+                "runCommand": "pnpm run db:down"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:migrate": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:migrate"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- npx prisma migrate dev --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run db:migrate"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:migrate:deploy": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:migrate:deploy"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run db:migrate:deploy"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:generate": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:generate"
+              },
+              "metadata": {
+                "scriptContent": "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run db:generate"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:studio": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:studio"
+              },
+              "metadata": {
+                "scriptContent": "npx prisma studio --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run db:studio"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:reset": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:reset"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- npx prisma migrate reset --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run db:reset"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:link": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:link"
+              },
+              "metadata": {
+                "scriptContent": "node scripts/link-prisma-generated.cjs",
+                "runCommand": "pnpm run db:link"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "db:setup": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "db:setup"
+              },
+              "metadata": {
+                "scriptContent": "npm run db:migrate:deploy && npm run db:generate && npm run db:link && npm run db:seed",
+                "runCommand": "pnpm run db:setup"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:up": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:up"
+              },
+              "metadata": {
+                "scriptContent": "docker compose -f docker-compose.verifactu.yml up -d",
+                "runCommand": "pnpm run verifactu:db:up"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:down": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:down"
+              },
+              "metadata": {
+                "scriptContent": "docker compose -f docker-compose.verifactu.yml down",
+                "runCommand": "pnpm run verifactu:db:down"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:migrate": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:migrate"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/verifactu-api/.env -- npx prisma migrate dev --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run verifactu:db:migrate"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:push": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:push"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/verifactu-api/.env -- npx prisma db push --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run verifactu:db:push"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:generate": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:generate"
+              },
+              "metadata": {
+                "scriptContent": "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run verifactu:db:generate"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:reset": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:reset"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/verifactu-api/.env -- npx prisma migrate reset --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run verifactu:db:reset"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu:db:seed": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu:db:seed"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/verifactu-api/.env -- npx ts-node --project apps/backend/tsconfig.app.json apps/backend/prisma/seed.ts",
+                "runCommand": "pnpm run verifactu:db:seed"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu-worker:serve": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu-worker:serve"
+              },
+              "metadata": {
+                "scriptContent": "set NX_DAEMON=false&& set NX_PLUGIN_NO_TIMEOUTS=true&& nx run verifactu-worker:serve",
+                "runCommand": "pnpm run verifactu-worker:serve"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "verifactu-worker:serve:unix": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "verifactu-worker:serve:unix"
+              },
+              "metadata": {
+                "scriptContent": "NX_DAEMON=false NX_PLUGIN_NO_TIMEOUTS=true nx run verifactu-worker:serve",
+                "runCommand": "pnpm run verifactu-worker:serve:unix"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "nx:reset": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "nx:reset"
+              },
+              "metadata": {
+                "scriptContent": "nx reset",
+                "runCommand": "pnpm run nx:reset"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test"
+              },
+              "metadata": {
+                "scriptContent": "nx run-many --target=test --configuration=ci --all",
+                "runCommand": "pnpm run test"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "lint"
+              },
+              "metadata": {
+                "scriptContent": "nx run-many --target=lint --all",
+                "runCommand": "pnpm run lint"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build"
+              },
+              "metadata": {
+                "scriptContent": "nx run-many --target=build --configuration=production --all",
+                "runCommand": "pnpm run build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "lint:frontend"
+              },
+              "metadata": {
+                "scriptContent": "nx run frontend:lint",
+                "runCommand": "pnpm run lint:frontend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:frontend"
+              },
+              "metadata": {
+                "scriptContent": "nx run frontend:build --configuration=production",
+                "runCommand": "pnpm run build:frontend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:frontend"
+              },
+              "metadata": {
+                "scriptContent": "nx run frontend:test --configuration=ci",
+                "runCommand": "pnpm run test:frontend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:backend"
+              },
+              "metadata": {
+                "scriptContent": "nx run backend:build --configuration=production",
+                "runCommand": "pnpm run build:backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:backend"
+              },
+              "metadata": {
+                "scriptContent": "nx run backend:test --configuration=ci",
+                "runCommand": "pnpm run test:backend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build:verifactu-api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:verifactu-api"
+              },
+              "metadata": {
+                "scriptContent": "nx run verifactu-api:build --configuration=production",
+                "runCommand": "pnpm run build:verifactu-api"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test:verifactu-api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:verifactu-api"
+              },
+              "metadata": {
+                "scriptContent": "nx run verifactu-api:test --configuration=ci",
+                "runCommand": "pnpm run test:verifactu-api"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build:verifactu-worker": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:verifactu-worker"
+              },
+              "metadata": {
+                "scriptContent": "nx run verifactu-worker:build --configuration=production",
+                "runCommand": "pnpm run build:verifactu-worker"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test:verifactu-worker": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:verifactu-worker"
+              },
+              "metadata": {
+                "scriptContent": "nx run verifactu-worker:test --configuration=ci",
+                "runCommand": "pnpm run test:verifactu-worker"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prisma:seed": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "prisma:seed"
+              },
+              "metadata": {
+                "scriptContent": "npx dotenv -o -e apps/backend/.env -- npx prisma db seed --schema=apps/backend/prisma/schema.prisma",
+                "runCommand": "pnpm run prisma:seed"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docs:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:frontend"
+              },
+              "metadata": {
+                "scriptContent": "npx -y @compodoc/compodoc -p apps/frontend/tsconfig.app.json -d documentation/compodoc --silent",
+                "runCommand": "pnpm run docs:frontend"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "storybook": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "storybook"
+              },
+              "metadata": {
+                "scriptContent": "pnpm exec nx run ui-kit:storybook",
+                "runCommand": "pnpm run storybook"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "storybook:fresh": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "storybook:fresh"
+              },
+              "metadata": {
+                "scriptContent": "pnpm exec nx run ui-kit:storybook --args=\"--no-manager-cache\"",
+                "runCommand": "pnpm run storybook:fresh"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-storybook": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build-storybook"
+              },
+              "metadata": {
+                "scriptContent": "pnpm exec nx run ui-kit:build-storybook",
+                "runCommand": "pnpm run build-storybook"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{projectRoot}/.storybook/**/*",
+                "{projectRoot}/tsconfig.storybook.json"
+              ]
+            },
+            "storybook:static": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "storybook:static"
+              },
+              "metadata": {
+                "scriptContent": "pnpm build-storybook && node scripts/storybook-static-serve.js",
+                "runCommand": "pnpm run storybook:static"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "storybook:serve": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "storybook:serve"
+              },
+              "metadata": {
+                "scriptContent": "pnpm exec nx run ui-kit:static-storybook",
+                "runCommand": "pnpm run storybook:serve"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev:docs": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:docs"
+              },
+              "metadata": {
+                "scriptContent": "nx serve document-generator --port=4210",
+                "runCommand": "pnpm run dev:docs"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build:docs": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:docs"
+              },
+              "metadata": {
+                "scriptContent": "nx run document-generator:build:production",
+                "runCommand": "pnpm run build:docs"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "analyze:docs": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "analyze:docs"
+              },
+              "metadata": {
+                "scriptContent": "nx run document-generator:build:production --stats-json && npx webpack-bundle-analyzer dist/apps/document-generator/stats.json",
+                "runCommand": "pnpm run analyze:docs"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "perf:docs": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "perf:docs"
+              },
+              "metadata": {
+                "scriptContent": "npx lighthouse http://localhost:4210 --view --output html --output-path ./docs-performance.html",
+                "runCommand": "pnpm run perf:docs"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
       }
     },
     "dependencies": {
-      "inventory-data-access": [],
+      "inventory-data-access": [
+        {
+          "source": "inventory-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
       "verifactu-data-access": [
         {
           "source": "verifactu-data-access",
@@ -6557,19 +8217,37 @@
           "type": "static"
         }
       ],
-      "data-access": [
+      "delivery-data-access": [
         {
-          "source": "data-access",
-          "target": "identity-api",
-          "type": "static"
-        },
-        {
-          "source": "data-access",
+          "source": "delivery-data-access",
           "target": "shared-data-access",
           "type": "static"
         }
       ],
-      "delivery-data-access": [],
+      "identity-data-access": [
+        {
+          "source": "identity-data-access",
+          "target": "identity-core",
+          "type": "static"
+        },
+        {
+          "source": "identity-data-access",
+          "target": "identity-api",
+          "type": "static"
+        },
+        {
+          "source": "identity-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "projects-data-access": [
+        {
+          "source": "projects-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
       "billing-data-access": [
         {
           "source": "billing-data-access",
@@ -6583,15 +8261,63 @@
         },
         {
           "source": "billing-data-access",
-          "target": "data-access",
+          "target": "identity-data-access",
+          "type": "static"
+        },
+        {
+          "source": "billing-data-access",
+          "target": "shared-data-access",
           "type": "static"
         }
       ],
-      "clients-data-access": [],
-      "rentals-data-access": [],
-      "fleet-data-access": [],
-      "ai-insights-feature": [],
+      "clients-data-access": [
+        {
+          "source": "clients-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "document-generator-backend": [],
+      "rentals-data-access": [
+        {
+          "source": "rentals-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "budget-data-access": [
+        {
+          "source": "budget-data-access",
+          "target": "budget-api",
+          "type": "static"
+        },
+        {
+          "source": "budget-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "fleet-data-access": [
+        {
+          "source": "fleet-data-access",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
+      "ai-insights-feature": [
+        {
+          "source": "ai-insights-feature",
+          "target": "ui-kit",
+          "type": "static"
+        },
+        {
+          "source": "ai-insights-feature",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
       "shared-integrations-storage": [],
+      "document-generator-feature": [],
       "dashboard-feature": [
         {
           "source": "dashboard-feature",
@@ -6640,7 +8366,7 @@
         },
         {
           "source": "verifactu-feature",
-          "target": "data-access",
+          "target": "identity-data-access",
           "type": "static"
         },
         {
@@ -6674,17 +8400,17 @@
       "identity-feature": [
         {
           "source": "identity-feature",
-          "target": "data-access",
-          "type": "static"
-        },
-        {
-          "source": "identity-feature",
-          "target": "ui-kit",
+          "target": "identity-data-access",
           "type": "static"
         },
         {
           "source": "identity-feature",
           "target": "shared-data-access",
+          "type": "static"
+        },
+        {
+          "source": "identity-feature",
+          "target": "ui-kit",
           "type": "static"
         },
         {
@@ -6702,6 +8428,16 @@
         {
           "source": "projects-feature",
           "target": "shared-data-access",
+          "type": "static"
+        },
+        {
+          "source": "projects-feature",
+          "target": "clients-data-access",
+          "type": "static"
+        },
+        {
+          "source": "projects-feature",
+          "target": "projects-data-access",
           "type": "static"
         }
       ],
@@ -6739,6 +8475,21 @@
           "source": "settings-feature",
           "target": "shared-data-access",
           "type": "static"
+        },
+        {
+          "source": "settings-feature",
+          "target": "identity-data-access",
+          "type": "static"
+        },
+        {
+          "source": "settings-feature",
+          "target": "identity-api",
+          "type": "static"
+        },
+        {
+          "source": "settings-feature",
+          "target": "identity-core",
+          "type": "static"
         }
       ],
       "verifactu-adapters": [
@@ -6766,7 +8517,7 @@
         },
         {
           "source": "billing-feature",
-          "target": "data-access",
+          "target": "identity-data-access",
           "type": "static"
         },
         {
@@ -6832,6 +8583,11 @@
         }
       ],
       "budget-feature": [
+        {
+          "source": "budget-feature",
+          "target": "budget-data-access",
+          "type": "static"
+        },
         {
           "source": "budget-feature",
           "target": "budget-api",
@@ -7137,6 +8893,13 @@
           "type": "dynamic"
         }
       ],
+      "identity-shell": [
+        {
+          "source": "identity-shell",
+          "target": "identity-feature",
+          "type": "dynamic"
+        }
+      ],
       "inventory-api": [],
       "projects-shell": [
         {
@@ -7183,13 +8946,6 @@
           "source": "settings-shell",
           "target": "settings-feature",
           "type": "static"
-        }
-      ],
-      "shell": [
-        {
-          "source": "shell",
-          "target": "identity-feature",
-          "type": "dynamic"
         }
       ],
       "verifactu-api-lib": [],
@@ -7305,6 +9061,28 @@
           "type": "dynamic"
         }
       ],
+      "babooni-ui": [
+        {
+          "source": "babooni-ui",
+          "target": "shared-data-access",
+          "type": "static"
+        },
+        {
+          "source": "babooni-ui",
+          "target": "identity-data-access",
+          "type": "static"
+        },
+        {
+          "source": "babooni-ui",
+          "target": "shared-ui-shell",
+          "type": "static"
+        },
+        {
+          "source": "babooni-ui",
+          "target": "ui-kit",
+          "type": "static"
+        }
+      ],
       "budget-api": [],
       "fleet-shell": [
         {
@@ -7327,18 +9105,23 @@
           "source": "shared-ui-shell",
           "target": "shared-data-access",
           "type": "static"
+        },
+        {
+          "source": "shared-ui-shell",
+          "target": "identity-data-access",
+          "type": "static"
         }
       ],
       "shared-utils": [],
       "events-feature": [
         {
           "source": "events-feature",
-          "target": "ui-kit",
+          "target": "shared-data-access",
           "type": "static"
         },
         {
           "source": "events-feature",
-          "target": "shared-data-access",
+          "target": "ui-kit",
           "type": "static"
         }
       ],
@@ -7349,8 +9132,26 @@
           "type": "static"
         }
       ],
+      "theme-manager": [],
       "ai-core": [],
       "shared-cqrs": [],
+      "document-generator": [
+        {
+          "source": "document-generator",
+          "target": "identity-data-access",
+          "type": "static"
+        },
+        {
+          "source": "document-generator",
+          "target": "verifactu-api-lib",
+          "type": "static"
+        },
+        {
+          "source": "document-generator",
+          "target": "shared-data-access",
+          "type": "static"
+        }
+      ],
       "verifactu-worker": [
         {
           "source": "verifactu-worker",
@@ -7358,6 +9159,7 @@
           "type": "static"
         }
       ],
+      "saas-platform": [],
       "verifactu-api": [
         {
           "source": "verifactu-api",
@@ -7377,6 +9179,7 @@
           "type": "implicit"
         }
       ],
+      "storybook-static": [],
       "frontend": [
         {
           "source": "frontend",
@@ -7440,12 +9243,12 @@
         },
         {
           "source": "frontend",
-          "target": "data-access",
-          "type": "static"
+          "target": "projects-data-access",
+          "type": "implicit"
         },
         {
           "source": "frontend",
-          "target": "verifactu-api-lib",
+          "target": "identity-data-access",
           "type": "static"
         },
         {
@@ -7455,7 +9258,42 @@
         },
         {
           "source": "frontend",
+          "target": "verifactu-api-lib",
+          "type": "static"
+        },
+        {
+          "source": "frontend",
+          "target": "identity-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
           "target": "dashboard-feature",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "projects-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "events-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "services-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "reports-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "audit-shell",
           "type": "dynamic"
         },
         {
@@ -7465,8 +9303,63 @@
         },
         {
           "source": "frontend",
+          "target": "budget-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "inventory-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "delivery-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "fleet-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "billing-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "verifactu-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "settings-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "clients-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "rentals-shell",
+          "type": "dynamic"
+        },
+        {
+          "source": "frontend",
           "target": "ai-insights-feature",
           "type": "dynamic"
+        },
+        {
+          "source": "frontend",
+          "target": "shared-ui-shell",
+          "type": "static"
+        },
+        {
+          "source": "frontend",
+          "target": "babooni-ui",
+          "type": "static"
         }
       ],
       "backend": [
@@ -7507,11 +9400,6 @@
         },
         {
           "source": "backend",
-          "target": "billing-backend",
-          "type": "static"
-        },
-        {
-          "source": "backend",
           "target": "fleet-backend",
           "type": "static"
         },
@@ -7533,6 +9421,13 @@
         {
           "source": "backend",
           "target": "verifactu-core",
+          "type": "static"
+        }
+      ],
+      "@josanz-erp/source": [
+        {
+          "source": "@josanz-erp/source",
+          "target": "shared-model",
           "type": "static"
         }
       ]
