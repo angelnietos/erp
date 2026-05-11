@@ -1,16 +1,20 @@
 <josanz-modal title="Nuevo Usuari@" (close)="onCancel()">
   
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6 w-full max-w-[619px] mx-auto">
     <!-- Avatar Section -->
-    <div class="relative w-[64px] h-[64px] group cursor-pointer">
-      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-full h-full rounded-full object-cover border-2 border-[#DEEDFF]" />
-      <div class="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <div class="flex justify-start">
+      <div class="avatar-container relative group cursor-pointer border-2 border-[#DEEDFF]">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
+             class="avatar-img" 
+             alt="User Avatar" />
+        <div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
       </div>
     </div>
 
     <!-- Form Fields -->
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-4 w-full">
       <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
       <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
       <josanz-input label="Email" placeholder="email@email.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
