@@ -1,19 +1,30 @@
-<button 
-  (click)="onClick()"
-  [disabled]="disabled"
-  [style.width]="size === 'lg' ? '280px' : ''"
-  [style.height]="size === 'lg' ? '48px' : ''"
-  class="rounded-[8px] flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 font-semibold text-[16px]"
-  [class.bg-[#1A1A1A]]="variant === 'primary' && !disabled"
-  [class.text-white]="variant === 'primary' && !disabled"
-  [class.bg-[#A0A0A0]]="variant === 'primary' && disabled"
-  [class.text-white]="variant === 'primary' && disabled"
-  [class.bg-transparent]="variant === 'secondary'"
-  [class.text-[#718096]]="variant === 'secondary'"
-  [class.hover:bg-gray-50]="variant === 'secondary'"
-  [class.px-4]="size === 'md'"
-  [class.h-[37px]]="size === 'md'"
-  [class.w-full]="fullWidth"
->
-  <span>{{ label }}</span>
-</button>
+@if (variant === 'primary') {
+  <button
+    (click)="onClick()"
+    [disabled]="disabled"
+    [style.width]="size === 'lg' ? '280px' : size === 'md' ? 'auto' : ''"
+    [style.height]="size === 'lg' ? '48px' : size === 'md' ? '37px' : ''"
+    [style.background-color]="disabled ? '#A0A0A0' : '#1A1A1A'"
+    [style.color]="'white'"
+    [style.cursor]="disabled ? 'not-allowed' : 'pointer'"
+    style="border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; transition: opacity 0.2s; font-weight: 600; font-size: 16px; padding: 0 24px;"
+  >
+    <span>{{ label }}</span>
+    @if (showIcon) {
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    }
+  </button>
+}
+@if (variant === 'secondary') {
+  <button
+    (click)="onClick()"
+    [style.width]="size === 'lg' ? '280px' : 'auto'"
+    [style.height]="size === 'lg' ? '48px' : '37px'"
+    style="border-radius: 8px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: #718096; font-weight: 500; font-size: 16px;"
+  >
+    <span>{{ label }}</span>
+  </button>
+}
