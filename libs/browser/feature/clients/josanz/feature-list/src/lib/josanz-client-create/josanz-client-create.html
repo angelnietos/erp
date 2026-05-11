@@ -1,28 +1,37 @@
 <josanz-modal title="Cliente" (close)="onCancel()">
 
-  <!-- Tabs: Datos cliente / Operadores / Eventos -->
-  <div style="display:flex; gap:8px; margin-bottom:32px;">
+  <!-- Tabs: Datos cliente / Operadores / Eventos (Figma: 25px alto, radio 6px, activo #080808 + sombra) -->
+  <div class="client-create-tabs" role="tablist">
     <button
+      type="button"
+      role="tab"
+      class="client-create-tab"
+      [class.client-create-tab--active]="activeTab() === 'datos'"
+      [attr.aria-selected]="activeTab() === 'datos'"
       (click)="setTab('datos')"
-      [style.font-weight]="activeTab() === 'datos' ? '600' : '400'"
-      [style.border]="activeTab() === 'datos' ? '1.5px solid #1A1A1A' : '1.5px solid #E2E8F0'"
-      [style.color]="activeTab() === 'datos' ? '#1A1A1A' : '#A0AEC0'"
-      style="padding: 6px 16px; border-radius: 20px; background: white; cursor: pointer; font-size: 14px; transition: all 0.15s;"
-    >Datos cliente</button>
+    >
+      Datos cliente
+    </button>
     <button
+      type="button"
+      role="tab"
+      class="client-create-tab"
+      [class.client-create-tab--active]="activeTab() === 'operadores'"
+      [attr.aria-selected]="activeTab() === 'operadores'"
       (click)="setTab('operadores')"
-      [style.font-weight]="activeTab() === 'operadores' ? '600' : '400'"
-      [style.border]="activeTab() === 'operadores' ? '1.5px solid #1A1A1A' : '1.5px solid #E2E8F0'"
-      [style.color]="activeTab() === 'operadores' ? '#1A1A1A' : '#A0AEC0'"
-      style="padding: 6px 16px; border-radius: 20px; background: white; cursor: pointer; font-size: 14px; transition: all 0.15s;"
-    >Operadores</button>
+    >
+      Operadores
+    </button>
     <button
+      type="button"
+      role="tab"
+      class="client-create-tab"
+      [class.client-create-tab--active]="activeTab() === 'eventos'"
+      [attr.aria-selected]="activeTab() === 'eventos'"
       (click)="setTab('eventos')"
-      [style.font-weight]="activeTab() === 'eventos' ? '600' : '400'"
-      [style.border]="activeTab() === 'eventos' ? '1.5px solid #1A1A1A' : '1.5px solid #E2E8F0'"
-      [style.color]="activeTab() === 'eventos' ? '#1A1A1A' : '#A0AEC0'"
-      style="padding: 6px 16px; border-radius: 20px; background: white; cursor: pointer; font-size: 14px; transition: all 0.15s;"
-    >Eventos</button>
+    >
+      Eventos
+    </button>
   </div>
 
   <!-- Tab: Datos cliente -->

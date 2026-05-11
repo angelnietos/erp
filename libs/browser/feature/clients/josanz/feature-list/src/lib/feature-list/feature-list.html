@@ -15,3 +15,7 @@
   <josanz-main-template-card></josanz-main-template-card>
 
 </josanz-main-list-layout>
+
+@if (showCreateModal()) {
+  <josanz-client-create (close)="onModalClose()"></josanz-client-create>
+}
