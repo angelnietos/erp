@@ -1,13 +1,9 @@
 <josanz-modal title="Nuevo Usuari@" (close)="onCancel()">
   
   <div class="flex flex-col gap-10 w-full max-w-[619px] mx-auto">
-    <!-- Avatar Section (Figma: 64x64) -->
+    <!-- Avatar: mismo placeholder que la barra lateral (sin API externa ni estilos aleatorios). -->
     <div class="flex justify-start">
-      <div 
-        style="width: 64px; height: 64px; min-width: 64px; min-height: 64px; background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'); background-size: cover; background-position: center;"
-        class="rounded-full border-2 border-[#DEEDFF] bg-no-repeat flex-shrink-0"
-      >
-      </div>
+      <josanz-user-avatar size="lg" />
     </div>
 
     <!-- Form Fields -->
@@ -22,7 +18,7 @@
   </div>
 
   <!-- Footer Actions (Strictly 280x48 buttons) -->
-  <div footer-actions class="flex items-center gap-8">
+  <div footer-actions class="flex items-center gap-8 justify-center w-full">
     <josanz-button 
       label="Cancelar" 
       variant="secondary"

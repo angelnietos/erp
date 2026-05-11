@@ -1,12 +1,24 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ModalComponent, InputComponent, ButtonComponent } from '@josanz-erp/josanz-ui';
+import {
+  ModalComponent,
+  InputComponent,
+  ButtonComponent,
+  UserAvatarComponent,
+} from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-user-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent, InputComponent, ButtonComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ModalComponent,
+    InputComponent,
+    ButtonComponent,
+    UserAvatarComponent,
+  ],
   templateUrl: './josanz-user-create.html',
   styleUrl: './josanz-user-create.css',
 })

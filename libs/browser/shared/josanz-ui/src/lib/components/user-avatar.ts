@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,4 +8,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './user-avatar.html',
   styleUrl: './user-avatar.css',
 })
-export class UserAvatarComponent {}
+export class UserAvatarComponent {
+  /** Nav bar (40px) vs form placeholder (64px, sin hover de clic). */
+  @Input() size: 'sm' | 'lg' = 'sm';
+}
