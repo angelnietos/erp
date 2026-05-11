@@ -1,17 +1,17 @@
 <josanz-modal title="Nuevo Usuari@" (close)="onCancel()">
   
-  <div class="flex flex-col gap-6 w-full mx-auto">
+  <div class="flex flex-col gap-10 w-full max-w-[619px] mx-auto">
     <!-- Avatar Section -->
     <div class="flex justify-start">
-      <div class="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-[#DEEDFF]">
+      <div class="w-[64px] h-[64px] min-w-[64px] min-h-[64px] flex-shrink-0 rounded-full overflow-hidden border-2 border-[#DEEDFF]">
         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
-             class="w-full h-full object-cover" 
+             class="w-full h-full object-cover block" 
              alt="User Avatar" />
       </div>
     </div>
 
     <!-- Form Fields -->
-    <div class="grid grid-cols-1 gap-5 w-full">
+    <div class="grid grid-cols-1 gap-6 w-full">
       <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
       <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
       <josanz-input label="Email" placeholder="email@email.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
@@ -21,11 +21,15 @@
     </div>
   </div>
 
-  <!-- Footer Actions (Aligned as in Figma) -->
-  <div footer-actions class="flex items-center gap-8">
-    <button (click)="onCancel()" class="text-[16px] font-medium text-[#718096] hover:text-[#1A1A1A] transition-colors">
-      Cancelar
-    </button>
+  <!-- Footer Actions (280x48 buttons aligned) -->
+  <div footer-actions class="flex items-center gap-10">
+    <josanz-button 
+      label="Cancelar" 
+      variant="secondary"
+      size="lg"
+      [showIcon]="false"
+      (btnClick)="onCancel()">
+    </josanz-button>
     <josanz-button 
       label="Guardar cambios" 
       size="lg" 

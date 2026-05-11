@@ -13,6 +13,7 @@ export class ButtonComponent {
   @Input() showIcon = true;
   @Input() disabled = false;
   @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
+  @Input() variant: 'primary' | 'secondary' = 'primary';
   @Input() fullWidth = false;
   @Output() btnClick = new EventEmitter<void>();
 

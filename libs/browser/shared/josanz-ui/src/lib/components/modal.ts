@@ -6,34 +6,43 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[#000000]/80 animate-in fade-in duration-300">
-      <div class="bg-white rounded-[12px] shadow-[0px_10px_30px_rgba(0,0,0,0.3)] w-full max-w-[650px] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[#000000]/80 p-4 animate-in fade-in duration-300">
+      <div class="bg-white rounded-[8px] shadow-[0px_10px_24px_rgba(97,97,97,0.3)] w-full max-w-[712px] max-h-[95vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 relative">
         
         <!-- Close Button -->
-        <div class="flex justify-end pt-6 pr-6">
-          <button (click)="onClose()" class="text-[#1A1A1A] hover:opacity-70 transition-opacity">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <div class="absolute top-6 right-6 z-10">
+          <button (click)="onClose()" class="text-[#1A1A1A] hover:opacity-70 transition-opacity p-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
 
-        <!-- Header -->
-        <div class="px-12 pt-2 pb-6">
-          <h2 class="text-[26px] font-medium text-[#1A1A1A]">{{ title }}</h2>
+        <!-- Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          <!-- Header -->
+          <div class="px-12 pt-12 pb-6">
+            <h2 class="text-[32px] font-bold text-[#1A1A1A] tracking-tight">{{ title }}</h2>
+          </div>
+
+          <!-- Body -->
+          <div class="px-12 pb-6">
+            <ng-content></ng-content>
+          </div>
         </div>
 
-        <!-- Body -->
-        <div class="px-12 py-2 flex-1">
-          <ng-content></ng-content>
-        </div>
-
-        <!-- Footer -->
-        <div class="px-12 py-10 flex justify-end items-center gap-10">
+        <!-- Footer (Sticky at bottom) -->
+        <div class="px-12 py-10 flex justify-center items-center gap-6 border-t border-gray-50 bg-white">
           <ng-content select="[footer-actions]"></ng-content>
         </div>
 
       </div>
     </div>
   `,
+  styles: [`
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+  `]
 })
 export class ModalComponent {
   @Input() title = '';
