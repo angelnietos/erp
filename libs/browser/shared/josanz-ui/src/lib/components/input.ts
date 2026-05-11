@@ -13,6 +13,7 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
         [type]="type"
         [formControlName]="controlName"
         [placeholder]="placeholder"
+        autocomplete="off"
         class="w-full h-[35px] bg-[#F5F5F5] rounded-[6px] px-3 text-[13px] text-[#2D3748] focus:outline-none border-none placeholder:text-[#A0AEC0]"
       />
     </div>

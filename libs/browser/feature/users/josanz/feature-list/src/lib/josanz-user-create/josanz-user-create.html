@@ -1,15 +1,12 @@
 <josanz-modal title="Nuevo Usuari@" (close)="onCancel()">
   
-  <div class="flex flex-col gap-8 w-full max-w-[619px] mx-auto">
+  <div class="flex flex-col gap-6 w-full mx-auto">
     <!-- Avatar Section -->
     <div class="flex justify-start">
-      <div class="avatar-container relative group cursor-pointer border-2 border-[#DEEDFF]">
+      <div class="w-[64px] h-[64px] rounded-full overflow-hidden border-2 border-[#DEEDFF]">
         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
-             class="avatar-img" 
+             class="w-full h-full object-cover" 
              alt="User Avatar" />
-        <div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        </div>
       </div>
     </div>
 
@@ -24,9 +21,9 @@
     </div>
   </div>
 
-  <!-- Footer Actions (280x48 buttons) -->
-  <div footer-actions class="flex justify-between w-full">
-    <button (click)="onCancel()" class="w-[280px] h-[48px] text-[16px] font-medium text-[#718096] hover:text-[#1A1A1A] transition-colors">
+  <!-- Footer Actions (Aligned as in Figma) -->
+  <div footer-actions class="flex items-center gap-8">
+    <button (click)="onCancel()" class="text-[16px] font-medium text-[#718096] hover:text-[#1A1A1A] transition-colors">
       Cancelar
     </button>
     <josanz-button 
