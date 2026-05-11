@@ -1,11 +1,12 @@
 <josanz-main-list-layout 
-  title="Clientes" 
-  primaryBtnLabel="Añadir Cliente"
-  (primaryAction)="onAddClient()"
-  (filterChange)="onFilterChange($event)">
+  [title]="title" 
+  [primaryBtnLabel]="primaryBtnLabel"
+  [filterOptions]="filterOptions"
+  (primaryAction)="onAdd()"
+  (filterChange)="onFilter($event)"
+  (excelAction)="onExcel()">
   
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
+  <!-- Aquí iría un *ngFor con los clientes reales -->
   <josanz-main-template-card></josanz-main-template-card>
   <josanz-main-template-card></josanz-main-template-card>
   <josanz-main-template-card></josanz-main-template-card>

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainListLayoutComponent, MainTemplateCardComponent } from '@josanz-erp/josanz-ui';
+import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-clients-list',
@@ -9,12 +9,15 @@ import { MainListLayoutComponent, MainTemplateCardComponent } from '@josanz-erp/
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
 })
-export class JosanzClientsListComponent {
-  onAddClient() {
-    console.log('Añadir cliente clicado');
+export class JosanzClientsListComponent extends BaseListComponent {
+  constructor() {
+    super();
+    this.title = 'Clientes';
+    this.primaryBtnLabel = 'Añadir Cliente';
   }
 
-  onFilterChange(filter: string) {
-    console.log('Filtro cambiado a:', filter);
+  override onAdd() {
+    console.log('Lógica específica de Josanz para añadir cliente');
+    super.onAdd();
   }
 }

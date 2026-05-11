@@ -1,27 +1,17 @@
 <div class="flex min-h-screen bg-[#F8F9FA]">
   
-  <!-- Sidebar -->
+  <!-- Sidebar Global -->
   <josanz-sidebar></josanz-sidebar>
 
-  <!-- Main Content -->
+  <!-- Main Content Area -->
   <main class="flex-1 p-10 overflow-y-auto">
-    <josanz-main-list-layout 
-      title="Clientes" 
-      primaryBtnLabel="Añadir Cliente">
-      
-      <josanz-main-template-card></josanz-main-template-card>
-      <josanz-main-template-card></josanz-main-template-card>
-      <josanz-main-template-card></josanz-main-template-card>
-      <josanz-main-template-card></josanz-main-template-card>
-      <josanz-main-template-card></josanz-main-template-card>
-      
-    </josanz-main-list-layout>
+    <router-outlet></router-outlet>
     
-    <div class="mt-10">
+    <!-- UI Library Playground (optional, can be removed) -->
+    <div class="mt-20 border-t pt-10 opacity-50">
+      <h2 class="text-sm font-semibold mb-4">UI Library Preview</h2>
       <josanz-ui-root></josanz-ui-root>
     </div>
-    
-    <router-outlet></router-outlet>
   </main>
 
 </div>
