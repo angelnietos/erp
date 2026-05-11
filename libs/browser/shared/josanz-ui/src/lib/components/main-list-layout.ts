@@ -3,11 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FilterTabsComponent } from './filter-tabs';
 import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
+import { UserAvatarComponent } from './user-avatar';
+import { PaginationComponent } from './pagination';
 
 @Component({
   selector: 'josanz-main-list-layout',
   standalone: true,
-  imports: [CommonModule, FilterTabsComponent, ButtonComponent, SecondaryButtonComponent],
+  imports: [
+    CommonModule, 
+    FilterTabsComponent, 
+    ButtonComponent, 
+    SecondaryButtonComponent, 
+    UserAvatarComponent, 
+    PaginationComponent
+  ],
   templateUrl: './main-list-layout.html',
   styleUrl: './main-list-layout.css',
 })
