@@ -8,14 +8,22 @@
 
   <!-- Extra Filters for Stock (Type selection) -->
   <div extra-filters>
-    <josanz-filter-tabs [options]="['Productos / lotes', 'Productos en alquiler']"></josanz-filter-tabs>
+    <josanz-filter-tabs 
+      [options]="['Productos / lotes', 'Productos en alquiler']"
+      (selectionChange)="onTypeChange($event)">
+    </josanz-filter-tabs>
   </div>
 
-  <!-- Extra Action for Stock -->
+  <!-- Extra Action for Stock (Conditional) -->
   <div extra-actions>
-    <josanz-button label="Nuevo almacén" (btnClick)="onAddWarehouse()"></josanz-button>
+    <josanz-button 
+      *ngIf="activeType === 'Productos / lotes'"
+      label="Nuevo almacén" 
+      (btnClick)="onAddWarehouse()">
+    </josanz-button>
   </div>
   
+  <!-- Content -->
   <josanz-main-template-card></josanz-main-template-card>
   <josanz-main-template-card></josanz-main-template-card>
   <josanz-main-template-card></josanz-main-template-card>

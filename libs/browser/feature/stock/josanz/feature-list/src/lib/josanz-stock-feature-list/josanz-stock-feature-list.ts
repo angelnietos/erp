@@ -10,11 +10,17 @@ import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent, 
   styleUrl: './josanz-stock-feature-list.css',
 })
 export class JosanzStockListComponent extends BaseListComponent {
+  activeType = 'Productos / lotes';
+  
   constructor() {
     super();
     this.title = 'Stock';
     this.primaryBtnLabel = 'Añadir Producto';
     this.filterOptions = ['Todos', 'Almacén 01', 'Almacén 02', 'Almacén 03'];
+  }
+
+  onTypeChange(type: string) {
+    this.activeType = type;
   }
 
   onAddWarehouse() {
