@@ -12,3 +12,8 @@
   <josanz-main-template-card></josanz-main-template-card>
 
 </josanz-main-list-layout>
+
+<!-- Modal para añadir usuario -->
+@if (showCreateModal) {
+  <josanz-user-create (close)="onCloseModal()"></josanz-user-create>
+}

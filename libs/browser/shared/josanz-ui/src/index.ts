@@ -8,4 +8,6 @@ export * from './lib/components/sidebar';
 export * from './lib/components/pagination';
 export * from './lib/components/user-avatar';
 export * from './lib/components/main-tabs';
+export * from './lib/components/input';
+export * from './lib/components/modal';
 export * from './lib/base-list';

@@ -11,9 +11,12 @@ import { CommonModule } from '@angular/common';
 export class ButtonComponent {
   @Input() label = 'Añadir';
   @Input() showIcon = true;
+  @Input() disabled = false;
   @Output() btnClick = new EventEmitter<void>();
 
   onClick() {
-    this.btnClick.emit();
+    if (!this.disabled) {
+      this.btnClick.emit();
+    }
   }
 }
