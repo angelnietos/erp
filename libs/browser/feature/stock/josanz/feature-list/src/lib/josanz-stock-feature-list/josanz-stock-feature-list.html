@@ -6,12 +6,13 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <!-- Extra Filters for Stock (Type selection) -->
+  <!-- Extra Filters for Stock (Type selection using the new MainTabs) -->
   <div extra-filters>
-    <josanz-filter-tabs 
+    <josanz-main-tabs 
       [options]="['Productos / lotes', 'Productos en alquiler']"
+      [selection]="activeType"
       (selectionChange)="onTypeChange($event)">
-    </josanz-filter-tabs>
+    </josanz-main-tabs>
   </div>
 
   <!-- Extra Action for Stock (Conditional) -->

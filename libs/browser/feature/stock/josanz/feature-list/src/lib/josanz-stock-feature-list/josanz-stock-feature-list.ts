@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent, ButtonComponent, FilterTabsComponent } from '@josanz-erp/josanz-ui';
+import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent, ButtonComponent, MainTabsComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-stock-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, MainTemplateCardComponent, ButtonComponent, FilterTabsComponent],
+  imports: [CommonModule, MainListLayoutComponent, MainTemplateCardComponent, ButtonComponent, MainTabsComponent],
   templateUrl: './josanz-stock-feature-list.html',
   styleUrl: './josanz-stock-feature-list.css',
 })
