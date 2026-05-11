@@ -1,10 +1,16 @@
 <button 
   (click)="onClick()"
   [disabled]="disabled"
-  class="bg-[#080808] hover:bg-black disabled:bg-[#A0A0A0] disabled:cursor-not-allowed text-white px-4 py-2 rounded-[8px] flex items-center gap-2 transition-all duration-200 active:scale-95 h-[37px] shadow-[0px_4px_8px_0px_rgba(0,0,0,0.15)]"
+  class="bg-[#080808] hover:bg-black disabled:bg-[#A0A0A0] disabled:cursor-not-allowed text-white rounded-[8px] flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.15)]"
+  [class.px-4]="size === 'md'"
+  [class.py-2]="size === 'md'"
+  [class.h-[37px]]="size === 'md'"
+  [class.w-[280px]]="size === 'lg'"
+  [class.h-[48px]]="size === 'lg'"
+  [class.w-full]="fullWidth"
 >
-  <span class="text-[13px] font-semibold">{{ label }}</span>
-  <svg *ngIf="showIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <span class="text-[14px] font-semibold tracking-tight">{{ label }}</span>
+  <svg *ngIf="showIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
     <line x1="12" y1="5" x2="12" y2="19"></line>
     <line x1="5" y1="12" x2="19" y2="12"></line>
   </svg>

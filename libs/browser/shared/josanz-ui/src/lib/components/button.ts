@@ -12,6 +12,8 @@ export class ButtonComponent {
   @Input() label = 'Añadir';
   @Input() showIcon = true;
   @Input() disabled = false;
+  @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
+  @Input() fullWidth = false;
   @Output() btnClick = new EventEmitter<void>();
 
   onClick() {
