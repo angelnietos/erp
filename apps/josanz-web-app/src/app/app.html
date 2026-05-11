@@ -1,15 +1,21 @@
 <div class="min-h-screen bg-[#F8F9FA] p-10 space-y-6">
-  <div class="flex justify-between items-center mb-8">
+  <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold text-[#333333]">Clientes</h1>
+    <div class="bg-blue-500/10 p-2 rounded-full">
+      <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">U</div>
+    </div>
+  </div>
+
+  <div class="flex justify-between items-center mb-8">
+    <josanz-filter-tabs></josanz-filter-tabs>
     <div class="flex gap-4">
       <josanz-secondary-button label="Excel"></josanz-secondary-button>
       <josanz-button label="Añadir Cliente"></josanz-button>
     </div>
   </div>
   
-  <josanz-ui-root></josanz-ui-root>
-  
-  <div class="mt-10 space-y-4">
+  <div class="space-y-4">
+    <josanz-main-template-card></josanz-main-template-card>
     <josanz-main-template-card></josanz-main-template-card>
     <josanz-main-template-card></josanz-main-template-card>
     <josanz-main-template-card></josanz-main-template-card>
