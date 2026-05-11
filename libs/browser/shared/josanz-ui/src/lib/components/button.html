@@ -1,0 +1,7 @@
+<button
+  (click)="onClick()"
+  class="h-[28px] bg-[#080808] hover:bg-[#1a1a1a] active:bg-black text-white px-[12px] py-[6px] rounded-[4px] flex items-center justify-center gap-[4px] transition-colors cursor-pointer border-none outline-none group"
+>
+  <span class="text-[13px] font-medium leading-none">{{ label }}</span>
+  <span *ngIf="showIcon" class="text-[16px] font-light leading-none mb-[1px]">+</span>
+</button>
