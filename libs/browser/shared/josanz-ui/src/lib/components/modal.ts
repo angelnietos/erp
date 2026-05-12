@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.80);
+      background: rgba(0,0,0,0.92);
       padding: 24px;
     ">
       <div style="

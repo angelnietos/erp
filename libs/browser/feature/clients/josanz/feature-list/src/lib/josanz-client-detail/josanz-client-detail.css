@@ -39,6 +39,9 @@
   gap: 24px;
   width: 100%;
   align-items: center;
+  margin-left: -44px;
+  margin-right: -44px;
+  padding-bottom: 24px;
 }
 
 .tab-placeholder {
