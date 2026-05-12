@@ -1,0 +1,38 @@
+<div class="josanz-detail-card">
+  @if (imageUrl) {
+    <div class="detail-card-image-wrapper">
+      <img [src]="imageUrl" alt="Card Image" class="detail-card-image" />
+    </div>
+  }
+  
+  <div class="detail-card-content">
+    <div class="detail-card-header">
+      <div class="detail-card-title-row">
+        <h3 class="detail-card-title">{{ title }}</h3>
+        @if (badgeText) {
+          <div class="detail-card-badge">
+            <span>{{ badgeText }}</span>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 1L8.85408 4.75685L13 5.35985L10 8.28312L10.7082 12.4137L7 10.4631L3.2918 12.4137L4 8.28312L1 5.35985L5.14592 4.75685L7 1Z" fill="white"/>
+            </svg>
+          </div>
+        }
+      </div>
+      @if (subtitle) {
+        <span class="detail-card-subtitle">{{ subtitle }}</span>
+      }
+    </div>
+
+    @if (description) {
+      <p class="detail-card-description">{{ description }}</p>
+    }
+
+    @if (tags && tags.length > 0) {
+      <div class="detail-card-tags">
+        @for (tag of tags; track tag) {
+          <span class="detail-card-tag">{{ tag }}</span>
+        }
+      </div>
+    }
+  </div>
+</div>

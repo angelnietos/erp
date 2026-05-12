@@ -1,0 +1,49 @@
+/* Tabs container */
+.client-detail-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+/* Individual tab */
+.client-detail-tab {
+  height: 25px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 1px solid #E7EDF1;
+  background: #FFFFFF;
+  color: #1A1A1A;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Active tab state */
+.client-detail-tab--active {
+  border-color: #1A1A1A;
+}
+
+.client-detail-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  align-items: center;
+}
+
+.tab-placeholder {
+  padding: 40px 0;
+  text-align: center;
+  color: #A0AEC0;
+  font-size: 14px;
+}

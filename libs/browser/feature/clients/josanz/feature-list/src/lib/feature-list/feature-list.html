@@ -7,15 +7,19 @@
   (excelAction)="onExcel()">
   
   <!-- Aquí iría un *ngFor con los clientes reales -->
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
+  <josanz-main-template-card (click)="openDetail()" style="cursor: pointer; display: block;"></josanz-main-template-card>
+  <josanz-main-template-card (click)="openDetail()" style="cursor: pointer; display: block;"></josanz-main-template-card>
+  <josanz-main-template-card (click)="openDetail()" style="cursor: pointer; display: block;"></josanz-main-template-card>
+  <josanz-main-template-card (click)="openDetail()" style="cursor: pointer; display: block;"></josanz-main-template-card>
+  <josanz-main-template-card (click)="openDetail()" style="cursor: pointer; display: block;"></josanz-main-template-card>
+  <josanz-main-template-card (click)="openDetail()" style="cursor: pointer; display: block;"></josanz-main-template-card>
 
 </josanz-main-list-layout>
 
 @if (showCreateModal()) {
   <josanz-client-create (close)="onModalClose()"></josanz-client-create>
+}
+
+@if (showDetailModal()) {
+  <josanz-client-detail (close)="onDetailClose()"></josanz-client-detail>
 }

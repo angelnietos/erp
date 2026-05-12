@@ -1,0 +1,69 @@
+<josanz-modal title="Cliente" (close)="onCancel()">
+
+  <!-- Tabs: Datos cliente / Operadores / Eventos -->
+  <div class="client-detail-tabs" role="tablist">
+    <button
+      type="button"
+      role="tab"
+      class="client-detail-tab"
+      [class.client-detail-tab--active]="activeTab() === 'datos'"
+      [attr.aria-selected]="activeTab() === 'datos'"
+      (click)="setTab('datos')"
+    >
+      Datos cliente
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="client-detail-tab"
+      [class.client-detail-tab--active]="activeTab() === 'operadores'"
+      [attr.aria-selected]="activeTab() === 'operadores'"
+      (click)="setTab('operadores')"
+    >
+      Operadores
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="client-detail-tab"
+      [class.client-detail-tab--active]="activeTab() === 'eventos'"
+      [attr.aria-selected]="activeTab() === 'eventos'"
+      (click)="setTab('eventos')"
+    >
+      Eventos
+    </button>
+  </div>
+
+  <div class="client-detail-content">
+    <!-- Tab: Datos cliente (placeholder) -->
+    @if (activeTab() === 'datos') {
+      <div class="tab-placeholder">
+        Detalle de los datos del cliente
+      </div>
+    }
+
+    <!-- Tab: Operadores (placeholder) -->
+    @if (activeTab() === 'operadores') {
+      <div class="tab-placeholder">
+        Operadores asignados
+      </div>
+    }
+
+    <!-- Tab: Eventos -->
+    @if (activeTab() === 'eventos') {
+      <div class="events-list">
+        @for (evento of eventos; track evento.title) {
+          <josanz-detail-card
+            [imageUrl]="evento.imageUrl"
+            [title]="evento.title"
+            [badgeText]="evento.badgeText"
+            [subtitle]="evento.subtitle"
+            [description]="evento.description"
+            [tags]="evento.tags"
+          ></josanz-detail-card>
+        }
+      </div>
+    }
+  </div>
+
+</josanz-modal>
