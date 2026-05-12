@@ -5,8 +5,9 @@
 
 .josanz-detail-card {
   display: flex;
-  width: 688px;
-  height: 218px;
+  width: 100%;
+  height: auto;
+  min-height: 180px;
   box-sizing: border-box;
   background: #FFFFFF;
   border-radius: 12px;
@@ -17,8 +18,8 @@
 
 .detail-card-image-wrapper {
   flex-shrink: 0;
-  width: 186px;
-  height: 186px;
+  width: 120px;
+  height: 120px;
   border-radius: 8px;
   overflow: hidden;
   background: #f0f0f0;
@@ -81,9 +82,9 @@
   font-weight: 400;
   color: #989898;
   margin: 0;
-  margin-bottom: auto; /* Para empujar los tags abajo */
-  width: 517px;
-  height: 57px;
+  margin-bottom: 16px;
+  width: 100%;
+  height: auto;
   line-height: 1.4;
   overflow: hidden;
   display: -webkit-box;
