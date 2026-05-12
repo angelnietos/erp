@@ -8,7 +8,7 @@ import {
 type ClientTab = 'datos' | 'operadores' | 'eventos';
 
 @Component({
-  selector: 'josanz-client-detail',
+  selector: 'lib-josanz-client-detail',
   standalone: true,
   imports: [
     CommonModule,

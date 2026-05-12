@@ -53,14 +53,14 @@
     @if (activeTab() === 'eventos') {
       <div class="events-list">
         @for (evento of eventos; track evento.title) {
-          <josanz-detail-card
+          <lib-detail-card
             [imageUrl]="evento.imageUrl"
             [title]="evento.title"
             [badgeText]="evento.badgeText"
             [subtitle]="evento.subtitle"
             [description]="evento.description"
             [tags]="evento.tags"
-          ></josanz-detail-card>
+          ></lib-detail-card>
         }
       </div>
     }

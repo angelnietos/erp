@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'josanz-detail-card',
+  selector: 'lib-detail-card',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './detail-card.html',
