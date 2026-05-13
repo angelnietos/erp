@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
 import { PaginationComponent } from './pagination';
 
 const meta: Meta<PaginationComponent> = {
@@ -10,7 +10,7 @@ const meta: Meta<PaginationComponent> = {
     docs: {
       description: {
         component:
-          'Paginación numérica con elipsis, anterior/siguiente y `aria-label`. `current` y `total` son 1-based; con `total === 0` no se renderiza. Emite `pageChange` con la nueva página.',
+          'Paginación numérica con elipsis, anterior/siguiente y `aria-label`. `shape` y `customColor` siguen la misma convención que `josanz-button` (color de página activa vía `--josanz-primary`). Emite `pageChange`.',
       },
     },
     layout: 'centered',
@@ -18,6 +18,8 @@ const meta: Meta<PaginationComponent> = {
   argTypes: {
     current: { control: 'number', description: 'Página actual (1-based)' },
     total: { control: 'number', description: 'Total de páginas' },
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas de los botones'),
+    customColor: { control: 'color', description: 'Color de la página activa (reemplaza el primario del tema)' },
     pageChange: sbEmit('pageChange', 'Nueva página'),
   },
 };
@@ -29,6 +31,7 @@ export const Playground: Story = {
   args: {
     current: 1,
     total: 12,
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
@@ -37,6 +40,8 @@ export const Playground: Story = {
         <josanz-pagination
           [current]="current"
           [total]="total"
+          [shape]="shape"
+          [customColor]="customColor"
           (pageChange)="pageChange($event)"
         ></josanz-pagination>
       </div>
@@ -51,6 +56,7 @@ export const ManyPages: Story = {
   args: {
     current: 9,
     total: 24,
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
@@ -59,6 +65,8 @@ export const ManyPages: Story = {
         <josanz-pagination
           [current]="current"
           [total]="total"
+          [shape]="shape"
+          [customColor]="customColor"
           (pageChange)="pageChange($event)"
         ></josanz-pagination>
       </div>

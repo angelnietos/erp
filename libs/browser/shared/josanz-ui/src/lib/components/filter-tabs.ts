@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-filter-tabs',
@@ -13,7 +14,12 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   @Input() selected = 'Todas';
   @Output() selectionChange = new EventEmitter<string>();
 
-  /** Estado visual; se sincroniza con `selected` para evitar que el padre fije de nuevo la pestaña al pulsar. */
+  /** Esquinas de cada pestaña (misma semántica que `josanz-button`). */
+  @Input() shape: JosanzControlShape = 'rounded';
+  /** Color de texto y tinte de fondo de la pestaña activa. */
+  @Input() customColor?: string;
+
+  /** Estado visual; se sincroniza con `selected` para no pisarse al pulsar. */
   active = 'Todas';
 
   ngOnInit(): void {
@@ -44,5 +50,26 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     }
     this.active = option;
     this.selectionChange.emit(option);
+  }
+
+  buttonClass(option: string): string {
+    const r = josanzCornerInner(this.shape);
+    const base = `w-[120px] h-[25px] ${r} border-none flex items-center justify-center text-[13px] font-medium transition-all cursor-pointer outline-none`;
+    if (this.active === option) {
+      return this.customColor
+        ? `${base} shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]`
+        : `${base} bg-[#DDECFF] text-[#0066FF] shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]`;
+    }
+    return `${base} bg-white text-[#BDBDBD] hover:bg-slate-50`;
+  }
+
+  buttonStyle(option: string): Record<string, string> | null {
+    if (this.active !== option || !this.customColor) {
+      return null;
+    }
+    return {
+      color: this.customColor,
+      backgroundColor: `color-mix(in srgb, ${this.customColor} 16%, white)`,
+    };
   }
 }

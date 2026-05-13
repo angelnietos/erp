@@ -1,22 +1,24 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { josanzCornerInner, josanzCornerShell, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-main-tabs',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex gap-1.5 p-1 bg-slate-100/50 rounded-xl w-fit border border-slate-200/50">
+    <div [class]="shellClass()">
       @for (option of options; track option) {
-        <button 
+        <button
           type="button"
           (click)="select(option)"
-          class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-300 whitespace-nowrap"
+          [ngClass]="[tabCorner(), 'px-4 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap']"
           [class.bg-white]="active === option"
-          [class.text-blue-600]="active === option"
           [class.shadow-sm]="active === option"
           [class.text-slate-500]="active !== option"
+          [class.text-blue-600]="active === option && !customColor"
           [class.hover:bg-slate-200/50]="active !== option"
+          [style.color]="active === option && customColor ? customColor : null"
         >
           {{ option }}
         </button>
@@ -30,7 +32,20 @@ export class MainTabsComponent implements OnInit, OnChanges {
   @Input() selection = '';
   @Output() selectionChange = new EventEmitter<string>();
 
+  /** Esquinas del contenedor y de cada pestaña (misma semántica que `josanz-button`). */
+  @Input() shape: JosanzControlShape = 'rounded';
+  /** Color del texto de la pestaña activa (fondo sigue blanco). */
+  @Input() customColor?: string;
+
   active = '';
+
+  shellClass(): string {
+    return `${josanzCornerShell(this.shape)} flex gap-1.5 p-1 bg-slate-100/50 w-fit border border-slate-200/50`;
+  }
+
+  tabCorner(): string {
+    return josanzCornerInner(this.shape);
+  }
 
   ngOnInit(): void {
     this.syncFromInputs();

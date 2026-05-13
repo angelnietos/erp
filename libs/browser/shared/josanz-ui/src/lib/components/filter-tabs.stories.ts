@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
 import { FilterTabsComponent } from './filter-tabs';
 
 const meta: Meta<FilterTabsComponent> = {
@@ -10,7 +10,7 @@ const meta: Meta<FilterTabsComponent> = {
     docs: {
       description: {
         component:
-          'Filtros horizontales estilo pill para listados. `selected` debe coincidir con una entrada de `options`. Emite `selectionChange` al cambiar; el resaltado se mantiene al pulsar sin depender del padre.',
+          'Filtros horizontales. `shape` y `customColor` siguen la convención de `josanz-button` (esquinas y tinte de la pestaña activa).',
       },
     },
     layout: 'padded',
@@ -21,6 +21,8 @@ const meta: Meta<FilterTabsComponent> = {
       description: 'Opciones del filtro (array de strings).',
     },
     selected: { control: 'text', description: 'Opción activa inicial' },
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas de cada pestaña'),
+    customColor: { control: 'color', description: 'Color activo (texto + fondo suave)' },
     selectionChange: sbEmit('selectionChange', 'Opción seleccionada'),
   },
 };
@@ -32,6 +34,7 @@ export const Playground: Story = {
   args: {
     options: ['Todas', 'Activas', 'Finalizadas', 'Borrador'],
     selected: 'Todas',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
@@ -40,6 +43,8 @@ export const Playground: Story = {
         <josanz-filter-tabs
           [options]="options"
           [selected]="selected"
+          [shape]="shape"
+          [customColor]="customColor"
           (selectionChange)="selectionChange($event)"
         ></josanz-filter-tabs>
       </div>

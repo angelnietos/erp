@@ -10,7 +10,7 @@ const meta: Meta<SecondaryButtonComponent> = {
     docs: {
       description: {
         component:
-          'Botón secundario para exportación (Excel/PDF) o cancelación. El icono y el estilo dependen de `type`. Emite `btnClick` al pulsar.',
+          'Botón secundario para exportación (Excel/PDF) o cancelación. `shape` y `customColor` siguen la misma convención que `josanz-button`. Emite `btnClick` al pulsar.',
       },
     },
     layout: 'centered',
@@ -18,6 +18,8 @@ const meta: Meta<SecondaryButtonComponent> = {
   argTypes: {
     label: { control: 'text', description: 'Texto del botón' },
     type: sbRadio(['excel', 'pdf', 'cancel'] as const, 'Tipo de acción visual'),
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas (como josanz-button)'),
+    customColor: { control: 'color', description: 'Color de texto e icono' },
     btnClick: sbEmit('btnClick', 'Click en el botón'),
   },
 };
@@ -29,6 +31,7 @@ export const Playground: Story = {
   args: {
     label: 'Exportar Excel',
     type: 'excel',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
@@ -37,6 +40,8 @@ export const Playground: Story = {
         <josanz-secondary-button
           [label]="label"
           [type]="type"
+          [shape]="shape"
+          [customColor]="customColor"
           (btnClick)="btnClick($event)"
         ></josanz-secondary-button>
       </div>

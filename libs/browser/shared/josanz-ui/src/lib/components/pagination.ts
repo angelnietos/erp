@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-pagination',
@@ -13,8 +14,14 @@ export class PaginationComponent {
   @Input() current = 1;
   /** Total de páginas (≥ 0). Si es 0 no se muestra barra. */
   @Input() total = 1;
+  /** Esquinas de botones (misma semántica que `josanz-button`). */
+  @Input() shape: JosanzControlShape = 'rounded';
+  /** Color de la página activa (y borde); por defecto usa `--josanz-primary`. */
+  @Input() customColor?: string;
 
   @Output() pageChange = new EventEmitter<number>();
+
+  readonly cornerClass = (): string => josanzCornerInner(this.shape);
 
   /** Página acotada a [1, total] cuando hay páginas. */
   get effectiveCurrent(): number {

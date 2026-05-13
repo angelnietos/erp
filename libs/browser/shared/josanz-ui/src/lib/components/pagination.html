@@ -1,11 +1,13 @@
 <nav
   *ngIf="total > 0"
   class="josanz-pagination flex flex-wrap items-center justify-center gap-1 sm:gap-2"
+  [style.--josanz-primary]="customColor || null"
   aria-label="Paginación"
 >
   <button
     type="button"
-    class="josanz-pagination__nav min-h-9 min-w-9 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+    class="josanz-pagination__nav min-h-9 min-w-9 border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+    [ngClass]="cornerClass()"
     (click)="prev()"
     [disabled]="effectiveCurrent <= 1"
     aria-label="Página anterior"
@@ -24,11 +26,14 @@
       <button
         *ngIf="item !== 'ellipsis'"
         type="button"
-        class="josanz-pagination__page min-h-9 min-w-9 rounded-lg border text-sm font-semibold transition"
+        class="josanz-pagination__page min-h-9 min-w-9 border text-sm font-semibold transition"
         [ngClass]="
-          item === effectiveCurrent
-            ? 'border-[var(--josanz-primary,#4f46e5)] bg-[var(--josanz-primary,#4f46e5)] text-white shadow-sm'
-            : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50'
+          [
+            cornerClass(),
+            item === effectiveCurrent
+              ? 'border-[var(--josanz-primary,#4f46e5)] bg-[var(--josanz-primary,#4f46e5)] text-white shadow-sm'
+              : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50'
+          ]
         "
         [attr.aria-current]="item === effectiveCurrent ? 'page' : null"
         (click)="go(item)"
@@ -40,7 +45,8 @@
 
   <button
     type="button"
-    class="josanz-pagination__nav min-h-9 min-w-9 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+    class="josanz-pagination__nav min-h-9 min-w-9 border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+    [ngClass]="cornerClass()"
     (click)="next()"
     [disabled]="effectiveCurrent >= total"
     aria-label="Página siguiente"

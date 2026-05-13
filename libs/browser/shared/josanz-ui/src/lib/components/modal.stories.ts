@@ -1,6 +1,6 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
 import { ModalComponent } from './modal';
 import { ButtonComponent } from './button';
 
@@ -17,7 +17,7 @@ const meta: Meta<ModalComponent> = {
     docs: {
       description: {
         component:
-          'Modal a pantalla completa con overlay, título, cuerpo (`ng-content`) y pie opcional (`ng-content select="[footer-actions]"`). Emite `close` al pulsar la X.',
+          'Modal a pantalla completa con overlay, título, cuerpo (`ng-content`) y pie opcional (`ng-content select="[footer-actions]"`). `shape` controla las esquinas del panel; `customColor` tiñe el título. Emite `close` al pulsar la X.',
       },
     },
     layout: 'fullscreen',
@@ -25,6 +25,8 @@ const meta: Meta<ModalComponent> = {
   argTypes: {
     title: { control: 'text', description: 'Título del modal' },
     width: { control: 'text', description: 'Ancho CSS (ej. 712px, min(100%, 40rem))' },
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas del panel'),
+    customColor: { control: 'color', description: 'Color del título' },
     close: sbEmit('close', 'Cierre del modal'),
   },
 };
@@ -36,12 +38,13 @@ export const Playground: Story = {
   args: {
     title: 'Nueva Factura',
     width: '712px',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
     template: `
       <div class="h-[600px] bg-slate-900 flex items-center justify-center p-10 overflow-hidden rounded-3xl">
-        <josanz-modal [title]="title" [width]="width" (close)="close($event)">
+        <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
           <div class="p-8 flex flex-col gap-6">
             <div class="space-y-2">
               <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Concepto</label>
@@ -68,12 +71,13 @@ export const SmallConfirmation: Story = {
   args: {
     title: 'Confirmar Acción',
     width: '400px',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
     template: `
       <div class="h-[400px] bg-slate-800 flex items-center justify-center p-10 overflow-hidden rounded-3xl">
-        <josanz-modal [title]="title" [width]="width" (close)="close($event)">
+        <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
           <div class="p-10 text-center">
             <p class="text-slate-600 mb-8 font-medium">¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.</p>
             <div class="flex flex-col gap-3">
@@ -98,12 +102,13 @@ export const WithFooterActions: Story = {
   args: {
     title: 'Guardar borrador',
     width: '520px',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
     template: `
       <div class="h-[480px] bg-slate-900 flex items-center justify-center p-10 overflow-hidden rounded-3xl">
-        <josanz-modal [title]="title" [width]="width" (close)="close($event)">
+        <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
           <p class="text-slate-600 text-sm leading-relaxed">
             El pie del modal proyecta contenido con el atributo <code class="text-xs bg-slate-100 px-1 rounded">footer-actions</code>.
           </p>

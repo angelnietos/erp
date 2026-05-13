@@ -10,13 +10,15 @@ const meta: Meta<UserAvatarComponent> = {
     docs: {
       description: {
         component:
-          'Avatar circular con icono de usuario. `sm` (40px, barra superior) y `lg` (64px, placeholders más grandes).',
+          'Avatar con icono. `shape` (`rounded` / `pill` / `square`) y `customColor` (fondo + icono) alinean con `josanz-button`.',
       },
     },
     layout: 'centered',
   },
   argTypes: {
     size: sbRadio(['sm', 'lg'] as const, 'Tamaño del avatar'),
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Forma exterior'),
+    customColor: { control: 'color', description: 'Color de fondo (el icono usa el mismo tono vía currentColor)' },
   },
 };
 
@@ -26,12 +28,13 @@ type Story = StoryObj<UserAvatarComponent>;
 export const Playground: Story = {
   args: {
     size: 'lg',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
     template: `
       <div class="p-10 bg-slate-100 rounded-2xl inline-block">
-        <josanz-user-avatar [size]="size"></josanz-user-avatar>
+        <josanz-user-avatar [size]="size" [shape]="shape" [customColor]="customColor"></josanz-user-avatar>
       </div>
     `,
   }),

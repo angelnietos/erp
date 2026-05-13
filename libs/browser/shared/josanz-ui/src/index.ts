@@ -1,4 +1,12 @@
 export * from './lib/josanz-ui/josanz-ui';
+export type { JosanzControlShape } from './lib/josanz-control-styles';
+export {
+  josanzCornerInner,
+  josanzCornerShell,
+  josanzCornerField,
+  josanzCornerAvatar,
+  josanzCornerModal,
+} from './lib/josanz-control-styles';
 export * from './lib/components/main-template-card';
 export * from './lib/components/button';
 export * from './lib/components/secondary-button';

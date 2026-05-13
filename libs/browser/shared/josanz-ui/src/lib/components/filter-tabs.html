@@ -1,11 +1,10 @@
 <div class="flex items-center gap-2">
   <button
     *ngFor="let option of options"
+    type="button"
     (click)="selectOption(option)"
-    [class]="active === option 
-      ? 'w-[120px] h-[25px] bg-[#DDECFF] text-[#0066FF] shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]' 
-      : 'w-[120px] h-[25px] bg-white text-[#BDBDBD] hover:bg-slate-50'"
-    class="rounded-[4px] border-none flex items-center justify-center text-[13px] font-medium transition-all cursor-pointer outline-none"
+    [class]="buttonClass(option)"
+    [ngStyle]="buttonStyle(option)"
   >
     {{ option }}
   </button>

@@ -10,7 +10,7 @@ const meta: Meta<ButtonComponent> = {
     docs: {
       description: {
         component:
-          'Botón principal del sistema Josanz: variantes de color, tamaños, formas y color personalizado opcional. Emite `btnClick` al pulsar (no emite si `disabled`).',
+          'Botón principal del sistema Josanz: variantes de color, tamaños, formas y color personalizado opcional. `shape` (`rounded` | `pill` | `square`) y `customColor` comparten la convención `JosanzControlShape` con input, tabs, paginación, modal y avatar. Emite `btnClick` al pulsar (no emite si `disabled`).',
       },
     },
     layout: 'centered',

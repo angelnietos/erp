@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
 import { MainTabsComponent } from './main-tabs';
 
 const meta: Meta<MainTabsComponent> = {
@@ -10,7 +10,7 @@ const meta: Meta<MainTabsComponent> = {
     docs: {
       description: {
         component:
-          'Pestañas tipo “segmented control” para secciones de detalle. `options` es la lista de etiquetas; `selection` es la pestaña activa inicial. Al pulsar se emite `selectionChange` y el estado visual se mantiene (útil en Storybook sin estado padre).',
+          'Pestañas tipo “segmented control”. `shape` y `customColor` comparten convención con `josanz-button` (contenedor + texto activo).',
       },
     },
     layout: 'padded',
@@ -21,6 +21,8 @@ const meta: Meta<MainTabsComponent> = {
       description: 'Lista de opciones (array de strings). Editable como JSON en Controls.',
     },
     selection: { control: 'text', description: 'Pestaña activa (debe existir en `options`)' },
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas del grupo y de cada pestaña'),
+    customColor: { control: 'color', description: 'Color del texto de la pestaña activa' },
     selectionChange: sbEmit('selectionChange', 'Nueva pestaña seleccionada'),
   },
 };
@@ -32,6 +34,7 @@ export const Playground: Story = {
   args: {
     options: ['General', 'Seguridad', 'Facturación', 'Usuarios'],
     selection: 'General',
+    shape: 'rounded',
   },
   render: (args) => ({
     props: args,
@@ -40,6 +43,8 @@ export const Playground: Story = {
         <josanz-main-tabs
           [options]="options"
           [selection]="selection"
+          [shape]="shape"
+          [customColor]="customColor"
           (selectionChange)="selectionChange($event)"
         ></josanz-main-tabs>
       </div>

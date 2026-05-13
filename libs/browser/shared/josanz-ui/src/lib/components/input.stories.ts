@@ -12,7 +12,7 @@ const meta: Meta<InputComponent> = {
     docs: {
       description: {
         component:
-          'Campo con etiqueta integrado en un `FormGroup` reactivo (`formControlName`). No pongas `FormGroup` en <code>args</code> de Storybook (serialización JSON). El tipo HTML cambia el aspecto y el nodo interno (text / email / password / number).',
+          'Campo con etiqueta en `FormGroup` reactivo. `shape` y `customColor` alinean el campo con `josanz-button` (radio de esquinas y acento de foco). No pongas `FormGroup` en `args` de Storybook.',
       },
     },
     layout: 'centered',
@@ -26,6 +26,8 @@ const meta: Meta<InputComponent> = {
     label: { control: 'text', description: 'Etiqueta del campo' },
     placeholder: { control: 'text', description: 'Placeholder del input' },
     type: sbRadio(['text', 'email', 'password', 'number'] as const, 'Tipo de entrada HTML'),
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas del campo'),
+    customColor: { control: 'color', description: 'Acento de foco / borde' },
     controlName: { control: 'text', description: 'Nombre del control en el FormGroup' },
     /** Nunca en `args`: Storybook serializa args a JSON y FormGroup es circular. */
     parentForm: { table: { disable: true }, control: false },
@@ -48,6 +50,7 @@ export const Playground: Story = {
     placeholder: 'Ej: Juan Pérez',
     type: 'text',
     controlName: 'testControl',
+    shape: 'rounded',
   },
   render: (args) => {
     const parentForm = playgroundForm(args.controlName ?? 'testControl');
@@ -57,6 +60,8 @@ export const Playground: Story = {
         placeholder: args.placeholder,
         type: args.type,
         controlName: args.controlName,
+        shape: args.shape,
+        customColor: args.customColor,
         parentForm,
       },
       template: `
@@ -66,6 +71,8 @@ export const Playground: Story = {
           [placeholder]="placeholder"
           [type]="type"
           [controlName]="controlName"
+          [shape]="shape"
+          [customColor]="customColor"
           [parentForm]="parentForm"
         ></josanz-input>
       </div>

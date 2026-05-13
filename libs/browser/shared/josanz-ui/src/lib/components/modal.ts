@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-modal',
@@ -7,13 +8,14 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/90 p-6 backdrop-blur-sm">
-      <div 
-        class="bg-white rounded-3xl shadow-2xl flex flex-col relative overflow-hidden border border-white/20"
+      <div
+        [class]="panelClass()"
         [style.width]="width"
         [style.maxWidth]="'100%'"
       >
         <!-- Close Button -->
         <button
+          type="button"
           (click)="onClose()"
           class="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 transition-colors z-20 opacity-60 hover:opacity-100"
         >
@@ -25,7 +27,11 @@ import { CommonModule } from '@angular/common';
 
         <!-- Scrollable Body -->
         <div class="flex-1 overflow-y-auto px-10 pt-12 pb-6 no-scrollbar">
-          <h2 class="text-3xl font-black text-slate-900 mb-8 pr-8 tracking-tight">
+          <h2
+            class="text-3xl font-black mb-8 pr-8 tracking-tight"
+            [class.text-slate-900]="!customColor"
+            [style.color]="customColor || null"
+          >
             {{ title }}
           </h2>
           <ng-content></ng-content>
@@ -38,15 +44,30 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  styles: [`
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  `]
+  styles: [
+    `
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    `,
+  ],
 })
 export class ModalComponent {
   @Input() title = '';
   @Input() width = '712px';
+  /** Esquinas del panel (misma semántica que `josanz-button`). */
+  @Input() shape: JosanzControlShape = 'rounded';
+  /** Color del título del modal (opcional). */
+  @Input() customColor?: string;
   @Output() close = new EventEmitter<void>();
+
+  panelClass(): string {
+    return `bg-white ${josanzCornerModal(this.shape)} shadow-2xl flex flex-col relative overflow-hidden border border-white/20`;
+  }
 
   onClose() {
     this.close.emit();
