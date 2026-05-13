@@ -17,6 +17,7 @@ export class JosanzUsersListComponent extends BaseListComponent {
     super();
     this.title = 'Usuario/as';
     this.primaryBtnLabel = 'Añadir Usuario';
+    this.filterOptions = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
   }
 
   override onAdd() {

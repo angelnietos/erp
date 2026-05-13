@@ -7,12 +7,20 @@
   (excelAction)="onExcel()">
 
   <!-- Extra Filters for Stock (Type selection using the new MainTabs) -->
-  <div extra-filters>
+  <div extra-filters class="flex flex-col gap-4 -order-1 mb-2">
     <josanz-main-tabs 
       [options]="['Productos / lotes', 'Productos en alquiler']"
       [selection]="activeType"
-      (selectionChange)="onTypeChange($event)">
+      (selectionChange)="onTypeChange($event)"
+      shape="rounded">
     </josanz-main-tabs>
+  </div>
+
+  <div extra-filters>
+    <josanz-filter-tabs 
+      [options]="secondaryFilterOptions"
+      (selectionChange)="onSecondaryFilterChange($event)">
+    </josanz-filter-tabs>
   </div>
 
   <!-- Extra Action for Stock (Conditional) -->
@@ -20,14 +28,32 @@
     <josanz-button 
       *ngIf="activeType === 'Productos / lotes'"
       label="Nuevo almacén" 
+      customColor="#000000"
       (btnClick)="onAddWarehouse()">
     </josanz-button>
   </div>
   
-  <!-- Content -->
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
-  <josanz-main-template-card></josanz-main-template-card>
+  <!-- Table Header -->
+  <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-xs font-semibold">
+    <div class="min-w-[120px]">Dato</div>
+    <div class="flex flex-1 items-center gap-6">
+      <div class="uppercase tracking-wide">Dato</div>
+      <div class="uppercase tracking-wide">Dato</div>
+      <div class="uppercase tracking-wide">Dato</div>
+      <div class="uppercase tracking-wide">Dato</div>
+      <div class="uppercase tracking-wide">Dato</div>
+      <div class="uppercase tracking-wide">Almacén</div>
+    </div>
+    <div class="ml-auto w-[80px] text-center pr-2">Estado</div>
+  </div>
 
+  <!-- Content -->
+  @for (i of [1,2,3,4,5,6,7,8]; track i) {
+    <josanz-main-template-card
+      title="Dato"
+      [data]="['Dato', 'Dato', 'Dato', 'Dato', 'Dato', 'Dato']"
+      status="Estado"
+      statusVariant="primary"
+    ></josanz-main-template-card>
+  }
 </josanz-main-list-layout>
