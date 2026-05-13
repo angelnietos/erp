@@ -1,3 +1,2 @@
-/* Entry alias: Storybook / configs that reference styles.css resolve here.
-   Source of truth remains styles.scss (Tailwind + design system). */
+/* Alias si algo apunta a styles.css: misma hoja que Storybook (Tailwind + design system). */
 @import './styles.scss';

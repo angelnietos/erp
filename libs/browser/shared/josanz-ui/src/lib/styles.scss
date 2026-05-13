@@ -1,8 +1,9 @@
-@use './styles/main';
-
+/* Preflight primero; el design system después (misma hoja = mismo orden en dev y en build). */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import './styles/main';
 
 /* Custom Josanz UI adjustments */
 body {

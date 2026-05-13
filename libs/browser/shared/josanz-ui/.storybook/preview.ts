@@ -15,6 +15,8 @@ const designTokens = `
   --josanz-primary: #4f46e5;
   --josanz-primary-hover: #4338ca;
   --josanz-accent: #3b82f6;
+  --josanz-danger: #ef4444;
+  --josanz-danger-hover: #dc2626;
   --josanz-shadow: 0 10px 15px -3px rgba(0,0,0,0.07);
   /* legacy compat */
   --bg-primary: #ffffff;
@@ -38,6 +40,8 @@ const designTokens = `
   --josanz-primary: #818cf8;
   --josanz-primary-hover: #6366f1;
   --josanz-accent: #60a5fa;
+  --josanz-danger: #f87171;
+  --josanz-danger-hover: #ef4444;
   --josanz-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
   --bg-primary: #1e293b;
   --surface: #1e293b;

@@ -56,6 +56,22 @@
     &:hover  { background: #f1f5f9; color: var(--josanz-text, #0f172a); }
   }
 
+  &--danger {
+    background: var(--btn-color, var(--josanz-danger, #ef4444));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    &:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      background: var(--btn-color, var(--josanz-danger-hover, #dc2626));
+    }
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+      filter: brightness(0.95);
+    }
+  }
+
   // ── States ──────────────────────────────────────────────────────────────
   &:disabled,
   &[aria-disabled="true"] {
