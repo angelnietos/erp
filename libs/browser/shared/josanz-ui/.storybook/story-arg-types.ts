@@ -26,3 +26,11 @@ export const sbHideData: ArgTypes[string] = {
   control: false,
   table: { disable: true },
 };
+
+/** Para @Output: `action` es el nombre que verás en el panel Actions de Storybook */
+export function sbEmit(channel: string, description?: string): ArgTypes[string] {
+  return {
+    action: channel,
+    ...(description ? { description } : {}),
+  };
+}

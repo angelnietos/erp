@@ -6,6 +6,15 @@ const meta: Meta<UserAvatarComponent> = {
   component: UserAvatarComponent,
   title: 'Josanz UI / User Avatar',
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Avatar circular con icono de usuario. `sm` (40px, barra superior) y `lg` (64px, placeholders más grandes).',
+      },
+    },
+    layout: 'centered',
+  },
   argTypes: {
     size: sbRadio(['sm', 'lg'] as const, 'Tamaño del avatar'),
   },
@@ -18,13 +27,23 @@ export const Playground: Story = {
   args: {
     size: 'lg',
   },
-};
-
-export const Sizes: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="flex items-center gap-12 p-10 bg-slate-50 rounded-3xl">
+      <div class="p-10 bg-slate-100 rounded-2xl inline-block">
+        <josanz-user-avatar [size]="size"></josanz-user-avatar>
+      </div>
+    `,
+  }),
+};
+
+export const Sizes: Story = {
+  parameters: {
+    docs: { description: { story: 'Comparación directa `sm` vs `lg`.' } },
+  },
+  render: () => ({
+    template: `
+      <div class="flex items-center gap-12 p-10 bg-slate-50 rounded-3xl max-w-xl">
         <div class="flex flex-col items-center gap-4">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Large (lg)</span>
           <josanz-user-avatar size="lg"></josanz-user-avatar>

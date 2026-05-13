@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FilterTabsComponent } from './filter-tabs';
 import { ButtonComponent } from './button';
@@ -20,14 +20,43 @@ import { PaginationComponent } from './pagination';
   templateUrl: './main-list-layout.html',
   styleUrl: './main-list-layout.css',
 })
-export class MainListLayoutComponent {
+export class MainListLayoutComponent implements OnChanges {
   @Input() title = 'Título';
   @Input() primaryBtnLabel = 'Acción';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
-  
+
+  /** Página actual de la lista (1-based). Solo se muestra paginación si `paginationTotal` > 0. */
+  @Input() paginationPage = 1;
+  /** Total de páginas; 0 oculta la paginación. */
+  @Input() paginationTotal = 0;
+
   @Output() primaryAction = new EventEmitter<void>();
   @Output() excelAction = new EventEmitter<void>();
   @Output() filterChange = new EventEmitter<string>();
+  @Output() paginationChange = new EventEmitter<number>();
+
+  private _paginationPage = 1;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['paginationPage'] || changes['paginationTotal']) {
+      const t = this.paginationTotal;
+      const p = this.paginationPage;
+      if (t > 0) {
+        this._paginationPage = Math.min(t, Math.max(1, p));
+      } else {
+        this._paginationPage = 1;
+      }
+    }
+  }
+
+  onPaginationPage(page: number): void {
+    this._paginationPage = page;
+    this.paginationChange.emit(page);
+  }
+
+  get effectivePaginationPage(): number {
+    return this._paginationPage;
+  }
 
   onPrimaryAction() {
     this.primaryAction.emit();

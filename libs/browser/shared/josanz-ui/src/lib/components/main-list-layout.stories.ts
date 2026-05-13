@@ -1,14 +1,33 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbEmit } from '../../../.storybook/story-arg-types';
 import { MainListLayoutComponent } from './main-list-layout';
 
 const meta: Meta<MainListLayoutComponent> = {
   component: MainListLayoutComponent,
   title: 'Josanz UI / Main List Layout',
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Layout de listado: cabecera con título y avatar, filtros (`josanz-filter-tabs`), acciones Excel + primario, área de contenido proyectada (`ng-content`) y paginación opcional (`paginationTotal` > 0).',
+      },
+    },
+    layout: 'fullscreen',
+  },
   argTypes: {
-    title: { control: 'text' },
-    primaryBtnLabel: { control: 'text' },
-    filterOptions: { control: 'object' },
+    title: { control: 'text', description: 'Título de la página' },
+    primaryBtnLabel: { control: 'text', description: 'Texto del botón principal' },
+    filterOptions: {
+      control: 'object',
+      description: 'Opciones del componente de filtros (array de strings)',
+    },
+    paginationPage: { control: 'number', description: 'Página actual (1-based)' },
+    paginationTotal: { control: 'number', description: 'Total de páginas (0 = sin paginación)' },
+    primaryAction: sbEmit('primaryAction', 'Click en botón principal'),
+    excelAction: sbEmit('excelAction', 'Click en Excel'),
+    filterChange: sbEmit('filterChange', 'Cambio de filtro'),
+    paginationChange: sbEmit('paginationChange', 'Cambio de página'),
   },
 };
 
@@ -20,15 +39,23 @@ export const Playground: Story = {
     title: 'Listado de Clientes',
     primaryBtnLabel: 'Nuevo Cliente',
     filterOptions: ['Todos', 'Activos', 'Potenciales', 'Baja'],
+    paginationPage: 1,
+    paginationTotal: 0,
   },
   render: (args) => ({
     props: args,
     template: `
-      <div class="bg-slate-50">
-        <josanz-main-list-layout 
-          [title]="title" 
-          [primaryBtnLabel]="primaryBtnLabel" 
+      <div class="bg-slate-50 min-h-[520px]">
+        <josanz-main-list-layout
+          [title]="title"
+          [primaryBtnLabel]="primaryBtnLabel"
           [filterOptions]="filterOptions"
+          [paginationPage]="paginationPage"
+          [paginationTotal]="paginationTotal"
+          (primaryAction)="primaryAction($event)"
+          (excelAction)="excelAction($event)"
+          (filterChange)="filterChange($event)"
+          (paginationChange)="paginationChange($event)"
         >
           <div class="grid grid-cols-1 gap-4 mt-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
@@ -42,6 +69,40 @@ export const Playground: Story = {
               <div class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">Activo</div>
             </div>
           </div>
+        </josanz-main-list-layout>
+      </div>
+    `,
+  }),
+};
+
+export const WithPagination: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Misma vista con paginación visible (17 páginas, página 5).',
+      },
+    },
+  },
+  args: {
+    title: 'Facturas',
+    primaryBtnLabel: 'Nueva factura',
+    filterOptions: ['Todas', 'Pendientes', 'Cobradas'],
+    paginationPage: 5,
+    paginationTotal: 17,
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="bg-slate-50 min-h-[520px]">
+        <josanz-main-list-layout
+          [title]="title"
+          [primaryBtnLabel]="primaryBtnLabel"
+          [filterOptions]="filterOptions"
+          [paginationPage]="paginationPage"
+          [paginationTotal]="paginationTotal"
+          (paginationChange)="paginationChange($event)"
+        >
+          <p class="text-sm text-slate-500 p-4">Contenido de ejemplo: tabla o cards aquí.</p>
         </josanz-main-list-layout>
       </div>
     `,

@@ -1,20 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbRadio } from '../../../.storybook/story-arg-types';
 import { MainTemplateCardComponent } from './main-template-card';
 
 const meta: Meta<MainTemplateCardComponent> = {
   component: MainTemplateCardComponent,
   title: 'Josanz UI / Main Template Card',
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Fila tipo tarjeta para tablas de facturación: título, badge de estado (`status` + `statusVariant`) y columnas dinámicas en `data` (array de strings).',
+      },
+    },
+    layout: 'padded',
+  },
   argTypes: {
-    title: { control: 'text', description: 'Título / primera columna de la fila' },
-    status: { control: 'text', description: 'Texto del badge de estado' },
-    statusVariant: {
-      control: 'radio',
-      options: ['primary', 'success', 'warning', 'error'],
-      description: 'Color del badge',
+    title: { control: 'text', description: 'Primera columna / título de la fila' },
+    status: { control: 'text', description: 'Texto del badge' },
+    statusVariant: sbRadio(['primary', 'success', 'warning', 'error'] as const, 'Semántica del color del badge'),
+    data: {
+      control: 'object',
+      description: 'Celdas adicionales (array de strings), en orden de columnas',
     },
   },
 };
+
 export default meta;
 
 type Story = StoryObj<MainTemplateCardComponent>;
@@ -29,24 +40,50 @@ export const Playground: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="p-8 bg-slate-50 space-y-2">
+      <div class="p-8 bg-slate-50 max-w-4xl space-y-3">
         <josanz-main-template-card
           [title]="title"
           [status]="status"
           [statusVariant]="statusVariant"
           [data]="data"
         ></josanz-main-template-card>
+      </div>
+    `,
+  }),
+};
+
+export const StatusGrid: Story = {
+  parameters: {
+    docs: {
+      description: { story: 'Las cuatro variantes de badge en filas de ejemplo.' },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="p-8 bg-slate-50 space-y-3 max-w-4xl">
         <josanz-main-template-card
-          title="Nóminas Marzo"
-          status="Cobrada"
-          statusVariant="success"
-          [data]="['INV-2026-003', '01/03/2026', 'Autónomo SA', '890 €', '15 días']"
+          title="Factura A"
+          status="En revisión"
+          statusVariant="primary"
+          [data]="['INV-001', '01/01/2026', 'Cliente X', '500 €', '15 días']"
         ></josanz-main-template-card>
         <josanz-main-template-card
-          title="Alquiler Oficina"
+          title="Factura B"
+          status="Cobrada"
+          statusVariant="success"
+          [data]="['INV-002', '02/02/2026', 'Cliente Y', '900 €', '0 días']"
+        ></josanz-main-template-card>
+        <josanz-main-template-card
+          title="Factura C"
+          status="Pendiente"
+          statusVariant="warning"
+          [data]="['INV-003', '03/03/2026', 'Cliente Z', '120 €', '7 días']"
+        ></josanz-main-template-card>
+        <josanz-main-template-card
+          title="Factura D"
           status="Vencida"
           statusVariant="error"
-          [data]="['INV-2026-001', '10/01/2026', 'Inmobiliaria XL', '2.100 €', '0 días']"
+          [data]="['INV-004', '04/04/2026', 'Cliente W', '2.000 €', '-5 días']"
         ></josanz-main-template-card>
       </div>
     `,

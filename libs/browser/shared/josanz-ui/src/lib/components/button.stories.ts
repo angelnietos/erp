@@ -1,11 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbSelect, sbRadio } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
 import { ButtonComponent } from './button';
 
 const meta: Meta<ButtonComponent> = {
   component: ButtonComponent,
   title: 'Josanz UI / Button',
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Botón principal del sistema Josanz: variantes de color, tamaños, formas y color personalizado opcional. Emite `btnClick` al pulsar (no emite si `disabled`).',
+      },
+    },
+    layout: 'centered',
+  },
   argTypes: {
     label: { control: 'text', description: 'Texto del botón' },
     variant: sbRadio(['primary', 'secondary', 'outline', 'ghost', 'danger'] as const, 'Variante de estilo'),
@@ -14,6 +23,8 @@ const meta: Meta<ButtonComponent> = {
     customColor: { control: 'color', description: 'Color personalizado (Hex/RGBA)' },
     disabled: { control: 'boolean', description: 'Estado deshabilitado' },
     showIcon: { control: 'boolean', description: 'Mostrar icono (+) después del texto' },
+    fullWidth: { control: 'boolean', description: 'Ancho completo' },
+    btnClick: sbEmit('btnClick', 'Click en el botón'),
   },
 };
 
@@ -28,16 +39,41 @@ export const Playground: Story = {
     shape: 'rounded',
     disabled: false,
     showIcon: true,
+    fullWidth: false,
   },
-};
-
-export const CustomColors: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="flex flex-col gap-8 p-4">
+      <div class="p-6 min-w-[280px]">
+        <josanz-button
+          [label]="label"
+          [variant]="variant"
+          [size]="size"
+          [shape]="shape"
+          [disabled]="disabled"
+          [showIcon]="showIcon"
+          [fullWidth]="fullWidth"
+          [customColor]="customColor"
+          (btnClick)="btnClick($event)"
+        ></josanz-button>
+      </div>
+    `,
+  }),
+};
+
+export const CustomColors: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Ejemplos de forma, colores personalizados y todas las variantes en una sola vista.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="flex flex-col gap-8 p-4 max-w-4xl">
         <section>
-          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Themed Shapes</h4>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Formas</h4>
           <div class="flex items-center gap-4 flex-wrap">
             <josanz-button label="Rounded" shape="rounded"></josanz-button>
             <josanz-button label="Pill Shape" shape="pill"></josanz-button>
@@ -46,7 +82,7 @@ export const CustomColors: Story = {
         </section>
 
         <section>
-          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Custom Color Samples</h4>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Colores personalizados</h4>
           <div class="flex items-center gap-4 flex-wrap">
             <josanz-button label="Emerald" variant="primary" customColor="#10b981"></josanz-button>
             <josanz-button label="Rose" variant="primary" customColor="#f43f5e"></josanz-button>
@@ -56,7 +92,7 @@ export const CustomColors: Story = {
         </section>
 
         <section>
-          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Variants</h4>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Variantes</h4>
           <div class="flex items-center gap-4 flex-wrap">
             <josanz-button label="Primary" variant="primary"></josanz-button>
             <josanz-button label="Secondary" variant="secondary"></josanz-button>
@@ -64,6 +100,11 @@ export const CustomColors: Story = {
             <josanz-button label="Ghost" variant="ghost"></josanz-button>
             <josanz-button label="Danger" variant="danger"></josanz-button>
           </div>
+        </section>
+
+        <section>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4 font-bold">Deshabilitado</h4>
+          <josanz-button label="No disponible" variant="primary" [disabled]="true"></josanz-button>
         </section>
       </div>
     `,

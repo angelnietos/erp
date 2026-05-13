@@ -1,12 +1,22 @@
 import { moduleMetadata } from '@storybook/angular';
 import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbRadio } from '../../../.storybook/story-arg-types';
 import { InputComponent } from './input';
 
 const meta: Meta<InputComponent> = {
   component: InputComponent,
   title: 'Josanz UI / Input',
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'Campo con etiqueta integrado en un `FormGroup` reactivo (`formControlName`). No pongas `FormGroup` en <code>args</code> de Storybook (serialización JSON). El tipo HTML cambia el aspecto y el nodo interno (text / email / password / number).',
+      },
+    },
+    layout: 'centered',
+  },
   decorators: [
     moduleMetadata({
       imports: [ReactiveFormsModule],
@@ -15,11 +25,7 @@ const meta: Meta<InputComponent> = {
   argTypes: {
     label: { control: 'text', description: 'Etiqueta del campo' },
     placeholder: { control: 'text', description: 'Placeholder del input' },
-    type: {
-      control: 'radio',
-      options: ['text', 'email', 'password', 'number'],
-      description: 'Tipo de entrada HTML',
-    },
+    type: sbRadio(['text', 'email', 'password', 'number'] as const, 'Tipo de entrada HTML'),
     controlName: { control: 'text', description: 'Nombre del control en el FormGroup' },
     /** Nunca en `args`: Storybook serializa args a JSON y FormGroup es circular. */
     parentForm: { table: { disable: true }, control: false },
@@ -69,6 +75,11 @@ export const Playground: Story = {
 };
 
 export const CommonTypes: Story = {
+  parameters: {
+    docs: {
+      description: { story: 'Formulario de registro con cuatro tipos de campo a la vez.' },
+    },
+  },
   render: () => {
     const form = new FormGroup({
       name: new FormControl(''),
