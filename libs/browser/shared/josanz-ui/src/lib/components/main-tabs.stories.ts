@@ -11,10 +11,23 @@ export default meta;
 
 type Story = StoryObj<MainTabsComponent>;
 
-export const Primary: Story = {
+export const Default: Story = {
   args: {
-    options: [],
-    selection: '',
+    options: ['Datos', 'Operadores', 'Presupuestos', 'Facturas', 'Vehículos'],
+    selection: 'Datos',
   },
 };
 
+export const Financial: Story = {
+  args: {
+    options: ['Ingresos', 'Gastos', 'Beneficios'],
+    selection: 'Ingresos',
+  },
+};
+
+export const Settings: Story = {
+  args: {
+    options: ['Perfil', 'Seguridad', 'Notificaciones'],
+    selection: 'Seguridad',
+  },
+};
