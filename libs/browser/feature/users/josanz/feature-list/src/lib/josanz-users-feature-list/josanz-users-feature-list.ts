@@ -16,7 +16,7 @@ export class JosanzUsersListComponent extends BaseListComponent {
   constructor() {
     super();
     this.title = 'Usuario/as';
-    this.primaryBtnLabel = 'Añadir Usuario';
+    this.primaryBtnLabel = 'Añadir Usuario +';
     this.filterOptions = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
   }
 

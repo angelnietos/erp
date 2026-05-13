@@ -24,7 +24,7 @@ export class JosanzClientsListComponent extends BaseListComponent {
   constructor() {
     super();
     this.title = 'Clientes';
-    this.primaryBtnLabel = 'Añadir Cliente';
+    this.primaryBtnLabel = 'Añadir Cliente +';
   }
 
   override onAdd() {

@@ -19,7 +19,10 @@
             "input": "apps/josanz-web-app/public"
           }
         ],
-        "styles": ["apps/josanz-web-app/src/styles.css"]
+        "styles": [
+          "apps/josanz-web-app/src/styles.css",
+          "libs/browser/shared/josanz-ui/src/lib/styles.scss"
+        ]
       },
       "configurations": {
         "production": {

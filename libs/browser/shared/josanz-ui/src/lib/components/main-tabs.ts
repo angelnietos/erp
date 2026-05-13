@@ -12,13 +12,15 @@ import { josanzCornerInner, josanzCornerShell, type JosanzControlShape } from '.
         <button
           type="button"
           (click)="select(option)"
-          [ngClass]="[tabCorner(), 'px-4 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap']"
-          [class.bg-white]="active === option"
-          [class.shadow-sm]="active === option"
-          [class.text-slate-500]="active !== option"
-          [class.text-blue-600]="active === option && !customColor"
-          [class.hover:bg-slate-200/50]="active !== option"
+          [ngClass]="[tabCorner(), 'px-4 py-2 text-xs font-semibold transition-all duration-300 whitespace-nowrap']"
+          [class.bg-white]="true"
+          [class.border]="true"
+          [class.border-[#222222]]="active === option && !customColor"
+          [class.text-[#222222]]="active === option && !customColor"
+          [class.border-transparent]="active !== option"
+          [class.text-[#989898]]="active !== option"
           [style.color]="active === option && customColor ? customColor : null"
+          [style.borderColor]="active === option && customColor ? customColor : null"
         >
           {{ option }}
         </button>
@@ -40,7 +42,7 @@ export class MainTabsComponent implements OnInit, OnChanges {
   active = '';
 
   shellClass(): string {
-    return `${josanzCornerShell(this.shape)} flex gap-1.5 p-1 bg-slate-100/50 w-fit border border-slate-200/50`;
+    return `flex gap-2 w-fit`;
   }
 
   tabCorner(): string {

@@ -16,7 +16,7 @@ export class JosanzStockListComponent extends BaseListComponent {
   constructor() {
     super();
     this.title = 'Stock';
-    this.primaryBtnLabel = 'Añadir Producto';
+    this.primaryBtnLabel = 'Añadir Producto +';
     this.filterOptions = ['Todos', 'Equipo X', 'Equipo Y', 'Equipo Z'];
   }
 
