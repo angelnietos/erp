@@ -30,7 +30,7 @@
         "port": 4400,
         "configDir": "libs/browser/shared/josanz-ui/.storybook",
         "browserTarget": "josanz-ui:build",
-        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.css"],
+        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.scss"],
         "compodoc": false
       },
       "configurations": {
@@ -46,7 +46,7 @@
         "outputDir": "dist/storybook/josanz-ui",
         "configDir": "libs/browser/shared/josanz-ui/.storybook",
         "browserTarget": "josanz-ui:build",
-        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.css"],
+        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.scss"],
         "compodoc": false
       },
       "configurations": {
