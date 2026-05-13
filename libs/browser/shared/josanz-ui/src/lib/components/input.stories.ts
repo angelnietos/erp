@@ -21,19 +21,20 @@ const meta: Meta<InputComponent> = {
       description: 'Tipo de entrada HTML',
     },
     controlName: { control: 'text', description: 'Nombre del control en el FormGroup' },
+    /** Nunca en `args`: Storybook serializa args a JSON y FormGroup es circular. */
+    parentForm: { table: { disable: true }, control: false },
   },
 };
 
 export default meta;
 type Story = StoryObj<InputComponent>;
 
-const sharedForm = new FormGroup({
-  testControl: new FormControl(''),
-  name: new FormControl(''),
-  email: new FormControl(''),
-  pass: new FormControl(''),
-  age: new FormControl(''),
-});
+function playgroundForm(controlName: string): FormGroup {
+  const key = controlName?.trim() || 'testControl';
+  return new FormGroup({
+    [key]: new FormControl(''),
+  });
+}
 
 export const Playground: Story = {
   args: {
@@ -41,11 +42,18 @@ export const Playground: Story = {
     placeholder: 'Ej: Juan Pérez',
     type: 'text',
     controlName: 'testControl',
-    parentForm: sharedForm,
   },
-  render: (args) => ({
-    props: { ...args, parentForm: sharedForm },
-    template: `
+  render: (args) => {
+    const parentForm = playgroundForm(args.controlName ?? 'testControl');
+    return {
+      props: {
+        label: args.label,
+        placeholder: args.placeholder,
+        type: args.type,
+        controlName: args.controlName,
+        parentForm,
+      },
+      template: `
       <div class="p-8 bg-slate-50 max-w-sm rounded-2xl">
         <josanz-input
           [label]="label"
@@ -56,13 +64,21 @@ export const Playground: Story = {
         ></josanz-input>
       </div>
     `,
-  }),
+    };
+  },
 };
 
 export const CommonTypes: Story = {
-  render: () => ({
-    props: { form: sharedForm },
-    template: `
+  render: () => {
+    const form = new FormGroup({
+      name: new FormControl(''),
+      email: new FormControl(''),
+      pass: new FormControl(''),
+      age: new FormControl(''),
+    });
+    return {
+      props: { form },
+      template: `
       <div class="flex flex-col gap-8 p-8 max-w-md bg-slate-50 rounded-2xl border border-slate-100">
         <h4 class="text-slate-400 text-xs uppercase tracking-widest font-bold">Formulario de Registro</h4>
         <div class="flex flex-col gap-4">
@@ -73,5 +89,6 @@ export const CommonTypes: Story = {
         </div>
       </div>
     `,
-  }),
+    };
+  },
 };
