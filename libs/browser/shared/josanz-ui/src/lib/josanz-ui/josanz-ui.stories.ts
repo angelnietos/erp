@@ -1,0 +1,22 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { JosanzUiComponent } from './josanz-ui';
+import { expect } from 'storybook/test';
+
+const meta: Meta<JosanzUiComponent> = {
+  component: JosanzUiComponent,
+  title: 'JosanzUiComponent',
+};
+export default meta;
+
+type Story = StoryObj<JosanzUiComponent>;
+
+export const Primary: Story = {
+  args: {},
+};
+
+export const Heading: Story = {
+  args: {},
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText(/josanz-ui/gi)).toBeTruthy();
+  },
+};

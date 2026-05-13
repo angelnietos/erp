@@ -249,6 +249,9 @@ importers:
       '@storybook/angular':
         specifier: 8.6.18
         version: 8.6.18(15c0ec433c1e69ab13d6f33e67722c6b)
+      '@storybook/core-server':
+        specifier: 8.6.18
+        version: 8.6.18(storybook@8.6.18(prettier@3.6.2))
       '@swc-node/register':
         specifier: ~1.11.1
         version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.21(@swc/helpers@0.5.21))(@swc/types@0.1.26)(typescript@5.9.3)
@@ -4169,6 +4172,11 @@ packages:
 
   '@storybook/components@8.6.18':
     resolution: {integrity: sha512-55yViiZzPS/cPBuOeW4QGxGqrusjXVyxuknmbYCIwDtFyyvI/CgbjXRHdxNBaIjz+IlftxvBmmSaOqFG5+/dkA==}
+    peerDependencies:
+      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
+
+  '@storybook/core-server@8.6.18':
+    resolution: {integrity: sha512-R4J8mZ1nQ5SZTj+2DfpjxrOYL5eb6kgw5ZwgqH0sh+PRHGiwAE1ObqaRqnzLAKU66Q9O3ysY1ZcdWuXhIunodg==}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
@@ -15467,6 +15475,10 @@ snapshots:
       - webpack-cli
 
   '@storybook/components@8.6.18(storybook@8.6.18(prettier@3.6.2))':
+    dependencies:
+      storybook: 8.6.18(prettier@3.6.2)
+
+  '@storybook/core-server@8.6.18(storybook@8.6.18(prettier@3.6.2))':
     dependencies:
       storybook: 8.6.18(prettier@3.6.2)
 

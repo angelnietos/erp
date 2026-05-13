@@ -16,6 +16,55 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint"
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "libs/browser/shared/josanz-ui/.storybook",
+        "browserTarget": "josanz-ui:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/josanz-ui",
+        "configDir": "libs/browser/shared/josanz-ui/.storybook",
+        "browserTarget": "josanz-ui:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "test-storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test-storybook -c libs/browser/shared/josanz-ui/.storybook --url=http://localhost:4400"
+      }
+    },
+    "static-storybook": {
+      "executor": "@nx/web:file-server",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "buildTarget": "josanz-ui:build-storybook",
+        "staticFilePath": "dist/storybook/josanz-ui",
+        "spa": true
+      },
+      "configurations": {
+        "ci": {
+          "buildTarget": "josanz-ui:build-storybook:ci"
+        }
+      }
     }
   }
 }
