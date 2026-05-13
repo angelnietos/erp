@@ -17,9 +17,3 @@ export const Primary: Story = {
   },
 };
 
-export const Heading: Story = {
-  args: {
-    label: 'Excel',
-  },
-  
-};

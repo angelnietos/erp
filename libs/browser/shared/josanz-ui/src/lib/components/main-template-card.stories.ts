@@ -15,7 +15,3 @@ export const Primary: Story = {
   args: {},
 };
 
-export const Heading: Story = {
-  args: {},
-  
-};

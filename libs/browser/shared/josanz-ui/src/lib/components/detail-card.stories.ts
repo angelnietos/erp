@@ -22,14 +22,3 @@ export const Primary: Story = {
   },
 };
 
-export const Heading: Story = {
-  args: {
-    imageUrl: '',
-    title: '',
-    badgeText: '',
-    subtitle: '',
-    description: '',
-    tags: [],
-  },
-  
-};

@@ -18,10 +18,3 @@ export const Primary: Story = {
   },
 };
 
-export const Heading: Story = {
-  args: {
-    options: ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'],
-    selected: 'Todas',
-  },
-  
-};

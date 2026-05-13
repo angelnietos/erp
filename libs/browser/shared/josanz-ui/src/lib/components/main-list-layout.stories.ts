@@ -19,11 +19,3 @@ export const Primary: Story = {
   },
 };
 
-export const Heading: Story = {
-  args: {
-    title: 'Título',
-    primaryBtnLabel: 'Acción',
-    filterOptions: ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'],
-  },
-  
-};

@@ -18,10 +18,3 @@ export const Primary: Story = {
   },
 };
 
-export const Heading: Story = {
-  args: {
-    title: '',
-    width: '712px',
-  },
-  
-};

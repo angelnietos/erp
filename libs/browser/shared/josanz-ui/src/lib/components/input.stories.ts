@@ -11,21 +11,38 @@ export default meta;
 
 type Story = StoryObj<InputComponent>;
 
-export const Primary: Story = {
+export const Text: Story = {
   args: {
-    label: '',
-    placeholder: '',
+    label: 'Nombre',
+    placeholder: 'Introduce tu nombre',
     type: 'text',
-    controlName: '',
+    controlName: 'name',
   },
 };
 
-export const Heading: Story = {
+export const Email: Story = {
   args: {
-    label: '',
-    placeholder: '',
-    type: 'text',
-    controlName: '',
+    label: 'Correo Electrónico',
+    placeholder: 'ejemplo@correo.com',
+    type: 'email',
+    controlName: 'email',
   },
-  
+};
+
+export const Password: Story = {
+  args: {
+    label: 'Contraseña',
+    placeholder: '••••••••',
+    type: 'password',
+    controlName: 'password',
+  },
+};
+
+export const Number: Story = {
+  args: {
+    label: 'Edad',
+    placeholder: 'Introduce tu edad',
+    type: 'number',
+    controlName: 'age',
+  },
 };
