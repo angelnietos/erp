@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class SecondaryButtonComponent {
   @Input() label = 'Excel';
+  @Input() type: 'excel' | 'pdf' | 'cancel' = 'excel';
   @Output() btnClick = new EventEmitter<void>();
 
   onClick() {

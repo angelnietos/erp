@@ -1,78 +1,65 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { sbSelect, sbRadio } from '../../../.storybook/story-arg-types';
 import { ButtonComponent } from './button';
-import { expect, within } from '@storybook/test';
 
 const meta: Meta<ButtonComponent> = {
   component: ButtonComponent,
-  title: 'ButtonComponent',
+  title: 'Josanz UI / Button',
   tags: ['autodocs'],
+  argTypes: {
+    label: { control: 'text', description: 'Texto del botón' },
+    variant: sbRadio(['primary', 'secondary'] as const, 'Variante de estilo'),
+    size: sbRadio(['sm', 'md', 'lg'] as const, 'Tamaño del botón'),
+    disabled: { control: 'boolean', description: 'Estado deshabilitado' },
+    showIcon: { control: 'boolean', description: 'Mostrar icono (+) después del texto' },
+  },
 };
-export default meta;
 
+export default meta;
 type Story = StoryObj<ButtonComponent>;
 
-export const Primary: Story = {
+export const Playground: Story = {
   args: {
-    label: 'Primary Button',
-    showIcon: true,
-    disabled: false,
+    label: 'Acción Principal',
+    variant: 'primary',
     size: 'md',
-    variant: 'primary',
-    fullWidth: false,
-  },
-};
-
-export const Secondary: Story = {
-  args: {
-    label: 'Secondary Button',
-    showIcon: true,
     disabled: false,
-    size: 'md',
-    variant: 'secondary',
-    fullWidth: false,
+    showIcon: true,
   },
 };
 
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Button',
-    showIcon: true,
-    disabled: true,
-    size: 'md',
-    variant: 'primary',
-    fullWidth: false,
-  },
-};
+export const AllVariants: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="flex flex-col gap-6 p-4">
+        <section>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4">Primary Buttons</h4>
+          <div class="flex items-center gap-4 flex-wrap">
+            <josanz-button label="Primary LG" variant="primary" size="lg"></josanz-button>
+            <josanz-button label="With Icon" variant="primary" size="md" [showIcon]="true"></josanz-button>
+            <josanz-button label="Disabled" variant="primary" size="md" [disabled]="true"></josanz-button>
+          </div>
+        </section>
 
-export const Small: Story = {
-  args: {
-    label: 'Small Button',
-    showIcon: true,
-    disabled: false,
-    size: 'sm',
-    variant: 'primary',
-    fullWidth: false,
-  },
-};
+        <section>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4">Secondary Buttons</h4>
+          <div class="flex items-center gap-4 flex-wrap">
+            <josanz-button label="Secondary MD" variant="secondary" size="md"></josanz-button>
+            <josanz-button label="Secondary LG" variant="secondary" size="lg"></josanz-button>
+            <josanz-button label="Disabled" variant="secondary" size="md" [disabled]="true"></josanz-button>
+          </div>
+        </section>
 
-export const Large: Story = {
-  args: {
-    label: 'Large Button',
-    showIcon: true,
-    disabled: false,
-    size: 'lg',
-    variant: 'primary',
-    fullWidth: false,
-  },
-};
-
-export const FullWidth: Story = {
-  args: {
-    label: 'Full Width Button',
-    showIcon: true,
-    disabled: false,
-    size: 'md',
-    variant: 'primary',
-    fullWidth: true,
-  },
+        <section>
+          <h4 class="text-slate-400 text-xs uppercase tracking-widest mb-4">Sizes Comparison</h4>
+          <div class="flex items-end gap-4 flex-wrap">
+            <josanz-button label="Small" variant="primary" size="sm"></josanz-button>
+            <josanz-button label="Medium" variant="primary" size="md"></josanz-button>
+            <josanz-button label="Large" variant="primary" size="lg"></josanz-button>
+          </div>
+        </section>
+      </div>
+    `,
+  }),
 };
