@@ -36,7 +36,7 @@ export class ButtonComponent {
   @Output() btnClick = new EventEmitter<void>();
 
   get buttonClasses() {
-    const base = 'inline-flex items-center justify-center gap-2 transition-all duration-200 outline-none whitespace-nowrap';
+    const base = 'inline-flex items-center justify-center gap-2 transition-transform transition-opacity transition-shadow duration-200 outline-none whitespace-nowrap';
     
     const sizes = {
       sm: 'h-8 px-3 text-xs',
@@ -52,11 +52,11 @@ export class ButtonComponent {
     };
 
     const variants = {
-      primary: 'bg-black text-white hover:brightness-110 shadow-md',
-      secondary: 'bg-slate-100 text-slate-900 border border-transparent hover:brightness-95',
+      primary: 'bg-black text-white hover:opacity-80 shadow-md',
+      secondary: 'bg-slate-100 text-slate-900 border border-transparent hover:opacity-80',
       outline: 'bg-transparent text-black border border-black hover:opacity-70',
       ghost: 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900',
-      danger: 'bg-red-500 text-white hover:brightness-110 shadow-md shadow-red-500/30'
+      danger: 'bg-red-500 text-white hover:opacity-80 shadow-md shadow-red-500/30'
     };
 
     return [
