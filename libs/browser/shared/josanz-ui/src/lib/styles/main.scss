@@ -1,0 +1,25 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Josanz UI Design System — main.scss
+// Arquitectura 7–1 pattern
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── 1. Abstracts (no CSS output, tools only) ────────────────────────────────
+@use 'abstracts/variables' as *;
+@use 'abstracts/mixins' as *;
+
+// ── 2. Themes (CSS custom properties) ──────────────────────────────────────
+@use 'themes/light';
+@use 'themes/dark';
+
+// ── 3. Base (global resets & typography) ───────────────────────────────────
+@use 'base/base';
+@use 'base/typography';
+
+// ── 4. Layout ───────────────────────────────────────────────────────────────
+@use 'layout/sidebar';
+
+// ── 5. Components ───────────────────────────────────────────────────────────
+@use 'components/button';
+@use 'components/card';
+@use 'components/form';
+@use 'components/modal';

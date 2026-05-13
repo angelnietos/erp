@@ -1,46 +1,109 @@
 import { storybookRouterDecorator } from './storybook-providers';
 
-const cssVariables = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Press+Start+2P&display=swap');
+// ─── Google Fonts ────────────────────────────────────────────────────────────
+const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
 
-:root {
+// ─── Design Tokens (CSS custom properties) ──────────────────────────────────
+// Light theme (default :root) + dark theme (data-theme="dark")
+const designTokens = `
+:root, [data-theme="light"] {
+  --josanz-bg: #f8fafc;
+  --josanz-surface: #ffffff;
+  --josanz-text: #0f172a;
+  --josanz-text-muted: #64748b;
+  --josanz-border: #f1f5f9;
+  --josanz-primary: #4f46e5;
+  --josanz-primary-hover: #4338ca;
+  --josanz-accent: #3b82f6;
+  --josanz-shadow: 0 10px 15px -3px rgba(0,0,0,0.07);
+  /* legacy compat */
   --bg-primary: #ffffff;
   --bg-secondary: #f1f5f9;
-  --bg-tertiary: #f8fafc;
   --surface: #ffffff;
-  --surface-hover: #f1f5f9;
-  --brand: #2563eb;
-  --brand-muted: #1e40af;
-  --brand-glow: rgba(37, 99, 235, 0.2);
-  --accent: #7c3aed;
+  --brand: #4f46e5;
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
   --border-soft: #e2e8f0;
-  --border-vibrant: #cbd5e1;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --font-main: 'Nunito', sans-serif;
   --font-display: 'DM Sans', sans-serif;
 }
 
+[data-theme="dark"] {
+  --josanz-bg: #0f172a;
+  --josanz-surface: #1e293b;
+  --josanz-text: #f8fafc;
+  --josanz-text-muted: #94a3b8;
+  --josanz-border: #334155;
+  --josanz-primary: #818cf8;
+  --josanz-primary-hover: #6366f1;
+  --josanz-accent: #60a5fa;
+  --josanz-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
+  --bg-primary: #1e293b;
+  --surface: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-soft: #334155;
+}
+`;
+
+// ─── Storybook canvas overrides ──────────────────────────────────────────────
+const canvasStyles = `
 body.sb-show-main,
 .sb-show-main,
 #storybook-root {
-  background: #f8fafc !important;
+  background: var(--josanz-bg, #f8fafc) !important;
   min-height: 100%;
   padding: 2rem !important;
+  font-family: 'Nunito', sans-serif;
+  transition: background 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 800;
+  color: var(--josanz-text, #0f172a);
 }
 `;
+
+// ─── Theme decorator: apply data-theme to <html> from Storybook globals ─────
+const themeDecorator = (storyFn: () => unknown, context: { globals: { theme?: string } }) => {
+  const theme = context.globals?.theme ?? 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  return storyFn();
+};
+
+// ─── Inject styles once ──────────────────────────────────────────────────────
+let stylesInjected = false;
+const injectStylesDecorator = (storyFn: () => unknown) => {
+  if (!stylesInjected) {
+    const style = document.createElement('style');
+    style.id = 'josanz-design-system';
+    style.textContent = googleFonts + designTokens + canvasStyles;
+    document.head.appendChild(style);
+    stylesInjected = true;
+  }
+  return storyFn();
+};
+
+// ─── Exports ─────────────────────────────────────────────────────────────────
+export const globalTypes = {
+  theme: {
+    name: 'Theme',
+    description: 'Josanz UI theme',
+    defaultValue: 'light',
+    toolbar: {
+      icon: 'paintbrush',
+      items: [
+        { value: 'light', title: '☀️  Light' },
+        { value: 'dark',  title: '🌙  Dark'  },
+      ],
+      showName: true,
+      dynamicTitle: true,
+    },
+  },
+};
 
 export const parameters = {
   layout: 'padded',
@@ -53,21 +116,17 @@ export const parameters = {
     },
   },
   backgrounds: {
-    default: 'light',
+    default: 'Luxe Light',
     values: [
-      { name: 'light', value: '#f8fafc' },
-      { name: 'white', value: '#ffffff' },
-      { name: 'dark', value: '#0f172a' },
+      { name: 'Luxe Light', value: '#f8fafc' },
+      { name: 'White',      value: '#ffffff' },
+      { name: 'Luxe Dark',  value: '#0f172a' },
     ],
   },
 };
 
 export const decorators = [
   storybookRouterDecorator,
-  (storyFn: () => unknown) => {
-    const style = document.createElement('style');
-    style.textContent = cssVariables;
-    document.head.appendChild(style);
-    return storyFn();
-  },
+  injectStylesDecorator,
+  themeDecorator,
 ];

@@ -1,0 +1,66 @@
+// ─── Josanz UI – Button Component Styles ───────────────────────────────────
+// Variants are applied via [data-variant] attribute or host class bindings.
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.8125rem;   // 13px
+  border-radius: 0.75rem; // rounded-xl
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  outline: none;
+
+  // ── Sizes ──────────────────────────────────────────────────────────────
+  &--sm  { height: 2rem;   padding: 0 0.875rem; font-size: 0.75rem; }
+  &--md  { height: 2.75rem; padding: 0 1.25rem; }
+  &--lg  { height: 3.25rem; padding: 0 1.75rem; font-size: 0.9375rem; }
+  &--full { width: 100%; }
+
+  // ── Variants ────────────────────────────────────────────────────────────
+  &--primary {
+    background: var(--josanz-primary, #4f46e5);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    &:hover  { background: var(--josanz-primary-hover, #4338ca); transform: translateY(-1px); }
+    &:active { transform: translateY(0); box-shadow: none; }
+  }
+
+  &--secondary {
+    background: #f1f5f9;
+    color: var(--josanz-text, #0f172a);
+    &:hover  { background: #e2e8f0; }
+  }
+
+  &--outline {
+    background: transparent;
+    color: var(--josanz-primary, #4f46e5);
+    border: 1.5px solid var(--josanz-primary, #4f46e5);
+    &:hover  { background: rgba(79, 70, 229, 0.06); }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--josanz-text-muted, #64748b);
+    &:hover  { background: #f1f5f9; color: var(--josanz-text, #0f172a); }
+  }
+
+  &--danger {
+    background: #fef2f2;
+    color: #ef4444;
+    &:hover  { background: #fee2e2; }
+  }
+
+  // ── States ──────────────────────────────────────────────────────────────
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}

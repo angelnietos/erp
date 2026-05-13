@@ -1,0 +1,64 @@
+// ─── Josanz UI – Sidebar Layout ────────────────────────────────────────────
+
+.sidebar {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0;
+  background: var(--josanz-surface);
+  border-right: 1px solid var(--josanz-border);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  &--collapsed { width: 4rem; }
+  &--expanded  { width: 16rem; }
+}
+
+.sidebar-nav {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0 0.75rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  padding: 0 0.75rem;
+  color: var(--josanz-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  gap: 0.75rem;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--josanz-bg);
+    color: var(--josanz-primary);
+  }
+
+  &.active {
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--josanz-primary);
+  }
+
+  svg { flex-shrink: 0; }
+}
+
+.sidebar-footer {
+  width: 100%;
+  padding: 1rem 0.75rem 0;
+  border-top: 1px solid var(--josanz-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
