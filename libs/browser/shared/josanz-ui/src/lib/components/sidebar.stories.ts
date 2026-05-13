@@ -10,7 +10,7 @@ const meta: Meta<SidebarComponent> = {
   tags: ['autodocs'],
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, RouterModule.forRoot([])],
+      imports: [CommonModule, RouterModule],
       providers: [{ provide: APP_BASE_HREF, useValue: '/' }]
     })
   ],

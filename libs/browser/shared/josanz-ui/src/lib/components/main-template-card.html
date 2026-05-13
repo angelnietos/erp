@@ -8,9 +8,7 @@
     <!-- Dynamic data columns -->
     <div class="flex flex-1 items-center gap-6 overflow-hidden">
       @for (item of data; track item) {
-        <div
-          class="text-slate-500 text-xs font-medium leading-none truncate opacity-80 group-hover:opacity-100 transition-opacity"
-        >
+        <div class="text-slate-500 text-xs font-semibold leading-none truncate opacity-80 group-hover:opacity-100 transition-opacity uppercase tracking-wide">
           {{ item }}
         </div>
       }
