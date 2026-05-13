@@ -11,9 +11,20 @@ export default meta;
 
 type Story = StoryObj<SecondaryButtonComponent>;
 
-export const Primary: Story = {
+export const Excel: Story = {
   args: {
     label: 'Excel',
   },
 };
 
+export const PDF: Story = {
+  args: {
+    label: 'PDF',
+  },
+};
+
+export const Cancel: Story = {
+  args: {
+    label: 'Cancelar',
+  },
+};

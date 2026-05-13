@@ -11,9 +11,14 @@ export default meta;
 
 type Story = StoryObj<UserAvatarComponent>;
 
-export const Primary: Story = {
+export const Small: Story = {
   args: {
     size: 'sm',
   },
 };
 
+export const Large: Story = {
+  args: {
+    size: 'lg',
+  },
+};

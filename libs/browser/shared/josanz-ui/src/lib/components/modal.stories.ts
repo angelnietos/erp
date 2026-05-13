@@ -11,10 +11,23 @@ export default meta;
 
 type Story = StoryObj<ModalComponent>;
 
-export const Primary: Story = {
+export const Default: Story = {
   args: {
-    title: '',
+    title: 'Crear Cliente',
     width: '712px',
   },
 };
 
+export const Small: Story = {
+  args: {
+    title: 'Confirmar Eliminación',
+    width: '400px',
+  },
+};
+
+export const Large: Story = {
+  args: {
+    title: 'Detalles del Presupuesto',
+    width: '900px',
+  },
+};
