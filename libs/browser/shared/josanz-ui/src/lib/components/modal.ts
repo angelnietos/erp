@@ -7,7 +7,7 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(34,34,34,0.85)] p-6 backdrop-blur-sm">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.85)] p-6 backdrop-blur-sm">
       <div
         class="bg-white rounded-[24px] shadow-2xl flex flex-col relative overflow-hidden"
         [style.width]="width"
