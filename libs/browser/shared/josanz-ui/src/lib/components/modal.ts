@@ -7,11 +7,12 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/90 p-6 backdrop-blur-sm">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(34,34,34,0.85)] p-6 backdrop-blur-sm">
       <div
-        [class]="panelClass()"
+        class="bg-white rounded-[24px] shadow-2xl flex flex-col relative overflow-hidden"
         [style.width]="width"
         [style.maxWidth]="'100%'"
+        [style.maxHeight]="'90vh'"
       >
         <!-- Close Button -->
         <button
@@ -28,7 +29,7 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
         <!-- Scrollable Body -->
         <div class="flex-1 overflow-y-auto px-10 pt-12 pb-6 no-scrollbar">
           <h2
-            class="text-3xl font-black mb-8 pr-8 tracking-tight"
+            class="text-[28px] font-semibold mb-6 pr-8 tracking-tight"
             [class.text-slate-900]="!customColor"
             [style.color]="customColor || null"
           >
@@ -38,7 +39,7 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
         </div>
 
         <!-- Footer -->
-        <div class="px-10 py-8 flex items-center justify-center gap-6 bg-slate-50/50 border-t border-slate-100 flex-shrink-0">
+        <div class="px-10 py-6 flex items-center justify-center gap-6 bg-white flex-shrink-0">
           <ng-content select="[footer-actions]"></ng-content>
         </div>
       </div>
@@ -66,7 +67,7 @@ export class ModalComponent {
   @Output() close = new EventEmitter<void>();
 
   panelClass(): string {
-    return `bg-white ${josanzCornerModal(this.shape)} shadow-2xl flex flex-col relative overflow-hidden border border-white/20`;
+    return `bg-white rounded-[24px] shadow-2xl flex flex-col relative overflow-hidden`;
   }
 
   onClose() {

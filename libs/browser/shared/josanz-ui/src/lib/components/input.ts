@@ -22,7 +22,7 @@ type HtmlInputType = 'text' | 'email' | 'password' | 'number';
         <input
           *ngSwitchCase="'text'"
           type="text"
-          class="josanz-field w-full h-[35px] px-3 text-[13px] text-[#2D3748] placeholder:text-[#A0AEC0] transition shadow-sm bg-[#F5F5F5] border border-transparent"
+          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
           [formControlName]="controlName"
           [placeholder]="placeholder"
           autocomplete="off"
@@ -31,7 +31,7 @@ type HtmlInputType = 'text' | 'email' | 'password' | 'number';
         <input
           *ngSwitchCase="'email'"
           type="email"
-          class="josanz-field w-full h-[35px] px-3 text-[13px] text-[#2D3748] placeholder:text-[#A0AEC0] transition shadow-sm bg-white border border-slate-200"
+          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
           [formControlName]="controlName"
           [placeholder]="placeholder"
           autocomplete="email"
@@ -41,7 +41,7 @@ type HtmlInputType = 'text' | 'email' | 'password' | 'number';
         <input
           *ngSwitchCase="'password'"
           type="password"
-          class="josanz-field w-full h-[35px] px-3 text-[13px] text-[#2D3748] placeholder:text-[#A0AEC0] transition shadow-sm bg-[#FFFBF5] border border-amber-100"
+          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
           [formControlName]="controlName"
           [placeholder]="placeholder"
           autocomplete="current-password"
@@ -50,7 +50,7 @@ type HtmlInputType = 'text' | 'email' | 'password' | 'number';
         <input
           *ngSwitchCase="'number'"
           type="number"
-          class="josanz-field w-full h-[35px] px-3 text-[13px] text-[#2D3748] placeholder:text-[#A0AEC0] transition shadow-sm bg-[#F8FAFC] border border-slate-200 text-right tabular-nums tracking-tight"
+          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300 tabular-nums tracking-tight"
           [formControlName]="controlName"
           [placeholder]="placeholder"
           autocomplete="off"
@@ -59,7 +59,7 @@ type HtmlInputType = 'text' | 'email' | 'password' | 'number';
         <input
           *ngSwitchDefault
           type="text"
-          class="josanz-field w-full h-[35px] px-3 text-[13px] text-[#2D3748] placeholder:text-[#A0AEC0] transition shadow-sm bg-[#F5F5F5] border border-transparent"
+          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
           [formControlName]="controlName"
           [placeholder]="placeholder"
           autocomplete="off"
