@@ -7,12 +7,13 @@
 
     <!-- Dynamic data columns -->
     <div class="flex flex-1 items-center gap-6 overflow-hidden">
-      <div
-        *ngFor="let item of data"
-        class="text-slate-500 text-xs font-medium leading-none truncate opacity-80 group-hover:opacity-100 transition-opacity"
-      >
-        {{ item }}
-      </div>
+      @for (item of data; track item) {
+        <div
+          class="text-slate-500 text-xs font-medium leading-none truncate opacity-80 group-hover:opacity-100 transition-opacity"
+        >
+          {{ item }}
+        </div>
+      }
     </div>
 
     <!-- Status badge -->
