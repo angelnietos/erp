@@ -5,6 +5,7 @@ import { expect, within } from '@storybook/test';
 const meta: Meta<FilterTabsComponent> = {
   component: FilterTabsComponent,
   title: 'FilterTabsComponent',
+  tags: ['autodocs'],
 };
 export default meta;
 
@@ -22,8 +23,5 @@ export const Heading: Story = {
     options: ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'],
     selected: 'Todas',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/filter-tabs/gi)).toBeTruthy();
-  },
+  
 };

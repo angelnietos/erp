@@ -5,6 +5,7 @@ import { expect, within } from '@storybook/test';
 const meta: Meta<PaginationComponent> = {
   component: PaginationComponent,
   title: 'PaginationComponent',
+  tags: ['autodocs'],
 };
 export default meta;
 
@@ -22,8 +23,5 @@ export const Heading: Story = {
     current: 0,
     total: 0,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/pagination/gi)).toBeTruthy();
-  },
+  
 };

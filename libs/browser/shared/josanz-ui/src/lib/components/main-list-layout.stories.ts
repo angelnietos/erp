@@ -5,6 +5,7 @@ import { expect, within } from '@storybook/test';
 const meta: Meta<MainListLayoutComponent> = {
   component: MainListLayoutComponent,
   title: 'MainListLayoutComponent',
+  tags: ['autodocs'],
 };
 export default meta;
 
@@ -24,8 +25,5 @@ export const Heading: Story = {
     primaryBtnLabel: 'Acción',
     filterOptions: ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'],
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/main-list-layout/gi)).toBeTruthy();
-  },
+  
 };

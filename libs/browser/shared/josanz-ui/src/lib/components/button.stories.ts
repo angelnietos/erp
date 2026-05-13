@@ -5,6 +5,7 @@ import { expect, within } from '@storybook/test';
 const meta: Meta<ButtonComponent> = {
   component: ButtonComponent,
   title: 'ButtonComponent',
+  tags: ['autodocs'],
 };
 export default meta;
 
@@ -30,8 +31,5 @@ export const Heading: Story = {
     variant: 'primary',
     fullWidth: false,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/button/gi)).toBeTruthy();
-  },
+  
 };

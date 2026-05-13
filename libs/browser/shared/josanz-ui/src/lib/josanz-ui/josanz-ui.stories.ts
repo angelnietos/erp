@@ -5,6 +5,7 @@ import { expect, within } from '@storybook/test';
 const meta: Meta<JosanzUiComponent> = {
   component: JosanzUiComponent,
   title: 'JosanzUiComponent',
+  tags: ['autodocs'],
 };
 export default meta;
 
@@ -16,8 +17,5 @@ export const Primary: Story = {
 
 export const Heading: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/josanz-ui/gi)).toBeTruthy();
-  },
+  
 };

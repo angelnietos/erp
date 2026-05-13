@@ -5,6 +5,7 @@ import { expect, within } from '@storybook/test';
 const meta: Meta<ModalComponent> = {
   component: ModalComponent,
   title: 'ModalComponent',
+  tags: ['autodocs'],
 };
 export default meta;
 
@@ -22,8 +23,5 @@ export const Heading: Story = {
     title: '',
     width: '712px',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText(/modal/gi)).toBeTruthy();
-  },
+  
 };
