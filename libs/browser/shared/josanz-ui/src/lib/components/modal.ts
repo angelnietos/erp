@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
     ">
       <div style="
         background: #FFFFFF;
-        width: 712px;
+        width: {{ width }};
         max-width: 100%;
         max-height: 90vh;
         border-radius: 8px;
@@ -88,6 +88,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ModalComponent {
   @Input() title = '';
+  @Input() width = '712px';
   @Output() close = new EventEmitter<void>();
 
   onClose() {

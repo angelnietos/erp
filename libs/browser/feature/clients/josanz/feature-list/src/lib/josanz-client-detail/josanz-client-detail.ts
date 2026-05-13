@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import {
   ModalComponent,
   DetailCardComponent,
+  ButtonComponent,
 } from '@josanz-erp/josanz-ui';
 
-type ClientTab = 'datos' | 'operadores' | 'eventos';
+type ClientTab = 'datos' | 'operadores' | 'presupuestos' | 'proveedores' | 'facturas' | 'productos_eventos' | 'informes';
 
 @Component({
   selector: 'lib-josanz-client-detail',
@@ -14,6 +15,7 @@ type ClientTab = 'datos' | 'operadores' | 'eventos';
     CommonModule,
     ModalComponent,
     DetailCardComponent,
+    ButtonComponent,
   ],
   templateUrl: './josanz-client-detail.html',
   styleUrl: './josanz-client-detail.css',
@@ -21,7 +23,19 @@ type ClientTab = 'datos' | 'operadores' | 'eventos';
 export class JosanzClientDetailComponent {
   @Output() close = new EventEmitter<void>();
 
-  activeTab = signal<ClientTab>('eventos'); // Por defecto eventos para la demo
+  activeTab = signal<ClientTab>('presupuestos'); // Por defecto presupuestos para la demo
+
+  presupuestosPropios = [
+    { name: 'Presupuesto01.pdf' },
+    { name: 'Presupuesto02.pdf' },
+    { name: 'Presupuesto03.pdf' }
+  ];
+
+  presupuestosExternos = [
+    { name: 'Presupuesto01.pdf' },
+    { name: 'Presupuesto02.pdf' },
+    { name: 'Presupuesto03.pdf' }
+  ];
 
   // Datos mock para los eventos
   eventos = [
