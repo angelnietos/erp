@@ -1,3 +1,6 @@
+import { moduleMetadata } from '@storybook/angular';
+import { RouterModule } from '@angular/router';
+import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { SidebarComponent } from './sidebar';
 
@@ -5,6 +8,12 @@ const meta: Meta<SidebarComponent> = {
   component: SidebarComponent,
   title: 'Josanz UI / Sidebar',
   tags: ['autodocs'],
+  decorators: [
+    moduleMetadata({
+      imports: [CommonModule, RouterModule.forRoot([])],
+      providers: [{ provide: APP_BASE_HREF, useValue: '/' }]
+    })
+  ],
   argTypes: {
     userName: { control: 'text' },
     userRole: { control: 'text' },
@@ -33,4 +42,3 @@ export const Playground: Story = {
     `,
   }),
 };
-

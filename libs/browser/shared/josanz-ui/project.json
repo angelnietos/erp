@@ -6,6 +6,13 @@
   "projectType": "library",
   "tags": ["scope:josanz-web-app", "type:ui"],
   "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "tsConfig": "libs/browser/shared/josanz-ui/tsconfig.lib.json"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -22,9 +29,8 @@
       "options": {
         "port": 4400,
         "configDir": "libs/browser/shared/josanz-ui/.storybook",
-        "browserTarget": "josanz-ui:build-storybook",
+        "browserTarget": "josanz-ui:build",
         "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.css"],
-        "tailwindConfig": "libs/browser/shared/josanz-ui/tailwind.config.js",
         "compodoc": false
       },
       "configurations": {
@@ -39,9 +45,8 @@
       "options": {
         "outputDir": "dist/storybook/josanz-ui",
         "configDir": "libs/browser/shared/josanz-ui/.storybook",
-        "browserTarget": "josanz-ui:build-storybook",
+        "browserTarget": "josanz-ui:build",
         "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.css"],
-        "tailwindConfig": "libs/browser/shared/josanz-ui/tailwind.config.js",
         "compodoc": false
       },
       "configurations": {

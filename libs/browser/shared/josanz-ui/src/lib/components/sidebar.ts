@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -9,4 +9,12 @@ import { RouterModule } from '@angular/router';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  @Input() userName = 'Admin Josanz';
+  @Input() userRole = 'Administrador';
+  @Input() isOpen = true;
+
+  toggle() {
+    this.isOpen = !this.isOpen;
+  }
+}

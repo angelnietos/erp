@@ -9,6 +9,10 @@ const config: StorybookConfig = {
       enableI18nLegacyMessageIdFormat: false,
     },
   },
+  docs: {
+    autodocs: true,
+    defaultName: 'Documentación',
+  },
 };
 
 export default config;
