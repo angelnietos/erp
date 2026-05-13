@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { SecondaryButtonComponent } from './secondary-button';
-import { expect } from 'storybook/test';
+import { expect, within } from '@storybook/test';
 
 const meta: Meta<SecondaryButtonComponent> = {
   component: SecondaryButtonComponent,
@@ -20,7 +20,8 @@ export const Heading: Story = {
   args: {
     label: 'Excel',
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     await expect(canvas.getByText(/secondary-button/gi)).toBeTruthy();
   },
 };

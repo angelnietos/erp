@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { UserAvatarComponent } from './user-avatar';
-import { expect } from 'storybook/test';
+import { expect, within } from '@storybook/test';
 
 const meta: Meta<UserAvatarComponent> = {
   component: UserAvatarComponent,
@@ -20,7 +20,8 @@ export const Heading: Story = {
   args: {
     size: 'sm',
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     await expect(canvas.getByText(/user-avatar/gi)).toBeTruthy();
   },
 };

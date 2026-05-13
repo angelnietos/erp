@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { InputComponent } from './input';
-import { expect } from 'storybook/test';
+import { expect, within } from '@storybook/test';
 
 const meta: Meta<InputComponent> = {
   component: InputComponent,
@@ -26,7 +26,8 @@ export const Heading: Story = {
     type: 'text',
     controlName: '',
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     await expect(canvas.getByText(/input/gi)).toBeTruthy();
   },
 };

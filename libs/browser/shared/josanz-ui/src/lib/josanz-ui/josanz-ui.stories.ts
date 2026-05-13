@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { JosanzUiComponent } from './josanz-ui';
-import { expect } from 'storybook/test';
+import { expect, within } from '@storybook/test';
 
 const meta: Meta<JosanzUiComponent> = {
   component: JosanzUiComponent,
@@ -16,7 +16,8 @@ export const Primary: Story = {
 
 export const Heading: Story = {
   args: {},
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     await expect(canvas.getByText(/josanz-ui/gi)).toBeTruthy();
   },
 };

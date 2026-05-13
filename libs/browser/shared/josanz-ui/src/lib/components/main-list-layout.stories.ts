@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { MainListLayoutComponent } from './main-list-layout';
-import { expect } from 'storybook/test';
+import { expect, within } from '@storybook/test';
 
 const meta: Meta<MainListLayoutComponent> = {
   component: MainListLayoutComponent,
@@ -24,7 +24,8 @@ export const Heading: Story = {
     primaryBtnLabel: 'Acción',
     filterOptions: ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'],
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     await expect(canvas.getByText(/main-list-layout/gi)).toBeTruthy();
   },
 };

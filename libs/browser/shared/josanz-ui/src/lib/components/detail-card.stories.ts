@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { DetailCardComponent } from './detail-card';
-import { expect } from 'storybook/test';
+import { expect, within } from '@storybook/test';
 
 const meta: Meta<DetailCardComponent> = {
   component: DetailCardComponent,
@@ -30,7 +30,8 @@ export const Heading: Story = {
     description: '',
     tags: [],
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     await expect(canvas.getByText(/detail-card/gi)).toBeTruthy();
   },
 };
