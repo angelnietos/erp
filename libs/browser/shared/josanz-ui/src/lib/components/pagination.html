@@ -1,6 +1,23 @@
-<div class="w-[51px] h-[25px] bg-white rounded-[6px] shadow-[0px_4px_8px_0px_rgba(178,178,178,0.3)] flex items-center justify-center gap-[4px] cursor-pointer hover:bg-slate-50 transition-colors">
-  <span class="text-[11px] font-medium text-[#333333] leading-none">{{ current }}/{{ total }}</span>
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="6 9 12 15 18 9"></polyline>
+<div
+  class="bg-blue-50 rounded-full flex items-center justify-center transition-all duration-300 group overflow-hidden border-slate-200"
+  [ngClass]="
+    size === 'lg'
+      ? 'w-16 h-16 min-w-[64px] min-h-[64px] border-2 shadow-inner'
+      : 'w-10 h-10 cursor-pointer hover:shadow-md active:scale-95 border'
+  "
+>
+  <svg
+    [attr.width]="size === 'lg' ? 32 : 20"
+    [attr.height]="size === 'lg' ? 32 : 20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="text-blue-500 transition-colors group-hover:text-blue-600"
+  >
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
   </svg>
 </div>

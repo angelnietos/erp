@@ -6,23 +6,22 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex gap-2">
+    <div class="flex gap-1.5 p-1 bg-slate-100/50 rounded-xl w-fit border border-slate-200/50">
       @for (option of options; track option) {
         <button 
           (click)="select(option)"
-          class="px-[12px] py-[6px] rounded-[6px] text-[13px] font-medium transition-all duration-200 border"
-          [class.bg-white]="true"
-          [class.border-black]="selection === option"
-          [class.text-black]="selection === option"
-          [class.border-[#E2E2E2]]="selection !== option"
-          [class.text-[#A0A0A0]]="selection !== option"
+          class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-300 whitespace-nowrap"
+          [class.bg-white]="selection === option"
+          [class.text-blue-600]="selection === option"
+          [class.shadow-sm]="selection === option"
+          [class.text-slate-500]="selection !== option"
+          [class.hover:bg-slate-200/50]="selection !== option"
         >
           {{ option }}
         </button>
       }
     </div>
   `,
-  styles: []
 })
 export class MainTabsComponent {
   @Input() options: string[] = [];
