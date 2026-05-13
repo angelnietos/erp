@@ -23,6 +23,8 @@
         "port": 4400,
         "configDir": "libs/browser/shared/josanz-ui/.storybook",
         "browserTarget": "josanz-ui:build-storybook",
+        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.css"],
+        "tailwindConfig": "libs/browser/shared/josanz-ui/tailwind.config.js",
         "compodoc": false
       },
       "configurations": {
@@ -38,6 +40,8 @@
         "outputDir": "dist/storybook/josanz-ui",
         "configDir": "libs/browser/shared/josanz-ui/.storybook",
         "browserTarget": "josanz-ui:build-storybook",
+        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.css"],
+        "tailwindConfig": "libs/browser/shared/josanz-ui/tailwind.config.js",
         "compodoc": false
       },
       "configurations": {
