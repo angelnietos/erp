@@ -6,8 +6,9 @@ const meta: Meta<PaginationComponent> = {
   title: 'Josanz UI / Pagination',
   tags: ['autodocs'],
   argTypes: {
-    current: { control: 'number', description: 'Página actual' },
+    current: { control: 'number', description: 'Página actual (1-based)' },
     total: { control: 'number', description: 'Total de páginas' },
+    pageChange: { action: 'pageChange' },
   },
 };
 
@@ -15,6 +16,16 @@ export default meta;
 type Story = StoryObj<PaginationComponent>;
 
 export const Playground: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <josanz-pagination
+        [current]="current"
+        [total]="total"
+        (pageChange)="pageChange($event)"
+      ></josanz-pagination>
+    `,
+  }),
   args: {
     current: 1,
     total: 12,

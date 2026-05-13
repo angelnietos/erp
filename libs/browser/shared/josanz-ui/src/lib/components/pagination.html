@@ -1,23 +1,50 @@
-<div
-  class="bg-blue-50 rounded-full flex items-center justify-center transition-all duration-300 group overflow-hidden border-slate-200"
-  [ngClass]="
-    size === 'lg'
-      ? 'w-16 h-16 min-w-[64px] min-h-[64px] border-2 shadow-inner'
-      : 'w-10 h-10 cursor-pointer hover:shadow-md active:scale-95 border'
-  "
+<nav
+  *ngIf="total > 0"
+  class="josanz-pagination flex flex-wrap items-center justify-center gap-1 sm:gap-2"
+  aria-label="Paginación"
 >
-  <svg
-    [attr.width]="size === 'lg' ? 32 : 20"
-    [attr.height]="size === 'lg' ? 32 : 20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="text-blue-500 transition-colors group-hover:text-blue-600"
+  <button
+    type="button"
+    class="josanz-pagination__nav min-h-9 min-w-9 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+    (click)="prev()"
+    [disabled]="effectiveCurrent <= 1"
+    aria-label="Página anterior"
   >
-    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-</div>
+    ‹
+  </button>
+
+  <ol class="flex list-none flex-wrap items-center justify-center gap-1 p-0 m-0">
+    <li *ngFor="let item of pageItems(); trackBy: trackPageItem">
+      <span
+        *ngIf="item === 'ellipsis'"
+        class="josanz-pagination__ellipsis px-2 text-sm font-medium text-slate-400 select-none"
+        aria-hidden="true"
+        >…</span
+      >
+      <button
+        *ngIf="item !== 'ellipsis'"
+        type="button"
+        class="josanz-pagination__page min-h-9 min-w-9 rounded-lg border text-sm font-semibold transition"
+        [ngClass]="
+          item === effectiveCurrent
+            ? 'border-[var(--josanz-primary,#4f46e5)] bg-[var(--josanz-primary,#4f46e5)] text-white shadow-sm'
+            : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50'
+        "
+        [attr.aria-current]="item === effectiveCurrent ? 'page' : null"
+        (click)="go(item)"
+      >
+        {{ item }}
+      </button>
+    </li>
+  </ol>
+
+  <button
+    type="button"
+    class="josanz-pagination__nav min-h-9 min-w-9 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+    (click)="next()"
+    [disabled]="effectiveCurrent >= total"
+    aria-label="Página siguiente"
+  >
+    ›
+  </button>
+</nav>
