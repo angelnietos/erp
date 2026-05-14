@@ -5,9 +5,12 @@
   [class.rounded-[32px]]="themeService.currentTheme().defaultShape === 'pill'"
   [ngStyle]="shellStyle()"
 >
-  <!-- Image Vertical (Figma Style) -->
+  <!-- Image Vertical -->
   <div
-    class="w-full md:w-[186px] h-[200px] md:h-[186px] shrink-0 rounded-[12px] overflow-hidden shadow-inner"
+    class="w-full md:w-[186px] h-[200px] md:h-[186px] shrink-0 overflow-hidden shadow-inner"
+    [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
+    [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
+    [class.rounded-[28px]]="themeService.currentTheme().defaultShape === 'pill'"
     [style.backgroundColor]="themeService.currentTheme().atmosphere.border"
   >
     <img [src]="imageUrl" alt="Event image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -24,7 +27,10 @@
           {{ title }}
         </h3>
         <span
-          class="text-[10px] font-bold px-3 py-1 rounded-[10px] uppercase"
+          class="text-[10px] font-bold px-3 py-1 uppercase"
+          [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
+          [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
+          [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
           [ngStyle]="badgeStyle()"
         >
           {{ badgeText }}
@@ -59,7 +65,10 @@
     <div class="flex flex-wrap gap-2 mt-4">
       @for (tag of tags; track tag) {
         <span
-          class="px-3 py-1 border border-solid rounded-full text-[11px] font-semibold transition-colors cursor-default"
+          class="px-3 py-1 border border-solid text-[11px] font-semibold transition-colors cursor-default"
+          [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
+          [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
+          [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
           [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
           [style.borderColor]="themeService.currentTheme().atmosphere.border"
           [style.color]="themeService.currentTheme().atmosphere.textMuted"

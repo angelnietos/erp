@@ -57,7 +57,14 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   buttonClass(option: string): string {
-    const base = `px-5 h-[34px] rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 cursor-pointer outline-none whitespace-nowrap`;
+    const activeShape = this.themeService.currentTheme().defaultShape;
+    const shapeClass = {
+      rounded: 'rounded-xl',
+      pill: 'rounded-full',
+      square: 'rounded-none',
+    }[activeShape] ?? 'rounded-xl';
+
+    const base = `px-5 h-[34px] ${shapeClass} flex items-center justify-center text-[12px] font-bold transition-all duration-200 cursor-pointer outline-none whitespace-nowrap`;
     if (this.active === option) {
       return `${base} border-none scale-[1.02]`;
     }

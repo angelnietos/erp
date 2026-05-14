@@ -29,6 +29,9 @@
       <!-- Badge: mobile only -->
       <span 
         class="md:hidden px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm"
+        [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
+        [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
+        [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
         [ngStyle]="getBadgeStyles()"
       >
         {{ status }}
@@ -63,6 +66,9 @@
       <span 
         [ngStyle]="getBadgeStyles()"
         class="px-4 py-1.5 text-[10px] font-black flex items-center justify-center uppercase tracking-widest shadow-md"
+        [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
+        [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
+        [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
       >
         {{ status }}
       </span>

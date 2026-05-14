@@ -1,12 +1,11 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { josanzCornerField, type JosanzControlShape } from '../josanz-control-styles';
+import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-secondary-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './secondary-button.html',
   styleUrl: './secondary-button.css',
 })
@@ -15,14 +14,15 @@ export class SecondaryButtonComponent {
 
   @Input() label = 'Excel';
   @Input() type: 'excel' | 'pdf' | 'cancel' = 'excel';
-  /** Esquinas del botón (misma semántica que `josanz-button`). */
-  @Input() shape: JosanzControlShape = 'rounded';
+  /** Override del shape; si no se pasa, usa el shape del tema activo. */
+  @Input() shape?: JosanzControlShape;
   /** Color del texto y del icono (SVG usa `currentColor`). */
   @Input() customColor?: string;
   @Input() fullWidth = false;
   @Output() btnClick = new EventEmitter<void>();
 
-  readonly cornerClass = (): string => josanzCornerField(this.shape);
+  readonly cornerClass = (): string =>
+    josanzCornerInner(this.shape ?? this.themeService.currentTheme().defaultShape);
 
   readonly textColor = (): string =>
     this.customColor ?? this.themeService.currentTheme().atmosphere.text;

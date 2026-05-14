@@ -39,7 +39,6 @@ export class MainTemplateCardComponent {
 
     return {
       'background-color': backgroundColor,
-      'border-radius': '8px',
       'color': josanzReadableOnSolid(backgroundColor),
       'box-shadow': '0 2px 4px rgba(0,0,0,0.1)',
       'text-transform': 'uppercase',
