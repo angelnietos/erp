@@ -4,10 +4,16 @@
     "outDir": "../../dist/out-tsc",
     "types": []
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "../../libs/browser/feature/budget/josanz/feature-list/src/**/*.ts",
+    "../../libs/browser/feature/delivery/josanz/feature-list/src/**/*.ts"
+  ],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
+    "../../libs/browser/feature/budget/josanz/feature-list/src/**/*.spec.ts",
+    "../../libs/browser/feature/delivery/josanz/feature-list/src/**/*.spec.ts",
     "jest.config.ts",
     "jest.config.cts",
     "src/test-setup.ts"

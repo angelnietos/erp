@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { josanzCornerInner, josanzCornerShell, type JosanzControlShape } from '../josanz-control-styles';
+import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-main-tabs',

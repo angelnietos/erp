@@ -4,7 +4,7 @@ import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent }
 import { JosanzUserCreateComponent } from '../josanz-user-create/josanz-user-create';
 
 @Component({
-  selector: 'josanz-users-list',
+  selector: 'lib-josanz-users-list',
   standalone: true,
   imports: [CommonModule, MainListLayoutComponent, MainTemplateCardComponent, JosanzUserCreateComponent],
   templateUrl: './josanz-users-feature-list.html',
