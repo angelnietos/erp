@@ -63,48 +63,22 @@
         <div class="presupuestos-container">
           <h3 class="section-title">Propios</h3>
           
-          <div class="upload-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span>Subir documentación</span>
-          </div>
-
-          <div class="docs-list shadow-sm">
+          <josanz-document-list uploadLabel="Subir documentación">
             @for (file of presupuestosPropios; track file) {
-              <div class="doc-item">
-                <div class="doc-item-left">
-                  <div class="doc-dot"></div>
-                  <span class="doc-name">{{ file }}</span>
-                </div>
-                <button class="download-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                </button>
-              </div>
+              <josanz-document-item [name]="file"></josanz-document-item>
             }
-          </div>
+          </josanz-document-list>
         </div>
 
         <!-- Externos -->
         <div class="presupuestos-container">
           <h3 class="section-title">Externos</h3>
           
-          <div class="upload-btn" style="border-color: #A0AEC0; color: #718096;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span>Subir documentación</span>
-          </div>
-
-          <div class="docs-list shadow-sm">
+          <josanz-document-list uploadLabel="Subir documentación" accentColor="#718096">
             @for (file of presupuestosExternos; track file) {
-              <div class="doc-item">
-                <div class="doc-item-left">
-                  <div class="doc-dot"></div>
-                  <span class="doc-name">{{ file }}</span>
-                </div>
-                <button class="download-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                </button>
-              </div>
+              <josanz-document-item [name]="file" statusColor="#CBD5E0"></josanz-document-item>
             }
-          </div>
+          </josanz-document-list>
         </div>
       </div>
     }
@@ -132,24 +106,11 @@
     @if (activeTab() === 'Facturas') {
       <div class="py-6 space-y-10">
         <div class="presupuestos-container">
-          <div class="upload-btn" style="border-color: #A0AEC0; color: #718096;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span>Subir documentación</span>
-          </div>
-
-          <div class="docs-list shadow-sm">
+          <josanz-document-list uploadLabel="Subir documentación" accentColor="#718096">
             @for (file of facturas; track file) {
-              <div class="doc-item">
-                <div class="doc-item-left">
-                  <div class="doc-dot"></div>
-                  <span class="doc-name">{{ file }}</span>
-                </div>
-                <button class="download-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                </button>
-              </div>
+              <josanz-document-item [name]="file" statusColor="#CBD5E0"></josanz-document-item>
             }
-          </div>
+          </josanz-document-list>
         </div>
       </div>
     }

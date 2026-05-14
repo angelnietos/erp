@@ -4,7 +4,9 @@ import { Router } from '@angular/router';
 import {
   DetailCardComponent,
   MainTemplateCardComponent,
-  MainDetailLayoutComponent
+  MainDetailLayoutComponent,
+  DocumentItemComponent,
+  DocumentListComponent
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -14,7 +16,9 @@ import {
     CommonModule,
     DetailCardComponent,
     MainTemplateCardComponent,
-    MainDetailLayoutComponent
+    MainDetailLayoutComponent,
+    DocumentItemComponent,
+    DocumentListComponent
   ],
   templateUrl: './josanz-client-detail.html',
   styleUrl: './josanz-client-detail.css',

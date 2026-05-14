@@ -19,6 +19,7 @@ import {
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
 import { openPrintableDocument } from '@josanz-erp/shared-utils';
+import { DocumentListComponent, DocumentItemComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-fleet-detail',
@@ -33,6 +34,8 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
     UiLoaderComponent,
     UiStatCardComponent,
     UiFeaturePageShellComponent,
+    DocumentListComponent,
+    DocumentItemComponent,
   ],
   template: `
     <ui-feature-page-shell
@@ -156,24 +159,16 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
             </ui-card>
 
             <ui-card variant="glass" title="Documentación Digital">
-              <div class="doc-list">
-                <button
-                  type="button"
-                  class="doc-item"
-                  (click)="downloadTechnicalSheet()"
-                >
-                  <lucide-icon name="file-text" size="16" aria-hidden="true"></lucide-icon>
-                  <span>FICHA TÉCNICA.PDF</span>
-                </button>
-                <button
-                  type="button"
-                  class="doc-item"
-                  (click)="downloadInsurancePolicy()"
-                >
-                  <lucide-icon name="shield-check" size="16" aria-hidden="true"></lucide-icon>
-                  <span>PÓLIZA SEGURO.PDF</span>
-                </button>
-              </div>
+              <josanz-document-list [showUpload]="false">
+                <josanz-document-item 
+                  name="FICHA TÉCNICA.PDF" 
+                  (download)="downloadTechnicalSheet()"
+                ></josanz-document-item>
+                <josanz-document-item 
+                  name="PÓLIZA SEGURO.PDF" 
+                  (download)="downloadInsurancePolicy()"
+                ></josanz-document-item>
+              </josanz-document-list>
             </ui-card>
           </div>
         </div>
@@ -311,49 +306,6 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
       .status-subtext {
         font-size: 0.55rem;
         color: var(--text-muted);
-      }
-
-      .doc-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .doc-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        margin: 0;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        font: inherit;
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.3s;
-        user-select: none;
-        text-align: left;
-      }
-      .doc-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        border-color: var(--brand);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      .doc-item:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-      .doc-item lucide-icon {
-        color: var(--brand);
-        transition: color 0.3s;
-      }
-      .doc-item:hover lucide-icon {
-        color: #fff;
       }
 
       .empty-text {
