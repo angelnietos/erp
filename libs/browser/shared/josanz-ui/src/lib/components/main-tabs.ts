@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { JosanzThemeService } from '../services/theme.service';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
@@ -7,20 +8,14 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div [class]="shellClass()">
+    <div class="flex gap-2 w-fit mb-6">
       @for (option of options; track option) {
         <button
           type="button"
           (click)="select(option)"
-          [ngClass]="[tabCorner(), 'px-4 py-2 text-xs font-semibold transition-all duration-300 whitespace-nowrap']"
-          [class.bg-white]="true"
-          [class.border]="true"
-          [class.border-[#222222]]="active === option && !customColor"
-          [class.text-[#222222]]="active === option && !customColor"
-          [class.border-transparent]="active !== option"
-          [class.text-[#989898]]="active !== option"
-          [style.color]="active === option && customColor ? customColor : null"
-          [style.borderColor]="active === option && customColor ? customColor : null"
+          [class]="tabClasses(option)"
+          [style.borderColor]="active === option ? getAccentColor() : 'transparent'"
+          [style.color]="active === option ? getAccentColor() : '#989898'"
         >
           {{ option }}
         </button>
@@ -29,24 +24,36 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
   `,
 })
 export class MainTabsComponent implements OnInit, OnChanges {
+  public themeService = inject(JosanzThemeService);
+
   @Input() options: string[] = [];
-  /** Valor inicial / controlado desde el padre; el estado visual usa `active` para no pisarse al pulsar (p. ej. Storybook). */
   @Input() selection = '';
   @Output() selectionChange = new EventEmitter<string>();
-
-  /** Esquinas del contenedor y de cada pestaña (misma semántica que `josanz-button`). */
-  @Input() shape: JosanzControlShape = 'rounded';
-  /** Color del texto de la pestaña activa (fondo sigue blanco). */
+  @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
 
   active = '';
 
-  shellClass(): string {
-    return `flex gap-2 w-fit`;
+  tabClasses(option: string) {
+    const base = 'px-5 py-2.5 text-[12px] font-bold transition-all duration-300 whitespace-nowrap border-2 bg-white';
+    
+    const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
+    const shapes = {
+      rounded: 'rounded-[10px]',
+      pill: 'rounded-full',
+      square: 'rounded-none',
+      inner: 'rounded-[8px]'
+    };
+
+    return [
+      base,
+      shapes[activeShape as keyof typeof shapes] || shapes.rounded,
+      this.active === option ? 'shadow-sm' : 'hover:bg-slate-50'
+    ].join(' ');
   }
 
-  tabCorner(): string {
-    return josanzCornerInner(this.shape);
+  getAccentColor() {
+    return this.customColor || this.themeService.currentTheme().primaryColor;
   }
 
   ngOnInit(): void {

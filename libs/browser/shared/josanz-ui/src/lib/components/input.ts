@@ -1,98 +1,70 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import type { JosanzControlShape } from '../josanz-control-styles';
-
-type HtmlInputType = 'text' | 'email' | 'password' | 'number';
+import { JosanzThemeService } from '../services/theme.service';
+import { JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-input',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  styleUrl: './input.css',
   template: `
-    <div
-      class="josanz-input-host w-full"
-      [ngClass]="'josanz-input-host--' + resolvedShape"
-      [style.--josanz-field-accent]="customColor || null"
-      [formGroup]="parentForm"
-    >
-      <label class="text-[11px] font-medium text-[#718096] ml-1">{{ label }}</label>
-      <ng-container [ngSwitch]="resolvedType">
+    <div class="flex flex-col gap-2 w-full mb-4" [formGroup]="parentForm">
+      <label class="text-[11px] font-bold text-[#989898] uppercase tracking-[0.1em] ml-1">
+        {{ label }}
+      </label>
+      <div class="relative flex items-center group">
         <input
-          *ngSwitchCase="'text'"
-          type="text"
-          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
           [formControlName]="controlName"
+          [type]="type"
           [placeholder]="placeholder"
-          autocomplete="off"
-          spellcheck="true"
+          [class]="inputClasses"
+          [style.boxShadow]="isFocused ? '0 0 0 2px ' + getAccentColor() : 'none'"
+          (focus)="isFocused = true"
+          (blur)="isFocused = false"
         />
-        <input
-          *ngSwitchCase="'email'"
-          type="email"
-          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
-          [formControlName]="controlName"
-          [placeholder]="placeholder"
-          autocomplete="email"
-          spellcheck="false"
-          inputmode="email"
-        />
-        <input
-          *ngSwitchCase="'password'"
-          type="password"
-          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
-          [formControlName]="controlName"
-          [placeholder]="placeholder"
-          autocomplete="current-password"
-          spellcheck="false"
-        />
-        <input
-          *ngSwitchCase="'number'"
-          type="number"
-          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300 tabular-nums tracking-tight"
-          [formControlName]="controlName"
-          [placeholder]="placeholder"
-          autocomplete="off"
-          inputmode="decimal"
-        />
-        <input
-          *ngSwitchDefault
-          type="text"
-          class="josanz-field w-full h-[40px] px-4 text-[14px] text-[#222222] placeholder:text-[#A0AEC0] transition bg-[#F5F5F5] border-none outline-none rounded-[8px] focus:ring-2 focus:ring-slate-300"
-          [formControlName]="controlName"
-          [placeholder]="placeholder"
-          autocomplete="off"
-        />
-      </ng-container>
+        @if (parentForm.get(controlName)?.invalid && parentForm.get(controlName)?.touched) {
+          <span class="absolute right-3 text-red-500 text-[10px] font-bold uppercase tracking-wider">Requerido</span>
+        }
+      </div>
     </div>
   `,
 })
 export class InputComponent {
+  private themeService = inject(JosanzThemeService);
+
   @Input() label = '';
   @Input() placeholder = '';
   @Input() type = 'text';
   @Input() controlName = '';
   @Input() parentForm!: FormGroup;
-
-  /** Igual que en `josanz-button`: esquinas del campo. */
-  @Input() shape: JosanzControlShape = 'rounded';
-  /** Acento de foco / borde (hex u otro color CSS). */
+  @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
 
-  get resolvedType(): HtmlInputType {
-    const raw = (this.type ?? 'text').toString().toLowerCase().trim();
-    if (raw === 'email' || raw === 'password' || raw === 'number' || raw === 'text') {
-      return raw;
-    }
-    return 'text';
+  isFocused = false;
+
+  get inputClasses() {
+    const base = 'w-full h-[44px] px-4 bg-[#F5F5F5] border-none text-[14px] text-[#222222] font-medium transition-all outline-none placeholder:text-slate-400';
+    
+    const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
+    const shapes = {
+      rounded: 'rounded-[10px]',
+      pill: 'rounded-full',
+      square: 'rounded-none',
+      field: 'rounded-[10px]',
+      inner: 'rounded-[6px]',
+      modal: 'rounded-[24px]',
+      avatar: 'rounded-[10px]'
+    };
+
+    return [
+      base,
+      shapes[activeShape as keyof typeof shapes] || shapes.rounded,
+      this.isFocused ? 'bg-white' : 'hover:bg-[#F0F0F0]'
+    ].join(' ');
   }
 
-  get resolvedShape(): JosanzControlShape {
-    const s = (this.shape ?? 'rounded').toString() as JosanzControlShape;
-    if (s === 'pill' || s === 'square' || s === 'rounded') {
-      return s;
-    }
-    return 'rounded';
+  getAccentColor() {
+    return this.customColor || this.themeService.currentTheme().primaryColor + '33'; // Color + 20% alpha
   }
 }

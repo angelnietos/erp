@@ -1,42 +1,34 @@
-<div class="w-full h-[64px] bg-white rounded-[12px] shadow-[0px_10px_20px_0px_rgba(163,163,163,0.1)] flex items-center px-6 transition-all group border border-transparent hover:border-slate-100 mb-3">
-  <div class="flex items-center w-full overflow-hidden">
-    <!-- Column 1 (Title) -->
-    <div class="text-[#222222] text-[14px] font-semibold truncate w-[180px] shrink-0">
+<div class="bg-white rounded-[16px] shadow-[0px_4px_24px_rgba(0,0,0,0.06)] p-6 mb-4 flex items-center w-full group hover:shadow-lg transition-all duration-300 border border-transparent hover:border-slate-100">
+  
+  <!-- Columna 1: Título/Nombre -->
+  <div class="w-[180px] shrink-0">
+    <h3 class="text-[15px] font-bold text-[#222222] tracking-tight group-hover:text-black">
       {{ title }}
-    </div>
-
-    <!-- Data Columns with fixed widths -->
-    <div class="flex flex-1 items-center gap-4 overflow-hidden">
-      @if (data[0]) {
-        <div class="text-[#222222] text-[14px] font-medium truncate w-[200px] shrink-0 opacity-80">
-          {{ data[0] }}
-        </div>
-      }
-      @if (data[1]) {
-        <div class="text-[#222222] text-[14px] font-medium truncate w-[150px] shrink-0 opacity-80">
-          {{ data[1] }}
-        </div>
-      }
-      @if (data[2]) {
-        <div class="text-[#222222] text-[14px] font-medium truncate w-[150px] shrink-0 opacity-80">
-          {{ data[2] }}
-        </div>
-      }
-      @if (data[3]) {
-        <div class="text-[#222222] text-[14px] font-medium truncate flex-1 shrink-0 opacity-80">
-          {{ data[3] }}
-        </div>
-      }
-    </div>
-
-    <!-- Status badge (Figma Specs: 65x20px, 10px radius) -->
-    <div class="w-[120px] flex justify-center shrink-0">
-      <span
-        class="text-[10px] font-bold rounded-[10px] w-[65px] h-[20px] flex items-center justify-center text-white shadow-sm transition-all"
-        [style.backgroundColor]="statusVariant === 'success' ? '#22C55E' : (statusVariant === 'warning' ? '#F59E0B' : (statusVariant === 'error' ? '#EF4444' : '#635BFF'))"
-      >
-        {{ status }}
-      </span>
-    </div>
+    </h3>
   </div>
+
+  <!-- Columna 2: Datos Flexibles (Email, CIF, etc) -->
+  <div class="flex flex-1 items-center gap-4 overflow-hidden">
+    @for (item of data; track item; let i = $index) {
+      <div 
+        class="shrink-0 text-[14px] text-[#64748B] font-medium truncate"
+        [class.w-[200px]]="i === 0"
+        [class.w-[150px]]="i === 1 || i === 2"
+        [class.flex-1]="i === 3"
+      >
+        {{ item }}
+      </div>
+    }
+  </div>
+
+  <!-- Columna 3: Estado (Badge Estandarizado 65x20px) -->
+  <div class="w-[120px] shrink-0 flex justify-center">
+    <span 
+      [ngStyle]="getBadgeStyles()"
+      class="w-[65px] h-[20px] text-white text-[10px] font-bold flex items-center justify-center uppercase tracking-wider shadow-sm"
+    >
+      {{ status }}
+    </span>
+  </div>
+
 </div>

@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-styles';
+import { JosanzThemeService } from '../services/theme.service';
+import { JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-modal',
@@ -9,7 +10,7 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
   template: `
     <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.8)] p-6 backdrop-blur-[2px]">
       <div
-        class="bg-white rounded-[24px] shadow-[0px_20px_50px_rgba(0,0,0,0.2)] flex flex-col relative overflow-hidden"
+        [class]="modalClasses"
         [style.width]="width"
         [style.maxWidth]="'100%'"
         [style.maxHeight]="'92vh'"
@@ -31,7 +32,7 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
         <div class="flex-1 overflow-y-auto px-12 pt-14 pb-8 no-scrollbar">
           <h2
             class="text-[32px] font-bold mb-10 pr-12 tracking-tight text-[#222222]"
-            [style.color]="customColor || null"
+            [style.color]="customColor || themeService.currentTheme().primaryColor"
           >
             {{ title }}
           </h2>
@@ -58,13 +59,33 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
   ],
 })
 export class ModalComponent {
+  public themeService = inject(JosanzThemeService);
+
   @Input() title = '';
   @Input() width = '712px';
-  /** Esquinas del panel (misma semántica que `josanz-button`). */
-  @Input() shape: JosanzControlShape = 'rounded';
-  /** Color del título del modal (opcional). */
+  @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Output() close = new EventEmitter<void>();
+
+  get modalClasses() {
+    const base = 'bg-white shadow-[0px_20px_50px_rgba(0,0,0,0.2)] flex flex-col relative overflow-hidden transition-all duration-300';
+    
+    const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
+    const shapes = {
+      rounded: 'rounded-[24px]',
+      pill: 'rounded-[40px]',
+      square: 'rounded-none',
+      modal: 'rounded-[24px]',
+      inner: 'rounded-[12px]',
+      avatar: 'rounded-[12px]',
+      field: 'rounded-[12px]'
+    };
+
+    return [
+      base,
+      shapes[activeShape as keyof typeof shapes] || shapes.rounded
+    ].join(' ');
+  }
 
   onClose(event?: Event) {
     if (event) {

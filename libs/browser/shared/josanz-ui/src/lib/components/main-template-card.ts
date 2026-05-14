@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-main-template-card',
@@ -9,8 +10,31 @@ import { CommonModule } from '@angular/common';
   styleUrl: './main-template-card.css',
 })
 export class MainTemplateCardComponent {
+  public themeService = inject(JosanzThemeService);
+
   @Input() title = 'Facturación General';
   @Input() status = 'Pendiente';
   @Input() statusVariant: 'primary' | 'success' | 'warning' | 'error' = 'warning';
   @Input() data: string[] = ['ID: #4502', 'Fecha: 12/05/2026', 'Total: 1.250€', 'Vencimiento: 30 días'];
+
+  getBadgeStyles() {
+    const theme = this.themeService.currentTheme();
+    
+    // El radio del badge se adapta al tema
+    let borderRadius = '10px'; // Luxe default
+    if (theme.defaultShape === 'square') borderRadius = '2px';
+    if (theme.defaultShape === 'pill') borderRadius = '99px';
+
+    // Color de fondo dinámico para la variante 'primary'
+    let backgroundColor = '#E2E8F0';
+    if (this.statusVariant === 'primary') backgroundColor = theme.primaryColor;
+    else if (this.statusVariant === 'success') backgroundColor = '#22C55E';
+    else if (this.statusVariant === 'warning') backgroundColor = '#F59E0B';
+    else if (this.statusVariant === 'error') backgroundColor = '#EF4444';
+
+    return {
+      'background-color': backgroundColor,
+      'border-radius': borderRadius
+    };
+  }
 }
