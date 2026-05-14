@@ -1,15 +1,26 @@
+/**
+ * Visibilidad solo en viewport «móvil» (< md / 768px), alineado con el shell (`hidden md:flex` del sidebar).
+ * No depender solo de utilidades Tailwind en el HTML: el escaneo de `content` puede no incluir esta lib
+ * y `display: flex` fijo aquí ganaba en cascada a `md:hidden`.
+ */
 .josanz-mobile-tab-bar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 200;
-  display: flex;
   flex-direction: column;
   border-top-width: 1px;
   border-top-style: solid;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .josanz-mobile-tab-bar {
+    display: flex;
+  }
 }
 
 .josanz-mobile-tab-bar__link--active {
