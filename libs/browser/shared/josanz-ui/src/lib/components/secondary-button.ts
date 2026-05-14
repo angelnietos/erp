@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
@@ -5,7 +6,7 @@ import { JosanzThemeService } from '../services/theme.service';
 @Component({
   selector: 'josanz-secondary-button',
   standalone: true,
-  imports: [],
+  imports: [NgClass],
   templateUrl: './secondary-button.html',
   styleUrl: './secondary-button.css',
 })
