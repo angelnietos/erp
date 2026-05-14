@@ -98,6 +98,22 @@
       </div>
     }
 
+    <!-- Tab: Productos/Eventos (Restored) -->
+    @if (activeTab() === 'productos_eventos') {
+      <div class="space-y-6 py-4">
+        @for (evento of eventos; track evento.title) {
+          <lib-detail-card
+            [imageUrl]="evento.imageUrl"
+            [title]="evento.title"
+            [badgeText]="evento.badgeText"
+            [subtitle]="evento.subtitle"
+            [description]="evento.description"
+            [tags]="evento.tags"
+          ></lib-detail-card>
+        }
+      </div>
+    }
+
   </div>
 
   <!-- Footer Actions -->
