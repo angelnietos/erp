@@ -1,39 +1,80 @@
-<josanz-main-detail-layout 
-  title="Detalle de Usuario" 
-  [tabs]="tabs" 
-  [activeTab]="activeTab()" 
+<josanz-main-detail-layout
+  title="Detalle de Usuario"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
   (tabChange)="setTab($event)"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
 >
-  <div class="py-4">
-    <!-- Tab: Datos usuario -->
+  <div class="py-2 md:py-4">
     @if (activeTab() === 'Datos usuario') {
-      <div class="grid grid-cols-2 gap-8 py-4">
-        <div class="space-y-6">
-          <div class="text-[14px] font-medium uppercase" style="color: var(--josanz-text-muted)">Información Personal</div>
-          <div class="p-6 rounded-xl space-y-4" style="background-color: var(--josanz-bg); box-shadow: var(--josanz-shadow)">
-            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Nombre completo</span><span class="font-medium" style="color: var(--josanz-text)">Juan Pérez</span></div>
-            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Email</span><span class="font-medium" style="color: var(--josanz-text)">juan.perez@josanz.com</span></div>
-            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Teléfono</span><span class="font-medium" style="color: var(--josanz-text)">+34 600 000 002</span></div>
-            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Rol</span><span class="font-medium" style="color: var(--josanz-text)">Operario</span></div>
+      <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
+        <div class="space-y-4">
+          <h2
+            class="text-[12px] font-bold uppercase tracking-[0.2em]"
+            style="color: var(--josanz-text-muted)"
+          >
+            Información personal
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of personalRows; track row.label) {
+              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
+                  row.label
+                }}</span>
+                <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">{{ row.value }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2
+            class="text-[12px] font-bold uppercase tracking-[0.2em]"
+            style="color: var(--josanz-text-muted)"
+          >
+            Acceso y estado
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of accessRows; track row.label) {
+              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
+                  row.label
+                }}</span>
+                <span class="text-[16px] font-extrabold leading-snug" [style.color]="row.accent ? 'var(--josanz-primary)' : 'var(--josanz-text)'">{{
+                  row.value
+                }}</span>
+              </div>
+            }
           </div>
         </div>
       </div>
     }
 
-    <!-- Tab: Permisos -->
     @if (activeTab() === 'Permisos') {
-      <div class="py-10 text-center text-[#989898]">
-        Sección de permisos en desarrollo.
+      <div
+        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
+        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
+      >
+        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Permisos</span>
+        <p class="max-w-md text-[14px] leading-relaxed">Aquí podrás asignar módulos y acciones cuando el backend de permisos esté conectado.</p>
       </div>
     }
 
-    <!-- Tab: Actividad -->
     @if (activeTab() === 'Actividad') {
-      <div class="py-10 text-center text-[#989898]">
-        No hay actividad reciente registrada para este usuario.
+      <div
+        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
+        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
+      >
+        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Sin actividad reciente</span>
+        <p class="max-w-md text-[14px] leading-relaxed">No hay eventos registrados para este usuario en el periodo actual.</p>
       </div>
     }
   </div>

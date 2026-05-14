@@ -58,9 +58,11 @@ import { ButtonComponent } from './button';
         </div>
       </div>
 
-      <!-- Scrollable Content -->
+      <!-- Scrollable Content: ancho máximo para no dejar mitades vacías en pantallas anchas -->
       <div class="flex-1 overflow-y-auto px-5 md:px-10 pb-40 md:pb-32 no-scrollbar">
-        <ng-content></ng-content>
+        <div class="mx-auto w-full max-w-[1200px]">
+          <ng-content></ng-content>
+        </div>
       </div>
 
       <!-- Fixed Footer -->

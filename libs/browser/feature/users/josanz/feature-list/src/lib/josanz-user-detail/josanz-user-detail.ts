@@ -20,6 +20,20 @@ export class JosanzUserDetailComponent {
   activeTab = signal<string>('Datos usuario');
   tabs = ['Datos usuario', 'Permisos', 'Actividad'];
 
+  readonly personalRows: { label: string; value: string }[] = [
+    { label: 'Nombre completo', value: 'Juan Pérez' },
+    { label: 'Email', value: 'juan.perez@josanz.com' },
+    { label: 'Teléfono', value: '+34 600 000 002' },
+    { label: 'Rol', value: 'Operario' },
+  ];
+
+  readonly accessRows: { label: string; value: string; accent?: boolean }[] = [
+    { label: 'Estado de la cuenta', value: 'Activa', accent: true },
+    { label: 'Último acceso', value: 'Hoy, 09:42 (Europe/Madrid)' },
+    { label: 'Idioma', value: 'Español' },
+    { label: 'Zona horaria', value: 'UTC+1' },
+  ];
+
   setTab(tab: string) {
     this.activeTab.set(tab);
   }

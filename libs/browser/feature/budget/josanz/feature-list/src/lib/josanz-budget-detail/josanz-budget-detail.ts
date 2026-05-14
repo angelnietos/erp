@@ -20,6 +20,20 @@ export class JosanzBudgetDetailComponent {
   activeTab = signal<string>('General');
   tabs = ['General', 'Líneas', 'Documentación'];
 
+  readonly infoRows: { label: string; value: string; accent?: boolean }[] = [
+    { label: 'Nº presupuesto', value: 'PRE-2024-001' },
+    { label: 'Cliente', value: 'Construcciones S.A.' },
+    { label: 'Fecha', value: '14/05/2024' },
+    { label: 'Estado', value: 'Borrador', accent: true },
+  ];
+
+  readonly amountRows: { label: string; value: string; highlight?: boolean }[] = [
+    { label: 'Base imponible', value: '12.450,00 €' },
+    { label: 'IVA (21%)', value: '2.614,50 €' },
+    { label: 'Total', value: '15.064,50 €', highlight: true },
+    { label: 'Válido hasta', value: '30/06/2024' },
+  ];
+
   setTab(tab: string) {
     this.activeTab.set(tab);
   }
