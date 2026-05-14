@@ -1,8 +1,8 @@
 <div class="h-screen bg-white border-r border-slate-100 flex flex-col items-center py-6 transition-all duration-300 relative shadow-sm"
      [class.w-[256px]]="isOpen"
-     [class.w-[72px]]="!isOpen">
+     [class.w-[52px]]="!isOpen">
 
-  <!-- Toggle Button (Figma style floating button) -->
+  <!-- Toggle Button -->
   <button 
     (click)="toggle()"
     class="absolute -right-3 top-12 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-all z-50 cursor-pointer text-slate-400 hover:text-slate-900"
@@ -14,7 +14,7 @@
   </button>
 
   <!-- Logo Section -->
-  <div class="mb-10 flex items-center w-full px-5 overflow-hidden">
+  <div class="mb-10 flex items-center w-full px-2.5 overflow-hidden">
     <div class="w-8 h-8 bg-black rounded-[8px] flex items-center justify-center shrink-0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -27,146 +27,59 @@
   </div>
 
   <!-- Navigation Links -->
-  <nav class="flex flex-col gap-1 w-full px-3 flex-1 overflow-hidden">
-    <!-- Clientes -->
-    <a routerLink="/clients" routerLinkActive="bg-slate-50 text-black shadow-sm" 
-       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Clientes</span>
-      }
-    </a>
-
-    <!-- Albaranes -->
-    <a routerLink="/delivery-notes" routerLinkActive="bg-slate-50 text-black shadow-sm" 
-       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-          <polyline points="10 9 9 9 8 9"></polyline>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Albaranes</span>
-      }
-    </a>
-
-    <!-- Presupuestos -->
-    <a routerLink="/budgets" routerLinkActive="bg-slate-50 text-black shadow-sm" 
-       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Presupuestos</span>
-      }
-    </a>
-
-    <!-- Stock -->
-    <a routerLink="/stock" routerLinkActive="bg-slate-50 text-black shadow-sm" 
-       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-          <line x1="12" y1="22.08" x2="12" y2="12"></line>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Stock</span>
-      }
-    </a>
-
-    <!-- Usuarios -->
-    <a routerLink="/users" routerLinkActive="bg-slate-50 text-black shadow-sm" 
-       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <polyline points="16 11 18 13 22 9"></polyline>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Usuarios</span>
-      }
-    </a>
+  <nav class="flex flex-col gap-1 w-full px-1.5 flex-1 overflow-hidden">
+    <!-- Link Helper Macro -->
+    @for (link of [
+      {path: '/clients', label: 'Clientes', icon: 'users'},
+      {path: '/delivery-notes', label: 'Albaranes', icon: 'file-text'},
+      {path: '/budgets', label: 'Presupuestos', icon: 'briefcase'},
+      {path: '/stock', label: 'Stock', icon: 'box'},
+      {path: '/users', label: 'Usuarios', icon: 'user-check'}
+    ]; track link.path) {
+      <a [routerLink]="link.path" routerLinkActive="bg-slate-50 text-black shadow-sm" 
+         class="w-full h-10 flex items-center px-2 rounded-[8px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
+        <div class="w-6 h-6 flex items-center justify-center shrink-0">
+          <!-- Icon placeholder (simplified for clarity) -->
+          <span class="text-[10px] uppercase font-bold">{{ link.label.substring(0,2) }}</span>
+        </div>
+        @if (isOpen) {
+          <span class="ml-3 text-[13px] font-semibold whitespace-nowrap">{{ link.label }}</span>
+        }
+      </a>
+    }
   </nav>
 
-  <!-- Theme Selector (Only visible when open) -->
+  <!-- Theme & Color Selector (Only visible when open) -->
   @if (isOpen) {
-    <div class="mt-auto px-4 py-6 border-t border-slate-100 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div class="mt-auto px-4 py-6 border-t border-slate-50 w-full bg-slate-50/30">
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Accent Color</div>
+      <div class="flex gap-3 px-2 mb-6">
+        @for (color of ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222']; track color) {
+          <button 
+            (click)="themeService.setPrimaryColor(color)"
+            [style.backgroundColor]="color"
+            class="w-5 h-5 rounded-full border-2 transition-transform hover:scale-125"
+            [class.border-white]="themeService.currentTheme().primaryColor !== color"
+            [class.border-slate-300]="themeService.currentTheme().primaryColor === color"
+            [class.ring-2]="themeService.currentTheme().primaryColor === color"
+            [class.ring-slate-100]="themeService.currentTheme().primaryColor === color"
+          ></button>
+        }
+      </div>
+
       <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Visual Style</div>
-      <div class="flex gap-2 p-1 bg-slate-50 rounded-lg">
-        <button 
-          (click)="changeTheme('luxe-rounded')"
-          [class.bg-white]="themeService.currentTheme().name === 'luxe-rounded'"
-          [class.shadow-sm]="themeService.currentTheme().name === 'luxe-rounded'"
-          class="flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900 border border-transparent"
-          [class.border-slate-100]="themeService.currentTheme().name === 'luxe-rounded'"
-        >
-          Modern
-        </button>
-        <button 
-          (click)="changeTheme('luxe-sharp')"
-          [class.bg-white]="themeService.currentTheme().name === 'luxe-sharp'"
-          [class.shadow-sm]="themeService.currentTheme().name === 'luxe-sharp'"
-          class="flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900 border border-transparent"
-          [class.border-slate-100]="themeService.currentTheme().name === 'luxe-sharp'"
-        >
-          Sharp
-        </button>
-        <button 
-          (click)="changeTheme('luxe-pill')"
-          [class.bg-white]="themeService.currentTheme().name === 'luxe-pill'"
-          [class.shadow-sm]="themeService.currentTheme().name === 'luxe-pill'"
-          class="flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900 border border-transparent"
-          [class.border-slate-100]="themeService.currentTheme().name === 'luxe-pill'"
-        >
-          Pill
-        </button>
+      <div class="flex gap-2 p-1 bg-white border border-slate-100 rounded-lg">
+        <button (click)="themeService.setTheme('luxe-rounded')" class="flex-1 py-1 text-[10px] font-bold rounded" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-rounded'">Modern</button>
+        <button (click)="themeService.setTheme('luxe-sharp')" class="flex-1 py-1 text-[10px] font-bold rounded" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-sharp'">Sharp</button>
+        <button (click)="themeService.setTheme('luxe-pill')" class="flex-1 py-1 text-[10px] font-bold rounded" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-pill'">Pill</button>
       </div>
     </div>
   }
 
-  <!-- Bottom Section (Settings & Logout) -->
-  <div class="flex flex-col items-center gap-4 w-full px-1 pb-8" [class.mt-auto]="!isOpen">
-    <a routerLink="/settings" routerLinkActive="text-black" 
-       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Ajustes</span>
-      }
+  <!-- Bottom Section -->
+  <div class="flex flex-col items-center gap-3 w-full px-1 py-4 border-t border-slate-50">
+    <a routerLink="/settings" class="w-10 h-10 flex items-center justify-center text-[#94A3B8] hover:text-black hover:bg-slate-50 rounded-lg">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </a>
-    <div class="w-full h-11 flex items-center px-3 rounded-[10px] text-red-400 hover:bg-red-50 hover:text-red-600 transition-all duration-200 cursor-pointer group">
-      <div class="w-6 h-6 flex items-center justify-center shrink-0">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-      </div>
-      @if (isOpen) {
-        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Cerrar sesión</span>
-      }
-    </div>
   </div>
 </div>
