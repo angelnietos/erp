@@ -9,28 +9,44 @@
 >
   
   <!-- Header Actions Slot -->
-  <div header-actions class="text-[13px] font-semibold text-[#5850EC] pr-4">
+  <div header-actions class="pr-4 text-[13px] font-semibold" style="color: var(--josanz-primary)">
     Gerencia y producción
   </div>
 
   <div class="client-detail-content">
-    
     <!-- Tab: Datos cliente -->
     @if (activeTab() === 'Datos cliente') {
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 py-4">
-        <div class="space-y-6">
-          <div class="text-[14px] font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted)">Información General</div>
-          <div class="p-6 rounded-2xl space-y-4 border border-[var(--josanz-border)]" style="background-color: var(--josanz-surface); box-shadow: var(--josanz-card-shadow)">
-            <div class="flex flex-col gap-1"><span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">Razón Social</span><span class="font-extrabold text-[16px]" style="color: var(--josanz-text)">Construcciones S.A.</span></div>
-            <div class="flex flex-col gap-1"><span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">CIF/NIF</span><span class="font-extrabold text-[16px]" style="color: var(--josanz-text)">A12345678</span></div>
-            <div class="flex flex-col gap-1"><span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">Email principal</span><span class="font-extrabold text-[16px]" style="color: var(--josanz-text)">obras@construcciones.com</span></div>
+      <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
+        <div class="space-y-4">
+          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+            Información general
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of generalInfoRows; track row.label) {
+              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{ row.label }}</span>
+                <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">{{ row.value }}</span>
+              </div>
+            }
           </div>
         </div>
-        <div class="space-y-6">
-          <div class="text-[14px] font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted)">Dirección Fiscal</div>
-          <div class="p-6 rounded-2xl space-y-4 border border-[var(--josanz-border)]" style="background-color: var(--josanz-surface); box-shadow: var(--josanz-card-shadow)">
-            <div class="flex flex-col gap-1"><span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">Calle</span><span class="font-extrabold text-[16px]" style="color: var(--josanz-text)">Calle Mayor 1, 4ºB</span></div>
-            <div class="flex flex-col gap-1"><span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">Población</span><span class="font-extrabold text-[16px]" style="color: var(--josanz-text)">Madrid (28001)</span></div>
+        <div class="space-y-4">
+          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+            Dirección fiscal
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of fiscalAddressRows; track row.label) {
+              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{ row.label }}</span>
+                <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">{{ row.value }}</span>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -133,8 +149,12 @@
 
     <!-- Tab: Informes / reportes -->
     @if (activeTab() === 'Informes / reportes') {
-      <div class="py-10 text-center text-[#989898]">
-        No hay informes disponibles para este cliente.
+      <div
+        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
+        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
+      >
+        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Informes y reportes</span>
+        <p class="max-w-md text-[14px] leading-relaxed">No hay informes disponibles para este cliente en el periodo actual.</p>
       </div>
     }
 

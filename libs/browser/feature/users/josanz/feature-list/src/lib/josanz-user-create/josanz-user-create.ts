@@ -19,7 +19,6 @@ import {
     MainDetailLayoutComponent
   ],
   templateUrl: './josanz-user-create.html',
-  styleUrl: './josanz-user-create.css',
 })
 export class JosanzUserCreateComponent {
   private router = inject(Router);

@@ -1,24 +1,53 @@
-<josanz-main-detail-layout 
-  title="Nuevo Usuario" 
-  [tabs]="tabs" 
-  [activeTab]="activeTab" 
+<josanz-main-detail-layout
+  title="Nuevo Usuario"
+  [tabs]="tabs"
+  [activeTab]="activeTab"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear usuario"
 >
-  <div style="display:flex; flex-direction:column; gap:32px; width:100%; max-width: 600px; padding-top: 24px;">
-    <!-- Avatar: usar el componente existente con size='lg' -->
-    <josanz-user-avatar size="lg"></josanz-user-avatar>
+  <div class="py-2 md:py-4">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+      <div class="space-y-4">
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+          Identidad y acceso
+        </h2>
+        <div
+          class="rounded-2xl border border-solid p-6 md:p-7"
+          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+        >
+          <div class="mb-6 flex justify-center sm:justify-start">
+            <josanz-user-avatar size="lg"></josanz-user-avatar>
+          </div>
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
+            <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
+          </div>
+          <div class="mt-5 grid grid-cols-1 gap-5">
+            <josanz-input label="Email" placeholder="email@empresa.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
+            <josanz-input label="Contraseña" placeholder="••••••••" type="password" controlName="password" [parentForm]="form"></josanz-input>
+          </div>
+        </div>
+      </div>
 
-    <!-- Form Fields -->
-    <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%;">
-      <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
-      <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
-      <josanz-input label="Email" placeholder="email@email.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
-      <josanz-input label="Contraseña" placeholder="••••" type="password" controlName="password" [parentForm]="form"></josanz-input>
-      <josanz-input label="Empresa" placeholder="Empresa" controlName="empresa" [parentForm]="form"></josanz-input>
-      <josanz-input label="Rol" placeholder="Usuario" controlName="rol" [parentForm]="form"></josanz-input>
+      <div class="space-y-4">
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+          Organización
+        </h2>
+        <div
+          class="rounded-2xl border border-solid p-6 md:p-7"
+          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+        >
+          <div class="grid grid-cols-1 gap-5">
+            <josanz-input label="Empresa" placeholder="Empresa u organización" controlName="empresa" [parentForm]="form"></josanz-input>
+            <josanz-input label="Rol" placeholder="Usuario, operario…" controlName="rol" [parentForm]="form"></josanz-input>
+          </div>
+          <p class="mt-6 text-[13px] leading-relaxed" style="color: var(--josanz-text-muted)">
+            Los permisos finos se podrán ajustar tras crear la cuenta, cuando el módulo de permisos esté enlazado.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </josanz-main-detail-layout>

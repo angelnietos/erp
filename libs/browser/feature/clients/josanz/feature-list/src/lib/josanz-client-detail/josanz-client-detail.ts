@@ -83,6 +83,17 @@ export class JosanzClientDetailComponent {
     { id: 'PROV-002', name: 'Mantenimiento Logístico', status: 'Inactivo' }
   ];
 
+  readonly generalInfoRows = [
+    { label: 'Razón social', value: 'Construcciones S.A.' },
+    { label: 'CIF/NIF', value: 'A12345678' },
+    { label: 'Email principal', value: 'obras@construcciones.com' },
+  ] as const;
+
+  readonly fiscalAddressRows = [
+    { label: 'Calle', value: 'Calle Mayor 1, 4ºB' },
+    { label: 'Población', value: 'Madrid (28001)' },
+  ] as const;
+
   setTab(tab: string) {
     this.activeTab.set(tab);
   }
