@@ -65,6 +65,6 @@ export class InputComponent {
   }
 
   getAccentColor() {
-    return this.customColor || this.themeService.currentTheme().primaryColor + '33'; // Color + 20% alpha
+    return this.customColor || this.themeService.currentTheme().atmosphere.primary + '33'; // Color + 20% alpha
   }
 }

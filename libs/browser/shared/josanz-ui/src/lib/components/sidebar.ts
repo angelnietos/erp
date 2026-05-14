@@ -1,7 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { JosanzThemeService, JosanzThemeName } from '../services/theme.service';
+import { JosanzThemeService, JosanzThemeName, JosanzAtmosphereName } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-sidebar',
@@ -17,6 +17,19 @@ export class SidebarComponent {
   @Input() userRole = 'Administrador';
   @Input() isOpen = false;
 
+  atmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
+    {name: 'luxe', color: '#635BFF', label: 'Luxe'},
+    {name: 'nature', color: '#10B981', label: 'Nature'},
+    {name: 'fire', color: '#EF4444', label: 'Fire'},
+    {name: 'midnight', color: '#38BDF8', label: 'Midnight'},
+    {name: 'ocean', color: '#0EA5E9', label: 'Ocean'},
+    {name: 'sunset', color: '#F59E0B', label: 'Sunset'},
+    {name: 'cyberpunk', color: '#D946EF', label: 'Cyber'},
+    {name: 'industrial', color: '#FACC15', label: 'Indus'},
+    {name: 'forest', color: '#4D7C0F', label: 'Forest'},
+    {name: 'sakura', color: '#EC4899', label: 'Sakura'}
+  ];
+
   toggle() {
     this.isOpen = !this.isOpen;
   }
@@ -25,7 +38,7 @@ export class SidebarComponent {
     this.themeService.setTheme(name);
   }
 
-  changeThemeColor(color: string) {
-    this.themeService.setPrimaryColor(color);
+  changeAtmosphere(name: JosanzAtmosphereName) {
+    this.themeService.setAtmosphere(name);
   }
 }

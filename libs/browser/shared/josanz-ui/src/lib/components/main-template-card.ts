@@ -27,7 +27,7 @@ export class MainTemplateCardComponent {
 
     // Color de fondo dinámico para la variante 'primary'
     let backgroundColor = '#E2E8F0';
-    if (this.statusVariant === 'primary') backgroundColor = theme.primaryColor;
+    if (this.statusVariant === 'primary') backgroundColor = theme.atmosphere.primary;
     else if (this.statusVariant === 'success') backgroundColor = '#22C55E';
     else if (this.statusVariant === 'warning') backgroundColor = '#F59E0B';
     else if (this.statusVariant === 'error') backgroundColor = '#EF4444';

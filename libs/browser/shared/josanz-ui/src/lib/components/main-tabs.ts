@@ -53,7 +53,7 @@ export class MainTabsComponent implements OnInit, OnChanges {
   }
 
   getAccentColor() {
-    return this.customColor || this.themeService.currentTheme().primaryColor;
+    return this.customColor || this.themeService.currentTheme().atmosphere.primary;
   }
 
   ngOnInit(): void {
