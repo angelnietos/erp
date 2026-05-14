@@ -1,0 +1,16 @@
+<div class="flex flex-col gap-2 w-full mb-4">
+  <label class="text-[11px] font-semibold text-[#989898] uppercase tracking-wider ml-1">
+    {{ label }}
+  </label>
+  <div class="relative flex items-center group">
+    <input
+      [formControl]="control"
+      [type]="type"
+      [placeholder]="placeholder"
+      class="w-full h-[44px] px-4 bg-[#F5F5F5] border-none rounded-[8px] text-[14px] text-[#222222] font-medium transition-all focus:bg-white focus:ring-1 focus:ring-slate-200 outline-none placeholder:text-slate-400"
+    />
+    @if (control.invalid && control.touched) {
+      <span class="absolute right-3 text-red-500 text-[10px] font-medium">Requerido</span>
+    }
+  </div>
+</div>

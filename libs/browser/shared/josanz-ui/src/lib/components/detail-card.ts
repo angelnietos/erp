@@ -14,5 +14,6 @@ export class DetailCardComponent {
   @Input() badgeText?: string;
   @Input() subtitle?: string;
   @Input() description?: string;
+  @Input() data: string[] = [];
   @Input() tags: string[] = [];
 }
