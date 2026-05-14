@@ -8,19 +8,20 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <div
-    class="flex items-center px-6 mb-4 w-full text-[13px] font-bold uppercase"
-    [style.color]="themeService.currentTheme().atmosphere.textMuted"
-    [style.letterSpacing]="'0.1em'"
-  >
-    <div class="w-[180px] shrink-0">Nº Albarán</div>
-    <div class="flex flex-1 items-center gap-4 overflow-hidden">
-      <div class="w-[200px] shrink-0">Cliente</div>
-      <div class="w-[150px] shrink-0">Fecha</div>
-      <div class="w-[150px] shrink-0">Proyecto</div>
-      <div class="flex-1 shrink-0">Operador</div>
+  <div class="overflow-x-auto no-scrollbar w-full">
+    <div
+      class="flex items-center px-6 mb-4 min-w-[800px] md:min-w-0 w-full text-[11px] font-bold uppercase tracking-widest"
+      [style.color]="'var(--josanz-text-muted)'"
+    >
+      <div class="w-[180px] shrink-0">Nº Albarán</div>
+      <div class="flex flex-1 items-center gap-4 overflow-hidden">
+        <div class="w-[200px] shrink-0">Cliente</div>
+        <div class="w-[150px] shrink-0">Fecha</div>
+        <div class="w-[150px] shrink-0">Proyecto</div>
+        <div class="flex-1 shrink-0">Operador</div>
+      </div>
+      <div class="w-[120px] shrink-0 text-center">Estado</div>
     </div>
-    <div class="w-[120px] shrink-0 text-center">Estado</div>
   </div>
 
   <!-- Content based on Figma references -->

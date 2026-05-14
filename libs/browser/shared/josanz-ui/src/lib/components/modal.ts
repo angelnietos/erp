@@ -8,20 +8,21 @@ import type { JosanzControlShape } from '../josanz-control-styles';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.85)] p-6 backdrop-blur-[2px]">
+    <div class="fixed inset-0 z-[1000] flex items-end md:items-center justify-center bg-[rgba(0,0,0,0.85)] p-0 md:p-6 backdrop-blur-[2px]">
       <div
         [class]="modalClasses"
         [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
         [style.width]="width"
         [style.maxWidth]="'100%'"
-        [style.maxHeight]="'92vh'"
+        class="max-md:h-[95vh] max-md:rounded-t-[32px] max-md:rounded-b-none"
+        [style.maxHeight]="'95vh'"
       >
         <!-- Close Button -->
         <button
           type="button"
           (click)="onClose($event)"
-          class="absolute top-8 right-8 p-1.5 rounded-full transition-all z-[60] opacity-50 hover:opacity-100 cursor-pointer hover:bg-[color-mix(in_srgb,var(--josanz-border)_45%,transparent)]"
-          [style.color]="themeService.currentTheme().atmosphere.text"
+          class="absolute top-4 right-4 md:top-8 md:right-8 p-1.5 rounded-full transition-all z-[60] opacity-50 hover:opacity-100 cursor-pointer hover:bg-[color-mix(in_srgb,var(--josanz-border)_45%,transparent)]"
+          [style.color]="'var(--josanz-text)'"
           aria-label="Cerrar modal"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none">
@@ -31,23 +32,23 @@ import type { JosanzControlShape } from '../josanz-control-styles';
         </button>
 
         <!-- Scrollable Body -->
-        <div class="flex-1 overflow-y-auto px-12 pt-14 pb-8 no-scrollbar">
+        <div class="flex-1 overflow-y-auto px-6 md:px-12 pt-12 md:pt-14 pb-8 no-scrollbar">
           <h2
-            class="text-[32px] font-bold mb-10 pr-12 tracking-tight"
-            [style.color]="customColor || themeService.currentTheme().atmosphere.text"
+            class="text-[24px] md:text-[32px] font-bold mb-8 md:mb-10 pr-12 tracking-tight"
+            [style.color]="customColor || 'var(--josanz-text)'"
           >
             {{ title }}
           </h2>
-          <div [style.color]="themeService.currentTheme().atmosphere.text">
+          <div [style.color]="'var(--josanz-text)'">
             <ng-content></ng-content>
           </div>
         </div>
 
         <!-- Footer -->
         <div 
-          class="px-12 py-8 flex items-center justify-center gap-6 flex-shrink-0 border-t"
-          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-          [style.borderColor]="themeService.currentTheme().atmosphere.border"
+          class="px-6 md:px-12 py-6 md:py-8 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 flex-shrink-0 border-t"
+          [style.backgroundColor]="'var(--josanz-surface)'"
+          [style.borderColor]="'var(--josanz-border)'"
         >
           <ng-content select="[footer-actions]"></ng-content>
         </div>

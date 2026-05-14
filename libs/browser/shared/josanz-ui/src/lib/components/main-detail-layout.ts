@@ -14,7 +14,7 @@ import { ButtonComponent } from './button';
       [style.backgroundColor]="'var(--josanz-bg)'"
     >
       <!-- Header Section -->
-      <div class="px-10 pt-10 pb-6 flex flex-col gap-6">
+      <div class="px-5 md:px-10 pt-8 md:pt-10 pb-6 flex flex-col gap-6">
         <div class="flex items-center gap-4">
           <button 
             type="button" 
@@ -28,51 +28,59 @@ import { ButtonComponent } from './button';
             </svg>
           </button>
           <h1 
-            class="text-[32px] font-bold tracking-tight"
+            class="text-[28px] md:text-[32px] font-bold tracking-tight"
             [style.color]="'var(--josanz-text)'"
           >
             {{ title }}
           </h1>
         </div>
 
-        <div class="flex items-center justify-between">
-          <josanz-main-tabs 
-            [options]="tabs" 
-            [selection]="activeTab"
-            (selectionChange)="tabChange.emit($event)"
-          ></josanz-main-tabs>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="w-full md:w-auto overflow-x-auto no-scrollbar">
+            <josanz-main-tabs 
+              [options]="tabs" 
+              [selection]="activeTab"
+              (selectionChange)="tabChange.emit($event)"
+            ></josanz-main-tabs>
+          </div>
           
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 md:justify-end">
             <ng-content select="[header-actions]"></ng-content>
           </div>
         </div>
       </div>
 
       <!-- Scrollable Content -->
-      <div class="flex-1 overflow-y-auto px-10 pb-32 no-scrollbar">
+      <div class="flex-1 overflow-y-auto px-5 md:px-10 pb-40 md:pb-32 no-scrollbar">
         <ng-content></ng-content>
       </div>
 
       <!-- Fixed Footer -->
       <div 
-        class="fixed bottom-0 left-[64px] right-0 h-[100px] flex items-center justify-end px-10 gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
+        class="fixed bottom-0 left-0 md:left-[68px] right-0 h-auto md:h-[100px] flex flex-col md:flex-row items-center justify-end px-5 md:px-10 py-6 md:py-0 gap-3 md:gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
         [style.backgroundColor]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
         [style.borderColor]="'var(--josanz-border)'"
-        [style.boxShadow]="'0 -10px 20px -5px rgba(0,0,0,0.05)'"
+        [style.boxShadow]="'0 -10px 30px rgba(0,0,0,0.1)'"
       >
-        <josanz-button 
-          [label]="cancelLabel" 
-          variant="ghost" 
-          size="lg" 
-          [showIcon]="false" 
-          (btnClick)="cancel.emit()"
-        ></josanz-button>
-        <josanz-button 
-          [label]="saveLabel" 
-          size="lg" 
-          [showIcon]="false" 
-          (btnClick)="save.emit()"
-        ></josanz-button>
+        <div class="w-full md:w-auto order-2 md:order-1">
+          <josanz-button 
+            [label]="cancelLabel" 
+            variant="ghost" 
+            size="lg" 
+            [showIcon]="false" 
+            [fullWidth]="true"
+            (btnClick)="cancel.emit()"
+          ></josanz-button>
+        </div>
+        <div class="w-full md:w-auto order-1 md:order-2">
+          <josanz-button 
+            [label]="saveLabel" 
+            size="lg" 
+            [showIcon]="false" 
+            [fullWidth]="true"
+            (btnClick)="save.emit()"
+          ></josanz-button>
+        </div>
       </div>
     </div>
   `,

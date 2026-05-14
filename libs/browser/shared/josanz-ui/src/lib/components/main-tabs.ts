@@ -9,7 +9,7 @@ import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex gap-2 w-fit mb-6">
+    <div class="flex gap-3 w-full overflow-x-auto no-scrollbar pb-1 mb-6">
       @for (option of options; track option) {
         <button
           type="button"

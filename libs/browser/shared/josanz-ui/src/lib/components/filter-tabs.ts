@@ -57,8 +57,7 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   buttonClass(option: string): string {
-    const r = 'rounded-[4px]';
-    const base = `w-[120px] h-[25px] ${r} flex items-center justify-center text-[13px] font-medium transition-[box-shadow,transform,color,background-color] cursor-pointer outline-none`;
+    const base = `px-6 h-[32px] rounded-full flex items-center justify-center text-[13px] font-bold transition-all cursor-pointer outline-none whitespace-nowrap shadow-sm`;
     if (this.active === option) {
       return `${base} border-none`;
     }
@@ -68,22 +67,16 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   pillStyles(option: string): Record<string, string> {
     const theme = this.themeService.currentTheme();
     if (this.active === option) {
-      if (this.customColor) {
-        return {
-          color: this.customColor,
-          backgroundColor: `color-mix(in srgb, ${this.customColor} 16%, white)`,
-        };
-      }
-      // Figma Base-1: pestaña activa #DDECFF, texto oscuro
       return {
-        color: JOSANZ_FIGMA_SHELL.pillActiveText,
-        backgroundColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
+        color: 'white',
+        backgroundColor: 'var(--josanz-primary)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
       };
     }
     return {
-      color: theme.atmosphere.textMuted,
-      backgroundColor: theme.atmosphere.surface,
-      borderColor: theme.atmosphere.border,
+      color: 'var(--josanz-text-muted)',
+      backgroundColor: 'var(--josanz-surface)',
+      borderColor: 'var(--josanz-border)',
     };
   }
 }
