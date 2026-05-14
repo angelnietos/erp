@@ -37,11 +37,10 @@ export class MainTabsComponent implements OnInit, OnChanges {
   tabShellStyle(option: string): Record<string, string> {
     const t = this.themeService.currentTheme();
     const on = this.active === option;
-    const accent = this.customColor ?? JOSANZ_FIGMA_SHELL.pillActiveText;
     return {
-      backgroundColor: t.atmosphere.surface,
-      borderColor: on ? accent : t.atmosphere.border,
-      color: on ? accent : t.atmosphere.textMuted,
+      backgroundColor: 'var(--josanz-surface)',
+      borderColor: on ? 'var(--josanz-accent)' : 'var(--josanz-border)',
+      color: on ? 'var(--josanz-accent)' : 'var(--josanz-text-muted)',
     };
   }
 

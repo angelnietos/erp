@@ -1,7 +1,10 @@
-<!-- Base Figma: 37px ancho; alto = columna del layout (100% del shell h-screen), fondo #FFF, sombra -->
 <div
-  class="flex flex-1 min-h-0 h-full flex-col items-center transition-[width,box-shadow] duration-300 relative z-[100] w-[37px] shrink-0 shadow-[0px_12px_24px_0px_#EAEAEA]"
-  style="background-color: #ffffff"
+  class="flex flex-1 min-h-0 h-full flex-col items-center transition-all duration-300 relative z-[100] w-[64px] shrink-0 border-r"
+  [style.backgroundColor]="'var(--josanz-surface)'"
+  [style.borderColor]="'var(--josanz-border)'"
+  [style.boxShadow]="'var(--josanz-shadow)'"
+  [style.backdropFilter]="themeService.currentTheme().atmosphere.glass ? 'blur(12px)' : 'none'"
+  [style.background]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
 >
 
   <!-- Logo Section (Figma Exact: 21x28px, 39px top) -->

@@ -11,7 +11,7 @@ import { ButtonComponent } from './button';
   template: `
     <div 
       class="flex flex-col h-full min-h-screen relative"
-      [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+      [style.backgroundColor]="'var(--josanz-bg)'"
     >
       <!-- Header Section -->
       <div class="px-10 pt-10 pb-6 flex flex-col gap-6">
@@ -20,7 +20,7 @@ import { ButtonComponent } from './button';
             type="button" 
             (click)="back.emit()"
             class="p-2 -ml-2 rounded-full hover:bg-[rgba(0,0,0,0.05)] transition-colors"
-            [style.color]="themeService.currentTheme().atmosphere.text"
+            [style.color]="'var(--josanz-text)'"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -29,7 +29,7 @@ import { ButtonComponent } from './button';
           </button>
           <h1 
             class="text-[32px] font-bold tracking-tight"
-            [style.color]="themeService.currentTheme().atmosphere.text"
+            [style.color]="'var(--josanz-text)'"
           >
             {{ title }}
           </h1>
@@ -55,9 +55,10 @@ import { ButtonComponent } from './button';
 
       <!-- Fixed Footer -->
       <div 
-        class="fixed bottom-0 left-[260px] right-0 h-[100px] flex items-center justify-end px-10 gap-6 z-50 border-t backdrop-blur-md"
-        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface + 'CC'"
-        [style.borderColor]="themeService.currentTheme().atmosphere.border"
+        class="fixed bottom-0 left-[64px] right-0 h-[100px] flex items-center justify-end px-10 gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
+        [style.backgroundColor]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
+        [style.borderColor]="'var(--josanz-border)'"
+        [style.boxShadow]="'0 -10px 20px -5px rgba(0,0,0,0.05)'"
       >
         <josanz-button 
           [label]="cancelLabel" 

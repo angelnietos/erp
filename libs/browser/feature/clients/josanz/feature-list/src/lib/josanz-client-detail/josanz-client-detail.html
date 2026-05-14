@@ -19,18 +19,18 @@
     @if (activeTab() === 'Datos cliente') {
       <div class="grid grid-cols-2 gap-8 py-4">
         <div class="space-y-6">
-          <div class="text-[14px] text-[#989898] font-medium uppercase">Información General</div>
-          <div class="bg-slate-50 p-6 rounded-xl space-y-4">
-            <div><span class="text-[#989898] block text-[12px]">Razón Social</span><span class="font-medium">Construcciones S.A.</span></div>
-            <div><span class="text-[#989898] block text-[12px]">CIF/NIF</span><span class="font-medium">A12345678</span></div>
-            <div><span class="text-[#989898] block text-[12px]">Email principal</span><span class="font-medium">obras@construcciones.com</span></div>
+          <div class="text-[14px] font-medium uppercase" style="color: var(--josanz-text-muted)">Información General</div>
+          <div class="p-6 rounded-xl space-y-4" style="background-color: var(--josanz-bg); box-shadow: var(--josanz-shadow)">
+            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Razón Social</span><span class="font-medium" style="color: var(--josanz-text)">Construcciones S.A.</span></div>
+            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">CIF/NIF</span><span class="font-medium" style="color: var(--josanz-text)">A12345678</span></div>
+            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Email principal</span><span class="font-medium" style="color: var(--josanz-text)">obras@construcciones.com</span></div>
           </div>
         </div>
         <div class="space-y-6">
-          <div class="text-[14px] text-[#989898] font-medium uppercase">Dirección Fiscal</div>
-          <div class="bg-slate-50 p-6 rounded-xl space-y-4">
-            <div><span class="text-[#989898] block text-[12px]">Calle</span><span class="font-medium">Calle Mayor 1, 4ºB</span></div>
-            <div><span class="text-[#989898] block text-[12px]">Población</span><span class="font-medium">Madrid (28001)</span></div>
+          <div class="text-[14px] font-medium uppercase" style="color: var(--josanz-text-muted)">Dirección Fiscal</div>
+          <div class="p-6 rounded-xl space-y-4" style="background-color: var(--josanz-bg); box-shadow: var(--josanz-shadow)">
+            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Calle</span><span class="font-medium" style="color: var(--josanz-text)">Calle Mayor 1, 4ºB</span></div>
+            <div><span class="block text-[12px]" style="color: var(--josanz-text-muted)">Población</span><span class="font-medium" style="color: var(--josanz-text)">Madrid (28001)</span></div>
           </div>
         </div>
       </div>
@@ -39,7 +39,7 @@
     <!-- Tab: Operadores -->
     @if (activeTab() === 'Operadores') {
       <div class="py-4">
-        <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[12px] font-semibold uppercase tracking-wider">
+        <div class="flex items-center px-6 mb-2 w-full text-[12px] font-semibold uppercase tracking-wider" style="color: var(--josanz-text-muted)">
           <div class="w-[180px] shrink-0">Nombre Operario</div>
           <div class="w-[200px] shrink-0">Cargo / Función</div>
           <div class="flex-1">Última actividad</div>
