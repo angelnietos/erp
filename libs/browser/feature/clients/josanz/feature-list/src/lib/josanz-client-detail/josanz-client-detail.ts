@@ -21,7 +21,7 @@ type ClientTab = 'datos' | 'operadores' | 'presupuestos' | 'proveedores' | 'fact
   styleUrl: './josanz-client-detail.css',
 })
 export class JosanzClientDetailComponent {
-  @Output() closeEvent = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 
   activeTab = signal<ClientTab>('presupuestos'); // Por defecto presupuestos para la demo
 
@@ -70,6 +70,6 @@ export class JosanzClientDetailComponent {
   }
 
   onCancel() {
-    this.closeEvent.emit();
+    this.close.emit();
   }
 }
