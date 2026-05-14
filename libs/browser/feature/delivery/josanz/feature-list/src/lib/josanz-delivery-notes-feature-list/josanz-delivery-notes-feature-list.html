@@ -8,23 +8,20 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <div class="overflow-x-auto no-scrollbar w-full">
-    <div
-      class="flex items-center px-6 mb-4 min-w-[800px] md:min-w-0 w-full text-[11px] font-bold uppercase tracking-widest"
-      [style.color]="'var(--josanz-text-muted)'"
-    >
-      <div class="w-[180px] shrink-0">Nº Albarán</div>
-      <div class="flex flex-1 items-center gap-4 overflow-hidden">
-        <div class="w-[200px] shrink-0">Cliente</div>
-        <div class="w-[150px] shrink-0">Fecha</div>
-        <div class="w-[150px] shrink-0">Proyecto</div>
-        <div class="flex-1 shrink-0">Operador</div>
-      </div>
-      <div class="w-[120px] shrink-0 text-center">Estado</div>
+  <!-- Table headers: desktop only -->
+  <div class="hidden md:flex items-center px-6 mb-4 w-full text-[11px] font-bold uppercase tracking-widest"
+    [style.color]="'var(--josanz-text-muted)'">
+    <div class="w-[200px] shrink-0">Nº Albarán</div>
+    <div class="flex flex-1 items-center gap-6 overflow-hidden">
+      <div class="w-[220px] shrink-0">Cliente</div>
+      <div class="w-[160px] shrink-0">Fecha</div>
+      <div class="w-[160px] shrink-0">Proyecto</div>
+      <div class="flex-1">Operador</div>
     </div>
+    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
-  <!-- Content based on Figma references -->
+  <!-- Content -->
   <div class="flex flex-col gap-4">
     @for (item of [
       {id: 'ALB-2024-001', cliente: 'Construcciones S.A.', fecha: '14/05/2024', proy: 'Reforma Local B', op: 'Juan Pérez', status: 'Firmado'},
@@ -37,6 +34,7 @@
         (click)="openDetail()"
         [title]="item.id"
         [data]="[item.cliente, item.fecha, item.proy, item.op]"
+        [labels]="['Cliente', 'Fecha', 'Proyecto', 'Operador']"
         [status]="item.status"
         [statusVariant]="item.status === 'Facturado' ? 'success' : (item.status === 'Firmado' ? 'primary' : 'warning')"
       ></josanz-main-template-card>

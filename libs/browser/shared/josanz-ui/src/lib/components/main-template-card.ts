@@ -17,6 +17,8 @@ export class MainTemplateCardComponent {
   @Input() status = 'Pendiente';
   @Input() statusVariant: 'primary' | 'success' | 'warning' | 'error' = 'warning';
   @Input() data: string[] = ['ID: #4502', 'Fecha: 12/05/2026', 'Total: 1.250€', 'Vencimiento: 30 días'];
+  /** Labels shown inline on mobile next to each data value. Should match data array length. */
+  @Input() labels: string[] = [];
 
   getCardStyles() {
     return {

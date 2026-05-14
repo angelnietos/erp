@@ -8,19 +8,19 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <div
-    class="flex items-center px-6 mb-4 w-full text-[13px] font-bold uppercase"
+  <!-- Table headers: desktop only -->
+  <div class="hidden md:flex items-center px-6 mb-4 w-full text-[11px] font-bold uppercase tracking-widest"
     [style.color]="themeService.currentTheme().atmosphere.textMuted"
     [style.letterSpacing]="'0.1em'"
   >
-    <div class="w-[180px] shrink-0">Nº Presupuesto</div>
-    <div class="flex flex-1 items-center gap-4 overflow-hidden">
-      <div class="w-[200px] shrink-0">Cliente</div>
-      <div class="w-[150px] shrink-0">Fecha</div>
-      <div class="w-[150px] shrink-0">Validez</div>
-      <div class="flex-1 shrink-0">Total</div>
+    <div class="w-[200px] shrink-0">Nº Presupuesto</div>
+    <div class="flex flex-1 items-center gap-6 overflow-hidden">
+      <div class="w-[220px] shrink-0">Cliente</div>
+      <div class="w-[160px] shrink-0">Fecha</div>
+      <div class="w-[160px] shrink-0">Validez</div>
+      <div class="flex-1">Total</div>
     </div>
-    <div class="w-[120px] shrink-0 text-center">Estado</div>
+    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
   <!-- Content -->
@@ -36,6 +36,7 @@
         (click)="openDetail()"
         [title]="item.id"
         [data]="[item.cliente, item.fecha, item.val, item.total]"
+        [labels]="['Cliente', 'Fecha', 'Validez', 'Total']"
         [status]="item.status"
         [statusVariant]="item.status === 'Aceptado' ? 'success' : (item.status === 'Rechazado' ? 'error' : 'primary')"
       ></josanz-main-template-card>

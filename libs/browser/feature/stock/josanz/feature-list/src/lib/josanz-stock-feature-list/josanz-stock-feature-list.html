@@ -37,20 +37,20 @@
     }
   </div>
   
-  <!-- Table Header - Sincronizado con MainTemplateCard -->
+  <!-- Table Header: desktop only -->
   <div
-    class="flex items-center px-6 mb-2 w-full text-[13px] font-bold uppercase"
+    class="hidden md:flex items-center px-6 mb-2 w-full text-[11px] font-bold uppercase"
     [style.color]="themeService.currentTheme().atmosphere.textMuted"
     [style.letterSpacing]="'0.1em'"
   >
-    <div class="w-[180px] shrink-0">Referencia</div>
-    <div class="flex flex-1 items-center gap-4 overflow-hidden">
-      <div class="w-[200px] shrink-0">Nombre Producto</div>
-      <div class="w-[150px] shrink-0">Categoría</div>
-      <div class="w-[150px] shrink-0">Stock Actual</div>
-      <div class="flex-1 shrink-0">Almacén</div>
+    <div class="w-[200px] shrink-0">Referencia</div>
+    <div class="flex flex-1 items-center gap-6 overflow-hidden">
+      <div class="w-[220px] shrink-0">Nombre Producto</div>
+      <div class="w-[160px] shrink-0">Categoría</div>
+      <div class="w-[160px] shrink-0">Stock Actual</div>
+      <div class="flex-1">Almacén</div>
     </div>
-    <div class="w-[120px] shrink-0 text-center">Estado</div>
+    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
   <!-- Content -->
@@ -62,6 +62,7 @@
     <josanz-main-template-card
       [title]="item.ref"
       [data]="[item.name, item.cat, item.stock, item.wh]"
+      [labels]="['Producto', 'Categoría', 'Stock', 'Almacén']"
       [status]="item.status"
       [statusVariant]="item.status === 'En Stock' ? 'success' : (item.status === 'Agotado' ? 'error' : 'warning')"
     ></josanz-main-template-card>

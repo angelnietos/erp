@@ -1,41 +1,52 @@
 <div 
   [ngStyle]="getCardStyles()"
-  class="p-4 md:p-6 mb-4 flex flex-col md:flex-row md:items-center w-full group border border-solid hover:brightness-[1.02] hover:-translate-y-1 transition-all duration-300 gap-4 md:gap-0"
+  class="p-4 md:p-6 mb-4 flex flex-col md:flex-row md:items-center w-full group border border-solid hover:brightness-[1.02] hover:-translate-y-1 transition-all duration-300 gap-3 md:gap-0"
   [class.rounded-2xl]="themeService.currentTheme().defaultShape === 'rounded'"
   [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
   [class.rounded-[40px]]="themeService.currentTheme().defaultShape === 'pill'"
 >
-  
-  <!-- Columna 1: Título/Nombre -->
-  <div class="w-full md:w-[200px] shrink-0">
+
+  <!-- Title row: title + badge (badge visible on mobile only) -->
+  <div class="flex items-center justify-between md:block md:w-[200px] shrink-0">
     <h3 
       class="text-[16px] md:text-[18px] font-extrabold tracking-tight"
       [style.color]="'var(--josanz-text)'">
       {{ title }}
     </h3>
+    <span 
+      class="md:hidden px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm"
+      [ngStyle]="getBadgeStyles()"
+    >
+      {{ status }}
+    </span>
   </div>
 
-  <!-- Columna 2: Datos Flexibles -->
-  <div class="flex flex-col md:flex-row md:flex-1 md:items-center gap-2 md:gap-6 overflow-hidden">
+  <!-- Data fields -->
+  <!-- Mobile: vertical stack with optional inline label -->
+  <!-- Desktop: horizontal aligned with table headers -->
+  <div class="flex flex-col md:flex-row md:flex-1 md:items-center gap-1.5 md:gap-6 overflow-hidden">
     @for (item of data; track item; let i = $index) {
       <div 
-        class="shrink-0 text-[13px] md:text-[14px] font-semibold truncate flex items-center gap-2"
+        class="shrink-0 text-[12px] md:text-[14px] font-semibold flex items-center gap-1.5 md:truncate"
         [style.color]="'var(--josanz-text-muted)'"
         [class.md:w-[220px]]="i === 0"
         [class.md:w-[160px]]="i === 1 || i === 2"
         [class.md:flex-1]="i === 3"
       >
-        <span class="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-[var(--josanz-border)]"></span>
-        {{ item }}
+        @if (labels[i]) {
+          <span class="md:hidden text-[10px] font-extrabold uppercase tracking-wider" [style.color]="'var(--josanz-text-muted)'" style="opacity:0.55">{{ labels[i] }}:</span>
+        }
+        <span class="hidden md:inline-flex w-1.5 h-1.5 rounded-full bg-[var(--josanz-border)] shrink-0"></span>
+        <span class="truncate">{{ item }}</span>
       </div>
     }
   </div>
 
-  <!-- Columna 3: Estado -->
-  <div class="w-full md:w-[140px] shrink-0 flex justify-start md:justify-end mt-2 md:mt-0">
+  <!-- Badge: desktop only, right-aligned -->
+  <div class="hidden md:flex w-[140px] shrink-0 justify-end">
     <span 
       [ngStyle]="getBadgeStyles()"
-      class="px-4 py-1.5 text-[10px] md:text-[11px] font-black flex items-center justify-center uppercase tracking-widest shadow-lg"
+      class="px-4 py-1.5 text-[11px] font-black flex items-center justify-center uppercase tracking-widest shadow-lg"
     >
       {{ status }}
     </span>
