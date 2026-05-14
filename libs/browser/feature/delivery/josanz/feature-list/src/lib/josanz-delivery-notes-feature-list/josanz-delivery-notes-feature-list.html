@@ -6,23 +6,24 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <!-- Table Header - Sincronizado con MainTemplateCard -->
+  <!-- Table Header - Sincronizado con Figma Base-4.png -->
   <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[14px] font-semibold uppercase tracking-wider">
     <div class="w-[180px] shrink-0">Nº Albarán</div>
     <div class="flex flex-1 items-center gap-4 overflow-hidden">
       <div class="w-[200px] shrink-0">Cliente</div>
-      <div class="w-[120px] shrink-0">Fecha</div>
+      <div class="w-[150px] shrink-0">Fecha</div>
       <div class="w-[150px] shrink-0">Proyecto</div>
       <div class="flex-1 shrink-0">Operador</div>
     </div>
     <div class="w-[120px] shrink-0 text-center">Estado</div>
   </div>
 
-  <!-- Content -->
+  <!-- Content based on Figma references -->
   @for (item of [
-    {id: 'ALB-2024-042', cliente: 'Instalaciones Eléctricas', fecha: '14/05/2024', proy: 'Reforma Local B', op: 'Juan Pérez', status: 'Firmado'},
-    {id: 'ALB-2024-043', cliente: 'Logística Norte', fecha: '14/05/2024', proy: 'Envío Material', op: 'Ana Belén', status: 'Pendiente'},
-    {id: 'ALB-2024-044', cliente: 'Mantenimientos SL', fecha: '13/05/2024', proy: 'Avería Urgente', op: 'Carlos Ruiz', status: 'Facturado'}
+    {id: 'ALB-2024-001', cliente: 'Construcciones S.A.', fecha: '14/05/2024', proy: 'Reforma Local B', op: 'Juan Pérez', status: 'Firmado'},
+    {id: 'ALB-2024-002', cliente: 'Instalaciones Eléctricas', fecha: '14/05/2024', proy: 'Mantenimiento Anual', op: 'Ana Belén', status: 'Pendiente'},
+    {id: 'ALB-2024-003', cliente: 'Logística Norte', fecha: '13/05/2024', proy: 'Envío Urgente', op: 'Carlos Ruiz', status: 'Facturado'},
+    {id: 'ALB-2024-004', cliente: 'Hotel Playa Sol', fecha: '12/05/2024', proy: 'Instalación LED', op: 'Juan Pérez', status: 'Firmado'}
   ]; track item.id) {
     <josanz-main-template-card
       [title]="item.id"
