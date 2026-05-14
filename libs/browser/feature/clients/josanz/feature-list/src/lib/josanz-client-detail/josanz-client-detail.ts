@@ -14,7 +14,6 @@ import {
   imports: [
     CommonModule,
     DetailCardComponent,
-    ButtonComponent,
     MainTemplateCardComponent,
     MainDetailLayoutComponent
   ],
