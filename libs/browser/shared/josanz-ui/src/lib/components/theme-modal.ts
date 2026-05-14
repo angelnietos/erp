@@ -46,7 +46,7 @@ import { ButtonComponent } from './button';
                     (click)="themeService.setAtmosphere(atm.name)"
                     [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
                     [title]="atm.label"
-                    class="h-12 rounded-lg border-2 transition-all hover:opacity-80 cursor-pointer shadow-sm"
+                    class="h-12 rounded-lg border-2 transition-all hover:opacity-80 cursor-pointer shadow-sm ring-1 ring-slate-900/10"
                     [style.borderColor]="themeService.currentTheme().atmosphere.name === atm.name ? themeService.currentTheme().primaryColor : 'transparent'"
                     [attr.aria-label]="'Atmósfera ' + atm.label"
                   >
@@ -131,6 +131,7 @@ export class ThemeModalComponent {
   brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
 
   lightAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
+    { name: 'neutral', label: 'Neutra' },
     { name: 'luxe', label: 'Luxe' },
     { name: 'nature', label: 'Nature' },
     { name: 'ocean', label: 'Ocean' },

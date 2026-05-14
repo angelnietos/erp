@@ -1,6 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent, ButtonComponent, MainTabsComponent, FilterTabsComponent } from '@josanz-erp/josanz-ui';
+import {
+  MainListLayoutComponent,
+  MainTemplateCardComponent,
+  BaseListComponent,
+  ButtonComponent,
+  MainTabsComponent,
+  FilterTabsComponent,
+  JosanzThemeService,
+} from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-stock-list',
@@ -10,6 +18,8 @@ import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent, 
   styleUrl: './josanz-stock-feature-list.css',
 })
 export class JosanzStockListComponent extends BaseListComponent {
+  readonly themeService = inject(JosanzThemeService);
+
   activeType = 'Productos / lotes';
   secondaryFilterOptions = ['Todos', 'Almacén 01', 'Almacén 02', 'Almacén 03'];
   

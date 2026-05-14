@@ -22,7 +22,8 @@ export class MainTemplateCardComponent {
     return {
       'background-color': theme.atmosphere.surface,
       'border-color': theme.atmosphere.border,
-      'color': theme.atmosphere.text
+      color: theme.atmosphere.text,
+      'box-shadow': theme.atmosphere.shadow,
     };
   }
 

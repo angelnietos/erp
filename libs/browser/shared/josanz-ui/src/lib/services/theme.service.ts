@@ -4,6 +4,7 @@ import type { JosanzControlShape } from '../josanz-control-styles';
 export type JosanzThemeName = 'luxe-rounded' | 'luxe-sharp' | 'luxe-pill';
 
 export type JosanzAtmosphereName =
+  | 'neutral'
   | 'luxe'
   | 'nordic'
   | 'ivory'
@@ -41,14 +42,23 @@ export interface JosanzThemeConfig {
 export class JosanzThemeService {
   
   private atmospheres: Record<JosanzAtmosphereName, JosanzAtmosphereConfig> = {
-    luxe: { 
-      name: 'luxe', 
-      background: '#F8FAFC', 
-      surface: '#FFFFFF', 
-      text: '#0F172A', 
-      textMuted: '#64748B', 
-      border: '#E2E8F0',
-      shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
+    neutral: {
+      name: 'neutral',
+      background: '#FFFFFF',
+      surface: '#FFFFFF',
+      text: '#171717',
+      textMuted: '#737373',
+      border: '#E5E5E5',
+      shadow: '0 1px 3px rgb(0 0 0 / 0.06)',
+    },
+    luxe: {
+      name: 'luxe',
+      background: '#E2E8F0',
+      surface: '#FFFFFF',
+      text: '#0F172A',
+      textMuted: '#64748B',
+      border: '#CBD5E1',
+      shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
     },
     midnight: { 
       name: 'midnight', 
@@ -68,14 +78,14 @@ export class JosanzThemeService {
       border: '#4D3434',
       shadow: '0 10px 15px -3px rgb(0 0 0 / 0.4)'
     },
-    nordic: { 
-      name: 'nordic', 
-      background: '#F1F5F9', 
-      surface: '#FFFFFF', 
-      text: '#334155', 
-      textMuted: '#64748B', 
-      border: '#CBD5E1',
-      shadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)'
+    nordic: {
+      name: 'nordic',
+      background: '#CBD5E1',
+      surface: '#F8FAFC',
+      text: '#1E293B',
+      textMuted: '#475569',
+      border: '#94A3B8',
+      shadow: '0 1px 3px 0 rgb(0 0 0 / 0.12)',
     },
     slate: { 
       name: 'slate', 
@@ -88,48 +98,48 @@ export class JosanzThemeService {
     },
     ivory: {
       name: 'ivory',
-      background: '#FAF9F6',
-      surface: '#FFFFFF',
-      text: '#2C2C2C',
-      textMuted: '#7A7A7A',
-      border: '#E8E6E1',
-      shadow: '0 2px 10px rgb(0 0 0 / 0.05)',
+      background: '#EDE4D3',
+      surface: '#FFFEF7',
+      text: '#292524',
+      textMuted: '#78716C',
+      border: '#D6D3D1',
+      shadow: '0 2px 10px rgb(0 0 0 / 0.06)',
     },
     nature: {
       name: 'nature',
-      background: '#ECFDF5',
-      surface: '#FFFFFF',
-      text: '#064E3B',
-      textMuted: '#047857',
-      border: '#A7F3D0',
-      shadow: '0 1px 3px rgb(16 185 129 / 0.12)',
+      background: '#BBF7D0',
+      surface: '#F0FDF4',
+      text: '#14532D',
+      textMuted: '#166534',
+      border: '#86EFAC',
+      shadow: '0 2px 8px rgb(22 101 52 / 0.15)',
     },
     ocean: {
       name: 'ocean',
-      background: '#F0F9FF',
-      surface: '#FFFFFF',
+      background: '#BAE6FD',
+      surface: '#F0F9FF',
       text: '#0C4A6E',
-      textMuted: '#0369A1',
-      border: '#BAE6FD',
-      shadow: '0 1px 3px rgb(14 165 233 / 0.15)',
+      textMuted: '#075985',
+      border: '#7DD3FC',
+      shadow: '0 2px 8px rgb(3 105 161 / 0.15)',
     },
     forest: {
       name: 'forest',
-      background: '#EEF3E8',
-      surface: '#FFFFFF',
+      background: '#C5D9B8',
+      surface: '#F4FAF0',
       text: '#1A2E16',
-      textMuted: '#4B5F44',
-      border: '#C5D4B8',
-      shadow: '0 2px 8px rgb(34 55 24 / 0.08)',
+      textMuted: '#3F5A38',
+      border: '#9DB892',
+      shadow: '0 2px 10px rgb(34 55 24 / 0.12)',
     },
     sakura: {
       name: 'sakura',
-      background: '#FFF1F2',
-      surface: '#FFFFFF',
-      text: '#881337',
-      textMuted: '#BE123C',
-      border: '#FECDD3',
-      shadow: '0 2px 8px rgb(225 29 72 / 0.1)',
+      background: '#FBCFE8',
+      surface: '#FFF5F7',
+      text: '#831843',
+      textMuted: '#9D174D',
+      border: '#F9A8D4',
+      shadow: '0 2px 10px rgb(190 24 93 / 0.12)',
     },
     cyberpunk: {
       name: 'cyberpunk',

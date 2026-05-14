@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-secondary-button',
@@ -10,6 +11,8 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
   styleUrl: './secondary-button.css',
 })
 export class SecondaryButtonComponent {
+  readonly themeService = inject(JosanzThemeService);
+
   @Input() label = 'Excel';
   @Input() type: 'excel' | 'pdf' | 'cancel' = 'excel';
   /** Esquinas del botón (misma semántica que `josanz-button`). */

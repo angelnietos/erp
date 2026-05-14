@@ -1,7 +1,12 @@
 <div class="w-full flex flex-col gap-6 relative min-h-[calc(100vh-80px)]">
   <!-- Header -->
   <div class="flex justify-between items-center w-full">
-    <h1 class="text-[28px] font-bold text-[#1A1A1A] tracking-tight">{{ title }}</h1>
+    <h1
+      class="text-[28px] font-bold tracking-tight"
+      [style.color]="themeService.currentTheme().atmosphere.text"
+    >
+      {{ title }}
+    </h1>
     <josanz-user-avatar></josanz-user-avatar>
   </div>
 

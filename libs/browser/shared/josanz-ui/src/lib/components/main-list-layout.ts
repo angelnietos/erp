@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { JosanzThemeService } from '../services/theme.service';
 import { FilterTabsComponent } from './filter-tabs';
 import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
@@ -21,6 +22,8 @@ import { PaginationComponent } from './pagination';
   styleUrl: './main-list-layout.css',
 })
 export class MainListLayoutComponent implements OnChanges {
+  readonly themeService = inject(JosanzThemeService);
+
   @Input() title = 'Título';
   @Input() primaryBtnLabel = 'Acción';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];

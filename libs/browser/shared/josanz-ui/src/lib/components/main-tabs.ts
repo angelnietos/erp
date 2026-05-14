@@ -14,8 +14,9 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
           type="button"
           (click)="select(option)"
           [class]="tabClasses(option)"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
           [style.borderColor]="active === option ? getAccentColor() : 'transparent'"
-          [style.color]="active === option ? getAccentColor() : '#989898'"
+          [style.color]="active === option ? getAccentColor() : themeService.currentTheme().atmosphere.textMuted"
         >
           {{ option }}
         </button>
@@ -35,7 +36,8 @@ export class MainTabsComponent implements OnInit, OnChanges {
   active = '';
 
   tabClasses(option: string) {
-    const base = 'px-5 py-2.5 text-[12px] font-bold transition-all duration-300 whitespace-nowrap border-2 bg-white';
+    const base =
+      'px-5 py-2.5 text-[12px] font-bold transition-all duration-300 whitespace-nowrap border-2';
     
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
     const shapes = {
@@ -48,7 +50,7 @@ export class MainTabsComponent implements OnInit, OnChanges {
     return [
       base,
       shapes[activeShape as keyof typeof shapes] || shapes.rounded,
-      this.active === option ? 'shadow-sm' : 'hover:bg-slate-50'
+      this.active === option ? 'shadow-sm' : 'hover:brightness-[0.97]'
     ].join(' ');
   }
 

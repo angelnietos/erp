@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { JosanzThemeService } from '../services/theme.service';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
@@ -10,6 +11,8 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
   styleUrl: './filter-tabs.css',
 })
 export class FilterTabsComponent implements OnInit, OnChanges {
+  private readonly themeService = inject(JosanzThemeService);
+
   @Input() options: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
   @Input() selected = 'Todas';
   @Output() selectionChange = new EventEmitter<string>();
@@ -56,20 +59,28 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     const r = josanzCornerInner(this.shape);
     const base = `w-[120px] h-[25px] ${r} border-none flex items-center justify-center text-[13px] font-medium transition-all cursor-pointer outline-none`;
     if (this.active === option) {
-      return this.customColor
-        ? `${base} shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]`
-        : `${base} bg-[#DDECFF] text-[#0066FF] shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]`;
+      return `${base} shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]`;
     }
-    return `${base} bg-white text-[#BDBDBD] hover:bg-slate-50`;
+    return `${base} hover:brightness-[0.97]`;
   }
 
-  buttonStyle(option: string): Record<string, string> | null {
-    if (this.active !== option || !this.customColor) {
-      return null;
+  pillStyles(option: string): Record<string, string> {
+    const theme = this.themeService.currentTheme();
+    if (this.active === option) {
+      if (this.customColor) {
+        return {
+          color: this.customColor,
+          backgroundColor: `color-mix(in srgb, ${this.customColor} 16%, white)`,
+        };
+      }
+      return {
+        color: theme.primaryColor,
+        backgroundColor: `color-mix(in srgb, ${theme.primaryColor} 22%, ${theme.atmosphere.surface})`,
+      };
     }
     return {
-      color: this.customColor,
-      backgroundColor: `color-mix(in srgb, ${this.customColor} 16%, white)`,
+      color: theme.atmosphere.textMuted,
+      backgroundColor: theme.atmosphere.surface,
     };
   }
 }
