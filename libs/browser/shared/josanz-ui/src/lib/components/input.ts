@@ -10,7 +10,9 @@ import { JosanzControlShape } from '../josanz-control-styles';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="flex flex-col gap-2 w-full mb-4" [formGroup]="parentForm">
-      <label class="text-[11px] font-bold text-[#989898] uppercase tracking-[0.1em] ml-1">
+      <label 
+        [style.color]="themeService.currentTheme().atmosphere.text"
+        class="text-[11px] font-bold uppercase tracking-[0.1em] ml-1 opacity-60">
         {{ label }}
       </label>
       <div class="relative flex items-center group">
@@ -19,6 +21,8 @@ import { JosanzControlShape } from '../josanz-control-styles';
           [type]="type"
           [placeholder]="placeholder"
           [class]="inputClasses"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.background"
+          [style.color]="themeService.currentTheme().atmosphere.text"
           [style.boxShadow]="isFocused ? '0 0 0 2px ' + getAccentColor() : 'none'"
           (focus)="isFocused = true"
           (blur)="isFocused = false"
@@ -31,7 +35,7 @@ import { JosanzControlShape } from '../josanz-control-styles';
   `,
 })
 export class InputComponent {
-  private themeService = inject(JosanzThemeService);
+  public themeService = inject(JosanzThemeService);
 
   @Input() label = '';
   @Input() placeholder = '';

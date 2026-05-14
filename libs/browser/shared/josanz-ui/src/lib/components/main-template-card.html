@@ -1,17 +1,22 @@
-<div class="bg-white rounded-[16px] shadow-[0px_4px_24px_rgba(0,0,0,0.06)] p-6 mb-4 flex items-center w-full group hover:shadow-lg transition-all duration-300 border border-transparent hover:border-slate-100">
+<div 
+  [ngStyle]="getCardStyles()"
+  class="rounded-[16px] shadow-[0px_4px_24px_rgba(0,0,0,0.06)] p-6 mb-4 flex items-center w-full group hover:shadow-lg transition-all duration-300 border hover:opacity-90">
   
   <!-- Columna 1: Título/Nombre -->
   <div class="w-[180px] shrink-0">
-    <h3 class="text-[15px] font-bold text-[#222222] tracking-tight group-hover:text-black">
+    <h3 
+      [style.color]="themeService.currentTheme().atmosphere.text"
+      class="text-[15px] font-bold tracking-tight">
       {{ title }}
     </h3>
   </div>
 
-  <!-- Columna 2: Datos Flexibles (Email, CIF, etc) -->
+  <!-- Columna 2: Datos Flexibles -->
   <div class="flex flex-1 items-center gap-4 overflow-hidden">
     @for (item of data; track item; let i = $index) {
       <div 
-        class="shrink-0 text-[14px] text-[#64748B] font-medium truncate"
+        class="shrink-0 text-[14px] font-medium truncate opacity-70"
+        [style.color]="themeService.currentTheme().atmosphere.text"
         [class.w-[200px]]="i === 0"
         [class.w-[150px]]="i === 1 || i === 2"
         [class.flex-1]="i === 3"
@@ -21,7 +26,7 @@
     }
   </div>
 
-  <!-- Columna 3: Estado (Badge Estandarizado 65x20px) -->
+  <!-- Columna 3: Estado -->
   <div class="w-[120px] shrink-0 flex justify-center">
     <span 
       [ngStyle]="getBadgeStyles()"

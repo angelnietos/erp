@@ -19,17 +19,20 @@ export class SidebarComponent {
 
   brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
 
-  atmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
+  lightAtmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
     {name: 'luxe', color: '#F8FAFC', label: 'Luxe'},
-    {name: 'nature', color: '#F0FDF4', label: 'Nature'},
-    {name: 'fire', color: '#FEF2F2', label: 'Fire'},
+    {name: 'nature', color: '#DCFCE7', label: 'Nature'},
+    {name: 'ocean', color: '#E0F2FE', label: 'Ocean'},
+    {name: 'forest', color: '#D1E2C4', label: 'Forest'},
+    {name: 'sakura', color: '#FFE4E6', label: 'Sakura'}
+  ];
+
+  darkAtmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
     {name: 'midnight', color: '#0F172A', label: 'Midnight'},
-    {name: 'ocean', color: '#F0F9FF', label: 'Ocean'},
-    {name: 'sunset', color: '#FFF7ED', label: 'Sunset'},
-    {name: 'cyberpunk', color: '#000000', label: 'Cyber'},
+    {name: 'cyberpunk', color: '#111111', label: 'Cyber'},
     {name: 'industrial', color: '#27272A', label: 'Indus'},
-    {name: 'forest', color: '#ECF3E9', label: 'Forest'},
-    {name: 'sakura', color: '#FFF1F2', label: 'Sakura'}
+    {name: 'fire', color: '#7F1D1D', label: 'Fire'},
+    {name: 'sunset', color: '#7C2D12', label: 'Sunset'}
   ];
 
   toggle() {

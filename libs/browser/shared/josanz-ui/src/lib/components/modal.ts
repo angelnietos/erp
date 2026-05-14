@@ -8,9 +8,10 @@ import { JosanzControlShape } from '../josanz-control-styles';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.8)] p-6 backdrop-blur-[2px]">
+    <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.85)] p-6 backdrop-blur-[2px]">
       <div
         [class]="modalClasses"
+        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
         [style.width]="width"
         [style.maxWidth]="'100%'"
         [style.maxHeight]="'92vh'"
@@ -20,9 +21,10 @@ import { JosanzControlShape } from '../josanz-control-styles';
           type="button"
           (click)="onClose($event)"
           class="absolute top-8 right-8 p-1.5 rounded-full hover:bg-slate-100 transition-all z-[60] opacity-50 hover:opacity-100 cursor-pointer"
+          [style.color]="themeService.currentTheme().atmosphere.text"
           aria-label="Cerrar modal"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-900 pointer-events-none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -31,16 +33,22 @@ import { JosanzControlShape } from '../josanz-control-styles';
         <!-- Scrollable Body -->
         <div class="flex-1 overflow-y-auto px-12 pt-14 pb-8 no-scrollbar">
           <h2
-            class="text-[32px] font-bold mb-10 pr-12 tracking-tight text-[#222222]"
-            [style.color]="customColor || themeService.currentTheme().primaryColor"
+            class="text-[32px] font-bold mb-10 pr-12 tracking-tight"
+            [style.color]="customColor || themeService.currentTheme().atmosphere.text"
           >
             {{ title }}
           </h2>
-          <ng-content></ng-content>
+          <div [style.color]="themeService.currentTheme().atmosphere.text">
+            <ng-content></ng-content>
+          </div>
         </div>
 
         <!-- Footer -->
-        <div class="px-12 py-8 flex items-center justify-center gap-6 bg-white flex-shrink-0 border-t border-slate-50">
+        <div 
+          class="px-12 py-8 flex items-center justify-center gap-6 flex-shrink-0 border-t"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+          [style.borderColor]="themeService.currentTheme().atmosphere.border"
+        >
           <ng-content select="[footer-actions]"></ng-content>
         </div>
       </div>
