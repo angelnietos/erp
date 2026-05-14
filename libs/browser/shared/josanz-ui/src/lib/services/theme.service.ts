@@ -62,6 +62,7 @@ export class JosanzThemeService {
     return 'rounded';
   }
 
+  // Rebuild trigger
   private applyToDOM() {
     const theme = this.currentTheme();
     const root = document.documentElement;
