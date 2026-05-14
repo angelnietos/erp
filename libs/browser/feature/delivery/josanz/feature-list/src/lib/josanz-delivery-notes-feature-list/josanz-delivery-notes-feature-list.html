@@ -1,0 +1,30 @@
+<josanz-main-list-layout 
+  [title]="title" 
+  [primaryBtnLabel]="primaryBtnLabel"
+  [filterOptions]="filterOptions"
+  (primaryAction)="onAdd()"
+  (filterChange)="onFilter($event)"
+  (excelAction)="onExcel()">
+
+  <!-- Table Header -->
+  <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-[14px] font-medium">
+    <div class="min-w-[120px]">Nº Albarán</div>
+    <div class="flex flex-1 items-center gap-6">
+      <div class="w-[150px]">Cliente</div>
+      <div class="w-[120px]">Fecha</div>
+      <div class="w-[100px]">Bultos</div>
+      <div class="flex-1">Referencia</div>
+    </div>
+    <div class="ml-auto w-[80px] text-center pr-2">Estado</div>
+  </div>
+
+  <!-- Content -->
+  @for (i of [1,2,3,4,5,6,7,8]; track i) {
+    <josanz-main-template-card
+      title="ALB-2024-00{{i}}"
+      [data]="['Cliente Logística ' + i, '14/05/2024', '3', 'REF-EXT-98' + i]"
+      status="Entregado"
+      statusVariant="success"
+    ></josanz-main-template-card>
+  }
+</josanz-main-list-layout>

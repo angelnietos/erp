@@ -299,6 +299,12 @@
       ],
       "@josanz-erp/josanz-stock-shell": [
         "libs/browser/feature/stock/josanz/shell/src/index.ts"
+      ],
+      "@josanz-erp/josanz-budgets-feature-list": [
+        "libs/browser/feature/budget/josanz/feature-list/src/index.ts"
+      ],
+      "@josanz-erp/josanz-delivery-notes-feature-list": [
+        "libs/browser/feature/delivery/josanz/feature-list/src/index.ts"
       ]
     }
   },

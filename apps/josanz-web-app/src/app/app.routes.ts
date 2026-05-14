@@ -21,4 +21,18 @@ export const appRoutes: Route[] = [
     loadChildren: () =>
       import('@josanz-erp/josanz-stock-shell').then((m) => m.josanzStockRoutes),
   },
+  {
+    path: 'budgets',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-budgets-feature-list').then(
+        (m) => m.JosanzBudgetsFeatureListComponent
+      ),
+  },
+  {
+    path: 'delivery-notes',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-delivery-notes-feature-list').then(
+        (m) => m.JosanzDeliveryNotesFeatureListComponent
+      ),
+  },
 ];
