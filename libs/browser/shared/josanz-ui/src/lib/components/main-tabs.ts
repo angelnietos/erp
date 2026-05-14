@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
   selector: 'josanz-main-tabs',
@@ -14,9 +15,7 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
           type="button"
           (click)="select(option)"
           [class]="tabClasses(option)"
-          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-          [style.borderColor]="active === option ? getAccentColor() : 'transparent'"
-          [style.color]="active === option ? getAccentColor() : themeService.currentTheme().atmosphere.textMuted"
+          [ngStyle]="tabShellStyle(option)"
         >
           {{ option }}
         </button>
@@ -35,9 +34,20 @@ export class MainTabsComponent implements OnInit, OnChanges {
 
   active = '';
 
+  tabShellStyle(option: string): Record<string, string> {
+    const t = this.themeService.currentTheme();
+    const on = this.active === option;
+    const accent = this.customColor ?? JOSANZ_FIGMA_SHELL.pillActiveText;
+    return {
+      backgroundColor: t.atmosphere.surface,
+      borderColor: on ? accent : t.atmosphere.border,
+      color: on ? accent : t.atmosphere.textMuted,
+    };
+  }
+
   tabClasses(option: string) {
     const base =
-      'px-5 py-2.5 text-[12px] font-bold transition-all duration-300 whitespace-nowrap border-2';
+      'px-5 py-2.5 text-[12px] font-bold transition-[box-shadow,filter,color,border-color] whitespace-nowrap border border-solid';
     
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
     const shapes = {
@@ -50,12 +60,8 @@ export class MainTabsComponent implements OnInit, OnChanges {
     return [
       base,
       shapes[activeShape as keyof typeof shapes] || shapes.rounded,
-      this.active === option ? 'shadow-sm' : 'hover:brightness-[0.97]'
+      this.active === option ? 'shadow-sm' : 'hover:brightness-[0.99]',
     ].join(' ');
-  }
-
-  getAccentColor() {
-    return this.customColor || this.themeService.currentTheme().primaryColor;
   }
 
   ngOnInit(): void {

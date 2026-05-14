@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
-import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import type { JosanzControlShape } from '../josanz-control-styles';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
   selector: 'josanz-filter-tabs',
@@ -56,7 +57,7 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   buttonClass(option: string): string {
-    const r = josanzCornerInner(this.shape);
+    const r = 'rounded-[4px]';
     const base = `w-[120px] h-[25px] ${r} flex items-center justify-center text-[13px] font-medium transition-[box-shadow,transform,color,background-color] cursor-pointer outline-none`;
     if (this.active === option) {
       return `${base} border-none`;
@@ -75,8 +76,8 @@ export class FilterTabsComponent implements OnInit, OnChanges {
       }
       // Figma Base-1: pestaña activa #DDECFF, texto oscuro
       return {
-        color: '#080808',
-        backgroundColor: '#DDECFF',
+        color: JOSANZ_FIGMA_SHELL.pillActiveText,
+        backgroundColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
       };
     }
     return {

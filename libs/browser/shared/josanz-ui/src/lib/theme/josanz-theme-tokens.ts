@@ -1,4 +1,5 @@
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JOSANZ_FIGMA_SHELL } from './josanz-figma-tokens';
 
 export type JosanzThemeName = 'luxe-rounded' | 'luxe-sharp' | 'luxe-pill';
 
@@ -26,6 +27,8 @@ export interface JosanzAtmosphereConfig {
   textMuted: string;
   border: string;
   shadow: string;
+  /** Sombra de filas/tarjetas de lista (Figma); si no existe, se usa `shadow`. */
+  cardShadow?: string;
 }
 
 export interface JosanzThemeConfig {
@@ -54,6 +57,7 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
     textMuted: '#2E425A',
     border: '#E7EDF1',
     shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    cardShadow: JOSANZ_FIGMA_SHELL.cardShadow,
   },
   midnight: {
     name: 'midnight',

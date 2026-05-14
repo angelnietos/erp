@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
   selector: 'josanz-pagination',
@@ -100,10 +101,17 @@ export class PaginationComponent {
     const a = this.themeService.currentTheme().atmosphere;
     const accent = this.customColor ?? this.themeService.currentTheme().primaryColor;
     if (active) {
+      if (this.customColor) {
+        return {
+          backgroundColor: accent,
+          borderColor: accent,
+          color: josanzReadableOnSolid(accent),
+        };
+      }
       return {
-        backgroundColor: accent,
-        borderColor: accent,
-        color: josanzReadableOnSolid(accent),
+        backgroundColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
+        borderColor: JOSANZ_FIGMA_SHELL.hairlineBorder,
+        color: JOSANZ_FIGMA_SHELL.pillActiveText,
       };
     }
     return {

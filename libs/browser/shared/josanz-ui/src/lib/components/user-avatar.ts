@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { josanzCornerAvatar, type JosanzControlShape } from '../josanz-control-styles';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
