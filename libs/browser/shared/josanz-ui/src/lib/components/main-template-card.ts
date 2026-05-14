@@ -17,17 +17,24 @@ export class MainTemplateCardComponent {
   @Input() statusVariant: 'primary' | 'success' | 'warning' | 'error' = 'warning';
   @Input() data: string[] = ['ID: #4502', 'Fecha: 12/05/2026', 'Total: 1.250€', 'Vencimiento: 30 días'];
 
+  getCardStyles() {
+    const theme = this.themeService.currentTheme();
+    return {
+      'background-color': theme.atmosphere.surface,
+      'border-color': theme.atmosphere.border,
+      'color': theme.atmosphere.text
+    };
+  }
+
   getBadgeStyles() {
     const theme = this.themeService.currentTheme();
     
-    // El radio del badge se adapta al tema
-    let borderRadius = '10px'; // Luxe default
+    let borderRadius = '10px';
     if (theme.defaultShape === 'square') borderRadius = '2px';
     if (theme.defaultShape === 'pill') borderRadius = '99px';
 
-    // Color de fondo dinámico para la variante 'primary'
     let backgroundColor = '#E2E8F0';
-    if (this.statusVariant === 'primary') backgroundColor = theme.atmosphere.primary;
+    if (this.statusVariant === 'primary') backgroundColor = theme.primaryColor;
     else if (this.statusVariant === 'success') backgroundColor = '#22C55E';
     else if (this.statusVariant === 'warning') backgroundColor = '#F59E0B';
     else if (this.statusVariant === 'error') backgroundColor = '#EF4444';

@@ -9,7 +9,6 @@ export type JosanzAtmosphereName =
 
 export interface JosanzAtmosphereConfig {
   name: JosanzAtmosphereName;
-  primary: string;
   background: string;
   surface: string;
   text: string;
@@ -19,6 +18,7 @@ export interface JosanzAtmosphereConfig {
 export interface JosanzThemeConfig {
   name: JosanzThemeName;
   defaultShape: JosanzControlShape;
+  primaryColor: string;
   atmosphere: JosanzAtmosphereConfig;
 }
 
@@ -28,21 +28,22 @@ export interface JosanzThemeConfig {
 export class JosanzThemeService {
   
   private atmospheres: Record<JosanzAtmosphereName, JosanzAtmosphereConfig> = {
-    luxe: { name: 'luxe', primary: '#635BFF', background: '#F8FAFC', surface: '#FFFFFF', text: '#1E293B', border: '#F1F5F9' },
-    nature: { name: 'nature', primary: '#10B981', background: '#F0FDF4', surface: '#FFFFFF', text: '#064E3B', border: '#DCFCE7' },
-    fire: { name: 'fire', primary: '#EF4444', background: '#FEF2F2', surface: '#FFFFFF', text: '#7F1D1D', border: '#FEE2E2' },
-    midnight: { name: 'midnight', primary: '#38BDF8', background: '#0F172A', surface: '#1E293B', text: '#F8FAFC', border: '#334155' },
-    ocean: { name: 'ocean', primary: '#0EA5E9', background: '#F0F9FF', surface: '#FFFFFF', text: '#0C4A6E', border: '#E0F2FE' },
-    sunset: { name: 'sunset', primary: '#F59E0B', background: '#FFF7ED', surface: '#FFFFFF', text: '#7C2D12', border: '#FFEDD5' },
-    cyberpunk: { name: 'cyberpunk', primary: '#D946EF', background: '#000000', surface: '#111111', text: '#FFFFFF', border: '#333333' },
-    industrial: { name: 'industrial', primary: '#FACC15', background: '#27272A', surface: '#3F3F46', text: '#F4F4F5', border: '#52525B' },
-    forest: { name: 'forest', primary: '#4D7C0F', background: '#ECF3E9', surface: '#FFFFFF', text: '#1A2E05', border: '#D1E2C4' },
-    sakura: { name: 'sakura', primary: '#EC4899', background: '#FFF1F2', surface: '#FFFFFF', text: '#881337', border: '#FFE4E6' }
+    luxe: { name: 'luxe', background: '#F8FAFC', surface: '#FFFFFF', text: '#1E293B', border: '#F1F5F9' },
+    nature: { name: 'nature', background: '#F0FDF4', surface: '#FFFFFF', text: '#064E3B', border: '#DCFCE7' },
+    fire: { name: 'fire', background: '#FEF2F2', surface: '#FFFFFF', text: '#7F1D1D', border: '#FEE2E2' },
+    midnight: { name: 'midnight', background: '#0F172A', surface: '#1E293B', text: '#F8FAFC', border: '#334155' },
+    ocean: { name: 'ocean', background: '#F0F9FF', surface: '#FFFFFF', text: '#0C4A6E', border: '#E0F2FE' },
+    sunset: { name: 'sunset', background: '#FFF7ED', surface: '#FFFFFF', text: '#7C2D12', border: '#FFEDD5' },
+    cyberpunk: { name: 'cyberpunk', background: '#000000', surface: '#111111', text: '#FFFFFF', border: '#333333' },
+    industrial: { name: 'industrial', background: '#27272A', surface: '#3F3F46', text: '#F4F4F5', border: '#52525B' },
+    forest: { name: 'forest', background: '#ECF3E9', surface: '#FFFFFF', text: '#1A2E05', border: '#D1E2C4' },
+    sakura: { name: 'sakura', background: '#FFF1F2', surface: '#FFFFFF', text: '#881337', border: '#FFE4E6' }
   };
 
   currentTheme = signal<JosanzThemeConfig>({
     name: 'luxe-rounded',
     defaultShape: 'rounded',
+    primaryColor: '#635BFF',
     atmosphere: this.atmospheres.luxe
   });
 
@@ -56,24 +57,27 @@ export class JosanzThemeService {
     this.applyToDOM();
   }
 
+  setPrimaryColor(color: string) {
+    this.currentTheme.update(t => ({ ...t, primaryColor: color }));
+    this.applyToDOM();
+  }
+
   private getShapeFromName(name: JosanzThemeName): JosanzControlShape {
     if (name === 'luxe-sharp') return 'square';
     if (name === 'luxe-pill') return 'pill';
     return 'rounded';
   }
 
-  // Rebuild trigger
   private applyToDOM() {
     const theme = this.currentTheme();
     const root = document.documentElement;
     
-    root.style.setProperty('--josanz-primary', theme.atmosphere.primary);
+    root.style.setProperty('--josanz-primary', theme.primaryColor);
     root.style.setProperty('--josanz-bg', theme.atmosphere.background);
     root.style.setProperty('--josanz-surface', theme.atmosphere.surface);
     root.style.setProperty('--josanz-text', theme.atmosphere.text);
     root.style.setProperty('--josanz-border', theme.atmosphere.border);
     
     document.body.style.backgroundColor = theme.atmosphere.background;
-    document.body.setAttribute('data-atmosphere', theme.atmosphere.name);
   }
 }

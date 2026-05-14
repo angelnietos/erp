@@ -17,17 +17,19 @@ export class SidebarComponent {
   @Input() userRole = 'Administrador';
   @Input() isOpen = false;
 
+  brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
+
   atmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
-    {name: 'luxe', color: '#635BFF', label: 'Luxe'},
-    {name: 'nature', color: '#10B981', label: 'Nature'},
-    {name: 'fire', color: '#EF4444', label: 'Fire'},
-    {name: 'midnight', color: '#38BDF8', label: 'Midnight'},
-    {name: 'ocean', color: '#0EA5E9', label: 'Ocean'},
-    {name: 'sunset', color: '#F59E0B', label: 'Sunset'},
-    {name: 'cyberpunk', color: '#D946EF', label: 'Cyber'},
-    {name: 'industrial', color: '#FACC15', label: 'Indus'},
-    {name: 'forest', color: '#4D7C0F', label: 'Forest'},
-    {name: 'sakura', color: '#EC4899', label: 'Sakura'}
+    {name: 'luxe', color: '#F8FAFC', label: 'Luxe'},
+    {name: 'nature', color: '#F0FDF4', label: 'Nature'},
+    {name: 'fire', color: '#FEF2F2', label: 'Fire'},
+    {name: 'midnight', color: '#0F172A', label: 'Midnight'},
+    {name: 'ocean', color: '#F0F9FF', label: 'Ocean'},
+    {name: 'sunset', color: '#FFF7ED', label: 'Sunset'},
+    {name: 'cyberpunk', color: '#000000', label: 'Cyber'},
+    {name: 'industrial', color: '#27272A', label: 'Indus'},
+    {name: 'forest', color: '#ECF3E9', label: 'Forest'},
+    {name: 'sakura', color: '#FFF1F2', label: 'Sakura'}
   ];
 
   toggle() {
@@ -40,5 +42,9 @@ export class SidebarComponent {
 
   changeAtmosphere(name: JosanzAtmosphereName) {
     this.themeService.setAtmosphere(name);
+  }
+
+  changeBranding(color: string) {
+    this.themeService.setPrimaryColor(color);
   }
 }

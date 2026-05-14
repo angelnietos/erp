@@ -72,21 +72,21 @@ export class ButtonComponent {
 
   getBgColor() {
     if (this.customColor) return this.customColor;
-    if (this.variant === 'primary') return this.themeService.currentTheme().atmosphere.primary;
+    if (this.variant === 'primary') return this.themeService.currentTheme().primaryColor;
     if (this.variant === 'secondary') return '#F1F5F9'; // slate-100
     if (this.variant === 'danger') return '#EF4444';
     return 'transparent';
   }
 
   getBorderColor() {
-    if (this.variant === 'outline') return this.customColor || this.themeService.currentTheme().atmosphere.primary;
+    if (this.variant === 'outline') return this.customColor || this.themeService.currentTheme().primaryColor;
     if (this.variant === 'secondary') return 'transparent';
     return 'transparent';
   }
 
   getTextColor() {
     if (this.variant === 'primary' || this.variant === 'danger') return 'white';
-    if (this.variant === 'outline' || this.variant === 'ghost') return this.customColor || this.themeService.currentTheme().atmosphere.primary;
+    if (this.variant === 'outline' || this.variant === 'ghost') return this.customColor || this.themeService.currentTheme().primaryColor;
     return '#1e293b'; // slate-800
   }
 
