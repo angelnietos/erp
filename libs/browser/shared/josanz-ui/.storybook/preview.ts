@@ -139,7 +139,7 @@ export const globalTypes = {
   josanzAtmosphere: {
     name: 'Atmósfera',
     description: 'Paleta de fondo/texto (`JosanzThemeService`)',
-    defaultValue: 'luxe',
+    defaultValue: 'ubisoft',
     toolbar: {
       icon: 'mirror',
       items: atmosphereToolbarItems,
