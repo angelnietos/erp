@@ -31,8 +31,8 @@ export class JosanzThemeService {
   currentTheme = signal<JosanzThemeConfig>({
     name: 'luxe-rounded',
     defaultShape: 'rounded',
-    primaryColor: '#635BFF',
-    atmosphere: this.atmospheres.luxe,
+    primaryColor: '#5850EC',
+    atmosphere: this.atmospheres.ubisoft,
   });
 
   constructor() {

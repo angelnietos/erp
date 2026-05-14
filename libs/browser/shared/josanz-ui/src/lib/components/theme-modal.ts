@@ -146,19 +146,20 @@ export class ThemeModalComponent {
   brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
 
   lightAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
-    { name: 'neutral', label: 'Neutra' },
-    { name: 'luxe', label: 'Luxe' },
-    { name: 'nature', label: 'Nature' },
+    { name: 'neutral', label: 'Neutral' },
+    { name: 'ubisoft', label: 'Ubisoft' },
+    { name: 'nintendo', label: 'Nintendo' },
+    { name: 'rayman', label: 'Rayman' },
     { name: 'ocean', label: 'Ocean' },
     { name: 'forest', label: 'Forest' },
-    { name: 'sakura', label: 'Sakura' },
   ];
 
   darkAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
+    { name: 'rockstar', label: 'Rockstar' },
+    { name: 'easports', label: 'EA Sports' },
+    { name: 'cyberpunk', label: 'Cyberpunk' },
     { name: 'midnight', label: 'Midnight' },
-    { name: 'cyberpunk', label: 'Cyber' },
     { name: 'industrial', label: 'Industrial' },
-    { name: 'fire', label: 'Fire' },
     { name: 'sunset', label: 'Sunset' },
   ];
 }

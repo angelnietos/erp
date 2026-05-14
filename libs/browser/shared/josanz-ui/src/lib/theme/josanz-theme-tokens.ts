@@ -5,19 +5,17 @@ export type JosanzThemeName = 'luxe-rounded' | 'luxe-sharp' | 'luxe-pill';
 
 export type JosanzAtmosphereName =
   | 'neutral'
-  | 'luxe'
-  | 'nordic'
-  | 'ivory'
-  | 'nature'
-  | 'ocean'
-  | 'forest'
-  | 'sakura'
-  | 'midnight'
-  | 'slate'
-  | 'fire'
+  | 'ubisoft'
+  | 'rayman'
+  | 'nintendo'
+  | 'rockstar'
+  | 'easports'
   | 'cyberpunk'
   | 'industrial'
-  | 'sunset';
+  | 'sunset'
+  | 'midnight'
+  | 'ocean'
+  | 'forest';
 
 export interface JosanzAtmosphereConfig {
   name: JosanzAtmosphereName;
@@ -49,105 +47,69 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
     border: '#E5E5E5',
     shadow: '0 1px 3px rgb(0 0 0 / 0.06)',
   },
-  luxe: {
-    name: 'luxe',
-    background: '#FEFEFE',
+  ubisoft: {
+    name: 'ubisoft',
+    background: '#F8FAFC',
     surface: '#FFFFFF',
-    text: '#080808',
-    textMuted: '#2E425A',
-    border: '#E7EDF1',
-    shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-    cardShadow: JOSANZ_FIGMA_SHELL.cardShadow,
+    text: '#0F172A',
+    textMuted: '#64748B',
+    border: '#E2E8F0',
+    shadow: '0 10px 15px -3px rgba(0, 0, 0, 0.04)',
+    cardShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05)',
   },
-  midnight: {
-    name: 'midnight',
-    background: '#0B0F1A',
-    surface: '#151C2C',
-    text: '#F8FAFC',
+  rayman: {
+    name: 'rayman',
+    background: '#4C1D95',
+    surface: '#5B21B6',
+    text: '#FFFFFF',
+    textMuted: '#C4B5FD',
+    border: '#6D28D9',
+    shadow: '0 10px 20px rgba(0, 0, 0, 0.3)',
+  },
+  nintendo: {
+    name: 'nintendo',
+    background: '#E60012',
+    surface: '#FFFFFF',
+    text: '#1F1F1F',
+    textMuted: '#666666',
+    border: '#E5E5E5',
+    shadow: '0 4px 12px rgba(230, 0, 18, 0.15)',
+  },
+  rockstar: {
+    name: 'rockstar',
+    background: '#000000',
+    surface: '#121212',
+    text: '#FDE047',
+    textMuted: '#A1A1AA',
+    border: '#27272A',
+    shadow: '0 0 20px rgba(253, 224, 71, 0.1)',
+  },
+  easports: {
+    name: 'easports',
+    background: '#060B15',
+    surface: '#0F172A',
+    text: '#38BDF8',
     textMuted: '#94A3B8',
     border: '#1E293B',
-    shadow: '0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3)',
-  },
-  fire: {
-    name: 'fire',
-    background: '#2D1B1B',
-    surface: '#3D2626',
-    text: '#FFF1F1',
-    textMuted: '#E5AFAF',
-    border: '#4D3434',
-    shadow: '0 10px 15px -3px rgb(0 0 0 / 0.4)',
-  },
-  nordic: {
-    name: 'nordic',
-    background: '#CBD5E1',
-    surface: '#F8FAFC',
-    text: '#1E293B',
-    textMuted: '#475569',
-    border: '#94A3B8',
-    shadow: '0 1px 3px 0 rgb(0 0 0 / 0.12)',
-  },
-  slate: {
-    name: 'slate',
-    background: '#0F172A',
-    surface: '#1E293B',
-    text: '#F1F5F9',
-    textMuted: '#94A3B8',
-    border: '#334155',
-    shadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)',
-  },
-  ivory: {
-    name: 'ivory',
-    background: '#EDE4D3',
-    surface: '#FFFEF7',
-    text: '#292524',
-    textMuted: '#78716C',
-    border: '#D6D3D1',
-    shadow: '0 2px 10px rgb(0 0 0 / 0.06)',
-  },
-  nature: {
-    name: 'nature',
-    background: '#BBF7D0',
-    surface: '#F0FDF4',
-    text: '#14532D',
-    textMuted: '#166534',
-    border: '#86EFAC',
-    shadow: '0 2px 8px rgb(22 101 52 / 0.15)',
-  },
-  ocean: {
-    name: 'ocean',
-    background: '#BAE6FD',
-    surface: '#F0F9FF',
-    text: '#0C4A6E',
-    textMuted: '#075985',
-    border: '#7DD3FC',
-    shadow: '0 2px 8px rgb(3 105 161 / 0.15)',
-  },
-  forest: {
-    name: 'forest',
-    background: '#C5D9B8',
-    surface: '#F4FAF0',
-    text: '#1A2E16',
-    textMuted: '#3F5A38',
-    border: '#9DB892',
-    shadow: '0 2px 10px rgb(34 55 24 / 0.12)',
-  },
-  sakura: {
-    name: 'sakura',
-    background: '#FBCFE8',
-    surface: '#FFF5F7',
-    text: '#831843',
-    textMuted: '#9D174D',
-    border: '#F9A8D4',
-    shadow: '0 2px 10px rgb(190 24 93 / 0.12)',
+    shadow: '0 0 40px rgba(56, 189, 248, 0.1)',
   },
   cyberpunk: {
     name: 'cyberpunk',
-    background: '#0A0A12',
-    surface: '#12121C',
-    text: '#E2E8F0',
-    textMuted: '#64748B',
-    border: '#1E3A5F',
-    shadow: '0 0 0 1px rgb(6 182 212 / 0.15), 0 12px 40px rgb(0 0 0 / 0.45)',
+    background: '#050505',
+    surface: '#0D0D0D',
+    text: '#00FF9F',
+    textMuted: '#FF00A0',
+    border: '#333333',
+    shadow: '0 0 15px rgba(0, 255, 159, 0.2)',
+  },
+  midnight: {
+    name: 'midnight',
+    background: '#020617',
+    surface: '#0F172A',
+    text: '#F8FAFC',
+    textMuted: '#94A3B8',
+    border: '#1E293B',
+    shadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
   },
   industrial: {
     name: 'industrial',
@@ -160,12 +122,30 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   sunset: {
     name: 'sunset',
-    background: '#1C0F0C',
-    surface: '#2D1810',
+    background: '#451A03',
+    surface: '#78350F',
     text: '#FFF7ED',
     textMuted: '#FDBA74',
-    border: '#5C2E22',
+    border: '#92400E',
     shadow: '0 8px 24px rgb(124 45 18 / 0.35)',
+  },
+  ocean: {
+    name: 'ocean',
+    background: '#083344',
+    surface: '#164E63',
+    text: '#ECFEFF',
+    textMuted: '#22D3EE',
+    border: '#155E75',
+    shadow: '0 4px 12px rgba(8, 51, 68, 0.4)',
+  },
+  forest: {
+    name: 'forest',
+    background: '#064E3B',
+    surface: '#065F46',
+    text: '#ECFDF5',
+    textMuted: '#34D399',
+    border: '#047857',
+    shadow: '0 4px 12px rgba(6, 78, 59, 0.4)',
   },
 };
 

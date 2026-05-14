@@ -90,11 +90,11 @@ const atmosphereDecorator = (
   storyFn: () => unknown,
   context: { globals: { josanzAtmosphere?: string } },
 ) => {
-  const key = (context.globals?.josanzAtmosphere ?? 'luxe') as JosanzAtmosphereName;
-  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.luxe;
+  const key = (context.globals?.josanzAtmosphere ?? 'ubisoft') as JosanzAtmosphereName;
+  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.ubisoft;
   applyJosanzThemeCssVariables({
     atmosphere,
-    primaryColor: '#635BFF',
+    primaryColor: '#5850EC',
     themeName: 'luxe-rounded',
   });
   return storyFn();
