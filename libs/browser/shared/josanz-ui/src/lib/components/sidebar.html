@@ -1,6 +1,6 @@
 <div class="h-screen bg-white border-r border-slate-100 flex flex-col items-center py-6 transition-all duration-300 relative shadow-sm"
      [class.w-[256px]]="isOpen"
-     [class.w-[52px]]="!isOpen">
+     [class.w-[64px]]="!isOpen">
 
   <!-- Toggle Button -->
   <button 
@@ -14,7 +14,7 @@
   </button>
 
   <!-- Logo Section -->
-  <div class="mb-10 flex items-center w-full px-2.5 overflow-hidden">
+  <div class="mb-10 flex items-center w-full px-4 overflow-hidden">
     <div class="w-8 h-8 bg-black rounded-[8px] flex items-center justify-center shrink-0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -27,58 +27,107 @@
   </div>
 
   <!-- Navigation Links -->
-  <nav class="flex flex-col gap-1 w-full px-1.5 flex-1 overflow-hidden">
-    <!-- Link Helper Macro -->
-    @for (link of [
-      {path: '/clients', label: 'Clientes', icon: 'users'},
-      {path: '/delivery-notes', label: 'Albaranes', icon: 'file-text'},
-      {path: '/budgets', label: 'Presupuestos', icon: 'briefcase'},
-      {path: '/stock', label: 'Stock', icon: 'box'},
-      {path: '/users', label: 'Usuarios', icon: 'user-check'}
-    ]; track link.path) {
-      <a [routerLink]="link.path" routerLinkActive="bg-slate-50 text-black shadow-sm" 
-         class="w-full h-10 flex items-center px-2 rounded-[8px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
-        <div class="w-6 h-6 flex items-center justify-center shrink-0">
-          <!-- Icon placeholder (simplified for clarity) -->
-          <span class="text-[10px] uppercase font-bold">{{ link.label.substring(0,2) }}</span>
-        </div>
-        @if (isOpen) {
-          <span class="ml-3 text-[13px] font-semibold whitespace-nowrap">{{ link.label }}</span>
-        }
-      </a>
-    }
+  <nav class="flex flex-col gap-1 w-full px-2 flex-1 overflow-hidden">
+    
+    <!-- Clientes -->
+    <a routerLink="/clients" routerLinkActive="bg-slate-50 text-black shadow-sm" 
+       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
+      <div class="w-6 h-6 flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      @if (isOpen) {
+        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Clientes</span>
+      }
+    </a>
+
+    <!-- Albaranes -->
+    <a routerLink="/delivery-notes" routerLinkActive="bg-slate-50 text-black shadow-sm" 
+       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
+      <div class="w-6 h-6 flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+      </div>
+      @if (isOpen) {
+        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Albaranes</span>
+      }
+    </a>
+
+    <!-- Presupuestos -->
+    <a routerLink="/budgets" routerLinkActive="bg-slate-50 text-black shadow-sm" 
+       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
+      <div class="w-6 h-6 flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+      </div>
+      @if (isOpen) {
+        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Presupuestos</span>
+      }
+    </a>
+
+    <!-- Stock -->
+    <a routerLink="/stock" routerLinkActive="bg-slate-50 text-black shadow-sm" 
+       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
+      <div class="w-6 h-6 flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        </svg>
+      </div>
+      @if (isOpen) {
+        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Stock</span>
+      }
+    </a>
+
+    <!-- Usuarios -->
+    <a routerLink="/users" routerLinkActive="bg-slate-50 text-black shadow-sm" 
+       class="w-full h-11 flex items-center px-3 rounded-[10px] text-[#94A3B8] hover:bg-slate-50 hover:text-black transition-all duration-200 cursor-pointer group">
+      <div class="w-6 h-6 flex items-center justify-center shrink-0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      @if (isOpen) {
+        <span class="ml-3 text-[14px] font-semibold whitespace-nowrap">Usuarios</span>
+      }
+    </a>
   </nav>
 
-  <!-- Theme & Color Selector (Only visible when open) -->
+  <!-- Theme Selector (Only visible when open) -->
   @if (isOpen) {
-    <div class="mt-auto px-4 py-6 border-t border-slate-50 w-full bg-slate-50/30">
+    <div class="mt-auto px-4 py-6 border-t border-slate-100 w-full bg-slate-50/50">
       <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Accent Color</div>
-      <div class="flex gap-3 px-2 mb-6">
+      <div class="flex flex-wrap gap-2.5 px-2 mb-6">
         @for (color of ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222']; track color) {
           <button 
-            (click)="themeService.setPrimaryColor(color)"
+            (click)="changeThemeColor(color)"
             [style.backgroundColor]="color"
-            class="w-5 h-5 rounded-full border-2 transition-transform hover:scale-125"
-            [class.border-white]="themeService.currentTheme().primaryColor !== color"
-            [class.border-slate-300]="themeService.currentTheme().primaryColor === color"
-            [class.ring-2]="themeService.currentTheme().primaryColor === color"
-            [class.ring-slate-100]="themeService.currentTheme().primaryColor === color"
+            class="w-6 h-6 rounded-full border-2 transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-sm"
+            [style.borderColor]="themeService.currentTheme().primaryColor === color ? 'white' : 'transparent'"
+            [style.boxShadow]="themeService.currentTheme().primaryColor === color ? '0 0 0 2px ' + color : 'none'"
           ></button>
         }
       </div>
 
       <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Visual Style</div>
       <div class="flex gap-2 p-1 bg-white border border-slate-100 rounded-lg">
-        <button (click)="themeService.setTheme('luxe-rounded')" class="flex-1 py-1 text-[10px] font-bold rounded" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-rounded'">Modern</button>
-        <button (click)="themeService.setTheme('luxe-sharp')" class="flex-1 py-1 text-[10px] font-bold rounded" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-sharp'">Sharp</button>
-        <button (click)="themeService.setTheme('luxe-pill')" class="flex-1 py-1 text-[10px] font-bold rounded" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-pill'">Pill</button>
+        <button (click)="changeTheme('luxe-rounded')" class="flex-1 py-1 text-[10px] font-bold rounded transition-colors" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-rounded'">Modern</button>
+        <button (click)="changeTheme('luxe-sharp')" class="flex-1 py-1 text-[10px] font-bold rounded transition-colors" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-sharp'">Sharp</button>
+        <button (click)="changeTheme('luxe-pill')" class="flex-1 py-1 text-[10px] font-bold rounded transition-colors" [class.bg-slate-100]="themeService.currentTheme().name === 'luxe-pill'">Pill</button>
       </div>
     </div>
   }
 
   <!-- Bottom Section -->
-  <div class="flex flex-col items-center gap-3 w-full px-1 py-4 border-t border-slate-50">
-    <a routerLink="/settings" class="w-10 h-10 flex items-center justify-center text-[#94A3B8] hover:text-black hover:bg-slate-50 rounded-lg">
+  <div class="flex flex-col items-center gap-4 w-full px-1 py-4 border-t border-slate-50" [class.mt-auto]="!isOpen">
+    <a routerLink="/settings" class="w-10 h-10 flex items-center justify-center text-[#94A3B8] hover:text-black hover:bg-slate-50 rounded-lg transition-colors">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </a>
   </div>

@@ -24,4 +24,8 @@ export class SidebarComponent {
   changeTheme(name: JosanzThemeName) {
     this.themeService.setTheme(name);
   }
+
+  changeThemeColor(color: string) {
+    this.themeService.setPrimaryColor(color);
+  }
 }

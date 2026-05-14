@@ -12,9 +12,9 @@ import { JosanzControlShape } from '../josanz-control-styles';
       (click)="onClick()"
       [disabled]="disabled"
       [class]="buttonClasses"
-      [style.backgroundColor]="variant === 'primary' && customColor ? customColor : null"
-      [style.borderColor]="(variant === 'outline' || variant === 'secondary') && customColor ? customColor : null"
-      [style.color]="(variant === 'outline' || variant === 'ghost') && customColor ? customColor : null"
+      [style.backgroundColor]="getBgColor()"
+      [style.borderColor]="getBorderColor()"
+      [style.color]="getTextColor()"
     >
       <span>{{ label }}</span>
       @if (showIcon) {
@@ -27,7 +27,7 @@ import { JosanzControlShape } from '../josanz-control-styles';
   `,
 })
 export class ButtonComponent {
-  private themeService = inject(JosanzThemeService);
+  public themeService = inject(JosanzThemeService);
 
   @Input() label = 'Añadir';
   @Input() showIcon = true;
@@ -40,44 +40,54 @@ export class ButtonComponent {
   @Output() btnClick = new EventEmitter<void>();
 
   get buttonClasses() {
-    const base = 'inline-flex items-center justify-center gap-2 transition-transform transition-opacity transition-shadow duration-200 outline-none whitespace-nowrap';
+    const base = 'inline-flex items-center justify-center gap-2 transition-all duration-200 outline-none whitespace-nowrap shadow-sm hover:shadow-md active:scale-95';
     
     const sizes = {
       sm: 'h-8 px-3 text-xs',
-      md: 'h-10 px-4 text-[14px]',
-      lg: 'h-12 px-6 text-base',
-      xl: 'h-14 px-8 text-lg'
+      md: 'h-10 px-4 text-[14px] font-semibold',
+      lg: 'h-12 px-8 text-base font-bold',
+      xl: 'h-14 px-10 text-lg font-bold'
     };
 
-    // Usar la shape del input o la del tema global
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
 
     const shapes = {
-      rounded: 'rounded-[8px]',
+      rounded: 'rounded-[10px]',
       pill: 'rounded-full',
       square: 'rounded-none',
       modal: 'rounded-[24px]',
       inner: 'rounded-[6px]',
       avatar: 'rounded-[10px]',
-      field: 'rounded-[8px]'
-    };
-
-    const variants = {
-      primary: 'bg-black text-white hover:opacity-80 shadow-md',
-      secondary: 'bg-slate-100 text-slate-900 border border-transparent hover:opacity-80',
-      outline: 'bg-transparent text-black border border-black hover:opacity-70',
-      ghost: 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900',
-      danger: 'bg-red-500 text-white hover:opacity-80 shadow-md shadow-red-500/30'
+      field: 'rounded-[10px]'
     };
 
     return [
       base,
       sizes[this.size] || sizes.md,
       shapes[activeShape as keyof typeof shapes] || shapes.rounded,
-      variants[this.variant] || variants.primary,
       this.fullWidth ? 'w-full' : '',
       this.disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
     ].filter(Boolean).join(' ');
+  }
+
+  getBgColor() {
+    if (this.customColor) return this.customColor;
+    if (this.variant === 'primary') return this.themeService.currentTheme().primaryColor;
+    if (this.variant === 'secondary') return '#F1F5F9'; // slate-100
+    if (this.variant === 'danger') return '#EF4444';
+    return 'transparent';
+  }
+
+  getBorderColor() {
+    if (this.variant === 'outline') return this.customColor || this.themeService.currentTheme().primaryColor;
+    if (this.variant === 'secondary') return 'transparent';
+    return 'transparent';
+  }
+
+  getTextColor() {
+    if (this.variant === 'primary' || this.variant === 'danger') return 'white';
+    if (this.variant === 'outline' || this.variant === 'ghost') return this.customColor || this.themeService.currentTheme().primaryColor;
+    return '#1e293b'; // slate-800
   }
 
   onClick() {
