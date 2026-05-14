@@ -11,8 +11,8 @@ import type { JosanzControlShape } from '../josanz-control-styles';
   template: `
     <div class="flex flex-col gap-2 w-full mb-4" [formGroup]="parentForm">
       <label 
-        [style.color]="themeService.currentTheme().atmosphere.text"
-        class="text-[11px] font-bold uppercase tracking-[0.1em] ml-1 opacity-60">
+        [style.color]="themeService.currentTheme().atmosphere.textMuted"
+        class="text-[11px] font-bold uppercase tracking-[0.1em] ml-1">
         {{ label }}
       </label>
       <div class="relative flex items-center group">
@@ -21,9 +21,10 @@ import type { JosanzControlShape } from '../josanz-control-styles';
           [type]="type"
           [placeholder]="placeholder"
           [class]="inputClasses"
-          [style.backgroundColor]="themeService.currentTheme().atmosphere.background"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
           [style.color]="themeService.currentTheme().atmosphere.text"
-          [style.boxShadow]="isFocused ? '0 0 0 2px ' + getAccentColor() : 'none'"
+          [style.borderColor]="isFocused ? getAccentColor() : themeService.currentTheme().atmosphere.border"
+          [style.boxShadow]="focusRing()"
           (focus)="isFocused = true"
           (blur)="isFocused = false"
         />
@@ -48,8 +49,8 @@ export class InputComponent {
   isFocused = false;
 
   get inputClasses() {
-    const base = 'w-full h-[44px] px-4 bg-[#F5F5F5] border-none text-[14px] text-[#222222] font-medium transition-all outline-none placeholder:text-slate-400';
-    
+    const base =
+      'w-full h-[44px] px-4 border border-solid text-[14px] font-medium transition-all outline-none placeholder:text-[color:var(--josanz-text-muted)]';
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
     const shapes = {
       rounded: 'rounded-[10px]',
@@ -58,17 +59,20 @@ export class InputComponent {
       field: 'rounded-[10px]',
       inner: 'rounded-[6px]',
       modal: 'rounded-[24px]',
-      avatar: 'rounded-[10px]'
+      avatar: 'rounded-[10px]',
     };
-
-    return [
-      base,
-      shapes[activeShape as keyof typeof shapes] || shapes.rounded,
-      this.isFocused ? 'bg-white' : 'hover:bg-[#F0F0F0]'
-    ].join(' ');
+    return [base, shapes[activeShape as keyof typeof shapes] || shapes.rounded, 'hover:brightness-[0.99]'].join(' ');
   }
 
-  getAccentColor() {
-    return this.customColor || this.themeService.currentTheme().primaryColor + '33'; // Color + 20% alpha
+  getAccentColor(): string {
+    return this.customColor ?? this.themeService.currentTheme().primaryColor;
+  }
+
+  focusRing(): string {
+    if (!this.isFocused) {
+      return 'none';
+    }
+    const c = this.getAccentColor();
+    return `0 0 0 2px color-mix(in srgb, ${c} 35%, transparent)`;
   }
 }

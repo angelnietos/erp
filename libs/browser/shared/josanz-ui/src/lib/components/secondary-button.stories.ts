@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { SecondaryButtonComponent } from './secondary-button';
 
 const meta: Meta<SecondaryButtonComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<SecondaryButtonComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Botón secundario para exportación (Excel/PDF) o cancelación. `shape` y `customColor` siguen la misma convención que `josanz-button`. Emite `btnClick` al pulsar.',
+        component: josanzStoryThemeDescription(
+          'Botón secundario: fondo `surface`, texto `atmosphere.text` (o `customColor`). `shape` sigue la convención de `josanz-button`. Emite `btnClick`.',
+        ),
       },
     },
     layout: 'centered',

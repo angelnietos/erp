@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { PaginationComponent } from './pagination';
 
 const meta: Meta<PaginationComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<PaginationComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Paginación numérica con elipsis, anterior/siguiente y `aria-label`. `shape` y `customColor` siguen la misma convención que `josanz-button` (color de página activa vía `--josanz-primary`). Emite `pageChange`.',
+        component: josanzStoryThemeDescription(
+          'Paginación numérica con elipsis, anterior/siguiente y `aria-label`. Botones usan `surface`, `border` y `text` del tema; la página activa usa el color de marca y texto con contraste automático. `shape` y `customColor` siguen la convención de `josanz-button`. Emite `pageChange`.',
+        ),
       },
     },
     layout: 'centered',

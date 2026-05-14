@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ButtonComponent } from './button';
 
 const meta: Meta<ButtonComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<ButtonComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Botón principal del sistema Josanz: variantes de color, tamaños, formas y color personalizado opcional. `shape` (`rounded` | `pill` | `square`) y `customColor` comparten la convención `JosanzControlShape` con input, tabs, paginación, modal y avatar. Emite `btnClick` al pulsar (no emite si `disabled`).',
+        component: josanzStoryThemeDescription(
+          'Botón principal del sistema Josanz: variantes de color, tamaños, formas y color personalizado opcional. `shape` (`rounded` | `pill` | `square`) y `customColor` comparten la convención `JosanzControlShape` con input, tabs, paginación, modal y avatar. El texto sobre `primary`/`danger` se calcula con `josanzReadableOnSolid` para mantener contraste con el color de marca. Emite `btnClick` al pulsar (no emite si `disabled`).',
+        ),
       },
     },
     layout: 'centered',

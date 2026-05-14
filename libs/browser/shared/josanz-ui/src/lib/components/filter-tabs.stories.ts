@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { FilterTabsComponent } from './filter-tabs';
 
 const meta: Meta<FilterTabsComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<FilterTabsComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Filtros horizontales. `shape` y `customColor` siguen la convención de `josanz-button` (esquinas y tinte de la pestaña activa).',
+        component: josanzStoryThemeDescription(
+          'Filtros horizontales: inactivos usan `surface` y `textMuted`; activos mezclan el color de marca con la superficie. `shape` y `customColor` siguen la convención de `josanz-button`.',
+        ),
       },
     },
     layout: 'padded',

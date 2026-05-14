@@ -15,7 +15,10 @@ import { ButtonComponent } from './button';
         
         <!-- Branding Color -->
         <section>
-          <h3 class="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-4">Color de Marca (Branding)</h3>
+          <h3
+            class="text-[12px] font-bold uppercase tracking-widest mb-4"
+            [style.color]="themeService.currentTheme().atmosphere.textMuted"
+          >Color de Marca (Branding)</h3>
           <div class="flex flex-wrap gap-4">
             @for (color of brandingColors; track color) {
               <button 
@@ -34,12 +37,18 @@ import { ButtonComponent } from './button';
 
         <!-- Atmospheres -->
         <section>
-          <h3 class="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-4">Atmósfera del Entorno</h3>
+          <h3
+            class="text-[12px] font-bold uppercase tracking-widest mb-4"
+            [style.color]="themeService.currentTheme().atmosphere.textMuted"
+          >Atmósfera del Entorno</h3>
           
           <div class="grid grid-cols-2 gap-6">
             <!-- Light Modes -->
             <div class="space-y-3">
-              <span class="text-[11px] font-semibold text-slate-500">Modos Claros</span>
+              <span
+                class="text-[11px] font-semibold"
+                [style.color]="themeService.currentTheme().atmosphere.textMuted"
+                >Modos Claros</span>
               <div class="grid grid-cols-5 gap-2">
                 @for (atm of lightAtmospheres; track atm.name) {
                   <button 
@@ -58,7 +67,10 @@ import { ButtonComponent } from './button';
 
             <!-- Dark Modes -->
             <div class="space-y-3">
-              <span class="text-[11px] font-semibold text-slate-500">Modos Oscuros</span>
+              <span
+                class="text-[11px] font-semibold"
+                [style.color]="themeService.currentTheme().atmosphere.textMuted"
+                >Modos Oscuros</span>
               <div class="grid grid-cols-5 gap-2">
                 @for (atm of darkAtmospheres; track atm.name) {
                   <button 
@@ -79,7 +91,10 @@ import { ButtonComponent } from './button';
 
         <!-- Visual Style -->
         <section>
-          <h3 class="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-4">Estilo Visual (Componentes)</h3>
+          <h3
+            class="text-[12px] font-bold uppercase tracking-widest mb-4"
+            [style.color]="themeService.currentTheme().atmosphere.textMuted"
+          >Estilo Visual (Componentes)</h3>
           <div class="flex gap-4">
             <josanz-button 
               label="Modern (Rounded)" 

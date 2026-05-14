@@ -1,4 +1,9 @@
 import { storybookRouterDecorator } from './storybook-providers';
+import {
+  JOSANZ_ATMOSPHERE_REGISTRY,
+  applyJosanzThemeCssVariables,
+  type JosanzAtmosphereName,
+} from '../src/lib/theme/josanz-theme-tokens';
 
 // ─── Google Fonts ────────────────────────────────────────────────────────────
 const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
@@ -13,6 +18,7 @@ const designTokens = `
   --josanz-text-muted: #64748b;
   --josanz-border: #f1f5f9;
   --josanz-primary: #4f46e5;
+  --josanz-on-primary: #ffffff;
   --josanz-primary-hover: #4338ca;
   --josanz-accent: #3b82f6;
   --josanz-danger: #ef4444;
@@ -38,6 +44,7 @@ const designTokens = `
   --josanz-text-muted: #94a3b8;
   --josanz-border: #334155;
   --josanz-primary: #818cf8;
+  --josanz-on-primary: #0f172a;
   --josanz-primary-hover: #6366f1;
   --josanz-accent: #60a5fa;
   --josanz-danger: #f87171;
@@ -71,6 +78,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 `;
 
+const atmosphereToolbarItems = (Object.keys(JOSANZ_ATMOSPHERE_REGISTRY) as JosanzAtmosphereName[]).map(
+  (value) => ({
+    value,
+    title: value.charAt(0).toUpperCase() + value.slice(1),
+  }),
+);
+
+// ─── Atmósfera Josanz: sincroniza CSS con el mismo registro que `JosanzThemeService` ─
+const atmosphereDecorator = (
+  storyFn: () => unknown,
+  context: { globals: { josanzAtmosphere?: string } },
+) => {
+  const key = (context.globals?.josanzAtmosphere ?? 'luxe') as JosanzAtmosphereName;
+  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.luxe;
+  applyJosanzThemeCssVariables({
+    atmosphere,
+    primaryColor: '#635BFF',
+    themeName: 'luxe-rounded',
+  });
+  return storyFn();
+};
+
 // ─── Theme decorator: apply data-theme to <html> from Storybook globals ─────
 const themeDecorator = (storyFn: () => unknown, context: { globals: { theme?: string } }) => {
   const theme = context.globals?.theme ?? 'light';
@@ -101,8 +130,19 @@ export const globalTypes = {
       icon: 'paintbrush',
       items: [
         { value: 'light', title: '☀️  Light' },
-        { value: 'dark',  title: '🌙  Dark'  },
+        { value: 'dark', title: '🌙  Dark' },
       ],
+      showName: true,
+      dynamicTitle: true,
+    },
+  },
+  josanzAtmosphere: {
+    name: 'Atmósfera',
+    description: 'Paleta de fondo/texto (`JosanzThemeService`)',
+    defaultValue: 'luxe',
+    toolbar: {
+      icon: 'mirror',
+      items: atmosphereToolbarItems,
       showName: true,
       dynamicTitle: true,
     },
@@ -119,6 +159,12 @@ export const parameters = {
       date: /Date$/,
     },
   },
+  docs: {
+    description: {
+      component:
+        'Las stories responden a la barra **Atmósfera** (mismo registro que `JosanzThemeService`) y a **Theme** claro/oscuro. Comprueba contraste en fondos claros/oscuros y con distintos colores de marca desde la app o forzando tokens en `:root`.',
+    },
+  },
   backgrounds: {
     default: 'Luxe Light',
     values: [
@@ -133,4 +179,5 @@ export const decorators = [
   storybookRouterDecorator,
   injectStylesDecorator,
   themeDecorator,
+  atmosphereDecorator,
 ];

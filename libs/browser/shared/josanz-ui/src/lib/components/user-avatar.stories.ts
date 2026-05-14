@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio } from '../../../.storybook/story-arg-types';
+import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { UserAvatarComponent } from './user-avatar';
 
 const meta: Meta<UserAvatarComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<UserAvatarComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Avatar con icono. `shape` (`rounded` / `pill` / `square`) y `customColor` (fondo + icono) alinean con `josanz-button`.',
+        component: josanzStoryThemeDescription(
+          'Avatar con icono. Por defecto el fondo mezcla el color de marca con `surface`; borde e icono siguen la atmósfera. `shape` y `customColor` alinean con `josanz-button`.',
+        ),
       },
     },
     layout: 'centered',

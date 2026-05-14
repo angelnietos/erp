@@ -15,7 +15,7 @@
     <!-- Home (Exact Figma Shape) -->
     <a routerLink="/dashboard" routerLinkActive="active-link" title="Inicio"
        class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       style="color: #4A5568;">
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 12l9-9 9 9M5 10v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9" />
       </svg>
@@ -25,7 +25,7 @@
     <!-- User (Exact Figma Shape) -->
     <a routerLink="/clients" routerLinkActive="active-link" title="Clientes"
        class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       style="color: #4A5568;">
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
         <circle cx="12" cy="7" r="4" />
@@ -41,7 +41,7 @@
     ]; track link.path) {
       <a [routerLink]="link.path" routerLinkActive="active-link" [title]="link.label"
          class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-         style="color: #4A5568;">
+         [style.color]="themeService.currentTheme().atmosphere.textMuted">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1.5" />
           <rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -55,7 +55,7 @@
     <!-- Sparkle Theme (Exact Figma Shape) -->
     <button (click)="openThemeSettings()" title="Personalizar"
        class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group"
-       style="color: #4A5568;">
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3l1.5 5.5l5.5 1.5l-5.5 1.5l-1.5 5.5l-1.5-5.5l-5.5-1.5l5.5-1.5z" />
         <path d="M18 6l.01 0M18 18l.01 0M6 18l.01 0" stroke-width="2.5" />
@@ -70,7 +70,7 @@
     <!-- Settings -->
     <a routerLink="/settings" title="Ajustes" 
        class="transition-all duration-200 cursor-pointer"
-       style="color: #4A5568;">
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -79,7 +79,7 @@
 
     <!-- Logout -->
     <div title="Cerrar sesión" class="transition-all duration-200 cursor-pointer"
-         style="color: #4A5568;">
+         [style.color]="themeService.currentTheme().atmosphere.textMuted">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 8v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2" />
         <path d="M9 12h12l-3-3m0 6l3-3" />

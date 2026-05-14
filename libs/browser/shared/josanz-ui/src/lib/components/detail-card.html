@@ -1,7 +1,12 @@
-<div class="bg-white rounded-[16px] shadow-[0px_4px_24px_rgba(0,0,0,0.06)] p-6 flex gap-8 border border-transparent hover:border-slate-100 transition-all group overflow-hidden">
-  
+<div
+  class="rounded-[16px] p-6 flex gap-8 border border-solid transition-all group overflow-hidden hover:brightness-[0.99]"
+  [ngStyle]="shellStyle()"
+>
   <!-- Image Vertical (Figma Style) -->
-  <div class="w-[186px] h-[186px] shrink-0 rounded-[12px] overflow-hidden bg-slate-100 shadow-inner">
+  <div
+    class="w-[186px] h-[186px] shrink-0 rounded-[12px] overflow-hidden shadow-inner"
+    [style.backgroundColor]="themeService.currentTheme().atmosphere.border"
+  >
     <img [src]="imageUrl" alt="Event image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
   </div>
 
@@ -9,23 +14,40 @@
   <div class="flex-1 flex flex-col justify-between py-1">
     <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-[18px] font-semibold text-[#222222] tracking-tight">{{ title }}</h3>
-        <span class="bg-[#635BFF] text-white text-[10px] font-bold px-3 py-1 rounded-[10px] uppercase">
+        <h3
+          class="text-[18px] font-semibold tracking-tight"
+          [style.color]="themeService.currentTheme().atmosphere.text"
+        >
+          {{ title }}
+        </h3>
+        <span
+          class="text-[10px] font-bold px-3 py-1 rounded-[10px] uppercase"
+          [ngStyle]="badgeStyle()"
+        >
           {{ badgeText }}
         </span>
       </div>
-      
-      <div class="flex gap-4 text-[13px] text-[#989898] font-medium">
+
+      <div
+        class="flex gap-4 text-[13px] font-medium"
+        [style.color]="themeService.currentTheme().atmosphere.textMuted"
+      >
         <span>{{ subtitle }}</span>
         @if (data && data[0]) {
-           <span class="flex items-center gap-1">
-             <span class="w-1 h-1 bg-[#989898] rounded-full"></span>
-             {{ data[0] }}
-           </span>
+          <span class="flex items-center gap-1">
+            <span
+              class="w-1 h-1 rounded-full"
+              [style.backgroundColor]="themeService.currentTheme().atmosphere.textMuted"
+            ></span>
+            {{ data[0] }}
+          </span>
         }
       </div>
 
-      <p class="text-[14px] text-[#64748B] leading-relaxed line-clamp-3">
+      <p
+        class="text-[14px] leading-relaxed line-clamp-3"
+        [style.color]="themeService.currentTheme().atmosphere.textMuted"
+      >
         {{ description }}
       </p>
     </div>
@@ -33,7 +55,12 @@
     <!-- Tags (Bottom) -->
     <div class="flex flex-wrap gap-2 mt-4">
       @for (tag of tags; track tag) {
-        <span class="px-3 py-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-full text-[11px] font-semibold text-[#64748B] hover:bg-white transition-colors cursor-default">
+        <span
+          class="px-3 py-1 border border-solid rounded-full text-[11px] font-semibold transition-colors cursor-default"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+          [style.borderColor]="themeService.currentTheme().atmosphere.border"
+          [style.color]="themeService.currentTheme().atmosphere.textMuted"
+        >
           {{ tag }}
         </span>
       }

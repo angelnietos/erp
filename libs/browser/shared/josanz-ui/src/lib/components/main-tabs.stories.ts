@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainTabsComponent } from './main-tabs';
 
 const meta: Meta<MainTabsComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<MainTabsComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Pestañas tipo “segmented control”. `shape` y `customColor` comparten convención con `josanz-button` (contenedor + texto activo).',
+        component: josanzStoryThemeDescription(
+          'Pestañas tipo “segmented control”: fondo de cada pestaña = `surface`, inactivos en `textMuted`, activos con borde y color de marca. `shape` y `customColor` opcionales.',
+        ),
       },
     },
     layout: 'padded',

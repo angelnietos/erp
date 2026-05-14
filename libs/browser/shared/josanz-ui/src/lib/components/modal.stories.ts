@@ -1,6 +1,6 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ModalComponent } from './modal';
 import { ButtonComponent } from './button';
 
@@ -16,8 +16,9 @@ const meta: Meta<ModalComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Modal a pantalla completa con overlay, título, cuerpo (`ng-content`) y pie opcional (`ng-content select="[footer-actions]"`). `shape` controla las esquinas del panel; `customColor` tiñe el título. Emite `close` al pulsar la X.',
+        component: josanzStoryThemeDescription(
+          'Modal con overlay, título, cuerpo (`ng-content`) y pie opcional (`footer-actions`). El panel usa `atmosphere.surface`; título y contenido respetan `atmosphere.text`. `shape` y `customColor` personalizan panel y título. Emite `close`.',
+        ),
       },
     },
     layout: 'fullscreen',

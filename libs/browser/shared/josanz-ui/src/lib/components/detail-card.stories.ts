@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { DetailCardComponent } from './detail-card';
 
 const meta: Meta<DetailCardComponent> = {
@@ -8,8 +9,9 @@ const meta: Meta<DetailCardComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Tarjeta de detalle con imagen opcional, título, subtítulo, descripción, badge y lista de etiquetas (`tags`). Selector: `lib-detail-card`.',
+        component: josanzStoryThemeDescription(
+          'Tarjeta de detalle con imagen, título, subtítulo, descripción, badge y `tags`. Fondo, bordes y tipografías siguen la atmósfera activa; el badge de estado usa el color de marca con texto contrastado. Selector: `lib-detail-card`.',
+        ),
       },
     },
     layout: 'padded',

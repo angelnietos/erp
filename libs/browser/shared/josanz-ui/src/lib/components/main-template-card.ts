@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
+import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 
 @Component({
   selector: 'josanz-main-template-card',
@@ -42,7 +43,8 @@ export class MainTemplateCardComponent {
 
     return {
       'background-color': backgroundColor,
-      'border-radius': borderRadius
+      'border-radius': borderRadius,
+      color: josanzReadableOnSolid(backgroundColor),
     };
   }
 }

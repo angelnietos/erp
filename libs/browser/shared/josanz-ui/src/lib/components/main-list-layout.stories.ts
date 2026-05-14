@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit } from '../../../.storybook/story-arg-types';
+import { sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainListLayoutComponent } from './main-list-layout';
 
 const meta: Meta<MainListLayoutComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<MainListLayoutComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Layout de listado: cabecera con título y avatar, filtros (`josanz-filter-tabs`), acciones Excel + primario, área de contenido proyectada (`ng-content`) y paginación opcional (`paginationTotal` > 0).',
+        component: josanzStoryThemeDescription(
+          'Layout de listado con título acoplado a `atmosphere.text`, filtros y botones que respetan el tema activo.',
+        ),
       },
     },
     layout: 'fullscreen',

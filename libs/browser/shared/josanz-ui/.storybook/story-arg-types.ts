@@ -34,3 +34,11 @@ export function sbEmit(channel: string, description?: string): ArgTypes[string] 
     ...(description ? { description } : {}),
   };
 }
+
+/** Texto estándar para documentación de stories: integración con `JosanzThemeService`. */
+export const JOSANZ_STORYBOOK_THEME_DOCS =
+  '**Tema:** usa la barra **Atmósfera** (tokens de `JosanzThemeService`) y **Theme** claro/oscuro. Los componentes usan `atmosphere.text`, `textMuted`, `surface`, `border` y contraste automático sobre el color de marca (`josanzReadableOnSolid`).';
+
+export function josanzStoryThemeDescription(extra?: string): string {
+  return extra ? `${JOSANZ_STORYBOOK_THEME_DOCS}\n\n${extra}` : JOSANZ_STORYBOOK_THEME_DOCS;
+}

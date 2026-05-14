@@ -2,6 +2,7 @@ import { moduleMetadata } from '@storybook/angular';
 import { RouterModule } from '@angular/router';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { SidebarComponent } from './sidebar';
 
 const meta: Meta<SidebarComponent> = {
@@ -11,8 +12,9 @@ const meta: Meta<SidebarComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Barra lateral de navegación con enlaces de router, nombre de usuario y rol. `isOpen` controla el ancho colapsado; el método `toggle()` alterna el estado (puedes enlazarlo desde el padre en la app).',
+        component: josanzStoryThemeDescription(
+          'Barra lateral: superficie y bordes del tema; iconos en `textMuted`. Incluye modal de personalización (`josanz-theme-modal`).',
+        ),
       },
     },
     layout: 'fullscreen',

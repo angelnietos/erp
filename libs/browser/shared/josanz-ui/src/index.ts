@@ -22,3 +22,4 @@ export * from './lib/components/detail-card';
 export * from './lib/components/theme-modal';
 export * from './lib/base-list';
 export * from './lib/services/theme.service';
+export * from './lib/theme/josanz-theme-tokens';

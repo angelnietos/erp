@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
+import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 import type { JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
@@ -40,7 +41,8 @@ export class ButtonComponent {
   @Output() btnClick = new EventEmitter<void>();
 
   get buttonClasses() {
-    const base = 'inline-flex items-center justify-center gap-2 transition-all duration-200 outline-none whitespace-nowrap shadow-sm hover:shadow-md active:scale-95';
+    const base =
+      'inline-flex items-center justify-center gap-2 border-2 border-solid transition-all duration-200 outline-none whitespace-nowrap shadow-sm hover:shadow-md active:scale-95';
     
     const sizes = {
       sm: 'h-8 px-3 text-xs',
@@ -70,24 +72,50 @@ export class ButtonComponent {
     ].filter(Boolean).join(' ');
   }
 
+  borderWidth(): string {
+    return this.variant === 'outline' || this.variant === 'secondary' ? '2px' : '0';
+  }
+
   getBgColor() {
-    if (this.customColor) return this.customColor;
-    if (this.variant === 'primary') return this.themeService.currentTheme().primaryColor;
-    if (this.variant === 'secondary') return '#F1F5F9'; // slate-100
-    if (this.variant === 'danger') return '#EF4444';
+    const t = this.themeService.currentTheme();
+    if (this.variant === 'primary') {
+      return this.customColor ?? t.primaryColor;
+    }
+    if (this.variant === 'secondary') {
+      return t.atmosphere.surface;
+    }
+    if (this.variant === 'danger') {
+      return '#EF4444';
+    }
+    if (this.variant === 'ghost') {
+      return 'transparent';
+    }
     return 'transparent';
   }
 
   getBorderColor() {
-    if (this.variant === 'outline') return this.customColor || this.themeService.currentTheme().primaryColor;
-    if (this.variant === 'secondary') return 'transparent';
+    const t = this.themeService.currentTheme();
+    if (this.variant === 'outline') {
+      return this.customColor ?? t.primaryColor;
+    }
+    if (this.variant === 'secondary') {
+      return t.atmosphere.border;
+    }
     return 'transparent';
   }
 
   getTextColor() {
-    if (this.variant === 'primary' || this.variant === 'danger') return 'white';
-    if (this.variant === 'outline' || this.variant === 'ghost') return this.customColor || this.themeService.currentTheme().primaryColor;
-    return '#1e293b'; // slate-800
+    const t = this.themeService.currentTheme();
+    if (this.variant === 'primary') {
+      return josanzReadableOnSolid(this.getBgColor());
+    }
+    if (this.variant === 'danger') {
+      return josanzReadableOnSolid('#EF4444');
+    }
+    if (this.variant === 'outline' || this.variant === 'ghost') {
+      return this.customColor ?? t.primaryColor;
+    }
+    return t.atmosphere.text;
   }
 
   onClick() {

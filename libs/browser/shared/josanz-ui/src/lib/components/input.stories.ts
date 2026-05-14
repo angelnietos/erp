@@ -1,7 +1,7 @@
 import { moduleMetadata } from '@storybook/angular';
 import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio } from '../../../.storybook/story-arg-types';
+import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { InputComponent } from './input';
 
 const meta: Meta<InputComponent> = {
@@ -11,8 +11,9 @@ const meta: Meta<InputComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Campo con etiqueta en `FormGroup` reactivo. `shape` y `customColor` alinean el campo con `josanz-button` (radio de esquinas y acento de foco). No pongas `FormGroup` en `args` de Storybook.',
+        component: josanzStoryThemeDescription(
+          'Campo con etiqueta en `FormGroup` reactivo. Fondo y borde siguen `atmosphere.surface` / `atmosphere.border`; el foco usa el color de marca. `shape` y `customColor` alinean el campo con `josanz-button`. No pongas `FormGroup` en `args` de Storybook.',
+        ),
       },
     },
     layout: 'centered',

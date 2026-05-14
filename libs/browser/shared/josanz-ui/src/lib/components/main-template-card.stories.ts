@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio } from '../../../.storybook/story-arg-types';
+import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainTemplateCardComponent } from './main-template-card';
 
 const meta: Meta<MainTemplateCardComponent> = {
@@ -9,8 +9,9 @@ const meta: Meta<MainTemplateCardComponent> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Fila tipo tarjeta para tablas de facturación: título, badge de estado (`status` + `statusVariant`) y columnas dinámicas en `data` (array de strings).',
+        component: josanzStoryThemeDescription(
+          'Fila tipo tarjeta: superficie, borde y sombra del tema; badge con contraste automático (`josanzReadableOnSolid`) según variante.',
+        ),
       },
     },
     layout: 'padded',

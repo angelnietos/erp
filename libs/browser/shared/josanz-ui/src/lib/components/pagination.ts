@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import { JosanzThemeService } from '../services/theme.service';
+import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 
 @Component({
   selector: 'josanz-pagination',
@@ -10,6 +12,8 @@ import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-st
   styleUrl: './pagination.css',
 })
 export class PaginationComponent {
+  readonly themeService = inject(JosanzThemeService);
+
   /** Página actual (1-based). */
   @Input() current = 1;
   /** Total de páginas (≥ 0). Si es 0 no se muestra barra. */
@@ -81,5 +85,31 @@ export class PaginationComponent {
 
   trackPageItem(index: number, item: number | 'ellipsis'): string {
     return item === 'ellipsis' ? `e-${index}` : String(item);
+  }
+
+  surfaceNavStyle(): Record<string, string> {
+    const a = this.themeService.currentTheme().atmosphere;
+    return {
+      backgroundColor: a.surface,
+      borderColor: a.border,
+      color: a.text,
+    };
+  }
+
+  pageButtonStyle(active: boolean): Record<string, string> {
+    const a = this.themeService.currentTheme().atmosphere;
+    const accent = this.customColor ?? this.themeService.currentTheme().primaryColor;
+    if (active) {
+      return {
+        backgroundColor: accent,
+        borderColor: accent,
+        color: josanzReadableOnSolid(accent),
+      };
+    }
+    return {
+      backgroundColor: a.surface,
+      borderColor: a.border,
+      color: a.text,
+    };
   }
 }

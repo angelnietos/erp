@@ -1,5 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { JosanzThemeService } from '../services/theme.service';
+import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 
 @Component({
   selector: 'lib-detail-card',
@@ -9,6 +11,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './detail-card.css',
 })
 export class DetailCardComponent {
+  readonly themeService = inject(JosanzThemeService);
+
   @Input() imageUrl?: string;
   @Input() title!: string;
   @Input() badgeText?: string;
@@ -16,4 +20,21 @@ export class DetailCardComponent {
   @Input() description?: string;
   @Input() data: string[] = [];
   @Input() tags: string[] = [];
+
+  shellStyle(): Record<string, string> {
+    const a = this.themeService.currentTheme().atmosphere;
+    return {
+      backgroundColor: a.surface,
+      borderColor: a.border,
+      boxShadow: a.shadow,
+    };
+  }
+
+  badgeStyle(): Record<string, string> {
+    const p = this.themeService.currentTheme().primaryColor;
+    return {
+      backgroundColor: p,
+      color: josanzReadableOnSolid(p),
+    };
+  }
 }

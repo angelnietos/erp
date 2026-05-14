@@ -23,7 +23,8 @@ export class SecondaryButtonComponent {
 
   readonly cornerClass = (): string => josanzCornerInner(this.shape);
 
-  readonly textColor = (): string => this.customColor ?? '#053746';
+  readonly textColor = (): string =>
+    this.customColor ?? this.themeService.currentTheme().atmosphere.text;
 
   onClick() {
     this.btnClick.emit();

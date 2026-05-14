@@ -20,7 +20,7 @@ import type { JosanzControlShape } from '../josanz-control-styles';
         <button
           type="button"
           (click)="onClose($event)"
-          class="absolute top-8 right-8 p-1.5 rounded-full hover:bg-slate-100 transition-all z-[60] opacity-50 hover:opacity-100 cursor-pointer"
+          class="absolute top-8 right-8 p-1.5 rounded-full transition-all z-[60] opacity-50 hover:opacity-100 cursor-pointer hover:bg-[color-mix(in_srgb,var(--josanz-border)_45%,transparent)]"
           [style.color]="themeService.currentTheme().atmosphere.text"
           aria-label="Cerrar modal"
         >
@@ -76,7 +76,8 @@ export class ModalComponent {
   @Output() close = new EventEmitter<void>();
 
   get modalClasses() {
-    const base = 'bg-white shadow-[0px_20px_50px_rgba(0,0,0,0.2)] flex flex-col relative overflow-hidden transition-all duration-300';
+    const base =
+      'shadow-[0px_20px_50px_rgba(0,0,0,0.2)] flex flex-col relative overflow-hidden transition-all duration-300';
     
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
     const shapes = {
