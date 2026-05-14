@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
-import { MainTabsComponent } from './main-tabs.ts';
-import { ButtonComponent } from './button.ts';
+import { MainTabsComponent } from './main-tabs';
+import { ButtonComponent } from './button';
 
 @Component({
   selector: 'josanz-main-detail-layout',

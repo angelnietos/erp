@@ -8,7 +8,6 @@ import {
   JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
 import { JosanzClientCreateComponent } from '../josanz-client-create/josanz-client-create';
-import { JosanzClientDetailComponent } from '../josanz-client-detail/josanz-client-detail';
 
 @Component({
   selector: 'josanz-clients-list',
@@ -18,7 +17,6 @@ import { JosanzClientDetailComponent } from '../josanz-client-detail/josanz-clie
     MainListLayoutComponent,
     MainTemplateCardComponent,
     JosanzClientCreateComponent,
-    JosanzClientDetailComponent,
   ],
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
