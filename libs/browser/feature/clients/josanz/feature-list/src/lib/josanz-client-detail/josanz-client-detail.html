@@ -1,7 +1,7 @@
 <josanz-modal title="Cliente" [width]="'1188px'" (close)="onCancel()">
 
   <!-- Top Right Label (Figma Style) -->
-  <div class="absolute top-8 right-24 text-[13px] font-semibold text-[#4A5568]" style="color: #4A5568;">
+  <div class="absolute top-8 right-24 text-[13px] font-semibold" style="color: #5850EC;">
     Gerencia y producción
   </div>
 
@@ -67,25 +67,25 @@
     @if (activeTab() === 'presupuestos') {
       <div class="py-6 space-y-10">
         <!-- Propios -->
-        <div class="space-y-4">
-          <h3 class="text-[20px] font-medium text-[#2E425A]">Propios</h3>
+        <div class="presupuestos-container">
+          <h3 class="section-title">Propios</h3>
           
           <!-- Upload Area -->
-          <div class="border-2 border-dashed border-[#3182CE] rounded-lg p-3 bg-white flex items-center justify-center gap-3 text-[#3182CE] cursor-pointer hover:bg-blue-50 transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span class="text-[14px]">Subir documentación</span>
+          <div class="upload-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Subir documentación</span>
           </div>
 
           <!-- File List -->
-          <div class="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
-            @for (file of presupuestosPropios; track file; let last = $last) {
-              <div class="flex items-center justify-between p-4 px-6" [class.border-b]="!last" [class.border-[#E2E8F0]]="!last">
-                <div class="flex items-center gap-4">
-                  <div class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></div>
-                  <span class="text-[14px] text-[#2D3748]">{{ file }}</span>
+          <div class="docs-list shadow-sm">
+            @for (file of presupuestosPropios; track file) {
+              <div class="doc-item">
+                <div class="doc-item-left">
+                  <div class="doc-dot"></div>
+                  <span class="doc-name">{{ file }}</span>
                 </div>
-                <button class="text-[#A0AEC0] hover:text-[#2D3748] transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <button class="download-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 </button>
               </div>
             }
@@ -93,25 +93,25 @@
         </div>
 
         <!-- Externos -->
-        <div class="space-y-4">
-          <h3 class="text-[20px] font-medium text-[#2E425A]">Externos</h3>
+        <div class="presupuestos-container">
+          <h3 class="section-title">Externos</h3>
           
           <!-- Upload Area -->
-          <div class="border-2 border-dashed border-[#A0AEC0] rounded-lg p-3 bg-white flex items-center justify-center gap-3 text-[#718096] cursor-pointer hover:bg-gray-50 transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span class="text-[14px]">Subir documentación</span>
+          <div class="upload-btn" style="border-color: #A0AEC0; color: #718096;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Subir documentación</span>
           </div>
 
           <!-- File List -->
-          <div class="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
-            @for (file of presupuestosExternos; track file; let last = $last) {
-              <div class="flex items-center justify-between p-4 px-6" [class.border-b]="!last" [class.border-[#E2E8F0]]="!last">
-                <div class="flex items-center gap-4">
-                  <div class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></div>
-                  <span class="text-[14px] text-[#2D3748]">{{ file }}</span>
+          <div class="docs-list shadow-sm">
+            @for (file of presupuestosExternos; track file) {
+              <div class="doc-item">
+                <div class="doc-item-left">
+                  <div class="doc-dot"></div>
+                  <span class="doc-name">{{ file }}</span>
                 </div>
-                <button class="text-[#A0AEC0] hover:text-[#2D3748] transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <button class="download-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 </button>
               </div>
             }
@@ -142,23 +142,23 @@
     <!-- Tab: Facturas (Figma Style File Manager) -->
     @if (activeTab() === 'facturas') {
       <div class="py-6 space-y-10">
-        <div class="space-y-4">
+        <div class="presupuestos-container">
           <!-- Upload Area -->
-          <div class="border-2 border-dashed border-[#A0AEC0] rounded-lg p-3 bg-white flex items-center justify-center gap-3 text-[#718096] cursor-pointer hover:bg-gray-50 transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span class="text-[14px]">Subir documentación</span>
+          <div class="upload-btn" style="border-color: #A0AEC0; color: #718096;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Subir documentación</span>
           </div>
 
           <!-- File List -->
-          <div class="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
-            @for (file of facturas; track file; let last = $last) {
-              <div class="flex items-center justify-between p-4 px-6" [class.border-b]="!last" [class.border-[#E2E8F0]]="!last">
-                <div class="flex items-center gap-4">
-                  <div class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></div>
-                  <span class="text-[14px] text-[#2D3748]">{{ file }}</span>
+          <div class="docs-list shadow-sm">
+            @for (file of facturas; track file) {
+              <div class="doc-item">
+                <div class="doc-item-left">
+                  <div class="doc-dot"></div>
+                  <span class="doc-name">{{ file }}</span>
                 </div>
-                <button class="text-[#A0AEC0] hover:text-[#2D3748] transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <button class="download-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 </button>
               </div>
             }
