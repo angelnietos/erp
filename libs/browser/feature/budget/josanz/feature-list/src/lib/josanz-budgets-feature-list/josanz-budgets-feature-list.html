@@ -8,23 +8,28 @@
 
   <!-- Table Header -->
   <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-[14px] font-medium">
-    <div class="min-w-[120px]">Nº Presupuesto</div>
+    <div class="min-w-[140px]">Nº Presupuesto</div>
     <div class="flex flex-1 items-center gap-6">
-      <div class="w-[150px]">Cliente</div>
+      <div class="w-[200px]">Cliente</div>
       <div class="w-[120px]">Fecha</div>
-      <div class="w-[100px]">Total</div>
-      <div class="flex-1">Descripción</div>
+      <div class="w-[120px]">Validez</div>
+      <div class="flex-1 text-right pr-10">Total</div>
     </div>
-    <div class="ml-auto w-[80px] text-center pr-2">Estado</div>
+    <div class="ml-auto w-[100px] text-center pr-2">Estado</div>
   </div>
 
   <!-- Content -->
-  @for (i of [1,2,3,4,5,6,7,8]; track i) {
+  @for (item of [
+    {id: 'PR-2024-010', cliente: 'Construcciones S.A.', fecha: '14/05/2024', val: '30 días', total: '4.500,00 €', status: 'Enviado'},
+    {id: 'PR-2024-011', cliente: 'Reformas García', fecha: '13/05/2024', val: '15 días', total: '1.250,00 €', status: 'Aceptado'},
+    {id: 'PR-2024-012', cliente: 'Hotel Playa Sol', fecha: '12/05/2024', val: '30 días', total: '12.800,00 €', status: 'Borrador'},
+    {id: 'PR-2024-013', cliente: 'Paco Montajes', fecha: '10/05/2024', val: '7 días', total: '850,00 €', status: 'Rechazado'}
+  ]; track item.id) {
     <josanz-main-template-card
-      title="PR-2024-00{{i}}"
-      [data]="['Cliente Ejemplo ' + i, '14/05/2024', '1.250,00 €', 'Servicio de mantenimiento integral...']"
-      status="Pendiente"
-      statusVariant="primary"
+      [title]="item.id"
+      [data]="[item.cliente, item.fecha, item.val, item.total]"
+      [status]="item.status"
+      [statusVariant]="item.status === 'Aceptado' ? 'success' : (item.status === 'Rechazado' ? 'error' : 'primary')"
     ></josanz-main-template-card>
   }
 </josanz-main-list-layout>
