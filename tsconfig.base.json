@@ -303,14 +303,8 @@
       "@josanz-erp/josanz-budgets-feature-list": [
         "libs/browser/feature/budget/josanz/feature-list/src/index.ts"
       ],
-      "@josanz-erp/josanz-budgets-shell": [
-        "libs/browser/feature/budget/josanz/shell/src/index.ts"
-      ],
       "@josanz-erp/josanz-delivery-notes-feature-list": [
         "libs/browser/feature/delivery/josanz/feature-list/src/index.ts"
-      ],
-      "@josanz-erp/josanz-delivery-notes-shell": [
-        "libs/browser/feature/delivery/josanz/shell/src/index.ts"
       ]
     }
   },

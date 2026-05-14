@@ -44,11 +44,11 @@ export const appRoutes: Route[] = [
   {
     path: 'budgets',
     loadChildren: () =>
-      import('@josanz-erp/josanz-budgets-shell').then((m) => m.josanzBudgetsRoutes),
+      import('@josanz-erp/josanz-budgets-feature-list').then((m) => m.josanzBudgetsRoutes),
   },
   {
     path: 'delivery-notes',
     loadChildren: () =>
-      import('@josanz-erp/josanz-delivery-notes-shell').then((m) => m.josanzDeliveryNotesRoutes),
+      import('@josanz-erp/josanz-delivery-notes-feature-list').then((m) => m.josanzDeliveryNotesRoutes),
   },
 ];
