@@ -1,6 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent } from '@josanz-erp/josanz-ui';
+import {
+  MainListLayoutComponent,
+  MainTemplateCardComponent,
+  BaseListComponent,
+  JosanzThemeService,
+} from '@josanz-erp/josanz-ui';
 import { JosanzClientCreateComponent } from '../josanz-client-create/josanz-client-create';
 import { JosanzClientDetailComponent } from '../josanz-client-detail/josanz-client-detail';
 
@@ -18,6 +23,7 @@ import { JosanzClientDetailComponent } from '../josanz-client-detail/josanz-clie
   styleUrl: './feature-list.css',
 })
 export class JosanzClientsListComponent extends BaseListComponent {
+  readonly themeService = inject(JosanzThemeService);
   showCreateModal = signal(false);
   showDetailModal = signal(false);
 

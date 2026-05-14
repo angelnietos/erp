@@ -1,5 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { josanzCornerAvatar, type JosanzControlShape } from '../josanz-control-styles';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 import { JosanzThemeService } from '../services/theme.service';
 
@@ -37,12 +38,12 @@ export class UserAvatarComponent {
       };
     }
     return {
-      backgroundColor: `color-mix(in srgb, ${t.primaryColor} 14%, ${t.atmosphere.surface})`,
+      backgroundColor: JOSANZ_FIGMA_SHELL.avatarWash,
       borderColor: t.atmosphere.border,
     };
   }
 
   iconTone(): string {
-    return this.customColor ?? this.themeService.currentTheme().atmosphere.text;
+    return this.customColor ?? this.themeService.currentTheme().atmosphere.textMuted;
   }
 }

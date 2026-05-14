@@ -1,9 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  MainListLayoutComponent, 
-  MainTemplateCardComponent 
-} from '@josanz-erp/josanz-ui';
+import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-delivery-notes-feature-list',
@@ -12,6 +9,7 @@ import {
   templateUrl: './josanz-delivery-notes-feature-list.html',
 })
 export class JosanzDeliveryNotesFeatureListComponent {
+  readonly themeService = inject(JosanzThemeService);
   title = 'Albaranes';
   primaryBtnLabel = 'Añadir Albarán +';
   filterOptions = ['Todas', 'Pendiente', 'Firmado', 'Facturado'];

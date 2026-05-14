@@ -2,12 +2,18 @@
   [title]="title" 
   [primaryBtnLabel]="primaryBtnLabel"
   [filterOptions]="filterOptions"
+  [paginationTotal]="10"
+  [paginationPage]="1"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
   
-  <!-- Table Header - Figma Style -->
-  <div class="flex items-center px-8 mb-4 w-full text-[#989898] text-[13px] font-bold uppercase tracking-[0.1em]">
+  <!-- Cabecera tabla: tipografía Figma (#2E425A vía textMuted), tracking 0.1em -->
+  <div
+    class="flex items-center px-6 mb-4 w-full text-[13px] font-bold uppercase"
+    [style.color]="themeService.currentTheme().atmosphere.textMuted"
+    [style.letterSpacing]="'0.1em'"
+  >
     <div class="w-[180px] shrink-0">Nombre Empresa</div>
     <div class="flex flex-1 items-center gap-4 overflow-hidden">
       <div class="w-[200px] shrink-0">Email Contacto</div>
@@ -34,19 +40,6 @@
         [statusVariant]="client.status === 'Activo' ? 'success' : 'primary'"
       ></josanz-main-template-card>
     }
-  </div>
-
-  <!-- Paginación - Figma Image 7 -->
-  <div class="flex justify-end mt-12 mb-6">
-    <div class="bg-white border border-slate-100 rounded-lg p-1 flex items-center shadow-sm">
-      <button class="p-2 hover:bg-slate-50 rounded text-slate-400">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-      <span class="px-4 text-[13px] font-semibold text-slate-600">1 / 10</span>
-      <button class="p-2 hover:bg-slate-50 rounded text-slate-900">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-    </div>
   </div>
 
 </josanz-main-list-layout>

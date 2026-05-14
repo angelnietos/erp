@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import { josanzCornerField, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
@@ -26,7 +26,7 @@ export class PaginationComponent {
 
   @Output() pageChange = new EventEmitter<number>();
 
-  readonly cornerClass = (): string => josanzCornerInner(this.shape);
+  readonly cornerClass = (): string => josanzCornerField(this.shape);
 
   /** Página acotada a [1, total] cuando hay páginas. */
   get effectiveCurrent(): number {

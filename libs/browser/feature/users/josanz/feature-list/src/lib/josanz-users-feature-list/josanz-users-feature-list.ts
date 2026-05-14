@@ -1,6 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MainListLayoutComponent, MainTemplateCardComponent, BaseListComponent } from '@josanz-erp/josanz-ui';
+import {
+  MainListLayoutComponent,
+  MainTemplateCardComponent,
+  BaseListComponent,
+  JosanzThemeService,
+} from '@josanz-erp/josanz-ui';
 import { JosanzUserCreateComponent } from '../josanz-user-create/josanz-user-create';
 
 @Component({
@@ -11,6 +16,7 @@ import { JosanzUserCreateComponent } from '../josanz-user-create/josanz-user-cre
   styleUrl: './josanz-users-feature-list.css',
 })
 export class JosanzUsersListComponent extends BaseListComponent {
+  readonly themeService = inject(JosanzThemeService);
   showCreateModal = false;
 
   constructor() {

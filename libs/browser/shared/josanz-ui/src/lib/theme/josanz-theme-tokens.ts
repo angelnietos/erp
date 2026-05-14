@@ -218,6 +218,10 @@ export function applyJosanzThemeCssVariables(params: {
   root.style.setProperty('--josanz-text-muted', atmosphere.textMuted);
   root.style.setProperty('--josanz-border', atmosphere.border);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
+  root.style.setProperty(
+    '--josanz-card-shadow',
+    atmosphere.cardShadow ?? atmosphere.shadow,
+  );
   root.setAttribute('data-josanz-atmosphere', atmosphere.name);
   root.setAttribute('data-josanz-theme', themeName);
   document.body.style.backgroundColor = atmosphere.background;

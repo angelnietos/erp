@@ -44,11 +44,13 @@
   </div>
 
   <!-- Pagination -->
-  <div class="flex justify-end mt-6" *ngIf="paginationTotal > 0">
-    <josanz-pagination
-      [current]="effectivePaginationPage"
-      [total]="paginationTotal"
-      (pageChange)="onPaginationPage($event)"
-    ></josanz-pagination>
-  </div>
+  @if (paginationTotal > 0) {
+    <div class="flex justify-end mt-6">
+      <josanz-pagination
+        [current]="effectivePaginationPage"
+        [total]="paginationTotal"
+        (pageChange)="onPaginationPage($event)"
+      ></josanz-pagination>
+    </div>
+  }
 </div>

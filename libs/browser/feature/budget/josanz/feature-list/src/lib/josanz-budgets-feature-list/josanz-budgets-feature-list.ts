@@ -1,9 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  MainListLayoutComponent, 
-  MainTemplateCardComponent 
-} from '@josanz-erp/josanz-ui';
+import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-budgets-feature-list',
@@ -12,6 +9,7 @@ import {
   templateUrl: './josanz-budgets-feature-list.html',
 })
 export class JosanzBudgetsFeatureListComponent {
+  readonly themeService = inject(JosanzThemeService);
   title = 'Presupuestos';
   primaryBtnLabel = 'Añadir Presupuesto +';
   filterOptions = ['Todas', 'Borrador', 'Enviado', 'Aceptado', 'Rechazado'];
