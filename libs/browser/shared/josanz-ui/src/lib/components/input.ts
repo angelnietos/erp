@@ -2,7 +2,7 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { JosanzThemeService } from '../services/theme.service';
-import { JosanzControlShape } from '../josanz-control-styles';
+import type { JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-input',

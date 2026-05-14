@@ -44,7 +44,7 @@ import { ButtonComponent } from './button';
                 @for (atm of lightAtmospheres; track atm.name) {
                   <button 
                     (click)="themeService.setAtmosphere(atm.name)"
-                    [style.backgroundColor]="atm.color"
+                    [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
                     [title]="atm.label"
                     class="h-12 rounded-lg border-2 transition-all hover:opacity-80 cursor-pointer shadow-sm"
                     [style.borderColor]="themeService.currentTheme().atmosphere.name === atm.name ? themeService.currentTheme().primaryColor : 'transparent'"
@@ -63,7 +63,7 @@ import { ButtonComponent } from './button';
                 @for (atm of darkAtmospheres; track atm.name) {
                   <button 
                     (click)="themeService.setAtmosphere(atm.name)"
-                    [style.backgroundColor]="atm.color"
+                    [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
                     [title]="atm.label"
                     class="h-12 rounded-lg border-2 transition-all hover:opacity-80 cursor-pointer shadow-lg"
                     [style.borderColor]="themeService.currentTheme().atmosphere.name === atm.name ? 'white' : 'transparent'"
@@ -130,19 +130,19 @@ export class ThemeModalComponent {
 
   brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
 
-  lightAtmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
-    {name: 'luxe', color: '#F8FAFC', label: 'Luxe'},
-    {name: 'nature', color: '#DCFCE7', label: 'Nature'},
-    {name: 'ocean', color: '#E0F2FE', label: 'Ocean'},
-    {name: 'forest', color: '#D1E2C4', label: 'Forest'},
-    {name: 'sakura', color: '#FFE4E6', label: 'Sakura'}
+  lightAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
+    { name: 'luxe', label: 'Luxe' },
+    { name: 'nature', label: 'Nature' },
+    { name: 'ocean', label: 'Ocean' },
+    { name: 'forest', label: 'Forest' },
+    { name: 'sakura', label: 'Sakura' },
   ];
 
-  darkAtmospheres: {name: JosanzAtmosphereName, color: string, label: string}[] = [
-    {name: 'midnight', color: '#0F172A', label: 'Midnight'},
-    {name: 'cyberpunk', color: '#111111', label: 'Cyber'},
-    {name: 'industrial', color: '#27272A', label: 'Indus'},
-    {name: 'fire', color: '#7F1D1D', label: 'Fire'},
-    {name: 'sunset', color: '#7C2D12', label: 'Sunset'}
+  darkAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
+    { name: 'midnight', label: 'Midnight' },
+    { name: 'cyberpunk', label: 'Cyber' },
+    { name: 'industrial', label: 'Industrial' },
+    { name: 'fire', label: 'Fire' },
+    { name: 'sunset', label: 'Sunset' },
   ];
 }
