@@ -21,7 +21,6 @@ import {
     DocumentListComponent
   ],
   templateUrl: './josanz-client-detail.html',
-  styleUrl: './josanz-client-detail.css',
 })
 export class JosanzClientDetailComponent {
   private router = inject(Router);
