@@ -1,11 +1,17 @@
 <josanz-modal title="Cliente" [width]="'1188px'" (close)="onCancel()">
 
+  <!-- Top Right Label (Figma Style) -->
+  <div class="absolute top-8 right-24 text-[13px] font-semibold text-[#4A5568]" style="color: #4A5568;">
+    Gerencia y producción
+  </div>
+
   <!-- Tabs (Figma Style) -->
   <div class="client-detail-tabs" role="tablist">
+
     <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'datos'" (click)="setTab('datos')">Datos cliente</button>
     <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'operadores'" (click)="setTab('operadores')">Operadores</button>
     <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'presupuestos'" (click)="setTab('presupuestos')">Presupuestos</button>
-    <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'albaranes'" (click)="setTab('albaranes')">Albaranes</button>
+    <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'proveedores'" (click)="setTab('proveedores')">Proveedores</button>
     
     <span style="margin: 0 16px;"></span>
 
@@ -57,44 +63,107 @@
       </div>
     }
 
-    <!-- Tab: Presupuestos (Figma Base-3) -->
+    <!-- Tab: Presupuestos (Figma Style File Manager) -->
     @if (activeTab() === 'presupuestos') {
+      <div class="py-6 space-y-10">
+        <!-- Propios -->
+        <div class="space-y-4">
+          <h3 class="text-[20px] font-medium text-[#2E425A]">Propios</h3>
+          
+          <!-- Upload Area -->
+          <div class="border-2 border-dashed border-[#3182CE] rounded-lg p-3 bg-white flex items-center justify-center gap-3 text-[#3182CE] cursor-pointer hover:bg-blue-50 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span class="text-[14px]">Subir documentación</span>
+          </div>
+
+          <!-- File List -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+            @for (file of presupuestosPropios; track file; let last = $last) {
+              <div class="flex items-center justify-between p-4 px-6" [class.border-b]="!last" [class.border-[#E2E8F0]]="!last">
+                <div class="flex items-center gap-4">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></div>
+                  <span class="text-[14px] text-[#2D3748]">{{ file }}</span>
+                </div>
+                <button class="text-[#A0AEC0] hover:text-[#2D3748] transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Externos -->
+        <div class="space-y-4">
+          <h3 class="text-[20px] font-medium text-[#2E425A]">Externos</h3>
+          
+          <!-- Upload Area -->
+          <div class="border-2 border-dashed border-[#A0AEC0] rounded-lg p-3 bg-white flex items-center justify-center gap-3 text-[#718096] cursor-pointer hover:bg-gray-50 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span class="text-[14px]">Subir documentación</span>
+          </div>
+
+          <!-- File List -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+            @for (file of presupuestosExternos; track file; let last = $last) {
+              <div class="flex items-center justify-between p-4 px-6" [class.border-b]="!last" [class.border-[#E2E8F0]]="!last">
+                <div class="flex items-center gap-4">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></div>
+                  <span class="text-[14px] text-[#2D3748]">{{ file }}</span>
+                </div>
+                <button class="text-[#A0AEC0] hover:text-[#2D3748] transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab: Proveedores (antes Albaranes) -->
+    @if (activeTab() === 'proveedores') {
       <div class="py-4">
         <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[12px] font-semibold uppercase tracking-wider">
-          <div class="w-[180px] shrink-0">Nº Presupuesto</div>
-          <div class="w-[200px] shrink-0">Fecha Emisión</div>
-          <div class="flex-1">Total Impuestos Incl.</div>
+          <div class="w-[180px] shrink-0">ID Proveedor</div>
+          <div class="flex-1">Nombre Comercial</div>
           <div class="w-[120px] shrink-0 text-center">Estado</div>
         </div>
-        @for (p of presupuestos; track p.id) {
+        @for (prov of proveedores; track prov.id) {
           <josanz-main-template-card
-            [title]="p.id"
-            [data]="[p.fecha, p.total]"
-            [status]="p.status"
-            [statusVariant]="p.status === 'Aceptado' ? 'success' : 'primary'"
+            [title]="prov.id"
+            [data]="[prov.name]"
+            [status]="prov.status"
+            [statusVariant]="prov.status === 'Activo' ? 'success' : 'warning'"
           ></josanz-main-template-card>
         }
       </div>
     }
 
-    <!-- Tab: Albaranes (Figma Base-4) -->
-    @if (activeTab() === 'albaranes') {
-      <div class="py-4">
-        <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[12px] font-semibold uppercase tracking-wider">
-          <div class="w-[180px] shrink-0">Nº Albarán</div>
-          <div class="w-[200px] shrink-0">Fecha</div>
-          <div class="w-[250px] shrink-0">Proyecto</div>
-          <div class="flex-1">Operador</div>
-          <div class="w-[120px] shrink-0 text-center">Estado</div>
+    <!-- Tab: Facturas (Figma Style File Manager) -->
+    @if (activeTab() === 'facturas') {
+      <div class="py-6 space-y-10">
+        <div class="space-y-4">
+          <!-- Upload Area -->
+          <div class="border-2 border-dashed border-[#A0AEC0] rounded-lg p-3 bg-white flex items-center justify-center gap-3 text-[#718096] cursor-pointer hover:bg-gray-50 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span class="text-[14px]">Subir documentación</span>
+          </div>
+
+          <!-- File List -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm">
+            @for (file of facturas; track file; let last = $last) {
+              <div class="flex items-center justify-between p-4 px-6" [class.border-b]="!last" [class.border-[#E2E8F0]]="!last">
+                <div class="flex items-center gap-4">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></div>
+                  <span class="text-[14px] text-[#2D3748]">{{ file }}</span>
+                </div>
+                <button class="text-[#A0AEC0] hover:text-[#2D3748] transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+              </div>
+            }
+          </div>
         </div>
-        @for (alb of albaranes; track alb.id) {
-          <josanz-main-template-card
-            [title]="alb.id"
-            [data]="[alb.fecha, alb.proy, alb.op]"
-            [status]="alb.status"
-            [statusVariant]="alb.status === 'Facturado' ? 'success' : (alb.status === 'Firmado' ? 'primary' : 'warning')"
-          ></josanz-main-template-card>
-        }
       </div>
     }
 

@@ -7,7 +7,7 @@ import {
   MainTemplateCardComponent
 } from '@josanz-erp/josanz-ui';
 
-type ClientTab = 'datos' | 'operadores' | 'presupuestos' | 'albaranes' | 'facturas' | 'productos_eventos' | 'informes';
+type ClientTab = 'datos' | 'operadores' | 'presupuestos' | 'proveedores' | 'facturas' | 'productos_eventos' | 'informes';
 
 @Component({
   selector: 'lib-josanz-client-detail',
@@ -26,6 +26,25 @@ export class JosanzClientDetailComponent {
   @Output() modalClose = new EventEmitter<void>();
 
   activeTab = signal<ClientTab>('datos');
+
+  // Archivos para Presupuestos
+  presupuestosPropios = [
+    'Presupuesto01.pdf',
+    'Presupuesto02.pdf',
+    'Presupuesto03.pdf'
+  ];
+  presupuestosExternos = [
+    'Presupuesto01.pdf',
+    'Presupuesto02.pdf',
+    'Presupuesto03.pdf'
+  ];
+
+  // Archivos para Facturas
+  facturas = [
+    'Factura01.pdf',
+    'Factura02.pdf',
+    'Factura03.pdf'
+  ];
 
   // Datos para Eventos (Cards enriquecidas)
   eventos = [
@@ -54,16 +73,10 @@ export class JosanzClientDetailComponent {
     { name: 'Carlos Ruiz', role: 'Instalador', status: 'Ausente' }
   ];
 
-  // Datos para Presupuestos
-  presupuestos = [
-    { id: 'PR-2024-010', fecha: '14/05/2024', total: '4.500,00 €', status: 'Enviado' },
-    { id: 'PR-2024-011', fecha: '13/05/2024', total: '1.250,00 €', status: 'Aceptado' }
-  ];
-
-  // Datos para Albaranes
-  albaranes = [
-    { id: 'ALB-2024-001', fecha: '14/05/2024', proy: 'Reforma Local B', op: 'Juan Pérez', status: 'Firmado' },
-    { id: 'ALB-2024-002', fecha: '14/05/2024', proy: 'Mantenimiento', op: 'Ana Belén', status: 'Pendiente' }
+  // Datos para Proveedores (reemplazando Albaranes)
+  proveedores = [
+    { id: 'PROV-001', name: 'Suministros Industriales S.A.', status: 'Activo' },
+    { id: 'PROV-002', name: 'Mantenimiento Logístico', status: 'Inactivo' }
   ];
 
   setTab(tab: ClientTab) {
@@ -74,3 +87,4 @@ export class JosanzClientDetailComponent {
     this.modalClose.emit();
   }
 }
+
