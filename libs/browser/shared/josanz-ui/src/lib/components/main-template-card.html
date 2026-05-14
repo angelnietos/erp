@@ -29,12 +29,11 @@
       }
     </div>
 
-    <!-- Status badge (Right aligned) -->
+    <!-- Status badge (Figma Specs: 65x20px, 10px radius) -->
     <div class="w-[120px] flex justify-center shrink-0">
       <span
-        class="text-[12px] font-bold px-4 py-1.5 rounded-full leading-none shadow-sm transition-all inline-block"
-        [style.backgroundColor]="statusVariant === 'success' ? '#22C55E' : (statusVariant === 'warning' ? '#F59E0B' : (statusVariant === 'error' ? '#EF4444' : '#000000'))"
-        class="text-white"
+        class="text-[10px] font-bold rounded-[10px] w-[65px] h-[20px] flex items-center justify-center text-white shadow-sm transition-all"
+        [style.backgroundColor]="statusVariant === 'success' ? '#22C55E' : (statusVariant === 'warning' ? '#F59E0B' : (statusVariant === 'error' ? '#EF4444' : '#635BFF'))"
       >
         {{ status }}
       </span>
