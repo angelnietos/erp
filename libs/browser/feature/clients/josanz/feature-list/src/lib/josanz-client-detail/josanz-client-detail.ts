@@ -1,31 +1,33 @@
-import { Component, EventEmitter, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
-  ModalComponent,
   DetailCardComponent,
   ButtonComponent,
-  MainTemplateCardComponent
+  MainTemplateCardComponent,
+  MainDetailLayoutComponent
 } from '@josanz-erp/josanz-ui';
-
-type ClientTab = 'datos' | 'operadores' | 'presupuestos' | 'proveedores' | 'facturas' | 'productos_eventos' | 'informes';
 
 @Component({
   selector: 'lib-josanz-client-detail',
   standalone: true,
   imports: [
     CommonModule,
-    ModalComponent,
     DetailCardComponent,
     ButtonComponent,
-    MainTemplateCardComponent
+    MainTemplateCardComponent,
+    MainDetailLayoutComponent
   ],
   templateUrl: './josanz-client-detail.html',
   styleUrl: './josanz-client-detail.css',
 })
 export class JosanzClientDetailComponent {
+  private router = inject(Router);
   @Output() modalClose = new EventEmitter<void>();
 
-  activeTab = signal<ClientTab>('datos');
+  activeTab = signal<string>('Datos cliente');
+  tabs = ['Datos cliente', 'Operadores', 'Presupuestos', 'Proveedores', 'Facturas', 'Productos/eventos', 'Informes / reportes'];
+
 
   // Archivos para Presupuestos
   presupuestosPropios = [
@@ -79,12 +81,21 @@ export class JosanzClientDetailComponent {
     { id: 'PROV-002', name: 'Mantenimiento Logístico', status: 'Inactivo' }
   ];
 
-  setTab(tab: ClientTab) {
+  setTab(tab: string) {
     this.activeTab.set(tab);
   }
 
+  onBack() {
+    this.router.navigate(['/clients']);
+  }
+
+  onSave() {
+    console.log('Guardando cambios del cliente...');
+    this.onBack();
+  }
+
   onCancel() {
-    this.modalClose.emit();
+    this.onBack();
   }
 }
 

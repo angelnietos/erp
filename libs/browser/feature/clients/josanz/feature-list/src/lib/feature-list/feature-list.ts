@@ -1,5 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   MainListLayoutComponent,
   MainTemplateCardComponent,
@@ -24,8 +25,8 @@ import { JosanzClientDetailComponent } from '../josanz-client-detail/josanz-clie
 })
 export class JosanzClientsListComponent extends BaseListComponent {
   readonly themeService = inject(JosanzThemeService);
+  private router = inject(Router);
   showCreateModal = signal(false);
-  showDetailModal = signal(false);
 
   constructor() {
     super();
@@ -42,10 +43,7 @@ export class JosanzClientsListComponent extends BaseListComponent {
   }
 
   openDetail() {
-    this.showDetailModal.set(true);
-  }
-
-  onDetailClose() {
-    this.showDetailModal.set(false);
+    // Para prototipo usamos un ID cualquiera
+    this.router.navigate(['/clients/1']);
   }
 }

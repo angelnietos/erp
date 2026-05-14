@@ -8,4 +8,11 @@ export const josanzClientsRoutes: Route[] = [
         (m) => m.JosanzClientsListComponent
       ),
   },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('@josanz-erp/feature-list').then(
+        (m) => m.JosanzClientDetailComponent
+      ),
+  },
 ];

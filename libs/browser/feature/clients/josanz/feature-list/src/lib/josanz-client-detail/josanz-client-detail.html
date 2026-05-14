@@ -1,29 +1,22 @@
-<josanz-modal title="Cliente" [width]="'1188px'" (close)="onCancel()">
-
-  <!-- Top Right Label (Figma Style) -->
-  <div class="absolute top-8 right-24 text-[13px] font-semibold" style="color: #5850EC;">
+<josanz-main-detail-layout 
+  title="Cliente" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  
+  <!-- Header Actions Slot -->
+  <div header-actions class="text-[13px] font-semibold text-[#5850EC] pr-4">
     Gerencia y producción
   </div>
 
-  <!-- Tabs (Figma Style) -->
-  <div class="client-detail-tabs" role="tablist">
-
-    <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'datos'" (click)="setTab('datos')">Datos cliente</button>
-    <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'operadores'" (click)="setTab('operadores')">Operadores</button>
-    <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'presupuestos'" (click)="setTab('presupuestos')">Presupuestos</button>
-    <button type="button" role="tab" class="client-detail-tab" [class.client-detail-tab--active]="activeTab() === 'proveedores'" (click)="setTab('proveedores')">Proveedores</button>
+  <div class="client-detail-content">
     
-    <span style="margin: 0 16px;"></span>
-
-    <button type="button" role="tab" class="client-detail-tab client-detail-tab--inactive" [class.client-detail-tab--active]="activeTab() === 'facturas'" (click)="setTab('facturas')">Facturas</button>
-    <button type="button" role="tab" class="client-detail-tab client-detail-tab--inactive" [class.client-detail-tab--active]="activeTab() === 'productos_eventos'" (click)="setTab('productos_eventos')">Productos/eventos</button>
-    <button type="button" role="tab" class="client-detail-tab client-detail-tab--inactive" [class.client-detail-tab--active]="activeTab() === 'informes'" (click)="setTab('informes')">Informes / reportes</button>
-  </div>
-
-  <div class="client-detail-content min-h-[400px]">
-    
-    <!-- Tab: Datos cliente (Figma Base-1) -->
-    @if (activeTab() === 'datos') {
+    <!-- Tab: Datos cliente -->
+    @if (activeTab() === 'Datos cliente') {
       <div class="grid grid-cols-2 gap-8 py-4">
         <div class="space-y-6">
           <div class="text-[14px] text-[#989898] font-medium uppercase">Información General</div>
@@ -43,8 +36,8 @@
       </div>
     }
 
-    <!-- Tab: Operadores (Figma Base-2) -->
-    @if (activeTab() === 'operadores') {
+    <!-- Tab: Operadores -->
+    @if (activeTab() === 'Operadores') {
       <div class="py-4">
         <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[12px] font-semibold uppercase tracking-wider">
           <div class="w-[180px] shrink-0">Nombre Operario</div>
@@ -63,20 +56,18 @@
       </div>
     }
 
-    <!-- Tab: Presupuestos (Figma Style File Manager) -->
-    @if (activeTab() === 'presupuestos') {
+    <!-- Tab: Presupuestos -->
+    @if (activeTab() === 'Presupuestos') {
       <div class="py-6 space-y-10">
         <!-- Propios -->
         <div class="presupuestos-container">
           <h3 class="section-title">Propios</h3>
           
-          <!-- Upload Area -->
           <div class="upload-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             <span>Subir documentación</span>
           </div>
 
-          <!-- File List -->
           <div class="docs-list shadow-sm">
             @for (file of presupuestosPropios; track file) {
               <div class="doc-item">
@@ -96,13 +87,11 @@
         <div class="presupuestos-container">
           <h3 class="section-title">Externos</h3>
           
-          <!-- Upload Area -->
           <div class="upload-btn" style="border-color: #A0AEC0; color: #718096;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             <span>Subir documentación</span>
           </div>
 
-          <!-- File List -->
           <div class="docs-list shadow-sm">
             @for (file of presupuestosExternos; track file) {
               <div class="doc-item">
@@ -120,8 +109,8 @@
       </div>
     }
 
-    <!-- Tab: Proveedores (antes Albaranes) -->
-    @if (activeTab() === 'proveedores') {
+    <!-- Tab: Proveedores -->
+    @if (activeTab() === 'Proveedores') {
       <div class="py-4">
         <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[12px] font-semibold uppercase tracking-wider">
           <div class="w-[180px] shrink-0">ID Proveedor</div>
@@ -139,17 +128,15 @@
       </div>
     }
 
-    <!-- Tab: Facturas (Figma Style File Manager) -->
-    @if (activeTab() === 'facturas') {
+    <!-- Tab: Facturas -->
+    @if (activeTab() === 'Facturas') {
       <div class="py-6 space-y-10">
         <div class="presupuestos-container">
-          <!-- Upload Area -->
           <div class="upload-btn" style="border-color: #A0AEC0; color: #718096;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
             <span>Subir documentación</span>
           </div>
 
-          <!-- File List -->
           <div class="docs-list shadow-sm">
             @for (file of facturas; track file) {
               <div class="doc-item">
@@ -167,8 +154,8 @@
       </div>
     }
 
-    <!-- Tab: Productos/Eventos (Restored) -->
-    @if (activeTab() === 'productos_eventos') {
+    <!-- Tab: Productos/eventos -->
+    @if (activeTab() === 'Productos/eventos') {
       <div class="space-y-6 py-4">
         @for (evento of eventos; track evento.title) {
           <lib-detail-card
@@ -183,12 +170,13 @@
       </div>
     }
 
+    <!-- Tab: Informes / reportes -->
+    @if (activeTab() === 'Informes / reportes') {
+      <div class="py-10 text-center text-[#989898]">
+        No hay informes disponibles para este cliente.
+      </div>
+    }
+
   </div>
 
-  <!-- Footer Actions -->
-  <div footer-actions style="display:flex; align-items:center; justify-content:flex-end; gap:32px; width:100%;">
-    <josanz-button label="Cancelar" variant="ghost" size="lg" [showIcon]="false" (btnClick)="onCancel()"></josanz-button>
-    <josanz-button label="Guardar cambios" size="lg" [showIcon]="false" (btnClick)="onCancel()"></josanz-button>
-  </div>
-
-</josanz-modal>
+</josanz-main-detail-layout>
