@@ -17,10 +17,11 @@ import { josanzCornerModal, type JosanzControlShape } from '../josanz-control-st
         <!-- Close Button -->
         <button
           type="button"
-          (click)="onClose()"
-          class="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 transition-colors z-20 opacity-60 hover:opacity-100"
+          (click)="onClose($event)"
+          class="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 transition-all z-[60] opacity-60 hover:opacity-100 cursor-pointer"
+          aria-label="Cerrar modal"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-900">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-900 pointer-events-none">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -70,7 +71,11 @@ export class ModalComponent {
     return `bg-white rounded-[24px] shadow-2xl flex flex-col relative overflow-hidden`;
   }
 
-  onClose() {
+  onClose(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.close.emit();
   }
 }
