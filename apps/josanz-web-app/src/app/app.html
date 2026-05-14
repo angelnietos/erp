@@ -1,10 +1,8 @@
-<div class="flex min-h-screen">
-  
-  <!-- Sidebar Global -->
+<div class="flex h-screen min-h-0 overflow-hidden">
+  <!-- Altura fija al viewport: el scroll va solo al main (sidebar llena el alto como en Figma) -->
   <josanz-sidebar></josanz-sidebar>
 
-  <!-- Main Content Area -->
-  <main class="flex-1 p-8 md:p-12 overflow-y-auto">
+  <main class="flex-1 min-h-0 overflow-y-auto p-8 md:p-12">
     <router-outlet></router-outlet>
   </main>
 
