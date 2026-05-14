@@ -57,11 +57,11 @@ export class FilterTabsComponent implements OnInit, OnChanges {
 
   buttonClass(option: string): string {
     const r = josanzCornerInner(this.shape);
-    const base = `w-[120px] h-[25px] ${r} border-none flex items-center justify-center text-[13px] font-medium transition-all cursor-pointer outline-none`;
+    const base = `w-[120px] h-[25px] ${r} flex items-center justify-center text-[13px] font-medium transition-[box-shadow,transform,color,background-color] cursor-pointer outline-none`;
     if (this.active === option) {
-      return `${base} shadow-[0px_10px_20px_0px_rgba(163,163,163,0.3)]`;
+      return `${base} border-none`;
     }
-    return `${base} hover:brightness-[0.97]`;
+    return `${base} border border-solid hover:brightness-[0.99]`;
   }
 
   pillStyles(option: string): Record<string, string> {
@@ -73,14 +73,16 @@ export class FilterTabsComponent implements OnInit, OnChanges {
           backgroundColor: `color-mix(in srgb, ${this.customColor} 16%, white)`,
         };
       }
+      // Figma Base-1: pestaña activa #DDECFF, texto oscuro
       return {
-        color: theme.primaryColor,
-        backgroundColor: `color-mix(in srgb, ${theme.primaryColor} 22%, ${theme.atmosphere.surface})`,
+        color: '#080808',
+        backgroundColor: '#DDECFF',
       };
     }
     return {
       color: theme.atmosphere.textMuted,
       backgroundColor: theme.atmosphere.surface,
+      borderColor: theme.atmosphere.border,
     };
   }
 }

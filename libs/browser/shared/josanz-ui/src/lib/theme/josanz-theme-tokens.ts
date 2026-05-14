@@ -48,11 +48,11 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   luxe: {
     name: 'luxe',
-    background: '#E2E8F0',
+    background: '#FEFEFE',
     surface: '#FFFFFF',
-    text: '#0F172A',
-    textMuted: '#64748B',
-    border: '#CBD5E1',
+    text: '#080808',
+    textMuted: '#2E425A',
+    border: '#E7EDF1',
     shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
   },
   midnight: {

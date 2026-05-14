@@ -3,8 +3,18 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'clients',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./pages/josanz-dashboard-inicio.component').then((m) => m.JosanzDashboardInicioComponent),
+  },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./pages/josanz-settings-placeholder.component').then((m) => m.JosanzSettingsPlaceholderComponent),
   },
   {
     path: 'clients',
