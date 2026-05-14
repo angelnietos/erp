@@ -19,6 +19,7 @@ export class SecondaryButtonComponent {
   @Input() shape: JosanzControlShape = 'rounded';
   /** Color del texto y del icono (SVG usa `currentColor`). */
   @Input() customColor?: string;
+  @Input() fullWidth = false;
   @Output() btnClick = new EventEmitter<void>();
 
   readonly cornerClass = (): string => josanzCornerField(this.shape);

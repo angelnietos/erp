@@ -9,16 +9,16 @@ import { ButtonComponent } from './button';
   standalone: true,
   imports: [CommonModule, ModalComponent, ButtonComponent],
   template: `
-    <josanz-modal title="Personalización Josanz" width="900px" (close)="modalClose.emit()">
+    <josanz-modal title="Personalización Josanz" width="min(900px, 95vw)" (close)="modalClose.emit()">
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 py-4">
+      <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 py-4">
         
         <!-- Left Column: Branding & Shapes -->
-        <div class="space-y-12">
+        <div class="w-full lg:w-[300px] space-y-10 lg:space-y-12">
           <section>
             <h3 class="premium-label">Color de Marca</h3>
             <p class="premium-desc">Define la identidad visual primaria del ERP.</p>
-            <div class="grid grid-cols-4 gap-3 mt-6">
+            <div class="grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-4 gap-3 mt-6">
               @for (color of brandingColors; track color) {
                 <button 
                   (click)="themeService.setPrimaryColor(color)"
@@ -40,7 +40,7 @@ import { ButtonComponent } from './button';
           <section>
             <h3 class="premium-label">Estilo de Formas</h3>
             <p class="premium-desc">Geometría de botones y contenedores.</p>
-            <div class="flex flex-col gap-3 mt-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-col gap-3 mt-6">
               <button 
                 (click)="themeService.setTheme('luxe-rounded')"
                 class="shape-selector"
@@ -70,12 +70,12 @@ import { ButtonComponent } from './button';
         </div>
 
         <!-- Right Columns: Atmospheres -->
-        <div class="md:col-span-2 space-y-12">
+        <div class="flex-1 space-y-10 lg:space-y-12">
           <section>
             <h3 class="premium-label">Atmósferas Visuales</h3>
             <p class="premium-desc">Cambia radicalmente el entorno de trabajo.</p>
             
-            <div class="grid grid-cols-2 gap-4 mt-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-8">
               @for (atm of allAtmospheres; track atm.name) {
                 <button 
                   (click)="themeService.setAtmosphere(atm.name)"

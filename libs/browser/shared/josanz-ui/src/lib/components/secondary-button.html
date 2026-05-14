@@ -2,6 +2,7 @@
   type="button"
   (click)="onClick()"
   class="h-[36px] px-[16px] flex items-center justify-center gap-[8px] transition-[filter,transform] duration-200 hover:brightness-[0.99] active:scale-[0.98] shadow-[0px_2px_8px_0px_rgba(231,237,241,0.9)] border border-solid cursor-pointer group"
+  [class.w-full]="fullWidth"
   [ngClass]="cornerClass()"
   [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
   [style.borderColor]="themeService.currentTheme().atmosphere.border"

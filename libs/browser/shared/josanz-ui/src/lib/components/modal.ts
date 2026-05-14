@@ -17,6 +17,11 @@ import type { JosanzControlShape } from '../josanz-control-styles';
         class="max-md:h-[95vh] max-md:rounded-t-[32px] max-md:rounded-b-none"
         [style.maxHeight]="'95vh'"
       >
+        <!-- Mobile Drag Handle -->
+        <div class="md:hidden w-full flex justify-center pt-3 pb-1">
+          <div class="w-12 h-1.5 rounded-full bg-[var(--josanz-border)] opacity-40"></div>
+        </div>
+
         <!-- Close Button -->
         <button
           type="button"
