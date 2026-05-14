@@ -1,125 +1,147 @@
 <div
-  class="flex flex-1 min-h-0 h-full flex-col items-center transition-all duration-300 relative z-[100] w-[64px] shrink-0 border-r"
+  class="flex flex-1 min-h-0 h-full flex-col items-center transition-all duration-300 relative z-[100] w-[68px] shrink-0 border-r"
   [style.backgroundColor]="'var(--josanz-surface)'"
   [style.borderColor]="'var(--josanz-border)'"
   [style.boxShadow]="'var(--josanz-shadow)'"
-  [style.backdropFilter]="themeService.currentTheme().atmosphere.glass ? 'blur(12px)' : 'none'"
+  [style.backdropFilter]="themeService.currentTheme().atmosphere.glass ? 'blur(16px)' : 'none'"
   [style.background]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
 >
 
-  <!-- Logo Section (Figma Exact: 21x28px, 39px top) -->
-  <div class="flex items-center justify-center w-full" style="margin-top: 39px; margin-bottom: 48px;">
-    <div class="flex items-center justify-center cursor-pointer" style="width: 21px; height: 28px;">
-      <img src="/logo.png" alt="Josanz Logo" style="width: 21px; height: 28px; object-fit: contain;">
+  <!-- Logo Section -->
+  <div class="flex items-center justify-center w-full" style="margin-top: 32px; margin-bottom: 40px;">
+    <div class="flex items-center justify-center cursor-pointer transition-transform duration-300 hover:scale-110 active:scale-95" style="width: 24px; height: 32px;">
+      <img src="/logo.png" alt="Josanz Logo" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0,0,0,0.1));">
     </div>
   </div>
 
-  <!-- Navigation Links (Figma Precise Set) -->
-  <nav class="flex flex-col gap-10 w-full flex-1 items-center overflow-hidden">
+  <!-- Navigation Links -->
+  <nav class="flex flex-col gap-8 w-full flex-1 items-center overflow-hidden">
     
-    <!-- Home (Exact Figma Shape) -->
+    <!-- Home -->
     <a routerLink="/dashboard" routerLinkActive="active-link" title="Inicio"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12l9-9 9 9M5 10v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9" />
-      </svg>
-      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+       class="w-full h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="'var(--josanz-text-muted)'">
+      <div class="nav-icon-container transition-transform duration-200 group-hover:scale-110 group-active:scale-90 group-hover:text-[var(--josanz-accent)]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12l9-9 9 9M5 10v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9" />
+        </svg>
+      </div>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100" 
+           [style.backgroundColor]="'var(--josanz-accent)'"
+           [style.boxShadow]="'0 0 10px var(--josanz-accent)'"></div>
     </a>
 
-    <!-- Clientes (empresas / cartera) -->
+    <!-- Clientes -->
     <a routerLink="/clients" routerLinkActive="active-link" title="Clientes"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-        <path d="M10 6h4M10 10h4M10 14h4M10 18h4" />
-      </svg>
-      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+       class="w-full h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="'var(--josanz-text-muted)'">
+      <div class="nav-icon-container transition-transform duration-200 group-hover:scale-110 group-active:scale-90 group-hover:text-[var(--josanz-accent)]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+          <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+          <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+          <path d="M10 6h4M10 10h4M10 14h4M10 18h4" />
+        </svg>
+      </div>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100" 
+           [style.backgroundColor]="'var(--josanz-accent)'"
+           [style.boxShadow]="'0 0 10px var(--josanz-accent)'"></div>
     </a>
 
-    <!-- Usuarios del sistema -->
+    <!-- Usuarios -->
     <a routerLink="/users" routerLinkActive="active-link" title="Usuarios"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+       class="w-full h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="'var(--josanz-text-muted)'">
+      <div class="nav-icon-container transition-transform duration-200 group-hover:scale-110 group-active:scale-90 group-hover:text-[var(--josanz-accent)]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      </div>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100" 
+           [style.backgroundColor]="'var(--josanz-accent)'"
+           [style.boxShadow]="'0 0 10px var(--josanz-accent)'"></div>
     </a>
 
     <!-- Albaranes -->
     <a routerLink="/delivery-notes" routerLinkActive="active-link" title="Albaranes"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2" />
-        <path d="M15 18H9" />
-        <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
-        <circle cx="17" cy="18" r="2" />
-        <circle cx="7" cy="18" r="2" />
-      </svg>
-      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+       class="w-full h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="'var(--josanz-text-muted)'">
+      <div class="nav-icon-container transition-transform duration-200 group-hover:scale-110 group-active:scale-90 group-hover:text-[var(--josanz-accent)]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2" />
+          <path d="M15 18H9" />
+          <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+          <circle cx="17" cy="18" r="2" />
+          <circle cx="7" cy="18" r="2" />
+        </svg>
+      </div>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100" 
+           [style.backgroundColor]="'var(--josanz-accent)'"
+           [style.boxShadow]="'0 0 10px var(--josanz-accent)'"></div>
     </a>
 
     <!-- Presupuestos -->
     <a routerLink="/budgets" routerLinkActive="active-link" title="Presupuestos"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-        <path d="M10 9H8M16 13H8M16 17H8" />
-      </svg>
-      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+       class="w-full h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="'var(--josanz-text-muted)'">
+      <div class="nav-icon-container transition-transform duration-200 group-hover:scale-110 group-active:scale-90 group-hover:text-[var(--josanz-accent)]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+          <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+          <path d="M10 9H8M16 13H8M16 17H8" />
+        </svg>
+      </div>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100" 
+           [style.backgroundColor]="'var(--josanz-accent)'"
+           [style.boxShadow]="'0 0 10px var(--josanz-accent)'"></div>
     </a>
 
     <!-- Stock -->
     <a routerLink="/stock" routerLinkActive="active-link" title="Stock"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="m7.5 4.27 9 5.15" />
-        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-        <path d="m3.3 7 8.7 5 8.7-5M12 22V12" />
-      </svg>
-      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+       class="w-full h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="'var(--josanz-text-muted)'">
+      <div class="nav-icon-container transition-transform duration-200 group-hover:scale-110 group-active:scale-90 group-hover:text-[var(--josanz-accent)]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m7.5 4.27 9 5.15" />
+          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+          <path d="m3.3 7 8.7 5 8.7-5M12 22V12" />
+        </svg>
+      </div>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100" 
+           [style.backgroundColor]="'var(--josanz-accent)'"
+           [style.boxShadow]="'0 0 10px var(--josanz-accent)'"></div>
     </a>
 
-    <!-- Sparkle Theme (Exact Figma Shape) -->
+  </nav>
+
+  <!-- Bottom Section -->
+  <div class="flex flex-col items-center gap-6 w-full py-8 border-t" [style.borderColor]="'var(--josanz-border)'">
+    
+    <!-- Theme Switcher -->
     <button (click)="openThemeSettings()" title="Personalizar"
-       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+       class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[var(--josanz-accent)]"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3l1.5 5.5l5.5 1.5l-5.5 1.5l-1.5 5.5l-1.5-5.5l-5.5-1.5l5.5-1.5z" />
         <path d="M18 6l.01 0M18 18l.01 0M6 18l.01 0" stroke-width="2.5" />
       </svg>
     </button>
 
-  </nav>
-
-  <!-- Bottom Section -->
-  <div class="flex flex-col items-center gap-10 w-full py-12 border-t" [style.borderColor]="themeService.currentTheme().atmosphere.border">
-    
     <!-- Settings -->
     <a routerLink="/settings" title="Ajustes" 
-       class="transition-all duration-200 cursor-pointer"
-       [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+       class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[var(--josanz-accent)]">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
       </svg>
     </a>
 
     <!-- Logout -->
-    <div title="Cerrar sesión" class="transition-all duration-200 cursor-pointer"
-         [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <div title="Cerrar sesión" class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[#EF4444]">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 8v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2" />
         <path d="M9 12h12l-3-3m0 6l3-3" />
       </svg>

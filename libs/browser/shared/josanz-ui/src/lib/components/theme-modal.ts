@@ -9,133 +9,188 @@ import { ButtonComponent } from './button';
   standalone: true,
   imports: [CommonModule, ModalComponent, ButtonComponent],
   template: `
-    <josanz-modal title="Personalización del Sistema" width="800px" (close)="modalClose.emit()">
+    <josanz-modal title="Personalización Josanz" width="900px" (close)="modalClose.emit()">
       
-      <div class="space-y-12 py-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 py-4">
         
-        <!-- Branding Color -->
-        <section>
-          <h3
-            class="text-[12px] font-bold uppercase tracking-widest mb-4"
-            [style.color]="themeService.currentTheme().atmosphere.textMuted"
-          >Color de Marca (Branding)</h3>
-          <div class="flex flex-wrap gap-4">
-            @for (color of brandingColors; track color) {
+        <!-- Left Column: Branding & Shapes -->
+        <div class="space-y-12">
+          <section>
+            <h3 class="premium-label">Color de Marca</h3>
+            <p class="premium-desc">Define la identidad visual primaria del ERP.</p>
+            <div class="grid grid-cols-4 gap-3 mt-6">
+              @for (color of brandingColors; track color) {
+                <button 
+                  (click)="themeService.setPrimaryColor(color)"
+                  [style.backgroundColor]="color"
+                  class="w-full aspect-square rounded-xl border-4 transition-all hover:scale-110 active:scale-90 shadow-lg cursor-pointer relative"
+                  [style.borderColor]="themeService.currentTheme().primaryColor === color ? 'white' : 'transparent'"
+                  [style.boxShadow]="themeService.currentTheme().primaryColor === color ? '0 0 15px ' + color : 'none'"
+                >
+                  @if (themeService.currentTheme().primaryColor === color) {
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                  }
+                </button>
+              }
+            </div>
+          </section>
+
+          <section>
+            <h3 class="premium-label">Estilo de Formas</h3>
+            <p class="premium-desc">Geometría de botones y contenedores.</p>
+            <div class="flex flex-col gap-3 mt-6">
               <button 
-                (click)="themeService.setPrimaryColor(color)"
-                [style.backgroundColor]="color"
-                class="w-10 h-10 rounded-full border-4 transition-all hover:scale-110 active:scale-95 shadow-md cursor-pointer"
-                [style.borderColor]="themeService.currentTheme().primaryColor === color ? 'white' : 'transparent'"
-                [style.boxShadow]="themeService.currentTheme().primaryColor === color ? '0 0 0 2px ' + color : 'none'"
-                [attr.aria-label]="'Seleccionar color ' + color"
+                (click)="themeService.setTheme('luxe-rounded')"
+                class="shape-selector"
+                [class.active]="themeService.currentTheme().name === 'luxe-rounded'"
               >
-                <span class="sr-only">Color {{ color }}</span>
+                <div class="w-8 h-8 rounded-lg bg-[var(--josanz-primary)]"></div>
+                <span>Modern Rounded</span>
               </button>
-            }
-          </div>
-        </section>
-
-        <!-- Atmospheres -->
-        <section>
-          <h3
-            class="text-[12px] font-bold uppercase tracking-widest mb-4"
-            [style.color]="themeService.currentTheme().atmosphere.textMuted"
-          >Atmósfera del Entorno</h3>
-          
-          <div class="grid grid-cols-2 gap-6">
-            <!-- Light Modes -->
-            <div class="space-y-3">
-              <span
-                class="text-[11px] font-semibold"
-                [style.color]="themeService.currentTheme().atmosphere.textMuted"
-                >Modos Claros</span>
-              <div class="grid grid-cols-5 gap-2">
-                @for (atm of lightAtmospheres; track atm.name) {
-                  <button 
-                    (click)="themeService.setAtmosphere(atm.name)"
-                    [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
-                    [title]="atm.label"
-                    class="h-12 rounded-lg border-2 transition-all hover:opacity-80 cursor-pointer shadow-sm ring-1 ring-slate-900/10"
-                    [style.borderColor]="themeService.currentTheme().atmosphere.name === atm.name ? themeService.currentTheme().primaryColor : 'transparent'"
-                    [attr.aria-label]="'Atmósfera ' + atm.label"
-                  >
-                    <span class="sr-only">{{ atm.label }}</span>
-                  </button>
-                }
-              </div>
+              <button 
+                (click)="themeService.setTheme('luxe-pill')"
+                class="shape-selector"
+                [class.active]="themeService.currentTheme().name === 'luxe-pill'"
+              >
+                <div class="w-8 h-8 rounded-full bg-[var(--josanz-primary)]"></div>
+                <span>Premium Pill</span>
+              </button>
+              <button 
+                (click)="themeService.setTheme('luxe-sharp')"
+                class="shape-selector"
+                [class.active]="themeService.currentTheme().name === 'luxe-sharp'"
+              >
+                <div class="w-8 h-8 rounded-none bg-[var(--josanz-primary)]"></div>
+                <span>Classic Sharp</span>
+              </button>
             </div>
+          </section>
+        </div>
 
-            <!-- Dark Modes -->
-            <div class="space-y-3">
-              <span
-                class="text-[11px] font-semibold"
-                [style.color]="themeService.currentTheme().atmosphere.textMuted"
-                >Modos Oscuros</span>
-              <div class="grid grid-cols-5 gap-2">
-                @for (atm of darkAtmospheres; track atm.name) {
-                  <button 
-                    (click)="themeService.setAtmosphere(atm.name)"
-                    [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
-                    [title]="atm.label"
-                    class="h-12 rounded-lg border-2 transition-all hover:opacity-80 cursor-pointer shadow-lg"
-                    [style.borderColor]="themeService.currentTheme().atmosphere.name === atm.name ? 'white' : 'transparent'"
-                    [attr.aria-label]="'Atmósfera ' + atm.label"
-                  >
-                    <span class="sr-only">{{ atm.label }}</span>
-                  </button>
-                }
-              </div>
+        <!-- Right Columns: Atmospheres -->
+        <div class="md:col-span-2 space-y-12">
+          <section>
+            <h3 class="premium-label">Atmósferas Visuales</h3>
+            <p class="premium-desc">Cambia radicalmente el entorno de trabajo.</p>
+            
+            <div class="grid grid-cols-2 gap-4 mt-8">
+              @for (atm of allAtmospheres; track atm.name) {
+                <button 
+                  (click)="themeService.setAtmosphere(atm.name)"
+                  class="atmosphere-card group"
+                  [class.active]="themeService.currentTheme().atmosphere.name === atm.name"
+                  [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
+                >
+                  <div class="atmosphere-preview">
+                     <div class="preview-line w-1/2"></div>
+                     <div class="preview-line w-3/4 opacity-50"></div>
+                     <div class="preview-dot" [style.backgroundColor]="'var(--josanz-accent)'"></div>
+                  </div>
+                  <div class="mt-auto flex items-center justify-between w-full">
+                    <span class="font-bold text-[14px]">{{ atm.label }}</span>
+                    @if (themeService.currentTheme().atmosphere.name === atm.name) {
+                      <div class="w-2 h-2 rounded-full bg-[var(--josanz-accent)] glow-accent"></div>
+                    }
+                  </div>
+                </button>
+              }
             </div>
-          </div>
-        </section>
-
-        <!-- Visual Style -->
-        <section>
-          <h3
-            class="text-[12px] font-bold uppercase tracking-widest mb-4"
-            [style.color]="themeService.currentTheme().atmosphere.textMuted"
-          >Estilo Visual (Componentes)</h3>
-          <div class="flex gap-4">
-            <josanz-button 
-              label="Modern (Rounded)" 
-              [variant]="themeService.currentTheme().name === 'luxe-rounded' ? 'primary' : 'outline'"
-              (btnClick)="themeService.setTheme('luxe-rounded')"
-              shape="rounded"
-            ></josanz-button>
-            <josanz-button 
-              label="Sharp (Square)" 
-              [variant]="themeService.currentTheme().name === 'luxe-sharp' ? 'primary' : 'outline'"
-              (btnClick)="themeService.setTheme('luxe-sharp')"
-              shape="square"
-            ></josanz-button>
-            <josanz-button 
-              label="Pill (Round)" 
-              [variant]="themeService.currentTheme().name === 'luxe-pill' ? 'primary' : 'outline'"
-              (btnClick)="themeService.setTheme('luxe-pill')"
-              shape="pill"
-            ></josanz-button>
-          </div>
-        </section>
+          </section>
+        </div>
 
       </div>
 
-      <div footer-actions>
-        <josanz-button label="Finalizar" variant="primary" (btnClick)="modalClose.emit()"></josanz-button>
+      <div footer-actions class="w-full flex justify-end">
+        <josanz-button label="Aplicar Cambios" variant="primary" size="lg" (btnClick)="modalClose.emit()"></josanz-button>
       </div>
 
     </josanz-modal>
   `,
   styles: [`
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
+    .premium-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--josanz-text-muted);
+      margin-bottom: 4px;
+    }
+    .premium-desc {
+      font-size: 13px;
+      color: var(--josanz-text-muted);
+      opacity: 0.7;
+    }
+    .shape-selector {
+      display: flex;
+      items-center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 2px solid var(--josanz-border);
+      background: var(--josanz-bg);
+      transition: all 0.2s;
+      cursor: pointer;
+      text-align: left;
+      font-weight: 600;
+      color: var(--josanz-text);
+    }
+    .shape-selector:hover {
+      border-color: var(--josanz-primary);
+      transform: translateX(4px);
+    }
+    .shape-selector.active {
+      border-color: var(--josanz-primary);
+      background: color-mix(in srgb, var(--josanz-primary) 10%, transparent);
+    }
+    .atmosphere-card {
+      height: 140px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 2px solid var(--josanz-border);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
       overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border-width: 0;
+      color: var(--josanz-text);
+    }
+    .atmosphere-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border-color: var(--josanz-accent);
+    }
+    .atmosphere-card.active {
+      border-color: var(--josanz-accent);
+      box-shadow: 0 0 0 2px var(--josanz-accent);
+    }
+    .atmosphere-preview {
+      width: 100%;
+      height: 60px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .preview-line {
+      height: 4px;
+      border-radius: 2px;
+      background: currentColor;
+      opacity: 0.2;
+    }
+    .preview-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      margin-top: auto;
+    }
+    .glow-accent {
+      box-shadow: 0 0 10px var(--josanz-accent);
     }
   `]
 })
@@ -145,21 +200,18 @@ export class ThemeModalComponent {
 
   brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
 
-  lightAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
-    { name: 'neutral', label: 'Neutral' },
-    { name: 'ubisoft', label: 'Ubisoft' },
-    { name: 'nintendo', label: 'Nintendo' },
-    { name: 'rayman', label: 'Rayman' },
-    { name: 'ocean', label: 'Ocean' },
-    { name: 'forest', label: 'Forest' },
-  ];
-
-  darkAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
-    { name: 'rockstar', label: 'Rockstar' },
-    { name: 'easports', label: 'EA Sports' },
-    { name: 'cyberpunk', label: 'Cyberpunk' },
-    { name: 'midnight', label: 'Midnight' },
-    { name: 'industrial', label: 'Industrial' },
-    { name: 'sunset', label: 'Sunset' },
+  allAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
+    { name: 'neutral', label: 'Neutral White' },
+    { name: 'ubisoft', label: 'Ubisoft Blue' },
+    { name: 'nintendo', label: 'Nintendo Red' },
+    { name: 'rayman', label: 'Rayman Magic' },
+    { name: 'rockstar', label: 'Rockstar Gold' },
+    { name: 'easports', label: 'EA Sports Grid' },
+    { name: 'cyberpunk', label: 'Cyber Neon' },
+    { name: 'midnight', label: 'Midnight Deep' },
+    { name: 'ocean', label: 'Ocean Pacific' },
+    { name: 'forest', label: 'Forest Green' },
+    { name: 'sunset', label: 'Sunset Orange' },
+    { name: 'industrial', label: 'Industrial Steel' },
   ];
 }

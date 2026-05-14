@@ -1,84 +1,62 @@
 <nav
-  class="josanz-mobile-tab-bar"
-  [style.backgroundColor]="app.tabBarFill"
-  [style.height.px]="app.tabBarHeight"
-  [style.borderTopColor]="theme.currentTheme().atmosphere.border"
+  class="josanz-mobile-tab-bar border-t transition-all duration-300"
+  [style.backgroundColor]="theme.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
+  [style.backdropFilter]="theme.currentTheme().atmosphere.glass ? 'blur(20px)' : 'none'"
+  [style.borderColor]="'var(--josanz-border)'"
+  [style.boxShadow]="'0 -10px 30px rgba(0,0,0,0.1)'"
   aria-label="Navegación principal"
 >
   <div
-    class="flex flex-1 items-end justify-between gap-1 px-3 pt-2"
-    [style.paddingBottom]="'max(10px, env(safe-area-inset-bottom, 0px))'"
+    class="flex flex-1 items-center justify-between px-6 py-2"
+    [style.paddingBottom]="'max(16px, env(safe-area-inset-bottom, 0px))'"
   >
     @for (tab of tabs; track tab.path) {
       @if (tab.prominent) {
         <a
           [routerLink]="tab.path"
-          routerLinkActive="josanz-mobile-tab-bar__prominent--active"
-          [routerLinkActiveOptions]="{ exact: tab.exact ?? false }"
-          class="josanz-mobile-tab-bar__prominent -mt-4 flex flex-col items-center justify-center rounded-full shadow-md transition-[transform,filter] duration-150 active:scale-95"
-          [style.backgroundColor]="theme.currentTheme().primaryColor"
+          routerLinkActive="active"
+          class="prominent-tab transition-all duration-200 active:scale-90"
+          [style.backgroundColor]="'var(--josanz-primary)'"
+          [style.boxShadow]="'0 8px 20px -4px var(--josanz-primary)'"
         >
-          <svg
-            class="text-white"
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-            <path d="M10 9H8M16 13H8M16 17H8" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
           </svg>
-          <span class="mt-0.5 max-w-[4.5rem] truncate text-[10px] font-semibold text-white">{{ tab.label }}</span>
         </a>
       } @else {
         <a
           [routerLink]="tab.path"
-          routerLinkActive="josanz-mobile-tab-bar__link--active"
+          routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: tab.exact ?? false }"
-          class="josanz-mobile-tab-bar__link flex min-w-0 flex-1 flex-col items-center justify-end gap-0.5 rounded-lg px-1 py-1 text-[10px] font-semibold transition-[color,transform] duration-150 active:scale-95"
-          [style.color]="theme.currentTheme().atmosphere.textMuted"
+          class="tab-link flex flex-col items-center gap-1 transition-all duration-200 active:scale-95 group"
+          [style.color]="'var(--josanz-text-muted)'"
         >
-          @if (tab.path === '/dashboard') {
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M3 12l9-9 9 9M5 10v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9" />
-            </svg>
-          } @else if (tab.path === '/clients') {
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-              <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-              <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-              <path d="M10 6h4M10 10h4M10 14h4M10 18h4" />
-            </svg>
-          } @else if (tab.path === '/budgets') {
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-              <path d="M10 9H8M16 13H8M16 17H8" />
-            </svg>
-          } @else if (tab.path === '/settings') {
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-              />
-            </svg>
-          }
-          <span class="max-w-full truncate">{{ tab.label }}</span>
+          <div class="icon-container group-[.active]:text-[var(--josanz-accent)] group-[.active]:scale-110 transition-all">
+            @if (tab.path === '/dashboard') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12l9-9 9 9M5 10v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9" />
+              </svg>
+            } @else if (tab.path === '/clients') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+              </svg>
+            } @else if (tab.path === '/budgets') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+              </svg>
+            } @else if (tab.path === '/settings') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            }
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-tighter group-[.active]:text-[var(--josanz-accent)]">{{ tab.label }}</span>
         </a>
       }
     }
-  </div>
-  <div class="flex shrink-0 justify-center pb-1 pt-0.5" aria-hidden="true">
-    <div
-      class="h-[5px] w-[134px] max-w-[80vw] rounded-full"
-      [style.backgroundColor]="app.homeIndicator"
-      [style.opacity]="0.35"
-    ></div>
   </div>
 </nav>

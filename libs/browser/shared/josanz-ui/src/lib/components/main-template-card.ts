@@ -19,22 +19,16 @@ export class MainTemplateCardComponent {
   @Input() data: string[] = ['ID: #4502', 'Fecha: 12/05/2026', 'Total: 1.250€', 'Vencimiento: 30 días'];
 
   getCardStyles() {
-    const theme = this.themeService.currentTheme();
     return {
-      'background-color': theme.atmosphere.surface,
-      'border-color': theme.atmosphere.border,
-      color: theme.atmosphere.text,
-      'box-shadow': theme.atmosphere.cardShadow ?? theme.atmosphere.shadow,
+      'background-color': 'var(--josanz-surface)',
+      'border-color': 'var(--josanz-border)',
+      'box-shadow': 'var(--josanz-card-shadow)',
     };
   }
 
   getBadgeStyles() {
     const theme = this.themeService.currentTheme();
     
-    let borderRadius = '10px';
-    if (theme.defaultShape === 'square') borderRadius = '2px';
-    if (theme.defaultShape === 'pill') borderRadius = '99px';
-
     let backgroundColor = '#E2E8F0';
     if (this.statusVariant === 'primary') backgroundColor = theme.primaryColor;
     else if (this.statusVariant === 'success') backgroundColor = '#22C55E';
@@ -43,8 +37,11 @@ export class MainTemplateCardComponent {
 
     return {
       'background-color': backgroundColor,
-      'border-radius': borderRadius,
-      color: josanzReadableOnSolid(backgroundColor),
+      'border-radius': '8px',
+      'color': josanzReadableOnSolid(backgroundColor),
+      'box-shadow': '0 2px 4px rgba(0,0,0,0.1)',
+      'text-transform': 'uppercase',
+      'letter-spacing': '0.05em'
     };
   }
 }
