@@ -51,22 +51,22 @@
         <span class="text-[12px] font-medium" [style.color]="theme.currentTheme().atmosphere.textMuted">Buscar</span>
         <span class="ml-auto truncate text-[12px]" [style.color]="theme.currentTheme().atmosphere.text">Clientes, docs…</span>
       </div>
-      <button
-        type="button"
-        class="h-10 rounded-[8px] border border-solid px-4 text-[12px] font-semibold transition-[filter,transform] duration-150 hover:brightness-[0.97] active:scale-[0.99]"
+      <a
+        routerLink="/export"
+        class="inline-flex h-10 items-center justify-center rounded-[8px] border border-solid px-4 text-[12px] font-semibold transition-[filter,transform] duration-150 hover:brightness-[0.97] active:scale-[0.99]"
         [style.backgroundColor]="dash.headerFilterBg"
         [style.borderColor]="dash.widgetStroke"
         [style.color]="theme.currentTheme().atmosphere.text"
       >
         Exportar
-      </button>
-      <button
-        type="button"
-        class="h-10 rounded-[8px] px-5 text-[12px] font-semibold text-white transition-[filter,transform] duration-150 hover:brightness-110 active:scale-[0.99]"
+      </a>
+      <a
+        routerLink="/reports/new"
+        class="inline-flex h-10 items-center justify-center rounded-[8px] px-5 text-[12px] font-semibold text-white transition-[filter,transform] duration-150 hover:brightness-110 active:scale-[0.99]"
         [style.backgroundColor]="dash.toolbarCta"
       >
         Nuevo informe
-      </button>
+      </a>
     </div>
   </header>
 

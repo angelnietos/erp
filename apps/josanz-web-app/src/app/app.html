@@ -1,9 +1,14 @@
 <div class="flex h-[100dvh] min-h-0 overflow-hidden bg-[#FEFEFE]">
-  <!-- Shell: canvas Figma; scroll en main; móvil: respeto safe-area inferior (App.svg tab ~133px). -->
-  <josanz-sidebar></josanz-sidebar>
+  <div class="relative z-[100] hidden h-full min-h-0 shrink-0 md:flex">
+    <josanz-sidebar></josanz-sidebar>
+  </div>
 
-  <main class="flex-1 min-h-0 overflow-y-auto px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] md:px-12 md:py-12">
-    <router-outlet></router-outlet>
-  </main>
-
+  <div class="relative flex min-h-0 min-w-0 flex-1 flex-col">
+    <main
+      class="flex-1 min-h-0 overflow-y-auto px-5 py-6 max-md:pb-[133px] md:px-12 md:py-12 md:pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"
+    >
+      <router-outlet></router-outlet>
+    </main>
+    <josanz-mobile-tab-bar></josanz-mobile-tab-bar>
+  </div>
 </div>

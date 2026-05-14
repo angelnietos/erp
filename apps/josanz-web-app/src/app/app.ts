@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { SidebarComponent } from '@josanz-erp/josanz-ui';
+import { MobileTabBarComponent, SidebarComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
-  imports: [ RouterModule, SidebarComponent],
+  imports: [RouterModule, SidebarComponent, MobileTabBarComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',

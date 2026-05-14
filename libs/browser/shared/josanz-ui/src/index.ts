@@ -20,6 +20,7 @@ export * from './lib/components/input';
 export * from './lib/components/modal';
 export * from './lib/components/detail-card';
 export * from './lib/components/theme-modal';
+export * from './lib/components/mobile-tab-bar';
 export * from './lib/base-list';
 export * from './lib/services/theme.service';
 export * from './lib/theme/josanz-theme-tokens';

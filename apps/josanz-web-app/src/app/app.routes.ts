@@ -17,6 +17,16 @@ export const appRoutes: Route[] = [
       import('./pages/josanz-settings-placeholder.component').then((m) => m.JosanzSettingsPlaceholderComponent),
   },
   {
+    path: 'export',
+    loadComponent: () =>
+      import('./pages/josanz-export-center.component').then((m) => m.JosanzExportCenterComponent),
+  },
+  {
+    path: 'reports/new',
+    loadComponent: () =>
+      import('./pages/josanz-report-new.component').then((m) => m.JosanzReportNewComponent),
+  },
+  {
     path: 'clients',
     loadChildren: () =>
       import('@josanz-erp/shell').then((m) => m.josanzClientsRoutes),

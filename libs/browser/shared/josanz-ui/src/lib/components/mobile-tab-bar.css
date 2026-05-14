@@ -1,0 +1,27 @@
+.josanz-mobile-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  border-top-width: 1px;
+  border-top-style: solid;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.josanz-mobile-tab-bar__link--active {
+  color: var(--josanz-primary, #0f1e2f) !important;
+}
+
+.josanz-mobile-tab-bar__prominent {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.josanz-mobile-tab-bar__prominent--active {
+  filter: brightness(1.05);
+}
