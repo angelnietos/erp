@@ -1,29 +1,40 @@
-<div class="w-full h-[64px] bg-white rounded-[12px] shadow-[0px_10px_20px_0px_rgba(163,163,163,0.15)] flex items-center px-6 transition-all group">
-  <div class="flex items-center w-full gap-4 overflow-hidden">
-    <!-- Title column (fixed width) -->
-    <div class="text-[#222222] text-[14px] font-medium truncate min-w-[120px]">
+<div class="w-full h-[64px] bg-white rounded-[12px] shadow-[0px_10px_20px_0px_rgba(163,163,163,0.1)] flex items-center px-6 transition-all group border border-transparent hover:border-slate-100 mb-3">
+  <div class="flex items-center w-full overflow-hidden">
+    <!-- Column 1 (Title) -->
+    <div class="text-[#222222] text-[14px] font-semibold truncate w-[180px] shrink-0">
       {{ title }}
     </div>
 
-    <!-- Dynamic data columns -->
-    <div class="flex flex-1 items-center gap-6 overflow-hidden">
-      @for (item of data; track item) {
-        <div class="text-[#222222] text-[14px] font-medium leading-none truncate opacity-80 group-hover:opacity-100 transition-opacity">
-          {{ item }}
+    <!-- Data Columns with fixed widths -->
+    <div class="flex flex-1 items-center gap-4 overflow-hidden">
+      @if (data[0]) {
+        <div class="text-[#222222] text-[14px] font-medium truncate w-[200px] shrink-0 opacity-80">
+          {{ data[0] }}
+        </div>
+      }
+      @if (data[1]) {
+        <div class="text-[#222222] text-[14px] font-medium truncate w-[150px] shrink-0 opacity-80">
+          {{ data[1] }}
+        </div>
+      }
+      @if (data[2]) {
+        <div class="text-[#222222] text-[14px] font-medium truncate w-[150px] shrink-0 opacity-80">
+          {{ data[2] }}
+        </div>
+      }
+      @if (data[3]) {
+        <div class="text-[#222222] text-[14px] font-medium truncate flex-1 shrink-0 opacity-80">
+          {{ data[3] }}
         </div>
       }
     </div>
 
-    <!-- Status badge -->
-    <div class="flex-shrink-0 ml-auto">
+    <!-- Status badge (Right aligned) -->
+    <div class="w-[120px] flex justify-center shrink-0">
       <span
-        class="text-[12px] font-medium px-4 py-1.5 rounded-full leading-none shadow-sm transition-transform group-hover:scale-105 inline-block"
-        [ngClass]="{
-          'bg-[#635BFF] text-white border border-transparent': statusVariant === 'primary',
-          'bg-green-500 text-white border border-transparent': statusVariant === 'success',
-          'bg-amber-500 text-white border border-transparent': statusVariant === 'warning',
-          'bg-red-500 text-white border border-transparent': statusVariant === 'error'
-        }"
+        class="text-[12px] font-bold px-4 py-1.5 rounded-full leading-none shadow-sm transition-all inline-block"
+        [style.backgroundColor]="statusVariant === 'success' ? '#22C55E' : (statusVariant === 'warning' ? '#F59E0B' : (statusVariant === 'error' ? '#EF4444' : '#000000'))"
+        class="text-white"
       >
         {{ status }}
       </span>

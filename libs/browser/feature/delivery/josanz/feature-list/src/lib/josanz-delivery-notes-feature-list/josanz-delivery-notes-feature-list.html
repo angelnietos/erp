@@ -6,16 +6,16 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <!-- Table Header -->
-  <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-[14px] font-medium">
-    <div class="min-w-[140px]">Nº Albarán</div>
-    <div class="flex flex-1 items-center gap-6">
-      <div class="w-[200px]">Cliente</div>
-      <div class="w-[120px]">Fecha</div>
-      <div class="w-[150px]">Proyecto</div>
-      <div class="flex-1">Operador</div>
+  <!-- Table Header - Sincronizado con MainTemplateCard -->
+  <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[14px] font-semibold uppercase tracking-wider">
+    <div class="w-[180px] shrink-0">Nº Albarán</div>
+    <div class="flex flex-1 items-center gap-4 overflow-hidden">
+      <div class="w-[200px] shrink-0">Cliente</div>
+      <div class="w-[120px] shrink-0">Fecha</div>
+      <div class="w-[150px] shrink-0">Proyecto</div>
+      <div class="flex-1 shrink-0">Operador</div>
     </div>
-    <div class="ml-auto w-[100px] text-center pr-2">Estado</div>
+    <div class="w-[120px] shrink-0 text-center">Estado</div>
   </div>
 
   <!-- Content -->

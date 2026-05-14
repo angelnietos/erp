@@ -6,16 +6,16 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
   
-  <!-- Table Header -->
-  <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-[14px] font-medium">
-    <div class="min-w-[150px]">Nombre y Apellidos</div>
-    <div class="flex flex-1 items-center gap-6">
-      <div class="w-[200px]">Email</div>
-      <div class="w-[150px]">Teléfono</div>
-      <div class="w-[150px]">Rol / Cargo</div>
-      <div class="flex-1">Último acceso</div>
+  <!-- Table Header - Sincronizado con MainTemplateCard -->
+  <div class="flex items-center px-6 mb-2 w-full text-[#989898] text-[14px] font-semibold uppercase tracking-wider">
+    <div class="w-[180px] shrink-0">Nombre y Apellidos</div>
+    <div class="flex flex-1 items-center gap-4 overflow-hidden">
+      <div class="w-[200px] shrink-0">Email</div>
+      <div class="w-[150px] shrink-0">Teléfono</div>
+      <div class="w-[150px] shrink-0">Rol / Cargo</div>
+      <div class="flex-1 shrink-0">Último acceso</div>
     </div>
-    <div class="ml-auto w-[100px] text-center pr-2">Estado</div>
+    <div class="w-[120px] shrink-0 text-center">Estado</div>
   </div>
 
   @for (user of [
