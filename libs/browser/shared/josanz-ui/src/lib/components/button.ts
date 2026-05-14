@@ -42,7 +42,7 @@ export class ButtonComponent {
 
   get buttonClasses() {
     const base =
-      'inline-flex items-center justify-center gap-2 border-2 border-solid transition-all duration-200 outline-none whitespace-nowrap shadow-sm hover:shadow-md active:scale-95';
+      'inline-flex items-center justify-center gap-2 border-2 border-solid outline-none whitespace-nowrap shadow-sm hover:shadow-md active:scale-95 transition-[box-shadow,transform] duration-200';
     
     const sizes = {
       sm: 'h-8 px-3 text-xs',
@@ -79,7 +79,7 @@ export class ButtonComponent {
   getBgColor() {
     const t = this.themeService.currentTheme();
     if (this.variant === 'primary') {
-      return this.customColor ?? t.primaryColor;
+      return this.customColor ?? 'var(--josanz-primary)';
     }
     if (this.variant === 'secondary') {
       return t.atmosphere.surface;
@@ -96,7 +96,7 @@ export class ButtonComponent {
   getBorderColor() {
     const t = this.themeService.currentTheme();
     if (this.variant === 'outline') {
-      return this.customColor ?? t.primaryColor;
+      return this.customColor ?? 'var(--josanz-primary)';
     }
     if (this.variant === 'secondary') {
       return t.atmosphere.border;
@@ -107,13 +107,15 @@ export class ButtonComponent {
   getTextColor() {
     const t = this.themeService.currentTheme();
     if (this.variant === 'primary') {
-      return josanzReadableOnSolid(this.getBgColor());
+      return this.customColor
+        ? josanzReadableOnSolid(this.customColor)
+        : 'var(--josanz-on-primary)';
     }
     if (this.variant === 'danger') {
       return josanzReadableOnSolid('#EF4444');
     }
     if (this.variant === 'outline' || this.variant === 'ghost') {
-      return this.customColor ?? t.primaryColor;
+      return this.customColor ?? 'var(--josanz-primary)';
     }
     return t.atmosphere.text;
   }

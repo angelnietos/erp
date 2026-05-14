@@ -1,7 +1,7 @@
 <button
   type="button"
   (click)="onClick()"
-  class="h-[36px] px-[16px] flex items-center justify-center gap-[8px] transition-all hover:brightness-[0.97] active:scale-[0.98] shadow-[0px_4px_12px_0px_rgba(189,189,189,0.2)] border-none cursor-pointer group"
+  class="h-[36px] px-[16px] flex items-center justify-center gap-[8px] transition-[filter,transform] duration-200 hover:brightness-[0.97] active:scale-[0.98] shadow-[0px_4px_12px_0px_rgba(189,189,189,0.2)] border-none cursor-pointer group"
   [ngClass]="cornerClass()"
   [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
   [style.color]="textColor()"
