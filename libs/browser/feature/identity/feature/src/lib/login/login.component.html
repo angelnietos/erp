@@ -1,15 +1,25 @@
-<div class="auth-wrapper">
-  <lib-animated-background
-    [theme]="backgroundTheme()"
-    [tenantSlug]="tenantSlug()"
-  ></lib-animated-background>
-  <ui-dynamic-canvas
-    [htmlRef]="dynamicHtml()"
-    [autoClearAfterMs]="loginBuddyCanvasTtlMs"
-    (canvasAutoCleared)="onLoginCanvasAutoCleared()"
-  ></ui-dynamic-canvas>
+<div class="auth-wrapper" [class.auth-wrapper--figma]="useFigmaShellLogin()">
+  @if (useFigmaShellLogin()) {
+    <div class="auth-figma-hero" aria-hidden="true"></div>
+  } @else {
+    <lib-animated-background
+      [theme]="backgroundTheme()"
+      [tenantSlug]="tenantSlug()"
+    ></lib-animated-background>
+  }
+  @if (!useFigmaShellLogin()) {
+    <ui-dynamic-canvas
+      [htmlRef]="dynamicHtml()"
+      [autoClearAfterMs]="loginBuddyCanvasTtlMs"
+      (canvasAutoCleared)="onLoginCanvasAutoCleared()"
+    ></ui-dynamic-canvas>
+  }
 
-  <div class="auth-card glass">
+  <div
+    class="auth-card"
+    [class.glass]="!useFigmaShellLogin()"
+    [class.auth-card--figma]="useFigmaShellLogin()"
+  >
     <div class="auth-header">
       <div
         class="logo-circle animate-in stagger-1"
@@ -35,6 +45,7 @@
       </button>
     </div>
 
+    @if (!useFigmaShellLogin()) {
     <!-- Theme Selector -->
     <div class="theme-selector-container animate-in stagger-3">
       <div class="theme-label">
@@ -55,9 +66,10 @@
         }
       </div>
     </div>
+    }
 
     @if (store.error()) {
-      <ui-alert type="error">
+      <ui-alert variant="error">
         {{ store.error() }}
       </ui-alert>
     }
@@ -70,6 +82,7 @@
         placeholder="Introduce tu e-mail"
         icon="user"
         formControlName="email"
+        [shape]="useFigmaShellLogin() ? 'solid' : 'glass'"
         [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
         class="animate-in stagger-4"
       ></ui-input>
@@ -81,12 +94,14 @@
         placeholder="••••••••"
         icon="lock"
         formControlName="password"
+        [shape]="useFigmaShellLogin() ? 'solid' : 'glass'"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
         class="animate-in stagger-4"
       ></ui-input>
 
       <ui-button 
         type="submit" 
+        [shape]="useFigmaShellLogin() ? 'solid' : 'auto'"
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
         icon="arrow-right"
@@ -101,6 +116,8 @@
     </div>
   </div>
   
+  @if (!useFigmaShellLogin()) {
   <!-- Buddy Assistant accessible from Login! -->
   <ui-ai-assistant feature="dashboard"></ui-ai-assistant>
+  }
 </div>

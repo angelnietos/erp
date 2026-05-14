@@ -368,6 +368,31 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
         transform: none;
       }
     }
+
+    /* Figma `Login.svg`: CTA #0F1E2F a ancho completo (tenant Josanz). */
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-solid,
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-auto {
+      width: 100%;
+      min-height: 43px;
+      border-radius: 8px;
+      background: #0f1e2f;
+      color: #fff;
+      border: none;
+      box-shadow: none;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-weight: 600;
+    }
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-solid:hover,
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-auto:hover {
+      transform: none;
+      filter: brightness(1.06);
+      box-shadow: 0 4px 14px rgba(15, 30, 47, 0.22);
+    }
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary::before {
+      opacity: 0;
+      pointer-events: none;
+    }
   `],
 })
 export class UiButtonComponent {

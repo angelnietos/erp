@@ -97,6 +97,17 @@ export type AlertVariant = 'error' | 'success' | 'warning' | 'info' | 'primary' 
       border-radius: var(--radius-md, 8px);
     }
 
+    :host-context(.auth-wrapper--figma) .alert {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    :host-context(.auth-wrapper--figma) .alert-error {
+      animation: alertSlideIn 0.45s var(--transition-spring);
+      background: #fff5f5;
+      color: #b42318;
+      border-color: rgba(180, 35, 24, 0.25);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .alert {
         animation: none;

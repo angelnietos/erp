@@ -123,6 +123,9 @@ export class LoginComponent implements OnInit {
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
   readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
 
+  /** Login claro en dos columnas según export Figma `Login.svg` (solo tenant Josanz). */
+  readonly useFigmaShellLogin = computed(() => this.tenantSlug() === 'josanz');
+
   readonly tenantLabel = computed(() => {
     const slug = this.tenantSlug();
     const known: Record<string, string> = {

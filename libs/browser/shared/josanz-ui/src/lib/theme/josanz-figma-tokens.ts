@@ -12,3 +12,18 @@ export const JOSANZ_FIGMA_SHELL = {
   cardShadow: '0 10px 24px rgba(189, 189, 189, 0.35)',
   tableHeaderTracking: '0.1em',
 } as const;
+
+/** Frame `Login.svg` (1280×832): login web claro, formulario a la derecha. */
+export const JOSANZ_FIGMA_LOGIN = {
+  canvasBg: '#FFFEFE',
+  fieldBg: '#FFFFFF',
+  fieldStroke: '#D7D7D7',
+  fieldRadiusPx: 8,
+  primaryCta: '#0F1E2F',
+  onPrimaryCta: '#FFFFFF',
+  heading: '#222222',
+  muted: '#7C7C7C',
+  /** Panel ilustración izquierda (aprox. patrón Figma). */
+  heroWash: '#E8EDF5',
+  heroWashEnd: '#F5F7FB',
+} as const;

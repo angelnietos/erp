@@ -173,6 +173,31 @@ export type InputVariant = string;
       letter-spacing: 0.05em;
       color: var(--brand);
     }
+
+    /* Figma `Login.svg`: campos blancos, borde #D7D7D7, radio 8px (tenant Josanz). */
+    :host-context(.auth-wrapper--figma) .input-wrapper {
+      --input-bg: #ffffff;
+      --input-border: #d7d7d7;
+      --input-radius: 8px;
+      --input-color: #222222;
+      backdrop-filter: none;
+    }
+    :host-context(.auth-wrapper--figma) .label {
+      color: #7c7c7c;
+      font-weight: 600;
+    }
+    :host-context(.auth-wrapper--figma) input {
+      box-shadow: none;
+      min-height: 43px;
+    }
+    :host-context(.auth-wrapper--figma) input:focus {
+      box-shadow: 0 0 0 2px rgba(15, 30, 47, 0.12);
+      transform: none;
+      border-color: #0f1e2f;
+    }
+    :host-context(.auth-wrapper--figma) .field-icon {
+      color: #7c7c7c;
+    }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {
