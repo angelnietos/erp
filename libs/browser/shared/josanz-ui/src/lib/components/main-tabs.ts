@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import { type JosanzControlShape } from '../josanz-control-styles';
-import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
   selector: 'josanz-main-tabs',
@@ -35,7 +34,6 @@ export class MainTabsComponent implements OnInit, OnChanges {
   active = '';
 
   tabShellStyle(option: string): Record<string, string> {
-    const t = this.themeService.currentTheme();
     const on = this.active === option;
     return {
       backgroundColor: 'var(--josanz-surface)',
