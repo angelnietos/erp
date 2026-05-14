@@ -27,3 +27,35 @@ export const JOSANZ_FIGMA_LOGIN = {
   heroWash: '#E8EDF5',
   heroWashEnd: '#F5F7FB',
 } as const;
+
+/**
+ * Frame `Dashboard.svg` (1440×1364): rejilla KPI, tarjetas 8px, trazos #E0E0E0.
+ * Proporciones: columnas ~58% / 42% (733 vs 515), gutter 32px, márgenes ~80px.
+ */
+export const JOSANZ_FIGMA_DASHBOARD = {
+  canvas: '#FFFFFF',
+  widgetStroke: '#E0E0E0',
+  widgetRadiusPx: 8,
+  surfaceMuted: '#F7F7F7',
+  rowLine: '#E6E6E6',
+  headerFilterBg: '#EEEEEE',
+  /** Botón oscuro barra superior (rect negro en export). */
+  toolbarCta: '#000000',
+  onToolbarCta: '#FFFFFF',
+  pagePadPx: 80,
+  gridGapPx: 32,
+  kpiCardH: 172,
+  largeCardMinH: 448,
+} as const;
+
+/** Frame `App.svg` (393×852): móvil, inputs y CTA secundario. */
+export const JOSANZ_FIGMA_APP = {
+  frameWidth: 393,
+  frameRadius: 20,
+  fieldStroke: '#D7D7D7',
+  fieldRadiusPx: 8,
+  secondaryFill: '#DADFE6',
+  tabBarHeight: 133,
+  tabBarFill: 'rgba(255,255,255,0.92)',
+  homeIndicator: '#000000',
+} as const;

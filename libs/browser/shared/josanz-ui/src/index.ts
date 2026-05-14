@@ -23,4 +23,9 @@ export * from './lib/components/theme-modal';
 export * from './lib/base-list';
 export * from './lib/services/theme.service';
 export * from './lib/theme/josanz-theme-tokens';
-export { JOSANZ_FIGMA_LOGIN, JOSANZ_FIGMA_SHELL } from './lib/theme/josanz-figma-tokens';
+export {
+  JOSANZ_FIGMA_APP,
+  JOSANZ_FIGMA_DASHBOARD,
+  JOSANZ_FIGMA_LOGIN,
+  JOSANZ_FIGMA_SHELL,
+} from './lib/theme/josanz-figma-tokens';

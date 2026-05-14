@@ -1,8 +1,8 @@
-<div class="flex h-screen min-h-0 overflow-hidden bg-[#FEFEFE]">
-  <!-- Canvas Figma Base.svg: fondo #FEFEFE; scroll solo en main -->
+<div class="flex h-[100dvh] min-h-0 overflow-hidden bg-[#FEFEFE]">
+  <!-- Shell: canvas Figma; scroll en main; móvil: respeto safe-area inferior (App.svg tab ~133px). -->
   <josanz-sidebar></josanz-sidebar>
 
-  <main class="flex-1 min-h-0 overflow-y-auto p-8 md:p-12">
+  <main class="flex-1 min-h-0 overflow-y-auto px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] md:px-12 md:py-12">
     <router-outlet></router-outlet>
   </main>
 
