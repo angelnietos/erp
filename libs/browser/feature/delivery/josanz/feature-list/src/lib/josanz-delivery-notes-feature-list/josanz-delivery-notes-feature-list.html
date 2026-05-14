@@ -9,7 +9,7 @@
   (excelAction)="onExcel()">
 
   <div
-    class="flex items-center px-6 mb-2 w-full text-[13px] font-bold uppercase"
+    class="flex items-center px-6 mb-4 w-full text-[13px] font-bold uppercase"
     [style.color]="themeService.currentTheme().atmosphere.textMuted"
     [style.letterSpacing]="'0.1em'"
   >
@@ -24,17 +24,20 @@
   </div>
 
   <!-- Content based on Figma references -->
-  @for (item of [
-    {id: 'ALB-2024-001', cliente: 'Construcciones S.A.', fecha: '14/05/2024', proy: 'Reforma Local B', op: 'Juan Pérez', status: 'Firmado'},
-    {id: 'ALB-2024-002', cliente: 'Instalaciones Eléctricas', fecha: '14/05/2024', proy: 'Mantenimiento Anual', op: 'Ana Belén', status: 'Pendiente'},
-    {id: 'ALB-2024-003', cliente: 'Logística Norte', fecha: '13/05/2024', proy: 'Envío Urgente', op: 'Carlos Ruiz', status: 'Facturado'},
-    {id: 'ALB-2024-004', cliente: 'Hotel Playa Sol', fecha: '12/05/2024', proy: 'Instalación LED', op: 'Juan Pérez', status: 'Firmado'}
-  ]; track item.id) {
-    <josanz-main-template-card
-      [title]="item.id"
-      [data]="[item.cliente, item.fecha, item.proy, item.op]"
-      [status]="item.status"
-      [statusVariant]="item.status === 'Facturado' ? 'success' : (item.status === 'Firmado' ? 'primary' : 'warning')"
-    ></josanz-main-template-card>
-  }
+  <div class="flex flex-col gap-4">
+    @for (item of [
+      {id: 'ALB-2024-001', cliente: 'Construcciones S.A.', fecha: '14/05/2024', proy: 'Reforma Local B', op: 'Juan Pérez', status: 'Firmado'},
+      {id: 'ALB-2024-002', cliente: 'Instalaciones Eléctricas', fecha: '14/05/2024', proy: 'Mantenimiento Anual', op: 'Ana Belén', status: 'Pendiente'},
+      {id: 'ALB-2024-003', cliente: 'Logística Norte', fecha: '13/05/2024', proy: 'Envío Urgente', op: 'Carlos Ruiz', status: 'Facturado'},
+      {id: 'ALB-2024-004', cliente: 'Hotel Playa Sol', fecha: '12/05/2024', proy: 'Instalación LED', op: 'Juan Pérez', status: 'Firmado'}
+    ]; track item.id) {
+      <josanz-main-template-card
+        style="cursor: pointer; display: block;"
+        [title]="item.id"
+        [data]="[item.cliente, item.fecha, item.proy, item.op]"
+        [status]="item.status"
+        [statusVariant]="item.status === 'Facturado' ? 'success' : (item.status === 'Firmado' ? 'primary' : 'warning')"
+      ></josanz-main-template-card>
+    }
+  </div>
 </josanz-main-list-layout>

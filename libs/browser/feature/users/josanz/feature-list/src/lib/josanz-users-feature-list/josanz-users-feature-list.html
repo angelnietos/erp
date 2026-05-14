@@ -9,7 +9,7 @@
   (excelAction)="onExcel()">
   
   <div
-    class="flex items-center px-6 mb-2 w-full text-[13px] font-bold uppercase"
+    class="flex items-center px-6 mb-4 w-full text-[13px] font-bold uppercase"
     [style.color]="themeService.currentTheme().atmosphere.textMuted"
     [style.letterSpacing]="'0.1em'"
   >
@@ -23,18 +23,21 @@
     <div class="w-[120px] shrink-0 text-center">Estado</div>
   </div>
 
-  @for (user of [
-    {name: 'Admin Josanz', email: 'admin@josanz.com', tel: '+34 600 000 001', role: 'Administrador', access: 'Hace 5 min', status: 'Activo'},
-    {name: 'Juan Pérez', email: 'juan.perez@josanz.com', tel: '+34 600 000 002', role: 'Operario', access: 'Ayer', status: 'Activo'},
-    {name: 'Ana Belén', email: 'ana.belen@josanz.com', tel: '+34 600 000 003', role: 'Logística', access: '12/05/2024', status: 'Ausente'}
-  ]; track user.email) {
-    <josanz-main-template-card
-      [title]="user.name"
-      [data]="[user.email, user.tel, user.role, user.access]"
-      [status]="user.status"
-      [statusVariant]="user.status === 'Activo' ? 'success' : 'warning'"
-    ></josanz-main-template-card>
-  }
+  <div class="flex flex-col gap-4">
+    @for (user of [
+      {name: 'Admin Josanz', email: 'admin@josanz.com', tel: '+34 600 000 001', role: 'Administrador', access: 'Hace 5 min', status: 'Activo'},
+      {name: 'Juan Pérez', email: 'juan.perez@josanz.com', tel: '+34 600 000 002', role: 'Operario', access: 'Ayer', status: 'Activo'},
+      {name: 'Ana Belén', email: 'ana.belen@josanz.com', tel: '+34 600 000 003', role: 'Logística', access: '12/05/2024', status: 'Ausente'}
+    ]; track user.email) {
+      <josanz-main-template-card
+        style="cursor: pointer; display: block;"
+        [title]="user.name"
+        [data]="[user.email, user.tel, user.role, user.access]"
+        [status]="user.status"
+        [statusVariant]="user.status === 'Activo' ? 'success' : 'warning'"
+      ></josanz-main-template-card>
+    }
+  </div>
 </josanz-main-list-layout>
 
 <!-- Modal para añadir usuario -->
