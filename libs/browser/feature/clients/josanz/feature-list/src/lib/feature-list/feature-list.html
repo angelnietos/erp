@@ -8,27 +8,28 @@
   
   <!-- Table Header -->
   <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-[14px] font-medium">
-    <div class="min-w-[120px]">Dato</div>
+    <div class="min-w-[150px]">Nombre Empresa</div>
     <div class="flex flex-1 items-center gap-6">
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
+      <div class="w-[200px]">Email Contacto</div>
+      <div class="w-[120px]">CIF/NIF</div>
+      <div class="w-[150px]">Población</div>
+      <div class="flex-1">Última factura</div>
     </div>
-    <div class="ml-auto w-[80px] text-center pr-2">Estado</div>
+    <div class="ml-auto w-[100px] text-center pr-2">Estado</div>
   </div>
 
-  @for (i of [1,2,3,4,5,6,7,8]; track i) {
+  @for (client of [
+    {name: 'Construcciones S.A.', email: 'obras@construcciones.com', cif: 'A12345678', city: 'Madrid', last: '14/05/2024', status: 'Activo'},
+    {name: 'Reformas García', email: 'info@reformasgarcia.es', cif: 'B98765432', city: 'Barcelona', last: '10/05/2024', status: 'Inactivo'},
+    {name: 'Hotel Playa Sol', email: 'recepcion@hotelplaya.com', cif: 'A88877766', city: 'Valencia', last: 'Ayer', status: 'Activo'}
+  ]; track client.cif) {
     <josanz-main-template-card
       (click)="openDetail()" 
       style="cursor: pointer; display: block;"
-      title="Dato"
-      [data]="['Dato', 'Dato', 'Dato', 'Dato', 'Dato', 'Dato', 'Dato']"
-      status="Estado"
-      statusVariant="primary"
+      [title]="client.name"
+      [data]="[client.email, client.cif, client.city, client.last]"
+      [status]="client.status"
+      [statusVariant]="client.status === 'Activo' ? 'success' : 'primary'"
     ></josanz-main-template-card>
   }
 

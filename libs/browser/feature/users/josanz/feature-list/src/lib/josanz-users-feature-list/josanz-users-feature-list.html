@@ -5,27 +5,29 @@
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
+  
   <!-- Table Header -->
   <div class="flex items-center px-6 mb-1 mt-2 w-full text-[#989898] text-[14px] font-medium">
-    <div class="min-w-[120px]">Dato</div>
+    <div class="min-w-[150px]">Nombre y Apellidos</div>
     <div class="flex flex-1 items-center gap-6">
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
-      <div>Dato</div>
+      <div class="w-[200px]">Email</div>
+      <div class="w-[150px]">Teléfono</div>
+      <div class="w-[150px]">Rol / Cargo</div>
+      <div class="flex-1">Último acceso</div>
     </div>
-    <div class="ml-auto w-[80px] text-center pr-2">Estado</div>
+    <div class="ml-auto w-[100px] text-center pr-2">Estado</div>
   </div>
 
-  @for (i of [1,2,3,4,5,6,7,8]; track i) {
+  @for (user of [
+    {name: 'Admin Josanz', email: 'admin@josanz.com', tel: '+34 600 000 001', role: 'Administrador', access: 'Hace 5 min', status: 'Activo'},
+    {name: 'Juan Pérez', email: 'juan.perez@josanz.com', tel: '+34 600 000 002', role: 'Operario', access: 'Ayer', status: 'Activo'},
+    {name: 'Ana Belén', email: 'ana.belen@josanz.com', tel: '+34 600 000 003', role: 'Logística', access: '12/05/2024', status: 'Ausente'}
+  ]; track user.email) {
     <josanz-main-template-card
-      title="Dato"
-      [data]="['Dato', 'Dato', 'Dato', 'Dato', 'Dato', 'Dato', 'Dato']"
-      status="Estado"
-      statusVariant="primary"
+      [title]="user.name"
+      [data]="[user.email, user.tel, user.role, user.access]"
+      [status]="user.status"
+      [statusVariant]="user.status === 'Activo' ? 'success' : 'warning'"
     ></josanz-main-template-card>
   }
 </josanz-main-list-layout>
