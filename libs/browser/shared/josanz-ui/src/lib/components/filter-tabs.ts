@@ -57,20 +57,19 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   buttonClass(option: string): string {
-    const base = `px-6 h-[32px] rounded-full flex items-center justify-center text-[13px] font-bold transition-all cursor-pointer outline-none whitespace-nowrap shadow-sm`;
+    const base = `px-5 h-[34px] rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 cursor-pointer outline-none whitespace-nowrap`;
     if (this.active === option) {
-      return `${base} border-none`;
+      return `${base} border-none scale-[1.02]`;
     }
-    return `${base} border border-solid hover:brightness-[0.99]`;
+    return `${base} border border-solid hover:scale-[1.02] active:scale-95`;
   }
 
   pillStyles(option: string): Record<string, string> {
-    const theme = this.themeService.currentTheme();
     if (this.active === option) {
       return {
         color: 'white',
         backgroundColor: 'var(--josanz-primary)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 16px -2px color-mix(in srgb, var(--josanz-primary) 60%, transparent)'
       };
     }
     return {

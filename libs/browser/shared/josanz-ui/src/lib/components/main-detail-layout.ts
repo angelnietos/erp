@@ -14,28 +14,36 @@ import { ButtonComponent } from './button';
       [style.backgroundColor]="'var(--josanz-bg)'"
     >
       <!-- Header Section -->
-      <div class="px-5 md:px-10 pt-8 md:pt-10 pb-6 flex flex-col gap-6">
+      <div class="px-5 md:px-10 pt-8 md:pt-10 pb-6 flex flex-col gap-5">
         <div class="flex items-center gap-4">
           <button 
             type="button" 
             (click)="back.emit()"
-            class="p-2 -ml-2 rounded-full hover:bg-[rgba(0,0,0,0.05)] transition-colors"
+            class="flex items-center justify-center w-9 h-9 rounded-full border border-solid hover:shadow-md active:scale-90 transition-all duration-200"
             [style.color]="'var(--josanz-text)'"
+            [style.borderColor]="'var(--josanz-border)'"
+            [style.backgroundColor]="'var(--josanz-surface)'"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
           </button>
-          <h1 
-            class="text-[28px] md:text-[32px] font-bold tracking-tight"
-            [style.color]="'var(--josanz-text)'"
-          >
-            {{ title }}
-          </h1>
+          <div class="flex flex-col gap-1">
+            <h1 
+              class="text-[26px] md:text-[32px] font-black tracking-tight leading-none"
+              [style.color]="'var(--josanz-text)'"
+            >
+              {{ title }}
+            </h1>
+            <div 
+              class="h-[3px] w-10 rounded-full"
+              [style.background]="'linear-gradient(90deg, var(--josanz-primary), transparent)'"
+            ></div>
+          </div>
         </div>
 
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="w-full md:w-auto overflow-x-auto no-scrollbar">
             <josanz-main-tabs 
               [options]="tabs" 

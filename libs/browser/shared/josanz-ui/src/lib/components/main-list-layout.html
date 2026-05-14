@@ -1,28 +1,38 @@
 <div class="w-full flex flex-col gap-6 relative min-h-0 flex-1">
+
   <!-- Header -->
-  <div class="flex justify-between items-center w-full">
-    <h1
-      class="text-[24px] md:text-[32px] font-bold tracking-tight"
-      [style.color]="'var(--josanz-text)'"
-    >
-      {{ title }}
-    </h1>
+  <div class="flex justify-between items-start w-full">
+    <div class="flex flex-col gap-1">
+      <h1
+        class="text-[26px] md:text-[36px] font-black tracking-tight leading-none"
+        [style.color]="'var(--josanz-text)'"
+      >
+        {{ title }}
+      </h1>
+      <!-- Subtle accent line under title -->
+      <div 
+        class="h-[3px] w-12 rounded-full"
+        [style.background]="'linear-gradient(90deg, var(--josanz-primary), transparent)'"
+      ></div>
+    </div>
     <josanz-user-avatar></josanz-user-avatar>
   </div>
 
   <!-- Filters and Actions -->
-  <div class="flex flex-col md:flex-row md:justify-between md:items-center w-full mt-2 gap-6">
-    <div class="flex flex-col gap-4 w-full md:w-auto">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-start w-full mt-1 gap-4">
+    <!-- Left: filters -->
+    <div class="flex flex-col gap-3 w-full md:w-auto">
       <josanz-filter-tabs 
         [options]="filterOptions" 
         (selectionChange)="onFilterChange($event)">
       </josanz-filter-tabs>
-      <!-- Slot for extra filters if needed (like in Stock) -->
+      <!-- Slot for extra filters (Stock etc.) -->
       <ng-content select="[extra-filters]"></ng-content>
     </div>
     
-    <div class="flex flex-wrap gap-3 items-center w-full md:w-auto md:justify-end">
-      <div class="flex-1 md:flex-initial">
+    <!-- Right: actions -->
+    <div class="flex flex-wrap gap-2 items-center w-full md:w-auto md:justify-end shrink-0">
+      <div class="flex-1 md:flex-initial min-w-0">
         <josanz-secondary-button 
           label="Excel" 
           class="w-full"
@@ -33,10 +43,10 @@
       <!-- Slot for extra action buttons -->
       <ng-content select="[extra-actions]"></ng-content>
 
-      <div class="flex-1 md:flex-initial">
+      <div class="flex-1 md:flex-initial min-w-0">
         <josanz-button 
           [label]="primaryBtnLabel" 
-          [showIcon]="false"
+          [showIcon]="true"
           [fullWidth]="true"
           (btnClick)="onPrimaryAction()">
         </josanz-button>
@@ -45,13 +55,13 @@
   </div>
 
   <!-- Content List -->
-  <div class="flex flex-col gap-4 mt-4 flex-1">
+  <div class="flex flex-col flex-1">
     <ng-content></ng-content>
   </div>
 
   <!-- Pagination -->
   @if (paginationTotal > 0) {
-    <div class="flex justify-center md:justify-end mt-6">
+    <div class="flex justify-center md:justify-end mt-4 pb-2">
       <josanz-pagination
         [current]="effectivePaginationPage"
         [total]="paginationTotal"

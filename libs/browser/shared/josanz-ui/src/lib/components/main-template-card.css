@@ -1,0 +1,13 @@
+/* Card hover glow + lift effect */
+.josanz-list-card {
+  cursor: default;
+}
+
+.josanz-list-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 1px color-mix(in srgb, var(--josanz-primary) 20%, transparent) !important;
+}
+
+.josanz-list-card:active {
+  transform: translateY(0);
+}
