@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { JosanzThemeService } from '../services/theme.service';
+import { JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-button',
@@ -25,12 +27,14 @@ import { CommonModule } from '@angular/common';
   `,
 })
 export class ButtonComponent {
+  private themeService = inject(JosanzThemeService);
+
   @Input() label = 'Añadir';
   @Input() showIcon = true;
   @Input() disabled = false;
   @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
   @Input() variant: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' = 'primary';
-  @Input() shape: 'rounded' | 'pill' | 'square' = 'rounded';
+  @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Input() fullWidth = false;
   @Output() btnClick = new EventEmitter<void>();
@@ -45,10 +49,17 @@ export class ButtonComponent {
       xl: 'h-14 px-8 text-lg'
     };
 
+    // Usar la shape del input o la del tema global
+    const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
+
     const shapes = {
       rounded: 'rounded-[8px]',
       pill: 'rounded-full',
-      square: 'rounded-sm'
+      square: 'rounded-none',
+      modal: 'rounded-[24px]',
+      inner: 'rounded-[6px]',
+      avatar: 'rounded-[10px]',
+      field: 'rounded-[8px]'
     };
 
     const variants = {
@@ -62,7 +73,7 @@ export class ButtonComponent {
     return [
       base,
       sizes[this.size] || sizes.md,
-      shapes[this.shape] || shapes.rounded,
+      shapes[activeShape as keyof typeof shapes] || shapes.rounded,
       variants[this.variant] || variants.primary,
       this.fullWidth ? 'w-full' : '',
       this.disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''

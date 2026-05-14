@@ -20,3 +20,4 @@ export * from './lib/components/input';
 export * from './lib/components/modal';
 export * from './lib/components/detail-card';
 export * from './lib/base-list';
+export * from './lib/services/theme.service';

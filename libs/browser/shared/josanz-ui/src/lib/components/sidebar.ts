@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { JosanzThemeService, JosanzThemeName } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-sidebar',
@@ -10,11 +11,17 @@ import { RouterModule } from '@angular/router';
   styleUrl: './sidebar.css',
 })
 export class SidebarComponent {
+  public themeService = inject(JosanzThemeService);
+
   @Input() userName = 'Admin Josanz';
   @Input() userRole = 'Administrador';
   @Input() isOpen = false;
 
   toggle() {
     this.isOpen = !this.isOpen;
+  }
+
+  changeTheme(name: JosanzThemeName) {
+    this.themeService.setTheme(name);
   }
 }

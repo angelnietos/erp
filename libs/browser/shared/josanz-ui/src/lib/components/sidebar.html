@@ -80,8 +80,41 @@
     </a>
   </nav>
 
+  <!-- Theme Selector -->
+  @if (isOpen) {
+    <div class="mt-auto px-4 py-6 border-t border-slate-100 w-full">
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Visual Style</div>
+      <div class="flex gap-2 p-1 bg-slate-50 rounded-lg">
+        <button 
+          (click)="changeTheme('luxe-rounded')"
+          [class.bg-white]="themeService.currentTheme().name === 'luxe-rounded'"
+          [class.shadow-sm]="themeService.currentTheme().name === 'luxe-rounded'"
+          class="flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900"
+        >
+          Modern
+        </button>
+        <button 
+          (click)="changeTheme('luxe-sharp')"
+          [class.bg-white]="themeService.currentTheme().name === 'luxe-sharp'"
+          [class.shadow-sm]="themeService.currentTheme().name === 'luxe-sharp'"
+          class="flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900"
+        >
+          Sharp
+        </button>
+        <button 
+          (click)="changeTheme('luxe-pill')"
+          [class.bg-white]="themeService.currentTheme().name === 'luxe-pill'"
+          [class.shadow-sm]="themeService.currentTheme().name === 'luxe-pill'"
+          class="flex-1 py-1.5 text-[11px] font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900"
+        >
+          Pill
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- Bottom Section -->
-  <div class="mt-auto flex flex-col items-center gap-6 w-full px-1 pb-8">
+  <div class="flex flex-col items-center gap-6 w-full px-1 pb-8">
     <a routerLink="/settings" routerLinkActive="text-black" 
        class="w-full h-8 flex items-center justify-center text-[#94A3B8] hover:text-black transition-all duration-200 cursor-pointer group">
       <div class="w-full flex items-center justify-center shrink-0">
