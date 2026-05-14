@@ -1,6 +1,8 @@
-<div class="h-screen flex flex-col items-center transition-all duration-300 relative z-[100] w-[44px] border-r"
-     [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-     [style.borderColor]="themeService.currentTheme().atmosphere.border">
+<!-- Base Figma: 37×832 (altura = viewport), fondo #FFF, sombra 0 12 24 #EAEAEA -->
+<div
+  class="h-screen flex flex-col items-center transition-[width,box-shadow] duration-300 relative z-[100] w-[37px] shrink-0 shadow-[0px_12px_24px_0px_#EAEAEA]"
+  style="background-color: #ffffff"
+>
 
   <!-- Logo Section (Figma Exact: 21x28px, 39px top) -->
   <div class="flex items-center justify-center w-full" style="margin-top: 39px; margin-bottom: 48px;">
@@ -22,35 +24,69 @@
       <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
     </a>
 
-    <!-- User (Exact Figma Shape) -->
+    <!-- Clientes (empresas / cartera) -->
     <a routerLink="/clients" routerLinkActive="active-link" title="Clientes"
        class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
        [style.color]="themeService.currentTheme().atmosphere.textMuted">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+        <path d="M10 6h4M10 10h4M10 14h4M10 18h4" />
       </svg>
       <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
     </a>
 
-    <!-- Modules Grid + (Exact Figma Shape) -->
-    @for (link of [
-      {path: '/delivery-notes', label: 'Albaranes'},
-      {path: '/budgets', label: 'Presupuestos'},
-      {path: '/stock', label: 'Stock'}
-    ]; track link.path) {
-      <a [routerLink]="link.path" routerLinkActive="active-link" [title]="link.label"
-         class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
-         [style.color]="themeService.currentTheme().atmosphere.textMuted">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1.5" />
-          <rect x="14" y="3" width="7" height="7" rx="1.5" />
-          <rect x="3" y="14" width="7" height="7" rx="1.5" />
-          <path d="M14 17.5h6M17 14.5v6" />
-        </svg>
-        <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
-      </a>
-    }
+    <!-- Usuarios del sistema -->
+    <a routerLink="/users" routerLinkActive="active-link" title="Usuarios"
+       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+    </a>
+
+    <!-- Albaranes -->
+    <a routerLink="/delivery-notes" routerLinkActive="active-link" title="Albaranes"
+       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2" />
+        <path d="M15 18H9" />
+        <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+        <circle cx="17" cy="18" r="2" />
+        <circle cx="7" cy="18" r="2" />
+      </svg>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+    </a>
+
+    <!-- Presupuestos -->
+    <a routerLink="/budgets" routerLinkActive="active-link" title="Presupuestos"
+       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+        <path d="M10 9H8M16 13H8M16 17H8" />
+      </svg>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+    </a>
+
+    <!-- Stock -->
+    <a routerLink="/stock" routerLinkActive="active-link" title="Stock"
+       class="w-full h-6 flex items-center justify-center transition-all duration-200 cursor-pointer group relative"
+       [style.color]="themeService.currentTheme().atmosphere.textMuted">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m7.5 4.27 9 5.15" />
+        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+        <path d="m3.3 7 8.7 5 8.7-5M12 22V12" />
+      </svg>
+      <div class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full scale-y-0 transition-transform duration-300" [style.backgroundColor]="themeService.currentTheme().primaryColor"></div>
+    </a>
 
     <!-- Sparkle Theme (Exact Figma Shape) -->
     <button (click)="openThemeSettings()" title="Personalizar"
