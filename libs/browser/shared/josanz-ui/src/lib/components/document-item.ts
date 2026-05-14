@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-document-item',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div 
       class="flex items-center justify-between p-3 md:p-4 border-b last:border-b-0 transition-colors hover:bg-[rgba(0,0,0,0.02)]"
