@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -10,12 +11,18 @@ import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService 
 })
 export class JosanzDeliveryNotesFeatureListComponent {
   readonly themeService = inject(JosanzThemeService);
+  private router = inject(Router);
+
   title = 'Albaranes';
   primaryBtnLabel = 'Añadir Albarán +';
   filterOptions = ['Todas', 'Pendiente', 'Firmado', 'Facturado'];
 
   onAdd() {
-    console.log('Añadir albarán');
+    this.router.navigate(['/delivery-notes/new']);
+  }
+
+  openDetail() {
+    this.router.navigate(['/delivery-notes/1']);
   }
 
   onFilter(filter: string) {
@@ -26,3 +33,4 @@ export class JosanzDeliveryNotesFeatureListComponent {
     console.log('Exportar a Excel');
   }
 }
+

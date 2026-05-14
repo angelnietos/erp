@@ -8,4 +8,18 @@ export const josanzUsersRoutes: Route[] = [
         (m) => m.JosanzUsersListComponent
       ),
   },
+  {
+    path: 'new',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-users-feature-list').then(
+        (m) => m.JosanzUserCreateComponent
+      ),
+  },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-users-feature-list').then(
+        (m) => m.JosanzUserDetailComponent
+      ),
+  },
 ];

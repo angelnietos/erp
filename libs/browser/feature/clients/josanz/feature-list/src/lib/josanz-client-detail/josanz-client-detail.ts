@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   DetailCardComponent,
-  ButtonComponent,
   MainTemplateCardComponent,
   MainDetailLayoutComponent
 } from '@josanz-erp/josanz-ui';

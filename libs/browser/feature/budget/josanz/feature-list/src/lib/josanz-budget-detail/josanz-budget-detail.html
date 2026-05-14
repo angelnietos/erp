@@ -1,0 +1,40 @@
+<josanz-main-detail-layout 
+  title="Detalle de Presupuesto" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="py-4">
+    <!-- Tab: General -->
+    @if (activeTab() === 'General') {
+      <div class="grid grid-cols-2 gap-8 py-4">
+        <div class="space-y-6">
+          <div class="text-[14px] text-[#989898] font-medium uppercase">Información del Presupuesto</div>
+          <div class="bg-slate-50 p-6 rounded-xl space-y-4">
+            <div><span class="text-[#989898] block text-[12px]">Nº Presupuesto</span><span class="font-medium">PRE-2024-001</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Cliente</span><span class="font-medium">Construcciones S.A.</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Fecha</span><span class="font-medium">14/05/2024</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Estado</span><span class="font-medium text-blue-600">Borrador</span></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab: Líneas -->
+    @if (activeTab() === 'Líneas') {
+      <div class="py-10 text-center text-[#989898]">
+        Sección de líneas de presupuesto en desarrollo.
+      </div>
+    }
+
+    <!-- Tab: Documentación -->
+    @if (activeTab() === 'Documentación') {
+      <div class="py-10 text-center text-[#989898]">
+        No hay documentos adjuntos.
+      </div>
+    }
+  </div>
+</josanz-main-detail-layout>

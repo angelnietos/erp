@@ -1,23 +1,23 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   MainListLayoutComponent,
   MainTemplateCardComponent,
   BaseListComponent,
   JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
-import { JosanzUserCreateComponent } from '../josanz-user-create/josanz-user-create';
 
 @Component({
   selector: 'lib-josanz-users-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, MainTemplateCardComponent, JosanzUserCreateComponent],
+  imports: [CommonModule, MainListLayoutComponent, MainTemplateCardComponent],
   templateUrl: './josanz-users-feature-list.html',
   styleUrl: './josanz-users-feature-list.css',
 })
 export class JosanzUsersListComponent extends BaseListComponent {
   readonly themeService = inject(JosanzThemeService);
-  showCreateModal = false;
+  private router = inject(Router);
 
   constructor() {
     super();
@@ -27,10 +27,10 @@ export class JosanzUsersListComponent extends BaseListComponent {
   }
 
   override onAdd() {
-    this.showCreateModal = true;
+    this.router.navigate(['/users/new']);
   }
 
-  onCloseModal() {
-    this.showCreateModal = false;
+  openDetail() {
+    this.router.navigate(['/users/1']);
   }
 }

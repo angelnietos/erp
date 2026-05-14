@@ -1,6 +1,13 @@
-<josanz-modal title="Nuevo Usuari@" (close)="onCancel()">
-  
-  <div style="display:flex; flex-direction:column; gap:32px; width:100%;">
+<josanz-main-detail-layout 
+  title="Nuevo Usuario" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab" 
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Crear usuario"
+>
+  <div style="display:flex; flex-direction:column; gap:32px; width:100%; max-width: 600px; padding-top: 24px;">
     <!-- Avatar: usar el componente existente con size='lg' -->
     <josanz-user-avatar size="lg"></josanz-user-avatar>
 
@@ -14,23 +21,4 @@
       <josanz-input label="Rol" placeholder="Usuario" controlName="rol" [parentForm]="form"></josanz-input>
     </div>
   </div>
-
-  <!-- Footer: Cancelar + Guardar (280x48px) -->
-  <div footer-actions style="display:flex; align-items:center; justify-content:center; gap:32px; width:100%;">
-    <josanz-button
-      label="Cancelar"
-      variant="ghost"
-      size="lg"
-      [showIcon]="false"
-      (btnClick)="onCancel()">
-    </josanz-button>
-    <josanz-button
-      label="Guardar cambios"
-      size="lg"
-      [showIcon]="false"
-      (btnClick)="onSave()"
-      [disabled]="form.invalid">
-    </josanz-button>
-  </div>
-
-</josanz-modal>
+</josanz-main-detail-layout>

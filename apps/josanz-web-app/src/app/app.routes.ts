@@ -43,16 +43,12 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'budgets',
-    loadComponent: () =>
-      import('@josanz-erp/josanz-budgets-feature-list').then(
-        (m) => m.JosanzBudgetsFeatureListComponent
-      ),
+    loadChildren: () =>
+      import('@josanz-erp/josanz-budgets-shell').then((m) => m.josanzBudgetsRoutes),
   },
   {
     path: 'delivery-notes',
-    loadComponent: () =>
-      import('@josanz-erp/josanz-delivery-notes-feature-list').then(
-        (m) => m.JosanzDeliveryNotesFeatureListComponent
-      ),
+    loadChildren: () =>
+      import('@josanz-erp/josanz-delivery-notes-shell').then((m) => m.josanzDeliveryNotesRoutes),
   },
 ];

@@ -1,0 +1,40 @@
+<josanz-main-detail-layout 
+  title="Detalle de Usuario" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="py-4">
+    <!-- Tab: Datos usuario -->
+    @if (activeTab() === 'Datos usuario') {
+      <div class="grid grid-cols-2 gap-8 py-4">
+        <div class="space-y-6">
+          <div class="text-[14px] text-[#989898] font-medium uppercase">Información Personal</div>
+          <div class="bg-slate-50 p-6 rounded-xl space-y-4">
+            <div><span class="text-[#989898] block text-[12px]">Nombre completo</span><span class="font-medium">Juan Pérez</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Email</span><span class="font-medium">juan.perez@josanz.com</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Teléfono</span><span class="font-medium">+34 600 000 002</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Rol</span><span class="font-medium">Operario</span></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab: Permisos -->
+    @if (activeTab() === 'Permisos') {
+      <div class="py-10 text-center text-[#989898]">
+        Sección de permisos en desarrollo.
+      </div>
+    }
+
+    <!-- Tab: Actividad -->
+    @if (activeTab() === 'Actividad') {
+      <div class="py-10 text-center text-[#989898]">
+        No hay actividad reciente registrada para este usuario.
+      </div>
+    }
+  </div>
+</josanz-main-detail-layout>

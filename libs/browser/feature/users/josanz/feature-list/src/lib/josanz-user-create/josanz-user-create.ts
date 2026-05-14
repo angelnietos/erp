@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  ModalComponent,
   InputComponent,
-  ButtonComponent,
   UserAvatarComponent,
+  MainDetailLayoutComponent
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -14,20 +14,22 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ModalComponent,
     InputComponent,
-    ButtonComponent,
     UserAvatarComponent,
+    MainDetailLayoutComponent
   ],
   templateUrl: './josanz-user-create.html',
   styleUrl: './josanz-user-create.css',
 })
 export class JosanzUserCreateComponent {
-  @Output() close = new EventEmitter<void>();
+  private router = inject(Router);
+  private fb = inject(FormBuilder);
   
   form: FormGroup;
+  tabs = ['Datos usuario'];
+  activeTab = 'Datos usuario';
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.form = this.fb.group({
       nombre: ['', Validators.required],
       apellidos: ['', Validators.required],
@@ -38,14 +40,19 @@ export class JosanzUserCreateComponent {
     });
   }
 
+  onBack() {
+    this.router.navigate(['/users']);
+  }
+
   onSave() {
     if (this.form.valid) {
-      console.log('Guardando usuario:', this.form.value);
-      this.close.emit();
+      console.log('Creando usuario:', this.form.value);
+      this.onBack();
     }
   }
 
   onCancel() {
-    this.close.emit();
+    this.onBack();
   }
 }
+

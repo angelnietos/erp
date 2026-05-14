@@ -1,42 +1,16 @@
-<josanz-modal title="Cliente" (close)="onCancel()">
-
-  <!-- Tabs: Datos cliente / Operadores / Eventos (Figma: 25px alto, radio 6px, activo #080808 + sombra) -->
-  <div class="client-create-tabs" role="tablist">
-    <button
-      type="button"
-      role="tab"
-      class="client-create-tab"
-      [class.client-create-tab--active]="activeTab() === 'datos'"
-      [attr.aria-selected]="activeTab() === 'datos'"
-      (click)="setTab('datos')"
-    >
-      Datos cliente
-    </button>
-    <button
-      type="button"
-      role="tab"
-      class="client-create-tab"
-      [class.client-create-tab--active]="activeTab() === 'operadores'"
-      [attr.aria-selected]="activeTab() === 'operadores'"
-      (click)="setTab('operadores')"
-    >
-      Operadores
-    </button>
-    <button
-      type="button"
-      role="tab"
-      class="client-create-tab"
-      [class.client-create-tab--active]="activeTab() === 'eventos'"
-      [attr.aria-selected]="activeTab() === 'eventos'"
-      (click)="setTab('eventos')"
-    >
-      Eventos
-    </button>
-  </div>
-
+<josanz-main-detail-layout 
+  title="Nuevo Cliente" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Crear cliente"
+>
   <!-- Tab: Datos cliente -->
-  @if (activeTab() === 'datos') {
-    <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%;">
+  @if (activeTab() === 'Datos cliente') {
+    <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%; max-width: 800px; padding-top: 24px;">
       <josanz-input
         label="Nombre Apellidos / Razón social"
         placeholder="Empresa Ejemplo"
@@ -61,35 +35,18 @@
   }
 
   <!-- Tab: Operadores (placeholder) -->
-  @if (activeTab() === 'operadores') {
+  @if (activeTab() === 'Operadores') {
     <div style="padding:40px 0; text-align:center; color:#A0AEC0; font-size:14px;">
-      Sin operadores asignados
+      Guarde el cliente primero para asignar operadores
     </div>
   }
 
   <!-- Tab: Eventos (placeholder) -->
-  @if (activeTab() === 'eventos') {
+  @if (activeTab() === 'Eventos') {
     <div style="padding:40px 0; text-align:center; color:#A0AEC0; font-size:14px;">
-      Sin eventos registrados
+      Guarde el cliente primero para registrar eventos
     </div>
   }
 
-  <!-- Footer -->
-  <div footer-actions style="display:flex; align-items:center; justify-content:center; gap:32px; width:100%;">
-    <josanz-button
-      label="Cancelar"
-      variant="secondary"
-      size="lg"
-      [showIcon]="false"
-      (btnClick)="onCancel()">
-    </josanz-button>
-    <josanz-button
-      label="Guardar cambios"
-      size="lg"
-      [showIcon]="false"
-      (btnClick)="onSave()"
-      [disabled]="form.invalid">
-    </josanz-button>
-  </div>
+</josanz-main-detail-layout>
 
-</josanz-modal>

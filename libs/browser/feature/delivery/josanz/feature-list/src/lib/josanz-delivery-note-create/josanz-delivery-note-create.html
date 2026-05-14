@@ -1,0 +1,31 @@
+<josanz-main-detail-layout 
+  title="Nuevo Albarán" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Crear albarán"
+>
+  <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%; max-width: 600px; padding-top: 24px;">
+    <josanz-input
+      label="Cliente"
+      placeholder="Seleccione un cliente"
+      controlName="cliente"
+      [parentForm]="form">
+    </josanz-input>
+    <josanz-input
+      label="Fecha Entrega"
+      type="date"
+      controlName="fecha"
+      [parentForm]="form">
+    </josanz-input>
+    <josanz-input
+      label="Dirección de Entrega"
+      placeholder="Calle, Número, Ciudad..."
+      controlName="direccion"
+      [parentForm]="form">
+    </josanz-input>
+  </div>
+</josanz-main-detail-layout>

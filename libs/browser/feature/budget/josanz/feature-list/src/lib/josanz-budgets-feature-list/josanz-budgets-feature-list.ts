@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -10,12 +11,18 @@ import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService 
 })
 export class JosanzBudgetsFeatureListComponent {
   readonly themeService = inject(JosanzThemeService);
+  private router = inject(Router);
+  
   title = 'Presupuestos';
   primaryBtnLabel = 'Añadir Presupuesto +';
   filterOptions = ['Todas', 'Borrador', 'Enviado', 'Aceptado', 'Rechazado'];
 
   onAdd() {
-    console.log('Añadir presupuesto');
+    this.router.navigate(['/budgets/new']);
+  }
+
+  openDetail() {
+    this.router.navigate(['/budgets/1']);
   }
 
   onFilter(filter: string) {
@@ -26,3 +33,4 @@ export class JosanzBudgetsFeatureListComponent {
     console.log('Exportar a Excel');
   }
 }
+

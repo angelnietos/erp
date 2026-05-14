@@ -9,6 +9,13 @@ export const josanzClientsRoutes: Route[] = [
       ),
   },
   {
+    path: 'new',
+    loadComponent: () =>
+      import('@josanz-erp/feature-list').then(
+        (m) => m.JosanzClientCreateComponent
+      ),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('@josanz-erp/feature-list').then(

@@ -1,0 +1,40 @@
+<josanz-main-detail-layout 
+  title="Detalle de Albarán" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="py-4">
+    <!-- Tab: General -->
+    @if (activeTab() === 'General') {
+      <div class="grid grid-cols-2 gap-8 py-4">
+        <div class="space-y-6">
+          <div class="text-[14px] text-[#989898] font-medium uppercase">Información del Albarán</div>
+          <div class="bg-slate-50 p-6 rounded-xl space-y-4">
+            <div><span class="text-[#989898] block text-[12px]">Nº Albarán</span><span class="font-medium">ALB-2024-055</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Cliente</span><span class="font-medium">Hotel Playa Sol</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Fecha de Entrega</span><span class="font-medium">14/05/2024</span></div>
+            <div><span class="text-[#989898] block text-[12px]">Estado</span><span class="font-medium text-green-600">Entregado</span></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab: Artículos -->
+    @if (activeTab() === 'Artículos') {
+      <div class="py-10 text-center text-[#989898]">
+        Sección de artículos en desarrollo.
+      </div>
+    }
+
+    <!-- Tab: Firmas -->
+    @if (activeTab() === 'Firmas') {
+      <div class="py-10 text-center text-[#989898]">
+        No hay firmas registradas.
+      </div>
+    }
+  </div>
+</josanz-main-detail-layout>

@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,7 +8,7 @@ import {
 } from '@josanz-erp/josanz-ui';
 
 @Component({
-  selector: 'lib-josanz-client-create',
+  selector: 'lib-josanz-budget-create',
   standalone: true,
   imports: [
     CommonModule,
@@ -16,23 +16,22 @@ import {
     InputComponent,
     MainDetailLayoutComponent
   ],
-  templateUrl: './josanz-client-create.html',
-  styleUrl: './josanz-client-create.css',
+  templateUrl: './josanz-budget-create.html',
 })
-export class JosanzClientCreateComponent {
+export class JosanzBudgetCreateComponent {
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  activeTab = signal<string>('Datos cliente');
-  tabs = ['Datos cliente', 'Operadores', 'Eventos'];
+  activeTab = signal<string>('Datos generales');
+  tabs = ['Datos generales'];
 
   form: FormGroup;
 
   constructor() {
     this.form = this.fb.group({
-      razonSocial: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: ['', Validators.required],
+      cliente: ['', Validators.required],
+      fecha: [new Date().toISOString().substring(0, 10), Validators.required],
+      notas: [''],
     });
   }
 
@@ -41,12 +40,12 @@ export class JosanzClientCreateComponent {
   }
 
   onBack() {
-    this.router.navigate(['/clients']);
+    this.router.navigate(['/budgets']);
   }
 
   onSave() {
     if (this.form.valid) {
-      console.log('Creando cliente:', this.form.value);
+      console.log('Creando presupuesto:', this.form.value);
       this.onBack();
     }
   }
@@ -55,4 +54,3 @@ export class JosanzClientCreateComponent {
     this.onBack();
   }
 }
-

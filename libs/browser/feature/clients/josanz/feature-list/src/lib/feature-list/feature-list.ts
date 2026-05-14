@@ -7,7 +7,6 @@ import {
   BaseListComponent,
   JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
-import { JosanzClientCreateComponent } from '../josanz-client-create/josanz-client-create';
 
 @Component({
   selector: 'josanz-clients-list',
@@ -16,7 +15,6 @@ import { JosanzClientCreateComponent } from '../josanz-client-create/josanz-clie
     CommonModule,
     MainListLayoutComponent,
     MainTemplateCardComponent,
-    JosanzClientCreateComponent,
   ],
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
@@ -24,7 +22,6 @@ import { JosanzClientCreateComponent } from '../josanz-client-create/josanz-clie
 export class JosanzClientsListComponent extends BaseListComponent {
   readonly themeService = inject(JosanzThemeService);
   private router = inject(Router);
-  showCreateModal = signal(false);
 
   constructor() {
     super();
@@ -33,11 +30,7 @@ export class JosanzClientsListComponent extends BaseListComponent {
   }
 
   override onAdd() {
-    this.showCreateModal.set(true);
-  }
-
-  onModalClose() {
-    this.showCreateModal.set(false);
+    this.router.navigate(['/clients/new']);
   }
 
   openDetail() {

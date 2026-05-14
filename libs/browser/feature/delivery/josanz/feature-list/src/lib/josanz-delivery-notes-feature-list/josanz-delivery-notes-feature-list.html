@@ -33,6 +33,7 @@
     ]; track item.id) {
       <josanz-main-template-card
         style="cursor: pointer; display: block;"
+        (click)="openDetail()"
         [title]="item.id"
         [data]="[item.cliente, item.fecha, item.proy, item.op]"
         [status]="item.status"

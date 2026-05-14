@@ -31,6 +31,7 @@
     ]; track user.email) {
       <josanz-main-template-card
         style="cursor: pointer; display: block;"
+        (click)="openDetail()"
         [title]="user.name"
         [data]="[user.email, user.tel, user.role, user.access]"
         [status]="user.status"
@@ -40,7 +41,4 @@
   </div>
 </josanz-main-list-layout>
 
-<!-- Modal para añadir usuario -->
-@if (showCreateModal) {
-  <josanz-user-create (close)="onCloseModal()"></josanz-user-create>
-}
+
