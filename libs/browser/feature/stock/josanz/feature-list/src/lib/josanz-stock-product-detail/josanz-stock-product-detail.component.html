@@ -1,5 +1,6 @@
 <josanz-main-detail-layout
   [title]="'Producto ' + (productId || '—')"
+  [showFooterActions]="false"
   [tabs]="tabs"
   [activeTab]="activeTab()"
   (tabChange)="setTab($event)"

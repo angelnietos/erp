@@ -58,13 +58,17 @@ import { ButtonComponent } from './button';
         </div>
       </div>
 
-      <!-- Scrollable Content: ancho máximo para no dejar mitades vacías en pantallas anchas -->
-      <div class="flex-1 overflow-y-auto px-5 md:px-10 pb-40 md:pb-32 no-scrollbar">
+      <!-- Scrollable Content: padding inferior grande solo si hay barra de acciones fija -->
+      <div
+        class="flex-1 overflow-y-auto px-5 md:px-10 no-scrollbar"
+        [ngClass]="showFooterActions ? 'pb-40 md:pb-32' : 'pb-8 md:pb-12'"
+      >
         <div class="mx-auto w-full max-w-[1200px]">
           <ng-content></ng-content>
         </div>
       </div>
 
+      @if (showFooterActions) {
       <!-- Fixed Footer -->
       <div 
         class="fixed bottom-0 left-0 md:left-[68px] right-0 h-auto md:h-[100px] flex flex-col md:flex-row items-center justify-end px-5 md:px-10 py-6 md:py-0 gap-3 md:gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
@@ -92,6 +96,7 @@ import { ButtonComponent } from './button';
           ></josanz-button>
         </div>
       </div>
+      }
     </div>
   `,
   styles: [`
@@ -107,6 +112,12 @@ export class MainDetailLayoutComponent {
   @Input() activeTab = '';
   @Input() saveLabel = 'Guardar cambios';
   @Input() cancelLabel = 'Cancelar';
+
+  /**
+   * Muestra la barra fija inferior (Cancelar / Guardar).
+   * En vistas de solo lectura conviene `false`; en formularios de alta/edición `true`.
+   */
+  @Input() showFooterActions = true;
 
   @Output() back = new EventEmitter<void>();
   @Output() tabChange = new EventEmitter<string>();
