@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { InputComponent, MainDetailLayoutComponent } from '@josanz-erp/josanz-ui';
+import { InputComponent, MainDetailLayoutComponent, josanzNonEmptyTrim } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-stock-product-create',
@@ -18,8 +18,8 @@ export class JosanzStockProductCreateComponent {
   activeTab = signal('Datos del producto');
 
   readonly form: FormGroup = this.fb.group({
-    referencia: ['', Validators.required],
-    nombre: ['', Validators.required],
+    referencia: ['', josanzNonEmptyTrim],
+    nombre: ['', josanzNonEmptyTrim],
     categoria: [''],
     stockMin: ['0'],
     almacen: [''],

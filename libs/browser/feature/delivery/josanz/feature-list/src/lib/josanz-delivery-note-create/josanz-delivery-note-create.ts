@@ -2,10 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  InputComponent,
-  MainDetailLayoutComponent
-} from '@josanz-erp/josanz-ui';
+import { InputComponent, MainDetailLayoutComponent, josanzNonEmptyTrim } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-josanz-delivery-note-create',
@@ -29,9 +26,9 @@ export class JosanzDeliveryNoteCreateComponent {
 
   constructor() {
     this.form = this.fb.group({
-      cliente: ['', Validators.required],
+      cliente: ['', josanzNonEmptyTrim],
       fecha: [new Date().toISOString().substring(0, 10), Validators.required],
-      direccion: ['', Validators.required],
+      direccion: ['', josanzNonEmptyTrim],
     });
   }
 
