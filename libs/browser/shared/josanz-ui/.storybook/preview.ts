@@ -1,6 +1,8 @@
 import { storybookRouterDecorator } from './storybook-providers';
+import { JOSANZ_FIGMA_SHELL } from '../src/lib/theme/josanz-figma-tokens';
 import {
   JOSANZ_ATMOSPHERE_REGISTRY,
+  JOSANZ_DEFAULT_PRIMARY,
   applyJosanzThemeCssVariables,
   type JosanzAtmosphereName,
 } from '../src/lib/theme/josanz-theme-tokens';
@@ -12,14 +14,14 @@ const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sa
 // Light theme (default :root) + dark theme (data-theme="dark")
 const designTokens = `
 :root, [data-theme="light"] {
-  --josanz-bg: #f8fafc;
+  --josanz-bg: ${JOSANZ_FIGMA_SHELL.canvasBg};
   --josanz-surface: #ffffff;
   --josanz-text: #0f172a;
   --josanz-text-muted: #64748b;
-  --josanz-border: #f1f5f9;
-  --josanz-primary: #4f46e5;
+  --josanz-border: ${JOSANZ_FIGMA_SHELL.hairlineBorder};
+  --josanz-primary: ${JOSANZ_DEFAULT_PRIMARY};
   --josanz-on-primary: #ffffff;
-  --josanz-primary-hover: #4338ca;
+  --josanz-primary-hover: #1a2d44;
   --josanz-accent: #3b82f6;
   --josanz-danger: #ef4444;
   --josanz-danger-hover: #dc2626;
@@ -28,7 +30,7 @@ const designTokens = `
   --bg-primary: #ffffff;
   --bg-secondary: #f1f5f9;
   --surface: #ffffff;
-  --brand: #4f46e5;
+  --brand: ${JOSANZ_DEFAULT_PRIMARY};
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
@@ -90,11 +92,11 @@ const atmosphereDecorator = (
   storyFn: () => unknown,
   context: { globals: { josanzAtmosphere?: string } },
 ) => {
-  const key = (context.globals?.josanzAtmosphere ?? 'ubisoft') as JosanzAtmosphereName;
-  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.ubisoft;
+  const key = (context.globals?.josanzAtmosphere ?? 'neutral') as JosanzAtmosphereName;
+  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
   applyJosanzThemeCssVariables({
     atmosphere,
-    primaryColor: '#5850EC',
+    primaryColor: JOSANZ_DEFAULT_PRIMARY,
     themeName: 'luxe-rounded',
   });
   return storyFn();
@@ -139,7 +141,7 @@ export const globalTypes = {
   josanzAtmosphere: {
     name: 'Atmósfera',
     description: 'Paleta de fondo/texto (`JosanzThemeService`)',
-    defaultValue: 'ubisoft',
+    defaultValue: 'neutral',
     toolbar: {
       icon: 'mirror',
       items: atmosphereToolbarItems,
@@ -168,7 +170,7 @@ export const parameters = {
   backgrounds: {
     default: 'Luxe Light',
     values: [
-      { name: 'Luxe Light', value: '#f8fafc' },
+      { name: 'Luxe Light', value: '#fefefe' },
       { name: 'White',      value: '#ffffff' },
       { name: 'Luxe Dark',  value: '#0f172a' },
     ],

@@ -1,12 +1,14 @@
+/* Valores base alineados con `josanz-figma-tokens` (exports Figma Base/Login). */
 :root,
 [data-theme="light"] {
-  --josanz-bg: #f8fafc;
+  --josanz-bg: #fefefe;
   --josanz-surface: #ffffff;
-  --josanz-text: #222222;
-  --josanz-text-muted: #989898;
-  --josanz-border: #f1f5f9;
-  --josanz-primary: #000000;
-  --josanz-primary-hover: #333333;
+  --josanz-text: #0f172a;
+  --josanz-text-muted: #64748b;
+  --josanz-border: #e7edf1;
+  --josanz-primary: #0f1e2f;
+  --josanz-on-primary: #ffffff;
+  --josanz-primary-hover: #1a2d44;
   --josanz-accent: #3b82f6;
   --josanz-danger: #ef4444;
   --josanz-danger-hover: #dc2626;

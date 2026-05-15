@@ -1,5 +1,8 @@
 import type { JosanzControlShape } from '../josanz-control-styles';
-import { JOSANZ_FIGMA_SHELL } from './josanz-figma-tokens';
+import { JOSANZ_FIGMA_SHELL, JOSANZ_FIGMA_LOGIN } from './josanz-figma-tokens';
+
+/** Primario por defecto alineado con el frame Login de Figma (`Login.svg`). */
+export const JOSANZ_DEFAULT_PRIMARY = JOSANZ_FIGMA_LOGIN.primaryCta;
 
 export type JosanzThemeName = 'luxe-rounded' | 'luxe-sharp' | 'luxe-pill';
 
@@ -43,12 +46,13 @@ export interface JosanzThemeConfig {
 export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmosphereConfig> = {
   neutral: {
     name: 'neutral',
-    background: '#F8FAFC',
+    background: JOSANZ_FIGMA_SHELL.canvasBg,
     surface: '#FFFFFF',
     text: '#0F172A',
     textMuted: '#64748B',
-    border: '#E2E8F0',
+    border: JOSANZ_FIGMA_SHELL.hairlineBorder,
     shadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+    cardShadow: JOSANZ_FIGMA_SHELL.cardShadow,
     accent: '#635BFF',
   },
   ubisoft: {

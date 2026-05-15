@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import {
   JOSANZ_ATMOSPHERE_REGISTRY,
+  JOSANZ_DEFAULT_PRIMARY,
   applyJosanzThemeCssVariables,
   josanzReadableOnSolid,
   type JosanzAtmosphereName,
@@ -18,6 +19,7 @@ export type {
 
 export {
   JOSANZ_ATMOSPHERE_REGISTRY,
+  JOSANZ_DEFAULT_PRIMARY,
   josanzReadableOnSolid,
   applyJosanzThemeCssVariables,
 } from '../theme/josanz-theme-tokens';
@@ -31,8 +33,9 @@ export class JosanzThemeService {
   currentTheme = signal<JosanzThemeConfig>({
     name: 'luxe-rounded',
     defaultShape: 'rounded',
-    primaryColor: '#5850EC',
-    atmosphere: this.atmospheres.ubisoft,
+    /** Alineado con exports Figma (`test (5)`/`test (6)`) vía `josanz-figma-tokens`. */
+    primaryColor: JOSANZ_DEFAULT_PRIMARY,
+    atmosphere: this.atmospheres.neutral,
   });
 
   constructor() {
