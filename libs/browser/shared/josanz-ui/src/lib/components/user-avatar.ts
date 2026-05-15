@@ -69,14 +69,7 @@ export class UserAvatarComponent {
     return this.shape ?? this.themeService.currentTheme().defaultShape;
   }
 
-  /**
-   * Avatar compacto de cabecera: siempre círculo (referencia UI), independiente de `rounded`/`pill` del tema.
-   * Tamaño `lg` (formularios): respeta el shape del tema vía {@link josanzCornerAvatar}.
-   */
   private avatarCornerRadius(): string {
-    if (this.size === 'sm') {
-      return 'rounded-full';
-    }
     return josanzCornerAvatar(this.effectiveShape());
   }
 

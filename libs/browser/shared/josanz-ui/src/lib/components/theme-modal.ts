@@ -43,7 +43,7 @@ import { ButtonComponent } from './button';
             <div class="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-col gap-3 mt-6">
               <button 
                 (click)="themeService.setTheme('luxe-rounded')"
-                class="shape-selector"
+                class="shape-selector shape-selector--rounded"
                 [class.active]="themeService.currentTheme().name === 'luxe-rounded'"
               >
                 <div class="w-8 h-8 rounded-lg bg-[var(--josanz-primary)]"></div>
@@ -51,7 +51,7 @@ import { ButtonComponent } from './button';
               </button>
               <button 
                 (click)="themeService.setTheme('luxe-pill')"
-                class="shape-selector"
+                class="shape-selector shape-selector--pill"
                 [class.active]="themeService.currentTheme().name === 'luxe-pill'"
               >
                 <div class="w-8 h-8 rounded-full bg-[var(--josanz-primary)]"></div>
@@ -59,7 +59,7 @@ import { ButtonComponent } from './button';
               </button>
               <button 
                 (click)="themeService.setTheme('luxe-sharp')"
-                class="shape-selector"
+                class="shape-selector shape-selector--sharp"
                 [class.active]="themeService.currentTheme().name === 'luxe-sharp'"
               >
                 <div class="w-8 h-8 rounded-none bg-[var(--josanz-primary)]"></div>
@@ -124,10 +124,9 @@ import { ButtonComponent } from './button';
     }
     .shape-selector {
       display: flex;
-      items-center;
+      align-items: center;
       gap: 12px;
       padding: 12px;
-      border-radius: 16px;
       border: 2px solid var(--josanz-border);
       background: var(--josanz-bg);
       transition: all 0.2s;
@@ -135,6 +134,15 @@ import { ButtonComponent } from './button';
       text-align: left;
       font-weight: 600;
       color: var(--josanz-text);
+    }
+    .shape-selector--rounded {
+      border-radius: 12px;
+    }
+    .shape-selector--pill {
+      border-radius: 9999px;
+    }
+    .shape-selector--sharp {
+      border-radius: 2px;
     }
     .shape-selector:hover {
       border-color: var(--josanz-primary);
