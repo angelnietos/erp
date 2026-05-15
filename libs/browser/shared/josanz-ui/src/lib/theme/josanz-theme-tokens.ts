@@ -191,20 +191,44 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
 
 function parseCssColorToRgb(input: string): [number, number, number] | null {
   const s = input.trim();
-  const hex = s.match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+  const hex = s.match(/^#([\da-f]{3}|[\da-f]{6}|[\da-f]{8})$/i);
   if (hex) {
     let h = hex[1];
     if (h.length === 3) {
       h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    } else if (h.length === 8) {
+      h = h.slice(0, 6);
     }
     const n = parseInt(h, 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  const rgb = s.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
-  if (rgb) {
-    return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])];
+  const rgbComma = s.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+  if (rgbComma) {
+    return [Number(rgbComma[1]), Number(rgbComma[2]), Number(rgbComma[3])];
+  }
+  const rgbSpace = s.match(/^rgba?\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/i);
+  if (rgbSpace) {
+    return [Number(rgbSpace[1]), Number(rgbSpace[2]), Number(rgbSpace[3])];
   }
   return null;
+}
+
+function srgbChannelToLinear(c: number): number {
+  const x = Math.max(0, Math.min(255, c)) / 255;
+  return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+}
+
+/** Luminancia relativa WCAG 2.1 (0..1). */
+function relativeLuminanceFromRgb(rgb: [number, number, number]): number {
+  const [r, g, b] = rgb.map(srgbChannelToLinear);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** Ratio de contraste WCAG 2.1 entre dos luminancias. */
+function contrastRatio(lumA: number, lumB: number): number {
+  const lighter = Math.max(lumA, lumB);
+  const darker = Math.min(lumA, lumB);
+  return (lighter + 0.05) / (darker + 0.05);
 }
 
 /** Texto claro u oscuro con buen contraste sobre un color sólido (botones, badges). */
@@ -213,12 +237,12 @@ export function josanzReadableOnSolid(background: string): string {
   if (!rgb) {
     return '#FFFFFF';
   }
-  const lin = rgb.map((c) => {
-    const x = c / 255;
-    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
-  });
-  const L = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
-  return L > 0.4 ? '#0F172A' : '#FFFFFF';
+  const Lbg = relativeLuminanceFromRgb(rgb);
+  const Lwhite = 1;
+  const Lblack = relativeLuminanceFromRgb([15, 23, 42]);
+  const crWhite = contrastRatio(Lbg, Lwhite);
+  const crBlack = contrastRatio(Lbg, Lblack);
+  return crWhite >= crBlack ? '#FFFFFF' : '#0F172A';
 }
 
 /** Aplica tokens de atmósfera y marca a `:root` y `body` (app + Storybook). */
@@ -255,6 +279,8 @@ export function applyJosanzThemeCssVariables(params: {
 export function applyJosanzStructuralCssVariables(root: HTMLElement = document.documentElement): void {
   const isDark = root.getAttribute('data-theme') === 'dark';
   if (isDark) {
+    root.style.setProperty('--josanz-status-pill-muted-bg', '#334155');
+    root.style.setProperty('--josanz-status-pill-muted-text', '#f8fafc');
     root.style.setProperty('--josanz-stroke-widget', '#334155');
     root.style.setProperty('--josanz-stroke-field', '#475569');
     root.style.setProperty('--josanz-row-line', '#334155');
@@ -267,6 +293,8 @@ export function applyJosanzStructuralCssVariables(root: HTMLElement = document.d
     root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(0,0,0,0.35)');
     root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0,0,0,0.25)');
   } else {
+    root.style.setProperty('--josanz-status-pill-muted-bg', JOSANZ_FIGMA_LOGIN.primaryCta);
+    root.style.setProperty('--josanz-status-pill-muted-text', JOSANZ_FIGMA_LOGIN.onPrimaryCta);
     root.style.setProperty('--josanz-stroke-widget', JOSANZ_FIGMA_DASHBOARD.widgetStroke);
     root.style.setProperty('--josanz-stroke-field', JOSANZ_FIGMA_LOGIN.fieldStroke);
     root.style.setProperty('--josanz-row-line', JOSANZ_FIGMA_DASHBOARD.rowLine);

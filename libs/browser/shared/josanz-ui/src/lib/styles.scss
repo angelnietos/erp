@@ -1,9 +1,10 @@
-/* Preflight primero; el design system después (misma hoja = mismo orden en dev y en build). */
+/* Design system (Sass @use debe ir antes de @tailwind, requisito de Dart Sass). */
+@use './styles/main';
+
+/* Preflight y utilidades Tailwind después del design system. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './styles/main';
 
 /* Custom Josanz UI adjustments */
 body {

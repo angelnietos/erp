@@ -1,7 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
-import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 
 @Component({
   selector: 'lib-detail-card',
@@ -31,10 +30,9 @@ export class DetailCardComponent {
   }
 
   badgeStyle(): Record<string, string> {
-    const p = this.themeService.currentTheme().primaryColor;
     return {
-      backgroundColor: p,
-      color: josanzReadableOnSolid(p),
+      backgroundColor: 'var(--josanz-status-pill-muted-bg)',
+      color: 'var(--josanz-status-pill-muted-text)',
     };
   }
 }

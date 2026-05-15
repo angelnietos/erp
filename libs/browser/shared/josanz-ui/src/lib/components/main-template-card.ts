@@ -1,7 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
-import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
@@ -30,13 +29,11 @@ export class MainTemplateCardComponent {
   }
 
   getBadgeStyles() {
-    const theme = this.themeService.currentTheme();
-
     let backgroundColor = 'var(--josanz-badge-neutral)';
     let color = 'var(--josanz-text)';
     if (this.statusVariant === 'primary') {
-      backgroundColor = theme.primaryColor;
-      color = josanzReadableOnSolid(theme.primaryColor);
+      backgroundColor = 'var(--josanz-status-pill-muted-bg)';
+      color = 'var(--josanz-status-pill-muted-text)';
     } else if (this.statusVariant === 'success') {
       backgroundColor = 'var(--josanz-success)';
       color = '#ffffff';

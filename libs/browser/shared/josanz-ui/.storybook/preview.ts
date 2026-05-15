@@ -60,6 +60,8 @@ const designTokens = `
   --josanz-list-card-pad-x-md: 2rem;
   --josanz-list-card-pad-y: 1.25rem;
   --josanz-list-card-pad-y-md: 1.5rem;
+  --josanz-status-pill-muted-bg: ${JOSANZ_FIGMA_LOGIN.primaryCta};
+  --josanz-status-pill-muted-text: ${JOSANZ_FIGMA_LOGIN.onPrimaryCta};
   --josanz-footer-elev: 0 -10px 30px rgba(0,0,0,0.1);
   /* legacy compat */
   --bg-primary: #ffffff;
@@ -120,6 +122,8 @@ const designTokens = `
   --josanz-list-card-pad-x-md: 2rem;
   --josanz-list-card-pad-y: 1.25rem;
   --josanz-list-card-pad-y-md: 1.5rem;
+  --josanz-status-pill-muted-bg: #334155;
+  --josanz-status-pill-muted-text: #f8fafc;
   --josanz-footer-elev: 0 -10px 30px rgba(0,0,0,0.45);
   --bg-primary: #1e293b;
   --surface: #1e293b;

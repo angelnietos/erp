@@ -99,9 +99,8 @@ export class ButtonComponent {
   getTextColor() {
     const t = this.themeService.currentTheme();
     if (this.variant === 'primary') {
-      return this.customColor
-        ? josanzReadableOnSolid(this.customColor)
-        : 'var(--josanz-on-primary)';
+      const fill = this.customColor ?? t.primaryColor;
+      return josanzReadableOnSolid(fill);
     }
     if (this.variant === 'danger') {
       return 'var(--josanz-on-danger)';
