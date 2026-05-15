@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MainTemplateCard } from './main-template-card';
+import { MainTemplateCardComponent } from './main-template-card';
 
-describe('MainTemplateCard', () => {
-  let component: MainTemplateCard;
-  let fixture: ComponentFixture<MainTemplateCard>;
+describe('MainTemplateCardComponent', () => {
+  let component: MainTemplateCardComponent;
+  let fixture: ComponentFixture<MainTemplateCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainTemplateCard],
+      imports: [MainTemplateCardComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MainTemplateCard);
+    fixture = TestBed.createComponent(MainTemplateCardComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -35,4 +35,7 @@ export {
   JOSANZ_FIGMA_LOGIN,
   JOSANZ_FIGMA_SEMANTIC,
   JOSANZ_FIGMA_SHELL,
+  JOSANZ_FIGMA_STATUS_PILLS,
+  JOSANZ_FIGMA_STATUS_PILLS_DARK,
 } from './lib/theme/josanz-figma-tokens';
+export type { JosanzStatusPillKey } from './lib/theme/josanz-figma-tokens';

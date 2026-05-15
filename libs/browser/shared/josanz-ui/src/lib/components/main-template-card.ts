@@ -1,7 +1,11 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
+import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
+
+/** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
+export type JosanzStatusPillVariant = JosanzStatusPillKey | 'primary' | 'success' | 'warning' | 'error';
 
 @Component({
   selector: 'josanz-main-template-card',
@@ -15,7 +19,7 @@ export class MainTemplateCardComponent {
 
   @Input() title = 'Facturación General';
   @Input() status = 'Pendiente';
-  @Input() statusVariant: 'primary' | 'success' | 'warning' | 'error' = 'warning';
+  @Input() statusVariant: JosanzStatusPillVariant = 'warning';
   @Input() data: string[] = ['ID: #4502', 'Fecha: 12/05/2026', 'Total: 1.250€', 'Vencimiento: 30 días'];
   /** Labels shown inline on mobile next to each data value. Should match data array length. */
   @Input() labels: string[] = [];
@@ -28,26 +32,28 @@ export class MainTemplateCardComponent {
     };
   }
 
-  getBadgeStyles() {
-    let backgroundColor = 'var(--josanz-badge-neutral)';
-    let color = 'var(--josanz-text)';
-    if (this.statusVariant === 'primary') {
-      backgroundColor = 'var(--josanz-status-pill-muted-bg)';
-      color = 'var(--josanz-status-pill-muted-text)';
-    } else if (this.statusVariant === 'success') {
-      backgroundColor = 'var(--josanz-success)';
-      color = '#ffffff';
-    } else if (this.statusVariant === 'warning') {
-      backgroundColor = 'var(--josanz-warning)';
-      color = '#0f172a';
-    } else if (this.statusVariant === 'error') {
-      backgroundColor = 'var(--josanz-danger)';
-      color = 'var(--josanz-on-danger)';
+  private resolvePillKey(): JosanzStatusPillKey {
+    const v = this.statusVariant;
+    if (v === 'primary') {
+      return 'borrador';
     }
+    if (v === 'success') {
+      return 'confirmado';
+    }
+    if (v === 'warning') {
+      return 'en-proceso';
+    }
+    if (v === 'error') {
+      return 'cancelado';
+    }
+    return v;
+  }
 
+  getBadgeStyles() {
+    const key = this.resolvePillKey();
     return {
-      'background-color': backgroundColor,
-      color,
+      'background-color': `var(--josanz-pill-${key}-bg)`,
+      color: `var(--josanz-pill-${key}-text)`,
       'box-shadow': 'var(--josanz-shadow-sm)',
       'text-transform': 'uppercase',
       'letter-spacing': '0.05em',

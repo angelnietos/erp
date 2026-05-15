@@ -1,0 +1,50 @@
+<josanz-main-list-layout
+  [title]="title"
+  [primaryBtnLabel]="primaryBtnLabel"
+  [filterOptions]="filterOptions"
+  [paginationTotal]="8"
+  [paginationPage]="1"
+  (primaryAction)="onAdd()"
+  (filterChange)="onTypologyFilter($event)"
+  (excelAction)="onExcel()"
+>
+  <div extra-filters class="flex w-full flex-col gap-3">
+    <p class="m-0 text-[13px] font-semibold leading-snug" style="color: var(--josanz-text-muted)">
+      180 eventos · 8 activos esta semana
+    </p>
+    <josanz-filter-tabs
+      [options]="statusFilterOptions"
+      [selected]="activeStatusFilter"
+      (selectionChange)="onStatusFilter($event)"
+    ></josanz-filter-tabs>
+  </div>
+
+  <div class="josanz-list-thead">
+    <div
+      class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
+    >
+      <div class="josanz-list-template-row__title truncate">ID</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Nombre evento</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Fecha</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Cliente</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Operador</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-4">
+    @for (ev of events; track ev.id) {
+      <josanz-main-template-card
+        style="cursor: pointer; display: block"
+        (click)="openDetail()"
+        [title]="ev.id"
+        [data]="[ev.name, ev.date, ev.client, ev.operator]"
+        [labels]="['Nombre', 'Fecha', 'Cliente', 'Operador']"
+        [status]="ev.status"
+        [statusVariant]="pillVariantForStatus(ev.status)"
+      ></josanz-main-template-card>
+    }
+  </div>
+</josanz-main-list-layout>

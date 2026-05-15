@@ -5,6 +5,9 @@ import {
   JOSANZ_FIGMA_LOGIN,
   JOSANZ_FIGMA_SEMANTIC,
   JOSANZ_FIGMA_SHELL,
+  JOSANZ_FIGMA_STATUS_PILLS,
+  JOSANZ_FIGMA_STATUS_PILLS_DARK,
+  type JosanzStatusPillKey,
 } from './josanz-figma-tokens';
 
 /** Primario por defecto alineado con el frame Login de Figma (`Login.svg`). */
@@ -307,6 +310,15 @@ export function applyJosanzThemeCssVariables(params: {
   applyJosanzStructuralCssVariables(root);
 }
 
+function applyJosanzStatusPillCssVariables(root: HTMLElement, isDark: boolean): void {
+  const palette = isDark ? JOSANZ_FIGMA_STATUS_PILLS_DARK : JOSANZ_FIGMA_STATUS_PILLS;
+  (Object.keys(palette) as JosanzStatusPillKey[]).forEach((key) => {
+    const { bg, text } = palette[key];
+    root.style.setProperty(`--josanz-pill-${key}-bg`, bg);
+    root.style.setProperty(`--josanz-pill-${key}-text`, text);
+  });
+}
+
 /** Tokens de layout Figma (trazos, radios, superficies) + semántica; respeta `data-theme="dark"`. */
 export function applyJosanzStructuralCssVariables(root: HTMLElement = document.documentElement): void {
   const isDark = root.getAttribute('data-theme') === 'dark';
@@ -366,4 +378,6 @@ export function applyJosanzStructuralCssVariables(root: HTMLElement = document.d
   } else {
     root.style.setProperty('--josanz-footer-elev', '0 -10px 30px rgba(0,0,0,0.1)');
   }
+
+  applyJosanzStatusPillCssVariables(root, isDark);
 }

@@ -305,6 +305,9 @@
       ],
       "@josanz-erp/josanz-delivery-notes-feature-list": [
         "libs/browser/feature/delivery/josanz/feature-list/src/index.ts"
+      ],
+      "@josanz-erp/josanz-events-feature-list": [
+        "libs/browser/feature/events/josanz/feature-list/src/index.ts"
       ]
     }
   },

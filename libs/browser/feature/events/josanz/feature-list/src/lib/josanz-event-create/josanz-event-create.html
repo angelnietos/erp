@@ -1,0 +1,22 @@
+<josanz-main-detail-layout
+  title="Nuevo evento"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Crear evento"
+  [saveDisabled]="form.invalid"
+>
+  <div style="display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 600px; padding-top: 24px">
+    <josanz-input
+      label="Nombre del evento"
+      placeholder="Ej. Congreso anual"
+      controlName="nombre"
+      [parentForm]="form"
+    ></josanz-input>
+    <josanz-input label="Fecha" type="date" controlName="fecha" [parentForm]="form"></josanz-input>
+    <josanz-input label="Cliente" placeholder="Cliente principal" controlName="cliente" [parentForm]="form"></josanz-input>
+  </div>
+</josanz-main-detail-layout>

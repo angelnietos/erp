@@ -72,3 +72,42 @@ export const JOSANZ_FIGMA_SEMANTIC = {
   danger: '#EF4444',
   badgeNeutral: '#E2E8F0',
 } as const;
+
+/**
+ * Pastillas de estado de flujo (guía producto: fondo suave + texto en tono oscuro de la misma gama;
+ * variantes “solid” más saturadas; Facturado intenso = verde bosque + blanco).
+ * Claves = sufijo de `--josanz-pill-{clave}-bg|text`.
+ */
+export const JOSANZ_FIGMA_STATUS_PILLS = {
+  borrador: { bg: '#ECEFF1', text: '#37474F' },
+  presupuesto: { bg: '#FFEEE8', text: '#9A3412' },
+  'presupuesto-solid': { bg: '#F97316', text: '#7C2D12' },
+  confirmado: { bg: '#D1FAE5', text: '#064E3B' },
+  'en-proceso': { bg: '#DBEAFE', text: '#1E3A8A' },
+  /** Misma familia que “en proceso”; lista Eventos (filtro “En producción”). */
+  'en-produccion': { bg: '#DBEAFE', text: '#1E3A8A' },
+  cancelado: { bg: '#FFE4E6', text: '#991B1B' },
+  incidencia: { bg: '#FEF9C3', text: '#713F12' },
+  'incidencia-solid': { bg: '#EAB308', text: '#713F12' },
+  pospuesto: { bg: '#EDE9FE', text: '#5B21B6' },
+  facturado: { bg: '#14532D', text: '#FFFFFF' },
+  'facturado-muted': { bg: '#EDE9FE', text: '#5B21B6' },
+} as const;
+
+export type JosanzStatusPillKey = keyof typeof JOSANZ_FIGMA_STATUS_PILLS;
+
+/** Misma semántica en `data-theme="dark"` (fondos más profundos, texto claro legible). */
+export const JOSANZ_FIGMA_STATUS_PILLS_DARK: Record<JosanzStatusPillKey, { bg: string; text: string }> = {
+  borrador: { bg: '#334155', text: '#F1F5F9' },
+  presupuesto: { bg: '#431407', text: '#FDBA74' },
+  'presupuesto-solid': { bg: '#9A3412', text: '#FFEDD5' },
+  confirmado: { bg: '#022C22', text: '#6EE7B7' },
+  'en-proceso': { bg: '#172554', text: '#93C5FD' },
+  'en-produccion': { bg: '#172554', text: '#93C5FD' },
+  cancelado: { bg: '#450A0A', text: '#FECACA' },
+  incidencia: { bg: '#422006', text: '#FDE047' },
+  'incidencia-solid': { bg: '#854D0E', text: '#FEF9C3' },
+  pospuesto: { bg: '#2E1065', text: '#DDD6FE' },
+  facturado: { bg: '#052E16', text: '#ECFDF5' },
+  'facturado-muted': { bg: '#2E1065', text: '#DDD6FE' },
+};

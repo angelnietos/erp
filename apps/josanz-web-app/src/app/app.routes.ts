@@ -51,4 +51,9 @@ export const appRoutes: Route[] = [
     loadChildren: () =>
       import('@josanz-erp/josanz-delivery-notes-feature-list').then((m) => m.josanzDeliveryNotesRoutes),
   },
+  {
+    path: 'events',
+    loadChildren: () =>
+      import('@josanz-erp/josanz-events-feature-list').then((m) => m.josanzEventsRoutes),
+  },
 ];

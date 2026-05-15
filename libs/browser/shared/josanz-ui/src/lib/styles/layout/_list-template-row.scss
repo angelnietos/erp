@@ -3,10 +3,11 @@
 // después de este archivo y pisar `display`/`flex-direction`; en ≥768px forzamos
 // la fila desktop con la misma especificidad + !important solo ahí.
 
-$josanz-list-template-gap: 1.5rem; // gap-6, alineado con filas Figma
-$josanz-list-template-title: 200px;
-$josanz-list-template-col-lead: 220px;
-$josanz-list-template-col-mid: 160px;
+// Hueco entre columnas de datos: equilibrio ancho útil vs alineación con cabecera
+$josanz-list-template-gap: 1rem;
+$josanz-list-template-title: 180px;
+$josanz-list-template-col-lead: 200px;
+$josanz-list-template-col-mid: 150px;
 $josanz-list-template-status: 140px;
 
 .josanz-list-template-row-wrap {
@@ -46,17 +47,6 @@ $josanz-list-template-status: 140px;
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0 !important;
-  }
-
-  /* Solo dentro de la cabecera (móvil: thead oculto por _shell). */
-  .josanz-list-thead > .josanz-list-template-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
   }
 
   .josanz-list-template-row__title {
@@ -101,8 +91,9 @@ $josanz-list-template-status: 140px;
     justify-content: flex-end;
   }
 
-  .josanz-list-thead .josanz-list-template-row__fields .josanz-list-template-row__field {
-    padding-left: 0.75rem;
+  /* Cabecera: mismas celdas que la card pero sin bullet; compensar para alinear texto con el span.truncate */
+  .josanz-list-thead .josanz-list-template-row__field {
+    padding-left: 0.75rem; // w-1.5 (0.375rem) + gap del bullet (0.375rem) en __field
     box-sizing: border-box;
   }
 }

@@ -1,6 +1,26 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import type { JosanzStatusPillVariant } from './main-template-card';
 import { MainTemplateCardComponent } from './main-template-card';
+
+const STATUS_VARIANTS = [
+  'primary',
+  'success',
+  'warning',
+  'error',
+  'borrador',
+  'presupuesto',
+  'presupuesto-solid',
+  'confirmado',
+  'en-proceso',
+  'en-produccion',
+  'cancelado',
+  'incidencia',
+  'incidencia-solid',
+  'pospuesto',
+  'facturado',
+  'facturado-muted',
+] as const satisfies readonly JosanzStatusPillVariant[];
 
 const meta: Meta<MainTemplateCardComponent> = {
   component: MainTemplateCardComponent,
@@ -10,7 +30,7 @@ const meta: Meta<MainTemplateCardComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Fila tipo tarjeta: superficie, borde y sombra del tema; badge con contraste automático (`josanzReadableOnSolid`) según variante.',
+          'Fila tipo tarjeta: superficie, borde y sombra del tema; pastilla de estado con tokens `--josanz-pill-*` (guía de flujo) o alias legacy `primary`…`error`.',
         ),
       },
     },
@@ -19,7 +39,7 @@ const meta: Meta<MainTemplateCardComponent> = {
   argTypes: {
     title: { control: 'text', description: 'Primera columna / título de la fila' },
     status: { control: 'text', description: 'Texto del badge' },
-    statusVariant: sbRadio(['primary', 'success', 'warning', 'error'] as const, 'Semántica del color del badge'),
+    statusVariant: sbRadio(STATUS_VARIANTS, 'Clave de pastilla o alias legacy'),
     data: {
       control: 'object',
       description: 'Celdas adicionales (array de strings), en orden de columnas',
@@ -56,7 +76,7 @@ export const Playground: Story = {
 export const StatusGrid: Story = {
   parameters: {
     docs: {
-      description: { story: 'Las cuatro variantes de badge en filas de ejemplo.' },
+      description: { story: 'Alias legacy (`primary`…`error`) mapeados a la guía de pastillas.' },
     },
   },
   render: () => ({
@@ -86,6 +106,32 @@ export const StatusGrid: Story = {
           statusVariant="error"
           [data]="['INV-004', '04/04/2026', 'Cliente W', '2.000 €', '-5 días']"
         ></josanz-main-template-card>
+      </div>
+    `,
+  }),
+};
+
+/** Guía de estados de flujo (paleta producto). */
+export const EstadosFlujo: Story = {
+  parameters: {
+    docs: {
+      description: { story: 'Claves explícitas: fondo suave + texto en tono oscuro; `facturado` = verde intenso + blanco.' },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="p-8 bg-slate-50 space-y-3 max-w-4xl">
+        <josanz-main-template-card title="Ejemplo" status="Borrador" statusVariant="borrador" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="En presupuesto" statusVariant="presupuesto" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="En presupuesto" statusVariant="presupuesto-solid" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Confirmado" statusVariant="confirmado" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="En proceso" statusVariant="en-proceso" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Cancelado" statusVariant="cancelado" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Incidencia" statusVariant="incidencia" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Incidencia" statusVariant="incidencia-solid" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Pospuesto" statusVariant="pospuesto" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Facturado" statusVariant="facturado" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="Ejemplo" status="Facturado" statusVariant="facturado-muted" [data]="['—','—','—','—']"></josanz-main-template-card>
       </div>
     `,
   }),
