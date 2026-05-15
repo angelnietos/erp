@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
@@ -24,12 +24,26 @@ export class PaginationComponent {
   /** Color de la página activa (y borde); por defecto usa `--josanz-primary`. */
   @Input() customColor?: string;
 
+  /** `figma`: bloque compacto estilo lienzo; `numbered`: páginas 1–N + «…». */
+  @Input() variant: 'figma' | 'numbered' = 'figma';
+
   @Output() pageChange = new EventEmitter<number>();
 
   readonly cornerClass = (): string =>
-    josanzCornerInner(this.shape ?? this.themeService.currentTheme().defaultShape);
+    josanzCornerButton(this.shape ?? this.themeService.currentTheme().defaultShape);
 
-  /** Página acotada a [1, total] cuando hay páginas. */
+  shellBlockClass(): string {
+    return `${this.cornerClass()} overflow-hidden inline-flex flex-row items-stretch border border-solid`;
+  }
+
+  shellBlockCombinedStyle(): Record<string, string> {
+    const base = this.surfaceNavStyle();
+    return {
+      ...base,
+      boxShadow: '0px 4px 8px rgba(178,178,178,0.28)',
+    };
+  }
+
   get effectiveCurrent(): number {
     if (this.total < 1) {
       return 1;

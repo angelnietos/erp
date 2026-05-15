@@ -33,6 +33,9 @@ export class MainListLayoutComponent implements OnChanges {
   /** Total de páginas; 0 oculta la paginación. */
   @Input() paginationTotal = 0;
 
+  /** `figma`: control tipo `actual / total`; `numbered`: página con números. */
+  @Input() paginationVariant: 'figma' | 'numbered' = 'figma';
+
   @Output() primaryAction = new EventEmitter<void>();
   @Output() excelAction = new EventEmitter<void>();
   @Output() filterChange = new EventEmitter<string>();

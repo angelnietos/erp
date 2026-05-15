@@ -1,53 +1,103 @@
-<nav
-  *ngIf="total > 0"
-  class="josanz-pagination flex flex-wrap items-center justify-center gap-1 sm:gap-2"
-  [style.--josanz-primary]="customColor || null"
-  aria-label="Paginación"
->
-  <button
-    type="button"
-    class="josanz-pagination__nav min-h-9 min-w-9 border border-solid px-2 text-sm font-semibold shadow-sm transition hover:brightness-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
-    [ngClass]="cornerClass()"
-    [ngStyle]="surfaceNavStyle()"
-    (click)="prev()"
-    [disabled]="effectiveCurrent <= 1"
-    aria-label="Página anterior"
+@if (total > 0 && variant === 'figma') {
+  <nav
+    class="flex w-full flex-wrap justify-center md:justify-end"
+    [style.--josanz-primary]="customColor || null"
+    aria-label="Paginación"
   >
-    ‹
-  </button>
-
-  <ol class="flex list-none flex-wrap items-center justify-center gap-1 p-0 m-0">
-    <li *ngFor="let item of pageItems(); trackBy: trackPageItem">
-      <span
-        *ngIf="item === 'ellipsis'"
-        class="josanz-pagination__ellipsis px-2 text-sm font-medium select-none"
-        [style.color]="themeService.currentTheme().atmosphere.textMuted"
-        aria-hidden="true"
-        >…</span
-      >
+    <div [class]="shellBlockClass()" [ngStyle]="shellBlockCombinedStyle()">
       <button
-        *ngIf="item !== 'ellipsis'"
         type="button"
-        class="josanz-pagination__page min-h-9 min-w-9 border border-solid text-sm font-semibold transition shadow-sm hover:brightness-[0.97]"
-        [ngClass]="cornerClass()"
-        [ngStyle]="pageButtonStyle(item === effectiveCurrent)"
-        [attr.aria-current]="item === effectiveCurrent ? 'page' : null"
-        (click)="go(item)"
+        class="flex min-h-9 min-w-9 shrink-0 items-center justify-center border-r border-solid px-3 text-[15px] font-semibold leading-none transition hover:brightness-[0.96] disabled:cursor-not-allowed disabled:opacity-35"
+        [style.border-color]="themeService.currentTheme().atmosphere.border"
+        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+        [style.color]="themeService.currentTheme().atmosphere.text"
+        [disabled]="effectiveCurrent <= 1"
+        aria-label="Página anterior"
+        (click)="prev()"
       >
-        {{ item }}
+        ‹
       </button>
-    </li>
-  </ol>
+      <div
+        class="flex select-none items-center gap-2 px-4 py-2 text-[13px] font-semibold tabular-nums"
+        [style.color]="themeService.currentTheme().atmosphere.text"
+        [style.border-color]="themeService.currentTheme().atmosphere.border"
+        aria-current="page"
+      >
+        <span>{{ effectiveCurrent }} / {{ total }}</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="opacity-50" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <button
+        type="button"
+        class="flex min-h-9 min-w-9 shrink-0 items-center justify-center border-l border-solid px-3 text-[15px] font-semibold leading-none transition hover:brightness-[0.96] disabled:cursor-not-allowed disabled:opacity-35"
+        [style.border-color]="themeService.currentTheme().atmosphere.border"
+        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+        [style.color]="themeService.currentTheme().atmosphere.text"
+        [disabled]="effectiveCurrent >= total"
+        aria-label="Página siguiente"
+        (click)="next()"
+      >
+        ›
+      </button>
+    </div>
+  </nav>
+}
 
-  <button
-    type="button"
-    class="josanz-pagination__nav min-h-9 min-w-9 border border-solid px-2 text-sm font-semibold shadow-sm transition hover:brightness-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
-    [ngClass]="cornerClass()"
-    [ngStyle]="surfaceNavStyle()"
-    (click)="next()"
-    [disabled]="effectiveCurrent >= total"
-    aria-label="Página siguiente"
+@if (total > 0 && variant === 'numbered') {
+  <nav
+    class="josanz-pagination flex flex-wrap items-center justify-center gap-1 sm:gap-2"
+    [style.--josanz-primary]="customColor || null"
+    aria-label="Paginación"
   >
-    ›
-  </button>
-</nav>
+    <button
+      type="button"
+      class="josanz-pagination__nav min-h-9 min-w-9 border border-solid px-2 text-sm font-semibold shadow-sm transition hover:brightness-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
+      [ngClass]="cornerClass()"
+      [ngStyle]="surfaceNavStyle()"
+      (click)="prev()"
+      [disabled]="effectiveCurrent <= 1"
+      aria-label="Página anterior"
+    >
+      ‹
+    </button>
+
+    <ol class="flex list-none flex-wrap items-center justify-center gap-1 p-0 m-0">
+      @for (item of pageItems(); track trackPageItem($index, item)) {
+        <li>
+          @if (item === 'ellipsis') {
+            <span
+              class="josanz-pagination__ellipsis px-2 text-sm font-medium select-none"
+              [style.color]="themeService.currentTheme().atmosphere.textMuted"
+              aria-hidden="true"
+              >…</span
+            >
+          } @else {
+            <button
+              type="button"
+              class="josanz-pagination__page min-h-9 min-w-9 border border-solid text-sm font-semibold transition shadow-sm hover:brightness-[0.97]"
+              [ngClass]="cornerClass()"
+              [ngStyle]="pageButtonStyle(item === effectiveCurrent)"
+              [attr.aria-current]="item === effectiveCurrent ? 'page' : null"
+              (click)="go(item)"
+            >
+              {{ item }}
+            </button>
+          }
+        </li>
+      }
+    </ol>
+
+    <button
+      type="button"
+      class="josanz-pagination__nav min-h-9 min-w-9 border border-solid px-2 text-sm font-semibold shadow-sm transition hover:brightness-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
+      [ngClass]="cornerClass()"
+      [ngStyle]="surfaceNavStyle()"
+      (click)="next()"
+      [disabled]="effectiveCurrent >= total"
+      aria-label="Página siguiente"
+    >
+      ›
+    </button>
+  </nav>
+}

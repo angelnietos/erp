@@ -10,6 +10,26 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /** Scroll fino (listas / main), alineado con maquetas Figma sin barra gruesa del sistema */
+  .josanz-scroll-quiet {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--josanz-text-muted) 35%, transparent) transparent;
+  }
+  .josanz-scroll-quiet::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .josanz-scroll-quiet::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .josanz-scroll-quiet::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--josanz-text-muted) 30%, transparent);
+  }
+  .josanz-scroll-quiet::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--josanz-text-muted) 50%, transparent);
+  }
 }
 
 html, body {
