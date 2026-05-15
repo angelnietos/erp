@@ -33,5 +33,6 @@ export {
   JOSANZ_FIGMA_APP,
   JOSANZ_FIGMA_DASHBOARD,
   JOSANZ_FIGMA_LOGIN,
+  JOSANZ_FIGMA_SEMANTIC,
   JOSANZ_FIGMA_SHELL,
 } from './lib/theme/josanz-figma-tokens';

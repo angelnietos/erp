@@ -22,6 +22,7 @@ export {
   JOSANZ_DEFAULT_PRIMARY,
   josanzReadableOnSolid,
   applyJosanzThemeCssVariables,
+  applyJosanzStructuralCssVariables,
 } from '../theme/josanz-theme-tokens';
 
 @Injectable({

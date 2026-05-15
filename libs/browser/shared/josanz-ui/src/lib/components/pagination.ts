@@ -40,7 +40,7 @@ export class PaginationComponent {
     const base = this.surfaceNavStyle();
     return {
       ...base,
-      boxShadow: '0px 4px 8px rgba(178,178,178,0.28)',
+      boxShadow: 'var(--josanz-elev-soft)',
     };
   }
 

@@ -18,6 +18,8 @@ export const JOSANZ_FIGMA_SHELL = {
 export const JOSANZ_FIGMA_LOGIN = {
   canvasBg: '#FFFEFE',
   fieldBg: '#FFFFFF',
+  /** Fondo campo en reposo (inputs densos / mobile). */
+  fieldIdleFill: '#F5F5F5',
   fieldStroke: '#D7D7D7',
   fieldRadiusPx: 8,
   primaryCta: '#0F1E2F',
@@ -40,6 +42,8 @@ export const JOSANZ_FIGMA_DASHBOARD = {
   surfaceMuted: '#F7F7F7',
   rowLine: '#E6E6E6',
   headerFilterBg: '#EEEEEE',
+  /** Delta positivo en KPIs (verde export). */
+  kpiPositive: '#0F6B3A',
   /** Botón oscuro barra superior (rect negro en export). */
   toolbarCta: '#000000',
   onToolbarCta: '#FFFFFF',
@@ -59,4 +63,12 @@ export const JOSANZ_FIGMA_APP = {
   tabBarHeight: 133,
   tabBarFill: 'rgba(255,255,255,0.92)',
   homeIndicator: '#000000',
+} as const;
+
+/** Estados y badges reutilizables en listas y tarjetas. */
+export const JOSANZ_FIGMA_SEMANTIC = {
+  success: '#22C55E',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  badgeNeutral: '#E2E8F0',
 } as const;

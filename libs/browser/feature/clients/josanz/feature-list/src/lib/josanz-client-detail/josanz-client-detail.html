@@ -91,9 +91,9 @@
         <div class="flex w-full flex-col">
           <h3 class="mb-3 text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">Externos</h3>
           
-          <josanz-document-list uploadLabel="Subir documentación" accentColor="#718096">
+          <josanz-document-list uploadLabel="Subir documentación" accentColor="var(--josanz-text-muted)">
             @for (file of presupuestosExternos; track file) {
-              <josanz-document-item [name]="file" statusColor="#CBD5E0"></josanz-document-item>
+              <josanz-document-item [name]="file" statusColor="var(--josanz-stroke-widget)"></josanz-document-item>
             }
           </josanz-document-list>
         </div>
@@ -123,9 +123,9 @@
     @if (activeTab() === 'Facturas') {
       <div class="py-6 space-y-10">
         <div class="flex w-full flex-col">
-          <josanz-document-list uploadLabel="Subir documentación" accentColor="#718096">
+          <josanz-document-list uploadLabel="Subir documentación" accentColor="var(--josanz-text-muted)">
             @for (file of facturas; track file) {
-              <josanz-document-item [name]="file" statusColor="#CBD5E0"></josanz-document-item>
+              <josanz-document-item [name]="file" statusColor="var(--josanz-stroke-widget)"></josanz-document-item>
             }
           </josanz-document-list>
         </div>

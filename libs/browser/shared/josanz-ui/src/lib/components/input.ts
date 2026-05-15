@@ -10,8 +10,8 @@ import type { JosanzControlShape } from '../josanz-control-styles';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="flex flex-col gap-2 w-full mb-4" [formGroup]="parentForm">
-      <label 
-        [style.color]="themeService.currentTheme().atmosphere.textMuted"
+      <label
+        [style.color]="'var(--josanz-label-muted)'"
         class="text-[11px] font-bold uppercase tracking-[0.1em] ml-1">
         {{ label }}
       </label>
@@ -21,15 +21,15 @@ import type { JosanzControlShape } from '../josanz-control-styles';
           [type]="type"
           [placeholder]="placeholder"
           [class]="inputClasses"
-          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-          [style.color]="themeService.currentTheme().atmosphere.text"
-          [style.borderColor]="isFocused ? getAccentColor() : themeService.currentTheme().atmosphere.border"
+          [style.backgroundColor]="'var(--josanz-field-fill)'"
+          [style.color]="'var(--josanz-text)'"
+          [style.borderColor]="isFocused ? getAccentColor() : 'var(--josanz-stroke-field)'"
           [style.boxShadow]="focusRing()"
           (focus)="isFocused = true"
           (blur)="isFocused = false"
         />
         @if (parentForm.get(controlName)?.invalid && parentForm.get(controlName)?.touched) {
-          <span class="absolute right-3 text-red-500 text-[10px] font-bold uppercase tracking-wider">Requerido</span>
+          <span class="absolute right-3 text-[10px] font-bold uppercase tracking-wider" style="color: var(--josanz-danger)">Requerido</span>
         }
       </div>
     </div>
@@ -53,13 +53,13 @@ export class InputComponent {
       'w-full h-[44px] px-4 border border-solid text-[14px] font-medium transition-all outline-none placeholder:text-[color:var(--josanz-text-muted)]';
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
     const shapes = {
-      rounded: 'rounded-[10px]',
+      rounded: 'rounded-[var(--josanz-radius-control)]',
       pill: 'rounded-full',
       square: 'rounded-none',
-      field: 'rounded-[10px]',
+      field: 'rounded-[var(--josanz-radius-control)]',
       inner: 'rounded-[6px]',
       modal: 'rounded-[24px]',
-      avatar: 'rounded-[10px]',
+      avatar: 'rounded-[var(--josanz-radius-control)]',
     };
     return [base, shapes[activeShape as keyof typeof shapes] || shapes.rounded, 'hover:brightness-[0.99]'].join(' ');
   }

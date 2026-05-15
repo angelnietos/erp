@@ -1,3 +1,10 @@
+.client-create-placeholder {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--josanz-text-muted);
+  font-size: 14px;
+}
+
 .client-create-tabs {
   display: flex;
   gap: 6px;
@@ -8,10 +15,10 @@
   box-sizing: border-box;
   height: 25px;
   padding: 0 10px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  background-color: #ffffff;
-  color: #a0aec0;
+  border-radius: var(--josanz-radius-widget);
+  border: 1px solid var(--josanz-stroke-widget);
+  background-color: var(--josanz-surface);
+  color: var(--josanz-text-muted);
   font-size: 14px;
   font-weight: 400;
   line-height: 1;
@@ -27,8 +34,8 @@
 }
 
 .client-create-tab--active {
-  border-color: #080808;
-  color: #1a1a1a;
+  border-color: var(--josanz-text-heading);
+  color: var(--josanz-text-heading);
   font-weight: 600;
-  box-shadow: 0 4px 8px rgba(178, 178, 178, 0.3);
+  box-shadow: var(--josanz-elev-soft);
 }

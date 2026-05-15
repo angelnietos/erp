@@ -77,7 +77,7 @@ export class ButtonComponent {
       return t.atmosphere.surface;
     }
     if (this.variant === 'danger') {
-      return '#EF4444';
+      return 'var(--josanz-danger)';
     }
     if (this.variant === 'ghost') {
       return 'transparent';
@@ -104,7 +104,7 @@ export class ButtonComponent {
         : 'var(--josanz-on-primary)';
     }
     if (this.variant === 'danger') {
-      return josanzReadableOnSolid('#EF4444');
+      return 'var(--josanz-on-danger)';
     }
     if (this.variant === 'outline' || this.variant === 'ghost') {
       return this.customColor ?? 'var(--josanz-primary)';

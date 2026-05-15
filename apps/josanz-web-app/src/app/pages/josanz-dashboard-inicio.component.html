@@ -18,7 +18,7 @@
         <button
           type="button"
           class="h-8 rounded-[4px] px-3 text-[12px] font-semibold transition-[background-color,color] duration-150"
-          [style.backgroundColor]="period === 'mes' ? '#FFFFFF' : 'transparent'"
+          [style.backgroundColor]="period === 'mes' ? 'var(--josanz-surface)' : 'transparent'"
           [style.color]="theme.currentTheme().atmosphere.text"
           (click)="period = 'mes'"
         >
@@ -27,7 +27,7 @@
         <button
           type="button"
           class="h-8 rounded-[4px] px-3 text-[12px] font-semibold transition-[background-color,color] duration-150"
-          [style.backgroundColor]="period === 'trim' ? '#FFFFFF' : 'transparent'"
+          [style.backgroundColor]="period === 'trim' ? 'var(--josanz-surface)' : 'transparent'"
           [style.color]="theme.currentTheme().atmosphere.textMuted"
           (click)="period = 'trim'"
         >
@@ -36,7 +36,7 @@
         <button
           type="button"
           class="h-8 rounded-[4px] px-3 text-[12px] font-semibold transition-[background-color,color] duration-150"
-          [style.backgroundColor]="period === 'año' ? '#FFFFFF' : 'transparent'"
+          [style.backgroundColor]="period === 'año' ? 'var(--josanz-surface)' : 'transparent'"
           [style.color]="theme.currentTheme().atmosphere.textMuted"
           (click)="period = 'año'"
         >
@@ -90,7 +90,7 @@
         </div>
         <p
           class="mt-4 text-[13px] font-semibold"
-          [style.color]="k.up ? '#0F6B3A' : theme.currentTheme().atmosphere.textMuted"
+          [style.color]="k.up ? 'var(--josanz-kpi-positive)' : theme.currentTheme().atmosphere.textMuted"
         >
           {{ k.delta }}
         </p>
@@ -144,7 +144,7 @@
         <h2 class="text-[15px] font-bold" [style.color]="theme.currentTheme().atmosphere.text">Tareas</h2>
         <span class="text-[12px] font-medium" [style.color]="theme.currentTheme().atmosphere.textMuted">Hoy</span>
       </div>
-      <ul class="flex flex-1 flex-col divide-y divide-[#E6E6E6]">
+      <ul class="flex flex-1 flex-col divide-y divide-[color:var(--josanz-row-line)]">
         @for (t of tasks; track t.title) {
           <li class="flex items-center gap-4 px-6 py-4">
             <div
@@ -188,7 +188,7 @@
               <th class="px-4 py-3 font-bold uppercase tracking-wide">Importe</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#E6E6E6]">
+          <tbody class="divide-y divide-[color:var(--josanz-row-line)]">
             @for (m of movements; track m.concept) {
               <tr>
                 <td class="px-6 py-3 font-medium" [style.color]="theme.currentTheme().atmosphere.text">{{ m.concept }}</td>
@@ -214,7 +214,7 @@
         <h2 class="text-[15px] font-bold" [style.color]="theme.currentTheme().atmosphere.text">Agenda</h2>
         <span class="text-[12px] font-medium" [style.color]="theme.currentTheme().atmosphere.textMuted">Semana</span>
       </div>
-      <ul class="flex flex-1 flex-col divide-y divide-[#E6E6E6]">
+      <ul class="flex flex-1 flex-col divide-y divide-[color:var(--josanz-row-line)]">
         @for (e of agenda; track e.time) {
           <li class="flex items-baseline gap-6 px-6 py-4">
             <span class="w-14 shrink-0 text-[12px] font-bold tabular-nums" [style.color]="theme.currentTheme().atmosphere.textMuted">{{

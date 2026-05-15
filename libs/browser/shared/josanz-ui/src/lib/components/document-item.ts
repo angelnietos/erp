@@ -8,7 +8,7 @@ import { JosanzThemeService } from '../services/theme.service';
   template: `
     <div 
       class="flex items-center justify-between p-3 md:p-4 border-b last:border-b-0 transition-colors hover:bg-[rgba(0,0,0,0.02)]"
-      [style.borderColor]="themeService.currentTheme().atmosphere.border"
+      [style.borderColor]="'var(--josanz-stroke-widget)'"
     >
       <div class="flex items-center gap-3 overflow-hidden">
         <div 
@@ -59,7 +59,7 @@ export class DocumentItemComponent {
   public themeService = inject(JosanzThemeService);
 
   @Input() name = '';
-  @Input() statusColor = '#48BB78'; // Default green
+  @Input() statusColor = 'var(--josanz-success)';
   @Input() showDownload = true;
   @Input() showDelete = false;
 

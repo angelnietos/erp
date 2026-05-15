@@ -11,16 +11,16 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--josanz-text-muted);
+  color: var(--josanz-label-muted);
 }
 
 .form-input {
   height: 2.75rem;
   width: 100%;
   padding: 0 1rem;
-  border-radius: 0.75rem;
-  border: 1.5px solid var(--josanz-border);
-  background: var(--josanz-surface);
+  border-radius: var(--josanz-radius-control);
+  border: 1.5px solid var(--josanz-stroke-field);
+  background: var(--josanz-field-fill);
   color: var(--josanz-text);
   font-family: inherit;
   font-size: 0.875rem;
@@ -32,12 +32,12 @@
 
   &:focus {
     border-color: var(--josanz-primary);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-primary) 18%, transparent);
   }
 
   &--error {
-    border-color: #ef4444;
-    &:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12); }
+    border-color: var(--josanz-danger);
+    &:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-danger) 18%, transparent); }
   }
 }
 
@@ -45,5 +45,5 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--josanz-text-muted);
-  &--error { color: #ef4444; }
+  &--error { color: var(--josanz-danger); }
 }

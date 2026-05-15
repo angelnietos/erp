@@ -1,8 +1,9 @@
 import { storybookRouterDecorator } from './storybook-providers';
-import { JOSANZ_FIGMA_SHELL } from '../src/lib/theme/josanz-figma-tokens';
+import { JOSANZ_FIGMA_APP, JOSANZ_FIGMA_DASHBOARD, JOSANZ_FIGMA_LOGIN, JOSANZ_FIGMA_SEMANTIC, JOSANZ_FIGMA_SHELL } from '../src/lib/theme/josanz-figma-tokens';
 import {
   JOSANZ_ATMOSPHERE_REGISTRY,
   JOSANZ_DEFAULT_PRIMARY,
+  applyJosanzStructuralCssVariables,
   applyJosanzThemeCssVariables,
   type JosanzAtmosphereName,
 } from '../src/lib/theme/josanz-theme-tokens';
@@ -26,6 +27,26 @@ const designTokens = `
   --josanz-danger: #ef4444;
   --josanz-danger-hover: #dc2626;
   --josanz-shadow: 0 10px 15px -3px rgba(0,0,0,0.07);
+  --josanz-on-danger: #ffffff;
+  --josanz-stroke-widget: ${JOSANZ_FIGMA_DASHBOARD.widgetStroke};
+  --josanz-stroke-field: ${JOSANZ_FIGMA_LOGIN.fieldStroke};
+  --josanz-row-line: ${JOSANZ_FIGMA_DASHBOARD.rowLine};
+  --josanz-surface-muted: ${JOSANZ_FIGMA_DASHBOARD.surfaceMuted};
+  --josanz-header-filter-bg: ${JOSANZ_FIGMA_DASHBOARD.headerFilterBg};
+  --josanz-field-fill: ${JOSANZ_FIGMA_LOGIN.fieldIdleFill};
+  --josanz-text-heading: ${JOSANZ_FIGMA_LOGIN.heading};
+  --josanz-label-muted: ${JOSANZ_FIGMA_LOGIN.muted};
+  --josanz-kpi-positive: ${JOSANZ_FIGMA_DASHBOARD.kpiPositive};
+  --josanz-elev-soft: 0px 4px 8px rgba(178,178,178,0.28);
+  --josanz-shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --josanz-radius-control: ${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px;
+  --josanz-radius-widget: ${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px;
+  --josanz-radius-card: 12px;
+  --josanz-secondary-fill: ${JOSANZ_FIGMA_APP.secondaryFill};
+  --josanz-success: ${JOSANZ_FIGMA_SEMANTIC.success};
+  --josanz-warning: ${JOSANZ_FIGMA_SEMANTIC.warning};
+  --josanz-badge-neutral: ${JOSANZ_FIGMA_SEMANTIC.badgeNeutral};
+  --josanz-field-accent: var(--josanz-primary);
   /* legacy compat */
   --bg-primary: #ffffff;
   --bg-secondary: #f1f5f9;
@@ -52,6 +73,26 @@ const designTokens = `
   --josanz-danger: #f87171;
   --josanz-danger-hover: #ef4444;
   --josanz-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
+  --josanz-on-danger: #0f172a;
+  --josanz-stroke-widget: #334155;
+  --josanz-stroke-field: #475569;
+  --josanz-row-line: #334155;
+  --josanz-surface-muted: #1e293b;
+  --josanz-header-filter-bg: #1e293b;
+  --josanz-field-fill: #0f172a;
+  --josanz-text-heading: #f8fafc;
+  --josanz-label-muted: #94a3b8;
+  --josanz-kpi-positive: #4ade80;
+  --josanz-elev-soft: 0px 4px 8px rgba(0,0,0,0.35);
+  --josanz-shadow-sm: 0 2px 4px rgba(0,0,0,0.25);
+  --josanz-radius-control: ${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px;
+  --josanz-radius-widget: ${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px;
+  --josanz-radius-card: 12px;
+  --josanz-secondary-fill: #334155;
+  --josanz-success: ${JOSANZ_FIGMA_SEMANTIC.success};
+  --josanz-warning: ${JOSANZ_FIGMA_SEMANTIC.warning};
+  --josanz-badge-neutral: #334155;
+  --josanz-field-accent: var(--josanz-primary);
   --bg-primary: #1e293b;
   --surface: #1e293b;
   --text-primary: #f8fafc;
@@ -106,6 +147,7 @@ const atmosphereDecorator = (
 const themeDecorator = (storyFn: () => unknown, context: { globals: { theme?: string } }) => {
   const theme = context.globals?.theme ?? 'light';
   document.documentElement.setAttribute('data-theme', theme);
+  applyJosanzStructuralCssVariables(document.documentElement);
   return storyFn();
 };
 

@@ -31,19 +31,29 @@ export class MainTemplateCardComponent {
 
   getBadgeStyles() {
     const theme = this.themeService.currentTheme();
-    
-    let backgroundColor = '#E2E8F0';
-    if (this.statusVariant === 'primary') backgroundColor = theme.primaryColor;
-    else if (this.statusVariant === 'success') backgroundColor = '#22C55E';
-    else if (this.statusVariant === 'warning') backgroundColor = '#F59E0B';
-    else if (this.statusVariant === 'error') backgroundColor = '#EF4444';
+
+    let backgroundColor = 'var(--josanz-badge-neutral)';
+    let color = 'var(--josanz-text)';
+    if (this.statusVariant === 'primary') {
+      backgroundColor = theme.primaryColor;
+      color = josanzReadableOnSolid(theme.primaryColor);
+    } else if (this.statusVariant === 'success') {
+      backgroundColor = 'var(--josanz-success)';
+      color = '#ffffff';
+    } else if (this.statusVariant === 'warning') {
+      backgroundColor = 'var(--josanz-warning)';
+      color = '#0f172a';
+    } else if (this.statusVariant === 'error') {
+      backgroundColor = 'var(--josanz-danger)';
+      color = 'var(--josanz-on-danger)';
+    }
 
     return {
       'background-color': backgroundColor,
-      'color': josanzReadableOnSolid(backgroundColor),
-      'box-shadow': '0 2px 4px rgba(0,0,0,0.1)',
+      color,
+      'box-shadow': 'var(--josanz-shadow-sm)',
       'text-transform': 'uppercase',
-      'letter-spacing': '0.05em'
+      'letter-spacing': '0.05em',
     };
   }
 }

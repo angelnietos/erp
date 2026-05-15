@@ -19,7 +19,7 @@
 
 .josanz-input-host .josanz-field:focus {
   outline: none;
-  border-color: var(--josanz-field-accent, #6366f1) !important;
+  border-color: var(--josanz-field-accent, var(--josanz-accent)) !important;
   box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--josanz-field-accent, #6366f1) 22%, transparent) !important;
+    color-mix(in srgb, var(--josanz-field-accent, var(--josanz-accent)) 22%, transparent) !important;
 }

@@ -1,5 +1,11 @@
 import type { JosanzControlShape } from '../josanz-control-styles';
-import { JOSANZ_FIGMA_SHELL, JOSANZ_FIGMA_LOGIN } from './josanz-figma-tokens';
+import {
+  JOSANZ_FIGMA_APP,
+  JOSANZ_FIGMA_DASHBOARD,
+  JOSANZ_FIGMA_LOGIN,
+  JOSANZ_FIGMA_SEMANTIC,
+  JOSANZ_FIGMA_SHELL,
+} from './josanz-figma-tokens';
 
 /** Primario por defecto alineado con el frame Login de Figma (`Login.svg`). */
 export const JOSANZ_DEFAULT_PRIMARY = JOSANZ_FIGMA_LOGIN.primaryCta;
@@ -242,4 +248,43 @@ export function applyJosanzThemeCssVariables(params: {
   root.setAttribute('data-josanz-theme', themeName);
   document.body.style.backgroundColor = atmosphere.background;
   document.body.style.color = atmosphere.text;
+  applyJosanzStructuralCssVariables(root);
+}
+
+/** Tokens de layout Figma (trazos, radios, superficies) + semántica; respeta `data-theme="dark"`. */
+export function applyJosanzStructuralCssVariables(root: HTMLElement = document.documentElement): void {
+  const isDark = root.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    root.style.setProperty('--josanz-stroke-widget', '#334155');
+    root.style.setProperty('--josanz-stroke-field', '#475569');
+    root.style.setProperty('--josanz-row-line', '#334155');
+    root.style.setProperty('--josanz-surface-muted', '#1e293b');
+    root.style.setProperty('--josanz-header-filter-bg', '#1e293b');
+    root.style.setProperty('--josanz-field-fill', '#0f172a');
+    root.style.setProperty('--josanz-text-heading', '#f8fafc');
+    root.style.setProperty('--josanz-label-muted', '#94a3b8');
+    root.style.setProperty('--josanz-kpi-positive', '#4ade80');
+    root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(0,0,0,0.35)');
+    root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0,0,0,0.25)');
+  } else {
+    root.style.setProperty('--josanz-stroke-widget', JOSANZ_FIGMA_DASHBOARD.widgetStroke);
+    root.style.setProperty('--josanz-stroke-field', JOSANZ_FIGMA_LOGIN.fieldStroke);
+    root.style.setProperty('--josanz-row-line', JOSANZ_FIGMA_DASHBOARD.rowLine);
+    root.style.setProperty('--josanz-surface-muted', JOSANZ_FIGMA_DASHBOARD.surfaceMuted);
+    root.style.setProperty('--josanz-header-filter-bg', JOSANZ_FIGMA_DASHBOARD.headerFilterBg);
+    root.style.setProperty('--josanz-field-fill', JOSANZ_FIGMA_LOGIN.fieldIdleFill);
+    root.style.setProperty('--josanz-text-heading', JOSANZ_FIGMA_LOGIN.heading);
+    root.style.setProperty('--josanz-label-muted', JOSANZ_FIGMA_LOGIN.muted);
+    root.style.setProperty('--josanz-kpi-positive', JOSANZ_FIGMA_DASHBOARD.kpiPositive);
+    root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(178,178,178,0.28)');
+    root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0,0,0,0.1)');
+  }
+  root.style.setProperty('--josanz-radius-control', `${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px`);
+  root.style.setProperty('--josanz-radius-widget', `${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px`);
+  root.style.setProperty('--josanz-radius-card', '12px');
+  root.style.setProperty('--josanz-secondary-fill', JOSANZ_FIGMA_APP.secondaryFill);
+  root.style.setProperty('--josanz-success', JOSANZ_FIGMA_SEMANTIC.success);
+  root.style.setProperty('--josanz-warning', JOSANZ_FIGMA_SEMANTIC.warning);
+  root.style.setProperty('--josanz-badge-neutral', JOSANZ_FIGMA_SEMANTIC.badgeNeutral);
+  root.style.setProperty('--josanz-field-accent', 'var(--josanz-primary)');
 }

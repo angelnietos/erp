@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
-import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
   selector: 'josanz-filter-tabs',
