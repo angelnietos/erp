@@ -5,4 +5,6 @@
   max-width: var(--josanz-content-max);
   margin-left: auto;
   margin-right: auto;
+  /* Evita que hijos con min-content ancho (filas de filtros) ensanchen el host en contextos flex */
+  min-width: 0;
 }

@@ -1,6 +1,6 @@
-<div class="josanz-main-list flex w-full flex-col gap-6">
-  <div class="flex w-full shrink-0 flex-col gap-6">
-    <div class="flex w-full justify-between items-start">
+<div class="josanz-main-list flex w-full min-w-0 flex-col gap-6">
+  <div class="flex w-full min-w-0 shrink-0 flex-col gap-6">
+    <div class="flex w-full min-w-0 justify-between items-start">
       <div class="flex flex-col gap-1">
         <h1
           class="text-[26px] md:text-[36px] font-black tracking-tight leading-none"
@@ -16,13 +16,17 @@
       <josanz-user-avatar [link]="avatarLink" [ariaLabel]="avatarAriaLabel"></josanz-user-avatar>
     </div>
 
-    <div class="flex w-full flex-col gap-4 md:flex-row md:items-start md:justify-between">
-      <div class="flex w-full flex-col gap-3 md:w-auto">
+    <div
+      class="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6"
+    >
+      <div class="flex w-full min-w-0 flex-col gap-3 md:flex-1">
         <josanz-filter-tabs [options]="filterOptions" (selectionChange)="onFilterChange($event)"></josanz-filter-tabs>
         <ng-content select="[extra-filters]"></ng-content>
       </div>
 
-      <div class="flex w-full shrink-0 flex-wrap items-center gap-2 md:w-auto md:justify-end">
+      <div
+        class="flex w-full min-w-0 shrink-0 flex-wrap items-center gap-2 md:w-auto md:max-w-full md:flex-none md:justify-end"
+      >
         <div class="min-w-0 flex-1 md:flex-initial">
           <josanz-secondary-button label="Excel" class="w-full" (btnClick)="onExcelAction()"></josanz-secondary-button>
         </div>
@@ -39,7 +43,10 @@
     </div>
   </div>
 
-  <div class="josanz-main-list__stack flex w-full flex-col" style="gap: var(--josanz-list-stack-gap)">
+  <div
+    class="josanz-main-list__stack flex w-full min-w-0 flex-col"
+    style="gap: var(--josanz-list-stack-gap)"
+  >
     <ng-content></ng-content>
   </div>
 
