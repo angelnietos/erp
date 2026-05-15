@@ -8,7 +8,6 @@ import {
   ButtonComponent,
   MainTabsComponent,
   FilterTabsComponent,
-  JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -19,7 +18,6 @@ import {
   styleUrl: './josanz-stock-feature-list.css',
 })
 export class JosanzStockListComponent extends BaseListComponent {
-  readonly themeService = inject(JosanzThemeService);
   private readonly router = inject(Router);
 
   activeType = 'Productos / lotes';

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService } from '@josanz-erp/josanz-ui';
+import { MainListLayoutComponent, MainTemplateCardComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-budgets-feature-list',
@@ -10,7 +10,6 @@ import { MainListLayoutComponent, MainTemplateCardComponent, JosanzThemeService 
   templateUrl: './josanz-budgets-feature-list.html',
 })
 export class JosanzBudgetsFeatureListComponent {
-  readonly themeService = inject(JosanzThemeService);
   private router = inject(Router);
   
   title = 'Presupuestos';

@@ -1,0 +1,47 @@
+// ═══ Shell app (router-outlet) + cabeceras de listado ═══════════════════════
+// Usar desde la app padre y desde features que deleguen en el design system.
+
+.josanz-page-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-left: var(--josanz-shell-pad-x);
+  padding-right: var(--josanz-shell-pad-x);
+  padding-top: var(--josanz-shell-pad-y);
+  padding-bottom: calc(var(--josanz-shell-mobile-tab-clearance) + var(--josanz-shell-footer-safe));
+
+  @media (min-width: 768px) {
+    padding-left: var(--josanz-shell-pad-x-md);
+    padding-right: var(--josanz-shell-pad-x-md);
+    padding-top: var(--josanz-shell-pad-y-md);
+    padding-bottom: var(--josanz-shell-footer-safe);
+  }
+}
+
+/** Fila de cabecera tipo tabla (solo ≥ md); color y tipografía desde tokens. */
+.josanz-list-thead {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .josanz-list-thead {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--josanz-text-muted);
+  }
+
+  .josanz-list-thead--compact {
+    margin-bottom: 0.5rem;
+  }
+}

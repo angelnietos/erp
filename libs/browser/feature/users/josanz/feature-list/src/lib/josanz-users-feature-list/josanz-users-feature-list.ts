@@ -5,7 +5,6 @@ import {
   MainListLayoutComponent,
   MainTemplateCardComponent,
   BaseListComponent,
-  JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -16,7 +15,6 @@ import {
   styleUrl: './josanz-users-feature-list.css',
 })
 export class JosanzUsersListComponent extends BaseListComponent {
-  readonly themeService = inject(JosanzThemeService);
   private router = inject(Router);
 
   constructor() {

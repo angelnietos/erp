@@ -14,7 +14,7 @@ import { ButtonComponent } from './button';
       [style.backgroundColor]="'var(--josanz-bg)'"
     >
       <!-- Header Section -->
-      <div class="px-5 md:px-10 pt-8 md:pt-10 pb-6 flex flex-col gap-5">
+      <div class="pb-6 flex flex-col gap-5">
         <div class="flex items-center gap-4">
           <button 
             type="button" 
@@ -60,7 +60,7 @@ import { ButtonComponent } from './button';
 
       <!-- Scrollable Content: padding inferior grande solo si hay barra de acciones fija -->
       <div
-        class="flex-1 overflow-y-auto px-5 md:px-10 no-scrollbar"
+        class="flex-1 overflow-y-auto josanz-scroll-quiet"
         [ngClass]="showFooterActions ? 'pb-40 md:pb-32' : 'pb-8 md:pb-12'"
       >
         <div class="mx-auto w-full max-w-[1200px]">
@@ -71,10 +71,10 @@ import { ButtonComponent } from './button';
       @if (showFooterActions) {
       <!-- Fixed Footer -->
       <div 
-        class="fixed bottom-0 left-0 md:left-[68px] right-0 h-auto md:h-[100px] flex flex-col md:flex-row items-center justify-end px-5 md:px-10 py-6 md:py-0 gap-3 md:gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
+        class="fixed bottom-0 left-0 md:left-[var(--josanz-sidebar-width)] right-0 h-auto md:h-[100px] flex flex-col md:flex-row items-center justify-end px-[var(--josanz-shell-pad-x)] md:px-[var(--josanz-shell-pad-x-md)] py-6 md:py-0 gap-3 md:gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
         [style.backgroundColor]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
         [style.borderColor]="'var(--josanz-border)'"
-        [style.boxShadow]="'0 -10px 30px rgba(0,0,0,0.1)'"
+        [style.boxShadow]="'var(--josanz-footer-elev)'"
       >
         <div class="w-full md:w-auto order-2 md:order-1">
           <josanz-button 
