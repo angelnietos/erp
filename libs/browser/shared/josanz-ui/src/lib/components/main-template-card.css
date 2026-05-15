@@ -3,9 +3,13 @@
   cursor: default;
 }
 
+/* Base row shadow = JOSANZ_FIGMA_SHELL.cardShadow; hover añade capas sin sustituir el token. */
 .josanz-list-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 1px color-mix(in srgb, var(--josanz-primary) 20%, transparent) !important;
+  box-shadow:
+    0 10px 24px rgba(189, 189, 189, 0.35),
+    0 12px 28px rgba(0, 0, 0, 0.1),
+    0 0 0 1px color-mix(in srgb, var(--josanz-primary) 20%, transparent) !important;
 }
 
 .josanz-list-card:active {

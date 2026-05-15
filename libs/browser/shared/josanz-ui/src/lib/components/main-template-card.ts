@@ -2,6 +2,7 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 @Component({
   selector: 'josanz-main-template-card',
@@ -24,7 +25,7 @@ export class MainTemplateCardComponent {
     return {
       'background-color': 'var(--josanz-surface)',
       'border-color': 'var(--josanz-border)',
-      'box-shadow': 'var(--josanz-card-shadow)',
+      'box-shadow': JOSANZ_FIGMA_SHELL.cardShadow,
     };
   }
 

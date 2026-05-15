@@ -9,11 +9,8 @@
   (excelAction)="onExcel()">
   
   <!-- Cabecera tabla: desktop only -->
-  <div
-    class="hidden md:flex items-center px-6 mb-4 w-full text-[11px] font-bold uppercase"
-    [style.color]="themeService.currentTheme().atmosphere.textMuted"
-    [style.letterSpacing]="'0.1em'"
-  >
+  <div class="hidden md:flex items-center px-6 mb-4 w-full text-[11px] font-bold uppercase tracking-[0.2em]"
+    [style.color]="themeService.currentTheme().atmosphere.textMuted">
     <div class="w-[200px] shrink-0">Nombre Empresa</div>
     <div class="flex flex-1 items-center gap-6 overflow-hidden">
       <div class="w-[220px] shrink-0">Email Contacto</div>

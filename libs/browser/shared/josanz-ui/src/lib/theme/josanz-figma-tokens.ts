@@ -10,7 +10,8 @@ export const JOSANZ_FIGMA_SHELL = {
   avatarWash: '#DEEDFF',
   /** Sombra del panel de lista (filter0_d ≈ dy 10, blur 24, gris suave). */
   cardShadow: '0 10px 24px rgba(189, 189, 189, 0.35)',
-  tableHeaderTracking: '0.1em',
+  /** Alineado con cabeceras de detalle (0.2em). */
+  tableHeaderTracking: '0.2em',
 } as const;
 
 /** Frame `Login.svg` (1280×832): login web claro, formulario a la derecha. */
