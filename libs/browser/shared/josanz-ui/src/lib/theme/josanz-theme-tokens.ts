@@ -189,6 +189,33 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
 };
 
+/** HSL (h 0–360, s/l 0–1) para heurísticas de “on-color” sin confundir verdes con amarillos. */
+function rgbToHsl(r255: number, g255: number, b255: number): { h: number; s: number; l: number } {
+  const r = r255 / 255;
+  const g = g255 / 255;
+  const b = b255 / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) {
+      h = ((g - b) / d) % 6;
+    } else if (max === g) {
+      h = (b - r) / d + 2;
+    } else {
+      h = (r - g) / d + 4;
+    }
+    h *= 60;
+    if (h < 0) {
+      h += 360;
+    }
+  }
+  const l = (max + min) / 2;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1) + 1e-12);
+  return { h, s, l };
+}
+
 function parseCssColorToRgb(input: string): [number, number, number] | null {
   const s = input.trim();
   const hex = s.match(/^#([\da-f]{3}|[\da-f]{6}|[\da-f]{8})$/i);
@@ -224,25 +251,30 @@ function relativeLuminanceFromRgb(rgb: [number, number, number]): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-/** Ratio de contraste WCAG 2.1 entre dos luminancias. */
-function contrastRatio(lumA: number, lumB: number): number {
-  const lighter = Math.max(lumA, lumB);
-  const darker = Math.min(lumA, lumB);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-/** Texto claro u oscuro con buen contraste sobre un color sólido (botones, badges). */
+/**
+ * Texto claro u oscuro sobre un color sólido (marca, badges, botones).
+ * El criterio solo por ratio WCAG suele elegir **negro** sobre **verdes saturados** (#22c55e, etc.),
+ * que rompe la marca; aquí se separa el rango amarillo/ámbar (texto oscuro) del resto (texto claro
+ * salvo fondos muy claros o grises).
+ */
 export function josanzReadableOnSolid(background: string): string {
   const rgb = parseCssColorToRgb(background);
   if (!rgb) {
     return '#FFFFFF';
   }
-  const Lbg = relativeLuminanceFromRgb(rgb);
-  const Lwhite = 1;
-  const Lblack = relativeLuminanceFromRgb([15, 23, 42]);
-  const crWhite = contrastRatio(Lbg, Lwhite);
-  const crBlack = contrastRatio(Lbg, Lblack);
-  return crWhite >= crBlack ? '#FFFFFF' : '#0F172A';
+  const [r255, g255, b255] = rgb;
+  const L = relativeLuminanceFromRgb(rgb);
+  const { h, s } = rgbToHsl(r255, g255, b255);
+
+  if (s < 0.12) {
+    return L > 0.56 ? '#0F172A' : '#FFFFFF';
+  }
+
+  if (h >= 38 && h <= 88 && s > 0.12 && L > 0.22) {
+    return '#0F172A';
+  }
+
+  return L > 0.72 ? '#0F172A' : '#FFFFFF';
 }
 
 /** Aplica tokens de atmósfera y marca a `:root` y `body` (app + Storybook). */

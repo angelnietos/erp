@@ -10,12 +10,13 @@ import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-s
   imports: [CommonModule],
   template: `
     <button
+      type="button"
       (click)="onClick()"
       [disabled]="disabled"
       [class]="buttonClasses"
       [style.backgroundColor]="getBgColor()"
       [style.borderColor]="getBorderColor()"
-      [style.color]="getTextColor()"
+      [ngStyle]="labelStyle()"
     >
       <span>{{ label }}</span>
       @if (showIcon) {
@@ -96,19 +97,23 @@ export class ButtonComponent {
     return 'transparent';
   }
 
-  getTextColor() {
+  /** Color vía `ngStyle` + token `--josanz-on-primary` (misma fuente que el tema). */
+  labelStyle(): Record<string, string> {
     const t = this.themeService.currentTheme();
     if (this.variant === 'primary') {
-      const fill = this.customColor ?? t.primaryColor;
-      return josanzReadableOnSolid(fill);
+      const color = this.customColor
+        ? josanzReadableOnSolid(this.customColor)
+        : 'var(--josanz-on-primary)';
+      return { color, WebkitTextFillColor: color };
     }
     if (this.variant === 'danger') {
-      return 'var(--josanz-on-danger)';
+      const c = 'var(--josanz-on-danger)';
+      return { color: c, WebkitTextFillColor: c };
     }
     if (this.variant === 'outline' || this.variant === 'ghost') {
-      return this.customColor ?? 'var(--josanz-primary)';
+      return { color: this.customColor ?? 'var(--josanz-primary)' };
     }
-    return t.atmosphere.text;
+    return { color: t.atmosphere.text };
   }
 
   onClick() {

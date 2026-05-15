@@ -72,8 +72,10 @@ export class FilterTabsComponent implements OnInit, OnChanges {
 
   pillStyles(option: string): Record<string, string> {
     if (this.active === option) {
+      const on = 'var(--josanz-on-primary)';
       return {
-        color: 'white',
+        color: on,
+        WebkitTextFillColor: on,
         backgroundColor: 'var(--josanz-primary)',
         boxShadow: '0 4px 16px -2px color-mix(in srgb, var(--josanz-primary) 60%, transparent)'
       };
