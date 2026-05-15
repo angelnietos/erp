@@ -4,8 +4,9 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   InputComponent,
+  MainDetailLayoutComponent,
   UserAvatarComponent,
-  MainDetailLayoutComponent
+  josanzNonEmptyTrim,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -30,10 +31,10 @@ export class JosanzUserCreateComponent {
 
   constructor() {
     this.form = this.fb.group({
-      nombre: ['', Validators.required],
-      apellidos: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      nombre: ['', josanzNonEmptyTrim],
+      apellidos: ['', josanzNonEmptyTrim],
+      email: ['', [josanzNonEmptyTrim, Validators.email]],
+      password: ['', josanzNonEmptyTrim],
       empresa: [''],
       rol: ['Usuario'],
     });

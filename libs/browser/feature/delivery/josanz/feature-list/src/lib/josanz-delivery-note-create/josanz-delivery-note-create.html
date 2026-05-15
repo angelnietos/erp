@@ -7,6 +7,7 @@
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear albarán"
+  [saveDisabled]="form.invalid"
 >
   <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%; max-width: 600px; padding-top: 24px;">
     <josanz-input

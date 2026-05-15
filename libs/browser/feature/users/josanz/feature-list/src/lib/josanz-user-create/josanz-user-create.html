@@ -6,6 +6,7 @@
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear usuario"
+  [saveDisabled]="form.invalid"
 >
   <div class="py-2 md:py-4">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">

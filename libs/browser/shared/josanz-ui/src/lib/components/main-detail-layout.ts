@@ -92,6 +92,7 @@ import { ButtonComponent } from './button';
             size="lg" 
             [showIcon]="false" 
             [fullWidth]="true"
+            [disabled]="saveDisabled"
             (btnClick)="save.emit()"
           ></josanz-button>
         </div>
@@ -118,6 +119,9 @@ export class MainDetailLayoutComponent {
    * En vistas de solo lectura conviene `false`; en formularios de alta/edición `true`.
    */
   @Input() showFooterActions = true;
+
+  /** Desactiva el botón principal (Guardar/Crear); p. ej. `form.invalid` */
+  @Input() saveDisabled = false;
 
   @Output() back = new EventEmitter<void>();
   @Output() tabChange = new EventEmitter<string>();

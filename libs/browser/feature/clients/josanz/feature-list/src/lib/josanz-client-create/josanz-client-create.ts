@@ -2,20 +2,12 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  InputComponent,
-  MainDetailLayoutComponent
-} from '@josanz-erp/josanz-ui';
+import { InputComponent, MainDetailLayoutComponent, josanzNonEmptyTrim } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-josanz-client-create',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputComponent,
-    MainDetailLayoutComponent
-  ],
+  imports: [CommonModule, ReactiveFormsModule, InputComponent, MainDetailLayoutComponent],
   templateUrl: './josanz-client-create.html',
   styleUrl: './josanz-client-create.css',
 })
@@ -30,9 +22,9 @@ export class JosanzClientCreateComponent {
 
   constructor() {
     this.form = this.fb.group({
-      razonSocial: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: ['', Validators.required],
+      razonSocial: ['', josanzNonEmptyTrim],
+      email: ['', [josanzNonEmptyTrim, Validators.email]],
+      telefono: ['', josanzNonEmptyTrim],
     });
   }
 
@@ -55,4 +47,3 @@ export class JosanzClientCreateComponent {
     this.onBack();
   }
 }
-
