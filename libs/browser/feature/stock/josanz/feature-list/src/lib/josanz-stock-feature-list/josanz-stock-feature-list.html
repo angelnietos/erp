@@ -39,14 +39,16 @@
   
   <!-- Table Header: desktop only -->
   <div class="josanz-list-thead josanz-list-thead--compact">
-    <div class="w-[200px] shrink-0">Referencia</div>
-    <div class="flex flex-1 items-center gap-6 overflow-hidden">
-      <div class="w-[220px] shrink-0">Nombre Producto</div>
-      <div class="w-[160px] shrink-0">Categoría</div>
-      <div class="w-[160px] shrink-0">Stock Actual</div>
-      <div class="flex-1">Almacén</div>
+    <div class="josanz-list-template-row">
+      <div class="josanz-list-template-row__title truncate">Referencia</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Nombre Producto</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Categoría</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Stock Actual</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Almacén</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
     </div>
-    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
   <!-- Content -->

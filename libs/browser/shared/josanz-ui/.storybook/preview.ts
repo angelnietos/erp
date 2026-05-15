@@ -49,12 +49,17 @@ const designTokens = `
   --josanz-field-accent: var(--josanz-primary);
   --josanz-content-max: 1280px;
   --josanz-sidebar-width: 68px;
-  --josanz-shell-pad-x: 1.25rem;
+  --josanz-shell-pad-x: 1.5rem;
   --josanz-shell-pad-x-md: ${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px;
   --josanz-shell-pad-y: 1.5rem;
   --josanz-shell-pad-y-md: 2.5rem;
   --josanz-shell-footer-safe: max(1.5rem, env(safe-area-inset-bottom, 0px));
   --josanz-shell-mobile-tab-clearance: 133px;
+  --josanz-list-stack-gap: ${JOSANZ_FIGMA_DASHBOARD.gridGapPx}px;
+  --josanz-list-card-pad-x: 1.25rem;
+  --josanz-list-card-pad-x-md: 2rem;
+  --josanz-list-card-pad-y: 1.25rem;
+  --josanz-list-card-pad-y-md: 1.5rem;
   --josanz-footer-elev: 0 -10px 30px rgba(0,0,0,0.1);
   /* legacy compat */
   --bg-primary: #ffffff;
@@ -104,12 +109,17 @@ const designTokens = `
   --josanz-field-accent: var(--josanz-primary);
   --josanz-content-max: 1280px;
   --josanz-sidebar-width: 68px;
-  --josanz-shell-pad-x: 1.25rem;
+  --josanz-shell-pad-x: 1.5rem;
   --josanz-shell-pad-x-md: ${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px;
   --josanz-shell-pad-y: 1.5rem;
   --josanz-shell-pad-y-md: 2.5rem;
   --josanz-shell-footer-safe: max(1.5rem, env(safe-area-inset-bottom, 0px));
   --josanz-shell-mobile-tab-clearance: 133px;
+  --josanz-list-stack-gap: ${JOSANZ_FIGMA_DASHBOARD.gridGapPx}px;
+  --josanz-list-card-pad-x: 1.25rem;
+  --josanz-list-card-pad-x-md: 2rem;
+  --josanz-list-card-pad-y: 1.25rem;
+  --josanz-list-card-pad-y-md: 1.5rem;
   --josanz-footer-elev: 0 -10px 30px rgba(0,0,0,0.45);
   --bg-primary: #1e293b;
   --surface: #1e293b;

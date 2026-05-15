@@ -10,14 +10,16 @@
 
   <!-- Table headers: desktop only -->
   <div class="josanz-list-thead">
-    <div class="w-[200px] shrink-0">Nº Albarán</div>
-    <div class="flex flex-1 items-center gap-6 overflow-hidden">
-      <div class="w-[220px] shrink-0">Cliente</div>
-      <div class="w-[160px] shrink-0">Fecha</div>
-      <div class="w-[160px] shrink-0">Proyecto</div>
-      <div class="flex-1">Operador</div>
+    <div class="josanz-list-template-row">
+      <div class="josanz-list-template-row__title truncate">Nº Albarán</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Cliente</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Fecha</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Proyecto</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Operador</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
     </div>
-    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
   <!-- Content -->

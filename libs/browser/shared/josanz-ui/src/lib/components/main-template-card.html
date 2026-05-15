@@ -1,6 +1,6 @@
 <div 
   [ngStyle]="getCardStyles()"
-  class="josanz-list-card mb-3 md:mb-4 flex flex-col md:flex-row md:items-center w-full group border border-solid transition-all duration-300 gap-3 md:gap-0 relative overflow-hidden"
+  class="josanz-list-card flex flex-col md:flex-row md:items-center w-full group border border-solid transition-all duration-300 gap-3 md:gap-0 relative overflow-hidden"
   [class.rounded-2xl]="themeService.currentTheme().defaultShape === 'rounded'"
   [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
   [class.rounded-[40px]]="themeService.currentTheme().defaultShape === 'pill'"
@@ -17,10 +17,10 @@
   ></div>
 
   <!-- Content padding wrapper -->
-  <div class="flex flex-col md:flex-row md:items-center w-full px-4 md:px-6 py-4 md:py-5 gap-3 md:gap-0">
+  <div class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-[var(--josanz-list-card-pad-y)] md:px-[var(--josanz-list-card-pad-x-md)] md:py-[var(--josanz-list-card-pad-y-md)]">
 
     <!-- Title row: title + badge (badge visible on mobile only) -->
-    <div class="flex items-center justify-between md:block md:w-[200px] shrink-0">
+    <div class="josanz-list-template-row__title flex items-center justify-between md:block shrink-0">
       <h3 
         class="text-[15px] md:text-[16px] font-extrabold tracking-tight leading-tight"
         [style.color]="'var(--josanz-text)'">
@@ -39,14 +39,16 @@
     </div>
 
     <!-- Data fields -->
-    <div class="flex flex-col md:flex-row md:flex-1 md:items-center gap-1 md:gap-6 overflow-hidden">
+    <div class="josanz-list-template-row__fields overflow-hidden">
       @for (item of data; track item; let i = $index) {
-        <div 
-          class="shrink-0 text-[12px] md:text-[13px] font-medium flex items-center gap-1.5 md:truncate"
+        <div
+          class="josanz-list-template-row__field text-[12px] md:text-[13px] font-medium md:truncate"
+          [ngClass]="{
+            'josanz-list-template-row__field--w220': i === 0,
+            'josanz-list-template-row__field--w160': i === 1 || i === 2,
+            'josanz-list-template-row__field--grow': i === 3
+          }"
           [style.color]="'var(--josanz-text-muted)'"
-          [class.md:w-[220px]]="i === 0"
-          [class.md:w-[160px]]="i === 1 || i === 2"
-          [class.md:flex-1]="i === 3"
         >
           @if (labels[i]) {
             <span 
@@ -62,7 +64,7 @@
     </div>
 
     <!-- Badge: desktop only -->
-    <div class="hidden md:flex w-[140px] shrink-0 justify-end">
+    <div class="josanz-list-template-row__status hidden md:flex shrink-0 justify-end">
       <span 
         [ngStyle]="getBadgeStyles()"
         class="px-4 py-1.5 text-[10px] font-black flex items-center justify-center uppercase tracking-widest shadow-md"

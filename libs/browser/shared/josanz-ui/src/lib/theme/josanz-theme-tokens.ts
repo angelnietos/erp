@@ -289,12 +289,18 @@ export function applyJosanzStructuralCssVariables(root: HTMLElement = document.d
   root.style.setProperty('--josanz-field-accent', 'var(--josanz-primary)');
   root.style.setProperty('--josanz-content-max', '1280px');
   root.style.setProperty('--josanz-sidebar-width', '68px');
-  root.style.setProperty('--josanz-shell-pad-x', '1.25rem');
+  root.style.setProperty('--josanz-shell-pad-x', '1.5rem');
   root.style.setProperty('--josanz-shell-pad-x-md', `${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px`);
   root.style.setProperty('--josanz-shell-pad-y', '1.5rem');
   root.style.setProperty('--josanz-shell-pad-y-md', '2.5rem');
   root.style.setProperty('--josanz-shell-footer-safe', 'max(1.5rem, env(safe-area-inset-bottom, 0px))');
   root.style.setProperty('--josanz-shell-mobile-tab-clearance', '133px');
+  /** Listas (Dashboard.svg): gutter rejilla 32px; más aire interior en filas tipo card. */
+  root.style.setProperty('--josanz-list-stack-gap', `${JOSANZ_FIGMA_DASHBOARD.gridGapPx}px`);
+  root.style.setProperty('--josanz-list-card-pad-x', '1.25rem');
+  root.style.setProperty('--josanz-list-card-pad-x-md', '2rem');
+  root.style.setProperty('--josanz-list-card-pad-y', '1.25rem');
+  root.style.setProperty('--josanz-list-card-pad-y-md', '1.5rem');
   if (isDark) {
     root.style.setProperty('--josanz-footer-elev', '0 -10px 30px rgba(0,0,0,0.45)');
   } else {

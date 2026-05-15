@@ -10,14 +10,16 @@
   
   <!-- Table headers: desktop only -->
   <div class="josanz-list-thead">
-    <div class="w-[200px] shrink-0">Nombre y Apellidos</div>
-    <div class="flex flex-1 items-center gap-6 overflow-hidden">
-      <div class="w-[220px] shrink-0">Email</div>
-      <div class="w-[160px] shrink-0">Teléfono</div>
-      <div class="w-[160px] shrink-0">Rol / Cargo</div>
-      <div class="flex-1">Último acceso</div>
+    <div class="josanz-list-template-row">
+      <div class="josanz-list-template-row__title truncate">Nombre y Apellidos</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Email</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Teléfono</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Rol / Cargo</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Último acceso</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
     </div>
-    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
   <div class="flex flex-col gap-4">

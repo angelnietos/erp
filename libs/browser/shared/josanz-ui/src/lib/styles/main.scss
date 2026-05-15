@@ -18,6 +18,7 @@
 // ── 4. Layout ───────────────────────────────────────────────────────────────
 @use 'layout/sidebar';
 @use 'layout/shell';
+@use 'layout/list-template-row';
 
 // ── 5. Components ───────────────────────────────────────────────────────────
 @use 'components/button';

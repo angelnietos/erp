@@ -10,14 +10,16 @@
   
   <!-- Cabecera tabla: desktop only -->
   <div class="josanz-list-thead">
-    <div class="w-[200px] shrink-0">Nombre Empresa</div>
-    <div class="flex flex-1 items-center gap-6 overflow-hidden">
-      <div class="w-[220px] shrink-0">Email Contacto</div>
-      <div class="w-[160px] shrink-0">CIF/NIF</div>
-      <div class="w-[160px] shrink-0">Población</div>
-      <div class="flex-1">Última factura</div>
+    <div class="josanz-list-template-row">
+      <div class="josanz-list-template-row__title truncate">Nombre Empresa</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Email Contacto</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">CIF/NIF</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Población</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Última factura</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
     </div>
-    <div class="w-[140px] shrink-0 text-right">Estado</div>
   </div>
 
   <div class="flex flex-col gap-4">
