@@ -1,6 +1,6 @@
 import { NgClass } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { josanzCornerInner, type JosanzControlShape } from '../josanz-control-styles';
+import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class SecondaryButtonComponent {
   @Output() btnClick = new EventEmitter<void>();
 
   readonly cornerClass = (): string =>
-    josanzCornerInner(this.shape ?? this.themeService.currentTheme().defaultShape);
+    josanzCornerButton(this.shape ?? this.themeService.currentTheme().defaultShape);
 
   readonly textColor = (): string =>
     this.customColor ?? this.themeService.currentTheme().atmosphere.text;

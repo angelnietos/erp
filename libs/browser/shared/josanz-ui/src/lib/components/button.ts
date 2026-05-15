@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
-import type { JosanzControlShape } from '../josanz-control-styles';
+import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-button',
@@ -53,20 +53,12 @@ export class ButtonComponent {
 
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
 
-    const shapes = {
-      rounded: 'rounded-[10px]',
-      pill: 'rounded-full',
-      square: 'rounded-none',
-      modal: 'rounded-[24px]',
-      inner: 'rounded-[6px]',
-      avatar: 'rounded-[10px]',
-      field: 'rounded-[10px]'
-    };
+    const corner = josanzCornerButton(activeShape);
 
     return [
       base,
       sizes[this.size] || sizes.md,
-      shapes[activeShape as keyof typeof shapes] || shapes.rounded,
+      corner,
       this.fullWidth ? 'w-full' : '',
       this.disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
     ].filter(Boolean).join(' ');

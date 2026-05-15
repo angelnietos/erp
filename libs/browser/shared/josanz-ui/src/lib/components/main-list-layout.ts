@@ -38,6 +38,10 @@ export class MainListLayoutComponent implements OnChanges {
   @Output() filterChange = new EventEmitter<string>();
   @Output() paginationChange = new EventEmitter<number>();
 
+  /** Destino del avatar del header (vacío = sin enlace). */
+  @Input() avatarLink: string | null = '/settings';
+  @Input() avatarAriaLabel = 'Cuenta y ajustes';
+
   private _paginationPage = 1;
 
   ngOnChanges(changes: SimpleChanges): void {

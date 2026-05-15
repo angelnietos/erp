@@ -6,6 +6,7 @@ export {
   josanzCornerField,
   josanzCornerAvatar,
   josanzCornerModal,
+  josanzCornerButton,
 } from './lib/josanz-control-styles';
 export * from './lib/components/main-template-card';
 export * from './lib/components/button';

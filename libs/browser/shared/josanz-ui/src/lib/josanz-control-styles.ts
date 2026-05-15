@@ -3,6 +3,18 @@
  */
 export type JosanzControlShape = 'rounded' | 'pill' | 'square';
 
+/** Botón principal y secundario (listas): mismo radio que `ButtonComponent`. */
+export function josanzCornerButton(shape: JosanzControlShape | string | undefined): string {
+  switch (shape) {
+    case 'pill':
+      return 'rounded-full';
+    case 'square':
+      return 'rounded-none';
+    default:
+      return 'rounded-[10px]';
+  }
+}
+
 /** Botones, páginas de paginación, inputs, pestañas secundarias… */
 export function josanzCornerInner(shape: JosanzControlShape | string | undefined): string {
   switch (shape) {
