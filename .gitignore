@@ -25,6 +25,9 @@ node_modules
 !.vscode/extensions.json
 
 # misc
+# Windows: nombre reservado; redirecciones erróneas crean este archivo y `git add` falla al indexarlo
+/NUL
+/NUL.map
 /.sass-cache
 /connect.lock
 /coverage
