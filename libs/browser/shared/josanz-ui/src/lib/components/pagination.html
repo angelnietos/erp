@@ -1,6 +1,7 @@
 @if (total > 0 && variant === 'figma') {
   <nav
     class="flex w-full flex-wrap justify-center md:justify-end"
+    [class.overflow-visible]="pagePickerOpen"
     [style.--josanz-primary]="customColor || null"
     aria-label="Paginación"
   >
