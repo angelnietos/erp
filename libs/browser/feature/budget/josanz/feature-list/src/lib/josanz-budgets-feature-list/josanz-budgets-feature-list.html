@@ -8,7 +8,6 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <!-- Table headers: desktop only -->
   <div class="josanz-list-thead">
     <div
       class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
@@ -24,23 +23,9 @@
     </div>
   </div>
 
-  <!-- Content -->
-  <div class="josanz-list-rows--table-target flex flex-col gap-4">
-    @for (item of [
-      {id: 'PR-2024-010', cliente: 'Construcciones S.A.', fecha: '14/05/2024', val: '30 días', total: '4.500,00 €', status: 'Enviado'},
-      {id: 'PR-2024-011', cliente: 'Reformas García', fecha: '13/05/2024', val: '15 días', total: '1.250,00 €', status: 'Aceptado'},
-      {id: 'PR-2024-012', cliente: 'Hotel Playa Sol', fecha: '12/05/2024', val: '30 días', total: '12.800,00 €', status: 'Borrador'},
-      {id: 'PR-2024-013', cliente: 'Paco Montajes', fecha: '10/05/2024', val: '7 días', total: '850,00 €', status: 'Rechazado'}
-    ]; track item.id) {
-      <josanz-main-template-card
-        style="cursor: pointer; display: block;"
-        (click)="openDetail()"
-        [title]="item.id"
-        [data]="[item.cliente, item.fecha, item.val, item.total]"
-        [labels]="['Cliente', 'Fecha', 'Validez', 'Total']"
-        [status]="item.status"
-        [statusVariant]="item.status === 'Aceptado' ? 'success' : (item.status === 'Rechazado' ? 'error' : 'primary')"
-      ></josanz-main-template-card>
-    }
-  </div>
+  <josanz-adaptive-list-rows
+    [items]="budgetItems"
+    [defaultLabels]="budgetLabels"
+    (itemClick)="openDetail()"
+  ></josanz-adaptive-list-rows>
 </josanz-main-list-layout>

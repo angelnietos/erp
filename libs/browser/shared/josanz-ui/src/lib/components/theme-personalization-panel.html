@@ -72,6 +72,26 @@
     </section>
 
     <section>
+      <h3 class="premium-label">Cuadrícula de listas</h3>
+      <p class="premium-desc">Columnas al elegir vista «Tarjetas · Cuadrícula» en los listados.</p>
+      <div class="grid grid-cols-3 gap-3 mt-6">
+        @for (opt of gridColumnOptions; track opt.value) {
+          <button
+            type="button"
+            (click)="themeService.setListGridColumns(opt.value)"
+            class="pagination-variant-selector !flex-col !items-center !py-4"
+            [class.active]="themeService.listGridColumns() === opt.value"
+          >
+            <span class="text-[22px] font-black leading-none" [style.color]="'var(--josanz-primary)'">
+              {{ opt.value }}×
+            </span>
+            <span class="pagination-variant-selector__title !text-center">{{ opt.label }}</span>
+          </button>
+        }
+      </div>>
+    </section>
+
+    <section>
       <h3 class="premium-label">Paginación de listas</h3>
       <p class="premium-desc">Estilo del control de páginas en tablas y listados.</p>
       <div class="grid grid-cols-1 gap-3 mt-6">

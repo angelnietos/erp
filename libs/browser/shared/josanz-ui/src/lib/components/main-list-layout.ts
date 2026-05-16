@@ -1,6 +1,12 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
+import type { JosanzListViewSelection } from '../list-view/list-view-preferences';
+import {
+  isGridCardsView,
+  isListCardsView,
+  isTableListView,
+} from '../list-view/list-view-preferences';
 import { FilterTabsComponent } from './filter-tabs';
 import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
@@ -12,11 +18,11 @@ import { ListViewSelectorComponent } from './list-view-selector';
   selector: 'josanz-main-list-layout',
   standalone: true,
   imports: [
-    CommonModule, 
-    FilterTabsComponent, 
-    ButtonComponent, 
-    SecondaryButtonComponent, 
-    UserAvatarComponent, 
+    CommonModule,
+    FilterTabsComponent,
+    ButtonComponent,
+    SecondaryButtonComponent,
+    UserAvatarComponent,
     PaginationComponent,
     ListViewSelectorComponent,
   ],
@@ -28,30 +34,22 @@ export class MainListLayoutComponent implements OnChanges {
 
   @Input() title = 'Título';
   @Input() primaryBtnLabel = 'Acción';
-  /** Segundo CTA oscuro (p. ej. «Añadir Almacén +» en listados Figma). */
   @Input() secondaryBtnLabel = '';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
-  /** Muestra selector «Elección de vista» en el pie del listado (por defecto en todos los listados). */
   @Input() showViewSelector = true;
   @Input() viewSelectorLabel = 'Elección de vista';
-  @Input() viewOptions: string[] = ['Tabla', 'Tarjetas'];
 
-  /** Página actual de la lista (1-based). Solo se muestra paginación si `paginationTotal` > 0. */
   @Input() paginationPage = 1;
-  /** Total de páginas; 0 oculta la paginación. */
   @Input() paginationTotal = 0;
-
-  /** Override puntual; si no se define, usa la preferencia de Personalización Josanz. */
   @Input() paginationVariant?: JosanzPaginationVariant;
 
   @Output() primaryAction = new EventEmitter<void>();
   @Output() secondaryAction = new EventEmitter<void>();
-  @Output() viewChange = new EventEmitter<string>();
+  @Output() viewChange = new EventEmitter<JosanzListViewSelection>();
   @Output() excelAction = new EventEmitter<void>();
   @Output() filterChange = new EventEmitter<string>();
   @Output() paginationChange = new EventEmitter<number>();
 
-  /** Destino del avatar del header (vacío = sin enlace). */
   @Input() avatarLink: string | null = '/settings';
   @Input() avatarAriaLabel = 'Cuenta y ajustes';
 
@@ -82,30 +80,35 @@ export class MainListLayoutComponent implements OnChanges {
     return this.paginationVariant ?? this.themeService.paginationVariant();
   }
 
-  onPrimaryAction() {
+  get listViewModeClass(): string {
+    const id = this.themeService.listViewSelection();
+    if (isTableListView(id)) {
+      return 'josanz-list-view--table';
+    }
+    if (isGridCardsView(id)) {
+      return 'josanz-list-view--cards-grid';
+    }
+    return 'josanz-list-view--cards-list';
+  }
+
+  onPrimaryAction(): void {
     this.primaryAction.emit();
   }
 
-  onSecondaryAction() {
+  onSecondaryAction(): void {
     this.secondaryAction.emit();
   }
 
-  onViewChange(option: string) {
-    if (option === 'Tabla' || option === 'Tarjetas') {
-      this.themeService.setListViewMode(option);
-    }
+  onViewChange(option: JosanzListViewSelection): void {
+    this.themeService.setListViewSelection(option);
     this.viewChange.emit(option);
   }
 
-  get listViewModeClass(): string {
-    return this.themeService.listViewMode() === 'Tabla' ? 'josanz-list-view--table' : 'josanz-list-view--cards';
-  }
-
-  onExcelAction() {
+  onExcelAction(): void {
     this.excelAction.emit();
   }
 
-  onFilterChange(option: string) {
+  onFilterChange(option: string): void {
     this.filterChange.emit(option);
   }
 }

@@ -53,20 +53,9 @@
     </div>
   </div>
 
-  <!-- Content -->
-  <div class="josanz-list-rows--table-target flex flex-col gap-4">
-    @for (item of stockItems; track item.id) {
-      <josanz-main-template-card
-        style="cursor: pointer; display: block;"
-        (click)="openProductDetail(item.id)"
-        [title]="item.ref"
-        [data]="[item.name, item.cat, item.stock, item.wh]"
-        [labels]="['Producto', 'Categoría', 'Stock', 'Almacén']"
-        [status]="item.status"
-        [statusVariant]="
-          item.status === 'En Stock' ? 'success' : item.status === 'Agotado' ? 'error' : 'warning'
-        "
-      ></josanz-main-template-card>
-    }
-  </div>
+  <josanz-adaptive-list-rows
+    [items]="stockAdaptiveItems"
+    [defaultLabels]="stockLabels"
+    (itemClick)="openProductDetail($event.id)"
+  ></josanz-adaptive-list-rows>
 </josanz-main-list-layout>

@@ -2,11 +2,12 @@ import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
+  AdaptiveListRowsComponent,
   FilterTabsComponent,
   ListSearchFieldComponent,
   MainListLayoutComponent,
-  MainTemplateCardComponent,
   SecondaryButtonComponent,
+  type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 import type { JosanzCatalogListRow } from './catalog-status';
 import {
@@ -19,12 +20,10 @@ export interface JosanzCatalogListConfig {
   title: string;
   primaryBtnLabel: string;
   secondaryBtnLabel?: string;
-  /** Columna derecha: Estado o Tipo (tipología staff). */
   statusColumnLabel: 'Estado' | 'Tipo';
   rows?: JosanzCatalogListRow[];
   addRoute?: string;
   summaryLine?: string;
-  /** Si no se define, usa pestañas de almacén (Figma equipo/vehículos/staff). */
   filterOptions?: string[];
 }
 
@@ -34,7 +33,7 @@ export interface JosanzCatalogListConfig {
   imports: [
     CommonModule,
     MainListLayoutComponent,
-    MainTemplateCardComponent,
+    AdaptiveListRowsComponent,
     FilterTabsComponent,
     ListSearchFieldComponent,
     SecondaryButtonComponent,
@@ -49,6 +48,8 @@ export class JosanzCatalogListComponent {
   searchQuery = '';
   activeStatusFilter = 'Todos (180)';
 
+  readonly rowLabels = ['Nombre', 'Fecha', 'Cliente', 'Operador'];
+
   get filterOptions(): string[] {
     return this.config.filterOptions ?? JOSANZ_CATALOG_WAREHOUSE_TABS;
   }
@@ -57,6 +58,17 @@ export class JosanzCatalogListComponent {
 
   get rows(): JosanzCatalogListRow[] {
     return this.config.rows ?? JOSANZ_CATALOG_EVENT_STATUS_ROWS;
+  }
+
+  get adaptiveItems(): JosanzAdaptiveListItem[] {
+    return this.filteredRows.map((row) => ({
+      id: row.id,
+      title: row.id,
+      data: [row.eventName, row.date, row.client, row.operator],
+      labels: this.rowLabels,
+      status: row.pillLabel,
+      statusVariant: row.pillVariant,
+    }));
   }
 
   get filteredRows(): JosanzCatalogListRow[] {
@@ -87,8 +99,8 @@ export class JosanzCatalogListComponent {
     void this.router.navigate(['/stock']);
   }
 
-  onRowClick(row: JosanzCatalogListRow): void {
-    void this.router.navigate(['/events', row.id.replace(/^0+/, '') || '1']);
+  onRowClick(item: JosanzAdaptiveListItem): void {
+    void this.router.navigate(['/events', item.id.replace(/^0+/, '') || '1']);
   }
 
   onStatusFilter(option: string): void {

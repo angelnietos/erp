@@ -50,18 +50,9 @@
     </div>
   </div>
 
-  <div class="josanz-catalog-list__rows josanz-list-rows--table-target flex flex-col gap-4">
-    @for (row of filteredRows; track row.id) {
-      <josanz-main-template-card
-        style="cursor: pointer; display: block"
-        (click)="onRowClick(row)"
-        [title]="row.id"
-        [data]="[row.eventName, row.date, row.client, row.operator]"
-        [labels]="['Nombre', 'Fecha', 'Cliente', 'Operador']"
-        [status]="row.pillLabel"
-        [statusVariant]="row.pillVariant"
-      ></josanz-main-template-card>
-    }
-  </div>
+  <josanz-adaptive-list-rows
+    [items]="adaptiveItems"
+    [defaultLabels]="rowLabels"
+    (itemClick)="onRowClick($event)"
+  ></josanz-adaptive-list-rows>
 </josanz-main-list-layout>
-

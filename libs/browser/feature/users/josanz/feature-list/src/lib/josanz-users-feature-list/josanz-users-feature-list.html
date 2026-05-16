@@ -8,10 +8,8 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
   
-  <!-- Table headers: desktop only -->
   <div class="josanz-list-thead">
-    <div
-      class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
+    <div class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
     >
       <div class="josanz-list-template-row__title truncate">Nombre y Apellidos</div>
       <div class="josanz-list-template-row__fields">
@@ -24,23 +22,9 @@
     </div>
   </div>
 
-  <div class="josanz-list-rows--table-target flex flex-col gap-4">
-    @for (user of [
-      {name: 'Admin Josanz', email: 'admin@josanz.com', tel: '+34 600 000 001', role: 'Administrador', access: 'Hace 5 min', status: 'Activo'},
-      {name: 'Juan Pérez', email: 'juan.perez@josanz.com', tel: '+34 600 000 002', role: 'Operario', access: 'Ayer', status: 'Activo'},
-      {name: 'Ana Belén', email: 'ana.belen@josanz.com', tel: '+34 600 000 003', role: 'Logística', access: '12/05/2024', status: 'Ausente'}
-    ]; track user.email) {
-      <josanz-main-template-card
-        style="cursor: pointer; display: block;"
-        (click)="openDetail()"
-        [title]="user.name"
-        [data]="[user.email, user.tel, user.role, user.access]"
-        [labels]="['Email', 'Teléfono', 'Rol', 'Último acceso']"
-        [status]="user.status"
-        [statusVariant]="user.status === 'Activo' ? 'success' : 'warning'"
-      ></josanz-main-template-card>
-    }
-  </div>
+  <josanz-adaptive-list-rows
+    [items]="userItems"
+    [defaultLabels]="userLabels"
+    (itemClick)="openDetail()"
+  ></josanz-adaptive-list-rows>
 </josanz-main-list-layout>
-
-

@@ -5,6 +5,7 @@ import {
   JosanzAtmosphereName,
   type JosanzPaginationVariant,
 } from '../services/theme.service';
+import { JOSANZ_LIST_GRID_COLUMN_OPTIONS } from '../list-view/list-view-preferences';
 
 @Component({
   selector: 'josanz-theme-personalization-panel',
@@ -26,6 +27,8 @@ export class ThemePersonalizationPanelComponent {
     '#38BDF8',
     '#8B5CF6',
   ];
+
+  readonly gridColumnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
 
   readonly paginationOptions: {
     variant: JosanzPaginationVariant;

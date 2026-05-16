@@ -24,24 +24,11 @@
     </div>
   </div>
 
-  <div class="josanz-list-rows--table-target flex flex-col gap-4">
-    @for (client of [
-      {name: 'Construcciones S.A.', email: 'obras@construcciones.com', cif: 'A12345678', city: 'Madrid', last: '14/05/2024', status: 'Activo'},
-      {name: 'Reformas García', email: 'info@reformasgarcia.es', cif: 'B98765432', city: 'Barcelona', last: '10/05/2024', status: 'Inactivo'},
-      {name: 'Hotel Playa Sol', email: 'recepcion@hotelplaya.com', cif: 'A88877766', city: 'Valencia', last: 'Ayer', status: 'Activo'},
-      {name: 'Logística Express', email: 'envios@logexpress.com', cif: 'B11223344', city: 'Sevilla', last: '08/05/2024', status: 'Activo'}
-    ]; track client.cif) {
-      <josanz-main-template-card
-        (click)="openDetail()" 
-        style="cursor: pointer; display: block;"
-        [title]="client.name"
-        [data]="[client.email, client.cif, client.city, client.last]"
-        [labels]="['Email', 'CIF/NIF', 'Población', 'Última factura']"
-        [status]="client.status"
-        [statusVariant]="client.status === 'Activo' ? 'success' : 'primary'"
-      ></josanz-main-template-card>
-    }
-  </div>
+  <josanz-adaptive-list-rows
+    [items]="clientItems"
+    [defaultLabels]="clientLabels"
+    (itemClick)="openDetail()"
+  ></josanz-adaptive-list-rows>
 
 </josanz-main-list-layout>
 

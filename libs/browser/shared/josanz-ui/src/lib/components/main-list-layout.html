@@ -68,8 +68,7 @@
       @if (showViewSelector) {
         <josanz-list-view-selector
           [label]="viewSelectorLabel"
-          [options]="viewOptions"
-          [selected]="themeService.listViewMode()"
+          [selected]="themeService.listViewSelection()"
           (selectionChange)="onViewChange($event)"
         ></josanz-list-view-selector>
       }

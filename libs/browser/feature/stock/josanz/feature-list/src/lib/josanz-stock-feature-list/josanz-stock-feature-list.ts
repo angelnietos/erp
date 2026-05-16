@@ -2,18 +2,26 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
+  AdaptiveListRowsComponent,
   MainListLayoutComponent,
-  MainTemplateCardComponent,
   BaseListComponent,
   ButtonComponent,
   MainTabsComponent,
   FilterTabsComponent,
+  type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-stock-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, MainTemplateCardComponent, ButtonComponent, MainTabsComponent, FilterTabsComponent],
+  imports: [
+    CommonModule,
+    MainListLayoutComponent,
+    AdaptiveListRowsComponent,
+    ButtonComponent,
+    MainTabsComponent,
+    FilterTabsComponent,
+  ],
   templateUrl: './josanz-stock-feature-list.html',
   styleUrl: './josanz-stock-feature-list.css',
 })
@@ -52,6 +60,20 @@ export class JosanzStockListComponent extends BaseListComponent {
       status: 'Agotado',
     },
   ] as const;
+
+  readonly stockLabels = ['Producto', 'Categoría', 'Stock', 'Almacén'];
+
+  get stockAdaptiveItems(): JosanzAdaptiveListItem[] {
+    return this.stockItems.map((item) => ({
+      id: item.id,
+      title: item.ref,
+      data: [item.name, item.cat, item.stock, item.wh],
+      labels: this.stockLabels,
+      status: item.status,
+      statusVariant:
+        item.status === 'En Stock' ? 'success' : item.status === 'Agotado' ? 'error' : 'warning',
+    }));
+  }
 
   constructor() {
     super();

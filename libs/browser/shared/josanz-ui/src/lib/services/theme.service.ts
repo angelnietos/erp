@@ -1,15 +1,22 @@
 import { Injectable, signal } from '@angular/core';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import {
+  migrateLegacyListViewMode,
+  type JosanzListGridColumns,
+  type JosanzListViewSelection,
+} from '../list-view/list-view-preferences';
+
+/** @deprecated Usar `JosanzListViewSelection`. */
+export type JosanzListViewMode = 'Tabla' | 'Tarjetas';
 
 /** `figma`: bloque ‹ actual/total › con desplegable; `numbered`: páginas numeradas con elipsis. */
 export type JosanzPaginationVariant = 'figma' | 'numbered';
 
-/** Modo de listado en pantallas con «Elección de vista». */
-export type JosanzListViewMode = 'Tabla' | 'Tarjetas';
 import {
   JOSANZ_ATMOSPHERE_REGISTRY,
   JOSANZ_DEFAULT_PRIMARY,
   applyJosanzThemeCssVariables,
+  applyJosanzStructuralCssVariables,
   josanzReadableOnSolid,
   type JosanzAtmosphereName,
   type JosanzThemeConfig,
@@ -23,13 +30,7 @@ export type {
   JosanzThemeConfig,
 } from '../theme/josanz-theme-tokens';
 
-export {
-  JOSANZ_ATMOSPHERE_REGISTRY,
-  JOSANZ_DEFAULT_PRIMARY,
-  josanzReadableOnSolid,
-  applyJosanzThemeCssVariables,
-  applyJosanzStructuralCssVariables,
-} from '../theme/josanz-theme-tokens';
+export type { JosanzListViewSelection, JosanzListGridColumns } from '../list-view/list-view-preferences';
 
 const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
 
@@ -38,7 +39,10 @@ interface JosanzStoredPreferences {
   atmosphereName?: JosanzAtmosphereName;
   primaryColor?: string;
   paginationVariant?: JosanzPaginationVariant;
+  /** Legado */
   listViewMode?: JosanzListViewMode;
+  listViewSelection?: JosanzListViewSelection;
+  listGridColumns?: JosanzListGridColumns;
 }
 
 @Injectable({
@@ -50,16 +54,16 @@ export class JosanzThemeService {
   currentTheme = signal<JosanzThemeConfig>({
     name: 'luxe-rounded',
     defaultShape: 'rounded',
-    /** Alineado con exports Figma (`test (5)`/`test (6)`) vía `josanz-figma-tokens`. */
     primaryColor: JOSANZ_DEFAULT_PRIMARY,
     atmosphere: this.atmospheres.neutral,
   });
 
-  /** Variante de paginación en listados (`josanz-main-list-layout`). */
   paginationVariant = signal<JosanzPaginationVariant>('figma');
 
-  /** Vista de listados: filas continuas (Tabla) o tarjetas separadas (Tarjetas). */
-  listViewMode = signal<JosanzListViewMode>('Tarjetas');
+  listViewSelection = signal<JosanzListViewSelection>('tarjetas-lista');
+
+  /** Columnas del grid de tarjetas (2, 3 o 4). */
+  listGridColumns = signal<JosanzListGridColumns>(3);
 
   constructor() {
     this.restorePreferences();
@@ -93,19 +97,32 @@ export class JosanzThemeService {
     this.persistPreferences();
   }
 
-  setListViewMode(mode: JosanzListViewMode) {
-    this.listViewMode.set(mode);
+  setListViewSelection(selection: JosanzListViewSelection) {
+    this.listViewSelection.set(selection);
     this.persistPreferences();
   }
 
-  /** Color de texto legible sobre el color primario actual (o un hex arbitrario). */
+  /** @deprecated Usar `setListViewSelection`. */
+  setListViewMode(mode: JosanzListViewMode) {
+    this.setListViewSelection(migrateLegacyListViewMode(mode));
+  }
+
+  setListGridColumns(columns: JosanzListGridColumns) {
+    this.listGridColumns.set(columns);
+    this.persistPreferences();
+  }
+
   readableOnPrimary(hex?: string): string {
     return josanzReadableOnSolid(hex ?? this.currentTheme().primaryColor);
   }
 
   private getShapeFromName(name: JosanzThemeName): JosanzControlShape {
-    if (name === 'luxe-sharp') return 'square';
-    if (name === 'luxe-pill') return 'pill';
+    if (name === 'luxe-sharp') {
+      return 'square';
+    }
+    if (name === 'luxe-pill') {
+      return 'pill';
+    }
     return 'rounded';
   }
 
@@ -147,8 +164,14 @@ export class JosanzThemeService {
       this.paginationVariant.set(stored.paginationVariant);
     }
 
-    if (stored.listViewMode === 'Tabla' || stored.listViewMode === 'Tarjetas') {
-      this.listViewMode.set(stored.listViewMode);
+    if (stored.listViewSelection === 'tabla' || stored.listViewSelection === 'tarjetas-lista' || stored.listViewSelection === 'tarjetas-grid') {
+      this.listViewSelection.set(stored.listViewSelection);
+    } else if (stored.listViewMode) {
+      this.listViewSelection.set(migrateLegacyListViewMode(stored.listViewMode));
+    }
+
+    if (stored.listGridColumns === 2 || stored.listGridColumns === 3 || stored.listGridColumns === 4) {
+      this.listGridColumns.set(stored.listGridColumns);
     }
   }
 
@@ -162,7 +185,8 @@ export class JosanzThemeService {
       atmosphereName: theme.atmosphere.name,
       primaryColor: theme.primaryColor,
       paginationVariant: this.paginationVariant(),
-      listViewMode: this.listViewMode(),
+      listViewSelection: this.listViewSelection(),
+      listGridColumns: this.listGridColumns(),
     };
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(payload));
