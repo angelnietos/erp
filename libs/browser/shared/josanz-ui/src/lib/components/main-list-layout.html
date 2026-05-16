@@ -1,9 +1,9 @@
 <div class="josanz-main-list flex w-full min-w-0 flex-col gap-6">
-  <div class="flex w-full min-w-0 shrink-0 flex-col gap-6">
-    <div class="flex w-full min-w-0 justify-between items-start">
-      <div class="flex flex-col gap-1">
+  <div class="josanz-main-list__header flex w-full min-w-0 shrink-0 flex-col gap-6">
+    <div class="flex w-full min-w-0 items-start justify-between gap-4">
+      <div class="flex min-w-0 flex-col gap-1">
         <h1
-          class="text-[26px] md:text-[36px] font-black tracking-tight leading-none"
+          class="text-[26px] font-black leading-none tracking-tight md:text-[36px]"
           [style.color]="'var(--josanz-text)'"
         >
           {{ title }}
@@ -16,17 +16,47 @@
       <josanz-user-avatar [link]="avatarLink" [ariaLabel]="avatarAriaLabel"></josanz-user-avatar>
     </div>
 
-    <div
-      class="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6"
-    >
-      <div class="flex w-full min-w-0 flex-col gap-3 md:flex-1">
-        <josanz-filter-tabs [options]="filterOptions" (selectionChange)="onFilterChange($event)"></josanz-filter-tabs>
-        <div class="josanz-list-toolbar">
-          <div class="josanz-list-toolbar__filters">
-            <ng-content select="[extra-filters]"></ng-content>
+    <div class="josanz-main-list__controls flex w-full min-w-0 flex-col gap-3">
+      <div
+        class="flex w-full min-w-0 flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-6"
+      >
+        <josanz-filter-tabs
+          class="min-w-0 w-full md:flex-1"
+          [options]="filterOptions"
+          (selectionChange)="onFilterChange($event)"
+        ></josanz-filter-tabs>
+
+        <div class="josanz-main-list__actions flex w-full min-w-0 shrink-0 flex-col gap-2 md:w-auto md:max-w-full md:items-end">
+          <div class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2">
+            <div class="min-w-0 flex-1 md:flex-initial">
+              <josanz-secondary-button
+                label="Excel"
+                class="w-full"
+                (btnClick)="onExcelAction()"
+              ></josanz-secondary-button>
+            </div>
+            <ng-content select="[extra-actions]"></ng-content>
+            @if (secondaryBtnLabel) {
+              <div class="min-w-0 flex-1 md:flex-initial">
+                <josanz-button
+                  [label]="secondaryBtnLabel"
+                  [showIcon]="true"
+                  [fullWidth]="true"
+                  (btnClick)="onSecondaryAction()"
+                ></josanz-button>
+              </div>
+            }
+            <div class="min-w-0 flex-1 md:flex-initial">
+              <josanz-button
+                [label]="primaryBtnLabel"
+                [showIcon]="true"
+                [fullWidth]="true"
+                (btnClick)="onPrimaryAction()"
+              ></josanz-button>
+            </div>
           </div>
-          @if (showSearch) {
-            <div class="josanz-list-toolbar__search-slot">
+          @if (showSearch && searchPlacement === 'actions') {
+            <div class="josanz-main-list__search-actions flex w-full justify-end">
               <josanz-list-search-field
                 [placeholder]="searchPlaceholder"
                 [value]="searchValue"
@@ -38,32 +68,25 @@
         </div>
       </div>
 
-      <div
-        class="flex w-full min-w-0 shrink-0 flex-wrap items-center gap-2 md:w-auto md:max-w-full md:flex-none md:justify-end"
-      >
-        <div class="min-w-0 flex-1 md:flex-initial">
-          <josanz-secondary-button label="Excel" class="w-full" (btnClick)="onExcelAction()"></josanz-secondary-button>
-        </div>
-        <ng-content select="[extra-actions]"></ng-content>
-        @if (secondaryBtnLabel) {
-          <div class="min-w-0 flex-1 md:flex-initial">
-            <josanz-button
-              [label]="secondaryBtnLabel"
-              [showIcon]="true"
-              [fullWidth]="true"
-              (btnClick)="onSecondaryAction()"
-            ></josanz-button>
+      @if (showSearch && searchPlacement === 'toolbar') {
+        <div class="josanz-list-toolbar">
+          <div class="josanz-list-toolbar__filters">
+            <ng-content select="[extra-filters]"></ng-content>
           </div>
-        }
-        <div class="min-w-0 flex-1 md:flex-initial">
-          <josanz-button
-            [label]="primaryBtnLabel"
-            [showIcon]="true"
-            [fullWidth]="true"
-            (btnClick)="onPrimaryAction()"
-          ></josanz-button>
+          <div class="josanz-list-toolbar__search-slot">
+            <josanz-list-search-field
+              [placeholder]="searchPlaceholder"
+              [value]="searchValue"
+              [ariaLabel]="searchAriaLabel"
+              (valueChange)="onSearchChange($event)"
+            ></josanz-list-search-field>
+          </div>
         </div>
-      </div>
+      } @else {
+        <div class="josanz-list-toolbar__filters josanz-list-toolbar__filters--only">
+          <ng-content select="[extra-filters]"></ng-content>
+        </div>
+      }
     </div>
   </div>
 
@@ -87,7 +110,7 @@
         ></josanz-list-view-selector>
       }
       @if (paginationTotal > 0) {
-        <div class="flex justify-center md:justify-end">
+        <div class="flex justify-center md:ml-auto md:justify-end">
           <josanz-pagination
             [current]="effectivePaginationPage"
             [total]="paginationTotal"
@@ -99,4 +122,3 @@
     </div>
   }
 </div>
-

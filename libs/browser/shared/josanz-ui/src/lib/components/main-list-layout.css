@@ -8,3 +8,13 @@
   /* Evita que hijos con min-content ancho (filas de filtros) ensanchen el host en contextos flex */
   min-width: 0;
 }
+
+.josanz-main-list__actions {
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .josanz-main-list__actions {
+    min-width: min(100%, 20rem);
+  }
+}

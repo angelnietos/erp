@@ -1,4 +1,4 @@
-// Barra de búsqueda y toolbar de filtros en listados.
+// Barra de búsqueda y toolbar de filtros en listados (alineación Figma: derecha).
 
 .josanz-list-search {
   display: flex;
@@ -61,49 +61,62 @@
   }
 }
 
-// Fila compartida: filtros extra (proyectados) + búsqueda alineada a la derecha.
+// Búsqueda bajo botones de acción (maqueta Clientes).
+.josanz-main-list__search-actions {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+
+  .josanz-list-search {
+    max-width: min(100%, 16.5rem);
+  }
+}
+
+// Fila de filtros secundarios + búsqueda a la derecha (maqueta Vehículos / catálogo).
 .josanz-list-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.75rem 1rem;
   width: 100%;
   min-width: 0;
 
   &__filters {
     display: flex;
-    flex: 1 1 12rem;
+    flex: 1 1 auto;
     flex-direction: column;
     gap: 0.75rem;
-    min-width: 0;
+    min-width: min(100%, 12rem);
+
+    &--only:empty {
+      display: none;
+    }
   }
 
   &__search-slot {
     display: flex;
-    flex: 1 1 10rem;
+    flex: 0 0 auto;
     justify-content: flex-end;
+    margin-left: auto;
     min-width: min(100%, 10rem);
-    max-width: 100%;
+    max-width: 16.5rem;
+    width: 100%;
 
     .josanz-list-search {
       max-width: 100%;
     }
   }
 
-  &__filters:empty + &__search-slot {
-    flex: 1 1 100%;
-    justify-content: flex-end;
-  }
-
   @media (min-width: 640px) {
+    flex-wrap: nowrap;
+
     &__search-slot {
-      flex: 0 1 16.5rem;
-      margin-left: auto;
+      width: auto;
+      min-width: 10rem;
     }
   }
 }
 
-// Bloque extra de catálogo (resumen + chips de estado).
 .josanz-list-filters-extra {
   display: flex;
   flex-direction: column;

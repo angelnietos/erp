@@ -37,6 +37,8 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() showViewSelector = true;
   @Input() viewSelectorLabel = 'Elección de vista';
   @Input() showSearch = true;
+  /** `toolbar`: misma fila que filtros extra (catálogo). `actions`: bajo botones, alineado a la derecha (clientes, etc.). */
+  @Input() searchPlacement: 'toolbar' | 'actions' = 'toolbar';
   @Input() searchPlaceholder = 'Buscar…';
   @Input() searchValue = '';
   @Input() searchAriaLabel = 'Buscar en el listado';
