@@ -15,6 +15,20 @@
   transform: translateY(-50%) scaleY(1) !important;
 }
 
+/** Figma: iconos de navegación 20×20 px */
+.nav-icon-container {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon-container svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* Scrollbar invisible para el Sidebar */
 nav::-webkit-scrollbar {
   display: none;

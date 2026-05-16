@@ -56,4 +56,24 @@ export const appRoutes: Route[] = [
     loadChildren: () =>
       import('@josanz-erp/josanz-events-feature-list').then((m) => m.josanzEventsRoutes),
   },
+  {
+    path: 'equipment',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzEquipmentListComponent),
+  },
+  {
+    path: 'vehicles',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzVehiclesListComponent),
+  },
+  {
+    path: 'staff',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzStaffListComponent),
+  },
+  {
+    path: 'billing',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzBillingListComponent),
+  },
 ];

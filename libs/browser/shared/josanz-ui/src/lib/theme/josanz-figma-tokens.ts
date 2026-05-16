@@ -92,6 +92,15 @@ export const JOSANZ_FIGMA_STATUS_PILLS = {
   pospuesto: { bg: '#EDE9FE', text: '#5B21B6' },
   facturado: { bg: '#14532D', text: '#FFFFFF' },
   'facturado-muted': { bg: '#EDE9FE', text: '#5B21B6' },
+  'en-ejecucion': { bg: '#CCFBF1', text: '#115E59' },
+  cerrado: { bg: '#E0E7FF', text: '#312E81' },
+  'en-preparacion': { bg: '#FFEDD5', text: '#9A3412' },
+  'sin-presupuesto': { bg: '#FFF7ED', text: '#C2410C' },
+  finalizado: { bg: '#DCFCE7', text: '#166534' },
+  inasistencia: { bg: '#FEF3C7', text: '#B45309' },
+  'staff-tecnico': { bg: '#DBEAFE', text: '#1E40AF' },
+  'staff-practicas': { bg: '#FCE7F3', text: '#9D174D' },
+  'staff-freelance': { bg: '#D1FAE5', text: '#047857' },
 } as const;
 
 export type JosanzStatusPillKey = keyof typeof JOSANZ_FIGMA_STATUS_PILLS;
@@ -110,4 +119,13 @@ export const JOSANZ_FIGMA_STATUS_PILLS_DARK: Record<JosanzStatusPillKey, { bg: s
   pospuesto: { bg: '#2E1065', text: '#DDD6FE' },
   facturado: { bg: '#052E16', text: '#ECFDF5' },
   'facturado-muted': { bg: '#2E1065', text: '#DDD6FE' },
+  'en-ejecucion': { bg: '#134E4A', text: '#99F6E4' },
+  cerrado: { bg: '#1E1B4B', text: '#C7D2FE' },
+  'en-preparacion': { bg: '#431407', text: '#FDBA74' },
+  'sin-presupuesto': { bg: '#431407', text: '#FED7AA' },
+  finalizado: { bg: '#052E16', text: '#BBF7D0' },
+  inasistencia: { bg: '#422006', text: '#FDE68A' },
+  'staff-tecnico': { bg: '#172554', text: '#93C5FD' },
+  'staff-practicas': { bg: '#500724', text: '#F9A8D4' },
+  'staff-freelance': { bg: '#064E3B', text: '#6EE7B7' },
 };

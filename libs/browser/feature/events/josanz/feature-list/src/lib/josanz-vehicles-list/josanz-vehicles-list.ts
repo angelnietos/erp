@@ -3,18 +3,18 @@ import { JosanzCatalogListComponent } from '../josanz-catalog/josanz-catalog-lis
 import type { JosanzCatalogListConfig } from '../josanz-catalog/josanz-catalog-list';
 
 @Component({
-  selector: 'josanz-events-feature-list',
+  selector: 'josanz-vehicles-list',
   standalone: true,
   imports: [JosanzCatalogListComponent],
   template: `<josanz-catalog-list [config]="config" />`,
 })
-export class JosanzEventsFeatureListComponent {
+export class JosanzVehiclesListComponent {
   readonly config: JosanzCatalogListConfig = {
-    title: 'Eventos',
-    primaryBtnLabel: 'Añadir Evento +',
+    title: 'Vehículos',
+    primaryBtnLabel: 'Añadir vehículo +',
+    secondaryBtnLabel: 'Añadir Almacén +',
     statusColumnLabel: 'Estado',
     addRoute: '/events/new',
-    summaryLine: '180 eventos · 8 activos esta semana',
-    filterOptions: ['Todos', 'Externo', 'Hotel', 'Espacio'],
+    summaryLine: '42 vehículos · 3 en ruta hoy',
   };
 }

@@ -19,3 +19,26 @@ export const josanzEventsRoutes: Route[] = [
       import('./josanz-event-detail/josanz-event-detail').then((m) => m.JosanzEventDetailComponent),
   },
 ];
+
+export const josanzAudiovisualRoutes: Route[] = [
+  {
+    path: 'equipment',
+    loadComponent: () =>
+      import('./josanz-equipment-list/josanz-equipment-list').then((m) => m.JosanzEquipmentListComponent),
+  },
+  {
+    path: 'vehicles',
+    loadComponent: () =>
+      import('./josanz-vehicles-list/josanz-vehicles-list').then((m) => m.JosanzVehiclesListComponent),
+  },
+  {
+    path: 'staff',
+    loadComponent: () =>
+      import('./josanz-staff-list/josanz-staff-list').then((m) => m.JosanzStaffListComponent),
+  },
+  {
+    path: 'billing',
+    loadComponent: () =>
+      import('./josanz-billing-list/josanz-billing-list').then((m) => m.JosanzBillingListComponent),
+  },
+];

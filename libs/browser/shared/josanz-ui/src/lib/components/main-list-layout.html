@@ -31,6 +31,16 @@
           <josanz-secondary-button label="Excel" class="w-full" (btnClick)="onExcelAction()"></josanz-secondary-button>
         </div>
         <ng-content select="[extra-actions]"></ng-content>
+        @if (secondaryBtnLabel) {
+          <div class="min-w-0 flex-1 md:flex-initial">
+            <josanz-button
+              [label]="secondaryBtnLabel"
+              [showIcon]="true"
+              [fullWidth]="true"
+              (btnClick)="onSecondaryAction()"
+            ></josanz-button>
+          </div>
+        }
         <div class="min-w-0 flex-1 md:flex-initial">
           <josanz-button
             [label]="primaryBtnLabel"
@@ -50,17 +60,30 @@
     <ng-content></ng-content>
   </div>
 
-  @if (paginationTotal > 0) {
+  @if (paginationTotal > 0 || showViewSelector) {
     <div
-      class="flex w-full shrink-0 justify-center border-t pt-6 md:justify-end"
+      class="flex w-full shrink-0 flex-col gap-4 border-t pt-6 md:flex-row md:items-center md:justify-between"
       [style.borderColor]="'var(--josanz-border)'"
     >
-      <josanz-pagination
-        [current]="effectivePaginationPage"
-        [total]="paginationTotal"
-        [variant]="effectivePaginationVariant"
-        (pageChange)="onPaginationPage($event)"
-      ></josanz-pagination>
+      @if (showViewSelector) {
+        <josanz-list-view-selector
+          [label]="viewSelectorLabel"
+          [options]="viewOptions"
+          [selected]="selectedView"
+          (selectionChange)="onViewChange($event)"
+        ></josanz-list-view-selector>
+      }
+      @if (paginationTotal > 0) {
+        <div class="flex justify-center md:justify-end">
+          <josanz-pagination
+            [current]="effectivePaginationPage"
+            [total]="paginationTotal"
+            [variant]="effectivePaginationVariant"
+            (pageChange)="onPaginationPage($event)"
+          ></josanz-pagination>
+        </div>
+      }
     </div>
   }
 </div>
+

@@ -6,6 +6,7 @@ import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
 import { UserAvatarComponent } from './user-avatar';
 import { PaginationComponent } from './pagination';
+import { ListViewSelectorComponent } from './list-view-selector';
 
 @Component({
   selector: 'josanz-main-list-layout',
@@ -16,7 +17,8 @@ import { PaginationComponent } from './pagination';
     ButtonComponent, 
     SecondaryButtonComponent, 
     UserAvatarComponent, 
-    PaginationComponent
+    PaginationComponent,
+    ListViewSelectorComponent,
   ],
   templateUrl: './main-list-layout.html',
   styleUrl: './main-list-layout.css',
@@ -26,7 +28,13 @@ export class MainListLayoutComponent implements OnChanges {
 
   @Input() title = 'Título';
   @Input() primaryBtnLabel = 'Acción';
+  /** Segundo CTA oscuro (p. ej. «Añadir Almacén +» en listados Figma). */
+  @Input() secondaryBtnLabel = '';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
+  /** Muestra selector «Elección de vista» en el pie del listado. */
+  @Input() showViewSelector = false;
+  @Input() viewSelectorLabel = 'Elección de vista';
+  @Input() viewOptions: string[] = ['Tabla', 'Tarjetas'];
 
   /** Página actual de la lista (1-based). Solo se muestra paginación si `paginationTotal` > 0. */
   @Input() paginationPage = 1;
@@ -37,6 +45,8 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() paginationVariant?: JosanzPaginationVariant;
 
   @Output() primaryAction = new EventEmitter<void>();
+  @Output() secondaryAction = new EventEmitter<void>();
+  @Output() viewChange = new EventEmitter<string>();
   @Output() excelAction = new EventEmitter<void>();
   @Output() filterChange = new EventEmitter<string>();
   @Output() paginationChange = new EventEmitter<number>();
@@ -72,8 +82,19 @@ export class MainListLayoutComponent implements OnChanges {
     return this.paginationVariant ?? this.themeService.paginationVariant();
   }
 
+  selectedView = 'Tabla';
+
   onPrimaryAction() {
     this.primaryAction.emit();
+  }
+
+  onSecondaryAction() {
+    this.secondaryAction.emit();
+  }
+
+  onViewChange(option: string) {
+    this.selectedView = option;
+    this.viewChange.emit(option);
   }
 
   onExcelAction() {

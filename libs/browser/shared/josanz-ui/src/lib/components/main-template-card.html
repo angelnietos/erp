@@ -26,6 +26,7 @@
         [style.color]="'var(--josanz-text)'">
         {{ title }}
       </h3>
+      @if (status) {
       <!-- Badge: mobile only -->
       <span 
         class="md:hidden px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm"
@@ -36,6 +37,7 @@
       >
         {{ status }}
       </span>
+      }
     </div>
 
     <!-- Data fields -->
@@ -63,6 +65,7 @@
       }
     </div>
 
+    @if (status) {
     <!-- Badge: desktop only -->
     <div class="josanz-list-template-row__status hidden md:flex shrink-0 justify-end">
       <span 
@@ -75,6 +78,8 @@
         {{ status }}
       </span>
     </div>
+    }
 
   </div>
 </div>
+

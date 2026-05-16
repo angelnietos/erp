@@ -3,18 +3,18 @@ import { JosanzCatalogListComponent } from '../josanz-catalog/josanz-catalog-lis
 import type { JosanzCatalogListConfig } from '../josanz-catalog/josanz-catalog-list';
 
 @Component({
-  selector: 'josanz-events-feature-list',
+  selector: 'josanz-staff-list',
   standalone: true,
   imports: [JosanzCatalogListComponent],
   template: `<josanz-catalog-list [config]="config" />`,
 })
-export class JosanzEventsFeatureListComponent {
+export class JosanzStaffListComponent {
   readonly config: JosanzCatalogListConfig = {
-    title: 'Eventos',
-    primaryBtnLabel: 'Añadir Evento +',
+    title: 'Staff',
+    primaryBtnLabel: 'Añadir personal +',
+    secondaryBtnLabel: 'Añadir Equipo +',
     statusColumnLabel: 'Estado',
-    addRoute: '/events/new',
-    summaryLine: '180 eventos · 8 activos esta semana',
-    filterOptions: ['Todos', 'Externo', 'Hotel', 'Espacio'],
+    addRoute: '/users',
+    summaryLine: '100 personas · 12 en evento activo',
   };
 }

@@ -1,22 +1,37 @@
 <josanz-main-list-layout
-  [title]="title"
-  [primaryBtnLabel]="primaryBtnLabel"
+  [title]="config.title"
+  [primaryBtnLabel]="config.primaryBtnLabel"
+  [secondaryBtnLabel]="config.secondaryBtnLabel ?? ''"
   [filterOptions]="filterOptions"
-  [paginationTotal]="8"
+  [paginationTotal]="10"
   [paginationPage]="1"
+  [showViewSelector]="true"
   (primaryAction)="onAdd()"
+  (secondaryAction)="onSecondary()"
   (filterChange)="onTypologyFilter($event)"
   (excelAction)="onExcel()"
 >
   <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
     <p class="m-0 text-[13px] font-semibold leading-snug" style="color: var(--josanz-text-muted)">
-      180 eventos · 8 activos esta semana
+      {{ summaryText }}
     </p>
-    <josanz-filter-tabs
-      [options]="statusFilterOptions"
-      [selected]="activeStatusFilter"
-      (selectionChange)="onStatusFilter($event)"
-    ></josanz-filter-tabs>
+    <div class="flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+        <josanz-secondary-button label="Fecha" class="shrink-0"></josanz-secondary-button>
+        <josanz-filter-tabs
+          class="min-w-0 flex-1"
+          [options]="statusFilterOptions"
+          [selected]="activeStatusFilter"
+          (selectionChange)="onStatusFilter($event)"
+        ></josanz-filter-tabs>
+      </div>
+      <josanz-list-search-field
+        class="w-full lg:w-auto"
+        placeholder="Buscar…"
+        [value]="searchQuery"
+        (valueChange)="onSearch($event)"
+      ></josanz-list-search-field>
+    </div>
   </div>
 
   <div class="josanz-list-thead">
@@ -30,21 +45,24 @@
         <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Cliente</div>
         <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Operador</div>
       </div>
-      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
+      <div class="josanz-list-template-row__status">
+        <span class="truncate">{{ config.statusColumnLabel }}</span>
+      </div>
     </div>
   </div>
 
   <div class="flex flex-col gap-4">
-    @for (ev of events; track ev.id) {
+    @for (row of filteredRows; track row.id) {
       <josanz-main-template-card
         style="cursor: pointer; display: block"
-        (click)="openDetail()"
-        [title]="ev.id"
-        [data]="[ev.name, ev.date, ev.client, ev.operator]"
+        (click)="onRowClick(row)"
+        [title]="row.id"
+        [data]="[row.eventName, row.date, row.client, row.operator]"
         [labels]="['Nombre', 'Fecha', 'Cliente', 'Operador']"
-        [status]="ev.status"
-        [statusVariant]="pillVariantForStatus(ev.status)"
+        [status]="row.pillLabel"
+        [statusVariant]="row.pillVariant"
       ></josanz-main-template-card>
     }
   </div>
 </josanz-main-list-layout>
+

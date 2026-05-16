@@ -3,18 +3,17 @@ import { JosanzCatalogListComponent } from '../josanz-catalog/josanz-catalog-lis
 import type { JosanzCatalogListConfig } from '../josanz-catalog/josanz-catalog-list';
 
 @Component({
-  selector: 'josanz-events-feature-list',
+  selector: 'josanz-billing-list',
   standalone: true,
   imports: [JosanzCatalogListComponent],
   template: `<josanz-catalog-list [config]="config" />`,
 })
-export class JosanzEventsFeatureListComponent {
+export class JosanzBillingListComponent {
   readonly config: JosanzCatalogListConfig = {
-    title: 'Eventos',
-    primaryBtnLabel: 'Añadir Evento +',
+    title: 'Facturación',
+    primaryBtnLabel: 'Añadir factura +',
+    secondaryBtnLabel: 'Añadir Almacén +',
     statusColumnLabel: 'Estado',
-    addRoute: '/events/new',
-    summaryLine: '180 eventos · 8 activos esta semana',
-    filterOptions: ['Todos', 'Externo', 'Hotel', 'Espacio'],
+    summaryLine: '180 documentos · 24 pendientes de cobro',
   };
 }
