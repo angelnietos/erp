@@ -1,3 +1,7 @@
 :host {
   display: contents;
 }
+
+.josanz-pagination__page-menu {
+  box-shadow: var(--josanz-elev-soft);
+}

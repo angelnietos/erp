@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
@@ -13,7 +21,11 @@ import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
   styleUrl: './pagination.css',
 })
 export class PaginationComponent {
+  private static instanceSeq = 0;
+
   readonly themeService = inject(JosanzThemeService);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  readonly pageListId = `josanz-pagination-pages-${++PaginationComponent.instanceSeq}`;
 
   /** Página actual (1-based). */
   @Input() current = 1;
@@ -29,11 +41,15 @@ export class PaginationComponent {
 
   @Output() pageChange = new EventEmitter<number>();
 
+  /** Desplegable del selector «actual / total» (variante figma). */
+  pagePickerOpen = false;
+
   readonly cornerClass = (): string =>
     josanzCornerButton(this.shape ?? this.themeService.currentTheme().defaultShape);
 
   shellBlockClass(): string {
-    return `${this.cornerClass()} overflow-hidden inline-flex flex-row items-stretch border border-solid`;
+    const overflow = this.pagePickerOpen ? 'overflow-visible' : 'overflow-hidden';
+    return `${this.cornerClass()} ${overflow} inline-flex flex-row items-stretch border border-solid`;
   }
 
   shellBlockCombinedStyle(): Record<string, string> {
@@ -86,9 +102,49 @@ export class PaginationComponent {
 
   go(page: number): void {
     if (page < 1 || page > this.total || page === this.effectiveCurrent) {
+      this.closePagePicker();
       return;
     }
     this.pageChange.emit(page);
+    this.closePagePicker();
+  }
+
+  pageOptions(): number[] {
+    if (this.total < 1) {
+      return [];
+    }
+    return Array.from({ length: this.total }, (_, i) => i + 1);
+  }
+
+  togglePagePicker(event: Event): void {
+    event.stopPropagation();
+    this.pagePickerOpen = !this.pagePickerOpen;
+  }
+
+  selectPage(page: number, event: Event): void {
+    event.stopPropagation();
+    this.go(page);
+  }
+
+  closePagePicker(): void {
+    this.pagePickerOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.pagePickerOpen) {
+      return;
+    }
+    const target = event.target as Node | null;
+    if (target && this.host.nativeElement.contains(target)) {
+      return;
+    }
+    this.closePagePicker();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closePagePicker();
   }
 
   prev(): void {

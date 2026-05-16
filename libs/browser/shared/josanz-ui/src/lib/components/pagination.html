@@ -17,16 +17,58 @@
       >
         ‹
       </button>
-      <div
-        class="flex select-none items-center gap-2 px-4 py-2 text-[13px] font-semibold tabular-nums"
-        [style.color]="themeService.currentTheme().atmosphere.text"
-        [style.border-color]="themeService.currentTheme().atmosphere.border"
-        aria-current="page"
-      >
-        <span>{{ effectiveCurrent }} / {{ total }}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="opacity-50" aria-hidden="true">
-          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+      <div class="relative border-x border-solid" [style.border-color]="themeService.currentTheme().atmosphere.border">
+        <button
+          type="button"
+          class="josanz-pagination__picker flex min-h-9 select-none items-center gap-2 px-4 py-2 text-[13px] font-semibold tabular-nums transition hover:brightness-[0.96]"
+          [style.color]="themeService.currentTheme().atmosphere.text"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+          [attr.aria-expanded]="pagePickerOpen"
+          aria-haspopup="listbox"
+          [attr.aria-controls]="pagePickerOpen ? pageListId : null"
+          aria-label="Ir a página"
+          (click)="togglePagePicker($event)"
+        >
+          <span aria-current="page">{{ effectiveCurrent }} / {{ total }}</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            class="opacity-50 transition-transform"
+            [class.rotate-180]="pagePickerOpen"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        @if (pagePickerOpen) {
+          <ul
+            [id]="pageListId"
+            role="listbox"
+            class="josanz-pagination__page-menu absolute bottom-full left-1/2 z-50 mb-1 max-h-48 min-w-[4.5rem] -translate-x-1/2 list-none overflow-y-auto border border-solid p-1 shadow-lg"
+            [ngClass]="cornerClass()"
+            [ngStyle]="surfaceNavStyle()"
+            [attr.aria-label]="'Páginas del 1 al ' + total"
+          >
+            @for (page of pageOptions(); track page) {
+              <li role="presentation">
+                <button
+                  type="button"
+                  role="option"
+                  class="josanz-pagination__page-option w-full rounded-md px-3 py-1.5 text-left text-[13px] font-semibold tabular-nums transition hover:brightness-[0.96]"
+                  [attr.aria-selected]="page === effectiveCurrent"
+                  [ngStyle]="pageButtonStyle(page === effectiveCurrent)"
+                  (click)="selectPage(page, $event)"
+                >
+                  {{ page }}
+                </button>
+              </li>
+            }
+          </ul>
+        }
       </div>
       <button
         type="button"
