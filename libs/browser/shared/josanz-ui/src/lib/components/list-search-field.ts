@@ -1,10 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { josanzCornerField, type JosanzControlShape } from '../josanz-control-styles';
+import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-list-search-field',
   standalone: true,
+  imports: [NgClass],
   template: `
-    <div class="josanz-list-search" role="search">
+    <div class="josanz-list-search" [ngClass]="cornerClass()" role="search">
       <svg
         class="josanz-list-search__icon"
         viewBox="0 0 24 24"
@@ -33,11 +37,19 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   `,
 })
 export class ListSearchFieldComponent {
+  readonly themeService = inject(JosanzThemeService);
+
   @Input() placeholder = 'Buscar…';
   @Input() value = '';
   @Input() ariaLabel = 'Buscar en el listado';
+  /** Override del shape; si no se pasa, usa el del tema activo. */
+  @Input() shape?: JosanzControlShape;
 
   @Output() valueChange = new EventEmitter<string>();
+
+  cornerClass(): string {
+    return josanzCornerField(this.shape ?? this.themeService.currentTheme().defaultShape);
+  }
 
   onInput(event: Event): void {
     const target = event.target as HTMLInputElement;
