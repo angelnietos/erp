@@ -9,9 +9,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-styles';
-import { JosanzThemeService } from '../services/theme.service';
+import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
+
+export type { JosanzPaginationVariant } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-pagination',
@@ -37,7 +39,7 @@ export class PaginationComponent {
   @Input() customColor?: string;
 
   /** `figma`: bloque compacto estilo lienzo; `numbered`: páginas 1–N + «…». */
-  @Input() variant: 'figma' | 'numbered' = 'figma';
+  @Input() variant: JosanzPaginationVariant = 'figma';
 
   @Output() pageChange = new EventEmitter<number>();
 

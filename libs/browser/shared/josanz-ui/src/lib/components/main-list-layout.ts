@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { JosanzThemeService } from '../services/theme.service';
+import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import { FilterTabsComponent } from './filter-tabs';
 import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
@@ -33,8 +33,8 @@ export class MainListLayoutComponent implements OnChanges {
   /** Total de páginas; 0 oculta la paginación. */
   @Input() paginationTotal = 0;
 
-  /** `figma`: control tipo `actual / total`; `numbered`: página con números. */
-  @Input() paginationVariant: 'figma' | 'numbered' = 'figma';
+  /** Override puntual; si no se define, usa la preferencia de Personalización Josanz. */
+  @Input() paginationVariant?: JosanzPaginationVariant;
 
   @Output() primaryAction = new EventEmitter<void>();
   @Output() excelAction = new EventEmitter<void>();
@@ -66,6 +66,10 @@ export class MainListLayoutComponent implements OnChanges {
 
   get effectivePaginationPage(): number {
     return this._paginationPage;
+  }
+
+  get effectivePaginationVariant(): JosanzPaginationVariant {
+    return this.paginationVariant ?? this.themeService.paginationVariant();
   }
 
   onPrimaryAction() {

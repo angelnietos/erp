@@ -1,5 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import type { JosanzControlShape } from '../josanz-control-styles';
+
+/** `figma`: bloque ‹ actual/total › con desplegable; `numbered`: páginas numeradas con elipsis. */
+export type JosanzPaginationVariant = 'figma' | 'numbered';
 import {
   JOSANZ_ATMOSPHERE_REGISTRY,
   JOSANZ_DEFAULT_PRIMARY,
@@ -25,6 +28,15 @@ export {
   applyJosanzStructuralCssVariables,
 } from '../theme/josanz-theme-tokens';
 
+const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
+
+interface JosanzStoredPreferences {
+  themeName?: JosanzThemeName;
+  atmosphereName?: JosanzAtmosphereName;
+  primaryColor?: string;
+  paginationVariant?: JosanzPaginationVariant;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -39,17 +51,23 @@ export class JosanzThemeService {
     atmosphere: this.atmospheres.neutral,
   });
 
+  /** Variante de paginación en listados (`josanz-main-list-layout`). */
+  paginationVariant = signal<JosanzPaginationVariant>('figma');
+
   constructor() {
+    this.restorePreferences();
     this.applyToDOM();
   }
 
   setTheme(name: JosanzThemeName) {
     this.currentTheme.update((t) => ({ ...t, name, defaultShape: this.getShapeFromName(name) }));
+    this.persistPreferences();
     this.applyToDOM();
   }
 
   setAtmosphere(name: JosanzAtmosphereName) {
     this.currentTheme.update((t) => ({ ...t, atmosphere: this.atmospheres[name] }));
+    this.persistPreferences();
     this.applyToDOM();
   }
 
@@ -59,7 +77,13 @@ export class JosanzThemeService {
 
   setPrimaryColor(color: string) {
     this.currentTheme.update((t) => ({ ...t, primaryColor: color }));
+    this.persistPreferences();
     this.applyToDOM();
+  }
+
+  setPaginationVariant(variant: JosanzPaginationVariant) {
+    this.paginationVariant.set(variant);
+    this.persistPreferences();
   }
 
   /** Color de texto legible sobre el color primario actual (o un hex arbitrario). */
@@ -80,5 +104,68 @@ export class JosanzThemeService {
       primaryColor: theme.primaryColor,
       themeName: theme.name,
     });
+  }
+
+  private restorePreferences(): void {
+    const stored = this.readStoredPreferences();
+    if (!stored) {
+      return;
+    }
+
+    if (stored.themeName) {
+      this.currentTheme.update((t) => ({
+        ...t,
+        name: stored.themeName!,
+        defaultShape: this.getShapeFromName(stored.themeName!),
+      }));
+    }
+
+    if (stored.atmosphereName && this.atmospheres[stored.atmosphereName]) {
+      this.currentTheme.update((t) => ({
+        ...t,
+        atmosphere: this.atmospheres[stored.atmosphereName!],
+      }));
+    }
+
+    if (stored.primaryColor) {
+      this.currentTheme.update((t) => ({ ...t, primaryColor: stored.primaryColor! }));
+    }
+
+    if (stored.paginationVariant === 'figma' || stored.paginationVariant === 'numbered') {
+      this.paginationVariant.set(stored.paginationVariant);
+    }
+  }
+
+  private persistPreferences(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+    const theme = this.currentTheme();
+    const payload: JosanzStoredPreferences = {
+      themeName: theme.name,
+      atmosphereName: theme.atmosphere.name,
+      primaryColor: theme.primaryColor,
+      paginationVariant: this.paginationVariant(),
+    };
+    try {
+      localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(payload));
+    } catch {
+      /* quota / private mode */
+    }
+  }
+
+  private readStoredPreferences(): JosanzStoredPreferences | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    try {
+      const raw = localStorage.getItem(PREFS_STORAGE_KEY);
+      if (!raw) {
+        return null;
+      }
+      return JSON.parse(raw) as JosanzStoredPreferences;
+    } catch {
+      return null;
+    }
   }
 }

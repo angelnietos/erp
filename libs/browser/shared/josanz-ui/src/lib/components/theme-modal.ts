@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { JosanzThemeService, JosanzAtmosphereName } from '../services/theme.service';
+import {
+  JosanzThemeService,
+  JosanzAtmosphereName,
+  type JosanzPaginationVariant,
+} from '../services/theme.service';
 import { ModalComponent } from './modal';
 import { ButtonComponent } from './button';
 
@@ -65,6 +69,43 @@ import { ButtonComponent } from './button';
                 <div class="w-8 h-8 rounded-none bg-[var(--josanz-primary)]"></div>
                 <span>Classic Sharp</span>
               </button>
+            </div>
+          </section>
+
+          <section>
+            <h3 class="premium-label">Paginación de listas</h3>
+            <p class="premium-desc">Estilo del control de páginas en tablas y listados.</p>
+            <div class="grid grid-cols-1 gap-3 mt-6">
+              @for (opt of paginationOptions; track opt.variant) {
+                <button
+                  type="button"
+                  (click)="themeService.setPaginationVariant(opt.variant)"
+                  class="pagination-variant-selector"
+                  [class.active]="themeService.paginationVariant() === opt.variant"
+                >
+                  <span class="pagination-variant-selector__preview" aria-hidden="true">
+                    @if (opt.variant === 'figma') {
+                      <span class="pagination-preview pagination-preview--figma">
+                        <span class="pagination-preview__chev">‹</span>
+                        <span class="pagination-preview__center">3 / 10</span>
+                        <span class="pagination-preview__chev">›</span>
+                      </span>
+                    } @else {
+                      <span class="pagination-preview pagination-preview--numbered">
+                        <span class="pagination-preview__chev">‹</span>
+                        <span class="pagination-preview__page">1</span>
+                        <span class="pagination-preview__page pagination-preview__page--active">3</span>
+                        <span class="pagination-preview__page">10</span>
+                        <span class="pagination-preview__chev">›</span>
+                      </span>
+                    }
+                  </span>
+                  <span class="pagination-variant-selector__text">
+                    <span class="pagination-variant-selector__title">{{ opt.label }}</span>
+                    <span class="pagination-variant-selector__hint">{{ opt.description }}</span>
+                  </span>
+                </button>
+              }
             </div>
           </section>
         </div>
@@ -200,6 +241,75 @@ import { ButtonComponent } from './button';
     .glow-accent {
       box-shadow: 0 0 10px var(--josanz-accent);
     }
+    .pagination-variant-selector {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--josanz-border);
+      border-radius: 12px;
+      background: var(--josanz-bg);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+      color: var(--josanz-text);
+    }
+    .pagination-variant-selector:hover {
+      border-color: var(--josanz-primary);
+      transform: translateX(4px);
+    }
+    .pagination-variant-selector.active {
+      border-color: var(--josanz-primary);
+      background: color-mix(in srgb, var(--josanz-primary) 10%, transparent);
+    }
+    .pagination-variant-selector__preview {
+      flex-shrink: 0;
+    }
+    .pagination-variant-selector__text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .pagination-variant-selector__title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .pagination-variant-selector__hint {
+      font-size: 12px;
+      color: var(--josanz-text-muted);
+      opacity: 0.85;
+    }
+    .pagination-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 6px;
+      border: 1px solid var(--josanz-border);
+      border-radius: 8px;
+      background: var(--josanz-surface);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .pagination-preview__chev {
+      opacity: 0.45;
+      padding: 0 2px;
+    }
+    .pagination-preview__center {
+      padding: 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .pagination-preview__page {
+      min-width: 14px;
+      text-align: center;
+      opacity: 0.5;
+    }
+    .pagination-preview__page--active {
+      opacity: 1;
+      color: var(--josanz-primary);
+    }
   `]
 })
 export class ThemeModalComponent {
@@ -207,6 +317,23 @@ export class ThemeModalComponent {
   @Output() modalClose = new EventEmitter<void>();
 
   brandingColors = ['#635BFF', '#22C55E', '#F59E0B', '#EF4444', '#EC4899', '#222222', '#38BDF8', '#8B5CF6'];
+
+  readonly paginationOptions: {
+    variant: JosanzPaginationVariant;
+    label: string;
+    description: string;
+  }[] = [
+    {
+      variant: 'figma',
+      label: 'Compacta',
+      description: 'Anterior / actual · total / siguiente con selector desplegable.',
+    },
+    {
+      variant: 'numbered',
+      label: 'Numerada',
+      description: 'Páginas visibles con elipsis y botones anterior / siguiente.',
+    },
+  ];
 
   allAtmospheres: { name: JosanzAtmosphereName; label: string }[] = [
     { name: 'neutral', label: 'Neutral White' },

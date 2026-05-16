@@ -11,8 +11,15 @@ import { JosanzThemeService } from '@josanz-erp/josanz-ui';
         Ajustes
       </h1>
       <p class="text-[15px] leading-relaxed" [style.color]="theme.currentTheme().atmosphere.textMuted">
-        Esta sección está en construcción. Usa el icono de personalización en la barra lateral para tema y
-        colores.
+        La personalización visual (colores, atmósferas, formas y tipo de paginación de listados) está en el
+        icono de ajustes de la barra lateral: abre «Personalización Josanz» y elige la variante de paginación
+        en «Paginación de listas».
+      </p>
+      <p class="text-[14px] leading-relaxed" [style.color]="theme.currentTheme().atmosphere.textMuted">
+        Paginación actual:
+        <strong [style.color]="theme.currentTheme().atmosphere.text">
+          {{ theme.paginationVariant() === 'figma' ? 'Compacta (actual / total)' : 'Numerada' }}
+        </strong>
       </p>
       <a
         routerLink="/dashboard"
