@@ -10,12 +10,10 @@
   (filterChange)="onTypologyFilter($event)"
   (excelAction)="onExcel()"
 >
-  <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
-    <p class="m-0 text-[13px] font-semibold leading-snug" style="color: var(--josanz-text-muted)">
-      {{ summaryText }}
-    </p>
-    <div class="flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div class="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+  <div extra-filters class="josanz-list-filters-panel">
+    <p class="josanz-list-filters-panel__summary">{{ summaryText }}</p>
+    <div class="josanz-list-filters-panel__row">
+      <div class="josanz-list-filters-panel__filters">
         <josanz-secondary-button label="Fecha" class="shrink-0"></josanz-secondary-button>
         <josanz-filter-tabs
           class="min-w-0 flex-1"
@@ -25,7 +23,7 @@
         ></josanz-filter-tabs>
       </div>
       <josanz-list-search-field
-        class="w-full lg:w-auto"
+        class="josanz-list-filters-panel__search"
         placeholder="Buscar…"
         [value]="searchQuery"
         (valueChange)="onSearch($event)"

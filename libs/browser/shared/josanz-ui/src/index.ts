@@ -19,6 +19,7 @@ export * from './lib/components/list-view-selector';
 export * from './lib/components/adaptive-list-rows';
 export * from './lib/components/grid-list-card';
 export * from './lib/list-view/list-view-preferences';
+export * from './lib/list-view/filter-list-items';
 export * from './lib/components/sidebar';
 export * from './lib/components/pagination';
 export * from './lib/components/user-avatar';

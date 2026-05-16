@@ -3,18 +3,22 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
+  ListSearchFieldComponent,
   MainListLayoutComponent,
+  filterAdaptiveListItems,
   type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-budgets-feature-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent],
+  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListSearchFieldComponent],
   templateUrl: './josanz-budgets-feature-list.html',
 })
 export class JosanzBudgetsFeatureListComponent {
   private router = inject(Router);
+
+  searchQuery = '';
 
   title = 'Presupuestos';
   primaryBtnLabel = 'Añadir Presupuesto +';
@@ -56,6 +60,14 @@ export class JosanzBudgetsFeatureListComponent {
       statusVariant: 'error',
     },
   ];
+
+  get filteredBudgetItems(): JosanzAdaptiveListItem[] {
+    return filterAdaptiveListItems(this.budgetItems, this.searchQuery);
+  }
+
+  onSearch(value: string): void {
+    this.searchQuery = value;
+  }
 
   onAdd() {
     this.router.navigate(['/budgets/new']);

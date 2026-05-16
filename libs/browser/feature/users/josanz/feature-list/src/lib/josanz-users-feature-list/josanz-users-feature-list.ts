@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
+  ListSearchFieldComponent,
   MainListLayoutComponent,
   BaseListComponent,
   type JosanzAdaptiveListItem,
@@ -11,7 +12,7 @@ import {
 @Component({
   selector: 'lib-josanz-users-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent],
+  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListSearchFieldComponent],
   templateUrl: './josanz-users-feature-list.html',
   styleUrl: './josanz-users-feature-list.css',
 })
@@ -46,6 +47,10 @@ export class JosanzUsersListComponent extends BaseListComponent {
       statusVariant: 'warning',
     },
   ];
+
+  get filteredUserItems(): JosanzAdaptiveListItem[] {
+    return this.filterItems(this.userItems);
+  }
 
   constructor() {
     super();

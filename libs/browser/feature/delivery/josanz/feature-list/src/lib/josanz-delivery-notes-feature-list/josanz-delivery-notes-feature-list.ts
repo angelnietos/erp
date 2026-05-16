@@ -3,18 +3,22 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
+  ListSearchFieldComponent,
   MainListLayoutComponent,
+  filterAdaptiveListItems,
   type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-delivery-notes-feature-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent],
+  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListSearchFieldComponent],
   templateUrl: './josanz-delivery-notes-feature-list.html',
 })
 export class JosanzDeliveryNotesFeatureListComponent {
   private router = inject(Router);
+
+  searchQuery = '';
 
   title = 'Albaranes';
   primaryBtnLabel = 'Añadir Albarán +';
@@ -56,6 +60,14 @@ export class JosanzDeliveryNotesFeatureListComponent {
       statusVariant: 'primary',
     },
   ];
+
+  get filteredDeliveryItems(): JosanzAdaptiveListItem[] {
+    return filterAdaptiveListItems(this.deliveryItems, this.searchQuery);
+  }
+
+  onSearch(value: string): void {
+    this.searchQuery = value;
+  }
 
   onAdd() {
     this.router.navigate(['/delivery-notes/new']);

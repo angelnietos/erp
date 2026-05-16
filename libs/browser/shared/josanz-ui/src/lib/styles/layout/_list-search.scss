@@ -1,0 +1,121 @@
+// Barra de búsqueda y zona de filtros en listados.
+
+.josanz-list-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 16.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--josanz-border);
+  border-radius: 9999px;
+  background-color: var(--josanz-surface);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--josanz-primary);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--josanz-primary) 40%, transparent);
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--josanz-text-muted);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--josanz-text);
+    appearance: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: var(--josanz-text-muted);
+      opacity: 0.9;
+    }
+
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+      display: none;
+    }
+  }
+}
+
+.josanz-list-filters-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+
+  &__summary {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--josanz-text-muted);
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  &__filters {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__search {
+    width: 100%;
+    min-width: 0;
+  }
+
+  @media (min-width: 1024px) {
+    &__row {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    &__search {
+      width: auto;
+      flex: 0 0 auto;
+    }
+  }
+
+  &--search-only {
+    .josanz-list-filters-panel__row {
+      @media (min-width: 1024px) {
+        justify-content: flex-end;
+      }
+    }
+  }
+}

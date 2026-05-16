@@ -7,7 +7,18 @@
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
-  
+
+  <div extra-filters class="josanz-list-filters-panel josanz-list-filters-panel--search-only">
+    <div class="josanz-list-filters-panel__row">
+      <josanz-list-search-field
+        class="josanz-list-filters-panel__search"
+        placeholder="Buscar…"
+        [value]="searchQuery"
+        (valueChange)="onSearch($event)"
+      ></josanz-list-search-field>
+    </div>
+  </div>
+
   <div class="josanz-list-thead">
     <div class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
     >
@@ -23,7 +34,7 @@
   </div>
 
   <josanz-adaptive-list-rows
-    [items]="userItems"
+    [items]="filteredUserItems"
     [defaultLabels]="userLabels"
     (itemClick)="openDetail()"
   ></josanz-adaptive-list-rows>

@@ -1,7 +1,10 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
+import type { JosanzAdaptiveListItem } from './components/adaptive-list-rows';
+import { filterAdaptiveListItems } from './list-view/filter-list-items';
 
 @Directive()
 export abstract class BaseListComponent {
+  searchQuery = '';
   @Input() title = '';
   @Input() primaryBtnLabel = '';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
@@ -20,5 +23,13 @@ export abstract class BaseListComponent {
 
   onFilter(option: string) {
     this.filterChange.emit(option);
+  }
+
+  onSearch(value: string): void {
+    this.searchQuery = value;
+  }
+
+  protected filterItems(items: readonly JosanzAdaptiveListItem[]): JosanzAdaptiveListItem[] {
+    return filterAdaptiveListItems(items, this.searchQuery);
   }
 }

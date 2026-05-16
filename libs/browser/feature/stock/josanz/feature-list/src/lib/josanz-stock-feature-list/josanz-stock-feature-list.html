@@ -25,6 +25,17 @@
     </josanz-filter-tabs>
   </div>
 
+  <div extra-filters class="josanz-list-filters-panel josanz-list-filters-panel--search-only">
+    <div class="josanz-list-filters-panel__row">
+      <josanz-list-search-field
+        class="josanz-list-filters-panel__search"
+        placeholder="Buscar…"
+        [value]="searchQuery"
+        (valueChange)="onSearch($event)"
+      ></josanz-list-search-field>
+    </div>
+  </div>
+
   <!-- Extra Action for Stock (Conditional) -->
   <div extra-actions>
     @if (activeType === 'Productos / lotes') {
@@ -54,7 +65,7 @@
   </div>
 
   <josanz-adaptive-list-rows
-    [items]="stockAdaptiveItems"
+    [items]="filteredStockItems"
     [defaultLabels]="stockLabels"
     (itemClick)="openProductDetail($event.id)"
   ></josanz-adaptive-list-rows>

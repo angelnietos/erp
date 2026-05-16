@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
+  ListSearchFieldComponent,
   MainListLayoutComponent,
   BaseListComponent,
   type JosanzAdaptiveListItem,
@@ -15,6 +16,7 @@ import {
     CommonModule,
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
+    ListSearchFieldComponent,
   ],
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
@@ -58,6 +60,10 @@ export class JosanzClientsListComponent extends BaseListComponent {
       statusVariant: 'success',
     },
   ];
+
+  get filteredClientItems(): JosanzAdaptiveListItem[] {
+    return this.filterItems(this.clientItems);
+  }
 
   constructor() {
     super();

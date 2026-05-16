@@ -8,6 +8,7 @@ import {
   ButtonComponent,
   MainTabsComponent,
   FilterTabsComponent,
+  ListSearchFieldComponent,
   type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
@@ -21,6 +22,7 @@ import {
     ButtonComponent,
     MainTabsComponent,
     FilterTabsComponent,
+    ListSearchFieldComponent,
   ],
   templateUrl: './josanz-stock-feature-list.html',
   styleUrl: './josanz-stock-feature-list.css',
@@ -73,6 +75,10 @@ export class JosanzStockListComponent extends BaseListComponent {
       statusVariant:
         item.status === 'En Stock' ? 'success' : item.status === 'Agotado' ? 'error' : 'warning',
     }));
+  }
+
+  get filteredStockItems(): JosanzAdaptiveListItem[] {
+    return this.filterItems(this.stockAdaptiveItems);
   }
 
   constructor() {
