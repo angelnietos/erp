@@ -2,11 +2,7 @@ import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import type { JosanzListViewSelection } from '../list-view/list-view-preferences';
-import {
-  isGridCardsView,
-  isListCardsView,
-  isTableListView,
-} from '../list-view/list-view-preferences';
+import { listViewStackClasses } from '../list-view/list-view-preferences';
 import { FilterTabsComponent } from './filter-tabs';
 import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
@@ -80,15 +76,8 @@ export class MainListLayoutComponent implements OnChanges {
     return this.paginationVariant ?? this.themeService.paginationVariant();
   }
 
-  get listViewModeClass(): string {
-    const id = this.themeService.listViewSelection();
-    if (isTableListView(id)) {
-      return 'josanz-list-view--table';
-    }
-    if (isGridCardsView(id)) {
-      return 'josanz-list-view--cards-grid';
-    }
-    return 'josanz-list-view--cards-list';
+  get listViewModeClass(): string[] {
+    return listViewStackClasses(this.themeService.listViewSelection());
   }
 
   onPrimaryAction(): void {

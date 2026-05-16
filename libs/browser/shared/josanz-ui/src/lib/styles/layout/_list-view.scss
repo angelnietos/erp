@@ -12,6 +12,22 @@
   }
 }
 
+.josanz-main-list__stack.josanz-list-view--cards-grid-compact {
+  gap: 0.625rem;
+
+  .josanz-list-grid {
+    gap: 0.625rem;
+  }
+}
+
+.josanz-main-list__stack.josanz-list-view--cards-grid-dense {
+  gap: 0.5rem;
+
+  .josanz-list-grid {
+    gap: 0.5rem;
+  }
+}
+
 .josanz-main-list__stack.josanz-list-view--table {
   gap: 0;
   overflow: hidden;
@@ -60,6 +76,18 @@
 @media (max-width: 1023px) {
   .josanz-list-grid {
     grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 2), minmax(0, 1fr));
+  }
+
+  .josanz-list-view--cards-grid-compact .josanz-list-grid,
+  .josanz-list-view--cards-grid-dense .josanz-list-grid {
+    grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 3), minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .josanz-list-view--cards-grid-compact .josanz-list-grid,
+  .josanz-list-view--cards-grid-dense .josanz-list-grid {
+    grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 4), minmax(0, 1fr));
   }
 }
 

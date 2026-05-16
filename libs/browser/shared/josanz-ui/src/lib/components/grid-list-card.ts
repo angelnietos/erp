@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
+import type { JosanzGridCardDensity } from '../list-view/list-view-preferences';
 import type { JosanzStatusPillVariant } from './main-template-card';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 
@@ -8,23 +9,27 @@ import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
   selector: 'josanz-grid-list-card',
   standalone: true,
   imports: [CommonModule],
+  host: {
+    '[class.josanz-grid-list-card-host--compact]': "density === 'compact'",
+    '[class.josanz-grid-list-card-host--dense]': "density === 'dense'",
+  },
   template: `
     <article
-      class="josanz-grid-list-card flex h-full min-h-0 w-full flex-col border border-solid p-4 text-left transition-all duration-200 hover:brightness-[0.98] active:scale-[0.99]"
-      [ngClass]="cornerClass()"
+      class="josanz-grid-list-card flex h-full min-h-0 w-full flex-col border border-solid text-left transition-all duration-200 hover:brightness-[0.98] active:scale-[0.99]"
+      [ngClass]="[cornerClass(), paddingClass(), titleSizeClass()]"
       [ngStyle]="cardStyles()"
     >
-      <header class="mb-3 flex min-w-0 items-start justify-between gap-2">
+      <header class="flex min-w-0 items-start justify-between gap-2" [ngClass]="headerSpacingClass()">
         <h3
-          class="m-0 truncate text-[15px] font-extrabold leading-tight tracking-tight"
+          class="m-0 truncate font-extrabold leading-tight tracking-tight"
           [style.color]="'var(--josanz-text)'"
         >
           {{ title }}
         </h3>
         @if (status) {
           <span
-            class="shrink-0 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider"
-            [ngClass]="pillCornerClass()"
+            class="shrink-0 font-black uppercase tracking-wider"
+            [ngClass]="[pillCornerClass(), badgeSizeClass()]"
             [ngStyle]="badgeStyles()"
           >
             {{ status }}
@@ -32,23 +37,30 @@ import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
         }
       </header>
 
-      <div class="flex min-h-0 flex-1 flex-col justify-center gap-2 overflow-hidden">
-        @for (line of previewLines; track $index) {
-          <div class="min-w-0">
-            @if (fieldLabels[$index]) {
+      @if (previewLines.length > 0) {
+        <div class="flex min-h-0 flex-1 flex-col justify-center overflow-hidden" [ngClass]="bodyGapClass()">
+          @for (line of previewLines; track $index) {
+            <div class="min-w-0">
+              @if (fieldLabels[$index]) {
+                <span
+                  class="mb-0.5 block truncate font-bold uppercase tracking-wider"
+                  [ngClass]="labelSizeClass()"
+                  [style.color]="'var(--josanz-text-muted)'"
+                >
+                  {{ fieldLabels[$index] }}
+                </span>
+              }
               <span
-                class="mb-0.5 block truncate text-[9px] font-bold uppercase tracking-wider"
-                [style.color]="'var(--josanz-text-muted)'"
+                class="block truncate font-semibold leading-snug"
+                [ngClass]="valueSizeClass()"
+                [style.color]="'var(--josanz-text)'"
               >
-                {{ fieldLabels[$index] }}
+                {{ line }}
               </span>
-            }
-            <span class="block truncate text-[13px] font-semibold leading-snug" [style.color]="'var(--josanz-text)'">
-              {{ line }}
-            </span>
-          </div>
-        }
-      </div>
+            </div>
+          }
+        </div>
+      }
     </article>
   `,
   styles: [
@@ -57,6 +69,10 @@ import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
         display: block;
         min-width: 0;
         aspect-ratio: 1;
+      }
+
+      :host(.josanz-grid-list-card-host--dense) {
+        aspect-ratio: 1 / 0.92;
       }
 
       .josanz-grid-list-card {
@@ -71,7 +87,7 @@ export class GridListCardComponent {
   @Input() title = '';
   @Input() status = '';
   @Input() statusVariant: JosanzStatusPillVariant = 'borrador';
-  /** Valores mostrados en el cuerpo (típicamente los 2–3 primeros campos). */
+  @Input() density: JosanzGridCardDensity = 'comfortable';
   @Input() previewLines: string[] = [];
   @Input() fieldLabels: string[] = [];
 
@@ -81,9 +97,76 @@ export class GridListCardComponent {
       return 'rounded-none';
     }
     if (shape === 'pill') {
-      return 'rounded-[28px]';
+      return this.density === 'dense' ? 'rounded-[20px]' : 'rounded-[28px]';
+    }
+    if (this.density === 'dense') {
+      return 'rounded-xl';
+    }
+    if (this.density === 'compact') {
+      return 'rounded-xl';
     }
     return 'rounded-2xl';
+  }
+
+  paddingClass(): string {
+    if (this.density === 'dense') {
+      return 'p-2';
+    }
+    if (this.density === 'compact') {
+      return 'p-3';
+    }
+    return 'p-4';
+  }
+
+  titleSizeClass(): string {
+    if (this.density === 'dense') {
+      return 'text-[12px]';
+    }
+    if (this.density === 'compact') {
+      return 'text-[13px]';
+    }
+    return 'text-[15px]';
+  }
+
+  headerSpacingClass(): string {
+    if (this.density === 'dense') {
+      return 'mb-0';
+    }
+    if (this.density === 'compact') {
+      return 'mb-2';
+    }
+    return 'mb-3';
+  }
+
+  bodyGapClass(): string {
+    return this.density === 'compact' ? 'gap-1.5' : 'gap-2';
+  }
+
+  labelSizeClass(): string {
+    if (this.density === 'dense') {
+      return 'text-[8px]';
+    }
+    return 'text-[9px]';
+  }
+
+  valueSizeClass(): string {
+    if (this.density === 'dense') {
+      return 'text-[11px]';
+    }
+    if (this.density === 'compact') {
+      return 'text-[12px]';
+    }
+    return 'text-[13px]';
+  }
+
+  badgeSizeClass(): string {
+    if (this.density === 'dense') {
+      return 'px-1.5 py-0.5 text-[7px]';
+    }
+    if (this.density === 'compact') {
+      return 'px-2 py-0.5 text-[7px]';
+    }
+    return 'px-2.5 py-1 text-[8px]';
   }
 
   pillCornerClass(): string {

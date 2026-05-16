@@ -1,6 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import {
+  defaultGridColumnsForSelection,
+  isValidListGridColumns,
   migrateLegacyListViewMode,
   type JosanzListGridColumns,
   type JosanzListViewSelection,
@@ -30,7 +32,11 @@ export type {
   JosanzThemeConfig,
 } from '../theme/josanz-theme-tokens';
 
-export type { JosanzListViewSelection, JosanzListGridColumns } from '../list-view/list-view-preferences';
+export type {
+  JosanzListViewSelection,
+  JosanzListGridColumns,
+  JosanzGridCardDensity,
+} from '../list-view/list-view-preferences';
 
 const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
 
@@ -62,7 +68,7 @@ export class JosanzThemeService {
 
   listViewSelection = signal<JosanzListViewSelection>('tarjetas-lista');
 
-  /** Columnas del grid de tarjetas (2, 3 o 4). */
+  /** Columnas del grid de tarjetas (2–6). */
   listGridColumns = signal<JosanzListGridColumns>(3);
 
   constructor() {
@@ -99,6 +105,10 @@ export class JosanzThemeService {
 
   setListViewSelection(selection: JosanzListViewSelection) {
     this.listViewSelection.set(selection);
+    const suggested = defaultGridColumnsForSelection(selection);
+    if (suggested !== null) {
+      this.listGridColumns.set(suggested);
+    }
     this.persistPreferences();
   }
 
@@ -164,14 +174,22 @@ export class JosanzThemeService {
       this.paginationVariant.set(stored.paginationVariant);
     }
 
-    if (stored.listViewSelection === 'tabla' || stored.listViewSelection === 'tarjetas-lista' || stored.listViewSelection === 'tarjetas-grid') {
-      this.listViewSelection.set(stored.listViewSelection);
+    const view = stored.listViewSelection;
+    if (
+      view === 'tabla' ||
+      view === 'tarjetas-lista' ||
+      view === 'tarjetas-grid' ||
+      view === 'tarjetas-grid-compact' ||
+      view === 'tarjetas-grid-dense'
+    ) {
+      this.listViewSelection.set(view);
     } else if (stored.listViewMode) {
       this.listViewSelection.set(migrateLegacyListViewMode(stored.listViewMode));
     }
 
-    if (stored.listGridColumns === 2 || stored.listGridColumns === 3 || stored.listGridColumns === 4) {
-      this.listGridColumns.set(stored.listGridColumns);
+    const cols = stored.listGridColumns;
+    if (cols !== undefined && isValidListGridColumns(cols)) {
+      this.listGridColumns.set(cols);
     }
   }
 

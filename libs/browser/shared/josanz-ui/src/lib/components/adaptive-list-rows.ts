@@ -2,9 +2,11 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import {
+  gridDensityForSelection,
   isGridCardsView,
   isListCardsView,
   isTableListView,
+  type JosanzGridCardDensity,
 } from '../list-view/list-view-preferences';
 import { MainTemplateCardComponent, type JosanzStatusPillVariant } from './main-template-card';
 import { GridListCardComponent } from './grid-list-card';
@@ -52,6 +54,7 @@ export interface JosanzAdaptiveListItem {
           >
             <josanz-grid-list-card
               [title]="item.title"
+              [density]="gridDensity()"
               [previewLines]="gridPreviewLines(item)"
               [fieldLabels]="gridPreviewLabels(item)"
               [status]="item.status ?? ''"
@@ -87,13 +90,29 @@ export class AdaptiveListRowsComponent {
     return this.themeService.listGridColumns();
   }
 
+  gridDensity(): JosanzGridCardDensity {
+    return gridDensityForSelection(this.themeService.listViewSelection());
+  }
+
   gridPreviewLines(item: JosanzAdaptiveListItem): string[] {
-    return item.data.slice(0, 2);
+    const count = this.gridPreviewLineCount();
+    return item.data.slice(0, count);
   }
 
   gridPreviewLabels(item: JosanzAdaptiveListItem): string[] {
     const labels = item.labels ?? this.defaultLabels;
-    return labels.slice(0, 2);
+    return labels.slice(0, this.gridPreviewLineCount());
+  }
+
+  private gridPreviewLineCount(): number {
+    const density = this.gridDensity();
+    if (density === 'dense') {
+      return 0;
+    }
+    if (density === 'compact') {
+      return 1;
+    }
+    return 2;
   }
 
   onItemClick(item: JosanzAdaptiveListItem): void {

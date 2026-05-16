@@ -73,8 +73,8 @@
 
     <section>
       <h3 class="premium-label">Cuadrícula de listas</h3>
-      <p class="premium-desc">Columnas al elegir vista «Tarjetas · Cuadrícula» en los listados.</p>
-      <div class="grid grid-cols-3 gap-3 mt-6">
+      <p class="premium-desc">Columnas en vistas de cuadrícula (cómoda, compacta o densa) en los listados.</p>
+      <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-6">
         @for (opt of gridColumnOptions; track opt.value) {
           <button
             type="button"
@@ -88,7 +88,7 @@
             <span class="pagination-variant-selector__title !text-center">{{ opt.label }}</span>
           </button>
         }
-      </div>>
+      </div>
     </section>
 
     <section>
