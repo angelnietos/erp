@@ -27,7 +27,7 @@ export class MobileTabBarComponent {
     { path: '/dashboard', label: 'Inicio', exact: true },
     { path: '/clients', label: 'Clientes' },
     { path: '/reports/new', label: 'Informe', prominent: true },
-    { path: '/budgets', label: 'Presup.' },
+    { path: '/events', label: 'Eventos' },
     { path: '/settings', label: 'Ajustes' },
   ];
 }
