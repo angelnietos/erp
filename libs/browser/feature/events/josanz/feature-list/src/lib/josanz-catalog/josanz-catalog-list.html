@@ -5,29 +5,23 @@
   [filterOptions]="filterOptions"
   [paginationTotal]="10"
   [paginationPage]="1"
+  [searchValue]="searchQuery"
+  (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (secondaryAction)="onSecondary()"
   (filterChange)="onTypologyFilter($event)"
   (excelAction)="onExcel()"
 >
-  <div extra-filters class="josanz-list-filters-panel">
+  <div extra-filters class="josanz-list-filters-extra">
     <p class="josanz-list-filters-panel__summary">{{ summaryText }}</p>
-    <div class="josanz-list-filters-panel__row">
-      <div class="josanz-list-filters-panel__filters">
-        <josanz-secondary-button label="Fecha" class="shrink-0"></josanz-secondary-button>
-        <josanz-filter-tabs
-          class="min-w-0 flex-1"
-          [options]="statusFilterOptions"
-          [selected]="activeStatusFilter"
-          (selectionChange)="onStatusFilter($event)"
-        ></josanz-filter-tabs>
-      </div>
-      <josanz-list-search-field
-        class="josanz-list-filters-panel__search"
-        placeholder="Buscar…"
-        [value]="searchQuery"
-        (valueChange)="onSearch($event)"
-      ></josanz-list-search-field>
+    <div class="josanz-list-filters-panel__chips">
+      <josanz-secondary-button label="Fecha" class="shrink-0"></josanz-secondary-button>
+      <josanz-filter-tabs
+        class="min-w-0 flex-1"
+        [options]="statusFilterOptions"
+        [selected]="activeStatusFilter"
+        (selectionChange)="onStatusFilter($event)"
+      ></josanz-filter-tabs>
     </div>
   </div>
 

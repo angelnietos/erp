@@ -8,7 +8,6 @@ import {
   ButtonComponent,
   MainTabsComponent,
   FilterTabsComponent,
-  ListSearchFieldComponent,
   type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
@@ -22,7 +21,6 @@ import {
     ButtonComponent,
     MainTabsComponent,
     FilterTabsComponent,
-    ListSearchFieldComponent,
   ],
   templateUrl: './josanz-stock-feature-list.html',
   styleUrl: './josanz-stock-feature-list.css',

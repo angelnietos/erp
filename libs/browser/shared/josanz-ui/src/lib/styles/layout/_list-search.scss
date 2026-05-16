@@ -1,4 +1,4 @@
-// Barra de búsqueda y zona de filtros en listados.
+// Barra de búsqueda y toolbar de filtros en listados.
 
 .josanz-list-search {
   display: flex;
@@ -61,13 +61,58 @@
   }
 }
 
-.josanz-list-filters-panel {
+// Fila compartida: filtros extra (proyectados) + búsqueda alineada a la derecha.
+.josanz-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+
+  &__filters {
+    display: flex;
+    flex: 1 1 12rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  &__search-slot {
+    display: flex;
+    flex: 1 1 10rem;
+    justify-content: flex-end;
+    min-width: min(100%, 10rem);
+    max-width: 100%;
+
+    .josanz-list-search {
+      max-width: 100%;
+    }
+  }
+
+  &__filters:empty + &__search-slot {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+
+  @media (min-width: 640px) {
+    &__search-slot {
+      flex: 0 1 16.5rem;
+      margin-left: auto;
+    }
+  }
+}
+
+// Bloque extra de catálogo (resumen + chips de estado).
+.josanz-list-filters-extra {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
   min-width: 0;
+}
 
+.josanz-list-filters-panel {
   &__summary {
     margin: 0;
     font-size: 13px;
@@ -76,46 +121,12 @@
     color: var(--josanz-text-muted);
   }
 
-  &__row {
+  &__chips {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-    min-width: 0;
-  }
-
-  &__filters {
-    display: flex;
-    min-width: 0;
-    flex: 1;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
-  }
-
-  &__search {
     width: 100%;
     min-width: 0;
-  }
-
-  @media (min-width: 1024px) {
-    &__row {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    &__search {
-      width: auto;
-      flex: 0 0 auto;
-    }
-  }
-
-  &--search-only {
-    .josanz-list-filters-panel__row {
-      @media (min-width: 1024px) {
-        justify-content: flex-end;
-      }
-    }
   }
 }

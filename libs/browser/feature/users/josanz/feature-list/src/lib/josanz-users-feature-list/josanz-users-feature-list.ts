@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
-  ListSearchFieldComponent,
   MainListLayoutComponent,
   BaseListComponent,
   type JosanzAdaptiveListItem,
@@ -12,7 +11,7 @@ import {
 @Component({
   selector: 'lib-josanz-users-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListSearchFieldComponent],
+  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent],
   templateUrl: './josanz-users-feature-list.html',
   styleUrl: './josanz-users-feature-list.css',
 })

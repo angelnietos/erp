@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
   FilterTabsComponent,
-  ListSearchFieldComponent,
   MainListLayoutComponent,
   SecondaryButtonComponent,
   type JosanzAdaptiveListItem,
@@ -35,7 +34,6 @@ export interface JosanzCatalogListConfig {
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     FilterTabsComponent,
-    ListSearchFieldComponent,
     SecondaryButtonComponent,
   ],
   templateUrl: './josanz-catalog-list.html',

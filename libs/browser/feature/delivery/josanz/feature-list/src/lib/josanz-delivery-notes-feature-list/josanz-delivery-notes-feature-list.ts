@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
-  ListSearchFieldComponent,
   MainListLayoutComponent,
   filterAdaptiveListItems,
   type JosanzAdaptiveListItem,
@@ -12,7 +11,7 @@ import {
 @Component({
   selector: 'josanz-delivery-notes-feature-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListSearchFieldComponent],
+  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent],
   templateUrl: './josanz-delivery-notes-feature-list.html',
 })
 export class JosanzDeliveryNotesFeatureListComponent {

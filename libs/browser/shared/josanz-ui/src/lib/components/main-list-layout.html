@@ -21,7 +21,21 @@
     >
       <div class="flex w-full min-w-0 flex-col gap-3 md:flex-1">
         <josanz-filter-tabs [options]="filterOptions" (selectionChange)="onFilterChange($event)"></josanz-filter-tabs>
-        <ng-content select="[extra-filters]"></ng-content>
+        <div class="josanz-list-toolbar">
+          <div class="josanz-list-toolbar__filters">
+            <ng-content select="[extra-filters]"></ng-content>
+          </div>
+          @if (showSearch) {
+            <div class="josanz-list-toolbar__search-slot">
+              <josanz-list-search-field
+                [placeholder]="searchPlaceholder"
+                [value]="searchValue"
+                [ariaLabel]="searchAriaLabel"
+                (valueChange)="onSearchChange($event)"
+              ></josanz-list-search-field>
+            </div>
+          }
+        </div>
       </div>
 
       <div

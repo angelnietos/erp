@@ -4,39 +4,25 @@
   [filterOptions]="filterOptions"
   [paginationTotal]="10"
   [paginationPage]="1"
+  [searchValue]="searchQuery"
+  (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()">
 
-  <!-- Extra Filters for Stock (Type selection using the new MainTabs) -->
-  <div extra-filters class="flex flex-col gap-4 -order-1 mb-2">
+  <div extra-filters class="flex flex-col gap-3">
     <josanz-main-tabs 
       [options]="['Productos / lotes', 'Productos en alquiler']"
       [selection]="activeType"
       (selectionChange)="onTypeChange($event)"
       shape="rounded">
     </josanz-main-tabs>
-  </div>
-
-  <div extra-filters>
     <josanz-filter-tabs 
       [options]="secondaryFilterOptions"
       (selectionChange)="onSecondaryFilterChange($event)">
     </josanz-filter-tabs>
   </div>
 
-  <div extra-filters class="josanz-list-filters-panel josanz-list-filters-panel--search-only">
-    <div class="josanz-list-filters-panel__row">
-      <josanz-list-search-field
-        class="josanz-list-filters-panel__search"
-        placeholder="Buscar…"
-        [value]="searchQuery"
-        (valueChange)="onSearch($event)"
-      ></josanz-list-search-field>
-    </div>
-  </div>
-
-  <!-- Extra Action for Stock (Conditional) -->
   <div extra-actions>
     @if (activeType === 'Productos / lotes') {
       <josanz-button 
@@ -48,7 +34,6 @@
     }
   </div>
   
-  <!-- Table Header: desktop only -->
   <div class="josanz-list-thead josanz-list-thead--compact">
     <div
       class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"

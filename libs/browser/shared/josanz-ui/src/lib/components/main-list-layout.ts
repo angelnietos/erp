@@ -9,6 +9,7 @@ import { SecondaryButtonComponent } from './secondary-button';
 import { UserAvatarComponent } from './user-avatar';
 import { PaginationComponent } from './pagination';
 import { ListViewSelectorComponent } from './list-view-selector';
+import { ListSearchFieldComponent } from './list-search-field';
 
 @Component({
   selector: 'josanz-main-list-layout',
@@ -21,6 +22,7 @@ import { ListViewSelectorComponent } from './list-view-selector';
     UserAvatarComponent,
     PaginationComponent,
     ListViewSelectorComponent,
+    ListSearchFieldComponent,
   ],
   templateUrl: './main-list-layout.html',
   styleUrl: './main-list-layout.css',
@@ -34,6 +36,12 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
   @Input() showViewSelector = true;
   @Input() viewSelectorLabel = 'Elección de vista';
+  @Input() showSearch = true;
+  @Input() searchPlaceholder = 'Buscar…';
+  @Input() searchValue = '';
+  @Input() searchAriaLabel = 'Buscar en el listado';
+
+  @Output() searchChange = new EventEmitter<string>();
 
   @Input() paginationPage = 1;
   @Input() paginationTotal = 0;
@@ -99,5 +107,9 @@ export class MainListLayoutComponent implements OnChanges {
 
   onFilterChange(option: string): void {
     this.filterChange.emit(option);
+  }
+
+  onSearchChange(value: string): void {
+    this.searchChange.emit(value);
   }
 }
