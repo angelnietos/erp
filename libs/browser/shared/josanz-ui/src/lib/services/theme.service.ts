@@ -3,6 +3,9 @@ import type { JosanzControlShape } from '../josanz-control-styles';
 
 /** `figma`: bloque ‹ actual/total › con desplegable; `numbered`: páginas numeradas con elipsis. */
 export type JosanzPaginationVariant = 'figma' | 'numbered';
+
+/** Modo de listado en pantallas con «Elección de vista». */
+export type JosanzListViewMode = 'Tabla' | 'Tarjetas';
 import {
   JOSANZ_ATMOSPHERE_REGISTRY,
   JOSANZ_DEFAULT_PRIMARY,
@@ -35,6 +38,7 @@ interface JosanzStoredPreferences {
   atmosphereName?: JosanzAtmosphereName;
   primaryColor?: string;
   paginationVariant?: JosanzPaginationVariant;
+  listViewMode?: JosanzListViewMode;
 }
 
 @Injectable({
@@ -53,6 +57,9 @@ export class JosanzThemeService {
 
   /** Variante de paginación en listados (`josanz-main-list-layout`). */
   paginationVariant = signal<JosanzPaginationVariant>('figma');
+
+  /** Vista de listados: filas continuas (Tabla) o tarjetas separadas (Tarjetas). */
+  listViewMode = signal<JosanzListViewMode>('Tarjetas');
 
   constructor() {
     this.restorePreferences();
@@ -83,6 +90,11 @@ export class JosanzThemeService {
 
   setPaginationVariant(variant: JosanzPaginationVariant) {
     this.paginationVariant.set(variant);
+    this.persistPreferences();
+  }
+
+  setListViewMode(mode: JosanzListViewMode) {
+    this.listViewMode.set(mode);
     this.persistPreferences();
   }
 
@@ -134,6 +146,10 @@ export class JosanzThemeService {
     if (stored.paginationVariant === 'figma' || stored.paginationVariant === 'numbered') {
       this.paginationVariant.set(stored.paginationVariant);
     }
+
+    if (stored.listViewMode === 'Tabla' || stored.listViewMode === 'Tarjetas') {
+      this.listViewMode.set(stored.listViewMode);
+    }
   }
 
   private persistPreferences(): void {
@@ -146,6 +162,7 @@ export class JosanzThemeService {
       atmosphereName: theme.atmosphere.name,
       primaryColor: theme.primaryColor,
       paginationVariant: this.paginationVariant(),
+      listViewMode: this.listViewMode(),
     };
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(payload));

@@ -55,7 +55,7 @@
 
   <div
     class="josanz-main-list__stack flex w-full min-w-0 flex-col"
-    style="gap: var(--josanz-list-stack-gap)"
+    [ngClass]="listViewModeClass"
   >
     <ng-content></ng-content>
   </div>
@@ -69,7 +69,7 @@
         <josanz-list-view-selector
           [label]="viewSelectorLabel"
           [options]="viewOptions"
-          [selected]="selectedView"
+          [selected]="themeService.listViewMode()"
           (selectionChange)="onViewChange($event)"
         ></josanz-list-view-selector>
       }

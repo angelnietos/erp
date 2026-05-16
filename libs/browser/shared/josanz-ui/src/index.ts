@@ -43,3 +43,4 @@ export {
   JOSANZ_FIGMA_STATUS_PILLS_DARK,
 } from './lib/theme/josanz-figma-tokens';
 export type { JosanzStatusPillKey } from './lib/theme/josanz-figma-tokens';
+export type { JosanzListViewMode } from './lib/services/theme.service';

@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -15,9 +24,10 @@ import { CommonModule } from '@angular/common';
         [style.color]="'var(--josanz-text)'"
         [attr.aria-expanded]="open()"
         [attr.aria-haspopup]="'listbox'"
-        (click)="toggle()"
+        (click)="toggle($event)"
       >
         <span class="truncate">{{ label }}</span>
+        <span class="truncate text-[12px] font-bold opacity-70">· {{ selected }}</span>
         <svg
           width="14"
           height="14"
@@ -37,7 +47,7 @@ import { CommonModule } from '@angular/common';
       @if (open()) {
         <ul
           role="listbox"
-          class="absolute bottom-full left-0 z-50 mb-2 min-w-full overflow-hidden rounded-xl border border-solid py-1 shadow-lg"
+          class="absolute bottom-full left-0 z-50 mb-2 min-w-[10rem] overflow-hidden rounded-xl border border-solid py-1 shadow-lg"
           [style.backgroundColor]="'var(--josanz-surface)'"
           [style.borderColor]="'var(--josanz-border)'"
         >
@@ -47,7 +57,7 @@ import { CommonModule } from '@angular/common';
                 type="button"
                 class="w-full px-4 py-2 text-left text-[13px] font-medium transition-colors hover:bg-[rgba(0,0,0,0.04)]"
                 [style.color]="opt === selected ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
-                (click)="pick(opt)"
+                (click)="pick(opt, $event)"
               >
                 {{ opt }}
               </button>
@@ -59,22 +69,40 @@ import { CommonModule } from '@angular/common';
   `,
 })
 export class ListViewSelectorComponent {
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   @Input() label = 'Elección de vista';
   @Input() options: string[] = ['Tabla', 'Tarjetas'];
-  @Input() selected = 'Tabla';
+  @Input() selected = 'Tarjetas';
 
   @Output() selectionChange = new EventEmitter<string>();
 
   readonly open = signal(false);
 
-  toggle(): void {
+  toggle(event: Event): void {
+    event.stopPropagation();
     this.open.update((v) => !v);
   }
 
-  pick(option: string): void {
-    this.selected = option;
+  pick(option: string, event: Event): void {
+    event.stopPropagation();
     this.open.set(false);
     this.selectionChange.emit(option);
   }
-}
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.open()) {
+      return;
+    }
+    const target = event.target as Node;
+    if (!this.host.nativeElement.contains(target)) {
+      this.open.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.open.set(false);
+  }
+}

@@ -1,0 +1,43 @@
+// Modos de listado: «Tabla» (filas continuas) vs «Tarjetas» (tarjetas separadas).
+
+.josanz-main-list__stack.josanz-list-view--cards {
+  gap: var(--josanz-list-stack-gap, 1rem);
+}
+
+.josanz-main-list__stack.josanz-list-view--table {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--josanz-border);
+  border-radius: 1rem;
+  background-color: var(--josanz-surface);
+  box-shadow: var(--josanz-card-shadow, 0 1px 3px rgba(0, 0, 0, 0.06));
+
+  .josanz-list-thead {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 1px solid var(--josanz-border);
+    background-color: var(--josanz-bg);
+  }
+
+  // Contenedor de filas sin separación entre tarjetas
+  .josanz-catalog-list__rows,
+  .josanz-list-rows--table-target {
+    gap: 0 !important;
+  }
+
+  josanz-main-template-card {
+    display: block;
+
+    .josanz-list-card {
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  josanz-main-template-card:not(:last-child) .josanz-list-card {
+    border-bottom: 1px solid var(--josanz-border);
+  }
+}

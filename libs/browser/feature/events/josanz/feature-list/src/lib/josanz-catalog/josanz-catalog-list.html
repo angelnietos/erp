@@ -5,7 +5,6 @@
   [filterOptions]="filterOptions"
   [paginationTotal]="10"
   [paginationPage]="1"
-  [showViewSelector]="true"
   (primaryAction)="onAdd()"
   (secondaryAction)="onSecondary()"
   (filterChange)="onTypologyFilter($event)"
@@ -51,7 +50,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col gap-4">
+  <div class="josanz-catalog-list__rows josanz-list-rows--table-target flex flex-col gap-4">
     @for (row of filteredRows; track row.id) {
       <josanz-main-template-card
         style="cursor: pointer; display: block"

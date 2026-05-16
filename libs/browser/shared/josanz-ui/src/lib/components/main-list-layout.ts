@@ -31,8 +31,8 @@ export class MainListLayoutComponent implements OnChanges {
   /** Segundo CTA oscuro (p. ej. «Añadir Almacén +» en listados Figma). */
   @Input() secondaryBtnLabel = '';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
-  /** Muestra selector «Elección de vista» en el pie del listado. */
-  @Input() showViewSelector = false;
+  /** Muestra selector «Elección de vista» en el pie del listado (por defecto en todos los listados). */
+  @Input() showViewSelector = true;
   @Input() viewSelectorLabel = 'Elección de vista';
   @Input() viewOptions: string[] = ['Tabla', 'Tarjetas'];
 
@@ -82,8 +82,6 @@ export class MainListLayoutComponent implements OnChanges {
     return this.paginationVariant ?? this.themeService.paginationVariant();
   }
 
-  selectedView = 'Tabla';
-
   onPrimaryAction() {
     this.primaryAction.emit();
   }
@@ -93,8 +91,14 @@ export class MainListLayoutComponent implements OnChanges {
   }
 
   onViewChange(option: string) {
-    this.selectedView = option;
+    if (option === 'Tabla' || option === 'Tarjetas') {
+      this.themeService.setListViewMode(option);
+    }
     this.viewChange.emit(option);
+  }
+
+  get listViewModeClass(): string {
+    return this.themeService.listViewMode() === 'Tabla' ? 'josanz-list-view--table' : 'josanz-list-view--cards';
   }
 
   onExcelAction() {
