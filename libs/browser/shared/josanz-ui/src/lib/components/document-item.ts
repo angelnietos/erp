@@ -24,6 +24,20 @@ import { JosanzThemeService } from '../services/theme.service';
       </div>
       
       <div class="flex items-center gap-1 md:gap-2 shrink-0">
+        @if (showView) {
+          <button
+            type="button"
+            (click)="onView($event)"
+            class="p-2 rounded-lg transition-all hover:bg-[rgba(0,0,0,0.05)] active:scale-90"
+            [style.color]="themeService.currentTheme().atmosphere.text"
+            aria-label="Ver documento"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        }
         @if (showDownload) {
           <button 
             type="button"
@@ -60,11 +74,18 @@ export class DocumentItemComponent {
 
   @Input() name = '';
   @Input() statusColor = 'var(--josanz-success)';
+  @Input() showView = false;
   @Input() showDownload = true;
   @Input() showDelete = false;
 
+  @Output() view = new EventEmitter<void>();
   @Output() download = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
+
+  onView(event: Event) {
+    event.stopPropagation();
+    this.view.emit();
+  }
 
   onDownload(event: Event) {
     event.stopPropagation();
