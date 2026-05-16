@@ -1,0 +1,142 @@
+<div class="josanz-theme-personalization flex flex-col lg:flex-row gap-8 lg:gap-12 py-2 md:py-4">
+  <div class="w-full lg:w-[300px] space-y-8 md:space-y-10 lg:space-y-12">
+    <section>
+      <h3 class="premium-label">Color de Marca</h3>
+      <p class="premium-desc">Define la identidad visual primaria del ERP.</p>
+      <div class="grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-4 gap-3 mt-6">
+        @for (color of brandingColors; track color) {
+          <button
+            type="button"
+            (click)="themeService.setPrimaryColor(color)"
+            [style.backgroundColor]="color"
+            class="w-full aspect-square rounded-xl border-4 transition-all hover:scale-110 active:scale-90 shadow-lg cursor-pointer relative"
+            [style.borderColor]="themeService.currentTheme().primaryColor === color ? 'white' : 'transparent'"
+            [style.boxShadow]="themeService.currentTheme().primaryColor === color ? '0 0 15px ' + color : 'none'"
+            [attr.aria-label]="'Color ' + color"
+            [attr.aria-pressed]="themeService.currentTheme().primaryColor === color"
+          >
+            @if (themeService.currentTheme().primaryColor === color) {
+              <div class="absolute inset-0 flex items-center justify-center">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            }
+          </button>
+        }
+      </div>
+    </section>
+
+    <section>
+      <h3 class="premium-label">Estilo de Formas</h3>
+      <p class="premium-desc">Geometría de botones y contenedores.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-col gap-3 mt-6">
+        <button
+          type="button"
+          (click)="themeService.setTheme('luxe-rounded')"
+          class="shape-selector shape-selector--rounded"
+          [class.active]="themeService.currentTheme().name === 'luxe-rounded'"
+        >
+          <div class="w-8 h-8 rounded-lg bg-[var(--josanz-primary)]" aria-hidden="true"></div>
+          <span>Modern Rounded</span>
+        </button>
+        <button
+          type="button"
+          (click)="themeService.setTheme('luxe-pill')"
+          class="shape-selector shape-selector--pill"
+          [class.active]="themeService.currentTheme().name === 'luxe-pill'"
+        >
+          <div class="w-8 h-8 rounded-full bg-[var(--josanz-primary)]" aria-hidden="true"></div>
+          <span>Premium Pill</span>
+        </button>
+        <button
+          type="button"
+          (click)="themeService.setTheme('luxe-sharp')"
+          class="shape-selector shape-selector--sharp"
+          [class.active]="themeService.currentTheme().name === 'luxe-sharp'"
+        >
+          <div class="w-8 h-8 rounded-none bg-[var(--josanz-primary)]" aria-hidden="true"></div>
+          <span>Classic Sharp</span>
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="premium-label">Paginación de listas</h3>
+      <p class="premium-desc">Estilo del control de páginas en tablas y listados.</p>
+      <div class="grid grid-cols-1 gap-3 mt-6">
+        @for (opt of paginationOptions; track opt.variant) {
+          <button
+            type="button"
+            (click)="themeService.setPaginationVariant(opt.variant)"
+            class="pagination-variant-selector"
+            [class.active]="themeService.paginationVariant() === opt.variant"
+          >
+            <span class="pagination-variant-selector__preview" aria-hidden="true">
+              @if (opt.variant === 'figma') {
+                <span class="pagination-preview pagination-preview--figma">
+                  <span class="pagination-preview__chev">‹</span>
+                  <span class="pagination-preview__center">3 / 10</span>
+                  <span class="pagination-preview__chev">›</span>
+                </span>
+              } @else {
+                <span class="pagination-preview pagination-preview--numbered">
+                  <span class="pagination-preview__chev">‹</span>
+                  <span class="pagination-preview__page">1</span>
+                  <span class="pagination-preview__page pagination-preview__page--active">3</span>
+                  <span class="pagination-preview__page">10</span>
+                  <span class="pagination-preview__chev">›</span>
+                </span>
+              }
+            </span>
+            <span class="pagination-variant-selector__text">
+              <span class="pagination-variant-selector__title">{{ opt.label }}</span>
+              <span class="pagination-variant-selector__hint">{{ opt.description }}</span>
+            </span>
+          </button>
+        }
+      </div>
+    </section>
+  </div>
+
+  <div class="flex-1 space-y-8 md:space-y-10 lg:space-y-12 min-w-0">
+    <section>
+      <h3 class="premium-label">Atmósferas Visuales</h3>
+      <p class="premium-desc">Cambia radicalmente el entorno de trabajo.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-6 md:mt-8">
+        @for (atm of allAtmospheres; track atm.name) {
+          <button
+            type="button"
+            (click)="themeService.setAtmosphere(atm.name)"
+            class="atmosphere-card group"
+            [class.active]="themeService.currentTheme().atmosphere.name === atm.name"
+            [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
+          >
+            <div class="atmosphere-preview">
+              <div class="preview-line w-1/2" aria-hidden="true"></div>
+              <div class="preview-line w-3/4 opacity-50" aria-hidden="true"></div>
+              <div class="preview-dot" [style.backgroundColor]="'var(--josanz-accent)'" aria-hidden="true"></div>
+            </div>
+            <div class="mt-auto flex items-center justify-between w-full">
+              <span class="font-bold text-[14px]">{{ atm.label }}</span>
+              @if (themeService.currentTheme().atmosphere.name === atm.name) {
+                <div class="w-2 h-2 rounded-full bg-[var(--josanz-accent)] glow-accent" aria-hidden="true"></div>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    </section>
+  </div>
+</div>

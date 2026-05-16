@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.premium-desc {
+  font-size: 13px;
+  color: var(--josanz-text-muted);
+  opacity: 0.85;
+}

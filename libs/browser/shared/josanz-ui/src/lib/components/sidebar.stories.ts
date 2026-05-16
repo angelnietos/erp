@@ -13,7 +13,7 @@ const meta: Meta<SidebarComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Barra lateral: superficie y bordes del tema; iconos en `textMuted`. Incluye modal de personalización (`josanz-theme-modal`).',
+          'Barra lateral: superficie y bordes del tema; iconos en `textMuted`. Personalización en `/settings` (pestaña Personalización).',
         ),
       },
     },

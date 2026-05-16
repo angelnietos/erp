@@ -23,6 +23,8 @@ export * from './lib/components/modal';
 export * from './lib/components/detail-card';
 export * from './lib/components/main-detail-layout';
 export * from './lib/components/theme-modal';
+export * from './lib/components/theme-personalization-panel';
+export * from './lib/components/app-settings-page';
 export * from './lib/components/mobile-tab-bar';
 export * from './lib/components/document-item';
 export * from './lib/components/document-list';

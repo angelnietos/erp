@@ -1,0 +1,55 @@
+<div class="josanz-app-settings mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
+  <header class="flex flex-col gap-1">
+    <h1
+      class="text-[26px] font-black tracking-tight leading-none md:text-[32px]"
+      [style.color]="themeService.currentTheme().atmosphere.text"
+    >
+      Ajustes
+    </h1>
+    <div
+      class="h-[3px] w-12 rounded-full"
+      [style.background]="'linear-gradient(90deg, var(--josanz-primary), transparent)'"
+    ></div>
+  </header>
+
+  <josanz-main-tabs
+    [options]="tabOptions"
+    [selection]="activeTab()"
+    (selectionChange)="onTabChange($event)"
+  ></josanz-main-tabs>
+
+  @if (activeTab() === 'General') {
+    <section
+      class="rounded-2xl border border-solid p-6 md:p-8"
+      [style.borderColor]="themeService.currentTheme().atmosphere.border"
+      [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+    >
+      <h2 class="text-[18px] font-bold mb-2" [style.color]="themeService.currentTheme().atmosphere.text">
+        Cuenta y aplicación
+      </h2>
+      <p class="text-[14px] leading-relaxed mb-6" [style.color]="themeService.currentTheme().atmosphere.textMuted">
+        Preferencias de cuenta, notificaciones e integraciones estarán disponibles próximamente.
+      </p>
+      <a
+        routerLink="/dashboard"
+        class="inline-flex rounded-xl px-4 py-2 text-[14px] font-semibold underline-offset-4 hover:underline"
+        [style.color]="themeService.currentTheme().primaryColor"
+      >
+        Volver al inicio
+      </a>
+    </section>
+  }
+
+  @if (activeTab() === 'Personalización') {
+    <section
+      class="rounded-2xl border border-solid p-4 md:p-8"
+      [style.borderColor]="themeService.currentTheme().atmosphere.border"
+      [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+    >
+      <p class="premium-desc mb-4 md:mb-6">
+        Los cambios se aplican al instante y se guardan en este dispositivo.
+      </p>
+      <josanz-theme-personalization-panel />
+    </section>
+  }
+</div>

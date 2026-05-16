@@ -136,24 +136,23 @@
 
   <!-- Bottom Section -->
   <div class="flex flex-col items-center gap-6 w-full py-8 border-t" [style.borderColor]="'var(--josanz-border)'">
-    
-    <!-- Theme Switcher -->
-    <button (click)="openThemeSettings()" title="Personalizar"
-       class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[var(--josanz-accent)]"
+    <!-- Ajustes (personalización, paginación, tema) -->
+    <a
+      routerLink="/settings"
+      routerLinkActive="active-link"
+      title="Ajustes"
+      class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[var(--josanz-accent)] group relative"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 3l1.5 5.5l5.5 1.5l-5.5 1.5l-1.5 5.5l-1.5-5.5l-5.5-1.5l5.5-1.5z" />
-        <path d="M18 6l.01 0M18 18l.01 0M6 18l.01 0" stroke-width="2.5" />
-      </svg>
-    </button>
-
-    <!-- Settings -->
-    <a routerLink="/settings" title="Ajustes" 
-       class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[var(--josanz-accent)]">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
       </svg>
+      <div
+        class="active-indicator absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-6 rounded-r-full scale-y-0 transition-all duration-300 group-[.active-link]:scale-y-100"
+        [style.backgroundColor]="'var(--josanz-accent)'"
+        [style.boxShadow]="'0 0 10px var(--josanz-accent)'"
+        aria-hidden="true"
+      ></div>
     </a>
 
     <!-- Logout -->
@@ -165,7 +164,3 @@
     </div>
   </div>
 </div>
-
-@if (showThemeModal()) {
-  <josanz-theme-modal (modalClose)="closeThemeSettings()"></josanz-theme-modal>
-}
