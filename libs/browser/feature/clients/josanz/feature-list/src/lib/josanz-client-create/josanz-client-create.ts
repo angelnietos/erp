@@ -1,49 +1,86 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputComponent, MainDetailLayoutComponent, josanzNonEmptyTrim } from '@josanz-erp/josanz-ui';
+import {
+  ButtonComponent,
+  JosanzThemeService,
+  SecondaryButtonComponent,
+  UserAvatarComponent,
+  josanzNonEmptyTrim,
+  type JosanzStatusPillKey,
+} from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-josanz-client-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputComponent, MainDetailLayoutComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonComponent,
+    SecondaryButtonComponent,
+    UserAvatarComponent,
+  ],
   templateUrl: './josanz-client-create.html',
   styleUrl: './josanz-client-create.css',
 })
-export class JosanzClientCreateComponent {
-  private router = inject(Router);
-  private fb = inject(FormBuilder);
+export class JosanzClientCreateComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly theme = inject(JosanzThemeService);
 
-  activeTab = signal<string>('Datos cliente');
-  tabs = ['Datos cliente', 'Operadores', 'Eventos'];
+  readonly clientTypes: { value: string; label: string; pillKey: JosanzStatusPillKey }[] = [
+    { value: 'tipo-1', label: 'Tipo cliente', pillKey: 'cliente-tipo-pink' },
+    { value: 'tipo-2', label: 'Tipo cliente', pillKey: 'cliente-tipo-green' },
+    { value: 'tipo-3', label: 'Tipo cliente', pillKey: 'cliente-tipo-yellow' },
+    { value: 'nuevo', label: 'Nuevo', pillKey: 'cliente-nuevo' },
+  ];
 
   form: FormGroup;
 
   constructor() {
     this.form = this.fb.group({
-      razonSocial: ['', josanzNonEmptyTrim],
-      email: ['', [josanzNonEmptyTrim, Validators.email]],
-      telefono: ['', josanzNonEmptyTrim],
+      razonSocial: ['Empresa Ejemplo', josanzNonEmptyTrim],
+      email: ['email@email.com', [josanzNonEmptyTrim, Validators.email]],
+      telefono: ['699432567', josanzNonEmptyTrim],
+      tipo: ['tipo-1'],
     });
   }
 
-  setTab(tab: string) {
-    this.activeTab.set(tab);
+  ngOnInit(): void {
+    this.theme.setAtmosphere('neutral');
   }
 
-  onBack() {
-    this.router.navigate(['/clients']);
+  selectedTypePillKey(): JosanzStatusPillKey {
+    const value = this.form.get('tipo')?.value as string;
+    return this.clientTypes.find((t) => t.value === value)?.pillKey ?? 'cliente-tipo-pink';
   }
 
-  onSave() {
+  selectedTypeLabel(): string {
+    const value = this.form.get('tipo')?.value as string;
+    return this.clientTypes.find((t) => t.value === value)?.label ?? 'Tipo cliente';
+  }
+
+  pillStyle(key: JosanzStatusPillKey): Record<string, string> {
+    return {
+      backgroundColor: `var(--josanz-pill-${key}-bg)`,
+      color: `var(--josanz-pill-${key}-text)`,
+    };
+  }
+
+  onBack(): void {
+    void this.router.navigate(['/clients']);
+  }
+
+  onSubmit(): void {
     if (this.form.valid) {
-      console.log('Creando cliente:', this.form.value);
-      this.onBack();
+      void this.router.navigate(['/clients'], { queryParams: { created: '1' } });
+    } else {
+      this.form.markAllAsTouched();
     }
   }
 
-  onCancel() {
+  onCancel(): void {
     this.onBack();
   }
 }

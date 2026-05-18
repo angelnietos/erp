@@ -1,11 +1,15 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
+  ButtonComponent,
+  JosanzThemeService,
   MainListLayoutComponent,
+  ModalComponent,
   BaseListComponent,
   type JosanzAdaptiveListItem,
+  type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -15,66 +19,135 @@ import {
     CommonModule,
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
+    ModalComponent,
+    ButtonComponent,
   ],
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
 })
-export class JosanzClientsListComponent extends BaseListComponent {
-  private router = inject(Router);
+export class JosanzClientsListComponent extends BaseListComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly theme = inject(JosanzThemeService);
 
-  readonly clientLabels = ['Email', 'CIF/NIF', 'Población', 'Última factura'];
+  activeTypology = 'Todos';
+  showSuccessToast = false;
+  showSuccessModal = false;
+
+  override readonly filterOptions = [
+    'Todos',
+    'Tipo cliente 1',
+    'Tipo cliente 2',
+    'Tipo cliente 3',
+    'Tipo cliente 4',
+  ];
+
+  readonly clientLabels = ['Teléfono', 'Email', 'Operador', 'Tipo'];
 
   readonly clientItems: JosanzAdaptiveListItem[] = [
     {
-      id: 'A12345678',
-      title: 'Construcciones S.A.',
-      data: ['obras@construcciones.com', 'A12345678', 'Madrid', '14/05/2024'],
-      labels: ['Email', 'CIF/NIF', 'Población', 'Última factura'],
-      status: 'Activo',
-      statusVariant: 'success',
+      id: '1',
+      title: 'Cliente ejemplo',
+      leadingMark: 'NB',
+      data: ['000000000', 'email@email.com', 'Operador A, Operador B, Operador C'],
+      labels: this.clientLabels,
+      status: 'Nuevo',
+      statusVariant: 'cliente-nuevo',
     },
     {
-      id: 'B98765432',
-      title: 'Reformas García',
-      data: ['info@reformasgarcia.es', 'B98765432', 'Barcelona', '10/05/2024'],
-      labels: ['Email', 'CIF/NIF', 'Población', 'Última factura'],
-      status: 'Inactivo',
-      statusVariant: 'primary',
+      id: '2',
+      title: 'Cliente ejemplo',
+      leadingMark: 'CE',
+      data: ['000000000', 'email@email.com', 'Operador A, Operador B'],
+      labels: this.clientLabels,
+      status: 'Tipo cliente',
+      statusVariant: 'cliente-tipo-pink',
     },
     {
-      id: 'A88877766',
-      title: 'Hotel Playa Sol',
-      data: ['recepcion@hotelplaya.com', 'A88877766', 'Valencia', 'Ayer'],
-      labels: ['Email', 'CIF/NIF', 'Población', 'Última factura'],
-      status: 'Activo',
-      statusVariant: 'success',
+      id: '3',
+      title: 'Cliente ejemplo',
+      leadingMark: 'CE',
+      data: ['000000000', 'email@email.com', 'Operador A'],
+      labels: this.clientLabels,
+      status: 'Tipo cliente',
+      statusVariant: 'cliente-tipo-green',
     },
     {
-      id: 'B11223344',
-      title: 'Logística Express',
-      data: ['envios@logexpress.com', 'B11223344', 'Sevilla', '08/05/2024'],
-      labels: ['Email', 'CIF/NIF', 'Población', 'Última factura'],
-      status: 'Activo',
-      statusVariant: 'success',
+      id: '4',
+      title: 'Cliente ejemplo',
+      data: ['000000000', 'email@email.com', 'Operador A, Operador B, Operador C'],
+      labels: this.clientLabels,
+      status: 'Tipo cliente',
+      statusVariant: 'cliente-tipo-yellow',
+    },
+    {
+      id: '5',
+      title: 'Cliente ejemplo',
+      leadingMark: 'CE',
+      data: ['000000000', 'email@email.com', 'Operador A'],
+      labels: this.clientLabels,
+      status: 'Tipo cliente',
+      statusVariant: 'cliente-tipo-pink',
     },
   ];
-
-  get filteredClientItems(): JosanzAdaptiveListItem[] {
-    return this.filterItems(this.clientItems);
-  }
 
   constructor() {
     super();
     this.title = 'Clientes';
-    this.primaryBtnLabel = 'Añadir Cliente +';
+    this.primaryBtnLabel = 'Añadir Cliente';
   }
 
-  override onAdd() {
-    this.router.navigate(['/clients/new']);
+  ngOnInit(): void {
+    this.theme.setAtmosphere('neutral');
+    this.theme.setListViewSelection('tarjetas-lista');
+
+    if (this.route.snapshot.queryParamMap.get('created') === '1') {
+      this.showSuccessToast = true;
+      this.showSuccessModal = true;
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true,
+      });
+    }
   }
 
-  openDetail() {
-    // Para prototipo usamos un ID cualquiera
-    this.router.navigate(['/clients/1']);
+  get filteredClientItems(): JosanzAdaptiveListItem[] {
+    let items = this.filterItems(this.clientItems);
+    if (this.activeTypology !== 'Todos') {
+      items = items.filter((item) => item.statusVariant === this.typologyPillKey(this.activeTypology));
+    }
+    return items;
+  }
+
+  typologyPillKey(tab: string): JosanzStatusPillKey | undefined {
+    const map: Record<string, JosanzStatusPillKey> = {
+      'Tipo cliente 1': 'cliente-tipo-pink',
+      'Tipo cliente 2': 'cliente-tipo-green',
+      'Tipo cliente 3': 'cliente-tipo-yellow',
+      'Tipo cliente 4': 'cliente-nuevo',
+    };
+    return map[tab];
+  }
+
+  override onFilter(option: string): void {
+    this.activeTypology = option;
+    super.onFilter(option);
+  }
+
+  override onAdd(): void {
+    void this.router.navigate(['/clients/new']);
+  }
+
+  openDetail(item: JosanzAdaptiveListItem): void {
+    void this.router.navigate(['/clients', item.id]);
+  }
+
+  dismissToast(): void {
+    this.showSuccessToast = false;
+  }
+
+  closeSuccessModal(): void {
+    this.showSuccessModal = false;
   }
 }

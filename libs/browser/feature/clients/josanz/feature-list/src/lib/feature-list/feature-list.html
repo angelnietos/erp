@@ -1,35 +1,58 @@
-<josanz-main-list-layout 
-  [title]="title" 
+@if (showSuccessToast) {
+  <div class="josanz-client-success-toast" role="status">
+    <span aria-hidden="true">✓</span>
+    Cliente creado correctamente
+    <button type="button" class="josanz-client-success-toast__close" aria-label="Cerrar" (click)="dismissToast()">
+      ×
+    </button>
+  </div>
+}
+
+@if (showSuccessModal) {
+  <josanz-modal title="Cliente creado correctamente" width="420px" (close)="closeSuccessModal()">
+    <div class="josanz-client-success-modal__icon" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <p class="josanz-client-success-modal__body">Información —</p>
+    <div footer-actions class="w-full">
+      <josanz-button label="Aceptar" [showIcon]="false" [fullWidth]="true" customColor="#0F1E2F" (btnClick)="closeSuccessModal()"></josanz-button>
+    </div>
+  </josanz-modal>
+}
+
+<josanz-main-list-layout
+  [title]="title"
   [primaryBtnLabel]="primaryBtnLabel"
   [filterOptions]="filterOptions"
+  [figmaCatalogLayout]="true"
+  typologyTabsVariant="figma"
+  [showViewSelector]="false"
+  searchPlaceholder="Buscar"
   [paginationTotal]="10"
   [paginationPage]="1"
   [searchValue]="searchQuery"
-  searchPlacement="actions"
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
-  (excelAction)="onExcel()">
-
+  (excelAction)="onExcel()"
+>
   <div class="josanz-list-thead">
-    <div
-      class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
-    >
-      <div class="josanz-list-template-row__title truncate">Nombre Empresa</div>
+    <div class="josanz-list-template-row-wrap w-full min-w-0 px-1 py-0 md:px-1 md:py-0">
+      <div class="josanz-list-template-row__title truncate">Nombre cliente</div>
       <div class="josanz-list-template-row__fields">
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Email Contacto</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">CIF/NIF</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Población</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Última factura</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Teléfono</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Email</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Operador</div>
       </div>
-      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Tipo</span></div>
     </div>
   </div>
 
   <josanz-adaptive-list-rows
     [items]="filteredClientItems"
     [defaultLabels]="clientLabels"
-    (itemClick)="openDetail()"
+    (itemClick)="openDetail($event)"
   ></josanz-adaptive-list-rows>
-
 </josanz-main-list-layout>

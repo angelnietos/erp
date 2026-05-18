@@ -18,6 +18,8 @@ export interface JosanzAdaptiveListItem {
   labels?: string[];
   status?: string;
   statusVariant?: JosanzStatusPillVariant;
+  /** Iniciales o marca en círculo junto al título (listado Clientes Figma). */
+  leadingMark?: string;
 }
 
 @Component({
@@ -36,6 +38,7 @@ export interface JosanzAdaptiveListItem {
             [labels]="item.labels ?? defaultLabels"
             [status]="item.status ?? ''"
             [statusVariant]="item.statusVariant ?? 'borrador'"
+            [leadingMark]="item.leadingMark ?? ''"
           ></josanz-main-template-card>
         }
       </div>

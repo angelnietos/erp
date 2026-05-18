@@ -104,6 +104,11 @@ export const JOSANZ_FIGMA_STATUS_PILLS = {
   'staff-tecnico': { bg: '#DBEAFE', text: '#1E40AF' },
   'staff-practicas': { bg: '#FCE7F3', text: '#9D174D' },
   'staff-freelance': { bg: '#D1FAE5', text: '#047857' },
+  /** Listado Clientes (Figma). */
+  'cliente-nuevo': { bg: '#CCFBF1', text: '#115E59' },
+  'cliente-tipo-pink': { bg: '#FCE7F3', text: '#9D174D' },
+  'cliente-tipo-green': { bg: '#DCFCE7', text: '#166534' },
+  'cliente-tipo-yellow': { bg: '#FEF9C3', text: '#854D0E' },
 } as const;
 
 export type JosanzStatusPillKey = keyof typeof JOSANZ_FIGMA_STATUS_PILLS;
@@ -131,4 +136,8 @@ export const JOSANZ_FIGMA_STATUS_PILLS_DARK: Record<JosanzStatusPillKey, { bg: s
   'staff-tecnico': { bg: '#172554', text: '#93C5FD' },
   'staff-practicas': { bg: '#500724', text: '#F9A8D4' },
   'staff-freelance': { bg: '#064E3B', text: '#6EE7B7' },
+  'cliente-nuevo': { bg: '#134E4A', text: '#99F6E4' },
+  'cliente-tipo-pink': { bg: '#500724', text: '#F9A8D4' },
+  'cliente-tipo-green': { bg: '#052E16', text: '#BBF7D0' },
+  'cliente-tipo-yellow': { bg: '#422006', text: '#FDE047' },
 };
